@@ -1,0 +1,83 @@
+﻿@model IdentitySample.Models.ApplicationUser
+
+@{
+    ViewBag.Title = "Habilitar usuario";
+    ViewBag.PrimerNivel = "usuarios";
+    ViewBag.SegundoNivel = "usuarios";
+    ViewBag.ControllerName = "UsersAdmin";
+}
+
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+                <h3>Usuarios</h3>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <h5>¿Realmente desea inhabilitar este usuario?</h5>
+                        <br />
+
+                        <dl class="dl-horizontal">
+                            <dt>
+                                Usuario
+                            </dt>
+                            <dd>
+                                @Html.DisplayFor(model => model.UserName)
+                            </dd>
+                            <dt>
+                                @Html.DisplayNameFor(model => model.Email)
+                            </dt>
+                            <dd>
+                                @Html.DisplayFor(model => model.Email)
+                            </dd>
+                            <dt>
+                                @Html.DisplayNameFor(model => model.Nombre)
+                            </dt>
+                            <dd>
+                                @(Model.Nombre+" "+Model.Apellidos)
+                            </dd>
+                            <dt>
+                                @Html.DisplayNameFor(model => model.FechaCreacion)
+                            </dt>
+                            <dd>
+                                @Html.DisplayFor(model => model.FechaCreacion)
+                            </dd>
+                        </dl>
+
+                        @using (Html.BeginForm())
+                        {
+                            @Html.AntiForgeryToken()
+
+                            <div class="form-actions no-color float-right">
+                                <input type="submit" value="Habilitar" class="btn btn-success" />
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

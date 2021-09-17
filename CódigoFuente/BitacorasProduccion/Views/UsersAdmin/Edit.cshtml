@@ -1,0 +1,95 @@
+﻿@model IdentitySample.Models.EditUserViewModel
+
+@{
+    ViewBag.Title = "Editar usuario";
+    ViewBag.PrimerNivel = "usuarios";
+    ViewBag.SegundoNivel = "usuarios";
+    ViewBag.ControllerName = "UsersAdmin";
+}
+
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+                <h3>Usuarios</h3>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <br />
+                        @using (Html.BeginForm("Edit", "UsersAdmin", FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.ValidationSummary("", new { @class = "text-danger" })
+                            @Html.HiddenFor(model => model.Id)
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.Nombre, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.TextBoxFor(m => m.Nombre, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.Nombre, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.Apellidos, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.TextBoxFor(m => m.Apellidos, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.Apellidos, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.Email, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.Label("Roles", new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @foreach (var item in Model.RolesList)
+                                    {
+                                        <input type="checkbox" name="SelectedRole" value="@item.Value" checked="@item.Selected" class="checkbox-inline" />
+                                        @Html.Label(item.Value, new { @class = "control-label" })
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="item form-group">
+                                <div class="col-md-6 col-sm-6 offset-md-3">
+                                    <button type="submit" class="btn btn-success">Guardar</button>
+                                </div>
+                            </div>
+                           
+                        }
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                    <a href="@Url.Action("ResetPassword", "Account",  new { id = Model.Id }, null)" class="btn btn-warning btm-sm" style="float:right" title="Restablecer contraseña">
+                        <i class="fa fa-refresh"></i> Restablecer contrase&ntilde;a
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

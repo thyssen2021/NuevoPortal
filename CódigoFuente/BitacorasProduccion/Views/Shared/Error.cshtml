@@ -1,0 +1,48 @@
+﻿@model System.Web.Mvc.HandleErrorInfo
+
+@{
+    ViewBag.Title = "Error";
+    ViewBag.PrimerNivel = "home";
+    ViewBag.SegundoNivel = "home";
+}
+
+
+<div class="right_col" role="main">
+    <div class="">
+        <link href="@Url.Content("~/Content/not-found.css")" rel="stylesheet">
+        <div class="error-content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 ">
+                        <div class="list-header clearfix">
+                            <span>Error</span>
+                        </div>
+                        <div class="list-sfs-holder">
+                            <div class="alert alert-error">
+                                Ha ocurrido un error, contacta al administrador.
+                            </div>
+                            @*@if (Model != null && HttpContext.Current.IsDebuggingEnabled)*@
+                                @if (Model != null)
+                                {
+                                    <div>
+                                        <p>
+                                            <b>Exception:</b> @Model.Exception.Message<br />
+                                            <b>Controller:</b> @Model.ControllerName<br />
+                                            <b>Action:</b> @Model.ActionName
+                                        </p>
+                                        <div style="overflow:scroll">
+                                            <pre>
+                                        @Model.Exception.StackTrace
+                                    </pre>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

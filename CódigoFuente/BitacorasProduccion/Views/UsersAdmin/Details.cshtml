@@ -1,0 +1,104 @@
+﻿@model IdentitySample.Models.ApplicationUser
+
+@{
+    ViewBag.Title = "Detalles de usuario";
+    ViewBag.PrimerNivel = "usuarios";
+    ViewBag.SegundoNivel = "usuarios";
+    ViewBag.ControllerName = "UsersAdmin";
+}
+
+
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+                <h3>Usuarios</h3>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <br />
+
+                        <dl class="dl-horizontal">
+                            <dt>
+                                @Html.DisplayNameFor(model => model.UserName)
+                            </dt>
+                            <dd>
+                                @Html.DisplayFor(model => model.UserName)
+                            </dd>
+                            <dt>
+                                @Html.DisplayNameFor(model => model.Email)
+                            </dt>
+                            <dd>
+                                @Html.DisplayFor(model => model.Email)
+                            </dd>
+                            <dt>
+                                @Html.DisplayNameFor(model => model.Nombre)
+                            </dt>
+                            <dd>
+                                @Html.DisplayFor(model => model.Nombre)
+                            </dd>
+                            <dt>
+                                @Html.DisplayNameFor(model => model.Apellidos)
+                            </dt>
+                            <dd>
+                                @Html.DisplayFor(model => model.Apellidos)
+                            </dd>
+                            <dt>
+                                @Html.DisplayNameFor(model => model.FechaCreacion)
+                            </dt>
+                            <dd>
+                                @Html.DisplayFor(model => model.FechaCreacion)
+                            </dd>
+                        </dl>
+                    </div>
+                    <h6>Lista de roles para este usuario</h6>
+                    @if (ViewBag.RoleNames.Count == 0)
+                    {
+                        <hr />
+                        <p>No se encontraron Roles para este usuario.</p>
+                    }
+
+                    <table class="table">
+
+                        @foreach (var item in ViewBag.RoleNames)
+                        {
+                            <tr>
+                                <td>
+                                    @item
+                                </td>
+                            </tr>
+                        }
+                    </table>
+                    <p class="float-right">
+                        <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = Model.Id})" class="btn btn-success btm-sm" title="Editar">
+                            <i class="fa fa-pencil-square-o"></i> Editar usuario
+                        </a>
+                    </p>
+                </div>
+
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

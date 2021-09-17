@@ -1,0 +1,36 @@
+﻿@model System.Web.Mvc.HandleErrorInfo
+
+@{
+    ViewBag.Title = "Locked Out";
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <link href="@Url.Content("~/Content/not-found.css")" rel="stylesheet">
+        <div class="error-content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 ">
+                        <div class="error-text">
+                            <h1 class="error text-danger"> <i class="fa fa-ban" aria-hidden="true"></i></h1>
+                            <h4 class="text-danger">¡Lo sentimos! ¡Esta cuenta ha sido bloqueada!</h4>
+                            <p class="text-danger">Contacte al administrador del sitio, para solicitar la reactivaci&oacute;n de la cuenta.</p>
+
+                            <a href="@Url.Action( "Index", "Home")" class="btn btn-primary btn-round">Iniciar con otra cuenta</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+

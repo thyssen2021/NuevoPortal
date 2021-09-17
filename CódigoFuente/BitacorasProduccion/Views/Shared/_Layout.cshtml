@@ -1,0 +1,127 @@
+﻿@using Clases.Util;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title> Portal thyssenkrupp | @ViewBag.Title </title>
+
+    <!-- Bootstrap -->
+    <link href="@Url.Content("~/Content/vendors/bootstrap/dist/css/bootstrap.min.css")" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="@Url.Content("~/Content/vendors/font-awesome/css/font-awesome.min.css")" rel="stylesheet">
+    <!-- NProgress -->
+    <link href="@Url.Content("~/Content/vendors/nprogress/nprogress.css")" rel="stylesheet">
+    <!-- jQuery custom content scroller -->
+    <link href="@Url.Content("~/Content/vendors/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.min.css")" rel="stylesheet">
+
+    <!-- Custom Theme Style -->
+    <link href="@Url.Content("~/Content/build/css/custom.css")" rel="stylesheet">
+
+    @RenderSection("estilos", required: false)
+</head>
+
+<body class="nav-md">
+    <div class="container body">
+        <div class="main_container">
+            <div class="col-md-3 left_col">
+                <div class="left_col scroll-view">
+                    <div class="navbar nav_title" style="border: 0;">
+                        <a href="@Url.Action("Index", "Home")" class="site_title"> <img src="~/Content/images/logo_4_200px.png" alt="" width="200"> </a>
+                    </div>
+
+                    <div class="clearfix"></div>
+
+                  
+
+                    <br />
+
+                    <!-- sidebar menu -->
+                    <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+                        <div class="menu_section">
+                            @if (Request.IsAuthenticated)
+                            {
+                                <h3>General</h3>
+                                <ul class="nav side-menu">
+                                    @*PRIMER NIVEL*@
+                                    <li class="@(ViewBag.PrimerNivel == "home" ? "active" : null )">
+                                        <a><i class="fa fa-home"></i> Home <span class="fa fa-chevron-down"></span></a>
+                                        <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "home" ? "display:block" : null )">
+                                            <li class="@(ViewBag.SegundoNivel == "home" ? "current-page" : null )"><a href="@Url.Action("Index", "Home")">Inicio</a></li>
+                                        </ul>
+                                    </li>
+                                    @if (User.IsInRole(TipoRoles.USERS))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "usuarios" ? "active" : null )">
+                                            <a><i class="fa fa-cog"></i>Usuarios <span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "usuarios" ? "display:block" : null )">
+                                                <li class="@(ViewBag.SegundoNivel == "roles" ? "current-page" : null )"><a href="@Url.Action( "Index", "RolesAdmin")">Roles</a></li>
+                                                <li class="@(ViewBag.SegundoNivel == "usuarios" ? "current-page" : null )"><a href="@Url.Action("Index", "UsersAdmin")">Usuarios</a></li>
+                                            </ul>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        </div>
+
+
+                    </div>
+                    <!-- /sidebar menu -->
+                    <!-- /menu footer buttons -->
+                    <div class="sidebar-footer hidden-small">
+                        <a data-toggle="tooltip" data-placement="top" title="Mi usuario" href="@Url.Action( "Index", "Manage")">
+                            <span class="glyphicon glyphicon-user" style="color:lightgray" aria-hidden="true"></span>
+                        </a>
+                        <a data-toggle="tooltip" data-placement="top" title="FullScreen">
+                            <span class="glyphicon glyphicon-fullscreen" style="color:lightgray" aria-hidden="true"></span>
+                        </a>
+                        <a data-toggle="tooltip" data-placement="top" title="Lock">
+                            <span class="glyphicon glyphicon-eye-close" style="color:lightgray" aria-hidden="true"></span>
+                        </a>
+                        <a data-toggle="tooltip" data-placement="top" title="Logout" href="login.html">
+                            <span class="glyphicon glyphicon-off" style="color:lightgray" aria-hidden="true"></span>
+                        </a>
+                    </div>
+                    <!-- /menu footer buttons -->
+                </div>
+            </div>
+
+            <!-- top navigation -->
+           
+                    @Html.Partial("_LoginPartial")
+            
+            <!-- /top navigation -->
+            <!-- page content -->
+            @RenderBody()
+            <!-- /page content -->
+            <!-- footer content -->
+            <footer>
+                <div class="pull-right">
+                    &copy; @DateTime.Now.Year - thyssenkrupp
+                </div>
+                <div class="clearfix"></div>
+            </footer>
+            <!-- /footer content -->
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery/dist/jquery.min.js"))
+    <!-- Bootstrap -->
+    @Scripts.Render(Url.Content("~/Content/vendors/bootstrap/dist/js/bootstrap.bundle.min.js"))
+    <!-- FastClick -->
+    @Scripts.Render(Url.Content("~/Content/vendors/fastclick/lib/fastclick.js"))
+    <!-- NProgress -->
+    @Scripts.Render(Url.Content("~/Content/vendors/nprogress/nprogress.js"))
+    <!-- jQuery custom content scroller -->
+    @Scripts.Render(Url.Content("~/Content/vendors/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js"))
+
+    <!-- Custom Theme Scripts -->
+    @Scripts.Render(Url.Content("~/Content/build/js/custom.min.js"))
+    @RenderSection("scripts", required: false)
+</body>
+</html>

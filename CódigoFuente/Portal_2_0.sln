@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31613.86
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Portal_2_0", "BitacorasProduccion\Portal_2_0.csproj", "{0C63C961-CA78-49BF-BAC1-48543F1D1842}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Clases", "Bitacoras\Clases.csproj", "{EB33A2B1-9E2D-42D0-B509-3CFA6EF5F08A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0C63C961-CA78-49BF-BAC1-48543F1D1842}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C63C961-CA78-49BF-BAC1-48543F1D1842}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C63C961-CA78-49BF-BAC1-48543F1D1842}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C63C961-CA78-49BF-BAC1-48543F1D1842}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB33A2B1-9E2D-42D0-B509-3CFA6EF5F08A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB33A2B1-9E2D-42D0-B509-3CFA6EF5F08A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB33A2B1-9E2D-42D0-B509-3CFA6EF5F08A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB33A2B1-9E2D-42D0-B509-3CFA6EF5F08A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C13E3EC9-9E32-493D-87A6-23AACBD51DB5}
+	EndGlobalSection
+EndGlobal

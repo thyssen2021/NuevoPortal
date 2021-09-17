@@ -1,0 +1,40 @@
+﻿@using Microsoft.AspNet.Identity
+
+
+
+<!-- top navigation -->
+<div class="top_nav">
+    <div class="nav_menu">
+        <div class="nav toggle">
+            <a id="menu_toggle"><i class="fa fa-bars" style="color:#ddd"></i></a>
+        </div>
+        <nav class="nav navbar-nav">
+            <ul class=" navbar-right">
+                @if (Request.IsAuthenticated)
+                {
+                    using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" }))
+                    {
+                        @Html.AntiForgeryToken()
+
+
+                        <li class="nav-item dropdown open" style="padding-left: 15px;">
+                            <a href="javascript:;" class="user-profile dropdown-toggle" aria-haspopup="true" id="navbarDropdown" data-toggle="dropdown" aria-expanded="false">
+                                <i class="fa fa-user"></i> Bienvenido, @User.Identity.GetUserName()
+                            </a>
+                            <div class="dropdown-menu dropdown-usermenu pull-right" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="@Url.Action("Index", "Manage")"><i style="color:dimgrey" class="fa fa-user pull-right"></i> Mi usuario</a>
+                                <a class="dropdown-item" href="javascript:document.getElementById('logoutForm').submit()"><i style="color:red" class="fa fa-sign-out pull-right"></i> Cerrar Sesi&oacute;n</a>
+                            </div>
+                        </li>
+                    }
+                }
+                else
+                {
+                    <li>@Html.ActionLink("Iniciar Sesión", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink", @class = "btn btn-outline-success my-2 my-sm-0" })</li>
+                }
+
+            </ul>
+        </nav>
+    </div>
+</div>
+<!-- /top navigation -->

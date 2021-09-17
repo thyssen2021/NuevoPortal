@@ -1,0 +1,27 @@
+﻿
+@{
+    ViewBag.Title = "BadRequest";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <link href="@Url.Content("~/Content/not-found.css")" rel="stylesheet">
+        <div class="error-content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 ">
+                        <div class="error-text">
+                            <h1 class="error">400 Error </h1>
+                            <h4>¡Lo sentimos! ¡La socitud no ha podido ser procesada!</h4>
+                            <p>Lo sentimos, pero la solicitud que envi&oacute; no pudo ser procesada. Tiene un formato incorrecto o no permitido.</p>
+
+                            <a href="@Url.Action( "Index", "Home")" class="btn btn-primary btn-round">Volver al inicio</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
