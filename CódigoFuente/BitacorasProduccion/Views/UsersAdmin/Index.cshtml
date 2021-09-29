@@ -39,16 +39,12 @@
                 <div class="x_panel">
                     <div class="x_title">
                         <h2>@ViewBag.Title</h2>
-
-
-
                         <ul class="nav navbar-right panel_toolbox">
-
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
                             <li>
                                 <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                             </li>
-
-
                         </ul>
                         <div class="clearfix"></div>
                     </div>
@@ -154,6 +150,6 @@
     @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
 
     @Scripts.Render("~/bundles/dataTables_js")
-    @Scripts.Render(Url.Content("~/Content/build/js/custom.min.js"))
+    @*@Scripts.Render(Url.Content("~/Content/build/js/custom.min.js"))*@
 
 }

@@ -1,0 +1,131 @@
+﻿@model Portal_2_0.Models.empleados
+
+@{
+    ViewBag.Title = "Habilitar Empleado";
+    ViewBag.PrimerNivel = "recursos_humanos";
+    ViewBag.SegundoNivel = "empleados";
+    ViewBag.ControllerName = "Empleados";
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+                <h3>@ViewBag.ControllerName</h3>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+
+                    <!-- /.col -->
+                    <div class="col-md-8">
+                        <div class="table-responsive">
+                            <h3>¿Realmente desea habilitar este registro?</h3>
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <th>@Html.DisplayNameFor(model => model.numeroEmpleado)</th>
+                                        <td>@Html.DisplayFor(model => model.numeroEmpleado)</td>
+                                    </tr>
+                                    <tr>
+                                        <th>@Html.DisplayNameFor(model => model.nombre)</th>
+                                        <td>@Html.DisplayFor(model => model.nombre)</td>
+                                    </tr>
+                                    <tr>
+                                        <th>@Html.DisplayNameFor(model => model.apellido1)</th>
+                                        <td>@Html.DisplayFor(model => model.apellido1)</td>
+                                    </tr>
+                                    <tr>
+                                        <th>@Html.DisplayNameFor(model => model.apellido2)</th>
+                                        <td>@Html.DisplayFor(model => model.apellido2)</td>
+                                    </tr>
+                                    <tr>
+                                        <th>@Html.DisplayNameFor(model => model.correo)</th>
+                                        <td>@Html.DisplayFor(model => model.correo)</td>
+                                    </tr>
+                                    <tr>
+                                        <th>@Html.DisplayNameFor(model => model.nueva_fecha_nacimiento)</th>
+                                        <td>@Html.DisplayFor(model => model.nueva_fecha_nacimiento)</td>
+                                    </tr>
+                                    <tr>
+                                        <th>@Html.DisplayNameFor(model => model.telefono)</th>
+                                        <td>@Html.DisplayFor(model => model.telefono)</td>
+                                    </tr>
+                                    <tr>
+                                        <th>@Html.DisplayNameFor(model => model.extension)</th>
+                                        <td>@Html.DisplayFor(model => model.extension)</td>
+                                    </tr>
+                                    <tr>
+                                        <th>@Html.DisplayNameFor(model => model.celular)</th>
+                                        <td>@Html.DisplayFor(model => model.celular)</td>
+                                    </tr>
+                                    <tr>
+                                        <th>@Html.DisplayNameFor(model => model.ingresoFecha)</th>
+                                        <td>@Html.DisplayFor(model => model.ingresoFecha)</td>
+                                    </tr>
+                                    <tr>
+                                        <th>@Html.DisplayNameFor(model => model.bajaFecha)</th>
+                                        <td>@Html.DisplayFor(model => model.bajaFecha)</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Planta</th>
+                                        <td>@Html.DisplayFor(model => model.plantas.descripcion)</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Puesto</th>
+                                        <td>@Html.DisplayFor(model => model.puesto1.descripcion)</td>
+                                    </tr>
+                                    <tr>
+                                        <th>@Html.DisplayNameFor(model => model.activo)</th>
+                                        <td>
+                                            @if (Model.activo.HasValue && Model.activo.Value)
+                                            {
+                                                <span>Activo</span>
+                                            }
+                                            else
+                                            {
+                                                <span>Inactivo</span>
+                                            }
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <p class="float-md-left">
+                            <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = Model.id})" class="btn btn-success btm-sm" title="Editar">
+                                <i class="fa fa-pencil-square-o"></i> Editar
+                            </a>
+                        </p>
+                        <p class="float-md-right">
+                            @using (Html.BeginForm())
+                            {
+                                @Html.AntiForgeryToken()
+
+                                <div class="form-actions no-color float-md-right">
+                                    <input type="submit" value="Habilitar" class="btn btn-warning btm-sm" />
+                                </div>
+                            }
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

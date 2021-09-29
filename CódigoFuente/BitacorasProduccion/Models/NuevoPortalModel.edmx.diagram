@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="14f8b09a769749fe880d13a36c3076eb" Name="Diagram1">
+        <EntityTypeShape EntityType="Portal_2_0Model.Area" Width="1.5" PointX="3" PointY="2.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="Portal_2_0Model.plantas" Width="1.5" PointX="0.75" PointY="2.5" IsExpanded="true" />
+        <AssociationConnector Association="Portal_2_0Model.FK_areas_planta_clave" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="Portal_2_0Model.empleados" Width="1.5" PointX="7.5" PointY="1" />
+        <EntityTypeShape EntityType="Portal_2_0Model.puesto" Width="1.5" PointX="5.25" PointY="2.5" />
+        <AssociationConnector Association="Portal_2_0Model.FK_puestos_area_clave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_empleados_planta_clave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_empleados_puesto" />
+        </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

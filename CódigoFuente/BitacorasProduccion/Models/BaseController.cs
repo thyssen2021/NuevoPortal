@@ -109,7 +109,7 @@ namespace Portal_2_0.Models
             //guarda en BD
             ExcepcionesBDUtil.RegistraExcepcion(evento);
         }
-
+        //obtiene el usuario actual
         private string getUsuario()
         {
             string userName = User.Identity.Name;
@@ -119,5 +119,7 @@ namespace Portal_2_0.Models
 
             return userName;
         }
+
+        
     }
 }

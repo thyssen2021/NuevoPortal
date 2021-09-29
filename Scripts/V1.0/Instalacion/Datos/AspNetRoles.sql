@@ -30,6 +30,7 @@ BEGIN
 	END
 
 
+
 PRINT '<<<CORRECTO: La TABLA dbo.AspNetRoles ha sido INICIALIZADA en la Base de Datos: ' + db_name() + ' en el Servidor: ' + @@servername + '  >>>'     	
 
 END

@@ -23,9 +23,10 @@
     <link href="@Url.Content("~/Content/build/css/custom.css")" rel="stylesheet">
 
     @RenderSection("estilos", required: false)
+    
 </head>
 
-<body class="nav-md">
+<body class="nav-md" id="body">
     <div class="container body">
         <div class="main_container">
             <div class="col-md-3 left_col">
@@ -36,7 +37,7 @@
 
                     <div class="clearfix"></div>
 
-                  
+
 
                     <br />
 
@@ -54,6 +55,26 @@
                                             <li class="@(ViewBag.SegundoNivel == "home" ? "current-page" : null )"><a href="@Url.Action("Index", "Home")">Inicio</a></li>
                                         </ul>
                                     </li>
+                                    @if (User.IsInRole(TipoRoles.RH))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "recursos_humanos" ? "active" : null )">
+                                            <a><i class="fa fa-child"></i>Recursos Humanos<span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "recursos_humanos" ? "display:block" : null )">
+                                                <li class="@(ViewBag.SegundoNivel == "areas" ? "current-page" : null )"><a href="@Url.Action( "Index", "Areas")">Areas</a></li>
+                                                <li class="@(ViewBag.SegundoNivel == "puestos" ? "current-page" : null )"><a href="@Url.Action( "Index", "Puestos")">Puestos</a></li>
+                                                <li class="@(ViewBag.SegundoNivel == "empleados" ? "current-page" : null )"><a href="@Url.Action( "Index", "Empleados")">Empleados</a></li>
+                                            </ul>
+                                        </li>
+                                    }
+                                    @if (User.IsInRole(TipoRoles.ADMIN))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "catalogos_admin" ? "active" : null )">
+                                            <a><i class="fa fa-database"></i>Cat&aacute;logos Admin <span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "catalogos_admin" ? "display:block" : null )">
+                                                <li class="@(ViewBag.SegundoNivel == "plantas" ? "current-page" : null )"><a href="@Url.Action( "Index", "Plantas")">Plantas</a></li>
+                                            </ul>
+                                        </li>
+                                    }
                                     @if (User.IsInRole(TipoRoles.USERS))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "usuarios" ? "active" : null )">
@@ -75,15 +96,14 @@
                     <div class="sidebar-footer hidden-small">
                         <a data-toggle="tooltip" data-placement="top" title="Mi usuario" href="@Url.Action( "Index", "Manage")">
                             <span class="glyphicon glyphicon-user" style="color:lightgray" aria-hidden="true"></span>
+                        </a> <a data-toggle="tooltip" data-placement="top" title="Próximamente">
+                            <span class="glyphicon glyphicon-info-sign" style="color:lightgray" aria-hidden="true"></span>
                         </a>
-                        <a data-toggle="tooltip" data-placement="top" title="FullScreen">
-                            <span class="glyphicon glyphicon-fullscreen" style="color:lightgray" aria-hidden="true"></span>
+                        <a data-toggle="tooltip" data-placement="top" title="Próximamente">
+                            <span class="glyphicon glyphicon-time" style="color:lightgray" aria-hidden="true"></span>
                         </a>
-                        <a data-toggle="tooltip" data-placement="top" title="Lock">
-                            <span class="glyphicon glyphicon-eye-close" style="color:lightgray" aria-hidden="true"></span>
-                        </a>
-                        <a data-toggle="tooltip" data-placement="top" title="Logout" href="login.html">
-                            <span class="glyphicon glyphicon-off" style="color:lightgray" aria-hidden="true"></span>
+                        <a data-toggle="tooltip" data-placement="top" title="Próximamente">
+                            <span class="glyphicon glyphicon-question-sign" style="color:lightgray" aria-hidden="true"></span>
                         </a>
                     </div>
                     <!-- /menu footer buttons -->
@@ -91,9 +111,9 @@
             </div>
 
             <!-- top navigation -->
-           
-                    @Html.Partial("_LoginPartial")
-            
+
+            @Html.Partial("_LoginPartial")
+
             <!-- /top navigation -->
             <!-- page content -->
             @RenderBody()
@@ -120,8 +140,14 @@
     <!-- jQuery custom content scroller -->
     @Scripts.Render(Url.Content("~/Content/vendors/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js"))
 
+
+    @RenderSection("scripts", required: false)
+
     <!-- Custom Theme Scripts -->
     @Scripts.Render(Url.Content("~/Content/build/js/custom.min.js"))
-    @RenderSection("scripts", required: false)
+
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery_block_ui/jquery.blockUI.js"))
+
+    @Scripts.Render(Url.Content("~/Scripts/site.js"))
 </body>
 </html>
