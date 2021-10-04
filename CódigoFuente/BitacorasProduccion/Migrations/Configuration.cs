@@ -20,7 +20,7 @@ namespace Portal_2_0.Migrations
             //  This method will be called after migrating to the latest version.
 
             const string email = "admin@admin.com";
-            const string userName = "USERS";
+            const string userName = "ADMIN";
             const string password = "Pass123*";
             const string roleName = "Admin";
             const string roleNameU = "Usuarios";
