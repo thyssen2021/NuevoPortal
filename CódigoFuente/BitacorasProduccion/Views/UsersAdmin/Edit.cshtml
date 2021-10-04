@@ -11,7 +11,27 @@
 {
     <!-- iCheck -->
     <link href="@Url.Content("~/Content/vendors/iCheck/skins/flat/green.css")" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
 }
+
+
+@if (@ViewBag.TipoU != null)
+{
+    <input type="hidden" value="@ViewBag.TipoU" id="tipoU" />
+}
+
+@if (@ViewBag.numEmpleado != null)
+{
+    <input type="hidden" value="@ViewBag.numEmpleado" id="e_numEmpleado" />
+}
+@if (@ViewBag.NombreE != null)
+{
+    <input type="hidden" value="@ViewBag.NombreE" id="e_nombre" />
+}
+
+<input type="hidden" value="edit" id="e_edit" />
 
 <div class="right_col" role="main">
     <div class="">
@@ -39,17 +59,37 @@
                             @Html.HiddenFor(model => model.Id)
 
                             <div class="item form-group">
+                                <label class="col-form-label col-md-3 col-sm-3 label-align">Tipo de Usuario</label>
+                                <div class="col-md-6 col-sm-6 ">
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" id="radioEmpleado" value="empleado" checked name="tipoUsuario" disabled> Empleado
+                                        </label>
+                                    </div>
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" id="radioOtro" value="otro" name="tipoUsuario" disabled> Otro
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" value="edit" id="tipoUsuario2" />
+
+                            <div class="item form-group" id="divEmpleado">
+                                @Html.LabelFor(model => model.IdEmpleado, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.DropDownList("IdEmpleado", (IEnumerable<SelectListItem>)ViewBag.EmpleadosList, new { @class = "form-control select2bs4", @style = "width:100%", @disabled = "disabled" })
+                                    @Html.ValidationMessageFor(model => model.IdEmpleado, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <input type="hidden" value="edit" id="IdEmpleado2" />
+
+                            <div class="item form-group" id="divNombre">
                                 @Html.LabelFor(model => model.Nombre, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                 <div class="col-md-6 col-sm-6 ">
                                     @Html.TextBoxFor(m => m.Nombre, new { @class = "form-control" })
                                     @Html.ValidationMessageFor(model => model.Nombre, "", new { @class = "text-danger" })
-                                </div>
-                            </div>
-                            <div class="item form-group">
-                                @Html.LabelFor(model => model.Apellidos, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
-                                <div class="col-md-6 col-sm-6 ">
-                                    @Html.TextBoxFor(m => m.Apellidos, new { @class = "form-control" })
-                                    @Html.ValidationMessageFor(model => model.Apellidos, "", new { @class = "text-danger" })
                                 </div>
                             </div>
                             <div class="item form-group">
@@ -103,4 +143,6 @@
     @Scripts.Render("~/bundles/jqueryval")
     <!-- iCheck -->
     @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/Forms/usuarios.js"))
 }

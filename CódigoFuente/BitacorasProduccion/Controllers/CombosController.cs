@@ -44,6 +44,7 @@ namespace Portal_2_0.Controllers
             }
             return Json(list, JsonRequestBehavior.AllowGet);
         }
+        
 
         ///<summary>
         ///Obtiene los puestos segun el área recibida
@@ -75,6 +76,31 @@ namespace Portal_2_0.Controllers
                     list[i] = new { value = listado[i].clave, name = listado[i].descripcion };
             }
             return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+        ///<summary>
+        ///Obtiene el email de un empleado
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult obtieneEmail(string numEmpleado = "")
+        {
+            //obtiene todos los posibles valores
+            empleados emp = db.empleados.Where(p => p.numeroEmpleado == numEmpleado).FirstOrDefault();
+
+            //inicializa la lista de objetos
+            var empleado = new object[1];
+
+            if (emp ==null || String.IsNullOrEmpty(emp.correo))
+            { //no hay correo
+                empleado[0] = new { email = "NO DISPONIBLE" };
+            }
+            else //hay correo
+            {
+                empleado[0] = new { email = emp.correo };
+            }
+
+            return Json(empleado, JsonRequestBehavior.AllowGet);
         }
     }
 }

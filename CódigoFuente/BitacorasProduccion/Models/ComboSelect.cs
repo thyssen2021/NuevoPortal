@@ -9,37 +9,38 @@ namespace Portal_2_0.Models
     public class ComboSelect
     {
 
-        private Portal_2_0Entities db = new Portal_2_0Entities();
+        
         ///<summary>
-        ///Obtiene un List<SelectListItem> con las áreas activas
+        ///Obtiene las empleados
         ///</summary>
         ///<return>
-        ///retorna un List<SelectListItem> con las áreas activas
-        ///</return>
-        //public static List<SelectListItem> obtieneAreasActivas()
-        //{
-        //    //consulta todos los productos de la BD
-        //    List<Producto> listadoProductos = Presupuestos.UtilBD.ProductoDBUtil.Lista();
+        ///retorna un JsonResult con las opciones disponibles
+        public static List<SelectListItem> obtieneEmpleadosSelectList()
+        {
+            Portal_2_0Entities db = new Portal_2_0Entities();
 
-        //    var productos = new List<SelectListItem>();
+            //obtiene todos los posibles valores
+            List<empleados> listado = db.empleados.Where(p => p.activo == true).ToList();
 
-        //    //usando linQ
-        //    productos = listadoProductos
-        //        .Where(s => s.Activo == true) //obtiene unicamente los sectores activos
-        //        .Select(s => new SelectListItem()
-        //        {
-        //            Text = s.Nombre,
-        //            Value = s.Id.ToString()
-        //        }).ToList();
+            var items = new List<SelectListItem>();
 
-        //    //agrega valor vacio
-        //    productos.Insert(0, new SelectListItem()
-        //    {
-        //        Text = "Seleccione un valor",
-        //        Value = ""
-        //    });
+            //usando linQ
+            items = listado
+                            .Where(s => s.activo == true) //obtiene unicamente los sectores activos
+                            .Select(s => new SelectListItem()
+                            {
+                                Text = s.numeroEmpleado + " - " + s.nombre + " " + s.apellido1 + " " + s.apellido2,
+                                Value = s.numeroEmpleado
+                            }).ToList();
 
-        //    return productos;
-        //}
+            //agrega valor vacio
+            items.Insert(0, new SelectListItem()
+            {
+                Text = "Seleccione un valor",
+                Value = ""
+            });
+
+            return items;
+        }
     }
 }

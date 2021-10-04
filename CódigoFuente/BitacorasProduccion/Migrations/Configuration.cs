@@ -43,7 +43,7 @@ namespace Portal_2_0.Migrations
             {
                 var store = new UserStore<ApplicationUser>(context);
                 var manager = new UserManager<ApplicationUser>(store);
-                var user = new ApplicationUser { UserName = userName, Email = email, FechaCreacion = DateTime.Now };
+                var user = new ApplicationUser { UserName = userName, Nombre = userName , Email = email, FechaCreacion = DateTime.Now };
                 
                 manager.Create(user, password);
                 manager.AddToRole(user.Id, roleName);

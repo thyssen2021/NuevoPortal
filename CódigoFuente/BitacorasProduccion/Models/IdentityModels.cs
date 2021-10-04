@@ -12,11 +12,16 @@ namespace IdentitySample.Models
     public class ApplicationUser : IdentityUser
     {
         #region Definicion de atributos Usuarios
+
+
         //Aquí se agregan propiedades a la clase para gestionar usuarios
-        [StringLength(25)]
+
+        public int IdEmpleado { get; set; }
+
+        [StringLength(40)]
         public string Nombre { get; set; }
-        [StringLength(45)]
-        public string Apellidos { get; set; }
+        //[StringLength(45)]
+        //public string Apellidos { get; set; }
 
         [DataType(DataType.Date)]
         [Display(Name = "Fecha de Creación")]

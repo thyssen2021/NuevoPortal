@@ -17,14 +17,15 @@ namespace IdentitySample.Models
     {
 
         //Aquí se agregan propiedades a la clase para gestionar usuarios
-        [Required]
-        [StringLength(25)]
+        [StringLength(40)]
         public string Nombre { get; set; }
 
-        [Required]
-        [StringLength(45)]
-        public string Apellidos { get; set; }
+        //[Required]
+        //[StringLength(45)]
+        //public string Apellidos { get; set; }
 
+        [Display(Name = "Empleado")]
+        public int IdEmpleado { get; set; }
         [DataType(DataType.Date)]
         [Display(Name = "Fecha de creación")]
         public DateTime FechaCreacion { get; set; }
