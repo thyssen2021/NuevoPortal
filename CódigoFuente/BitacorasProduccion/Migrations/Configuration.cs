@@ -20,7 +20,7 @@ namespace Portal_2_0.Migrations
             //  This method will be called after migrating to the latest version.
 
             const string email = "admin@admin.com";
-            const string userName = "USERS";
+            const string userName = "ADMIN";
             const string password = "Pass123*";
             const string roleName = "Admin";
             const string roleNameU = "Usuarios";
@@ -43,7 +43,7 @@ namespace Portal_2_0.Migrations
             {
                 var store = new UserStore<ApplicationUser>(context);
                 var manager = new UserManager<ApplicationUser>(store);
-                var user = new ApplicationUser { UserName = userName, Email = email, FechaCreacion = DateTime.Now };
+                var user = new ApplicationUser { UserName = userName, Nombre = userName , Email = email, FechaCreacion = DateTime.Now };
                 
                 manager.Create(user, password);
                 manager.AddToRole(user.Id, roleName);

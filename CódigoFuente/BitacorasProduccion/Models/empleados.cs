@@ -34,7 +34,7 @@ namespace Portal_2_0.Models
         public Nullable<bool> activo { get; set; }
 
         [Required(AllowEmptyStrings = false)]
-        [StringLength(6, MinimumLength = 3)]
+        [StringLength(6, MinimumLength = 1)]
         [RegularExpression("(^[0-9]+$)", ErrorMessage = "Sólo se permiten números.")]
         [Display(Name = "Número de Empleado")]
         public string numeroEmpleado { get; set; }

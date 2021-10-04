@@ -5,6 +5,7 @@
     ViewBag.PrimerNivel = "usuarios";
     ViewBag.SegundoNivel = "usuarios";
     ViewBag.ControllerName = "UsersAdmin";
+    Portal_2_0.Models.empleados empleado = (Portal_2_0.Models.empleados)ViewBag.Empleado;
 }
 
 
@@ -32,7 +33,7 @@
                         <br />
                         <dl class="dl-horizontal">
                             <dt>
-                                Usuario
+                                @Html.DisplayNameFor(model => model.UserName)
                             </dt>
                             <dd>
                                 @Html.DisplayFor(model => model.UserName)
@@ -43,18 +44,37 @@
                             <dd>
                                 @Html.DisplayFor(model => model.Email)
                             </dd>
-                            <dt>
-                                @Html.DisplayNameFor(model => model.Nombre)
-                            </dt>
-                            <dd>
-                                @(Model.Nombre+" "+Model.Apellidos)
-                            </dd>
+                            @if (empleado == null)
+                            {
+                                <dt>
+                                    @Html.DisplayNameFor(model => model.Nombre)
+                                </dt>
+                                <dd>
+                                    @Html.DisplayFor(model => model.Nombre)
+                                </dd>
+                            }
+
                             <dt>
                                 @Html.DisplayNameFor(model => model.FechaCreacion)
                             </dt>
                             <dd>
                                 @Html.DisplayFor(model => model.FechaCreacion)
                             </dd>
+                            @if (empleado != null)
+                            {
+                                <dt>
+                                    Número empleado
+                                </dt>
+                                <dd>
+                                    @empleado.numeroEmpleado
+                                </dd>
+                                <dt>
+                                    Nombre
+                                </dt>
+                                <dd>
+                                    @(empleado.nombre+" "+empleado.apellido1+" "+empleado.apellido2)
+                                </dd>
+                            }
                         </dl>
 
                         @using (Html.BeginForm())
@@ -85,59 +105,3 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h2>@ViewBag.Title</h2>
-
-<h3>¿Realmente desea inhabilitar este usuario?</h3>
-<div>
-    <h4>Usuario.</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            Usuario
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.UserName)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Nombre)
-        </dt>
-        <dd>
-            @(Model.Nombre+" "+Model.Apellidos)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.FechaCreacion)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.FechaCreacion)
-        </dd>
-    </dl>
-
-    @using (Html.BeginForm())
-    {
-        @Html.AntiForgeryToken()
-
-        <div class="form-actions no-color">
-            <input type="submit" value="Inhabilitar" class="btn btn-danger" /> |
-            @Html.ActionLink("Volver al listado", "Index")
-        </div>
-    }
-</div>

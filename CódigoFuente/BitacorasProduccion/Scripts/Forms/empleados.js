@@ -159,6 +159,7 @@ function seleccionaValoresDefault() {
         verificaEstadoCombos();
     }
 
+    //debe ir despues de inicializar los combos
     // Initialize Select2 Elements
     $('.select2bs4').select2({
         theme: 'bootstrap4'

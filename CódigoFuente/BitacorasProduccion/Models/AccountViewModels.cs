@@ -63,14 +63,16 @@ namespace IdentitySample.Models
     public class RegisterViewModel
     {
 
-        //Aquí se agregan propiedades a la clase para gestionar usuarios
-        [Required]
-        [StringLength(25)]
+        //Aquí se agregan propiedades a la clase para gestionar usuarios        
+        [StringLength(40)]
         public string Nombre { get; set; }
 
-        [Required]
-        [StringLength(45)]
-        public string Apellidos { get; set; }
+        //[Required]
+        //[StringLength(45)]
+        //public string Apellidos { get; set; }
+    
+        [Display(Name = "Empleado")]
+        public int IdEmpleado { get; set; }
 
         [Required]
         [EmailAddress]
