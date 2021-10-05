@@ -85,7 +85,7 @@ namespace Portal_2_0.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "id,nueva_fecha_nacimiento,planta_clave,clave,activo,numeroEmpleado,nombre,apellido1,apellido2,nacimientoFecha,correo,telefono,extension,celular,nivel,puesto,compania,ingresoFecha,bajaFecha")] empleados empleados, FormCollection collection)
+        public ActionResult Create([Bind(Include = "id,nueva_fecha_nacimiento,planta_clave,clave,activo,numeroEmpleado,nombre,apellido1,apellido2,nacimientoFecha,correo,telefono,extension,celular,nivel,puesto,compania,ingresoFecha,bajaFecha, C8ID")] empleados empleados, FormCollection collection)
         {
            
             //valores enviados previamente
@@ -107,15 +107,33 @@ namespace Portal_2_0.Controllers
                 //no existe el num empleado
                 if (empleadoBusca == null)
                 {
-                    empleados.activo = true;
-                    //convierte a mayúsculas
-                    empleados.nombre = empleados.nombre.ToUpper();
-                    empleados.apellido1 = empleados.apellido1.ToUpper();
-                    empleados.apellido2 = empleados.apellido2.ToUpper();
-                    db.empleados.Add(empleados);
-                    db.SaveChanges();
-                    TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);
-                    return RedirectToAction("Index");
+                    //busca por 8ID
+                    empleadoBusca = db.empleados.Where(s => s.C8ID == empleados.C8ID)
+                                        .FirstOrDefault();
+
+                    if (empleadoBusca == null)    {
+
+                        empleados.activo = true;
+                        //convierte a mayúsculas
+                        empleados.nombre = empleados.nombre.ToUpper();
+                        empleados.apellido1 = empleados.apellido1.ToUpper();
+                        empleados.apellido2 = empleados.apellido2.ToUpper();
+                        db.empleados.Add(empleados);
+                        db.SaveChanges();
+                        TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);
+                        return RedirectToAction("Index");
+                    }
+                    else {
+                        ModelState.AddModelError("", "Ya existe un registro con el mismo 8ID.");
+                        ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
+                        ViewBag.areaClave = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
+                        ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion");
+                        //claves seleccionadas
+                        ViewBag.c_planta = c_planta;
+                        ViewBag.c_area = c_area;
+                        ViewBag.c_puesto = c_puesto;
+                        return View(empleados);
+                    }
                 }
                 else {
                     ModelState.AddModelError("", "Ya existe un registro con el mismo número de empleado. ");
@@ -183,7 +201,7 @@ namespace Portal_2_0.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "id,nueva_fecha_nacimiento,planta_clave,clave,activo,numeroEmpleado,nombre,apellido1,apellido2,nacimientoFecha,correo,telefono,extension,celular,nivel,puesto,compania,ingresoFecha,bajaFecha")] empleados empleados, FormCollection collection)
+        public ActionResult Edit([Bind(Include = "id,nueva_fecha_nacimiento,planta_clave,clave,activo,numeroEmpleado,nombre,apellido1,apellido2,nacimientoFecha,correo,telefono,extension,celular,nivel,puesto,compania,ingresoFecha,bajaFecha,C8ID")] empleados empleados, FormCollection collection)
         {
             //valores enviados previamente
             int c_planta = 0;
@@ -205,13 +223,32 @@ namespace Portal_2_0.Controllers
                 //no existe otro empleado con el mismo num empleado
                 if (empleadoBusca == null)
                 {
-                    empleados.nombre = empleados.nombre.ToUpper();
-                    empleados.apellido1 = empleados.apellido1.ToUpper();
-                    empleados.apellido2 = empleados.apellido2.ToUpper();
-                    db.Entry(empleados).State = EntityState.Modified;
-                    db.SaveChanges();
-                    TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
-                    return RedirectToAction("Index");
+
+                    //busca por 8ID
+                    empleadoBusca = db.empleados.Where(s => s.C8ID == empleados.C8ID && s.id != empleados.id)
+                                        .FirstOrDefault();
+
+                    if (empleadoBusca == null)
+                    {
+                        empleados.nombre = empleados.nombre.ToUpper();
+                        empleados.apellido1 = empleados.apellido1.ToUpper();
+                        empleados.apellido2 = empleados.apellido2.ToUpper();
+                        db.Entry(empleados).State = EntityState.Modified;
+                        db.SaveChanges();
+                        TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
+                        return RedirectToAction("Index");
+                    }
+                    else {
+                        ModelState.AddModelError("", "Ya existe un registro con el mismo 8ID. ");
+                        ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
+                        ViewBag.areaClave = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
+                        ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion");
+                        //claves seleccionadas
+                        ViewBag.c_planta = c_planta;
+                        ViewBag.c_area = c_area;
+                        ViewBag.c_puesto = c_puesto;
+                        return View(empleados);
+                    }
                 }
                 else
                 {

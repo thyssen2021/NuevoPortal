@@ -35,7 +35,7 @@ namespace Portal_2_0.Models
         [Display(Name = "Código SAP")]
         [StringLength(4, MinimumLength = 2)]
         public string codigoSap { get; set; }
-    
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Area> Area { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

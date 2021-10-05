@@ -15,7 +15,6 @@ namespace Portal_2_0.Models
 
     public partial class empleados
     {
-
         public int id { get; set; }
 
         [DataType(DataType.Date)]
@@ -27,7 +26,7 @@ namespace Portal_2_0.Models
         [Display(Name = "Planta")]
         public Nullable<int> planta_clave { get; set; }
 
-        
+
         public Nullable<int> clave { get; set; }
 
         [Display(Name = "Estatus")]
@@ -76,6 +75,11 @@ namespace Portal_2_0.Models
         [Display(Name = "Compañia")]
         public string compania { get; set; }
 
+        [Display(Name = "8ID")]
+        [StringLength(8, MinimumLength = 8)]
+        [RegularExpression("(^[0-9]+$)", ErrorMessage = "Sólo se permiten números.")]
+        public string C8ID { get; set; }
+
         [DataType(DataType.Date)]
         [Display(Name = "Fecha de Ingreso")]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
@@ -85,8 +89,10 @@ namespace Portal_2_0.Models
         [Display(Name = "Fecha de Baja")]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public Nullable<System.DateTime> bajaFecha { get; set; }
-    
+
         public virtual plantas plantas { get; set; }
         public virtual puesto puesto1 { get; set; }
+
+       
     }
 }

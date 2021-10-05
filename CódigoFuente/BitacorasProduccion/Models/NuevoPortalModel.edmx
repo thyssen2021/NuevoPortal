@@ -38,6 +38,7 @@
           <Property Name="compania" Type="nvarchar" MaxLength="255" />
           <Property Name="ingresoFecha" Type="date" />
           <Property Name="bajaFecha" Type="date" />
+          <Property Name="8ID" Type="varchar" MaxLength="8" />
         </EntityType>
         <EntityType Name="plantas">
           <Key>
@@ -213,6 +214,7 @@
           <Property Name="bajaFecha" Type="DateTime" Precision="0" />
           <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_empleados_planta_clave" FromRole="empleados" ToRole="plantas" />
           <NavigationProperty Name="puesto1" Relationship="Portal_2_0Model.FK_empleados_puesto" FromRole="empleados" ToRole="puesto" />
+          <Property Name="C8ID" Type="String" MaxLength="8" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="puesto">
           <Key>
@@ -291,6 +293,7 @@
           <EntitySetMapping Name="empleados">
             <EntityTypeMapping TypeName="Portal_2_0Model.empleados">
               <MappingFragment StoreEntitySet="empleados">
+                <ScalarProperty Name="C8ID" ColumnName="8ID" />
                 <ScalarProperty Name="bajaFecha" ColumnName="bajaFecha" />
                 <ScalarProperty Name="ingresoFecha" ColumnName="ingresoFecha" />
                 <ScalarProperty Name="compania" ColumnName="compania" />

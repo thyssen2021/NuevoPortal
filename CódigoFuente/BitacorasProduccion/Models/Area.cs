@@ -47,4 +47,3 @@ namespace Portal_2_0.Models
         public virtual ICollection<puesto> puesto { get; set; }
     }
 }
-

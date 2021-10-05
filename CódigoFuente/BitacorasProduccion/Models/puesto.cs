@@ -32,10 +32,10 @@ namespace Portal_2_0.Models
         [Display(Name = "Descripción")]
         public string descripcion { get; set; }
 
-        [Required(ErrorMessage ="El campo área es requerido")]
+        [Required(ErrorMessage = "El campo área es requerido")]
         [Display(Name = "Área")]
         public Nullable<int> areaClave { get; set; }
-    
+
         public virtual Area Area { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<empleados> empleados { get; set; }
