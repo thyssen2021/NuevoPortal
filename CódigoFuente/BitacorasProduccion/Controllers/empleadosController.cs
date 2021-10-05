@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using Clases.Util;
@@ -201,7 +202,7 @@ namespace Portal_2_0.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "id,nueva_fecha_nacimiento,planta_clave,clave,activo,numeroEmpleado,nombre,apellido1,apellido2,nacimientoFecha,correo,telefono,extension,celular,nivel,puesto,compania,ingresoFecha,bajaFecha,C8ID")] empleados empleados, FormCollection collection)
+        public async Task<ActionResult> Edit([Bind(Include = "id,nueva_fecha_nacimiento,planta_clave,clave,activo,numeroEmpleado,nombre,apellido1,apellido2,nacimientoFecha,correo,telefono,extension,celular,nivel,puesto,compania,ingresoFecha,bajaFecha,C8ID")] empleados empleados, FormCollection collection)
         {
             //valores enviados previamente
             int c_planta = 0;
@@ -230,6 +231,17 @@ namespace Portal_2_0.Controllers
 
                     if (empleadoBusca == null)
                     {
+
+                        //actualiza el correo electronico en la tabla de usuarios
+                        var user =  _userManager.Users.Where(u => u.IdEmpleado.ToString() == empleados.numeroEmpleado).FirstOrDefault();
+                        if (user != null)
+                        {
+                            //actualiza el usuario  
+                            user.Email = empleados.correo;
+                            //guarda el usuario en BD
+                            var result = await _userManager.UpdateAsync(user);
+                        }                                      
+
                         empleados.nombre = empleados.nombre.ToUpper();
                         empleados.apellido1 = empleados.apellido1.ToUpper();
                         empleados.apellido2 = empleados.apellido2.ToUpper();

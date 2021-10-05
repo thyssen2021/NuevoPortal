@@ -99,7 +99,13 @@ function desactivaCampos() {
     var edit = document.getElementById("e_edit");
 
     if (edit != null) {
-        $('#Email').prop('readonly', true);
+
+        var seleccion = $('input:radio[name=tipoUsuario]:checked').val();
+
+        if (seleccion == 'empleado') {
+            $('#Email').prop('readonly', true);
+        }
+        
         $('#IdEmpleado').prop('readonly', true);
 
     }
