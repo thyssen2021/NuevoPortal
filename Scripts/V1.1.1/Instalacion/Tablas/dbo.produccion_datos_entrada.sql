@@ -20,7 +20,8 @@ GO
 
 
 CREATE TABLE [dbo].[produccion_datos_entrada](	
-	[id_produccion_registro][int] NOT NULL,		
+	[id_produccion_registro][int] NOT NULL,	
+	[peso_real_pieza_neto] float DEFAULT 0,
 	[orden_sap][varchar](15) NULL,
 	[orden_sap_2][varchar](15) NULL,
 	[piezas_por_golpe][int] DEFAULT 0,
