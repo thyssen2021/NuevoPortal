@@ -17,6 +17,7 @@ namespace Portal_2_0.Models
     {
         public int id { get; set; }
 
+        [Required]
         [DataType(DataType.Date)]
         [Display(Name = "Fecha de Nacimiento")]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
@@ -80,6 +81,7 @@ namespace Portal_2_0.Models
         [RegularExpression("(^[0-9]+$)", ErrorMessage = "Sólo se permiten números.")]
         public string C8ID { get; set; }
 
+        [Required]
         [DataType(DataType.Date)]
         [Display(Name = "Fecha de Ingreso")]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
