@@ -13,6 +13,29 @@
         <AssociationConnector Association="Portal_2_0Model.FK_puestos_area_clave" />
         <AssociationConnector Association="Portal_2_0Model.FK_empleados_planta_clave" />
         <AssociationConnector Association="Portal_2_0Model.FK_empleados_puesto" />
+        <EntityTypeShape EntityType="Portal_2_0Model.bom_en_sap" Width="1.5" PointX="5.375" PointY="7.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.class_v3" Width="1.5" PointX="7.375" PointY="9.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.mm_v3" Width="1.5" PointX="9.375" PointY="9.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.produccion_datos_entrada" Width="1.5" PointX="14.25" PointY="3.875" />
+        <EntityTypeShape EntityType="Portal_2_0Model.produccion_lineas" Width="1.5" PointX="3" PointY="9.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.produccion_lotes" Width="1.5" PointX="14.25" PointY="8.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.produccion_operadores" Width="1.5" PointX="9.75" PointY="6.25" />
+        <EntityTypeShape EntityType="Portal_2_0Model.produccion_registros" Width="1.5" PointX="12" PointY="5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.produccion_supervisores" Width="1.5" PointX="9.75" PointY="2.625" />
+        <EntityTypeShape EntityType="Portal_2_0Model.produccion_turnos" Width="1.5" PointX="3" PointY="6" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_operadores_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_supervisores_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_lineas_planta_clave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_planta_clave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_supervisores_clave_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_turnos_planta_clave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_datos_entrada_id_produccion_registro" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_operadores_id_linea" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_linea" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_lotes_id_produccion_registro" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_operador" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_supervisor" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_turnos" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

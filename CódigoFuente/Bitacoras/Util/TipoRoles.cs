@@ -11,6 +11,7 @@ namespace Clases.Util
         public const string USERS = "Usuarios";
         public const string ADMIN = "Admin";
         public const string RH = "RecursosHumanos";
-
+        public const string BITACORAS_PRODUCCION_REGISTRO = "BitacoraProduccionRegistro";
+        public const string BITACORAS_PRODUCCION_CATALOGOS = "BitacoraProduccionCatalogos";
     }
 }

@@ -29,5 +29,15 @@ namespace Portal_2_0.Models
         public virtual DbSet<plantas> plantas { get; set; }
         public virtual DbSet<empleados> empleados { get; set; }
         public virtual DbSet<puesto> puesto { get; set; }
+        public virtual DbSet<bom_en_sap> bom_en_sap { get; set; }
+        public virtual DbSet<class_v3> class_v3 { get; set; }
+        public virtual DbSet<mm_v3> mm_v3 { get; set; }
+        public virtual DbSet<produccion_datos_entrada> produccion_datos_entrada { get; set; }
+        public virtual DbSet<produccion_lineas> produccion_lineas { get; set; }
+        public virtual DbSet<produccion_lotes> produccion_lotes { get; set; }
+        public virtual DbSet<produccion_operadores> produccion_operadores { get; set; }
+        public virtual DbSet<produccion_registros> produccion_registros { get; set; }
+        public virtual DbSet<produccion_supervisores> produccion_supervisores { get; set; }
+        public virtual DbSet<produccion_turnos> produccion_turnos { get; set; }
     }
 }

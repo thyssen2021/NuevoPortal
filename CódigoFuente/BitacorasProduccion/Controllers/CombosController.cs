@@ -44,7 +44,70 @@ namespace Portal_2_0.Controllers
             }
             return Json(list, JsonRequestBehavior.AllowGet);
         }
-        
+
+        ///<summary>
+        ///Obtiene los empleado segun la planta recibida
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult obtieneEmpleados(int clavePlanta = 0)
+        {
+            //obtiene todos los posibles valores
+            List<empleados> listado = db.empleados.Where(p => p.planta_clave.Value == clavePlanta && p.activo == true).ToList();
+
+
+            //inserta el valor por default
+            listado.Insert(0, new empleados
+            {
+                clave = 0,
+                nombre = "-- Seleccione un valor --"
+            });
+
+            //inicializa la lista de objetos
+            var list = new object[listado.Count];
+
+            //completa la lista de objetos
+            for (int i = 0; i < listado.Count; i++)
+            {
+                if (i == 0)//en caso de item por defecto
+                    list[i] = new { value = "", name = listado[i].nombre };
+                else
+                    list[i] = new { value = listado[i].id, name = ("("+listado[i].numeroEmpleado+") "+ listado[i].nombre +" "+ listado[i].apellido1+" "+ listado[i].apellido2) };
+            }
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+        ///<summary>
+        ///Obtiene las lineas de la plantas enviada
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult obtieneLineasPlantas(int clavePlanta = 0)
+        {
+            //obtiene todos los posibles valores
+            List<produccion_lineas> listado = db.produccion_lineas.Where(p => p.clave_planta == clavePlanta && p.activo == true).ToList();
+
+
+            //inserta el valor por default
+            listado.Insert(0, new produccion_lineas
+            {
+                id = 0,
+                linea = "-- Seleccione un valor --"
+            });
+
+            //inicializa la lista de objetos
+            var list = new object[listado.Count];
+
+            //completa la lista de objetos
+            for (int i = 0; i < listado.Count; i++)
+            {
+                if (i == 0)//en caso de item por defecto
+                    list[i] = new { value = "", name = listado[i].linea };
+                else
+                    list[i] = new { value = listado[i].id, name = listado[i].linea };
+            }
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
 
         ///<summary>
         ///Obtiene los puestos segun el área recibida

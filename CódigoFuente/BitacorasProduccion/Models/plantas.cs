@@ -20,6 +20,10 @@ namespace Portal_2_0.Models
         {
             this.Area = new HashSet<Area>();
             this.empleados = new HashSet<empleados>();
+            this.produccion_lineas = new HashSet<produccion_lineas>();
+            this.produccion_registros = new HashSet<produccion_registros>();
+            this.produccion_supervisores = new HashSet<produccion_supervisores>();
+            this.produccion_turnos = new HashSet<produccion_turnos>();
         }
 
         [Display(Name = "Clave")]
@@ -40,5 +44,13 @@ namespace Portal_2_0.Models
         public virtual ICollection<Area> Area { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<empleados> empleados { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<produccion_lineas> produccion_lineas { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<produccion_registros> produccion_registros { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<produccion_supervisores> produccion_supervisores { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<produccion_turnos> produccion_turnos { get; set; }
     }
 }

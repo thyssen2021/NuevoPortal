@@ -9,12 +9,12 @@ namespace Portal_2_0.Models
     public class ComboSelect
     {
 
-        
+
         ///<summary>
         ///Obtiene las empleados
         ///</summary>
         ///<return>
-        ///retorna un JsonResult con las opciones disponibles
+        ///retorna un List<SelectListItem> con las opciones disponibles
         public static List<SelectListItem> obtieneEmpleadosSelectList()
         {
             Portal_2_0Entities db = new Portal_2_0Entities();
@@ -37,6 +37,39 @@ namespace Portal_2_0.Models
             items.Insert(0, new SelectListItem()
             {
                 Text = "Seleccione un valor",
+                Value = ""
+            });
+
+            return items;
+        }
+
+        ///<summary>
+        ///Obtiene las plantas
+        ///</summary>
+        ///<return>
+        ///retorna un List<SelectListItem> con las opciones disponibles
+        public static List<SelectListItem> obtienePlantasSelectList()
+        {
+            Portal_2_0Entities db = new Portal_2_0Entities();
+
+            //obtiene todos los posibles valores
+            List<plantas> listado = db.plantas.Where(p => p.activo == true).ToList();
+
+            var items = new List<SelectListItem>();
+
+            //usando linQ
+            items = listado
+                            .Where(s => s.activo == true) //obtiene unicamente los sectores activos
+                            .Select(s => new SelectListItem()
+                            {
+                                Text = s.descripcion,
+                                Value = s.clave.ToString()
+                            }).ToList();
+
+            //agrega valor vacio
+            items.Insert(0, new SelectListItem()
+            {
+                Text = "-- Seleccione un valor --",
                 Value = ""
             });
 

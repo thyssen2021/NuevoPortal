@@ -13,32 +13,28 @@ namespace Portal_2_0.Models
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
 
-    public partial class puesto
+    public partial class produccion_supervisores
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public puesto()
+        public produccion_supervisores()
         {
-            this.empleados = new HashSet<empleados>();
+            this.produccion_registros = new HashSet<produccion_registros>();
         }
-
-        [Display(Name = "Clave")]
-        public int clave { get; set; }
-
-        [Display(Name = "Estatus")]
-        public bool activo { get; set; }
-
-        [Required(AllowEmptyStrings = false)]
-        [StringLength(80, MinimumLength = 2)]
-        [Display(Name = "Descripción")]
-        public string descripcion { get; set; }
-
-        [Required(ErrorMessage = "El campo área es requerido")]
-        [Display(Name = "Área")]
-        public Nullable<int> areaClave { get; set; }
-
-        public virtual Area Area { get; set; }
-
+    
+        public int id { get; set; }
+        [Required(ErrorMessage = "El campo empleado es requerido")]
+        [Display(Name = "Empleado")]
+        public int id_empleado { get; set; }
+        [Required(ErrorMessage = "El campo planta es requerido")]
+        [Display(Name = "Planta")]
+        public int clave_planta { get; set; }
+       
+        [Display(Name = "Estado")]
+        public Nullable<bool> activo { get; set; }
+    
+        public virtual empleados empleados { get; set; }
+        public virtual plantas plantas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<empleados> empleados { get; set; }
+        public virtual ICollection<produccion_registros> produccion_registros { get; set; }
     }
 }

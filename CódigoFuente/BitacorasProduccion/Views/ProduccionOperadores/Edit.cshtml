@@ -1,10 +1,11 @@
-﻿@model Portal_2_0.Models.puesto
+﻿@model Portal_2_0.Models.produccion_operadores
 
 @{
-    ViewBag.Title = "Crear Puesto";
-    ViewBag.PrimerNivel = "recursos_humanos";
-    ViewBag.SegundoNivel = "puestos";
-    ViewBag.ControllerName = "Puestos";
+    ViewBag.Title = "Editar Operador de Producción";
+    ViewBag.PrimerNivel = "bitacoras_produccion";
+    ViewBag.SegundoNivel = "bitacoras_produccion_catalogos";
+    ViewBag.TercerNivel = "produccion_operadores";
+    ViewBag.ControllerName = "ProduccionOperadores";
 }
 
 @section estilos
@@ -13,6 +14,22 @@
     <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
 }
+
+@if (@ViewBag.C_Planta != null)
+{
+    <input type="hidden" value="@ViewBag.C_Planta" id="cPlanta" />
+}
+@if (@ViewBag.IdEmpleado != null)
+{
+    <input type="hidden" value="@ViewBag.IdEmpleado" id="iEmpleado" />
+}
+@if (@ViewBag.IdLinea != null)
+{
+    <input type="hidden" value="@ViewBag.IdLinea" id="iLinea" />
+}
+
+
+
 
 <div class="right_col" role="main">
     <div class="">
@@ -33,34 +50,36 @@
                     </div>
                     <div class="x_content">
                         <br />
-                        @using (Html.BeginForm("Create", "Puestos", FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                        @using (Html.BeginForm("Edit", "ProduccionOperadores", FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
                         {
                             @Html.AntiForgeryToken()
                             <h4>Datos del puesto</h4>
                             <hr />
                             @Html.ValidationSummary("", new { @class = "text-danger" })
+                            @Html.HiddenFor(model => model.id)
+                            @Html.HiddenFor(model => model.activo)
 
 
                             <div class="item form-group">
-                                <label class="col-form-label col-md-3 col-sm-3 label-align"> Planta </label>
+                                <label class="col-form-label col-md-3 col-sm-3 label-align">Planta</label>
                                 <div class="col-md-6 col-sm-6 ">
-                                    @Html.DropDownList("plantaClave", null, "-- Seleccione un valor --", htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @Html.DropDownList("clave_planta", null, "-- Seleccione un valor --", htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
                                 </div>
                             </div>
 
                             <div class="item form-group">
-                                @Html.LabelFor(model => model.areaClave, htmlAttributes: new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                @Html.LabelFor(model => model.id_linea, htmlAttributes: new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                 <div class="col-md-6 col-sm-6 ">
-                                    @Html.DropDownList("areaClave", null, "-- Seleccione un valor --", htmlAttributes: new { @class = "form-control select2bs4", @required = "required", @style = "width:100%" })
-                                    @Html.ValidationMessageFor(model => model.areaClave, "", new { @class = "text-danger" })
+                                    @Html.DropDownList("id_linea", null, "-- Seleccione un valor --", htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                    @Html.ValidationMessageFor(model => model.id_linea, "", new { @class = "text-danger" })
                                 </div>
                             </div>
 
                             <div class="item form-group">
-                                @Html.LabelFor(model => model.descripcion, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                @Html.LabelFor(model => model.id_empleado, htmlAttributes: new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                 <div class="col-md-6 col-sm-6 ">
-                                    @Html.EditorFor(model => model.descripcion, new { htmlAttributes = new { @class = "form-control" } })
-                                    @Html.ValidationMessageFor(model => model.descripcion, "", new { @class = "text-danger" })
+                                    @Html.DropDownList("id_empleado", null, "-- Seleccione un valor --", htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                    @Html.ValidationMessageFor(model => model.id_empleado, "", new { @class = "text-danger" })
                                 </div>
                             </div>
                             <div class="ln_solid"></div>
@@ -69,6 +88,8 @@
                                     <button type="submit" class="btn btn-success">Guardar</button>
                                 </div>
                             </div>
+
+                             
                         }
                     </div>
                 </div>
@@ -86,9 +107,7 @@
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
-    @Scripts.Render(Url.Content("~/Scripts/Forms/puestos.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/Forms/operadores_produccion.js"))
 }
-
-
 

@@ -1,0 +1,1 @@
+* Por que el campo de "Numero de golpes" (columna Y), tiene una formula diferente cuando se agregan 10 filas.

@@ -175,12 +175,17 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AreasController.cs" />
+    <Compile Include="Controllers\BomController.cs" />
     <Compile Include="Controllers\CombosController.cs" />
     <Compile Include="Controllers\empleadosController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\PlantasController.cs" />
+    <Compile Include="Controllers\ProduccionLineasController.cs" />
+    <Compile Include="Controllers\ProduccionOperadoresController.cs" />
+    <Compile Include="Controllers\ProduccionSupervisoresController.cs" />
+    <Compile Include="Controllers\ProduccionTurnosController.cs" />
     <Compile Include="Controllers\PuestosController.cs" />
     <Compile Include="Controllers\RolesAdminController.cs" />
     <Compile Include="Controllers\UserAdminController.cs" />
@@ -210,12 +215,21 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\BaseController.cs" />
+    <Compile Include="Models\bom_en_sap.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\class_v3.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\ComboSelect.cs" />
     <Compile Include="Models\empleados.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
+    <Compile Include="Models\mm_v3.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\NuevoPortalModel.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -232,6 +246,27 @@
       <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
     </Compile>
     <Compile Include="Models\plantas.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\produccion_datos_entrada.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\produccion_lineas.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\produccion_lotes.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\produccion_operadores.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\produccion_registros.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\produccion_supervisores.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\produccion_turnos.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\puesto.cs">
@@ -3721,7 +3756,9 @@
     <Content Include="Scripts\esm\popper.min.js" />
     <Content Include="Scripts\Forms\empleados.js" />
     <Content Include="Scripts\Forms\areas.js" />
+    <Content Include="Scripts\Forms\operadores_produccion.js" />
     <Content Include="Scripts\Forms\puestos.js" />
+    <Content Include="Scripts\Forms\supervisores_produccion.js" />
     <Content Include="Scripts\Forms\usuarios.js" />
     <Content Include="Scripts\index.js.flow" />
     <Content Include="Scripts\esm\popper.min.js.map" />
@@ -4781,6 +4818,31 @@
     <Content Include="Views\empleados\Edit.cshtml" />
     <Content Include="Views\empleados\Index.cshtml" />
     <Content Include="Views\empleados\Disable.cshtml" />
+    <Content Include="Views\ProduccionTurnos\Create.cshtml" />
+    <Content Include="Views\ProduccionTurnos\Details.cshtml" />
+    <Content Include="Views\ProduccionTurnos\Edit.cshtml" />
+    <Content Include="Views\ProduccionTurnos\Index.cshtml" />
+    <Content Include="Views\ProduccionTurnos\Disable.cshtml" />
+    <Content Include="Views\ProduccionTurnos\Enable.cshtml" />
+    <Content Include="Views\ProduccionLineas\Create.cshtml" />
+    <Content Include="Views\ProduccionLineas\Details.cshtml" />
+    <Content Include="Views\ProduccionLineas\Edit.cshtml" />
+    <Content Include="Views\ProduccionLineas\Index.cshtml" />
+    <Content Include="Views\ProduccionLineas\Enable.cshtml" />
+    <Content Include="Views\ProduccionLineas\Disable.cshtml" />
+    <Content Include="Views\ProduccionSupervisores\Create.cshtml" />
+    <Content Include="Views\ProduccionSupervisores\Details.cshtml" />
+    <Content Include="Views\ProduccionSupervisores\Edit.cshtml" />
+    <Content Include="Views\ProduccionSupervisores\Index.cshtml" />
+    <Content Include="Views\ProduccionSupervisores\Disable.cshtml" />
+    <Content Include="Views\ProduccionSupervisores\Enable.cshtml" />
+    <Content Include="Views\ProduccionOperadores\Create.cshtml" />
+    <Content Include="Views\ProduccionOperadores\Details.cshtml" />
+    <Content Include="Views\ProduccionOperadores\Edit.cshtml" />
+    <Content Include="Views\ProduccionOperadores\Index.cshtml" />
+    <Content Include="Views\ProduccionOperadores\Disable.cshtml" />
+    <Content Include="Views\ProduccionOperadores\Enable.cshtml" />
+    <Content Include="Views\Bom\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
