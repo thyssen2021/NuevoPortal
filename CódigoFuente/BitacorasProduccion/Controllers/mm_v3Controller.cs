@@ -11,12 +11,12 @@ using Portal_2_0.Models;
 
 namespace Portal_2_0.Controllers
 {
-    public class BomController : BaseController
+    public class mm_v3Controller : BaseController
     {
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
-        // GET: Bom
-        public ActionResult Index(string material, int pagina = 1)
+        // GET: mm_v3
+        public ActionResult Index(string material, string tipoMaterial, int pagina = 1)
         {
             if (TieneRol(TipoRoles.ADMIN))
             {
@@ -28,15 +28,19 @@ namespace Portal_2_0.Controllers
 
                 var cantidadRegistrosPorPagina = 20; // parámetro
 
-            
-                var listaBom = db.bom_en_sap.Where(x => String.IsNullOrEmpty(material) || x.Material.Contains(material)).OrderBy(x => x.Material)
+                //en caso de que material este vacio o contenga el parameto material              
+
+                var listaBom = db.mm_v3.Where(x => (String.IsNullOrEmpty(material) || x.Material.IndexOf(material, StringComparison.OrdinalIgnoreCase) >= 0)
+                        && (String.IsNullOrEmpty(tipoMaterial) || x.Type_of_Material.IndexOf(tipoMaterial, StringComparison.OrdinalIgnoreCase) >= 0)).OrderBy(x => x.Material)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                     .Take(cantidadRegistrosPorPagina).ToList();
 
-                var totalDeRegistros = db.bom_en_sap.Where(x => String.IsNullOrEmpty(material) || x.Material.Contains(material)).Count();
+                var totalDeRegistros = db.mm_v3.Where(x => (String.IsNullOrEmpty(material) || x.Material.IndexOf(material, StringComparison.OrdinalIgnoreCase) >= 0)
+                        && (String.IsNullOrEmpty(tipoMaterial) || x.Type_of_Material.IndexOf(tipoMaterial, StringComparison.OrdinalIgnoreCase) >= 0)).Count();
 
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
                 routeValues["material"] = material;
+                routeValues["tipoMaterial"] = tipoMaterial;
 
                 Paginacion paginacion = new Paginacion
                 {
@@ -54,39 +58,7 @@ namespace Portal_2_0.Controllers
             {
                 return View("../Home/ErrorPermisos");
             }
-            
         }
-
-        //// GET: Bom/Details/5
-        //public ActionResult Details(string id)
-        //{
-        //    if(TieneRol(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS))
-        //    {
-        //        if (id == null)
-        //        {
-        //            return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-        //        }
-        //        bom_en_sap bom_en_sap = db.bom_en_sap.Find(id);
-        //        if (bom_en_sap == null)
-        //        {
-        //            return HttpNotFound();
-        //        }
-        //        return View(bom_en_sap);
-        //    }
-        //    else
-        //    {
-        //        return View("../Home/ErrorPermisos");
-        //    }
-
-            
-        //}
-
-        // GET: Bom/Create
-        //diseñar método para cargar valores desde archivo en excel
-        //public ActionResult Create()
-        //{
-        //    return View();
-        //}
 
        
 

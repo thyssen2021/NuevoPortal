@@ -108,10 +108,12 @@
                                                             <li class="@(ViewBag.TercelNivel == "produccion_supervisores" ? "current-page" : null )"><a href="@Url.Action( "Index", "ProduccionSupervisores")">Supervisores</a></li>
                                                             <li class="@(ViewBag.TercelNivel == "produccion_operadores" ? "current-page" : null )"><a href="@Url.Action( "Index", "ProduccionOperadores")">Operadores</a></li>
                                                             @if (User.IsInRole(TipoRoles.ADMIN))
-                                                            { 
-                                                                 <li class="@(ViewBag.TercelNivel == "produccion_bom" ? "current-page" : null )"><a href="@Url.Action( "Index", "Bom")">Bom</a></li>
+                                                            {
+                                                                <li class="@(ViewBag.TercelNivel == "produccion_bom" ? "current-page" : null )"><a href="@Url.Action( "Index", "Bom")">BOM</a></li>
+                                                                <li class="@(ViewBag.TercelNivel == "produccion_class_v3" ? "current-page" : null )"><a href="@Url.Action( "Index", "class_v3")">Class V3</a></li>
+                                                                <li class="@(ViewBag.TercelNivel == "produccion_mm_v3" ? "current-page" : null )"><a href="@Url.Action( "Index", "mm_v3")">MM V3</a></li>
                                                             }
-                                                            </ul>
+                                                        </ul>
                                                     </li>
                                                 }
 

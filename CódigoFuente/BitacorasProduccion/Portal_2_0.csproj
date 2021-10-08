@@ -176,11 +176,13 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AreasController.cs" />
     <Compile Include="Controllers\BomController.cs" />
+    <Compile Include="Controllers\class_v3Controller.cs" />
     <Compile Include="Controllers\CombosController.cs" />
     <Compile Include="Controllers\empleadosController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
+    <Compile Include="Controllers\mm_v3Controller.cs" />
     <Compile Include="Controllers\PlantasController.cs" />
     <Compile Include="Controllers\ProduccionLineasController.cs" />
     <Compile Include="Controllers\ProduccionOperadoresController.cs" />
@@ -245,6 +247,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
     </Compile>
+    <Compile Include="Models\Paginacion.cs" />
     <Compile Include="Models\plantas.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -4843,6 +4846,9 @@
     <Content Include="Views\ProduccionOperadores\Disable.cshtml" />
     <Content Include="Views\ProduccionOperadores\Enable.cshtml" />
     <Content Include="Views\Bom\Index.cshtml" />
+    <Content Include="Views\Shared\_Paginacion.cshtml" />
+    <Content Include="Views\class_v3\Index.cshtml" />
+    <Content Include="Views\mm_v3\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
