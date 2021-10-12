@@ -22,8 +22,23 @@
     <!-- Custom Theme Style -->
     <link href="@Url.Content("~/Content/build/css/custom.css")" rel="stylesheet">
 
+    <style>
+        table.dataTable thead {
+            background-color: #0094ff;
+            color: azure;
+        }
+        .page-item.active .page-link {
+            background-color: #0094ff !important;
+            color: azure !important;
+        }
+
+        .page-link {
+            color:black !important;
+        }
+    </style>
+
     @RenderSection("estilos", required: false)
-    
+
 </head>
 
 <body class="nav-md" id="body">
@@ -83,15 +98,25 @@
                                             </ul>
                                         </li>
                                     }
-                                    @*@if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS) || User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REGISTRO))
+                                    @if (User.IsInRole(TipoRoles.ADMIN))
                                     {
-                                        <li class="@(ViewBag.PrimerNivel == "bitacoras_produccion" ? "active" : null )">
-                                            <a><i class="fa fa-database"></i>Producci&oacute;n - Cat&aacute;logos <span class="fa fa-chevron-down"></span></a>
-                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "bitacoras_produccion" ? "display:block" : null )">
-                                                <li class="@(ViewBag.SegundoNivel == "bitacoras_produccion_catalogos" ? "current-page" : null )"><a href="@Url.Action( "Index", "RolesAdmin")">Turnos</a></li>
+                                        <li class="@(ViewBag.PrimerNivel == "reporte_pesos" ? "active" : null )">
+                                            <a><i class="fa fa-file-excel-o"></i>Reporte Pesos <span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "reporte_pesos" ? "display:block" : null )">
+                                                <li class="@(ViewBag.SegundoNivel == "reporte_pesos_silao" ? "current-page" : null )"><a href="@Url.Action( "Silao", "ReportePesadas")">Silao</a></li>
+                                                <li class="@(ViewBag.SegundoNivel == "reporte_pesos_puebla" ? "current-page" : null )"><a href="@Url.Action( "Puebla", "ReportePesadas")">Puebla</a></li>
                                             </ul>
                                         </li>
-                                    }*@
+                                    }
+                                    @*@if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS) || User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REGISTRO))
+        {
+            <li class="@(ViewBag.PrimerNivel == "bitacoras_produccion" ? "active" : null )">
+                <a><i class="fa fa-database"></i>Producci&oacute;n - Cat&aacute;logos <span class="fa fa-chevron-down"></span></a>
+                <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "bitacoras_produccion" ? "display:block" : null )">
+                    <li class="@(ViewBag.SegundoNivel == "bitacoras_produccion_catalogos" ? "current-page" : null )"><a href="@Url.Action( "Index", "RolesAdmin")">Turnos</a></li>
+                </ul>
+            </li>
+        }*@
 
                                     @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS) || User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REGISTRO))
                                     {
@@ -118,18 +143,18 @@
                                                 }
 
                                                 @*<li>
-                                                    <a href="#level1_2">Level One</a>
-                                                </li>*@
-                                                    @*Ejemplo de más submenus
-                                                    @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS))
-                                                {
-                                                    <li class="@(ViewBag.SegundoNivel == "bitacoras_produccion_catalogos" ? "active" : null )">
-                                                        <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
-                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "bitacoras_produccion_catalogos" ? "display:block" : null )">
-                                                            <li class="@(ViewBag.TercelNivel == "produccion_turnos" ? "current-page" : null )"><a href="@Url.Action( "Index", "ProduccionTurnos")">Turnos</a></li>
-                                                        </ul>
-                                                    </li>
-                                                }*@
+                        <a href="#level1_2">Level One</a>
+                    </li>*@
+                                                @*Ejemplo de más submenus
+                        @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS))
+                    {
+                        <li class="@(ViewBag.SegundoNivel == "bitacoras_produccion_catalogos" ? "active" : null )">
+                            <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
+                            <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "bitacoras_produccion_catalogos" ? "display:block" : null )">
+                                <li class="@(ViewBag.TercelNivel == "produccion_turnos" ? "current-page" : null )"><a href="@Url.Action( "Index", "ProduccionTurnos")">Turnos</a></li>
+                            </ul>
+                        </li>
+                    }*@
                                             </ul>
                                         </li>
 

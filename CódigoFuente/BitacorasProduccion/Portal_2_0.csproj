@@ -189,6 +189,7 @@
     <Compile Include="Controllers\ProduccionSupervisoresController.cs" />
     <Compile Include="Controllers\ProduccionTurnosController.cs" />
     <Compile Include="Controllers\PuestosController.cs" />
+    <Compile Include="Controllers\ReportePesadasController.cs" />
     <Compile Include="Controllers\RolesAdminController.cs" />
     <Compile Include="Controllers\UserAdminController.cs" />
     <Compile Include="Global.asax.cs">
@@ -224,6 +225,21 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\ComboSelect.cs" />
+    <Compile Include="Models\Cube_tkmmModel.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Cube_tkmmModel.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Cube_tkmmModel.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Cube_tkmmModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Cube_tkmmModel.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Cube_tkmmModel.edmx</DependentUpon>
+    </Compile>
     <Compile Include="Models\empleados.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -3738,6 +3754,16 @@
     <Content Include="fonts\fontawesome-webfont.woff" />
     <Content Include="fonts\fontawesome-webfont.woff2" />
     <Content Include="fonts\FontAwesome.otf" />
+    <Content Include="Models\Cube_tkmmModel.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>Cube_tkmmModel.edmx</DependentUpon>
+      <LastGenOutput>Cube_tkmmModel.Context.cs</LastGenOutput>
+    </Content>
+    <Content Include="Models\Cube_tkmmModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>Cube_tkmmModel.edmx</DependentUpon>
+      <LastGenOutput>Cube_tkmmModel.cs</LastGenOutput>
+    </Content>
     <Content Include="Models\NuevoPortalModel.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
@@ -3761,6 +3787,7 @@
     <Content Include="Scripts\Forms\areas.js" />
     <Content Include="Scripts\Forms\operadores_produccion.js" />
     <Content Include="Scripts\Forms\puestos.js" />
+    <Content Include="Scripts\Forms\ReportePesadas.js" />
     <Content Include="Scripts\Forms\supervisores_produccion.js" />
     <Content Include="Scripts\Forms\usuarios.js" />
     <Content Include="Scripts\index.js.flow" />
@@ -4671,6 +4698,13 @@
     <Content Include="Models\NuevoPortalModel.edmx.diagram">
       <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
     </Content>
+    <EntityDeploy Include="Models\Cube_tkmmModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>Cube_tkmmModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <Content Include="Models\Cube_tkmmModel.edmx.diagram">
+      <DependentUpon>Cube_tkmmModel.edmx</DependentUpon>
+    </Content>
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
     <Content Include="Scripts\jquery-3.4.1.min.js" />
@@ -4849,10 +4883,13 @@
     <Content Include="Views\Shared\_Paginacion.cshtml" />
     <Content Include="Views\class_v3\Index.cshtml" />
     <Content Include="Views\mm_v3\Index.cshtml" />
+    <Content Include="Views\ReportePesadas\Silao.cshtml" />
+    <Content Include="Views\ReportePesadas\Puebla.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Views\Combos\" />
+    <Folder Include="Views\ReportesPesadasSilao\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -30,13 +30,16 @@ namespace Portal_2_0.Controllers
 
                 //en caso de que material este vacio o contenga el parameto material              
 
-                var listaBom = db.mm_v3.Where(x => (String.IsNullOrEmpty(material) || x.Material.IndexOf(material, StringComparison.OrdinalIgnoreCase) >= 0)
-                        && (String.IsNullOrEmpty(tipoMaterial) || x.Type_of_Material.IndexOf(tipoMaterial, StringComparison.OrdinalIgnoreCase) >= 0)).OrderBy(x => x.Material)
+                var listaBom = db.mm_v3.Where(
+                        x => (String.IsNullOrEmpty(material) || x.Material.Contains(material))
+                        && (String.IsNullOrEmpty(tipoMaterial) || x.Type_of_Material.Contains(tipoMaterial))
+                        )
+                    .OrderBy(x => x.Material)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                     .Take(cantidadRegistrosPorPagina).ToList();
 
-                var totalDeRegistros = db.mm_v3.Where(x => (String.IsNullOrEmpty(material) || x.Material.IndexOf(material, StringComparison.OrdinalIgnoreCase) >= 0)
-                        && (String.IsNullOrEmpty(tipoMaterial) || x.Type_of_Material.IndexOf(tipoMaterial, StringComparison.OrdinalIgnoreCase) >= 0)).Count();
+                var totalDeRegistros = db.mm_v3.Where(x => (String.IsNullOrEmpty(material) || x.Material.Contains(material))
+                       && (String.IsNullOrEmpty(tipoMaterial) || x.Type_of_Material.Contains(tipoMaterial))).Count();
 
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
                 routeValues["material"] = material;

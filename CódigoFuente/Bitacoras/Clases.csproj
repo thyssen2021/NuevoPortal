@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DBUtil\ExcepcionesDBUtil.cs" />
+    <Compile Include="DBUtil\ReportesPesadasDBUtil.cs" />
     <Compile Include="DBUtil\UsuariosDBUtil.cs" />
     <Compile Include="Models\EntradaRegistroEvento.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

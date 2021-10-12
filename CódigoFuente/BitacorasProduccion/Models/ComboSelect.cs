@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bitacoras.DBUtil;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -64,6 +65,70 @@ namespace Portal_2_0.Models
                             {
                                 Text = s.descripcion,
                                 Value = s.clave.ToString()
+                            }).ToList();
+
+            //agrega valor vacio
+            items.Insert(0, new SelectListItem()
+            {
+                Text = "-- Seleccione un valor --",
+                Value = ""
+            });
+
+            return items;
+        }
+
+        ///<summary>
+        ///Obtiene listado de clientes de Silao
+        ///</summary>
+        ///<return>
+        ///retorna un List<SelectListItem> con las opciones disponibles
+        public static List<SelectListItem> obtieneClientesSilao()
+        {
+
+            //obtiene todos los posibles valores
+            List<String> listado = ReportesPesadasDBUtil.ObtieneClientesSilao();
+
+            var items = new List<SelectListItem>();
+
+            //usando linQ
+            items = listado
+                            
+                            .Select(s => new SelectListItem()
+                            {
+                                Text = s,
+                                Value = s
+                            }).ToList();
+
+            //agrega valor vacio
+            items.Insert(0, new SelectListItem()
+            {
+                Text = "-- Seleccione un valor --",
+                Value = ""
+            });
+
+            return items;
+        }
+
+        ///<summary>
+        ///Obtiene listado de clientes de Silao
+        ///</summary>
+        ///<return>
+        ///retorna un List<SelectListItem> con las opciones disponibles
+        public static List<SelectListItem> obtieneClientesPuebla()
+        {            
+
+            //obtiene todos los posibles valores
+            List<String> listado = ReportesPesadasDBUtil.ObtieneClientesPuebla();
+
+            var items = new List<SelectListItem>();
+
+            //usando linQ
+            items = listado
+
+                            .Select(s => new SelectListItem()
+                            {
+                                Text = s,
+                                Value = s
                             }).ToList();
 
             //agrega valor vacio

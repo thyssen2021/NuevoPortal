@@ -11,6 +11,7 @@ using Portal_2_0.Models;
 
 namespace Portal_2_0.Controllers
 {
+    [Authorize]
     public class BomController : BaseController
     {
         private Portal_2_0Entities db = new Portal_2_0Entities();
