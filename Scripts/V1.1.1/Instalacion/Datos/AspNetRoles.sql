@@ -42,6 +42,12 @@ BEGIN
 		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'BitacoraProduccionCatalogos')
 	END
 
+	--REPORTE PESADAS
+	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='ReportePesadas' )
+	BEGIN
+		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'ReportePesadas')
+	END
+
 PRINT '<<<CORRECTO: La TABLA dbo.AspNetRoles ha sido INICIALIZADA en la Base de Datos: ' + db_name() + ' en el Servidor: ' + @@servername + '  >>>'     	
 
 END

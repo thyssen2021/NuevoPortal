@@ -13,5 +13,6 @@ namespace Clases.Util
         public const string RH = "RecursosHumanos";
         public const string BITACORAS_PRODUCCION_REGISTRO = "BitacoraProduccionRegistro";
         public const string BITACORAS_PRODUCCION_CATALOGOS = "BitacoraProduccionCatalogos";
+        public const string REPORTES_PESADAS = "ReportePesadas";
     }
 }

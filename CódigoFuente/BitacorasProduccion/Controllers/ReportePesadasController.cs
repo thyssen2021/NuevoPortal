@@ -16,7 +16,7 @@ namespace Portal_2_0.Controllers
         
         public ActionResult Silao(string cliente, string fecha_inicial, string fecha_final)
         {
-            if (TieneRol(TipoRoles.ADMIN))
+            if (TieneRol(TipoRoles.REPORTES_PESADAS))
             {
                 //mensaje en caso de crear, editar, etc
                 if (TempData["Mensaje"] != null)
@@ -70,7 +70,7 @@ namespace Portal_2_0.Controllers
         // GET: ReportesPesadasPuebla/Puebla
         public ActionResult Puebla(string cliente, string fecha_inicial, string fecha_final)
         {
-            if (TieneRol(TipoRoles.ADMIN))
+            if (TieneRol(TipoRoles.REPORTES_PESADAS))
             {
                 //mensaje en caso de crear, editar, etc
                 if (TempData["Mensaje"] != null)

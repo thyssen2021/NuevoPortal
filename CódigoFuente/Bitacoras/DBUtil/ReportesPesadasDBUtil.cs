@@ -349,7 +349,7 @@ namespace Bitacoras.DBUtil
             List<String> listado = new List<string>(); 
             
 
-            string cadenaConexion = cadenaConexion = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+            string cadenaConexion = cadenaConexion = ConfigurationManager.ConnectionStrings["cube_tkmmConnection"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(cadenaConexion))
             {
                 try
@@ -390,7 +390,7 @@ namespace Bitacoras.DBUtil
             List<String> listado = new List<string>();
 
 
-            string cadenaConexion = cadenaConexion = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+            string cadenaConexion = cadenaConexion = ConfigurationManager.ConnectionStrings["cube_tkmmConnection"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(cadenaConexion))
             {
                 try
