@@ -33,6 +33,7 @@ AS
         SELECT 
 			ISNULL(ROW_NUMBER() OVER (ORDER BY dbo.view_detalle_pesada_union_silao.[SAP Platina]), 0) as id
 			 ,[SAP Platina]
+			 ,[SAP Rollo]
 			 ,[Name 1]
 			 ,[Type of Metal]
 			 ,AVG([Net weight]) AS 'Peso Neto SAP'
@@ -54,7 +55,7 @@ AS
 		  --busqueda
 		  AND [Name 1] LIKE '%'+@cliente+'%'
 		  AND [cube_tkmm].[dbo].[view_detalle_pesada_union_silao].[fecha] between @fecha_inicio AND @fecha_fin
-		  group by [SAP Platina],[Name 1], [Type of Metal], [Thickness], [Width], [Advance], [peso_teorico_acero]
+		  group by [SAP Platina],[SAP Rollo],[Name 1], [Type of Metal], [Thickness], [Width], [Advance], [peso_teorico_acero]
 		  order by [SAP PLatina] ASC
     END  
 GO

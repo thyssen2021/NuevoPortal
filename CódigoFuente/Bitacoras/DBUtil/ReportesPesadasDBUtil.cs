@@ -140,6 +140,7 @@ namespace Bitacoras.DBUtil
                                     id = Convert.ToInt32(dr["id"]),
                                     Cliente = Convert.ToString(dr["Name 1"]),
                                     SAP_Platina = Convert.ToString(dr["SAP Platina"]),
+                                    SAP_Rollo = Convert.ToString(dr["SAP Rollo"]),
                                     Type_of_Metal = Convert.ToString(dr["Type of Metal"]),
                                     Peso_Neto_SAP = pesoNetoSap,
                                     Peso_Neto__mean_ = pesoNetoMean,
@@ -308,6 +309,7 @@ namespace Bitacoras.DBUtil
                                     id = Convert.ToInt32(dr["id"]),
                                     Cliente = Convert.ToString(dr["Name 1"]),
                                     SAP_Platina = Convert.ToString(dr["SAP Platina "]),
+                                    SAP_Rollo = Convert.ToString(dr["SAP Rollo"]),
                                     Type_of_Metal = Convert.ToString(dr["Type of Metal"]),
                                     Peso_Neto_SAP = pesoNetoSap,
                                     Peso_Neto__mean_ = pesoNetoMean,
@@ -436,6 +438,9 @@ namespace Bitacoras.DBUtil
 
         [Display(Name = "SAP PLATINA")]
         public string SAP_Platina { get; set; }
+        
+        [Display(Name = "SAP ROLLO")]
+        public string SAP_Rollo { get; set; }
 
         [Display(Name = "Type of Metal")]
         public string Type_of_Metal { get; set; }

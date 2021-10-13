@@ -18,18 +18,15 @@
     $("#excel").DataTable({
         dom: "Bfrtip",
         buttons: [
-            {
-                extend: "copy",
-                text: "Copiar",
-                className: "btn btn-success"
-            },
+            
             {
                 extend: "excel",
+                text: "Exportar a Excel",
                 className: "btn btn-success",
                 excelStyles: [                     // Add an excelStyles definition
                   
                     {
-                        cells: "sH",  // Smart select Columns A and B
+                        cells: "sI",  // Smart select Columns A and B
                         style: {
                             //fill: {
                             //    pattern: {
@@ -42,7 +39,7 @@
                         }
                     },
                     {
-                        cells: "sO",  // Smart select Columns A and B
+                        cells: "sP",  // Smart select Columns A and B
                         style: {
                             //fill: {
                             //    pattern: {

@@ -159,6 +159,9 @@
                                                         @Html.DisplayNameFor(model => model.SAP_Platina)
                                                     </th>
                                                     <th>
+                                                        @Html.DisplayNameFor(model => model.SAP_Rollo)
+                                                    </th>
+                                                    <th>
                                                         @Html.DisplayNameFor(model => model.Cliente)
                                                     </th>
                                                     <th>
@@ -214,62 +217,65 @@
                                             <tbody>
                                                 @foreach (var item in Model)
                                                 {
-                                                    <tr>
-                                                        <td>
-                                                            @Html.DisplayFor(modelItem => item.SAP_Platina)
-                                                        </td>
-                                                        <td>
-                                                            @Html.DisplayFor(modelItem => item.Cliente)
-                                                        </td>
-                                                        <td>
-                                                            @Html.DisplayFor(modelItem => item.Type_of_Metal)
-                                                        </td>
-                                                        <td>
-                                                            @Html.DisplayFor(modelItem => item.Peso_Neto_SAP)
-                                                        </td>
-                                                        <td>
-                                                            @Html.DisplayFor(modelItem => item.Peso_Neto__mean_)
-                                                        </td>
-                                                        <td>
-                                                            @Html.DisplayFor(modelItem => item.Peso_Neto_stdev)
-                                                        </td>
-                                                        <td>
-                                                            @Html.DisplayFor(modelItem => item.count)
-                                                        </td>
-                                                        <td>
-                                                            <b>@Html.DisplayFor(modelItem => item.Diferencia_Peso_Neto)</b>
-                                                        </td>
-                                                        <td>
-                                                            @Html.DisplayFor(modelItem => item.Thickness)
-                                                        </td>
-                                                        <td>
-                                                            @Html.DisplayFor(modelItem => item.Width)
-                                                        </td>
-                                                        <td>
-                                                            @Html.DisplayFor(modelItem => item.Advance)
-                                                        </td>
-                                                        <td>
-                                                            @Html.DisplayFor(modelItem => item.peso_teorico_acero)
-                                                        </td>
-                                                        <td>
-                                                            @Html.DisplayFor(modelItem => item.Peso_Bruto_SAP)
-                                                        </td>
-                                                        <td>
-                                                            @Html.DisplayFor(modelItem => item.Peso_Bruto__mean_)
-                                                        </td>
-                                                        <td>
-                                                            <b>@Html.DisplayFor(modelItem => item.Diferencia_SAP_Mean)</b>
-                                                        </td>
-                                                        <td>
-                                                            @Html.DisplayFor(modelItem => item.Diferencia_Bruto_Sap_teorico)
-                                                        </td>
-                                                        <td>
-                                                            @Html.DisplayFor(modelItem => item.Total_de_piezas)
-                                                        </td>
-                                                        <td>
-                                                            @Html.DisplayFor(modelItem => item.Peso_Etiqueta)
-                                                        </td>
-                                                    </tr>
+                                                <tr>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.SAP_Platina)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.SAP_Rollo)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Cliente)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Type_of_Metal)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Peso_Neto_SAP)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Peso_Neto__mean_)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Peso_Neto_stdev)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.count)
+                                                    </td>
+                                                    <td>
+                                                        <b>@Html.DisplayFor(modelItem => item.Diferencia_Peso_Neto)</b>
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Thickness)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Width)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Advance)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.peso_teorico_acero)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Peso_Bruto_SAP)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Peso_Bruto__mean_)
+                                                    </td>
+                                                    <td>
+                                                        <b>@Html.DisplayFor(modelItem => item.Diferencia_SAP_Mean)</b>
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Diferencia_Bruto_Sap_teorico)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Total_de_piezas)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Peso_Etiqueta)
+                                                    </td>
+                                                </tr>
                                                 }
                                             </tbody>
                                         </table>
