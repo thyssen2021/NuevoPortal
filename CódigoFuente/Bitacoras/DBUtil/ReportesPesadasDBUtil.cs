@@ -38,8 +38,7 @@ namespace Bitacoras.DBUtil
                         cmd.CommandType = CommandType.StoredProcedure;
                        
 
-                        cmd.Parameters.Add("@cliente", SqlDbType.VarChar).Value = client
-                            ;
+                        cmd.Parameters.Add("@cliente", SqlDbType.VarChar).Value = client;
                         cmd.Parameters.Add("@fecha_inicio", SqlDbType.DateTime).Value = fecha_inicio;
                         cmd.Parameters.Add("@fecha_fin", SqlDbType.DateTime).Value = fecha_final;
 

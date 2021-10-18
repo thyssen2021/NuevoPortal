@@ -35,6 +35,7 @@
         .page-link {
             color:black !important;
         }
+       
     </style>
 
     @RenderSection("estilos", required: false)
@@ -131,21 +132,22 @@
                                                             }
                                                         </ul>
                                                     </li>
+
                                                 }
 
                                                 @*<li>
-                        <a href="#level1_2">Level One</a>
-                    </li>*@
-                                                @*Ejemplo de más submenus
-                        @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS))
-                    {
-                        <li class="@(ViewBag.SegundoNivel == "bitacoras_produccion_catalogos" ? "active" : null )">
-                            <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
-                            <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "bitacoras_produccion_catalogos" ? "display:block" : null )">
-                                <li class="@(ViewBag.TercelNivel == "produccion_turnos" ? "current-page" : null )"><a href="@Url.Action( "Index", "ProduccionTurnos")">Turnos</a></li>
-                            </ul>
-                        </li>
-                    }*@
+                                                    <a href="#level1_2">Level One</a>
+                                                </li>*@
+                                                                            @*Ejemplo de más submenus
+                                                    @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS))
+                                                {
+                                                    <li class="@(ViewBag.SegundoNivel == "bitacoras_produccion_catalogos" ? "active" : null )">
+                                                        <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
+                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "bitacoras_produccion_catalogos" ? "display:block" : null )">
+                                                            <li class="@(ViewBag.TercelNivel == "produccion_turnos" ? "current-page" : null )"><a href="@Url.Action( "Index", "ProduccionTurnos")">Turnos</a></li>
+                                                        </ul>
+                                                    </li>
+                                                }*@
                                             </ul>
                                         </li>
 

@@ -315,6 +315,7 @@
     <Content Include="Content\build\js\custom.min.js" />
     <Content Include="Content\font-awesome.css" />
     <Content Include="Content\font-awesome.min.css" />
+    <Content Include="Content\images\fondo_cumpleaños.png" />
     <Content Include="Content\images\logo_4.png" />
     <Content Include="Content\images\logo_1.png" />
     <Content Include="Content\images\logo_2.jpg" />
