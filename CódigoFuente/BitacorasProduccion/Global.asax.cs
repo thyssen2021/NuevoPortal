@@ -27,7 +27,6 @@ namespace IdentitySample
         protected void Session_End(object sender, EventArgs e)
         {
             System.Diagnostics.Debug.Print("------------ La sesion ha expirado ------------------");
-
         }
     }
 }

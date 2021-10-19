@@ -165,5 +165,35 @@ namespace Portal_2_0.Controllers
 
             return Json(empleado, JsonRequestBehavior.AllowGet);
         }
+
+        ///<summary>
+        ///Obtiene el rollo de bom según el material enviado
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult obtieneRollosBom(string material = "")
+        {
+            //obtiene todos los posibles valores
+            List<bom_en_sap> listado = db.bom_en_sap.Where(p => p.activo == true && p.Quantity > 0 && !p.Material.StartsWith("sm") && p.Material==material).ToList();
+
+            //realiza un distict de los materiales
+            List<string> distinctList = listado.Where(m => m.Material == material).Select(m => m.Component).Distinct().ToList();
+
+            //inserta el valor por default
+            distinctList.Insert(0,  "-- Seleccione un valor --");
+
+            //inicializa la lista de objetos
+            var list = new object[distinctList.Count];
+
+            //completa la lista de objetos
+            for (int i = 0; i < distinctList.Count; i++)
+            {
+                if (i == 0)//en caso de item por defecto
+                    list[i] = new { value = "", name = distinctList[i]};
+                else
+                    list[i] = new { value = distinctList[i], name = distinctList[i] };
+            }
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
     }
 }

@@ -1,0 +1,107 @@
+﻿@model Portal_2_0.Models.produccion_registros
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>produccion_registros</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.sap_platina)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.sap_platina)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.sap_rollo)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.sap_rollo)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.fecha)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.fecha)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.activo)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.activo)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.plantas.descripcion)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.plantas.descripcion)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.produccion_datos_entrada.orden_sap)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.produccion_datos_entrada.orden_sap)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.produccion_lineas.linea)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.produccion_lineas.linea)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.produccion_lotes.id_produccion_registro)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.produccion_lotes.id_produccion_registro)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.produccion_operadores.id)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.produccion_operadores.id)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.produccion_supervisores.id)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.produccion_supervisores.id)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.produccion_turnos.descripcion)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.produccion_turnos.descripcion)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

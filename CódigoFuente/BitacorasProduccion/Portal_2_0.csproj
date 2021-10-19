@@ -186,6 +186,7 @@
     <Compile Include="Controllers\PlantasController.cs" />
     <Compile Include="Controllers\ProduccionLineasController.cs" />
     <Compile Include="Controllers\ProduccionOperadoresController.cs" />
+    <Compile Include="Controllers\ProduccionRegistrosController.cs" />
     <Compile Include="Controllers\ProduccionSupervisoresController.cs" />
     <Compile Include="Controllers\ProduccionTurnosController.cs" />
     <Compile Include="Controllers\PuestosController.cs" />
@@ -3787,6 +3788,8 @@
     <Content Include="Scripts\Forms\empleados.js" />
     <Content Include="Scripts\Forms\areas.js" />
     <Content Include="Scripts\Forms\operadores_produccion.js" />
+    <Content Include="Scripts\Forms\ProduccionRegistrosCreate.js" />
+    <Content Include="Scripts\Forms\ProduccionRegistrosIndex.js" />
     <Content Include="Scripts\Forms\puestos.js" />
     <Content Include="Scripts\Forms\ReportePesadas.js" />
     <Content Include="Scripts\Forms\supervisores_produccion.js" />
@@ -4886,6 +4889,11 @@
     <Content Include="Views\mm_v3\Index.cshtml" />
     <Content Include="Views\ReportePesadas\Silao.cshtml" />
     <Content Include="Views\ReportePesadas\Puebla.cshtml" />
+    <Content Include="Views\ProduccionRegistros\Create.cshtml" />
+    <Content Include="Views\ProduccionRegistros\Delete.cshtml" />
+    <Content Include="Views\ProduccionRegistros\Details.cshtml" />
+    <Content Include="Views\ProduccionRegistros\Edit.cshtml" />
+    <Content Include="Views\ProduccionRegistros\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

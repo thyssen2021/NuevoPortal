@@ -140,5 +140,139 @@ namespace Portal_2_0.Models
 
             return items;
         }
+
+        ///<summary>
+        ///Obtiene el listado de supervisores por planta
+        ///</summary>
+        ///<return>
+        ///retorna un List<SelectListItem> con las opciones disponibles
+        public static List<SelectListItem> obtieneSupervisoresPlanta(int planta=0)
+        {
+            Portal_2_0Entities db = new Portal_2_0Entities();
+
+            //obtiene todos los posibles valores
+            List<produccion_supervisores> listado = db.produccion_supervisores.Where(p => p.activo == true && p.clave_planta==planta).ToList();
+
+            var items = new List<SelectListItem>();
+
+            //usando linQ
+            items = listado
+                            .Select(s => new SelectListItem()
+                            {
+                                Text = s.empleados.nombre +" "+ s.empleados.apellido1 +" "+s.empleados.apellido2,
+                                Value = s.id.ToString()
+                            }).ToList();
+
+            //agrega valor vacio
+            items.Insert(0, new SelectListItem()
+            {
+                Text = "-- Seleccione un valor --",
+                Value = ""
+            });
+
+            return items;
+        }
+
+        ///<summary>
+        ///Obtiene operadores por linea de producción 
+        ///</summary>
+        ///<return>
+        ///retorna un List<SelectListItem> con las opciones disponibles
+        public static List<SelectListItem> obtieneOperadorPorLinea(int linea = 0)
+        {
+            Portal_2_0Entities db = new Portal_2_0Entities();
+
+            //obtiene todos los posibles valores
+            List<produccion_operadores> listado = db.produccion_operadores.Where(p => p.activo == true && p.id_linea == linea).ToList();
+
+            var items = new List<SelectListItem>();
+
+            //usando linQ
+            items = listado
+                            .Select(s => new SelectListItem()
+                            {
+                                Text = s.empleados.nombre + " " + s.empleados.apellido1 + " " + s.empleados.apellido2,
+                                Value = s.id.ToString()
+                            }).ToList();
+
+            //agrega valor vacio
+            items.Insert(0, new SelectListItem()
+            {
+                Text = "-- Seleccione un valor --",
+                Value = ""
+            });
+
+            return items;
+        }
+
+        ///<summary>
+        ///Obtiene material de boom 
+        ///</summary>
+        ///<return>
+        ///retorna un List<SelectListItem> con las opciones disponibles
+        public static List<SelectListItem> obtieneMaterial_BOM()
+        {
+            Portal_2_0Entities db = new Portal_2_0Entities();
+
+            //obtiene todos los posibles valores
+            List<bom_en_sap> listado = db.bom_en_sap.Where(p => p.activo == true && p.Quantity>0 && !p.Material.StartsWith("sm")).ToList();
+ 
+            //realiza un distict de los materiales
+            List<string> distinctList = listado.Select(m => m.Material).Distinct().ToList();
+            
+            var items = new List<SelectListItem>();
+
+            //usando linQ
+            items = distinctList
+                            .Select(s => new SelectListItem()
+                            {
+                                Text = s,
+                                Value = s
+                            }).ToList();
+
+            //agrega valor vacio
+            items.Insert(0, new SelectListItem()
+            {
+                Text = "-- Seleccione un valor --",
+                Value = ""
+            });
+
+            return items;
+        }
+
+        ///<summary>
+        ///Obtiene el componente (rollo) de boom 
+        ///</summary>
+        ///<return>
+        ///retorna un List<SelectListItem> con las opciones disponibles
+        public static List<SelectListItem> obtieneRollo_BOM(string material="")
+        {
+            Portal_2_0Entities db = new Portal_2_0Entities();
+
+            //obtiene todos los posibles valores
+            List<bom_en_sap> listado = db.bom_en_sap.Where(p => p.activo == true && p.Quantity > 0 && !p.Material.StartsWith("sm")).ToList();
+
+            //realiza un distict de los materiales
+            List<string> distinctList = listado.Where(m=>m.Material==material).Select(m => m.Component).Distinct().ToList();
+
+            var items = new List<SelectListItem>();
+
+            //usando linQ
+            items = distinctList
+                            .Select(s => new SelectListItem()
+                            {
+                                Text = s,
+                                Value = s
+                            }).ToList();
+
+            //agrega valor vacio
+            items.Insert(0, new SelectListItem()
+            {
+                Text = "-- Seleccione un valor --",
+                Value = ""
+            });
+
+            return items;
+        }
     }
 }

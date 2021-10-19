@@ -19,6 +19,11 @@
 
     int registroInicial = ((paginacion.PaginaActual - 1) * paginacion.RegistrosPorPagina) + 1;
 
+    if (paginacion.TotalDeRegistros == 0)
+    {
+        registroInicial = 0;
+    }
+
     int registroFinal = paginacion.PaginaActual * paginacion.RegistrosPorPagina;
 
     if (registroFinal > paginacion.TotalDeRegistros)

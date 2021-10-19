@@ -39,7 +39,7 @@ AS
 							SELECT * FROM log_envio_correo 
 							WHERE 
 								email=e.correo 
-								AND (enviado=1 OR intentos_envio>=5)								 
+								AND (enviado=1 OR intentos_envio>=3)								 
 								AND YEAR(fecha) = YEAR(GETDATE()) 
 							)
     END  

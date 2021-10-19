@@ -11,17 +11,38 @@ namespace Portal_2_0.Models
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.ComponentModel.DataAnnotations;
+
     public partial class produccion_registros
     {
         public int id { get; set; }
+        [Display(Name = "Planta")]
         public Nullable<int> clave_planta { get; set; }
+        [Display(Name = "Línea")]
         public Nullable<int> id_linea { get; set; }
+        
+        [Required]
+        [Display(Name = "Operador")]
         public Nullable<int> id_operador { get; set; }
+
+        [Required]
+        [Display(Name = "Supervisor")]
         public Nullable<int> id_supervisor { get; set; }
+        [Display(Name = "Turno")]
         public Nullable<int> id_turno { get; set; }
+
+        [Required]
+        [Display(Name = "SAP Platina")]
         public string sap_platina { get; set; }
+
+        [Required]
+        [Display(Name = "SAP Rollo")]
         public string sap_rollo { get; set; }
+
+        [DataType(DataType.Date)]
+        [Display(Name = "Fecha")]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+
         public Nullable<System.DateTime> fecha { get; set; }
         public Nullable<bool> activo { get; set; }
     
