@@ -182,7 +182,12 @@ namespace Portal_2_0.Controllers
                 db.produccion_registros.Add(produccion_registros);
                 db.SaveChanges();
                 TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);
-                return RedirectToAction("Index");
+                
+                //retorna la vista de datos de entrada
+                return RedirectToAction("DatosEntradas", new
+                {
+                   id = produccion_registros.id
+                });
             }
 
             //si no es válido
@@ -225,48 +230,109 @@ namespace Portal_2_0.Controllers
             return View(produccion_registros);
         }
 
-        // GET: ProduccionRegistros/Edit/5
-        public ActionResult Edit(int? id)
+        // GET: ProduccionRegistros/DatosEntrada/5
+        public ActionResult DatosEntradas(int? id)
         {
-            if (id == null)
+            //verifica los permisos del usuario
+            if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REGISTRO))
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                //verifica si se envio un id
+                if (id == null)
+                {
+                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                }
+
+                //busca si existe el registro de produccion
+                produccion_registros produccion = db.produccion_registros.Find(id);
+                
+                if(produccion==null){
+                    TempData["Mensaje"] = new MensajesSweetAlert("No existe el registro de producción.", TipoMensajesSweetAlerts.ERROR);
+                    return RedirectToAction("Index");
+                }
+
+                //busca si hay datos de entrada para el registro de producción
+                produccion_datos_entrada produccion_datos_entrada = db.produccion_datos_entrada.FirstOrDefault(x=> x.id_produccion_registro == id.Value);
+                
+                if (produccion_datos_entrada == null)
+                {
+                    //si no hay registro de entrada de datos crea uno nuevo con el id de registro de produccion
+                    produccion_datos_entrada = new produccion_datos_entrada
+                    {
+                        id_produccion_registro =  id.Value,
+                        produccion_registros = produccion
+                    };    
+                }
+
+                //agrega datos entrada a la produccion
+                produccion.produccion_datos_entrada = produccion_datos_entrada;
+
+
+
+                //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina
+                mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == produccion.sap_platina);
+                if (mm == null)            
+                    mm = new mm_v3 { };
+
+                //ENVIAR cLASS SEGUN EL MATERIAL
+              class_v3 class_ = db.class_v3.FirstOrDefault(x => x.Object == produccion.sap_platina);
+                if (class_ == null)
+                    class_ = new class_v3 { };
+
+                
+                ViewBag.MM = mm;
+                ViewBag.Class = class_;
+                return View(produccion);
             }
-            produccion_registros produccion_registros = db.produccion_registros.Find(id);
-            if (produccion_registros == null)
+            else
             {
-                return HttpNotFound();
+                return View("../Home/ErrorPermisos");
             }
-            ViewBag.clave_planta = new SelectList(db.plantas, "clave", "descripcion", produccion_registros.clave_planta);
-            ViewBag.id = new SelectList(db.produccion_datos_entrada, "id_produccion_registro", "orden_sap", produccion_registros.id);
-            ViewBag.id_linea = new SelectList(db.produccion_lineas, "id", "linea", produccion_registros.id_linea);
-            ViewBag.id = new SelectList(db.produccion_lotes, "id_produccion_registro", "id_produccion_registro", produccion_registros.id);
-            ViewBag.id_operador = new SelectList(db.produccion_operadores, "id", "id", produccion_registros.id_operador);
-            ViewBag.id_supervisor = new SelectList(db.produccion_supervisores, "id", "id", produccion_registros.id_supervisor);
-            ViewBag.id_turno = new SelectList(db.produccion_turnos, "id", "descripcion", produccion_registros.id_turno);
-            return View(produccion_registros);
+           
         }
 
+       
         // POST: ProduccionRegistros/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "id,clave_planta,id_linea,id_operador,id_supervisor,id_turno,sap_platina,sap_rollo,fecha,activo")] produccion_registros produccion_registros)
+        public ActionResult DatosEntrada(produccion_registros produccion_registros)
         {
             if (ModelState.IsValid)
             {
-                db.Entry(produccion_registros).State = EntityState.Modified;
+                //verifica que si existe en un registro en datos entrada
+                produccion_datos_entrada datos_Entrada = db.produccion_datos_entrada.FirstOrDefault(x => x.id_produccion_registro == produccion_registros.id);
+
+                if (datos_Entrada == null) //si no existe en BD crea la entrada
+                {
+                    db.produccion_datos_entrada.Add(produccion_registros.produccion_datos_entrada);
+                    db.SaveChanges();
+                }
+                else {
+                    //si existe lo modifica
+                    // Activity already exist in database and modify it
+                    db.Entry(datos_Entrada).CurrentValues.SetValues(produccion_registros.produccion_datos_entrada);
+                    db.Entry(datos_Entrada).State = EntityState.Modified;
+                    db.SaveChanges();
+                }
+
+                //borra los lotes anteriores
+                var listLotesAnteriores = db.produccion_lotes.Where(x => x.id_produccion_registro == produccion_registros.id);
+                foreach (produccion_lotes lote in listLotesAnteriores)
+                    db.produccion_lotes.Remove(lote);
+                
                 db.SaveChanges();
+
+                //agrega los lotes nuevos
+                foreach (produccion_lotes lote in produccion_registros.produccion_lotes_list)
+                {
+                    lote.id_produccion_registro = produccion_registros.id;
+                    db.produccion_lotes.Add(lote);
+                    db.SaveChanges();
+                }
                 return RedirectToAction("Index");
             }
-            ViewBag.clave_planta = new SelectList(db.plantas, "clave", "descripcion", produccion_registros.clave_planta);
-            ViewBag.id = new SelectList(db.produccion_datos_entrada, "id_produccion_registro", "orden_sap", produccion_registros.id);
-            ViewBag.id_linea = new SelectList(db.produccion_lineas, "id", "linea", produccion_registros.id_linea);
-            ViewBag.id = new SelectList(db.produccion_lotes, "id_produccion_registro", "id_produccion_registro", produccion_registros.id);
-            ViewBag.id_operador = new SelectList(db.produccion_operadores, "id", "id", produccion_registros.id_operador);
-            ViewBag.id_supervisor = new SelectList(db.produccion_supervisores, "id", "id", produccion_registros.id_supervisor);
-            ViewBag.id_turno = new SelectList(db.produccion_turnos, "id", "descripcion", produccion_registros.id_turno);
+         
             return View(produccion_registros);
         }
 

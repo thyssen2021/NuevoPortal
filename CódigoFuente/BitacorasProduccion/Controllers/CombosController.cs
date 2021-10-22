@@ -182,6 +182,11 @@ namespace Portal_2_0.Controllers
             //inserta el valor por default
             distinctList.Insert(0,  "-- Seleccione un valor --");
 
+            //En caso de "Temporal" agrega temporal como opcion
+            if (material.ToUpper().Contains("TEMPORAL")) {
+                distinctList.Add("TEMPORAL");
+            }
+
             //inicializa la lista de objetos
             var list = new object[distinctList.Count];
 

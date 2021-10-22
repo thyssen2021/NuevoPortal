@@ -40,7 +40,7 @@ function verificaEstadoCombos() {
     //si planta esta vacia
     if (planta == "") {
         $("#linea").prop("disabled", true);
-        $("#crearFormButton").prop("disabled", true);
+      //  $("#crearFormButton").prop("disabled", true);
     }
     else {
         $("#linea").prop("disabled", false);
@@ -49,11 +49,11 @@ function verificaEstadoCombos() {
     var linea = $("#linea option:selected").val();
     //si linea esta vacia
     if (linea == "") {
-        $("#crearFormButton").prop("disabled", true);
+       // $("#crearFormButton").prop("disabled", true);
         $("#crearFormButton").fadeOut(1000);
     }
     else {
-        $("#crearFormButton").prop("disabled", false);
+        //$("#crearFormButton").prop("disabled", false);
         $("#crearFormButton").fadeIn(1000);
     }
 }
@@ -90,7 +90,7 @@ function seleccionaValoresDefault() {
             //establece el valor del segundo select una vez termina la llamada ajax
             if ($("#linea option[value='" + cLinea.value + "']").length > 0) {
                 $("#linea").val(cLinea.value);
-                $("#crearFormButton").prop("disabled", false);
+               // $("#crearFormButton").prop("disabled", false);
                 $("#crearFormButton").fadeIn(1000);
             } else {
                 $("#linea").val("");

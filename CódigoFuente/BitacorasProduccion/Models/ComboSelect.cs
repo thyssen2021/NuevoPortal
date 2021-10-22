@@ -237,6 +237,13 @@ namespace Portal_2_0.Models
                 Value = ""
             });
 
+            //agrega valores al final 
+            items.Add( new SelectListItem()
+            {
+                Text = "TEMPORAL",
+                Value = "TEMPORAL"
+            });
+
             return items;
         }
 

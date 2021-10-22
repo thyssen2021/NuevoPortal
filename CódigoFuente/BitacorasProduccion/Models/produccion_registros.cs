@@ -50,6 +50,8 @@ namespace Portal_2_0.Models
         public virtual produccion_datos_entrada produccion_datos_entrada { get; set; }
         public virtual produccion_lineas produccion_lineas { get; set; }
         public virtual produccion_lotes produccion_lotes { get; set; }
+
+        public virtual List<produccion_lotes> produccion_lotes_list { get; set; } = new List<produccion_lotes>();
         public virtual produccion_operadores produccion_operadores { get; set; }
         public virtual produccion_supervisores produccion_supervisores { get; set; }
         public virtual produccion_turnos produccion_turnos { get; set; }

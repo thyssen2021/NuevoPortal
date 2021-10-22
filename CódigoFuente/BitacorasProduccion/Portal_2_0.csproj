@@ -184,6 +184,7 @@
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\mm_v3Controller.cs" />
     <Compile Include="Controllers\PlantasController.cs" />
+    <Compile Include="Controllers\ProduccionDatosEntradaController.cs" />
     <Compile Include="Controllers\ProduccionLineasController.cs" />
     <Compile Include="Controllers\ProduccionOperadoresController.cs" />
     <Compile Include="Controllers\ProduccionRegistrosController.cs" />
@@ -4894,6 +4895,12 @@
     <Content Include="Views\ProduccionRegistros\Details.cshtml" />
     <Content Include="Views\ProduccionRegistros\Edit.cshtml" />
     <Content Include="Views\ProduccionRegistros\Index.cshtml" />
+    <Content Include="Views\ProduccionDatosEntrada\Create.cshtml" />
+    <Content Include="Views\ProduccionDatosEntrada\Delete.cshtml" />
+    <Content Include="Views\ProduccionDatosEntrada\Details.cshtml" />
+    <Content Include="Views\ProduccionDatosEntrada\Edit.cshtml" />
+    <Content Include="Views\ProduccionDatosEntrada\Index.cshtml" />
+    <Content Include="Views\ProduccionRegistros\DatosEntradas.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

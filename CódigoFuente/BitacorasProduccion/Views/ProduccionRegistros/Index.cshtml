@@ -114,7 +114,7 @@
                                             <input type="hidden" name="linea" value="@filtroLinea" id="hidden_linea" />
                                             <input type="hidden" name="planta" value="@filtroPlanta" id="hidden_planta" />
 
-                                            <input type="button" style="display:none" value="Crear nuevo registro" class="btn btn-success float-left" id="crearFormButton" disabled />
+                                            <input type="button" style="display:none" value="Crear nuevo registro" class="btn btn-success float-left" id="crearFormButton"  />
                                         }
                                     </div>
                                     <hr />
@@ -134,7 +134,7 @@
                                                         @Html.DisplayNameFor(model => model.fecha)
                                                     </th>
                                                     <th>
-                                                        @Html.DisplayNameFor(model => model.plantas.descripcion)
+                                                        Planta
                                                     </th>
                                                     <th>
                                                         @Html.DisplayNameFor(model => model.produccion_datos_entrada.orden_sap)
@@ -199,9 +199,9 @@
                                                         }
                                                     </td>
                                                     <td>
-                                                        @Html.ActionLink("Edit", "Edit", new { id = item.id }) |
-                                                        @Html.ActionLink("Details", "Details", new { id = item.id }) |
-                                                        @Html.ActionLink("Delete", "Delete", new { id = item.id })
+                                                        <a href="@Url.Action("DatosEntradas", ViewBag.ControllerName, new { id = item.id})" class="btn btn-success btm-sm" title="Editar">
+                                                            <i class="fa fa-pencil-square-o"></i>
+                                                        </a>
                                                     </td>
                                                 </tr>
                                                 }

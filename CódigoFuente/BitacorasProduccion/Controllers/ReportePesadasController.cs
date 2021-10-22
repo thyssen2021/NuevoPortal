@@ -46,8 +46,6 @@ namespace Portal_2_0.Controllers
                     Console.WriteLine("Error al convertir: " + ex.Message);
                 }
 
-
-
                 List<Bitacoras.DBUtil.ReportePesada> listado = Bitacoras.DBUtil.ReportesPesadasDBUtil.ObtieneReporteSilao(cliente, dateInicial, dateFinal);
 
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
