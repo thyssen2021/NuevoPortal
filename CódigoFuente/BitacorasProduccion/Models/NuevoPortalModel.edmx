@@ -142,6 +142,7 @@
           <Property Name="peso_cola_kgs" Type="float" />
           <Property Name="total_piezas_ajuste" Type="int" />
           <Property Name="ordenes_por_pieza" Type="int" />
+          <Property Name="comentarios" Type="varchar" MaxLength="255" />
         </EntityType>
         <EntityType Name="produccion_lineas">
           <Key>
@@ -154,8 +155,9 @@
         </EntityType>
         <EntityType Name="produccion_lotes">
           <Key>
-            <PropertyRef Name="id_produccion_registro" />
+            <PropertyRef Name="id" />
           </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="id_produccion_registro" Type="int" Nullable="false" />
           <Property Name="numero_lote_izquierdo" Type="int" />
           <Property Name="numero_lote_derecho" Type="int" />
@@ -277,7 +279,7 @@
         </Association>
         <Association Name="FK_produccion_lotes_id_produccion_registro">
           <End Role="produccion_registros" Type="Self.produccion_registros" Multiplicity="1" />
-          <End Role="produccion_lotes" Type="Self.produccion_lotes" Multiplicity="0..1" />
+          <End Role="produccion_lotes" Type="Self.produccion_lotes" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="produccion_registros">
               <PropertyRef Name="id" />
@@ -530,9 +532,9 @@
           <NavigationProperty Name="Area" Relationship="Self.FK_areas_planta_clave" FromRole="plantas" ToRole="Area" />
           <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_empleados_planta_clave" FromRole="plantas" ToRole="empleados" />
           <NavigationProperty Name="produccion_lineas" Relationship="Portal_2_0Model.FK_produccion_lineas_planta_clave" FromRole="plantas" ToRole="produccion_lineas" />
-          <NavigationProperty Name="produccion_registros" Relationship="Portal_2_0Model.FK_produccion_registros_planta_clave" FromRole="plantas" ToRole="produccion_registros" />
           <NavigationProperty Name="produccion_supervisores" Relationship="Portal_2_0Model.FK_produccion_supervisores_clave_planta" FromRole="plantas" ToRole="produccion_supervisores" />
           <NavigationProperty Name="produccion_turnos" Relationship="Portal_2_0Model.FK_produccion_turnos_planta_clave" FromRole="plantas" ToRole="produccion_turnos" />
+          <NavigationProperty Name="produccion_registros" Relationship="Portal_2_0Model.FK_produccion_registros_planta_clave" FromRole="plantas" ToRole="produccion_registros" />
         </EntityType>
         <Association Name="FK_areas_planta_clave">
           <End Role="plantas" Type="Self.plantas" Multiplicity="0..1" />
@@ -572,9 +574,7 @@
           <EntitySet Name="mm_v3" EntityType="Portal_2_0Model.mm_v3" />
           <EntitySet Name="produccion_datos_entrada" EntityType="Portal_2_0Model.produccion_datos_entrada" />
           <EntitySet Name="produccion_lineas" EntityType="Portal_2_0Model.produccion_lineas" />
-          <EntitySet Name="produccion_lotes" EntityType="Portal_2_0Model.produccion_lotes" />
           <EntitySet Name="produccion_operadores" EntityType="Portal_2_0Model.produccion_operadores" />
-          <EntitySet Name="produccion_registros" EntityType="Portal_2_0Model.produccion_registros" />
           <EntitySet Name="produccion_supervisores" EntityType="Portal_2_0Model.produccion_supervisores" />
           <EntitySet Name="produccion_turnos" EntityType="Portal_2_0Model.produccion_turnos" />
           <AssociationSet Name="FK_produccion_operadores_id_empleado" Association="Portal_2_0Model.FK_produccion_operadores_id_empleado">
@@ -589,10 +589,6 @@
             <End Role="plantas" EntitySet="plantas" />
             <End Role="produccion_lineas" EntitySet="produccion_lineas" />
           </AssociationSet>
-          <AssociationSet Name="FK_produccion_registros_planta_clave" Association="Portal_2_0Model.FK_produccion_registros_planta_clave">
-            <End Role="plantas" EntitySet="plantas" />
-            <End Role="produccion_registros" EntitySet="produccion_registros" />
-          </AssociationSet>
           <AssociationSet Name="FK_produccion_supervisores_clave_planta" Association="Portal_2_0Model.FK_produccion_supervisores_clave_planta">
             <End Role="plantas" EntitySet="plantas" />
             <End Role="produccion_supervisores" EntitySet="produccion_supervisores" />
@@ -601,13 +597,19 @@
             <End Role="plantas" EntitySet="plantas" />
             <End Role="produccion_turnos" EntitySet="produccion_turnos" />
           </AssociationSet>
-          <AssociationSet Name="FK_produccion_datos_entrada_id_produccion_registro" Association="Portal_2_0Model.FK_produccion_datos_entrada_id_produccion_registro">
-            <End Role="produccion_registros" EntitySet="produccion_registros" />
-            <End Role="produccion_datos_entrada" EntitySet="produccion_datos_entrada" />
-          </AssociationSet>
           <AssociationSet Name="FK_produccion_operadores_id_linea" Association="Portal_2_0Model.FK_produccion_operadores_id_linea">
             <End Role="produccion_lineas" EntitySet="produccion_lineas" />
             <End Role="produccion_operadores" EntitySet="produccion_operadores" />
+          </AssociationSet>
+          <EntitySet Name="produccion_lotes" EntityType="Portal_2_0Model.produccion_lotes" />
+          <EntitySet Name="produccion_registros" EntityType="Portal_2_0Model.produccion_registros" />
+          <AssociationSet Name="FK_produccion_registros_planta_clave" Association="Portal_2_0Model.FK_produccion_registros_planta_clave">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="produccion_registros" EntitySet="produccion_registros" />
+          </AssociationSet>
+          <AssociationSet Name="FK_produccion_datos_entrada_id_produccion_registro" Association="Portal_2_0Model.FK_produccion_datos_entrada_id_produccion_registro">
+            <End Role="produccion_registros" EntitySet="produccion_registros" />
+            <End Role="produccion_datos_entrada" EntitySet="produccion_datos_entrada" />
           </AssociationSet>
           <AssociationSet Name="FK_produccion_registros_linea" Association="Portal_2_0Model.FK_produccion_registros_linea">
             <End Role="produccion_lineas" EntitySet="produccion_lineas" />
@@ -799,6 +801,7 @@
           <Property Name="peso_cola_kgs" Type="Double" />
           <Property Name="total_piezas_ajuste" Type="Int32" />
           <Property Name="ordenes_por_pieza" Type="Int32" />
+          <Property Name="comentarios" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="produccion_registros" Relationship="Portal_2_0Model.FK_produccion_datos_entrada_id_produccion_registro" FromRole="produccion_datos_entrada" ToRole="produccion_registros" />
         </EntityType>
         <EntityType Name="produccion_lineas">
@@ -813,16 +816,6 @@
           <NavigationProperty Name="produccion_operadores" Relationship="Portal_2_0Model.FK_produccion_operadores_id_linea" FromRole="produccion_lineas" ToRole="produccion_operadores" />
           <NavigationProperty Name="produccion_registros" Relationship="Portal_2_0Model.FK_produccion_registros_linea" FromRole="produccion_lineas" ToRole="produccion_registros" />
         </EntityType>
-        <EntityType Name="produccion_lotes">
-          <Key>
-            <PropertyRef Name="id_produccion_registro" />
-          </Key>
-          <Property Name="id_produccion_registro" Type="Int32" Nullable="false" />
-          <Property Name="numero_lote_izquierdo" Type="Int32" />
-          <Property Name="numero_lote_derecho" Type="Int32" />
-          <Property Name="piezas_paquete" Type="Int32" />
-          <NavigationProperty Name="produccion_registros" Relationship="Portal_2_0Model.FK_produccion_lotes_id_produccion_registro" FromRole="produccion_lotes" ToRole="produccion_registros" />
-        </EntityType>
         <EntityType Name="produccion_operadores">
           <Key>
             <PropertyRef Name="id" />
@@ -834,28 +827,6 @@
           <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_produccion_operadores_id_empleado" FromRole="produccion_operadores" ToRole="empleados" />
           <NavigationProperty Name="produccion_lineas" Relationship="Portal_2_0Model.FK_produccion_operadores_id_linea" FromRole="produccion_operadores" ToRole="produccion_lineas" />
           <NavigationProperty Name="produccion_registros" Relationship="Portal_2_0Model.FK_produccion_registros_operador" FromRole="produccion_operadores" ToRole="produccion_registros" />
-        </EntityType>
-        <EntityType Name="produccion_registros">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="clave_planta" Type="Int32" />
-          <Property Name="id_linea" Type="Int32" />
-          <Property Name="id_operador" Type="Int32" />
-          <Property Name="id_supervisor" Type="Int32" />
-          <Property Name="id_turno" Type="Int32" />
-          <Property Name="sap_platina" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="sap_rollo" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="fecha" Type="DateTime" Precision="3" />
-          <Property Name="activo" Type="Boolean" />
-          <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_produccion_registros_planta_clave" FromRole="produccion_registros" ToRole="plantas" />
-          <NavigationProperty Name="produccion_datos_entrada" Relationship="Portal_2_0Model.FK_produccion_datos_entrada_id_produccion_registro" FromRole="produccion_registros" ToRole="produccion_datos_entrada" />
-          <NavigationProperty Name="produccion_lineas" Relationship="Portal_2_0Model.FK_produccion_registros_linea" FromRole="produccion_registros" ToRole="produccion_lineas" />
-          <NavigationProperty Name="produccion_lotes" Relationship="Portal_2_0Model.FK_produccion_lotes_id_produccion_registro" FromRole="produccion_registros" ToRole="produccion_lotes" />
-          <NavigationProperty Name="produccion_operadores" Relationship="Portal_2_0Model.FK_produccion_registros_operador" FromRole="produccion_registros" ToRole="produccion_operadores" />
-          <NavigationProperty Name="produccion_supervisores" Relationship="Portal_2_0Model.FK_produccion_registros_supervisor" FromRole="produccion_registros" ToRole="produccion_supervisores" />
-          <NavigationProperty Name="produccion_turnos" Relationship="Portal_2_0Model.FK_produccion_registros_turnos" FromRole="produccion_registros" ToRole="produccion_turnos" />
         </EntityType>
         <EntityType Name="produccion_supervisores">
           <Key>
@@ -919,18 +890,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_produccion_registros_planta_clave">
-          <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.produccion_registros" Role="produccion_registros" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="plantas">
-              <PropertyRef Name="clave" />
-            </Principal>
-            <Dependent Role="produccion_registros">
-              <PropertyRef Name="clave_planta" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_produccion_supervisores_clave_planta">
           <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="1" />
           <End Type="Portal_2_0Model.produccion_supervisores" Role="produccion_supervisores" Multiplicity="*" />
@@ -955,18 +914,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_produccion_datos_entrada_id_produccion_registro">
-          <End Type="Portal_2_0Model.produccion_registros" Role="produccion_registros" Multiplicity="1" />
-          <End Type="Portal_2_0Model.produccion_datos_entrada" Role="produccion_datos_entrada" Multiplicity="0..1" />
-          <ReferentialConstraint>
-            <Principal Role="produccion_registros">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="produccion_datos_entrada">
-              <PropertyRef Name="id_produccion_registro" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_produccion_operadores_id_linea">
           <End Type="Portal_2_0Model.produccion_lineas" Role="produccion_lineas" Multiplicity="1" />
           <End Type="Portal_2_0Model.produccion_operadores" Role="produccion_operadores" Multiplicity="*" />
@@ -976,6 +923,63 @@
             </Principal>
             <Dependent Role="produccion_operadores">
               <PropertyRef Name="id_linea" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="produccion_lotes">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_produccion_registro" Type="Int32" Nullable="false" />
+          <Property Name="numero_lote_izquierdo" Type="Int32" />
+          <Property Name="numero_lote_derecho" Type="Int32" />
+          <Property Name="piezas_paquete" Type="Int32" />
+          <NavigationProperty Name="produccion_registros" Relationship="Portal_2_0Model.FK_produccion_lotes_id_produccion_registro" FromRole="produccion_lotes" ToRole="produccion_registros" />
+        </EntityType>
+        <EntityType Name="produccion_registros">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="clave_planta" Type="Int32" />
+          <Property Name="id_linea" Type="Int32" />
+          <Property Name="id_operador" Type="Int32" />
+          <Property Name="id_supervisor" Type="Int32" />
+          <Property Name="id_turno" Type="Int32" />
+          <Property Name="sap_platina" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="sap_rollo" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="fecha" Type="DateTime" Precision="3" />
+          <Property Name="activo" Type="Boolean" />
+          <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_produccion_registros_planta_clave" FromRole="produccion_registros" ToRole="plantas" />
+          <NavigationProperty Name="produccion_datos_entrada" Relationship="Portal_2_0Model.FK_produccion_datos_entrada_id_produccion_registro" FromRole="produccion_registros" ToRole="produccion_datos_entrada" />
+          <NavigationProperty Name="produccion_lineas" Relationship="Portal_2_0Model.FK_produccion_registros_linea" FromRole="produccion_registros" ToRole="produccion_lineas" />
+          <NavigationProperty Name="produccion_lotes" Relationship="Portal_2_0Model.FK_produccion_lotes_id_produccion_registro" FromRole="produccion_registros" ToRole="produccion_lotes" />
+          <NavigationProperty Name="produccion_operadores" Relationship="Portal_2_0Model.FK_produccion_registros_operador" FromRole="produccion_registros" ToRole="produccion_operadores" />
+          <NavigationProperty Name="produccion_supervisores" Relationship="Portal_2_0Model.FK_produccion_registros_supervisor" FromRole="produccion_registros" ToRole="produccion_supervisores" />
+          <NavigationProperty Name="produccion_turnos" Relationship="Portal_2_0Model.FK_produccion_registros_turnos" FromRole="produccion_registros" ToRole="produccion_turnos" />
+        </EntityType>
+        <Association Name="FK_produccion_registros_planta_clave">
+          <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.produccion_registros" Role="produccion_registros" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="produccion_registros">
+              <PropertyRef Name="clave_planta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_produccion_datos_entrada_id_produccion_registro">
+          <End Type="Portal_2_0Model.produccion_registros" Role="produccion_registros" Multiplicity="1" />
+          <End Type="Portal_2_0Model.produccion_datos_entrada" Role="produccion_datos_entrada" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="produccion_registros">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="produccion_datos_entrada">
+              <PropertyRef Name="id_produccion_registro" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -993,7 +997,7 @@
         </Association>
         <Association Name="FK_produccion_lotes_id_produccion_registro">
           <End Type="Portal_2_0Model.produccion_registros" Role="produccion_registros" Multiplicity="1" />
-          <End Type="Portal_2_0Model.produccion_lotes" Role="produccion_lotes" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.produccion_lotes" Role="produccion_lotes" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="produccion_registros">
               <PropertyRef Name="id" />
@@ -1178,6 +1182,7 @@
           <EntitySetMapping Name="produccion_datos_entrada">
             <EntityTypeMapping TypeName="Portal_2_0Model.produccion_datos_entrada">
               <MappingFragment StoreEntitySet="produccion_datos_entrada">
+                <ScalarProperty Name="comentarios" ColumnName="comentarios" />
                 <ScalarProperty Name="ordenes_por_pieza" ColumnName="ordenes_por_pieza" />
                 <ScalarProperty Name="total_piezas_ajuste" ColumnName="total_piezas_ajuste" />
                 <ScalarProperty Name="peso_cola_kgs" ColumnName="peso_cola_kgs" />
@@ -1205,38 +1210,12 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="produccion_lotes">
-            <EntityTypeMapping TypeName="Portal_2_0Model.produccion_lotes">
-              <MappingFragment StoreEntitySet="produccion_lotes">
-                <ScalarProperty Name="piezas_paquete" ColumnName="piezas_paquete" />
-                <ScalarProperty Name="numero_lote_derecho" ColumnName="numero_lote_derecho" />
-                <ScalarProperty Name="numero_lote_izquierdo" ColumnName="numero_lote_izquierdo" />
-                <ScalarProperty Name="id_produccion_registro" ColumnName="id_produccion_registro" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="produccion_operadores">
             <EntityTypeMapping TypeName="Portal_2_0Model.produccion_operadores">
               <MappingFragment StoreEntitySet="produccion_operadores">
                 <ScalarProperty Name="activo" ColumnName="activo" />
                 <ScalarProperty Name="id_linea" ColumnName="id_linea" />
                 <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="produccion_registros">
-            <EntityTypeMapping TypeName="Portal_2_0Model.produccion_registros">
-              <MappingFragment StoreEntitySet="produccion_registros">
-                <ScalarProperty Name="activo" ColumnName="activo" />
-                <ScalarProperty Name="fecha" ColumnName="fecha" />
-                <ScalarProperty Name="sap_rollo" ColumnName="sap_rollo" />
-                <ScalarProperty Name="sap_platina" ColumnName="sap_platina" />
-                <ScalarProperty Name="id_turno" ColumnName="id_turno" />
-                <ScalarProperty Name="id_supervisor" ColumnName="id_supervisor" />
-                <ScalarProperty Name="id_operador" ColumnName="id_operador" />
-                <ScalarProperty Name="id_linea" ColumnName="id_linea" />
-                <ScalarProperty Name="clave_planta" ColumnName="clave_planta" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
@@ -1259,6 +1238,33 @@
                 <ScalarProperty Name="hora_inicio" ColumnName="hora_inicio" />
                 <ScalarProperty Name="descripcion" ColumnName="descripcion" />
                 <ScalarProperty Name="valor" ColumnName="valor" />
+                <ScalarProperty Name="clave_planta" ColumnName="clave_planta" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="produccion_lotes">
+            <EntityTypeMapping TypeName="Portal_2_0Model.produccion_lotes">
+              <MappingFragment StoreEntitySet="produccion_lotes">
+                <ScalarProperty Name="piezas_paquete" ColumnName="piezas_paquete" />
+                <ScalarProperty Name="numero_lote_derecho" ColumnName="numero_lote_derecho" />
+                <ScalarProperty Name="numero_lote_izquierdo" ColumnName="numero_lote_izquierdo" />
+                <ScalarProperty Name="id_produccion_registro" ColumnName="id_produccion_registro" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="produccion_registros">
+            <EntityTypeMapping TypeName="Portal_2_0Model.produccion_registros">
+              <MappingFragment StoreEntitySet="produccion_registros">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="fecha" ColumnName="fecha" />
+                <ScalarProperty Name="sap_rollo" ColumnName="sap_rollo" />
+                <ScalarProperty Name="sap_platina" ColumnName="sap_platina" />
+                <ScalarProperty Name="id_turno" ColumnName="id_turno" />
+                <ScalarProperty Name="id_supervisor" ColumnName="id_supervisor" />
+                <ScalarProperty Name="id_operador" ColumnName="id_operador" />
+                <ScalarProperty Name="id_linea" ColumnName="id_linea" />
                 <ScalarProperty Name="clave_planta" ColumnName="clave_planta" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>

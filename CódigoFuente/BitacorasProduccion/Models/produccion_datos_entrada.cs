@@ -16,7 +16,6 @@ namespace Portal_2_0.Models
     public partial class produccion_datos_entrada
     {
         public int id_produccion_registro { get; set; }
-
         [Required(ErrorMessage = "El Peso Real Neto es requerido", AllowEmptyStrings = false)]
         [Display(Name = "Peso Real Pieza Neto")]   //viene de la báscula
         public Nullable<double> peso_real_pieza_neto { get; set; }
@@ -29,13 +28,10 @@ namespace Portal_2_0.Models
         [StringLength(10, MinimumLength = 8)]
         [Display(Name = "Orden SAP 2")]
         public string orden_sap_2 { get; set; }
-
         [Display(Name = "Piezas por Golpe")]
         [Required(ErrorMessage = "El campo Piezas por Golpe es requerido")]
         [Range(1, 10)]
         public Nullable<int> piezas_por_golpe { get; set; }
-
-
         [StringLength(30, MinimumLength = 1)]
         [Display(Name = "Núm. Rollo")]
         public string numero_rollo { get; set; }
@@ -45,7 +41,6 @@ namespace Portal_2_0.Models
         [Required(ErrorMessage = "El campo Lote de Rollo es requerido")]
         [Display(Name = "Lote Rollo")]
         public string lote_rollo { get; set; }
-
         [Display(Name = "Peso Etiqueta")]
         [Required(ErrorMessage = "El campo Peso Etiqueta es requerido")]
         [Range(0, int.MaxValue, ErrorMessage = "Ingrese un valor positivo")]
@@ -80,6 +75,7 @@ namespace Portal_2_0.Models
         [Required(ErrorMessage = "El campo Órdenes por Pieza es requerido")]
         [Range(1, 100, ErrorMessage = "Ingrese un valor positivo entre 1 y 100")]
         public Nullable<int> ordenes_por_pieza { get; set; }
+        public string comentarios { get; set; }
     
         public virtual produccion_registros produccion_registros { get; set; }
     }

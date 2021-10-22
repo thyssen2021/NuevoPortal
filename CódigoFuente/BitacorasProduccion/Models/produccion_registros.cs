@@ -15,12 +15,19 @@ namespace Portal_2_0.Models
 
     public partial class produccion_registros
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public produccion_registros()
+        {
+            this.produccion_lotes = new HashSet<produccion_lotes>();
+        }
+
         public int id { get; set; }
+
         [Display(Name = "Planta")]
         public Nullable<int> clave_planta { get; set; }
         [Display(Name = "Línea")]
         public Nullable<int> id_linea { get; set; }
-        
+
         [Required]
         [Display(Name = "Operador")]
         public Nullable<int> id_operador { get; set; }
@@ -49,11 +56,10 @@ namespace Portal_2_0.Models
         public virtual plantas plantas { get; set; }
         public virtual produccion_datos_entrada produccion_datos_entrada { get; set; }
         public virtual produccion_lineas produccion_lineas { get; set; }
-        public virtual produccion_lotes produccion_lotes { get; set; }
-
-        public virtual List<produccion_lotes> produccion_lotes_list { get; set; } = new List<produccion_lotes>();
         public virtual produccion_operadores produccion_operadores { get; set; }
         public virtual produccion_supervisores produccion_supervisores { get; set; }
         public virtual produccion_turnos produccion_turnos { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<produccion_lotes> produccion_lotes { get; set; }
     }
 }

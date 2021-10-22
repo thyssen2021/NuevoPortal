@@ -30,7 +30,7 @@ namespace Portal_2_0.Controllers
 
                 var cantidadRegistrosPorPagina = 20; // parámetro
           
-                var produccion_registros = db.produccion_registros.Include(p => p.plantas).Include(p => p.produccion_datos_entrada).Include(p => p.produccion_lineas).Include(p => p.produccion_lotes).Include(p => p.produccion_operadores).Include(p => p.produccion_supervisores).Include(p => p.produccion_turnos).Where(x =>
+                var produccion_registros = db.produccion_registros.Include(p => p.plantas).Include(p => p.produccion_lineas).Include(p => p.produccion_lotes).Include(p => p.produccion_operadores).Include(p => p.produccion_supervisores).Include(p => p.produccion_turnos).Where(x =>
                         x.activo == true
                         &&   (!String.IsNullOrEmpty(linea) && x.id_linea.ToString().Contains(linea))
                         && (!String.IsNullOrEmpty(planta) && x.clave_planta.ToString().Contains(planta))
@@ -39,7 +39,7 @@ namespace Portal_2_0.Controllers
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                     .Take(cantidadRegistrosPorPagina).ToList();
 
-                var totalDeRegistros = db.produccion_registros.Include(p => p.plantas).Include(p => p.produccion_datos_entrada).Include(p => p.produccion_lineas).Include(p => p.produccion_lotes).Include(p => p.produccion_operadores).Include(p => p.produccion_supervisores).Include(p => p.produccion_turnos).Where(x => 
+                var totalDeRegistros = db.produccion_registros.Include(p => p.plantas).Include(p => p.produccion_lineas).Include(p => p.produccion_lotes).Include(p => p.produccion_operadores).Include(p => p.produccion_supervisores).Include(p => p.produccion_turnos).Where(x => 
                         x.activo==true
                         && (!String.IsNullOrEmpty(linea) && x.id_linea.ToString().Contains(linea))
                         && (!String.IsNullOrEmpty(planta) && x.clave_planta.ToString().Contains(planta))
@@ -296,9 +296,21 @@ namespace Portal_2_0.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult DatosEntrada(produccion_registros produccion_registros)
+        public ActionResult DatosEntradas(produccion_registros produccion_registros)
         {
-            if (ModelState.IsValid)
+            
+
+            bool error=false;
+
+            foreach (produccion_lotes lote in produccion_registros.produccion_lotes)
+            {
+                if (lote.numero_lote_derecho == null && lote.numero_lote_izquierdo == null)
+                    error = true;
+            }
+
+            if (error) {
+                ModelState.AddModelError("", "Verifique que se haya especificado al menos un lote izquierdo o derecho para cada lote.");
+            }else if (ModelState.IsValid)
             {
                 //verifica que si existe en un registro en datos entrada
                 produccion_datos_entrada datos_Entrada = db.produccion_datos_entrada.FirstOrDefault(x => x.id_produccion_registro == produccion_registros.id);
@@ -322,17 +334,39 @@ namespace Portal_2_0.Controllers
                     db.produccion_lotes.Remove(lote);
                 
                 db.SaveChanges();
+               
 
                 //agrega los lotes nuevos
-                foreach (produccion_lotes lote in produccion_registros.produccion_lotes_list)
-                {
+                foreach (produccion_lotes lote in produccion_registros.produccion_lotes)
+                {                   
                     lote.id_produccion_registro = produccion_registros.id;
                     db.produccion_lotes.Add(lote);
                     db.SaveChanges();
                 }
-                return RedirectToAction("Index");
+
+
+                TempData["Mensaje"] = new MensajesSweetAlert("Se ha creado el registro correctamente", TipoMensajesSweetAlerts.ERROR);
+
+                //retorna la vista de datos de entrada
+                return RedirectToAction("Index", new
+                {
+                    planta = produccion_registros.clave_planta,
+                    linea = produccion_registros.id_linea
+                });
             }
-         
+
+            //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina
+            mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == produccion_registros.sap_platina);
+            if (mm == null)
+                mm = new mm_v3 { };
+
+            //ENVIAR cLASS SEGUN EL MATERIAL
+            class_v3 class_ = db.class_v3.FirstOrDefault(x => x.Object == produccion_registros.sap_platina);
+            if (class_ == null)
+                class_ = new class_v3 { };
+
+            ViewBag.MM = mm;
+            ViewBag.Class = class_;
             return View(produccion_registros);
         }
 

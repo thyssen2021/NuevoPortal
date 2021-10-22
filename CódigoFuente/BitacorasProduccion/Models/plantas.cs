@@ -11,8 +11,7 @@ namespace Portal_2_0.Models
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-
+    
     public partial class plantas
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -21,25 +20,16 @@ namespace Portal_2_0.Models
             this.Area = new HashSet<Area>();
             this.empleados = new HashSet<empleados>();
             this.produccion_lineas = new HashSet<produccion_lineas>();
-            this.produccion_registros = new HashSet<produccion_registros>();
             this.produccion_supervisores = new HashSet<produccion_supervisores>();
             this.produccion_turnos = new HashSet<produccion_turnos>();
+            this.produccion_registros = new HashSet<produccion_registros>();
         }
-
-        [Display(Name = "Clave")]
+    
         public int clave { get; set; }
-
-        [Required(AllowEmptyStrings = false)]
-        [StringLength(100, MinimumLength = 2)]
-        [Display(Name = "Descripción")]
         public string descripcion { get; set; }
-        [Display(Name = "Estatus")]
         public bool activo { get; set; }
-        [Required(AllowEmptyStrings = false)]
-        [Display(Name = "Código SAP")]
-        [StringLength(4, MinimumLength = 2)]
         public string codigoSap { get; set; }
-
+    
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Area> Area { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -47,10 +37,10 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<produccion_lineas> produccion_lineas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<produccion_registros> produccion_registros { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<produccion_supervisores> produccion_supervisores { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<produccion_turnos> produccion_turnos { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<produccion_registros> produccion_registros { get; set; }
     }
 }

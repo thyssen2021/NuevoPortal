@@ -14,6 +14,7 @@ namespace Portal_2_0.Models
     
     public partial class produccion_lotes
     {
+        public int id { get; set; }
         public int id_produccion_registro { get; set; }
         public Nullable<int> numero_lote_izquierdo { get; set; }
         public Nullable<int> numero_lote_derecho { get; set; }
