@@ -4,6 +4,9 @@ using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
 using Bitacoras.Util;
@@ -410,5 +413,78 @@ namespace Portal_2_0.Controllers
             }
             base.Dispose(disposing);
         }
+
+        ///<summary>
+        ///Retorna el peso de la báscula
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        ///
+        
+        public JsonResult obtienePesoBascula(string ip = "")
+        {
+            byte[] msg = Encoding.UTF8.GetBytes("Portal");
+            byte[] bytes = new byte[256];
+            var list = new object[1];
+            string patron = @"(?:- *)?\d+(?:\.\d+)?";
+
+            //conecta con la báscula
+            try
+            {
+                Socket miPrimerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);         
+                IPEndPoint direccion = new IPEndPoint(IPAddress.Parse(ip), 1702);
+
+                try
+                {
+                    miPrimerSocket.Connect(direccion);
+                    miPrimerSocket.ReceiveTimeout = 16000;
+
+                    // Blocks until send returns.
+                    int byteCount = miPrimerSocket.Send(msg, 0, msg.Length, SocketFlags.None);
+                   
+                    byteCount = miPrimerSocket.Receive(bytes, 0, 20,
+                                               SocketFlags.None);
+
+
+                    if (byteCount > 0)
+                    {
+                        Regex regex = new Regex(patron);
+                        string respuesta = Encoding.UTF8.GetString(bytes);
+
+                        foreach (Match m in regex.Matches(respuesta))
+                        {
+                             list[0] = new { Message = "OK", Peso = m.Value };
+                        }
+                       
+                    }              
+
+                    miPrimerSocket.Close();
+
+                }
+                catch (ArgumentNullException ane)
+                {
+                    list[0] = new { Message = "Error: " + ane.Message };
+                }
+                catch (SocketException se)
+                {
+                    list[0] = new { Message = "Error: " + se.Message };
+                }
+                catch (Exception e)
+                {
+                    list[0] = new { Message = "Error: " + e.Message };
+                }
+
+            }
+            catch (Exception e)
+            {
+                list[0] = new { Message = "Error: "+e.Message };
+            }
+
+
+
+           
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+        
     }
 }

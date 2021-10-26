@@ -97,12 +97,7 @@
                                                 <div class="col-md-6 col-sm-6 ">
                                                     @Html.DropDownList("linea", null, "-- Seleccione un valor --", htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
                                                 </div>
-                                                <div class="col-md-1 col-sm-1">
-                                                    <input type="button" value="borrar" class="btn btn-danger" id="borrarForm" />
-                                                </div>
-                                                <div class="col-md-1 col-sm-1">
-                                                    <input type="submit" value="buscar" class="btn btn-info" />
-                                                </div>
+                                                
                                             </div>
 
                                         }
@@ -114,110 +109,111 @@
                                             <input type="hidden" name="linea" value="@filtroLinea" id="hidden_linea" />
                                             <input type="hidden" name="planta" value="@filtroPlanta" id="hidden_planta" />
 
-                                            <input type="button" style="display:none" value="Crear nuevo registro" class="btn btn-success float-left" id="crearFormButton"  />
+                                            <input type="button" style="display:none" value="Crear nuevo registro" class="btn btn-success float-left" id="crearFormButton" />
                                         }
                                     </div>
                                     <hr />
-                                    @if (Model.Count() > 0)
-                                    {
+                                    <div id="body_tabla">
+                                        @if (Model.Count() > 0)
+                                        {
+                                            <table id="datatable_1" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.sap_platina)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.sap_rollo)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.fecha)
+                                                        </th>
+                                                        <th>
+                                                            Planta
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.produccion_datos_entrada.orden_sap)
+                                                        </th>
+                                                        <th>
+                                                            L&iacute;nea
+                                                        </th>
+                                                        <th>
+                                                            Operador
+                                                        </th>
+                                                        <th>
+                                                            Supervisor
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.produccion_turnos.descripcion)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.activo)
+                                                        </th>
+                                                        <th></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var item in Model)
+                                                    {
+                                                        <tr>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.sap_platina)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.sap_rollo)
+                                                            </td>
+                                                            <td>
+                                                                @item.fecha
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.plantas.descripcion)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.produccion_datos_entrada.orden_sap)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.produccion_lineas.linea)
+                                                            </td>
+                                                            <td>
+                                                                @item.produccion_operadores.empleados.nombre @item.produccion_operadores.empleados.apellido1
+                                                            </td>
+                                                            <td>
+                                                                @item.produccion_supervisores.empleados.nombre @item.produccion_operadores.empleados.apellido1
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.produccion_turnos.descripcion)
+                                                            </td>
+                                                            <td>
+                                                                @if (item.activo.HasValue && item.activo.Value)
+                                                                {
+                                                                    <span style="color:darkgreen">Activo</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span style="color:darkred">Inactivo</span>
+                                                                }
+                                                            </td>
+                                                            <td>
+                                                                <a href="@Url.Action("DatosEntradas", ViewBag.ControllerName, new { id = item.id})" class="btn btn-success btm-sm" title="Editar">
+                                                                    <i class="fa fa-pencil-square-o"></i>
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    }
 
-                                        <table id="s" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
-                                            <thead>
-                                                <tr>
-                                                    <th>
-                                                        @Html.DisplayNameFor(model => model.sap_platina)
-                                                    </th>
-                                                    <th>
-                                                        @Html.DisplayNameFor(model => model.sap_rollo)
-                                                    </th>
-                                                    <th>
-                                                        @Html.DisplayNameFor(model => model.fecha)
-                                                    </th>
-                                                    <th>
-                                                        Planta
-                                                    </th>
-                                                    <th>
-                                                        @Html.DisplayNameFor(model => model.produccion_datos_entrada.orden_sap)
-                                                    </th>
-                                                    <th>
-                                                        L&iacute;nea
-                                                    </th>                                                  
-                                                    <th>
-                                                        Operador
-                                                    </th>
-                                                    <th>
-                                                        Supervisor
-                                                    </th>
-                                                    <th>
-                                                        @Html.DisplayNameFor(model => model.produccion_turnos.descripcion)
-                                                    </th>
-                                                    <th>
-                                                        @Html.DisplayNameFor(model => model.activo)
-                                                    </th>
-                                                    <th></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach (var item in Model)
-                                                {
-                                                <tr>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.sap_platina)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.sap_rollo)
-                                                    </td>
-                                                    <td>
-                                                        @item.fecha
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.plantas.descripcion)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.produccion_datos_entrada.orden_sap)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.produccion_lineas.linea)
-                                                    </td>
-                                                    <td>
-                                                        @item.produccion_operadores.empleados.nombre @item.produccion_operadores.empleados.apellido1
-                                                    </td>
-                                                    <td>
-                                                        @item.produccion_supervisores.empleados.nombre @item.produccion_operadores.empleados.apellido1
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.produccion_turnos.descripcion)
-                                                    </td>
-                                                    <td>
-                                                        @if (item.activo.HasValue && item.activo.Value)
-                                                        {
-                                                            <span style="color:darkgreen">Activo</span>
-                                                        }
-                                                        else
-                                                        {
-                                                            <span style="color:darkred">Inactivo</span>
-                                                        }
-                                                    </td>
-                                                    <td>
-                                                        <a href="@Url.Action("DatosEntradas", ViewBag.ControllerName, new { id = item.id})" class="btn btn-success btm-sm" title="Editar">
-                                                            <i class="fa fa-pencil-square-o"></i>
-                                                        </a>
-                                                    </td>
-                                                </tr>
-                                                }
-
-                                            </tbody>
-                                        </table>
-                                    }
-                                    else
-                                    {
-                                        <h4>¡La b&uacute;squeda no obtuvo registros!</h4>
-                                    }
+                                                </tbody>
+                                            </table>
+                                        }
+                                        else
+                                        {
+                                            <h4>¡La b&uacute;squeda no obtuvo registros!</h4>
+                                        }
+                                    </div>
                                 </div>
 
                                 @if (Model.Count() > 0)
                                 {
-                                    <nav aria-label="...">
+                                    <nav id="nav_paginacion" aria-label="...">
                                         @{Html.RenderPartial("_Paginacion", Model);}
                                     </nav>
                                 }

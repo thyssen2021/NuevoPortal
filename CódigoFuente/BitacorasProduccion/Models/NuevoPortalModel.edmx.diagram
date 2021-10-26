@@ -4,39 +4,39 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="14f8b09a769749fe880d13a36c3076eb" Name="Diagram1">
-        <EntityTypeShape EntityType="Portal_2_0Model.Area" Width="1.5" PointX="3" PointY="2.375" IsExpanded="true" />
-        <EntityTypeShape EntityType="Portal_2_0Model.plantas" Width="1.5" PointX="0.75" PointY="2.5" IsExpanded="true" />
+      <Diagram DiagramId="3d6b38e8516649fd9491aed00dbc6337" Name="Diagram1">
+        <EntityTypeShape EntityType="Portal_2_0Model.Area" Width="1.5" PointX="3" PointY="5.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Portal_2_0Model.bom_en_sap" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Portal_2_0Model.class_v3" Width="1.5" PointX="2.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Portal_2_0Model.empleados" Width="1.5" PointX="7.5" PointY="5.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="Portal_2_0Model.mm_v3" Width="1.5" PointX="5.75" PointY="12.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="Portal_2_0Model.plantas" Width="1.5" PointX="0.75" PointY="8.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="Portal_2_0Model.produccion_datos_entrada" Width="1.5" PointX="14.25" PointY="7.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="Portal_2_0Model.produccion_lineas" Width="1.5" PointX="3" PointY="8.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="Portal_2_0Model.produccion_lotes" Width="1.5" PointX="14.25" PointY="12.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="Portal_2_0Model.produccion_operadores" Width="1.5" PointX="9.75" PointY="7.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Portal_2_0Model.produccion_registros" Width="1.5" PointX="12" PointY="9" IsExpanded="true" />
+        <EntityTypeShape EntityType="Portal_2_0Model.produccion_supervisores" Width="1.5" PointX="9.75" PointY="10.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Portal_2_0Model.produccion_turnos" Width="1.5" PointX="3" PointY="12" IsExpanded="true" />
+        <EntityTypeShape EntityType="Portal_2_0Model.puesto" Width="1.5" PointX="5.25" PointY="5.625" IsExpanded="true" />
         <AssociationConnector Association="Portal_2_0Model.FK_areas_planta_clave" ManuallyRouted="false" />
-        <EntityTypeShape EntityType="Portal_2_0Model.empleados" Width="1.5" PointX="7.5" PointY="1" />
-        <EntityTypeShape EntityType="Portal_2_0Model.puesto" Width="1.5" PointX="5.25" PointY="2.5" />
-        <AssociationConnector Association="Portal_2_0Model.FK_puestos_area_clave" />
-        <AssociationConnector Association="Portal_2_0Model.FK_empleados_planta_clave" />
-        <AssociationConnector Association="Portal_2_0Model.FK_empleados_puesto" />
-        <EntityTypeShape EntityType="Portal_2_0Model.bom_en_sap" Width="1.5" PointX="5.375" PointY="7.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.class_v3" Width="1.5" PointX="7.375" PointY="9.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.mm_v3" Width="1.5" PointX="9.375" PointY="9.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.produccion_datos_entrada" Width="1.5" PointX="14.25" PointY="3.875" />
-        <EntityTypeShape EntityType="Portal_2_0Model.produccion_lineas" Width="1.5" PointX="3" PointY="9.5" />
-        <EntityTypeShape EntityType="Portal_2_0Model.produccion_operadores" Width="1.5" PointX="9.75" PointY="6.25" />
-        <EntityTypeShape EntityType="Portal_2_0Model.produccion_supervisores" Width="1.5" PointX="9.75" PointY="2.625" />
-        <EntityTypeShape EntityType="Portal_2_0Model.produccion_turnos" Width="1.5" PointX="3" PointY="6" />
-        <AssociationConnector Association="Portal_2_0Model.FK_produccion_operadores_id_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_produccion_supervisores_id_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_produccion_lineas_planta_clave" />
-        <AssociationConnector Association="Portal_2_0Model.FK_produccion_supervisores_clave_planta" />
-        <AssociationConnector Association="Portal_2_0Model.FK_produccion_turnos_planta_clave" />
-        <AssociationConnector Association="Portal_2_0Model.FK_produccion_operadores_id_linea" />
-        <EntityTypeShape EntityType="Portal_2_0Model.produccion_lotes" Width="1.5" PointX="14.25" PointY="9.125" />
-        <EntityTypeShape EntityType="Portal_2_0Model.produccion_registros" Width="1.5" PointX="12" PointY="5" />
-        <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_planta_clave" />
-        <AssociationConnector Association="Portal_2_0Model.FK_produccion_datos_entrada_id_produccion_registro" />
-        <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_linea" />
-        <AssociationConnector Association="Portal_2_0Model.FK_produccion_lotes_id_produccion_registro" />
-        <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_operador" />
-        <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_supervisor" />
-        <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_turnos" />
-        </Diagram>
+        <AssociationConnector Association="Portal_2_0Model.FK_puestos_area_clave" ManuallyRouted="false" />
+        <AssociationConnector Association="Portal_2_0Model.FK_empleados_planta_clave" ManuallyRouted="false" />
+        <AssociationConnector Association="Portal_2_0Model.FK_empleados_puesto" ManuallyRouted="false" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_operadores_id_empleado" ManuallyRouted="false" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_supervisores_id_empleado" ManuallyRouted="false" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_lineas_planta_clave" ManuallyRouted="false" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_planta_clave" ManuallyRouted="false" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_supervisores_clave_planta" ManuallyRouted="false" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_turnos_planta_clave" ManuallyRouted="false" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_datos_entrada_id_produccion_registro" ManuallyRouted="false" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_operadores_id_linea" ManuallyRouted="false" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_linea" ManuallyRouted="false" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_lotes_id_produccion_registro" ManuallyRouted="false" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_operador" ManuallyRouted="false" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_supervisor" ManuallyRouted="false" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_turnos" ManuallyRouted="false" />
+      </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
 </edmx:Edmx>

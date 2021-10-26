@@ -56,6 +56,13 @@
                                     @Html.ValidationMessageFor(model => model.linea, "", new { @class = "text-danger" })
                                 </div>
                             </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.ip, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.EditorFor(model => model.ip, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.ip, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
                             <div class="ln_solid"></div>
                             <div class="item form-group">
                                 <div class="col-md-6 col-sm-6 offset-md-3">

@@ -4696,19 +4696,19 @@
     <Content Include="Content\vendors\validator\.bower.json" />
     <Content Include="Content\vendors\validator\package.json" />
     <Content Include="Content\vendors\validator\README.md" />
-    <EntityDeploy Include="Models\NuevoPortalModel.edmx">
-      <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>NuevoPortalModel.Designer.cs</LastGenOutput>
-    </EntityDeploy>
-    <Content Include="Models\NuevoPortalModel.edmx.diagram">
-      <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
-    </Content>
     <EntityDeploy Include="Models\Cube_tkmmModel.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
       <LastGenOutput>Cube_tkmmModel.Designer.cs</LastGenOutput>
     </EntityDeploy>
     <Content Include="Models\Cube_tkmmModel.edmx.diagram">
       <DependentUpon>Cube_tkmmModel.edmx</DependentUpon>
+    </Content>
+    <EntityDeploy Include="Models\NuevoPortalModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>NuevoPortalModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <Content Include="Models\NuevoPortalModel.edmx.diagram">
+      <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
     </Content>
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />

@@ -79,7 +79,7 @@ namespace Portal_2_0.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "id,linea,clave_planta,activo")] produccion_lineas produccion_lineas)
+        public ActionResult Create([Bind(Include = "id,linea,clave_planta,activo,ip")] produccion_lineas produccion_lineas)
         {
             if (ModelState.IsValid)
             {
@@ -122,7 +122,7 @@ namespace Portal_2_0.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "id,linea,clave_planta,activo")] produccion_lineas produccion_lineas)
+        public ActionResult Edit([Bind(Include = "id,linea,clave_planta,activo,ip")] produccion_lineas produccion_lineas)
         {
             if (ModelState.IsValid)
             {

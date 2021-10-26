@@ -9,12 +9,15 @@
     Portal_2_0.Models.mm_v3 mm = (Portal_2_0.Models.mm_v3)ViewBag.MM;
     Portal_2_0.Models.class_v3 class_ = (Portal_2_0.Models.class_v3)ViewBag.Class;
     int contador = 100;
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
 }
 
 @section estilos
 {
     <!-- DataTables -->
     @Styles.Render("~/Content/dataTables_css")
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
 
     <style>
 
@@ -62,6 +65,12 @@
     </style>
 }
 
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
 
 <div class="right_col" role="main">
     <div class="">
@@ -119,7 +128,7 @@
 
                             @Html.AntiForgeryToken()
 
-                                                      
+
                             if (!Html.ViewData.ModelState.IsValid)
                             {
                                 <div class="alert alert-danger" role="alert">
@@ -348,14 +357,23 @@
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.produccion_datos_entrada.peso_real_pieza_neto, new { @class = "control-label col-md-1" })
                                 <div class="col-md-2">
-                                    @Html.EditorFor(model => model.produccion_datos_entrada.peso_real_pieza_neto, new { htmlAttributes = new { @class = "form-control col-md-12", @readonly ="readonly" } })
+                                    @Html.EditorFor(model => model.produccion_datos_entrada.peso_real_pieza_neto, new { htmlAttributes = new { @class = "form-control col-md-12", @readonly = "readonly" } })
                                     @Html.ValidationMessageFor(model => model.produccion_datos_entrada.peso_real_pieza_neto, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="col-md-2">
-                                    <input type="button" value="Obtener Peso Báscula" class="btn btn-round btn-info float-left" onclick="ObtenerPesoBascula(); return false;">
+                                    @if (!String.IsNullOrEmpty(Model.produccion_lineas.ip))
+                                    {
+                                        <input type="button" value="Obtener Peso Báscula" class="btn btn-round btn-info float-left" onclick="muestraModalSocket(); return false;">
+                                    }
+                                    else
+                                    {
+                                        <input type="button" value="Obtener Peso Báscula" class="btn btn-round btn-info float-left" onclick="muestraModalSocket(); return false;" disabled>
+                                    }
+
+
                                 </div>
                                 <div class="col-md-7">
-                                    <input type="button" value="Captura Manual" class="btn btn-round btn-warning float-right" onclick="ObtenerPesoBascula(); return false;">
+                                    <input id="modal_button" type="button" value="Captura Manual" class="btn btn-round btn-warning float-right" onclick="mostrarModal(); return false;">
                                 </div>
                             </div>
 
@@ -407,6 +425,9 @@
 
                                 </tbody>
                             </table>
+                            <div class="form-group row">
+
+                            </div>
                             <div class="form-group row">
                                 <span style="color:black"><b>BALANCE SCRAP REAL</b></span>
                             </div>
@@ -499,10 +520,72 @@
 </div>
 
 
+<!-- Modal Sencilla Doble -->
+<div class="modal fade" id="myModalTipoPieza" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Tipo de pieza</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <!--Peso Báscula Manual-->
+                    <label class="control-label col-md-5" for="peso_bruto_kgs">
+                       ¿La pieza es Sencilla o Doble?
+                    </label>
+                  
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button  type="button" class="btn btn-primary" onclick="ObtenerPesoBascula('@Model.produccion_lineas.ip',1)">Sencilla</button>
+                <button  type="button" class="btn btn-primary" onclick="ObtenerPesoBascula('@Model.produccion_lineas.ip',2)">Doble</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Peso Real Pieza neto</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <!--Peso Báscula Manual-->
+                    <label class="control-label col-md-5" for="peso_bruto_kgs">
+                        Peso Real Pieza Neto
+                    </label>
+                    <div class="col-md-7">
+                        <input type="text" id="peso_manual" class="form-control col-md-12" value="@Model.produccion_datos_entrada.peso_real_pieza_neto">
+                        <span id="error_peso" class="text-danger">Ingrese un número válido</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button id="aceptar_modal_sencilla" type="button" class="btn btn-primary" onclick="ocultarModal(1)" disabled>Sencilla</button>
+                <button  id="aceptar_modal_doble" type="button" class="btn btn-primary" onclick="ocultarModal(2)" disabled>Doble</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
-    @Scripts.Render("~/bundles/jqueryval")
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render("~/bundles/dataTables_js")
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
     <script>
 
         $(document).ready(function () {
@@ -555,8 +638,25 @@
                 });
             });
 
-            //calcula los datos la primera vez que carga la página
+            //agrega el evento para comprobar si es un numero
+            $('#peso_manual').on('input', function (e) {
 
+                let peso_manual = $('#peso_manual').val();
+                //verifica si es un numero
+                if (isNaN(peso_manual)) {
+                    $('#error_peso').show();
+                    $('#aceptar_modal_doble').prop("disabled", true)
+                    $('#aceptar_modal_sencilla').prop("disabled", true)
+                } else {
+                    $('#error_peso').hide();
+                    $('#aceptar_modal_doble').prop("disabled", false)
+                    $('#aceptar_modal_sencilla').prop("disabled", false)
+                }
+            });
+
+
+
+            //calcula los datos la primera vez que carga la página
             calculaDatos();
         });
 
@@ -567,6 +667,101 @@
 
         //variable global para el id
         var num = 0;
+
+        var Toast = Swal.mixin({
+            toast: true,
+            icon: 'success',
+            title: 'General Title',
+            animation: false,
+            position: 'top-right',
+            showConfirmButton: true,
+            timer: 5000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+
+
+        //muestra el modal de captura de peso
+        function mostrarModal() {
+            $('#myModal').modal('show')
+            let peso_manual = $('#peso_manual').val();
+            //verifica si es un numero
+            if (isNaN(peso_manual)) {
+                $('#error_peso').show();
+                $('#aceptar_modal_doble').prop("disabled", true)
+                $('#aceptar_modal_sencilla').prop("disabled", true)
+            } else {
+                $('#error_peso').hide();
+                $('#aceptar_modal_doble').prop("disabled", false)
+                $('#aceptar_modal_sencilla').prop("disabled", false)
+            }
+        }
+
+        //muestra el modal de captura de peso
+        function muestraModalSocket() {
+            $('#myModalTipoPieza').modal('show')
+        }
+
+        //muestra el modal de captura de peso
+        function ocultarModal(denominador) {
+            let peso_etiqueta = $('#peso_manual').val();
+            $('#myModal').modal('hide');
+
+            //verifica si es un numero
+            if (!isNaN(peso_etiqueta)) {
+                let peso = TryParseFloat(peso_etiqueta, 0);
+                $('#produccion_datos_entrada_peso_real_pieza_neto').val(peso_etiqueta / denominador);
+                Toast.fire({
+                    icon: 'success',
+                    title: 'Se capturó el peso correctamente.'
+                })
+                calculaDatos();
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Ocurrió un error',
+                    text: 'Intente nuevamente o capture el peso de forma manual.'
+                })
+            }
+        }
+
+
+        //realizar llamada ajax a la báscula
+        function ObtenerPesoBascula(ip, denominador) {
+
+            //obtiene las el peso
+            $.ajax({
+                type: 'POST',
+                url: '/ProduccionRegistros/obtienePesoBascula',
+                data: { ip: ip },
+                success: function (data) {
+                    console.log(data);
+                    if (data[0].Message == "OK") {
+                        let peso = TryParseFloat(data[0].Peso, 0);
+                        $('#produccion_datos_entrada_peso_real_pieza_neto').val(peso / denominador);
+                        Toast.fire({
+                            icon: 'success',
+                            title: 'Se capturó el peso correctamente.'
+                        })
+                        calculaDatos();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ocurrió un error',
+                            text: 'Intente nuevamente o capture el peso de forma manual.'
+                        })
+                    }
+                },
+                async: true
+            });
+            $('#myModalTipoPieza').modal('hide')
+
+        }
+
+
 
         //funcion que calcula los datos de lo campos readonly
         function calculaDatos() {
@@ -748,34 +943,34 @@
             $("#div_lotes").append(
 
                 `
-                        <div class="form-group row" id="div_lotes_`+ num + `">
-                                        <input type="hidden" name="produccion_lotes.Index" id="produccion_lotes.Index" value="`+ num + `" />
-                                        <label class="control-label col-md-1" for="produccion_lotes[`+ num + `].numero_lote_izquierdo">
-                                            <span class="float-right">Lote Izquierdo</span>
-                                        </label>
-                                        <div class="col-md-2">
-                                            <input style="text-align:right" type="number" min="0" step="1" max="50000" name="produccion_lotes[`+ num + `].numero_lote_izquierdo" id="produccion_lotes[` + num + `].lote_izquierdo" class="form-control col-md-12" value="" autocomplete="off">
-                                            <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[` + num + `].numero_lote_izquierdo" data-valmsg-replace="true"></span>
-                                        </div>
-                                        <label class="control-label col-md-1" for="produccion_lotes[`+ num + `].numero_lote_derecho">
-                                            <span class="float-right">Lote Derecho</span>
-                                        </label>
-                                        <div class="col-md-2">
-                                            <input type="number" min="0" step="1" max="50000" name="produccion_lotes[`+ num + `].numero_lote_derecho" id="produccion_lotes[` + num + `].lote_derecho" class="form-control col-md-12" value="" autocomplete="off">
-                                            <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[` + num + `].numero_lote_derecho" data-valmsg-replace="true"></span>
-                                        </div>
-                                        <label class="control-label col-md-2" for="produccion_lotes[`+ num + `].piezas_paquete">
-                                             <span class="float-right">Piezas por paquete</span>
-                                        </label>
-                                        <div class="col-md-2">
-                                            <input type="number" min="0" step="1" max="5000" name="produccion_lotes[`+ num + `].piezas_paquete" id="produccion_lotes[` + num + `].piezas_paquete" class="form-control col-md-12 total_piezas" value="" maxlength="10" required>
-                                               <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[` + num + `].piezas_paquete" data-valmsg-replace="true"></span>
-                                            </div>
-                                        <div class="col-md-1">
-                                            <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarLote(` + num + `); return false;">
-                                        </div>
-                                    </div>
-                                `
+                                                        <div class="form-group row" id="div_lotes_`+ num + `">
+                                                                        <input type="hidden" name="produccion_lotes.Index" id="produccion_lotes.Index" value="`+ num + `" />
+                                                                        <label class="control-label col-md-1" for="produccion_lotes[`+ num + `].numero_lote_izquierdo">
+                                                                            <span class="float-right">Lote Izquierdo</span>
+                                                                        </label>
+                                                                        <div class="col-md-2">
+                                                                            <input style="text-align:right" type="number" min="0" step="1" max="50000" name="produccion_lotes[`+ num + `].numero_lote_izquierdo" id="produccion_lotes[` + num + `].lote_izquierdo" class="form-control col-md-12" value="" autocomplete="off">
+                                                                            <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[` + num + `].numero_lote_izquierdo" data-valmsg-replace="true"></span>
+                                                                        </div>
+                                                                        <label class="control-label col-md-1" for="produccion_lotes[`+ num + `].numero_lote_derecho">
+                                                                            <span class="float-right">Lote Derecho</span>
+                                                                        </label>
+                                                                        <div class="col-md-2">
+                                                                            <input type="number" min="0" step="1" max="50000" name="produccion_lotes[`+ num + `].numero_lote_derecho" id="produccion_lotes[` + num + `].lote_derecho" class="form-control col-md-12" value="" autocomplete="off">
+                                                                            <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[` + num + `].numero_lote_derecho" data-valmsg-replace="true"></span>
+                                                                        </div>
+                                                                        <label class="control-label col-md-2" for="produccion_lotes[`+ num + `].piezas_paquete">
+                                                                             <span class="float-right">Piezas por paquete</span>
+                                                                        </label>
+                                                                        <div class="col-md-2">
+                                                                            <input type="number" min="0" step="1" max="5000" name="produccion_lotes[`+ num + `].piezas_paquete" id="produccion_lotes[` + num + `].piezas_paquete" class="form-control col-md-12 total_piezas" value="" maxlength="10" required>
+                                                                               <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[` + num + `].piezas_paquete" data-valmsg-replace="true"></span>
+                                                                            </div>
+                                                                        <div class="col-md-1">
+                                                                            <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarLote(` + num + `); return false;">
+                                                                        </div>
+                                                                    </div>
+                                                                `
             );
             $("#div_lotes_" + num).hide().fadeIn(700);
             num++;

@@ -11,7 +11,8 @@ namespace Portal_2_0.Models
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.ComponentModel.DataAnnotations;
+
     public partial class produccion_turnos
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -21,13 +22,30 @@ namespace Portal_2_0.Models
         }
     
         public int id { get; set; }
+        [Required]
+        [Display(Name = "Planta")]
         public int clave_planta { get; set; }
+
+        [Display(Name = "Valor")]
+        [Range(1, 3, ErrorMessage = "Positivo menor o igual a 3")]
         public int valor { get; set; }
+
+        [Display(Name = "Turno")]
+        [Required]
+        [StringLength(20, MinimumLength = 3)]
         public string descripcion { get; set; }
+
+        [Display(Name = "Hora inicio")]
+        [RegularExpression(@"^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$", ErrorMessage = "Ingrese la hora en el fomato hh:mm:ss.")]
         public System.TimeSpan hora_inicio { get; set; }
+
+        [Display(Name = "Hora fin")]
+        [RegularExpression(@"^(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$", ErrorMessage = "Ingrese la hora en el fomato hh:mm:ss.")]
         public System.TimeSpan hora_fin { get; set; }
+
+        [Display(Name = "Estado")]
         public Nullable<bool> activo { get; set; }
-    
+
         public virtual plantas plantas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<produccion_registros> produccion_registros { get; set; }

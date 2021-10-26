@@ -11,7 +11,8 @@ namespace Portal_2_0.Models
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.ComponentModel.DataAnnotations;
+
     public partial class produccion_lineas
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -20,11 +21,21 @@ namespace Portal_2_0.Models
             this.produccion_operadores = new HashSet<produccion_operadores>();
             this.produccion_registros = new HashSet<produccion_registros>();
         }
-    
+
         public int id { get; set; }
+        [Required(AllowEmptyStrings = false)]
+        [StringLength(25, MinimumLength = 3)]
+        [Display(Name = "Valor")]
         public string linea { get; set; }
+
+        [Display(Name = "Planta")]
+        [Required]
         public int clave_planta { get; set; }
+        [Display(Name = "Estado")]
         public Nullable<bool> activo { get; set; }
+
+        [RegularExpression(@"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$", ErrorMessage ="Ingrese una dirección ip válida.")]
+        public string ip { get; set; }
     
         public virtual plantas plantas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

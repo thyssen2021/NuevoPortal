@@ -1,5 +1,17 @@
 ﻿$(document).ready(function () {
+    //agranda el tamaño de la barra
+    window.onload = function () {
+        document.getElementById('menu_toggle').click();
+    }
 
+    //inicializa los data table
+    $('#datatable_1').DataTable({
+        "paging": false,
+        "ordering": false,
+        "searching": false,
+        "scrollX": true,
+        "info": false
+    });
 
     //cuando hay cambio de planta
     $("#planta").change(function () {
@@ -16,6 +28,9 @@
             async: false
         });
 
+        //oculta la tabla y la paginación
+        $('#body_tabla').hide();
+        $('#nav_paginacion').hide();
     });
 
     $("#linea").change(function () {
@@ -29,6 +44,7 @@
     $('.select2bs4').select2({
         theme: 'bootstrap4'
     })
+
 
 });
 
@@ -54,7 +70,21 @@ function verificaEstadoCombos() {
     }
     else {
         //$("#crearFormButton").prop("disabled", false);
-        $("#crearFormButton").fadeIn(1000);
+        $("#crearFormButton").fadeIn(1000);       
+        $("#buscarForm").submit();
+        $.blockUI({
+            css: {
+                border: 'none',
+                padding: '15px',
+                backgroundColor: '#000',
+                '-webkit-border-radius': '10px',
+                '-moz-border-radius': '10px',
+                opacity: .3,
+                color: '#fff'
+            },
+            message: '<h3>Cargando...</h3>'
+
+        });
     }
 }
 

@@ -46,7 +46,7 @@ namespace Portal_2_0.Models
         [Range(0, int.MaxValue, ErrorMessage = "Ingrese un valor positivo")]
         public Nullable<double> peso_etiqueta { get; set; }
 
-        [Required(ErrorMessage = "El campo Peso Regreso Rollo es requerido")]
+        //[Required(ErrorMessage = "El campo Peso Regreso Rollo es requerido")]
         [Range(0, int.MaxValue, ErrorMessage = "Ingrese un valor positivo")]
         [Display(Name = "Peso Regreso Rollo Real")]
         public Nullable<double> peso_regreso_rollo_real { get; set; }
@@ -79,7 +79,7 @@ namespace Portal_2_0.Models
         [Display(Name = "Comentarios")]
         [StringLength(600)]
         public string comentarios { get; set; }
-    
+
         public virtual produccion_registros produccion_registros { get; set; }
     }
 }
