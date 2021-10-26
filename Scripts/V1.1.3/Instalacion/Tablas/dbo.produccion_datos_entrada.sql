@@ -34,7 +34,7 @@ CREATE TABLE [dbo].[produccion_datos_entrada](
 	[peso_cola_kgs] float DEFAULT 0,
 	[total_piezas_ajuste] int DEFAULT 0,
 	[ordenes_por_pieza] int DEFAULT 0,
-	[comentarios][varchar](255) NULL,
+	[comentarios][varchar](600) NULL,
  CONSTRAINT [PK_produccion_datos_entrada] PRIMARY KEY CLUSTERED 
 (
 	[id_produccion_registro] ASC

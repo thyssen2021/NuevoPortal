@@ -267,7 +267,6 @@ namespace Portal_2_0.Controllers
                 produccion.produccion_datos_entrada = produccion_datos_entrada;
 
 
-
                 //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina
                 mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == produccion.sap_platina);
                 if (mm == null)            
@@ -345,7 +344,7 @@ namespace Portal_2_0.Controllers
                 }
 
 
-                TempData["Mensaje"] = new MensajesSweetAlert("Se ha creado el registro correctamente", TipoMensajesSweetAlerts.ERROR);
+                TempData["Mensaje"] = new MensajesSweetAlert("Se ha actualizado el registro correctamente", TipoMensajesSweetAlerts.SUCCESS);
 
                 //retorna la vista de datos de entrada
                 return RedirectToAction("Index", new
@@ -354,6 +353,13 @@ namespace Portal_2_0.Controllers
                     linea = produccion_registros.id_linea
                 });
             }
+
+            //obtiene el resto de los elemento del objeto
+
+            produccion_registros.produccion_supervisores = db.produccion_supervisores.Find(produccion_registros.id_supervisor);
+            produccion_registros.produccion_operadores = db.produccion_operadores.Find(produccion_registros.id_operador);
+            produccion_registros.produccion_lineas = db.produccion_lineas.Find(produccion_registros.id_linea);
+            produccion_registros.produccion_turnos = db.produccion_turnos.Find(produccion_registros.id_turno);
 
             //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina
             mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == produccion_registros.sap_platina);

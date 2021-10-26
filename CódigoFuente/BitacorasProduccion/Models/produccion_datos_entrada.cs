@@ -47,7 +47,7 @@ namespace Portal_2_0.Models
         public Nullable<double> peso_etiqueta { get; set; }
 
         [Required(ErrorMessage = "El campo Peso Regreso Rollo es requerido")]
-        [Range(0.001, int.MaxValue, ErrorMessage = "Ingrese un valor positivo")]
+        [Range(0, int.MaxValue, ErrorMessage = "Ingrese un valor positivo")]
         [Display(Name = "Peso Regreso Rollo Real")]
         public Nullable<double> peso_regreso_rollo_real { get; set; }
 
@@ -68,13 +68,16 @@ namespace Portal_2_0.Models
 
         [Display(Name = "Total Pieza Ajuste")]
         [Required(ErrorMessage = "El campo Total Piezas Ajuste es requerido")]
-        [Range(1, 1000, ErrorMessage = "Ingrese un valor positivo entre 1 y 1000")]
+        [Range(0, 1000, ErrorMessage = "Ingrese un valor positivo entre 1 y 1000")]
         public Nullable<int> total_piezas_ajuste { get; set; }
 
         [Display(Name = "Órdenes por Pieza")]
         [Required(ErrorMessage = "El campo Órdenes por Pieza es requerido")]
         [Range(1, 100, ErrorMessage = "Ingrese un valor positivo entre 1 y 100")]
         public Nullable<int> ordenes_por_pieza { get; set; }
+
+        [Display(Name = "Comentarios")]
+        [StringLength(600)]
         public string comentarios { get; set; }
     
         public virtual produccion_registros produccion_registros { get; set; }
