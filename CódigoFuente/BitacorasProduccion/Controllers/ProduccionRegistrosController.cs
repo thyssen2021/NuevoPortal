@@ -72,26 +72,13 @@ namespace Portal_2_0.Controllers
             }            
         }
 
-        // GET: ProduccionRegistros/Details/5
-        public ActionResult Details(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            produccion_registros produccion_registros = db.produccion_registros.Find(id);
-            if (produccion_registros == null)
-            {
-                return HttpNotFound();
-            }
-            return View(produccion_registros);
-        }
+      
 
         // GET: ProduccionRegistros/Create
         public ActionResult Create(int? planta, int? linea)
         {
 
-            if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS))
+            if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REGISTRO))
             {
                 //si no hay parámetros retorna al inxdex
                 if (planta==null || linea==null) {
@@ -237,7 +224,7 @@ namespace Portal_2_0.Controllers
         public ActionResult Edit(int? id)
         {
 
-            if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS))
+            if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REGISTRO))
             {
                 //si no hay parámetros retorna al inxdex
                 if (id==null)

@@ -116,7 +116,7 @@
                                             <a><i class="fa fa-tasks"></i> Producci&oacute;n<span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu">
 
-                                                @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS))
+                                                @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REGISTRO))
                                                 {
                                                     <li class="@(ViewBag.SegundoNivel == "produccion_registros" ? "current-page" : null )"><a href="@Url.Action("Index", "ProduccionRegistros")">Bit&aacute;cora</a></li>                                                  
                                                 }
