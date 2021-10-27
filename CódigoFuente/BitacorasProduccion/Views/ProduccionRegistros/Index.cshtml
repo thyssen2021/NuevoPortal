@@ -36,8 +36,20 @@
     <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
 
-}
+    <style>
+        .fondo_rojo > td {
+            background-color: #fc5c5c;
+            color: #fffdf0;
+            font-weight: bolder;
+        }
+        .fondo_temporal > td {
+            background-color: #ff6a00;
+            color: #fffdf0;
+            font-weight: bolder;
+        }
+    </style>
 
+}
 @*Para SweetAlert*@
 @if (mensajeAlerta != null)
 {
@@ -54,13 +66,10 @@
     <input type="hidden" value="@filtroLinea" id="iLinea" />
 }
 
+
+
 <div class="right_col" role="main">
     <div class="">
-        <div class="page-title">
-            <div class="title_left">
-                <h3>@ViewBag.Title</h3>
-            </div>
-        </div>
 
         <div class="clearfix"></div>
 
@@ -97,7 +106,7 @@
                                                 <div class="col-md-6 col-sm-6 ">
                                                     @Html.DropDownList("linea", null, "-- Seleccione un valor --", htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
                                                 </div>
-                                                
+
                                             </div>
 
                                         }
@@ -146,67 +155,76 @@
                                                         <th>
                                                             @Html.DisplayNameFor(model => model.produccion_turnos.descripcion)
                                                         </th>
-                                                        <th>
-                                                            @Html.DisplayNameFor(model => model.activo)
-                                                        </th>
                                                         <th></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     @foreach (var item in Model)
                                                     {
-                                                        <tr>
-                                                            <td>
-                                                                @Html.DisplayFor(modelItem => item.sap_platina)
-                                                            </td>
-                                                            <td>
-                                                                @Html.DisplayFor(modelItem => item.sap_rollo)
-                                                            </td>
-                                                            <td>
-                                                                @item.fecha
-                                                            </td>
-                                                            <td>
-                                                                @Html.DisplayFor(modelItem => item.plantas.descripcion)
-                                                            </td>
-                                                            <td>
-                                                                @Html.DisplayFor(modelItem => item.produccion_datos_entrada.orden_sap)
-                                                            </td>
-                                                            <td>
-                                                                @Html.DisplayFor(modelItem => item.produccion_lineas.linea)
-                                                            </td>
-                                                            <td>
-                                                                @item.produccion_operadores.empleados.nombre @item.produccion_operadores.empleados.apellido1
-                                                            </td>
-                                                            <td>
-                                                                @item.produccion_supervisores.empleados.nombre @item.produccion_operadores.empleados.apellido1
-                                                            </td>
-                                                            <td>
-                                                                @Html.DisplayFor(modelItem => item.produccion_turnos.descripcion)
-                                                            </td>
-                                                            <td>
-                                                                @if (item.activo.HasValue && item.activo.Value)
-                                                                {
-                                                                    <span style="color:darkgreen">Activo</span>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <span style="color:darkred">Inactivo</span>
-                                                                }
-                                                            </td>
-                                                            <td>
-                                                                <a href="@Url.Action("DatosEntradas", ViewBag.ControllerName, new { id = item.id})" class="btn btn-success btm-sm" title="Editar">
-                                                                    <i class="fa fa-pencil-square-o"></i>
-                                                                </a>
-                                                            </td>
-                                                        </tr>
-                                                    }
 
-                                                </tbody>
+                                                        <tr class="@(item.activo.HasValue && !item.activo.Value ? "fondo_rojo" : item.sap_platina.Contains("TEMPORAL") ? "fondo_temporal": "" )">
+                                                        
+                                                                <td>
+                                                                    @Html.DisplayFor(modelItem => item.sap_platina)
+                                                                </td>
+                                                                <td>
+                                                                    @Html.DisplayFor(modelItem => item.sap_rollo)
+                                                                </td>
+                                                                <td>
+                                                                    @item.fecha
+                                                                </td>
+                                                                <td>
+                                                                    @Html.DisplayFor(modelItem => item.plantas.descripcion)
+                                                                </td>
+                                                                <td>
+                                                                    @Html.DisplayFor(modelItem => item.produccion_datos_entrada.orden_sap)
+                                                                </td>
+                                                                <td>
+                                                                    @Html.DisplayFor(modelItem => item.produccion_lineas.linea)
+                                                                </td>
+                                                                <td>
+                                                                    @item.produccion_operadores.empleados.nombre @item.produccion_operadores.empleados.apellido1
+                                                                </td>
+                                                                <td>
+                                                                    @item.produccion_supervisores.empleados.nombre @item.produccion_operadores.empleados.apellido1
+                                                                </td>
+                                                                <td>
+                                                                    @Html.DisplayFor(modelItem => item.produccion_turnos.descripcion)
+                                                                </td>
+
+                                                                <td>
+                                                                    <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = item.id})" class="btn btn-secondary btm-sm" title="Editar">
+                                                                        <i class="fa fa-gears"></i>
+                                                                    </a>
+                                                                    <a href="@Url.Action("DatosEntradas", ViewBag.ControllerName, new { id = item.id})" class="btn btn-success btm-sm" title="Editar">
+                                                                        <i class="fa fa-pencil-square-o"></i>
+                                                                    </a>
+                                                                    <a href="@Url.Action("DatosEntradasDetails", ViewBag.ControllerName, new { id = item.id})" class="btn btn-info btm-sm" title="Detalles">
+                                                                        <i class="fa fa-eye"></i>
+                                                                    </a>
+
+                                                                    @if (item.activo.HasValue && !item.activo.Value)
+                                                                    {
+                                                                        <a href="@Url.Action("Enable", ViewBag.ControllerName, new { id = item.id })" class="btn btn-warning" title="Habilitar">
+                                                                            <i class="fa fa-check"></i>
+                                                                        </a>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <a href="@Url.Action("Disable", ViewBag.ControllerName, new { id = item.id })" class="btn btn-danger" title="Cancelar">
+                                                                            <i class="fa fa-trash-o"></i>
+                                                                        </a>
+                                                                    }
+                                                                </td>
+                                                            </tr>
+                                                        }
+
+                                                    </tbody>
                                             </table>
                                         }
                                         else
                                         {
-                                            <h4>¡La b&uacute;squeda no obtuvo registros!</h4>
+                                            @*<h4>¡La b&uacute;squeda no obtuvo registros!</h4>*@
                                         }
                                     </div>
                                 </div>

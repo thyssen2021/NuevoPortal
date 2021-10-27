@@ -113,7 +113,7 @@
 
                                                     @if (item.activo.HasValue && !item.activo.Value)
                                                     {
-                                                        <a href="@Url.Action("Enable", ViewBag.ControllerName, new { id = item.id })" class="btn btn-warning" s title="Habilitar">
+                                                        <a href="@Url.Action("Enable", ViewBag.ControllerName, new { id = item.id })" class="btn btn-warning" title="Habilitar">
                                                             <i class="fa fa-unlock"></i>
                                                         </a>
                                                     }

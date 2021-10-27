@@ -49,6 +49,7 @@ namespace Portal_2_0.Models
         [Display(Name = "Fecha")]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public Nullable<System.DateTime> fecha { get; set; }
+        [Display(Name = "Estado")]
         public Nullable<bool> activo { get; set; }
     
         public virtual plantas plantas { get; set; }

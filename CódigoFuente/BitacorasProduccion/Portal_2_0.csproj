@@ -3786,10 +3786,12 @@
     <Content Include="Scripts\esm\popper-utils.min.js" />
     <Content Include="Scripts\esm\popper.js" />
     <Content Include="Scripts\esm\popper.min.js" />
+    <Content Include="Scripts\Forms\datosEntrada.js" />
     <Content Include="Scripts\Forms\empleados.js" />
     <Content Include="Scripts\Forms\areas.js" />
     <Content Include="Scripts\Forms\operadores_produccion.js" />
     <Content Include="Scripts\Forms\ProduccionRegistrosCreate.js" />
+    <Content Include="Scripts\Forms\ProduccionRegistrosEdit.js" />
     <Content Include="Scripts\Forms\ProduccionRegistrosIndex.js" />
     <Content Include="Scripts\Forms\puestos.js" />
     <Content Include="Scripts\Forms\ReportePesadas.js" />
@@ -4891,8 +4893,6 @@
     <Content Include="Views\ReportePesadas\Silao.cshtml" />
     <Content Include="Views\ReportePesadas\Puebla.cshtml" />
     <Content Include="Views\ProduccionRegistros\Create.cshtml" />
-    <Content Include="Views\ProduccionRegistros\Delete.cshtml" />
-    <Content Include="Views\ProduccionRegistros\Details.cshtml" />
     <Content Include="Views\ProduccionRegistros\Edit.cshtml" />
     <Content Include="Views\ProduccionRegistros\Index.cshtml" />
     <Content Include="Views\ProduccionDatosEntrada\Create.cshtml" />
@@ -4901,6 +4901,9 @@
     <Content Include="Views\ProduccionDatosEntrada\Edit.cshtml" />
     <Content Include="Views\ProduccionDatosEntrada\Index.cshtml" />
     <Content Include="Views\ProduccionRegistros\DatosEntradas.cshtml" />
+    <Content Include="Views\ProduccionRegistros\DatosEntradasDetails.cshtml" />
+    <Content Include="Views\ProduccionRegistros\Enable.cshtml" />
+    <Content Include="Views\ProduccionRegistros\Disable.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -34,17 +34,17 @@ namespace Portal_2_0.Controllers
                 var cantidadRegistrosPorPagina = 20; // parámetro
           
                 var produccion_registros = db.produccion_registros.Include(p => p.plantas).Include(p => p.produccion_lineas).Include(p => p.produccion_lotes).Include(p => p.produccion_operadores).Include(p => p.produccion_supervisores).Include(p => p.produccion_turnos).Where(x =>
-                        x.activo == true
-                        &&   (!String.IsNullOrEmpty(linea) && x.id_linea.ToString().Contains(linea))
+                          //x.activo == true && 
+                          (!String.IsNullOrEmpty(linea) && x.id_linea.ToString().Contains(linea))
                         && (!String.IsNullOrEmpty(planta) && x.clave_planta.ToString().Contains(planta))
                         )
                     .OrderByDescending(x => x.fecha)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                     .Take(cantidadRegistrosPorPagina).ToList();
 
-                var totalDeRegistros = db.produccion_registros.Include(p => p.plantas).Include(p => p.produccion_lineas).Include(p => p.produccion_lotes).Include(p => p.produccion_operadores).Include(p => p.produccion_supervisores).Include(p => p.produccion_turnos).Where(x => 
-                        x.activo==true
-                        && (!String.IsNullOrEmpty(linea) && x.id_linea.ToString().Contains(linea))
+                var totalDeRegistros = db.produccion_registros.Include(p => p.plantas).Include(p => p.produccion_lineas).Include(p => p.produccion_lotes).Include(p => p.produccion_operadores).Include(p => p.produccion_supervisores).Include(p => p.produccion_turnos).Where(x =>
+                         // x.activo==true &&
+                         (!String.IsNullOrEmpty(linea) && x.id_linea.ToString().Contains(linea))
                         && (!String.IsNullOrEmpty(planta) && x.clave_planta.ToString().Contains(planta))
                        ).Count();
 
@@ -233,6 +233,105 @@ namespace Portal_2_0.Controllers
             return View(produccion_registros);
         }
 
+        // GET: ProduccionRegistros/Edit/5
+        public ActionResult Edit(int? id)
+        {
+
+            if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS))
+            {
+                //si no hay parámetros retorna al inxdex
+                if (id==null)
+                {
+                    TempData["Mensaje"] = new MensajesSweetAlert("Verifique los valores de planta y línea.", TipoMensajesSweetAlerts.WARNING);
+                    return RedirectToAction("Index");
+                }
+
+                produccion_registros produccion = db.produccion_registros.Find(id);
+                if (produccion == null)
+                {
+                    TempData["Mensaje"] = new MensajesSweetAlert("No existe el registro de producción.", TipoMensajesSweetAlerts.ERROR);
+                    return RedirectToAction("Index");
+                }
+
+                ViewBag.sap_platina = ComboSelect.obtieneMaterial_BOM();
+                ViewBag.sap_rollo = ComboSelect.obtieneRollo_BOM();
+                ViewBag.id_supervisor = ComboSelect.obtieneSupervisoresPlanta(produccion.clave_planta.Value);
+                ViewBag.id_operador = ComboSelect.obtieneOperadorPorLinea(produccion.id_linea.Value);
+                //para completar_valores previos
+                ViewBag.c_sap_platina = produccion.sap_platina;
+                ViewBag.c_sap_rollo = produccion.sap_rollo;
+                ViewBag.c_id_supervisor = produccion.id_supervisor;
+                ViewBag.c_id_operador = produccion.id_operador;
+
+                return View(produccion);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+        // POST: ProduccionRegistros/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
+        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit([Bind(Include = "id,clave_planta,id_linea,id_operador,id_supervisor,id_turno,sap_platina,sap_rollo,fecha,activo")] produccion_registros produccion_registros, FormCollection collection)
+        {
+
+            //valores enviados previamente
+            String c_sap_platina = String.Empty;
+            if (!String.IsNullOrEmpty(collection["sap_platina"]))
+                c_sap_platina = collection["sap_platina"].ToString();
+
+            //valores enviados previamente
+            String c_sap_rollo = String.Empty;
+            if (!String.IsNullOrEmpty(collection["sap_rollo"]))
+                c_sap_rollo = collection["sap_rollo"].ToString();
+
+            //valores enviados previamente
+            int c_id_supervisor = 0;
+            if (!String.IsNullOrEmpty(collection["id_supervisor"]))
+                Int32.TryParse(collection["id_supervisor"].ToString(), out c_id_supervisor);
+
+            int c_id_operador = 0;
+            if (!String.IsNullOrEmpty(collection["id_operador"]))
+                Int32.TryParse(collection["id_operador"].ToString(), out c_id_operador);
+
+            //si el modelo es válido
+            if (ModelState.IsValid)
+            {
+                db.Entry(produccion_registros).State = EntityState.Modified;
+                db.SaveChanges();
+                TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
+
+                //retorna la vista de datos de entrada
+                return RedirectToAction("Index", new
+                {
+                    planta = produccion_registros.clave_planta,
+                    linea = produccion_registros.id_linea
+                });
+            }
+
+            produccion_registros.plantas = db.plantas.Find(produccion_registros.clave_planta);
+            produccion_registros.produccion_lineas = db.produccion_lineas.Find(produccion_registros.id_linea);
+            produccion_registros.produccion_turnos = db.produccion_turnos.Find(produccion_registros.id_turno);
+
+            ViewBag.sap_platina = ComboSelect.obtieneMaterial_BOM();
+            ViewBag.sap_rollo = ComboSelect.obtieneRollo_BOM();
+            ViewBag.id_supervisor = ComboSelect.obtieneSupervisoresPlanta(produccion_registros.clave_planta.Value);
+            ViewBag.id_operador = ComboSelect.obtieneOperadorPorLinea(produccion_registros.id_linea.Value);
+            //para completar_valores previos
+            ViewBag.c_sap_platina = c_sap_platina;
+            ViewBag.c_sap_rollo = c_sap_rollo;
+            ViewBag.c_id_supervisor = c_id_supervisor;
+            ViewBag.c_id_operador = c_id_operador;
+
+
+            return View(produccion_registros);
+        }
+
         // GET: ProduccionRegistros/DatosEntrada/5
         public ActionResult DatosEntradas(int? id)
         {
@@ -299,8 +398,7 @@ namespace Portal_2_0.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult DatosEntradas(produccion_registros produccion_registros)
-        {
-            
+        {            
 
             bool error=false;
 
@@ -379,30 +477,288 @@ namespace Portal_2_0.Controllers
             return View(produccion_registros);
         }
 
-        // GET: ProduccionRegistros/Delete/5
-        public ActionResult Delete(int? id)
+        // GET: ProduccionRegistros/DatosEntradaDetais/5
+        public ActionResult DatosEntradasDetails(int? id)
         {
-            if (id == null)
+            //verifica los permisos del usuario
+            if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REGISTRO))
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                //verifica si se envio un id
+                if (id == null)
+                {
+                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                }
+
+                //busca si existe el registro de produccion
+                produccion_registros produccion = db.produccion_registros.Find(id);
+
+                if (produccion == null)
+                {
+                    TempData["Mensaje"] = new MensajesSweetAlert("No existe el registro de producción.", TipoMensajesSweetAlerts.ERROR);
+                    return RedirectToAction("Index");
+                }
+
+                //busca si hay datos de entrada para el registro de producción
+                produccion_datos_entrada produccion_datos_entrada = db.produccion_datos_entrada.FirstOrDefault(x => x.id_produccion_registro == id.Value);
+
+                if (produccion_datos_entrada == null)
+                {
+                    //si no hay registro de entrada de datos crea uno nuevo con el id de registro de produccion
+                    produccion_datos_entrada = new produccion_datos_entrada
+                    {
+                        id_produccion_registro = id.Value,
+                        produccion_registros = produccion
+                    };
+                }
+
+                //agrega datos entrada a la produccion
+                produccion.produccion_datos_entrada = produccion_datos_entrada;
+
+
+                //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina
+                mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == produccion.sap_platina);
+                if (mm == null)
+                    mm = new mm_v3 { };
+
+                //ENVIAR cLASS SEGUN EL MATERIAL
+                class_v3 class_ = db.class_v3.FirstOrDefault(x => x.Object == produccion.sap_platina);
+                if (class_ == null)
+                    class_ = new class_v3 { };
+
+
+                ViewBag.MM = mm;
+                ViewBag.Class = class_;
+                return View(produccion);
             }
-            produccion_registros produccion_registros = db.produccion_registros.Find(id);
-            if (produccion_registros == null)
+            else
             {
-                return HttpNotFound();
+                return View("../Home/ErrorPermisos");
             }
-            return View(produccion_registros);
+
         }
 
-        // POST: ProduccionRegistros/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
+        // GET: Plantas/Disable/5
+        public ActionResult Disable(int? id)
         {
-            produccion_registros produccion_registros = db.produccion_registros.Find(id);
-            db.produccion_registros.Remove(produccion_registros);
-            db.SaveChanges();
-            return RedirectToAction("Index");
+            if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REGISTRO))
+            {
+                //verifica si se envio un id
+                if (id == null)
+                {
+                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                }
+
+                //busca si existe el registro de produccion
+                produccion_registros produccion = db.produccion_registros.Find(id);
+
+                if (produccion == null)
+                {
+                    TempData["Mensaje"] = new MensajesSweetAlert("No existe el registro de producción.", TipoMensajesSweetAlerts.ERROR);
+                    return RedirectToAction("Index");
+                }
+
+                //busca si hay datos de entrada para el registro de producción
+                produccion_datos_entrada produccion_datos_entrada = db.produccion_datos_entrada.FirstOrDefault(x => x.id_produccion_registro == id.Value);
+
+                if (produccion_datos_entrada == null)
+                {
+                    //si no hay registro de entrada de datos crea uno nuevo con el id de registro de produccion
+                    produccion_datos_entrada = new produccion_datos_entrada
+                    {
+                        id_produccion_registro = id.Value,
+                        produccion_registros = produccion
+                    };
+                }
+
+                //agrega datos entrada a la produccion
+                produccion.produccion_datos_entrada = produccion_datos_entrada;
+
+
+                //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina
+                mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == produccion.sap_platina);
+                if (mm == null)
+                    mm = new mm_v3 { };
+
+                //ENVIAR cLASS SEGUN EL MATERIAL
+                class_v3 class_ = db.class_v3.FirstOrDefault(x => x.Object == produccion.sap_platina);
+                if (class_ == null)
+                    class_ = new class_v3 { };
+
+
+                ViewBag.MM = mm;
+                ViewBag.Class = class_;
+                return View(produccion);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+        }
+
+        // POST: Plantas/Disable/5
+        [HttpPost, ActionName("Disable")]
+        [ValidateAntiForgeryToken]
+        public ActionResult DisableConfirmed(int id)
+        {
+            produccion_registros registros = db.produccion_registros.Find(id);
+            registros.activo = false;
+
+            db.Entry(registros).State = EntityState.Modified;
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+            {
+                // Retrieve the error messages as a list of strings.
+                var errorMessages = ex.EntityValidationErrors
+                        .SelectMany(x => x.ValidationErrors)
+                        .Select(x => x.ErrorMessage);
+
+                // Join the list to a single string.
+                var fullErrorMessage = string.Join("; ", errorMessages);
+
+                // Combine the original exception message with the new one.
+                var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
+
+                TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
+                //retorna la vista de datos de entrada
+                return RedirectToAction("Index", new
+                {
+                    planta = registros.clave_planta,
+                    linea = registros.id_linea
+                });
+
+            }
+            catch (Exception e)
+            {
+                TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
+                //retorna la vista de datos de entrada
+                return RedirectToAction("Index", new
+                {
+                    planta = registros.clave_planta,
+                    linea = registros.id_linea
+                });
+            }
+            TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.DISABLED, TipoMensajesSweetAlerts.SUCCESS);
+            //retorna la vista de datos de entrada
+            return RedirectToAction("Index", new
+            {
+                planta = registros.clave_planta,
+                linea = registros.id_linea
+            });
+        }
+
+        // GET: Plantas/Enable/5
+        public ActionResult Enable(int? id)
+        {
+            if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REGISTRO))
+            {
+                //verifica si se envio un id
+                if (id == null)
+                {
+                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                }
+
+                //busca si existe el registro de produccion
+                produccion_registros produccion = db.produccion_registros.Find(id);
+
+                if (produccion == null)
+                {
+                    TempData["Mensaje"] = new MensajesSweetAlert("No existe el registro de producción.", TipoMensajesSweetAlerts.ERROR);
+                    return RedirectToAction("Index");
+                }
+
+                //busca si hay datos de entrada para el registro de producción
+                produccion_datos_entrada produccion_datos_entrada = db.produccion_datos_entrada.FirstOrDefault(x => x.id_produccion_registro == id.Value);
+
+                if (produccion_datos_entrada == null)
+                {
+                    //si no hay registro de entrada de datos crea uno nuevo con el id de registro de produccion
+                    produccion_datos_entrada = new produccion_datos_entrada
+                    {
+                        id_produccion_registro = id.Value,
+                        produccion_registros = produccion
+                    };
+                }
+
+                //agrega datos entrada a la produccion
+                produccion.produccion_datos_entrada = produccion_datos_entrada;
+
+
+                //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina
+                mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == produccion.sap_platina);
+                if (mm == null)
+                    mm = new mm_v3 { };
+
+                //ENVIAR cLASS SEGUN EL MATERIAL
+                class_v3 class_ = db.class_v3.FirstOrDefault(x => x.Object == produccion.sap_platina);
+                if (class_ == null)
+                    class_ = new class_v3 { };
+
+
+                ViewBag.MM = mm;
+                ViewBag.Class = class_;
+                return View(produccion);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+        }
+
+        // POST: Plantas/Enable/5
+        [HttpPost, ActionName("Enable")]
+        [ValidateAntiForgeryToken]
+        public ActionResult EnableConfirmed(int id)
+        {
+            produccion_registros registros = db.produccion_registros.Find(id);
+            registros.activo = true;
+
+            db.Entry(registros).State = EntityState.Modified;
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+            {
+                // Retrieve the error messages as a list of strings.
+                var errorMessages = ex.EntityValidationErrors
+                        .SelectMany(x => x.ValidationErrors)
+                        .Select(x => x.ErrorMessage);
+
+                // Join the list to a single string.
+                var fullErrorMessage = string.Join("; ", errorMessages);
+
+                // Combine the original exception message with the new one.
+                var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
+
+                TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
+                //retorna la vista de datos de entrada
+                return RedirectToAction("Index", new
+                {
+                    planta = registros.clave_planta,
+                    linea = registros.id_linea
+                });
+
+            }
+            catch (Exception e)
+            {
+                TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
+                //retorna la vista de datos de entrada
+                return RedirectToAction("Index", new
+                {
+                    planta = registros.clave_planta,
+                    linea = registros.id_linea
+                });
+            }
+            TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.ENABLED, TipoMensajesSweetAlerts.SUCCESS);
+            //retorna la vista de datos de entrada
+            return RedirectToAction("Index", new
+            {
+                planta = registros.clave_planta,
+                linea = registros.id_linea
+            });
         }
 
         protected override void Dispose(bool disposing)

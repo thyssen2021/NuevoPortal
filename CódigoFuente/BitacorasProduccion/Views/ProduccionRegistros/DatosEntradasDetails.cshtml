@@ -1,7 +1,7 @@
 ﻿@model Portal_2_0.Models.produccion_registros
 
 @{
-    ViewBag.Title = "Datos del Registro";
+    ViewBag.Title = "Detalles del Registro";
     ViewBag.PrimerNivel = "bitacoras_produccion";
     ViewBag.SegundoNivel = "produccion_registros";
     ViewBag.ControllerName = "ProduccionRegistros";
@@ -181,12 +181,12 @@
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.produccion_datos_entrada.orden_sap, new { @class = "control-label col-md-1" })
                                 <div class="col-md-3">
-                                    @Html.EditorFor(model => model.produccion_datos_entrada.orden_sap, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
+                                    @Html.EditorFor(model => model.produccion_datos_entrada.orden_sap, new { htmlAttributes = new { @class = "form-control col-md-12", @readonly = "readonly" } })
                                     @Html.ValidationMessageFor(model => model.produccion_datos_entrada.orden_sap, "", new { @class = "text-danger" })
                                 </div>
                                 @Html.LabelFor(model => model.produccion_datos_entrada.orden_sap_2, new { @class = "control-label col-md-1" })
                                 <div class="col-md-3">
-                                    @Html.EditorFor(model => model.produccion_datos_entrada.orden_sap_2, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
+                                    @Html.EditorFor(model => model.produccion_datos_entrada.orden_sap_2, new { htmlAttributes = new { @class = "form-control col-md-12", @readonly = "readonly" } })
                                     @Html.ValidationMessageFor(model => model.produccion_datos_entrada.orden_sap_2, "", new { @class = "text-danger" })
                                 </div>
                             </div>
@@ -197,22 +197,22 @@
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.produccion_datos_entrada.numero_rollo, new { @class = "control-label col-md-1" })
                                 <div class="col-md-2">
-                                    @Html.EditorFor(model => model.produccion_datos_entrada.numero_rollo, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
+                                    @Html.EditorFor(model => model.produccion_datos_entrada.numero_rollo, new { htmlAttributes = new { @class = "form-control col-md-12", @readonly = "readonly" } })
                                     @Html.ValidationMessageFor(model => model.produccion_datos_entrada.numero_rollo, "", new { @class = "text-danger" })
                                 </div>
                                 @Html.LabelFor(model => model.produccion_datos_entrada.lote_rollo, new { @class = "control-label col-md-1" })
                                 <div class="col-md-2">
-                                    @Html.EditorFor(model => model.produccion_datos_entrada.lote_rollo, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
+                                    @Html.EditorFor(model => model.produccion_datos_entrada.lote_rollo, new { htmlAttributes = new { @class = "form-control col-md-12", @readonly = "readonly" } })
                                     @Html.ValidationMessageFor(model => model.produccion_datos_entrada.lote_rollo, "", new { @class = "text-danger" })
                                 </div>
                                 @Html.LabelFor(model => model.produccion_datos_entrada.piezas_por_golpe, new { @class = "control-label col-md-1" })
                                 <div class="col-md-2">
-                                    @Html.EditorFor(model => model.produccion_datos_entrada.piezas_por_golpe, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
+                                    @Html.EditorFor(model => model.produccion_datos_entrada.piezas_por_golpe, new { htmlAttributes = new { @class = "form-control col-md-12", @readonly = "readonly" } })
                                     @Html.ValidationMessageFor(model => model.produccion_datos_entrada.piezas_por_golpe, "", new { @class = "text-danger" })
                                 </div>
                                 @Html.LabelFor(model => model.produccion_datos_entrada.peso_etiqueta, new { @class = "control-label col-md-1" })
                                 <div class="col-md-2">
-                                    @Html.EditorFor(model => model.produccion_datos_entrada.peso_etiqueta, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
+                                    @Html.EditorFor(model => model.produccion_datos_entrada.peso_etiqueta, new { htmlAttributes = new { @class = "form-control col-md-12", @readonly = "readonly" } })
                                     @Html.ValidationMessageFor(model => model.produccion_datos_entrada.peso_etiqueta, "", new { @class = "text-danger" })
                                 </div>
                             </div>
@@ -222,12 +222,12 @@
 
                                 @Html.LabelFor(model => model.produccion_datos_entrada.peso_regreso_rollo_real, new { @class = "control-label col-md-1" })
                                 <div class="col-md-2">
-                                    @Html.EditorFor(model => model.produccion_datos_entrada.peso_regreso_rollo_real, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
+                                    @Html.EditorFor(model => model.produccion_datos_entrada.peso_regreso_rollo_real, new { htmlAttributes = new { @class = "form-control col-md-12", @readonly = "readonly" } })
                                     @Html.ValidationMessageFor(model => model.produccion_datos_entrada.peso_regreso_rollo_real, "", new { @class = "text-danger" })
                                 </div>
                                 @Html.LabelFor(model => model.produccion_datos_entrada.ordenes_por_pieza, new { @class = "control-label col-md-1" })
                                 <div class="col-md-2">
-                                    @Html.EditorFor(model => model.produccion_datos_entrada.ordenes_por_pieza, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
+                                    @Html.EditorFor(model => model.produccion_datos_entrada.ordenes_por_pieza, new { htmlAttributes = new { @class = "form-control col-md-12", @readonly = "readonly" } })
                                     @Html.ValidationMessageFor(model => model.produccion_datos_entrada.ordenes_por_pieza, "", new { @class = "text-danger" })
                                 </div>
                                 <!--Peso rollo usado-->
@@ -252,26 +252,26 @@
                                             <span class="float-right">Lote Izquierdo</span>
                                         </label>
                                         <div class="col-md-2">
-                                            <input style="text-align:right" type="number" min="0" step="1" max="50000" name="produccion_lotes[@contador].numero_lote_izquierdo" id="produccion_lotes[@contador].lote_izquierdo" class="form-control col-md-12" value="@lote.numero_lote_izquierdo" autocomplete="off">
+                                            <input style="text-align:right" type="number" min="0" step="1" max="50000" name="produccion_lotes[@contador].numero_lote_izquierdo" id="produccion_lotes[@contador].lote_izquierdo" class="form-control col-md-12" value="@lote.numero_lote_izquierdo" autocomplete="off" readonly>
                                             <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[@contador].numero_lote_izquierdo" data-valmsg-replace="true"></span>
                                         </div>
                                         <label class="control-label col-md-1" for="produccion_lotes[@contador].numero_lote_derecho">
                                             <span class="float-right">Lote Derecho</span>
                                         </label>
                                         <div class="col-md-2">
-                                            <input type="number" min="0" step="1" max="50000" name="produccion_lotes[@contador].numero_lote_derecho" id="produccion_lotes[@contador].lote_derecho" class="form-control col-md-12" value="@lote.numero_lote_derecho" autocomplete="off">
+                                            <input type="number" min="0" step="1" max="50000" name="produccion_lotes[@contador].numero_lote_derecho" id="produccion_lotes[@contador].lote_derecho" class="form-control col-md-12" value="@lote.numero_lote_derecho" autocomplete="off" readonly>
                                             <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[@contador].numero_lote_derecho" data-valmsg-replace="true"></span>
                                         </div>
                                         <label class="control-label col-md-2" for="produccion_lotes[@contador].piezas_paquete">
                                             <span class="float-right">Piezas por paquete</span>
                                         </label>
                                         <div class="col-md-2">
-                                            <input type="number" min="0" step="1" max="5000" name="produccion_lotes[@contador].piezas_paquete" id="produccion_lotes[@contador].piezas_paquete" class="form-control col-md-12 total_piezas" value="@lote.piezas_paquete" maxlength="10" required>
+                                            <input type="number" min="0" step="1" max="5000" name="produccion_lotes[@contador].piezas_paquete" id="produccion_lotes[@contador].piezas_paquete" class="form-control col-md-12 total_piezas" value="@lote.piezas_paquete" maxlength="10" readonly>
                                             <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[@contador].piezas_paquete" data-valmsg-replace="true"></span>
                                         </div>
-                                        <div class="col-md-1">
-                                            <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarLote(@contador); return false;">
-                                        </div>
+                                        @*<div class="col-md-1">
+                            <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarLote(@contador); return false;">
+                        </div>*@
                                     </div>
 
                                     contador++;
@@ -280,16 +280,16 @@
                             <div class="form-group row">
 
                             </div>
-                            <div class="form-group row">
-                                <div class="col-md-11">
-                                    <input type="button" value="Agregar" class="btn btn-round btn-warning float-right" onclick="AgregarConcepto(); return false;">
-                                </div>
-                            </div>
+                            @*<div class="form-group row">
+                <div class="col-md-11">
+                    <input type="button" value="Agregar" class="btn btn-round btn-warning float-right" onclick="AgregarConcepto(); return false;">
+                </div>
+            </div>*@
                             <!---------------------  -----------  -----------  -----------  ------------------>
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.produccion_datos_entrada.peso_bascula_kgs, new { @class = "control-label col-md-1" })
                                 <div class="col-md-3">
-                                    @Html.EditorFor(model => model.produccion_datos_entrada.peso_bascula_kgs, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
+                                    @Html.EditorFor(model => model.produccion_datos_entrada.peso_bascula_kgs, new { htmlAttributes = new { @class = "form-control col-md-12", @readonly = "readonly" } })
                                     @Html.ValidationMessageFor(model => model.produccion_datos_entrada.peso_bascula_kgs, "", new { @class = "text-danger" })
                                 </div>
                                 <!--Total de piezas-->
@@ -315,12 +315,12 @@
 
                                 @Html.LabelFor(model => model.produccion_datos_entrada.peso_despunte_kgs, new { @class = "control-label col-md-1" })
                                 <div class="col-md-3">
-                                    @Html.EditorFor(model => model.produccion_datos_entrada.peso_despunte_kgs, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
+                                    @Html.EditorFor(model => model.produccion_datos_entrada.peso_despunte_kgs, new { htmlAttributes = new { @class = "form-control col-md-12", @readonly = "readonly" } })
                                     @Html.ValidationMessageFor(model => model.produccion_datos_entrada.peso_despunte_kgs, "", new { @class = "text-danger" })
                                 </div>
                                 @Html.LabelFor(model => model.produccion_datos_entrada.peso_cola_kgs, new { @class = "control-label col-md-1" })
                                 <div class="col-md-3">
-                                    @Html.EditorFor(model => model.produccion_datos_entrada.peso_cola_kgs, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
+                                    @Html.EditorFor(model => model.produccion_datos_entrada.peso_cola_kgs, new { htmlAttributes = new { @class = "form-control col-md-12", @readonly = "readonly" } })
                                     @Html.ValidationMessageFor(model => model.produccion_datos_entrada.peso_cola_kgs, "", new { @class = "text-danger" })
                                 </div>
                                 <!--Porcentaje punta y colas-->
@@ -338,7 +338,7 @@
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.produccion_datos_entrada.total_piezas_ajuste, new { @class = "control-label col-md-1" })
                                 <div class="col-md-3">
-                                    @Html.EditorFor(model => model.produccion_datos_entrada.total_piezas_ajuste, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
+                                    @Html.EditorFor(model => model.produccion_datos_entrada.total_piezas_ajuste, new { htmlAttributes = new { @class = "form-control col-md-12", @readonly = "readonly" } })
                                     @Html.ValidationMessageFor(model => model.produccion_datos_entrada.total_piezas_ajuste, "", new { @class = "text-danger" })
                                 </div>
                                 <!--Peso Bruto Kgs-->
@@ -357,24 +357,24 @@
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.produccion_datos_entrada.peso_real_pieza_neto, new { @class = "control-label col-md-1" })
                                 <div class="col-md-2">
-                                    @Html.EditorFor(model => model.produccion_datos_entrada.peso_real_pieza_neto, new { htmlAttributes = new { @class = "form-control col-md-12", @readonly = "readonly", @autocomplete = "off" } })
+                                    @Html.EditorFor(model => model.produccion_datos_entrada.peso_real_pieza_neto, new { htmlAttributes = new { @class = "form-control col-md-12", @readonly = "readonly" } })
                                     @Html.ValidationMessageFor(model => model.produccion_datos_entrada.peso_real_pieza_neto, "", new { @class = "text-danger" })
                                 </div>
-                                <div class="col-md-2">
-                                    @if (!String.IsNullOrEmpty(Model.produccion_lineas.ip))
-                                    {
-                                        <input type="button" value="Obtener Peso Báscula" class="btn btn-round btn-info float-left" onclick="muestraModalSocket(); return false;">
-                                    }
-                                    else
-                                    {
-                                        <input type="button" value="Obtener Peso Báscula" class="btn btn-round btn-info float-left" onclick="muestraModalSocket(); return false;" disabled>
-                                    }
+                                @*<div class="col-md-2">
+                    @if (!String.IsNullOrEmpty(Model.produccion_lineas.ip))
+                    {
+                        <input type="button" value="Obtener Peso Báscula" class="btn btn-round btn-info float-left" onclick="muestraModalSocket(); return false;">
+                    }
+                    else
+                    {
+                        <input type="button" value="Obtener Peso Báscula" class="btn btn-round btn-info float-left" onclick="muestraModalSocket(); return false;" disabled>
+                    }
 
 
-                                </div>
-                                <div class="col-md-7">
-                                    <input id="modal_button" type="button" value="Captura Manual" class="btn btn-round btn-warning float-right" onclick="mostrarModal(); return false;">
-                                </div>
+                </div>
+                <div class="col-md-7">
+                    <input id="modal_button" type="button" value="Captura Manual" class="btn btn-round btn-warning float-right" onclick="mostrarModal(); return false;">
+                </div>*@
                             </div>
 
                             <div class="ln_solid"></div>
@@ -494,17 +494,20 @@
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.produccion_datos_entrada.comentarios, new { @class = "control-label col-md-3 col-sm-3" })
                                 <div class="col-md-12 col-sm-12 ">
-                                    @Html.TextAreaFor(model => model.produccion_datos_entrada.comentarios, new { @class = "form-control", @rows = "4", @autocomplete = "off" })
+                                    @Html.TextAreaFor(model => model.produccion_datos_entrada.comentarios, new { @class = "form-control", @rows = "4", @readonly = "readonly" })
                                     @Html.ValidationMessageFor(model => model.produccion_datos_entrada.comentarios, "", new { @class = "text-danger" })
                                 </div>
                             </div>
                             <div class="ln_solid"></div>
-                            <div class="item form-group">
-                                <div class="col-md-12 col-sm-12 offset-md-12">
-                                    <button type="submit" class="btn btn-success btn-lg float-lg-right">Guardar</button>
-                                </div>
-                            </div>
+
                         }
+                        <div class="item form-group">
+                            <div class="col-md-12 col-sm-12 offset-md-12">
+                                <a href="@Url.Action("DatosEntradas", ViewBag.ControllerName, new { id = Model.id})" class="btn btn-success btm-sm float-md-right" title="Editar">
+                                    <i class="fa fa-pencil-square-o"></i> Editar
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div>
