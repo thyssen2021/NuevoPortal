@@ -6,7 +6,7 @@
     ViewBag.PrimerNivel = "bitacoras_produccion";
     ViewBag.SegundoNivel = "bitacoras_produccion_catalogos";
     ViewBag.TercerNivel = "produccion_mm_v3";
-    ViewBag.ControllerName = "Bom";
+    ViewBag.ControllerName = "mm_v3";
 
     Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
 
@@ -79,7 +79,7 @@
                                                 <div class="col-md-3 col-sm-3">
                                                     <input type="text" class="form-control" name="material" id="material" value="@filtroMaterial">
                                                 </div>
-                                                
+
                                             </div>
                                             <div class="form-group row ">
                                                 <label class="control-label col-md-2 col-sm-2" for="tipoMaterial">Tipo Material</label>
@@ -198,108 +198,108 @@
                                         <tbody>
                                             @foreach (var item in Model)
                                             {
-                                            <tr>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Material)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Plnt)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.MS)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Material_Description)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Type_of_Material)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Type_of_Metal)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Old_material_no_)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Head_and_Tails_Scrap_Conciliation)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Engineering_Scrap_conciliation)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Business_Model)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Re_application)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.IHS_number_1)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.IHS_number_2)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.IHS_number_3)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.IHS_number_4)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.IHS_number_5)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Type_of_Selling)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Package_Pieces)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Gross_weight)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Un_)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Net_weight)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Un_1)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Thickness)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Width)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Advance)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Head_and_Tail_allowed_scrap)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Pieces_per_car)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Initial_Weight)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Min_Weight)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Maximum_Weight)
-                                                </td>
-                                                <td>
-                                                    @if (item.activo)
-                                                    {
-                                                        <span>Activo</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span>Inactivo</span>
-                                                    }
-                                                </td>
-                                            </tr>
+                                                <tr>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Material)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Plnt)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.MS)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Material_Description)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Type_of_Material)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Type_of_Metal)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Old_material_no_)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Head_and_Tails_Scrap_Conciliation)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Engineering_Scrap_conciliation)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Business_Model)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Re_application)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.IHS_number_1)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.IHS_number_2)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.IHS_number_3)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.IHS_number_4)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.IHS_number_5)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Type_of_Selling)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Package_Pieces)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Gross_weight)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Un_)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Net_weight)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Un_1)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Thickness)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Width)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Advance)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Head_and_Tail_allowed_scrap)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Pieces_per_car)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Initial_Weight)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Min_Weight)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Maximum_Weight)
+                                                    </td>
+                                                    <td>
+                                                        @if (item.activo)
+                                                        {
+                                                            <span>Activo</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>Inactivo</span>
+                                                        }
+                                                    </td>
+                                                </tr>
                                             }
                                         </tbody>
                                     </table>
@@ -309,6 +309,12 @@
                                     @{Html.RenderPartial("_Paginacion", Model);}
 
                                 </nav>
+                            </div>
+                            <div>
+                                <br />
+                                <a href="@Url.Action("CargaMM", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Cargar">
+                                    <i class="fa fa-upload"></i> CargarMM
+                                </a>
                             </div>
                         </div>
                     </div>

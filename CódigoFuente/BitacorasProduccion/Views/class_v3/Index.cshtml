@@ -125,48 +125,48 @@
                                         <tbody>
                                             @foreach (var item in Model)
                                             {
-                                            <tr>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Object)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Grade)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Customer)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Shape)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Customer_part_number)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Surface)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Gauge___Metric)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Mill)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Width___Metr)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.Length_mm_)
-                                                </td>
-                                                <td>
-                                                    @if (item.activo)
-                                                    {
-                                                        <span>Activo</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span>Inactivo</span>
-                                                    }
-                                                </td>
-                                            </tr>
+                                                <tr>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Object)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Grade)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Customer)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Shape)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Customer_part_number)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Surface)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Gauge___Metric)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Mill)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Width___Metr)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Length_mm_)
+                                                    </td>
+                                                    <td>
+                                                        @if (item.activo)
+                                                        {
+                                                            <span>Activo</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>Inactivo</span>
+                                                        }
+                                                    </td>
+                                                </tr>
                                             }
                                         </tbody>
                                     </table>
@@ -178,7 +178,12 @@
                                 </nav>
                             </div>
 
-
+                            <div>
+                                <br />
+                                <a href="@Url.Action("CargaClass", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Cargar">
+                                    <i class="fa fa-upload"></i> CargarClass
+                                </a>
+                            </div>
 
                         </div>
                     </div>

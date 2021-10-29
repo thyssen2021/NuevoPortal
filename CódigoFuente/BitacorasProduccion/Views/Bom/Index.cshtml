@@ -64,20 +64,20 @@
                             <div class="col-sm-12">
                                 <div class="card-box table-responsive">
                                     <div class="form-group">
-                                        @using (Html.BeginForm(null, null, FormMethod.Get, new { id="buscarForm", @class = "form-horizontal form-label-left" }))
+                                        @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
                                         {
-                                        <div class="form-group row ">
-                                            <label class="control-label col-md-1 col-sm-1" for="material">Material</label>
-                                            <div class="col-md-3 col-sm-3">
-                                                <input type="text" class="form-control" name="material" id="material" value="@filtroMaterial">
+                                            <div class="form-group row ">
+                                                <label class="control-label col-md-1 col-sm-1" for="material">Material</label>
+                                                <div class="col-md-3 col-sm-3">
+                                                    <input type="text" class="form-control" name="material" id="material" value="@filtroMaterial">
+                                                </div>
+                                                <div class="col-md-1 col-sm-1">
+                                                    <input type="button" value="borrar" class="btn btn-danger" id="borrarForm" />
+                                                </div>
+                                                <div class="col-md-1 col-sm-1">
+                                                    <input type="submit" value="buscar" class="btn btn-info" />
+                                                </div>
                                             </div>
-                                            <div class="col-md-1 col-sm-1">
-                                                <input type="button" value="borrar" class="btn btn-danger" id="borrarForm" />
-                                            </div>
-                                            <div class="col-md-1 col-sm-1">
-                                                <input type="submit" value="buscar" class="btn btn-info" />
-                                            </div>
-                                        </div>
 
                                         }
 
@@ -181,7 +181,12 @@
 
                                 </nav>
                             </div>
-
+                            <div>
+                                <br />
+                                <a href="@Url.Action("CargaBom", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Cargar">
+                                    <i class="fa fa-upload"></i> CargarBOM
+                                </a>
+                            </div>
 
 
                         </div>
