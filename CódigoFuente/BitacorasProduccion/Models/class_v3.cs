@@ -11,7 +11,7 @@ namespace Portal_2_0.Models
 {
     using System;
     using System.Collections.Generic;
-    
+
     public partial class class_v3 : IEquatable<class_v3>
     {
         public string Object { get; set; }

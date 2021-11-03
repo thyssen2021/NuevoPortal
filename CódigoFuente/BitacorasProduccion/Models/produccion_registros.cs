@@ -20,7 +20,7 @@ namespace Portal_2_0.Models
         {
             this.produccion_lotes = new HashSet<produccion_lotes>();
         }
-    
+
         public int id { get; set; }
         [Display(Name = "Planta")]
         public Nullable<int> clave_planta { get; set; }
@@ -51,7 +51,7 @@ namespace Portal_2_0.Models
         public Nullable<System.DateTime> fecha { get; set; }
         [Display(Name = "Estado")]
         public Nullable<bool> activo { get; set; }
-    
+
         public virtual plantas plantas { get; set; }
         public virtual produccion_datos_entrada produccion_datos_entrada { get; set; }
         public virtual produccion_lineas produccion_lineas { get; set; }

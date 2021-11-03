@@ -21,6 +21,7 @@ namespace Portal_2_0.Models
             this.puesto = new HashSet<puesto>();
         }
 
+
         [Display(Name = "Clave")]
         public int clave { get; set; }
 

@@ -80,6 +80,7 @@ namespace Portal_2_0.Models
         [StringLength(600)]
         public string comentarios { get; set; }
 
+
         public virtual produccion_registros produccion_registros { get; set; }
     }
 }

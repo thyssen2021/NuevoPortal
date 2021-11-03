@@ -39,5 +39,17 @@ namespace Portal_2_0.Models
         public virtual DbSet<produccion_supervisores> produccion_supervisores { get; set; }
         public virtual DbSet<produccion_turnos> produccion_turnos { get; set; }
         public virtual DbSet<puesto> puesto { get; set; }
+        public virtual DbSet<notificaciones_correo> notificaciones_correo { get; set; }
+        public virtual DbSet<PFA_Border_port> PFA_Border_port { get; set; }
+        public virtual DbSet<PFA_Department> PFA_Department { get; set; }
+        public virtual DbSet<PFA_Destination_plant> PFA_Destination_plant { get; set; }
+        public virtual DbSet<PFA_Reason> PFA_Reason { get; set; }
+        public virtual DbSet<PFA_Recovered_cost> PFA_Recovered_cost { get; set; }
+        public virtual DbSet<PFA_Responsible_cost> PFA_Responsible_cost { get; set; }
+        public virtual DbSet<PFA_Type_shipment> PFA_Type_shipment { get; set; }
+        public virtual DbSet<PFA_Volume> PFA_Volume { get; set; }
+        public virtual DbSet<PFA> PFA { get; set; }
+        public virtual DbSet<PFA_Autorizador> PFA_Autorizador { get; set; }
+        public virtual DbSet<view_historico_resultado> view_historico_resultado { get; set; }
     }
 }

@@ -11,8 +11,8 @@ namespace Portal_2_0.Models
 {
     using System;
     using System.Collections.Generic;
-    
-    public partial class bom_en_sap: IEquatable<bom_en_sap>
+
+    public partial class bom_en_sap : IEquatable<bom_en_sap>
     {
         public string Material { get; set; }
         public string Plnt { get; set; }
@@ -35,8 +35,8 @@ namespace Portal_2_0.Models
             if (other is null)
                 return false;
 
-            return this.Material == other.Material 
-                && this.Plnt == other.Plnt 
+            return this.Material == other.Material
+                && this.Plnt == other.Plnt
                 && this.BOM == other.BOM
                 && this.AltBOM == other.AltBOM
                 && this.Item == other.Item

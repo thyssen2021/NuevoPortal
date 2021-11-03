@@ -34,9 +34,9 @@ namespace Portal_2_0.Models
         [Display(Name = "Estado")]
         public Nullable<bool> activo { get; set; }
 
-        [RegularExpression(@"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$", ErrorMessage ="Ingrese una dirección ip válida.")]
+        [RegularExpression(@"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$", ErrorMessage = "Ingrese una dirección ip válida.")]
         public string ip { get; set; }
-    
+
         public virtual plantas plantas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<produccion_operadores> produccion_operadores { get; set; }

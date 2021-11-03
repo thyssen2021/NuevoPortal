@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="Portal_2_0Model.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="Portal_2_0Model.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Area">
           <Key>
             <PropertyRef Name="clave" />
@@ -115,6 +115,117 @@
           <Property Name="Maximum Weight" Type="float" />
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
+        <EntityType Name="notificaciones_correo">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_empleado" Type="int" />
+          <Property Name="descripcion" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PFA">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_solicitante" Type="int" Nullable="false" />
+          <Property Name="id_PFA_Department" Type="int" Nullable="false" />
+          <Property Name="id_PFA_volume" Type="int" Nullable="false" />
+          <Property Name="id_PFA_border_port" Type="int" Nullable="false" />
+          <Property Name="id_PFA_destination_plant" Type="int" Nullable="false" />
+          <Property Name="id_PFA_reason" Type="int" Nullable="false" />
+          <Property Name="id_PFA_type_shipment" Type="int" Nullable="false" />
+          <Property Name="id_PFA_responsible_cost" Type="int" Nullable="false" />
+          <Property Name="id_PFA_recovered_cost" Type="int" Nullable="false" />
+          <Property Name="id_PFA_autorizador" Type="int" Nullable="false" />
+          <Property Name="date_request" Type="datetime" Nullable="false" />
+          <Property Name="sap_part_number" Type="varchar" MaxLength="15" Nullable="false" />
+          <Property Name="customer_part_number" Type="varchar" MaxLength="15" Nullable="false" />
+          <Property Name="volume" Type="int" Nullable="false" />
+          <Property Name="mill" Type="varchar" MaxLength="35" Nullable="false" />
+          <Property Name="customer" Type="varchar" MaxLength="40" Nullable="false" />
+          <Property Name="total_cost" Type="decimal" Precision="11" Scale="2" Nullable="false" />
+          <Property Name="total_pf_cost" Type="decimal" Precision="11" Scale="2" Nullable="false" />
+          <Property Name="promise_recovering_date" Type="datetime" Nullable="false" />
+          <Property Name="comentarios" Type="varchar" MaxLength="350" />
+          <Property Name="razon_rechazo" Type="varchar" MaxLength="350" />
+          <Property Name="estatus" Type="varchar" MaxLength="12" Nullable="false" />
+          <Property Name="fecha_aprobacion" Type="datetime" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PFA_Autorizador">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_empleado" Type="int" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PFA_Border_port">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PFA_Department">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PFA_Destination_plant">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PFA_Reason">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PFA_Recovered_cost">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PFA_Responsible_cost">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PFA_Type_shipment">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PFA_Volume">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
         <EntityType Name="plantas">
           <Key>
             <PropertyRef Name="clave" />
@@ -218,6 +329,62 @@
           <Property Name="descripcion" Type="varchar" MaxLength="80" Nullable="false" />
           <Property Name="areaClave" Type="int" />
         </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="view_historico_resultado">
+          <Key>
+            <PropertyRef Name="id" />
+            <PropertyRef Name="Planta" />
+          </Key>
+          <Property Name="id" Type="bigint" Nullable="false" />
+          <Property Name="Operador" Type="nvarchar" MaxLength="767" />
+          <Property Name="Supervisor" Type="nvarchar" MaxLength="767" />
+          <Property Name="SAP Platina" Type="nvarchar" MaxLength="255" />
+          <Property Name="Tipo de Material" Type="nvarchar" MaxLength="255" />
+          <Property Name="Número de Parte  de cliente" Type="nvarchar" MaxLength="255" />
+          <Property Name="SAP Rollo" Type="nvarchar" MaxLength="255" />
+          <Property Name="Material" Type="nvarchar" MaxLength="255" />
+          <Property Name="Fecha" Type="datetime" />
+          <Property Name="Turno" Type="nvarchar" MaxLength="255" />
+          <Property Name="Hora" Type="datetime" />
+          <Property Name="Orden SAP" Type="nvarchar" MaxLength="256" />
+          <Property Name="Orden en SAP 2" Type="nvarchar" MaxLength="256" />
+          <Property Name="Pieza por Golpe" Type="float" />
+          <Property Name="N° de Rollo" Type="nvarchar" MaxLength="255" />
+          <Property Name="Lote de rollo" Type="varchar" MaxLength="256" />
+          <Property Name="Peso Etiqueta (Kg)" Type="float" />
+          <Property Name="Peso de regreso de rollo Real" Type="float" />
+          <Property Name="Peso de rollo usado" Type="float" />
+          <Property Name="Peso Báscula Kgs" Type="float" />
+          <Property Name="Piezas por paquete" Type="float" />
+          <Property Name="Total de piezas" Type="float" />
+          <Property Name="Peso de rollo consumido" Type="float" />
+          <Property Name="Numero de golpes" Type="float" />
+          <Property Name="Kg restante de rollo" Type="float" />
+          <Property Name="Peso despunte kgs#" Type="float" />
+          <Property Name="Peso cola Kgs#" Type="float" />
+          <Property Name="Porcentaje de puntas y colas" Type="float" />
+          <Property Name="Total de piezas de Ajustes" Type="float" />
+          <Property Name="Peso Bruto_Kgs" Type="float" />
+          <Property Name="Peso Real Pieza Bruto" Type="float" />
+          <Property Name="Peso Real Pieza Neto" Type="float" />
+          <Property Name="Scrap Natural" Type="float" />
+          <Property Name="Peso neto SAP" Type="float" />
+          <Property Name="Peso Bruto SAP" Type="float" />
+          <Property Name="Balance_de_Scrap" Type="float" />
+          <Property Name="Linea" Type="nvarchar" MaxLength="255" />
+          <Property Name="Planta" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="Anio" Type="int" />
+          <Property Name="Column40" Type="float" />
+          <Property Name="Ordenes por pieza" Type="float" />
+          <Property Name="Peso de rollo usado real _Kg" Type="float" />
+          <Property Name="Peso bruto Total piezas_Kg" Type="float" />
+          <Property Name="Peso NetoTotal piezas_Kg" Type="float" />
+          <Property Name="Scrap de ingeniería (buenas + Ajuste)_Total_Piezas_Kg" Type="float" />
+          <Property Name="Peso Neto_total piezas de ajuste_Kgs" Type="float" />
+          <Property Name="Peso puntas y colas reales_Kg" Type="float" />
+          <Property Name="Balance_de_Scrap_Real" Type="float" />
+        </EntityType>
         <Association Name="FK_areas_planta_clave">
           <End Role="plantas" Type="Self.plantas" Multiplicity="0..1" />
           <End Role="Area" Type="Self.Area" Multiplicity="*" />
@@ -251,6 +418,150 @@
             </Principal>
             <Dependent Role="empleados">
               <PropertyRef Name="puesto" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_id_PFA_recovered_cost">
+          <End Role="PFA_Recovered_cost" Type="Self.PFA_Recovered_cost" Multiplicity="1" />
+          <End Role="PFA" Type="Self.PFA" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PFA_Recovered_cost">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PFA">
+              <PropertyRef Name="id_PFA_recovered_cost" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_notificaciones_correo_empleado">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="0..1" />
+          <End Role="notificaciones_correo" Type="Self.notificaciones_correo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="notificaciones_correo">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PFA_autorizador">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="1" />
+          <End Role="PFA" Type="Self.PFA" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PFA">
+              <PropertyRef Name="id_PFA_autorizador" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PFA_Autorizador_empleado">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="0..1" />
+          <End Role="PFA_Autorizador" Type="Self.PFA_Autorizador" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PFA_Autorizador">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PFA_border_port">
+          <End Role="PFA_Border_port" Type="Self.PFA_Border_port" Multiplicity="1" />
+          <End Role="PFA" Type="Self.PFA" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PFA_Border_port">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PFA">
+              <PropertyRef Name="id_PFA_border_port" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PFA_Department">
+          <End Role="PFA_Department" Type="Self.PFA_Department" Multiplicity="1" />
+          <End Role="PFA" Type="Self.PFA" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PFA_Department">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PFA">
+              <PropertyRef Name="id_PFA_Department" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PFA_destination_plant">
+          <End Role="PFA_Destination_plant" Type="Self.PFA_Destination_plant" Multiplicity="1" />
+          <End Role="PFA" Type="Self.PFA" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PFA_Destination_plant">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PFA">
+              <PropertyRef Name="id_PFA_destination_plant" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PFA_reason">
+          <End Role="PFA_Reason" Type="Self.PFA_Reason" Multiplicity="1" />
+          <End Role="PFA" Type="Self.PFA" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PFA_Reason">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PFA">
+              <PropertyRef Name="id_PFA_reason" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PFA_responsible_cost">
+          <End Role="PFA_Responsible_cost" Type="Self.PFA_Responsible_cost" Multiplicity="1" />
+          <End Role="PFA" Type="Self.PFA" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PFA_Responsible_cost">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PFA">
+              <PropertyRef Name="id_PFA_responsible_cost" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PFA_solicitante">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="1" />
+          <End Role="PFA" Type="Self.PFA" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PFA">
+              <PropertyRef Name="id_solicitante" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PFA_type_shipment">
+          <End Role="PFA_Type_shipment" Type="Self.PFA_Type_shipment" Multiplicity="1" />
+          <End Role="PFA" Type="Self.PFA" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PFA_Type_shipment">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PFA">
+              <PropertyRef Name="id_PFA_type_shipment" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PFA_volume">
+          <End Role="PFA_Volume" Type="Self.PFA_Volume" Multiplicity="1" />
+          <End Role="PFA" Type="Self.PFA" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PFA_Volume">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PFA">
+              <PropertyRef Name="id_PFA_volume" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -428,6 +739,17 @@
           <EntitySet Name="class_v3" EntityType="Self.class_v3" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="empleados" EntityType="Self.empleados" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="mm_v3" EntityType="Self.mm_v3" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="notificaciones_correo" EntityType="Self.notificaciones_correo" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PFA" EntityType="Self.PFA" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PFA_Autorizador" EntityType="Self.PFA_Autorizador" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PFA_Border_port" EntityType="Self.PFA_Border_port" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PFA_Department" EntityType="Self.PFA_Department" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PFA_Destination_plant" EntityType="Self.PFA_Destination_plant" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PFA_Reason" EntityType="Self.PFA_Reason" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PFA_Recovered_cost" EntityType="Self.PFA_Recovered_cost" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PFA_Responsible_cost" EntityType="Self.PFA_Responsible_cost" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PFA_Type_shipment" EntityType="Self.PFA_Type_shipment" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PFA_Volume" EntityType="Self.PFA_Volume" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="plantas" EntityType="Self.plantas" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="produccion_datos_entrada" EntityType="Self.produccion_datos_entrada" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="produccion_lineas" EntityType="Self.produccion_lineas" Schema="dbo" store:Type="Tables" />
@@ -437,6 +759,58 @@
           <EntitySet Name="produccion_supervisores" EntityType="Self.produccion_supervisores" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="produccion_turnos" EntityType="Self.produccion_turnos" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="puesto" EntityType="Self.puesto" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="view_historico_resultado" EntityType="Self.view_historico_resultado" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [view_historico_resultado].[id] AS [id], 
+    [view_historico_resultado].[Operador] AS [Operador], 
+    [view_historico_resultado].[Supervisor] AS [Supervisor], 
+    [view_historico_resultado].[SAP Platina] AS [SAP Platina], 
+    [view_historico_resultado].[Tipo de Material] AS [Tipo de Material], 
+    [view_historico_resultado].[Número de Parte  de cliente] AS [Número de Parte  de cliente], 
+    [view_historico_resultado].[SAP Rollo] AS [SAP Rollo], 
+    [view_historico_resultado].[Material] AS [Material], 
+    [view_historico_resultado].[Fecha] AS [Fecha], 
+    [view_historico_resultado].[Turno] AS [Turno], 
+    [view_historico_resultado].[Hora] AS [Hora], 
+    [view_historico_resultado].[Orden SAP] AS [Orden SAP], 
+    [view_historico_resultado].[Orden en SAP 2] AS [Orden en SAP 2], 
+    [view_historico_resultado].[Pieza por Golpe] AS [Pieza por Golpe], 
+    [view_historico_resultado].[N° de Rollo] AS [N° de Rollo], 
+    [view_historico_resultado].[Lote de rollo] AS [Lote de rollo], 
+    [view_historico_resultado].[Peso Etiqueta (Kg)] AS [Peso Etiqueta (Kg)], 
+    [view_historico_resultado].[Peso de regreso de rollo Real] AS [Peso de regreso de rollo Real], 
+    [view_historico_resultado].[Peso de rollo usado] AS [Peso de rollo usado], 
+    [view_historico_resultado].[Peso Báscula Kgs] AS [Peso Báscula Kgs], 
+    [view_historico_resultado].[Piezas por paquete] AS [Piezas por paquete], 
+    [view_historico_resultado].[Total de piezas] AS [Total de piezas], 
+    [view_historico_resultado].[Peso de rollo consumido] AS [Peso de rollo consumido], 
+    [view_historico_resultado].[Numero de golpes] AS [Numero de golpes], 
+    [view_historico_resultado].[Kg restante de rollo] AS [Kg restante de rollo], 
+    [view_historico_resultado].[Peso despunte kgs#] AS [Peso despunte kgs#], 
+    [view_historico_resultado].[Peso cola Kgs#] AS [Peso cola Kgs#], 
+    [view_historico_resultado].[Porcentaje de puntas y colas] AS [Porcentaje de puntas y colas], 
+    [view_historico_resultado].[Total de piezas de Ajustes] AS [Total de piezas de Ajustes], 
+    [view_historico_resultado].[Peso Bruto_Kgs] AS [Peso Bruto_Kgs], 
+    [view_historico_resultado].[Peso Real Pieza Bruto] AS [Peso Real Pieza Bruto], 
+    [view_historico_resultado].[Peso Real Pieza Neto] AS [Peso Real Pieza Neto], 
+    [view_historico_resultado].[Scrap Natural] AS [Scrap Natural], 
+    [view_historico_resultado].[Peso neto SAP] AS [Peso neto SAP], 
+    [view_historico_resultado].[Peso Bruto SAP] AS [Peso Bruto SAP], 
+    [view_historico_resultado].[Balance_de_Scrap] AS [Balance_de_Scrap], 
+    [view_historico_resultado].[Linea] AS [Linea], 
+    [view_historico_resultado].[Planta] AS [Planta], 
+    [view_historico_resultado].[Anio] AS [Anio], 
+    [view_historico_resultado].[Column40] AS [Column40], 
+    [view_historico_resultado].[Ordenes por pieza] AS [Ordenes por pieza], 
+    [view_historico_resultado].[Peso de rollo usado real _Kg] AS [Peso de rollo usado real _Kg], 
+    [view_historico_resultado].[Peso bruto Total piezas_Kg] AS [Peso bruto Total piezas_Kg], 
+    [view_historico_resultado].[Peso NetoTotal piezas_Kg] AS [Peso NetoTotal piezas_Kg], 
+    [view_historico_resultado].[Scrap de ingeniería (buenas + Ajuste)_Total_Piezas_Kg] AS [Scrap de ingeniería (buenas + Ajuste)_Total_Piezas_Kg], 
+    [view_historico_resultado].[Peso Neto_total piezas de ajuste_Kgs] AS [Peso Neto_total piezas de ajuste_Kgs], 
+    [view_historico_resultado].[Peso puntas y colas reales_Kg] AS [Peso puntas y colas reales_Kg], 
+    [view_historico_resultado].[Balance_de_Scrap_Real] AS [Balance_de_Scrap_Real]
+    FROM [dbo].[view_historico_resultado] AS [view_historico_resultado]</DefiningQuery>
+          </EntitySet>
           <AssociationSet Name="FK_areas_planta_clave" Association="Self.FK_areas_planta_clave">
             <End Role="plantas" EntitySet="plantas" />
             <End Role="Area" EntitySet="Area" />
@@ -448,6 +822,54 @@
           <AssociationSet Name="FK_empleados_puesto" Association="Self.FK_empleados_puesto">
             <End Role="puesto" EntitySet="puesto" />
             <End Role="empleados" EntitySet="empleados" />
+          </AssociationSet>
+          <AssociationSet Name="FK_id_PFA_recovered_cost" Association="Self.FK_id_PFA_recovered_cost">
+            <End Role="PFA_Recovered_cost" EntitySet="PFA_Recovered_cost" />
+            <End Role="PFA" EntitySet="PFA" />
+          </AssociationSet>
+          <AssociationSet Name="FK_notificaciones_correo_empleado" Association="Self.FK_notificaciones_correo_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="notificaciones_correo" EntitySet="notificaciones_correo" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PFA_autorizador" Association="Self.FK_PFA_autorizador">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="PFA" EntitySet="PFA" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PFA_Autorizador_empleado" Association="Self.FK_PFA_Autorizador_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="PFA_Autorizador" EntitySet="PFA_Autorizador" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PFA_border_port" Association="Self.FK_PFA_border_port">
+            <End Role="PFA_Border_port" EntitySet="PFA_Border_port" />
+            <End Role="PFA" EntitySet="PFA" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PFA_Department" Association="Self.FK_PFA_Department">
+            <End Role="PFA_Department" EntitySet="PFA_Department" />
+            <End Role="PFA" EntitySet="PFA" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PFA_destination_plant" Association="Self.FK_PFA_destination_plant">
+            <End Role="PFA_Destination_plant" EntitySet="PFA_Destination_plant" />
+            <End Role="PFA" EntitySet="PFA" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PFA_reason" Association="Self.FK_PFA_reason">
+            <End Role="PFA_Reason" EntitySet="PFA_Reason" />
+            <End Role="PFA" EntitySet="PFA" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PFA_responsible_cost" Association="Self.FK_PFA_responsible_cost">
+            <End Role="PFA_Responsible_cost" EntitySet="PFA_Responsible_cost" />
+            <End Role="PFA" EntitySet="PFA" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PFA_solicitante" Association="Self.FK_PFA_solicitante">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="PFA" EntitySet="PFA" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PFA_type_shipment" Association="Self.FK_PFA_type_shipment">
+            <End Role="PFA_Type_shipment" EntitySet="PFA_Type_shipment" />
+            <End Role="PFA" EntitySet="PFA" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PFA_volume" Association="Self.FK_PFA_volume">
+            <End Role="PFA_Volume" EntitySet="PFA_Volume" />
+            <End Role="PFA" EntitySet="PFA" />
           </AssociationSet>
           <AssociationSet Name="FK_produccion_datos_entrada_id_produccion_registro" Association="Self.FK_produccion_datos_entrada_id_produccion_registro">
             <End Role="produccion_registros" EntitySet="produccion_registros" />
@@ -506,8 +928,7 @@
             <End Role="puesto" EntitySet="puesto" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="Portal_2_0Model" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -589,6 +1010,10 @@
           <NavigationProperty Name="puesto1" Relationship="Self.FK_empleados_puesto" FromRole="empleados" ToRole="puesto" />
           <NavigationProperty Name="produccion_operadores" Relationship="Self.FK_produccion_operadores_id_empleado" FromRole="empleados" ToRole="produccion_operadores" />
           <NavigationProperty Name="produccion_supervisores" Relationship="Self.FK_produccion_supervisores_id_empleado" FromRole="empleados" ToRole="produccion_supervisores" />
+          <NavigationProperty Name="notificaciones_correo" Relationship="Portal_2_0Model.FK_notificaciones_correo_empleado" FromRole="empleados" ToRole="notificaciones_correo" />
+          <NavigationProperty Name="PFA" Relationship="Portal_2_0Model.FK_PFA_autorizador" FromRole="empleados" ToRole="PFA" />
+          <NavigationProperty Name="PFA_Autorizador" Relationship="Portal_2_0Model.FK_PFA_Autorizador_empleado" FromRole="empleados" ToRole="PFA_Autorizador" />
+          <NavigationProperty Name="PFA1" Relationship="Portal_2_0Model.FK_PFA_solicitante" FromRole="empleados" ToRole="PFA" />
         </EntityType>
         <EntityType Name="mm_v3">
           <Key>
@@ -1045,8 +1470,397 @@
             <End Role="produccion_turnos" EntitySet="produccion_turnos" />
             <End Role="produccion_registros" EntitySet="produccion_registros" />
           </AssociationSet>
-        </EntityContainer>
-      </Schema>
+          <EntitySet Name="notificaciones_correo" EntityType="Portal_2_0Model.notificaciones_correo" />
+          <EntitySet Name="PFA_Border_port" EntityType="Portal_2_0Model.PFA_Border_port" />
+          <EntitySet Name="PFA_Department" EntityType="Portal_2_0Model.PFA_Department" />
+          <EntitySet Name="PFA_Destination_plant" EntityType="Portal_2_0Model.PFA_Destination_plant" />
+          <EntitySet Name="PFA_Reason" EntityType="Portal_2_0Model.PFA_Reason" />
+          <EntitySet Name="PFA_Recovered_cost" EntityType="Portal_2_0Model.PFA_Recovered_cost" />
+          <EntitySet Name="PFA_Responsible_cost" EntityType="Portal_2_0Model.PFA_Responsible_cost" />
+          <EntitySet Name="PFA_Type_shipment" EntityType="Portal_2_0Model.PFA_Type_shipment" />
+          <EntitySet Name="PFA_Volume" EntityType="Portal_2_0Model.PFA_Volume" />
+          <AssociationSet Name="FK_notificaciones_correo_empleado" Association="Portal_2_0Model.FK_notificaciones_correo_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="notificaciones_correo" EntitySet="notificaciones_correo" />
+          </AssociationSet>
+          <EntitySet Name="PFA" EntityType="Portal_2_0Model.PFA" />
+          <EntitySet Name="PFA_Autorizador" EntityType="Portal_2_0Model.PFA_Autorizador" />
+          <AssociationSet Name="FK_PFA_autorizador" Association="Portal_2_0Model.FK_PFA_autorizador">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="PFA" EntitySet="PFA" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PFA_Autorizador_empleado" Association="Portal_2_0Model.FK_PFA_Autorizador_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="PFA_Autorizador" EntitySet="PFA_Autorizador" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PFA_solicitante" Association="Portal_2_0Model.FK_PFA_solicitante">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="PFA" EntitySet="PFA" />
+          </AssociationSet>
+          <AssociationSet Name="FK_id_PFA_recovered_cost" Association="Portal_2_0Model.FK_id_PFA_recovered_cost">
+            <End Role="PFA_Recovered_cost" EntitySet="PFA_Recovered_cost" />
+            <End Role="PFA" EntitySet="PFA" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PFA_border_port" Association="Portal_2_0Model.FK_PFA_border_port">
+            <End Role="PFA_Border_port" EntitySet="PFA_Border_port" />
+            <End Role="PFA" EntitySet="PFA" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PFA_Department" Association="Portal_2_0Model.FK_PFA_Department">
+            <End Role="PFA_Department" EntitySet="PFA_Department" />
+            <End Role="PFA" EntitySet="PFA" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PFA_destination_plant" Association="Portal_2_0Model.FK_PFA_destination_plant">
+            <End Role="PFA_Destination_plant" EntitySet="PFA_Destination_plant" />
+            <End Role="PFA" EntitySet="PFA" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PFA_reason" Association="Portal_2_0Model.FK_PFA_reason">
+            <End Role="PFA_Reason" EntitySet="PFA_Reason" />
+            <End Role="PFA" EntitySet="PFA" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PFA_responsible_cost" Association="Portal_2_0Model.FK_PFA_responsible_cost">
+            <End Role="PFA_Responsible_cost" EntitySet="PFA_Responsible_cost" />
+            <End Role="PFA" EntitySet="PFA" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PFA_type_shipment" Association="Portal_2_0Model.FK_PFA_type_shipment">
+            <End Role="PFA_Type_shipment" EntitySet="PFA_Type_shipment" />
+            <End Role="PFA" EntitySet="PFA" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PFA_volume" Association="Portal_2_0Model.FK_PFA_volume">
+            <End Role="PFA_Volume" EntitySet="PFA_Volume" />
+            <End Role="PFA" EntitySet="PFA" />
+          </AssociationSet>
+          <EntitySet Name="view_historico_resultado" EntityType="Portal_2_0Model.view_historico_resultado" />
+          </EntityContainer>
+        <EntityType Name="notificaciones_correo">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_empleado" Type="Int32" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_notificaciones_correo_empleado" FromRole="notificaciones_correo" ToRole="empleados" />
+        </EntityType>
+        <EntityType Name="PFA_Border_port">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="PFA" Relationship="Portal_2_0Model.FK_PFA_border_port" FromRole="PFA_Border_port" ToRole="PFA" />
+        </EntityType>
+        <EntityType Name="PFA_Department">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="PFA" Relationship="Portal_2_0Model.FK_PFA_Department" FromRole="PFA_Department" ToRole="PFA" />
+        </EntityType>
+        <EntityType Name="PFA_Destination_plant">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="PFA" Relationship="Portal_2_0Model.FK_PFA_destination_plant" FromRole="PFA_Destination_plant" ToRole="PFA" />
+        </EntityType>
+        <EntityType Name="PFA_Reason">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="PFA" Relationship="Portal_2_0Model.FK_PFA_reason" FromRole="PFA_Reason" ToRole="PFA" />
+        </EntityType>
+        <EntityType Name="PFA_Recovered_cost">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="PFA" Relationship="Portal_2_0Model.FK_id_PFA_recovered_cost" FromRole="PFA_Recovered_cost" ToRole="PFA" />
+        </EntityType>
+        <EntityType Name="PFA_Responsible_cost">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="PFA" Relationship="Portal_2_0Model.FK_PFA_responsible_cost" FromRole="PFA_Responsible_cost" ToRole="PFA" />
+        </EntityType>
+        <EntityType Name="PFA_Type_shipment">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="PFA" Relationship="Portal_2_0Model.FK_PFA_type_shipment" FromRole="PFA_Type_shipment" ToRole="PFA" />
+        </EntityType>
+        <EntityType Name="PFA_Volume">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="PFA" Relationship="Portal_2_0Model.FK_PFA_volume" FromRole="PFA_Volume" ToRole="PFA" />
+        </EntityType>
+        <Association Name="FK_notificaciones_correo_empleado">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.notificaciones_correo" Role="notificaciones_correo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="notificaciones_correo">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="PFA">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_solicitante" Type="Int32" Nullable="false" />
+          <Property Name="id_PFA_Department" Type="Int32" Nullable="false" />
+          <Property Name="id_PFA_volume" Type="Int32" Nullable="false" />
+          <Property Name="id_PFA_border_port" Type="Int32" Nullable="false" />
+          <Property Name="id_PFA_destination_plant" Type="Int32" Nullable="false" />
+          <Property Name="id_PFA_reason" Type="Int32" Nullable="false" />
+          <Property Name="id_PFA_type_shipment" Type="Int32" Nullable="false" />
+          <Property Name="id_PFA_responsible_cost" Type="Int32" Nullable="false" />
+          <Property Name="id_PFA_recovered_cost" Type="Int32" Nullable="false" />
+          <Property Name="id_PFA_autorizador" Type="Int32" Nullable="false" />
+          <Property Name="date_request" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="sap_part_number" Type="String" Nullable="false" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="customer_part_number" Type="String" Nullable="false" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="volume" Type="Int32" Nullable="false" />
+          <Property Name="mill" Type="String" Nullable="false" MaxLength="35" FixedLength="false" Unicode="false" />
+          <Property Name="customer" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="total_cost" Type="Decimal" Nullable="false" Precision="11" Scale="2" />
+          <Property Name="total_pf_cost" Type="Decimal" Nullable="false" Precision="11" Scale="2" />
+          <Property Name="promise_recovering_date" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="comentarios" Type="String" MaxLength="350" FixedLength="false" Unicode="false" />
+          <Property Name="razon_rechazo" Type="String" MaxLength="350" FixedLength="false" Unicode="false" />
+          <Property Name="estatus" Type="String" Nullable="false" MaxLength="12" FixedLength="false" Unicode="false" />
+          <Property Name="fecha_aprobacion" Type="DateTime" Precision="3" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_PFA_autorizador" FromRole="PFA" ToRole="empleados" />
+          <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_PFA_solicitante" FromRole="PFA" ToRole="empleados" />
+          <NavigationProperty Name="PFA_Recovered_cost" Relationship="Portal_2_0Model.FK_id_PFA_recovered_cost" FromRole="PFA" ToRole="PFA_Recovered_cost" />
+          <NavigationProperty Name="PFA_Border_port" Relationship="Portal_2_0Model.FK_PFA_border_port" FromRole="PFA" ToRole="PFA_Border_port" />
+          <NavigationProperty Name="PFA_Department" Relationship="Portal_2_0Model.FK_PFA_Department" FromRole="PFA" ToRole="PFA_Department" />
+          <NavigationProperty Name="PFA_Destination_plant" Relationship="Portal_2_0Model.FK_PFA_destination_plant" FromRole="PFA" ToRole="PFA_Destination_plant" />
+          <NavigationProperty Name="PFA_Reason" Relationship="Portal_2_0Model.FK_PFA_reason" FromRole="PFA" ToRole="PFA_Reason" />
+          <NavigationProperty Name="PFA_Responsible_cost" Relationship="Portal_2_0Model.FK_PFA_responsible_cost" FromRole="PFA" ToRole="PFA_Responsible_cost" />
+          <NavigationProperty Name="PFA_Type_shipment" Relationship="Portal_2_0Model.FK_PFA_type_shipment" FromRole="PFA" ToRole="PFA_Type_shipment" />
+          <NavigationProperty Name="PFA_Volume" Relationship="Portal_2_0Model.FK_PFA_volume" FromRole="PFA" ToRole="PFA_Volume" />
+        </EntityType>
+        <EntityType Name="PFA_Autorizador">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_empleado" Type="Int32" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_PFA_Autorizador_empleado" FromRole="PFA_Autorizador" ToRole="empleados" />
+        </EntityType>
+        <Association Name="FK_PFA_autorizador">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.PFA" Role="PFA" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PFA">
+              <PropertyRef Name="id_PFA_autorizador" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PFA_Autorizador_empleado">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.PFA_Autorizador" Role="PFA_Autorizador" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PFA_Autorizador">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PFA_solicitante">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.PFA" Role="PFA" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PFA">
+              <PropertyRef Name="id_solicitante" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_id_PFA_recovered_cost">
+          <End Type="Portal_2_0Model.PFA_Recovered_cost" Role="PFA_Recovered_cost" Multiplicity="1" />
+          <End Type="Portal_2_0Model.PFA" Role="PFA" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PFA_Recovered_cost">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PFA">
+              <PropertyRef Name="id_PFA_recovered_cost" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PFA_border_port">
+          <End Type="Portal_2_0Model.PFA_Border_port" Role="PFA_Border_port" Multiplicity="1" />
+          <End Type="Portal_2_0Model.PFA" Role="PFA" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PFA_Border_port">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PFA">
+              <PropertyRef Name="id_PFA_border_port" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PFA_Department">
+          <End Type="Portal_2_0Model.PFA_Department" Role="PFA_Department" Multiplicity="1" />
+          <End Type="Portal_2_0Model.PFA" Role="PFA" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PFA_Department">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PFA">
+              <PropertyRef Name="id_PFA_Department" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PFA_destination_plant">
+          <End Type="Portal_2_0Model.PFA_Destination_plant" Role="PFA_Destination_plant" Multiplicity="1" />
+          <End Type="Portal_2_0Model.PFA" Role="PFA" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PFA_Destination_plant">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PFA">
+              <PropertyRef Name="id_PFA_destination_plant" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PFA_reason">
+          <End Type="Portal_2_0Model.PFA_Reason" Role="PFA_Reason" Multiplicity="1" />
+          <End Type="Portal_2_0Model.PFA" Role="PFA" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PFA_Reason">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PFA">
+              <PropertyRef Name="id_PFA_reason" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PFA_responsible_cost">
+          <End Type="Portal_2_0Model.PFA_Responsible_cost" Role="PFA_Responsible_cost" Multiplicity="1" />
+          <End Type="Portal_2_0Model.PFA" Role="PFA" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PFA_Responsible_cost">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PFA">
+              <PropertyRef Name="id_PFA_responsible_cost" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PFA_type_shipment">
+          <End Type="Portal_2_0Model.PFA_Type_shipment" Role="PFA_Type_shipment" Multiplicity="1" />
+          <End Type="Portal_2_0Model.PFA" Role="PFA" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PFA_Type_shipment">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PFA">
+              <PropertyRef Name="id_PFA_type_shipment" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PFA_volume">
+          <End Type="Portal_2_0Model.PFA_Volume" Role="PFA_Volume" Multiplicity="1" />
+          <End Type="Portal_2_0Model.PFA" Role="PFA" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PFA_Volume">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PFA">
+              <PropertyRef Name="id_PFA_volume" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="view_historico_resultado">
+          <Key>
+            <PropertyRef Name="id" />
+            <PropertyRef Name="Planta" />
+          </Key>
+          <Property Name="id" Type="Int64" Nullable="false" />
+          <Property Name="Operador" Type="String" MaxLength="767" FixedLength="false" Unicode="true" />
+          <Property Name="Supervisor" Type="String" MaxLength="767" FixedLength="false" Unicode="true" />
+          <Property Name="SAP_Platina" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Tipo_de_Material" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Número_de_Parte__de_cliente" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="SAP_Rollo" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Material" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Fecha" Type="DateTime" Precision="3" />
+          <Property Name="Turno" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Hora" Type="DateTime" Precision="3" />
+          <Property Name="Orden_SAP" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="Orden_en_SAP_2" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="Pieza_por_Golpe" Type="Double" />
+          <Property Name="N__de_Rollo" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Lote_de_rollo" Type="String" MaxLength="256" FixedLength="false" Unicode="false" />
+          <Property Name="Peso_Etiqueta__Kg_" Type="Double" />
+          <Property Name="Peso_de_regreso_de_rollo_Real" Type="Double" />
+          <Property Name="Peso_de_rollo_usado" Type="Double" />
+          <Property Name="Peso_Báscula_Kgs" Type="Double" />
+          <Property Name="Piezas_por_paquete" Type="Double" />
+          <Property Name="Total_de_piezas" Type="Double" />
+          <Property Name="Peso_de_rollo_consumido" Type="Double" />
+          <Property Name="Numero_de_golpes" Type="Double" />
+          <Property Name="Kg_restante_de_rollo" Type="Double" />
+          <Property Name="Peso_despunte_kgs_" Type="Double" />
+          <Property Name="Peso_cola_Kgs_" Type="Double" />
+          <Property Name="Porcentaje_de_puntas_y_colas" Type="Double" />
+          <Property Name="Total_de_piezas_de_Ajustes" Type="Double" />
+          <Property Name="Peso_Bruto_Kgs" Type="Double" />
+          <Property Name="Peso_Real_Pieza_Bruto" Type="Double" />
+          <Property Name="Peso_Real_Pieza_Neto" Type="Double" />
+          <Property Name="Scrap_Natural" Type="Double" />
+          <Property Name="Peso_neto_SAP" Type="Double" />
+          <Property Name="Peso_Bruto_SAP" Type="Double" />
+          <Property Name="Balance_de_Scrap" Type="Double" />
+          <Property Name="Linea" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Planta" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Anio" Type="Int32" />
+          <Property Name="Column40" Type="Double" />
+          <Property Name="Ordenes_por_pieza" Type="Double" />
+          <Property Name="Peso_de_rollo_usado_real__Kg" Type="Double" />
+          <Property Name="Peso_bruto_Total_piezas_Kg" Type="Double" />
+          <Property Name="Peso_NetoTotal_piezas_Kg" Type="Double" />
+          <Property Name="Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg" Type="Double" />
+          <Property Name="Peso_Neto_total_piezas_de_ajuste_Kgs" Type="Double" />
+          <Property Name="Peso_puntas_y_colas_reales_Kg" Type="Double" />
+          <Property Name="Balance_de_Scrap_Real" Type="Double" />
+        </EntityType>
+        </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
@@ -1271,6 +2085,182 @@
                 <ScalarProperty Name="activo" ColumnName="activo" />
                 <ScalarProperty Name="descripcion" ColumnName="descripcion" />
                 <ScalarProperty Name="areaClave" ColumnName="areaClave" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="notificaciones_correo">
+            <EntityTypeMapping TypeName="Portal_2_0Model.notificaciones_correo">
+              <MappingFragment StoreEntitySet="notificaciones_correo">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PFA_Border_port">
+            <EntityTypeMapping TypeName="Portal_2_0Model.PFA_Border_port">
+              <MappingFragment StoreEntitySet="PFA_Border_port">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PFA_Department">
+            <EntityTypeMapping TypeName="Portal_2_0Model.PFA_Department">
+              <MappingFragment StoreEntitySet="PFA_Department">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PFA_Destination_plant">
+            <EntityTypeMapping TypeName="Portal_2_0Model.PFA_Destination_plant">
+              <MappingFragment StoreEntitySet="PFA_Destination_plant">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PFA_Reason">
+            <EntityTypeMapping TypeName="Portal_2_0Model.PFA_Reason">
+              <MappingFragment StoreEntitySet="PFA_Reason">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PFA_Recovered_cost">
+            <EntityTypeMapping TypeName="Portal_2_0Model.PFA_Recovered_cost">
+              <MappingFragment StoreEntitySet="PFA_Recovered_cost">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PFA_Responsible_cost">
+            <EntityTypeMapping TypeName="Portal_2_0Model.PFA_Responsible_cost">
+              <MappingFragment StoreEntitySet="PFA_Responsible_cost">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PFA_Type_shipment">
+            <EntityTypeMapping TypeName="Portal_2_0Model.PFA_Type_shipment">
+              <MappingFragment StoreEntitySet="PFA_Type_shipment">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PFA_Volume">
+            <EntityTypeMapping TypeName="Portal_2_0Model.PFA_Volume">
+              <MappingFragment StoreEntitySet="PFA_Volume">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PFA">
+            <EntityTypeMapping TypeName="Portal_2_0Model.PFA">
+              <MappingFragment StoreEntitySet="PFA">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="fecha_aprobacion" ColumnName="fecha_aprobacion" />
+                <ScalarProperty Name="estatus" ColumnName="estatus" />
+                <ScalarProperty Name="razon_rechazo" ColumnName="razon_rechazo" />
+                <ScalarProperty Name="comentarios" ColumnName="comentarios" />
+                <ScalarProperty Name="promise_recovering_date" ColumnName="promise_recovering_date" />
+                <ScalarProperty Name="total_pf_cost" ColumnName="total_pf_cost" />
+                <ScalarProperty Name="total_cost" ColumnName="total_cost" />
+                <ScalarProperty Name="customer" ColumnName="customer" />
+                <ScalarProperty Name="mill" ColumnName="mill" />
+                <ScalarProperty Name="volume" ColumnName="volume" />
+                <ScalarProperty Name="customer_part_number" ColumnName="customer_part_number" />
+                <ScalarProperty Name="sap_part_number" ColumnName="sap_part_number" />
+                <ScalarProperty Name="date_request" ColumnName="date_request" />
+                <ScalarProperty Name="id_PFA_autorizador" ColumnName="id_PFA_autorizador" />
+                <ScalarProperty Name="id_PFA_recovered_cost" ColumnName="id_PFA_recovered_cost" />
+                <ScalarProperty Name="id_PFA_responsible_cost" ColumnName="id_PFA_responsible_cost" />
+                <ScalarProperty Name="id_PFA_type_shipment" ColumnName="id_PFA_type_shipment" />
+                <ScalarProperty Name="id_PFA_reason" ColumnName="id_PFA_reason" />
+                <ScalarProperty Name="id_PFA_destination_plant" ColumnName="id_PFA_destination_plant" />
+                <ScalarProperty Name="id_PFA_border_port" ColumnName="id_PFA_border_port" />
+                <ScalarProperty Name="id_PFA_volume" ColumnName="id_PFA_volume" />
+                <ScalarProperty Name="id_PFA_Department" ColumnName="id_PFA_Department" />
+                <ScalarProperty Name="id_solicitante" ColumnName="id_solicitante" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PFA_Autorizador">
+            <EntityTypeMapping TypeName="Portal_2_0Model.PFA_Autorizador">
+              <MappingFragment StoreEntitySet="PFA_Autorizador">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="view_historico_resultado">
+            <EntityTypeMapping TypeName="Portal_2_0Model.view_historico_resultado">
+              <MappingFragment StoreEntitySet="view_historico_resultado">
+                <ScalarProperty Name="Balance_de_Scrap_Real" ColumnName="Balance_de_Scrap_Real" />
+                <ScalarProperty Name="Peso_puntas_y_colas_reales_Kg" ColumnName="Peso puntas y colas reales_Kg" />
+                <ScalarProperty Name="Peso_Neto_total_piezas_de_ajuste_Kgs" ColumnName="Peso Neto_total piezas de ajuste_Kgs" />
+                <ScalarProperty Name="Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg" ColumnName="Scrap de ingeniería (buenas + Ajuste)_Total_Piezas_Kg" />
+                <ScalarProperty Name="Peso_NetoTotal_piezas_Kg" ColumnName="Peso NetoTotal piezas_Kg" />
+                <ScalarProperty Name="Peso_bruto_Total_piezas_Kg" ColumnName="Peso bruto Total piezas_Kg" />
+                <ScalarProperty Name="Peso_de_rollo_usado_real__Kg" ColumnName="Peso de rollo usado real _Kg" />
+                <ScalarProperty Name="Ordenes_por_pieza" ColumnName="Ordenes por pieza" />
+                <ScalarProperty Name="Column40" ColumnName="Column40" />
+                <ScalarProperty Name="Anio" ColumnName="Anio" />
+                <ScalarProperty Name="Planta" ColumnName="Planta" />
+                <ScalarProperty Name="Linea" ColumnName="Linea" />
+                <ScalarProperty Name="Balance_de_Scrap" ColumnName="Balance_de_Scrap" />
+                <ScalarProperty Name="Peso_Bruto_SAP" ColumnName="Peso Bruto SAP" />
+                <ScalarProperty Name="Peso_neto_SAP" ColumnName="Peso neto SAP" />
+                <ScalarProperty Name="Scrap_Natural" ColumnName="Scrap Natural" />
+                <ScalarProperty Name="Peso_Real_Pieza_Neto" ColumnName="Peso Real Pieza Neto" />
+                <ScalarProperty Name="Peso_Real_Pieza_Bruto" ColumnName="Peso Real Pieza Bruto" />
+                <ScalarProperty Name="Peso_Bruto_Kgs" ColumnName="Peso Bruto_Kgs" />
+                <ScalarProperty Name="Total_de_piezas_de_Ajustes" ColumnName="Total de piezas de Ajustes" />
+                <ScalarProperty Name="Porcentaje_de_puntas_y_colas" ColumnName="Porcentaje de puntas y colas" />
+                <ScalarProperty Name="Peso_cola_Kgs_" ColumnName="Peso cola Kgs#" />
+                <ScalarProperty Name="Peso_despunte_kgs_" ColumnName="Peso despunte kgs#" />
+                <ScalarProperty Name="Kg_restante_de_rollo" ColumnName="Kg restante de rollo" />
+                <ScalarProperty Name="Numero_de_golpes" ColumnName="Numero de golpes" />
+                <ScalarProperty Name="Peso_de_rollo_consumido" ColumnName="Peso de rollo consumido" />
+                <ScalarProperty Name="Total_de_piezas" ColumnName="Total de piezas" />
+                <ScalarProperty Name="Piezas_por_paquete" ColumnName="Piezas por paquete" />
+                <ScalarProperty Name="Peso_Báscula_Kgs" ColumnName="Peso Báscula Kgs" />
+                <ScalarProperty Name="Peso_de_rollo_usado" ColumnName="Peso de rollo usado" />
+                <ScalarProperty Name="Peso_de_regreso_de_rollo_Real" ColumnName="Peso de regreso de rollo Real" />
+                <ScalarProperty Name="Peso_Etiqueta__Kg_" ColumnName="Peso Etiqueta (Kg)" />
+                <ScalarProperty Name="Lote_de_rollo" ColumnName="Lote de rollo" />
+                <ScalarProperty Name="N__de_Rollo" ColumnName="N° de Rollo" />
+                <ScalarProperty Name="Pieza_por_Golpe" ColumnName="Pieza por Golpe" />
+                <ScalarProperty Name="Orden_en_SAP_2" ColumnName="Orden en SAP 2" />
+                <ScalarProperty Name="Orden_SAP" ColumnName="Orden SAP" />
+                <ScalarProperty Name="Hora" ColumnName="Hora" />
+                <ScalarProperty Name="Turno" ColumnName="Turno" />
+                <ScalarProperty Name="Fecha" ColumnName="Fecha" />
+                <ScalarProperty Name="Material" ColumnName="Material" />
+                <ScalarProperty Name="SAP_Rollo" ColumnName="SAP Rollo" />
+                <ScalarProperty Name="Número_de_Parte__de_cliente" ColumnName="Número de Parte  de cliente" />
+                <ScalarProperty Name="Tipo_de_Material" ColumnName="Tipo de Material" />
+                <ScalarProperty Name="SAP_Platina" ColumnName="SAP Platina" />
+                <ScalarProperty Name="Supervisor" ColumnName="Supervisor" />
+                <ScalarProperty Name="Operador" ColumnName="Operador" />
+                <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

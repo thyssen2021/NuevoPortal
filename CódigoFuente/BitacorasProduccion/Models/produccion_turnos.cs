@@ -20,7 +20,7 @@ namespace Portal_2_0.Models
         {
             this.produccion_registros = new HashSet<produccion_registros>();
         }
-    
+
         public int id { get; set; }
         [Required]
         [Display(Name = "Planta")]

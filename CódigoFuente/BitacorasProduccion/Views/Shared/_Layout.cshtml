@@ -100,15 +100,6 @@
                                             </ul>
                                         </li>
                                     }
-                                    @*@if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS) || User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REGISTRO))
-        {
-            <li class="@(ViewBag.PrimerNivel == "bitacoras_produccion" ? "active" : null )">
-                <a><i class="fa fa-database"></i>Producci&oacute;n - Cat&aacute;logos <span class="fa fa-chevron-down"></span></a>
-                <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "bitacoras_produccion" ? "display:block" : null )">
-                    <li class="@(ViewBag.SegundoNivel == "bitacoras_produccion_catalogos" ? "current-page" : null )"><a href="@Url.Action( "Index", "RolesAdmin")">Turnos</a></li>
-                </ul>
-            </li>
-        }*@
 
                                     @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS) || User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REGISTRO))
                                     {
@@ -118,31 +109,76 @@
 
                                                 @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REGISTRO))
                                                 {
-                                                    <li class="@(ViewBag.SegundoNivel == "produccion_registros" ? "current-page" : null )"><a href="@Url.Action("Index", "ProduccionRegistros")">Bit&aacute;cora</a></li>                                                  
+                                                    <li class="@(ViewBag.SegundoNivel == "produccion_registros" ? "current-page" : null )"><a href="@Url.Action("Index", "ProduccionRegistros")">Bit&aacute;cora</a></li>                                                   
                                                 }
-                                                    @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS))
-                                                    {
-                                                        <li class="@(ViewBag.SegundoNivel == "bitacoras_produccion_catalogos" ? "active" : null )">
-                                                            <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
-                                                            <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "bitacoras_produccion_catalogos" ? "display:block" : null )">
-                                                                <li class="@(ViewBag.TercelNivel == "produccion_turnos" ? "current-page" : null )"><a href="@Url.Action( "Index", "ProduccionTurnos")">Turnos</a></li>
-                                                                <li class="@(ViewBag.TercelNivel == "produccion_lineas" ? "current-page" : null )"><a href="@Url.Action( "Index", "ProduccionLineas")">L&iacute;neas Producci&oacute;n</a></li>
-                                                                <li class="@(ViewBag.TercelNivel == "produccion_supervisores" ? "current-page" : null )"><a href="@Url.Action( "Index", "ProduccionSupervisores")">Supervisores</a></li>
-                                                                <li class="@(ViewBag.TercelNivel == "produccion_operadores" ? "current-page" : null )"><a href="@Url.Action( "Index", "ProduccionOperadores")">Operadores</a></li>
-                                                                @if (User.IsInRole(TipoRoles.ADMIN))
-                                                                {
-                                                                    <li class="@(ViewBag.TercelNivel == "produccion_bom" ? "current-page" : null )"><a href="@Url.Action( "Index", "Bom")">BOM</a></li>
-                                                                    <li class="@(ViewBag.TercelNivel == "produccion_class_v3" ? "current-page" : null )"><a href="@Url.Action( "Index", "class_v3")">Class V3</a></li>
-                                                                    <li class="@(ViewBag.TercelNivel == "produccion_mm_v3" ? "current-page" : null )"><a href="@Url.Action( "Index", "mm_v3")">MM V3</a></li>
-                                                                }
-                                                            </ul>
-                                                        </li>
-                                                    }
-                                                </ul>
+                                                @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REPORTE))
+                                                {                                                    
+                                                    <li class="@(ViewBag.SegundoNivel == "produccion_reporte" ? "current-page" : null )"><a href="@Url.Action("Index", "ProduccionResultado")">Reporte de Producci&oacute;n</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS))
+                                                {
+                                                    <li class="@(ViewBag.SegundoNivel == "bitacoras_produccion_catalogos" ? "active" : null )">
+                                                        <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
+                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "bitacoras_produccion_catalogos" ? "display:block" : null )">
+                                                            <li class="@(ViewBag.TercelNivel == "produccion_turnos" ? "current-page" : null )"><a href="@Url.Action( "Index", "ProduccionTurnos")">Turnos</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "produccion_lineas" ? "current-page" : null )"><a href="@Url.Action( "Index", "ProduccionLineas")">L&iacute;neas Producci&oacute;n</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "produccion_supervisores" ? "current-page" : null )"><a href="@Url.Action( "Index", "ProduccionSupervisores")">Supervisores</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "produccion_operadores" ? "current-page" : null )"><a href="@Url.Action( "Index", "ProduccionOperadores")">Operadores</a></li>
+                                                            @if (User.IsInRole(TipoRoles.ADMIN))
+                                                            {
+                                                                <li class="@(ViewBag.TercelNivel == "produccion_bom" ? "current-page" : null )"><a href="@Url.Action( "Index", "Bom")">BOM</a></li>
+                                                                <li class="@(ViewBag.TercelNivel == "produccion_class_v3" ? "current-page" : null )"><a href="@Url.Action( "Index", "class_v3")">Class V3</a></li>
+                                                                <li class="@(ViewBag.TercelNivel == "produccion_mm_v3" ? "current-page" : null )"><a href="@Url.Action( "Index", "mm_v3")">MM V3</a></li>
+                                                            }
+                                                        </ul>
+                                                    </li>
+                                                }
+                                            </ul>
 
                                         </li>
 
                                     }
+
+                                    @if (User.IsInRole(TipoRoles.PFA_REGISTRO) || User.IsInRole(TipoRoles.PFA_AUTORIZACION) || User.IsInRole(TipoRoles.PFA_VISUALIZACION))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "PFA" ? "active" : null )">
+                                            <a><i class="fa fa-clipboard"></i> Formato PFA<span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu">
+
+                                                @if (User.IsInRole(TipoRoles.PFA_REGISTRO))
+                                                {
+                                                    <h3>Registro</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_registro" ? "current-page" : null )"><a href="@Url.Action("Index", "PremiumFreightAproval")">Registros</a></li>
+                                                }
+
+                                                @if (User.IsInRole(TipoRoles.PFA_AUTORIZACION))
+                                                {
+                                                    <h3>Autorizaci&oacute;n</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_autorizar" ? "current-page" : null )"><a href="@Url.Action("Index", "PFA_Autorizar")">Autorizar</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.PFA_AUTORIZACION))
+                                                {
+
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_autorizar" ? "active" : null )">
+                                                        <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
+                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "bitacoras_produccion_catalogos" ? "display:block" : null )">
+                                                            <li class="@(ViewBag.TercelNivel == "PFA_department" ? "current-page" : null )"><a href="@Url.Action( "Index", "PFA_Departments")">Departments</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "PFA_volume" ? "current-page" : null )"><a href="@Url.Action( "Index", "PFA_Volume")">Volume</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "PFA_Reason" ? "current-page" : null )"><a href="@Url.Action( "Index", "PFA_Reason")">Reasons PFA</a></li>
+                                                        </ul>
+                                                    </li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.PFA_VISUALIZACION))
+                                                {
+                                                    <h3>Finalizados</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_visualizar" ? "current-page" : null )"><a href="@Url.Action("Index", "PFA_Visualizar")">Visualizar</a></li>
+                                                }
+                                            </ul>
+
+                                        </li>
+
+                                    }
+
                                     @if (User.IsInRole(TipoRoles.USERS))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "usuarios" ? "active" : null )">
