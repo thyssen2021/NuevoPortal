@@ -146,10 +146,11 @@ namespace Portal_2_0.Controllers
         ///</summary>
         ///<return>
         ///retorna un JsonResult con las opciones disponibles
-        public JsonResult obtieneEmail(string numEmpleado = "")
+        public JsonResult obtieneEmail( int numEmpleado = 0 )
         {
+
             //obtiene todos los posibles valores
-            empleados emp = db.empleados.Where(p => p.numeroEmpleado == numEmpleado).FirstOrDefault();
+            empleados emp = db.empleados.Find(numEmpleado);
 
             //inicializa la lista de objetos
             var empleado = new object[1];

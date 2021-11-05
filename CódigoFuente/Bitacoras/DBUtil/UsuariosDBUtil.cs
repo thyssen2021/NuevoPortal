@@ -61,5 +61,48 @@ namespace Clases.DBUtil
                 return username;
             }
         }
+
+        //obtiene el idEmpleado según el userId
+        public static int ObtieneIdEmpleadoById(string id)
+        {
+
+            int idEmpleado = 0;
+
+            string cadenaConexion = cadenaConexion = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+            using (SqlConnection conn = new SqlConnection(cadenaConexion))
+            {
+                try
+                {
+                    using (SqlCommand command = new SqlCommand())
+                    {
+                        command.CommandText = @"SELECT idEmpleado FROM AspNetUsers WHERE Id=@ID";
+                        command.CommandType = CommandType.Text;
+                        command.Connection = conn;
+                        command.Parameters.Add("@ID", SqlDbType.VarChar).Value = id;
+                        conn.Open();
+
+                        using (SqlDataReader dr = command.ExecuteReader())
+                        {
+                            while (dr.Read())
+                            {
+                                Int32.TryParse(Convert.ToString(dr["idEmpleado"]), out idEmpleado);                                
+                            }
+                        }
+
+                        conn.Close();
+                    }
+                }
+                catch (SqlException ex)
+                {
+                    throw new Exception("Error al obtener información de la Base de Datos.", ex);
+                }
+                catch (Exception e)
+                {
+                    throw new Exception("Error interno al obtener la información de la Base de Datos.", e);
+                }
+
+                return idEmpleado;
+            }
+        }
     }
 }

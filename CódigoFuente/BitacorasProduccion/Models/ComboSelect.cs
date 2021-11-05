@@ -31,7 +31,7 @@ namespace Portal_2_0.Models
                             .Select(s => new SelectListItem()
                             {
                                 Text = s.numeroEmpleado + " - " + s.nombre + " " + s.apellido1 + " " + s.apellido2,
-                                Value = s.numeroEmpleado
+                                Value = s.id.ToString()
                             }).ToList();
 
             //agrega valor vacio

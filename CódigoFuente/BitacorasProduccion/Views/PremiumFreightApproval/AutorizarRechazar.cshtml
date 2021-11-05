@@ -1,0 +1,325 @@
+﻿@model Portal_2_0.Models.PFA
+
+@{
+    ViewBag.Title = "Authorize/Decline Request Premium Freight Approval";
+    ViewBag.PrimerNivel = "PFA";
+    ViewBag.SegundoNivel = "PFA_registro";
+    ViewBag.ControllerName = "PremiumFreightApproval";
+}
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+
+    <style>
+        label {
+            text-align: right;
+        }
+
+            label::after {
+                content: ":";
+            }
+    </style>
+}
+
+
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <br />
+
+
+
+                        <div class="form-group row">
+
+                        </div>
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.id_solicitante, new { @class = "control-label col-md-1" })
+                            <input type="text" class="form-control col-md-5" value="@Model.empleados1.ConcatNombre" readonly>
+                            <!--Request date-->
+                            <label class="control-label col-md-4 float-right">
+                                Date of Request
+                            </label>
+                            <div class="col-md-2">
+                                <input type="text" class="form-control col-md-12" style="text-align: right;" value="@Model.date_request.ToString("yyyy-MM-dd")" readonly>
+                            </div>
+                        </div>
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>DEPARTMENT</b></span>
+                        </div>
+                        <div class="form-group row">
+
+                            @Html.LabelFor(model => model.id_PFA_Department, new { @class = "control-label col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.PFA_Department.descripcion" readonly>
+                            </div>
+                            @Html.LabelFor(model => model.mill, new { @class = "control-label col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.mill" readonly>
+
+                            </div>
+                            @Html.LabelFor(model => model.customer, new { @class = "control-label col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.customer" readonly>
+                            </div>
+                        </div>
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>SAP</b></span>
+                        </div>
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.sap_part_number, new { @class = "control-label col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.sap_part_number" readonly>
+                            </div>
+                            @Html.LabelFor(model => model.customer_part_number, new { @class = "control-label col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.customer_part_number" readonly>
+                            </div>
+                            @Html.LabelFor(model => model.volume, new { @class = "control-label col-md-1" })
+                            <div class="col-md-2">
+                                <input type="text" class="form-control col-md-12" value="@Model.volume" readonly>
+                            </div>
+                            <div class="col-md-1">
+                                <input type="text" class="form-control col-md-12" value="@Model.PFA_Volume.descripcion" readonly>
+                            </div>
+                        </div>
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>DESTINATION</b></span>
+                        </div>
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.id_PFA_border_port, new { @class = "control-label col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.PFA_Border_port.descripcion" readonly>
+                            </div>
+                            @Html.LabelFor(model => model.id_PFA_destination_plant, new { @class = "control-label col-md-2" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.PFA_Destination_plant.descripcion" readonly>
+                            </div>
+                        </div>
+
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>PREMIUM FREIGHT</b></span>
+                        </div>
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.id_PFA_reason, new { @class = "control-label col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.PFA_Reason.descripcion" readonly>
+                            </div>
+                            @Html.LabelFor(model => model.id_PFA_type_shipment, new { @class = "control-label col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.PFA_Type_shipment.descripcion" readonly>
+                            </div>
+                            @Html.LabelFor(model => model.id_PFA_responsible_cost, new { @class = "control-label col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.PFA_Responsible_cost.descripcion" readonly>
+                            </div>
+                        </div>
+
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>COST</b></span>
+                        </div>
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.total_pf_cost, new { @class = "control-label col-md-2" })
+                            <div class="col-md-2">
+                                <input type="text" class="form-control col-md-12" value="@Model.total_pf_cost" readonly>
+                            </div>
+                            @Html.LabelFor(model => model.total_cost, new { @class = "control-label col-md-2" })
+                            <div class="col-md-2">
+                                <input type="text" class="form-control col-md-12" value="@Model.total_cost" readonly>
+                            </div>
+
+                            <label class="control-label col-md-2">
+                                Total Coast to Recover (usd)
+                            </label>
+                            <div class="col-md-2">
+                                <input type="text" class="form-control col-md-12" value="@Model.TotalCostToRecover" readonly>
+                            </div>
+                        </div>
+
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>INFO RECORVERED</b></span>
+                        </div>
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.id_PFA_recovered_cost, new { @class = "control-label col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.PFA_Recovered_cost.descripcion" readonly>
+                            </div>
+                            @Html.LabelFor(model => model.promise_recovering_date, new { @class = "control-label col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.promise_recovering_date.ToString("yyyy-MM-dd")" readonly>
+                            </div>
+                        </div>
+
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>AUTHORIZER</b></span>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.id_PFA_autorizador, new { @class = "control-label col-md-1" })
+                            <div class="col-md-8">
+                                <input type="text" class="form-control col-md-12" value="@Model.empleados.ConcatNombre" readonly>
+                            </div>
+                        </div>
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>COMENTARIOS</b></span>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.comentarios, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align: left" })
+
+                        </div>
+                        <div class="item form-group">
+                            <div class="col-md-12">
+                                @Html.TextAreaFor(model => model.comentarios, new { @class = "form-control", @rows = "4", @autocomplete = "off", @readonly = "readonly" })
+                            </div>
+
+                        </div>
+                        <div class="ln_solid"></div>
+                        <div class="item form-group">
+                            <div class="col-md-6 col-sm-6 ">
+                                <button type="submit" class="btn btn-danger btn-lg" onclick="mostrarModalRechazar()">Decline</button>
+                            </div>
+                            <div class="col-md-6 col-sm-6 ">
+                                <button type="submit" class="btn btn-success btn-lg float-lg-right" onclick="mostrarModalAutorizar()">Approval</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal Autorizar -->
+<div class="modal fade" id="modalAutorizar" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Autorizar</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <h6>¿Realmente desea autorizar esta solicitud?</h6>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+
+                @using (Html.BeginForm("Autorizar", null, FormMethod.Post, new { }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(model => model.id)
+                    <button type="submit" class="btn btn-primary">Autorizar</button>
+                }
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Rechazar -->
+<div class="modal fade" id="modalRechazar" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Rechazar</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <h6>¿Realmente desea rechazar esta solicitud?</h6>
+                    <br />
+
+                    <div class="col-md-12">
+                        @Html.TextAreaFor(model => model.razon_rechazo, new { @class = "form-control", @rows = "4", @autocomplete = "off" })
+                        @Html.ValidationMessageFor(model => model.razon_rechazo, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-warning" onclick="rechazar()">Rechazar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+
+    <script>
+        $(document).ready(function () {
+
+
+        });
+
+        //agranda el tamaño de la barra
+        window.onload = function () {
+            document.getElementById('menu_toggle').click();
+        }
+
+        //muestra el modal de autorizar
+        function mostrarModalAutorizar() {
+            $('#modalAutorizar').modal('show')
+
+        }
+
+        //muestra el modal de autorizar
+        function autorizar() {
+            $('#modalAutorizar').modal('hide')
+
+        }
+
+        //muestra el modal de rechazar
+        function mostrarModalRechazar() {
+            $('#modalRechazar').modal('show')
+        }
+
+        //muestra el modal de rechazar
+        function rechazar() {
+            $('#modalRechazar').modal('hide')
+
+        }
+
+    </script>
+}
+

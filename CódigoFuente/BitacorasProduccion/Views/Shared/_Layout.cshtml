@@ -148,13 +148,19 @@
                                                 @if (User.IsInRole(TipoRoles.PFA_REGISTRO))
                                                 {
                                                     <h3>Registro</h3>
-                                                    <li class="@(ViewBag.SegundoNivel == "PFA_registro" ? "current-page" : null )"><a href="@Url.Action("Index", "PremiumFreightAproval")">Registros</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_registro" ? "current-page" : null )"><a href="@Url.Action("Index", "PremiumFreightApproval")">Solicitudes Creadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_registro" ? "current-page" : null )"><a href="@Url.Action("PendientesCapturista", "PremiumFreightApproval")">Solicitudes Pendientes</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_registro" ? "current-page" : null )"><a href="@Url.Action("RechazadasCapturista", "PremiumFreightApproval")">Solicitudes Rechazadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_registro" ? "current-page" : null )"><a href="@Url.Action("AutorizadasCapturista", "PremiumFreightApproval")">Solicitudes Autorizadas</a></li>
                                                 }
 
                                                 @if (User.IsInRole(TipoRoles.PFA_AUTORIZACION))
                                                 {
                                                     <h3>Autorizaci&oacute;n</h3>
-                                                    <li class="@(ViewBag.SegundoNivel == "PFA_autorizar" ? "current-page" : null )"><a href="@Url.Action("Index", "PFA_Autorizar")">Autorizar</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_autorizar" ? "current-page" : null )"><a href="@Url.Action("AutorizadorPendientes", "PremiumFreightApproval")">PF por Autorizar</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_autorizar" ? "current-page" : null )"><a href="@Url.Action("AutorizadorRechazadas", "PremiumFreightApproval")">PF Rechazadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_autorizar" ? "current-page" : null )"><a href="@Url.Action("AutorizadorAutorizadas", "PremiumFreightApproval")">PF Autorizadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_autorizar" ? "current-page" : null )"><a href="@Url.Action("AutorizadorFinalizadas", "PremiumFreightApproval")">PF Finalizadas</a></li>
                                                 }
                                                 @if (User.IsInRole(TipoRoles.PFA_AUTORIZACION))
                                                 {

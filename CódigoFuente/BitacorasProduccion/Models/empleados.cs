@@ -103,6 +103,16 @@ namespace Portal_2_0.Models
         [RegularExpression("(^[0-9]+$)", ErrorMessage = "Sólo se permiten números.")]
         public string C8ID { get; set; }
 
+
+        //concatena el nombre
+        public string ConcatNombre
+        {
+            get
+            {
+                return string.Format("{0} {1} {2}", nombre, apellido1, apellido2);
+            }
+        }
+
         public virtual plantas plantas { get; set; }
         public virtual puesto puesto1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -117,5 +127,9 @@ namespace Portal_2_0.Models
         public virtual ICollection<PFA_Autorizador> PFA_Autorizador { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PFA> PFA1 { get; set; }
+
+
+       
+
     }
 }

@@ -111,7 +111,7 @@ namespace IdentitySample.Controllers
 
                 if (tipoU == "empleado")
                 {
-                    empleados empleados = db.empleados.FirstOrDefault(e => e.numeroEmpleado == userViewModel.IdEmpleado.ToString());
+                    empleados empleados = db.empleados.FirstOrDefault(e => e.id == userViewModel.IdEmpleado);
                     apellidos = empleados.apellido1;
                     if (apellidos.Length >= 8)
                     {

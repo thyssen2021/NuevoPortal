@@ -233,7 +233,7 @@ namespace Portal_2_0.Controllers
                     {
 
                         //actualiza el correo electronico en la tabla de usuarios
-                        var user =  _userManager.Users.Where(u => u.IdEmpleado.ToString() == empleados.numeroEmpleado).FirstOrDefault();
+                        var user =  _userManager.Users.Where(u => u.IdEmpleado == empleados.id).FirstOrDefault();
                         if (user != null)
                         {
                             //actualiza el usuario  

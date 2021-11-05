@@ -200,7 +200,7 @@
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\mm_v3Controller.cs" />
     <Compile Include="Controllers\PlantasController.cs" />
-    <Compile Include="Controllers\PremiumFreightAprovalController.cs" />
+    <Compile Include="Controllers\PremiumFreightApprovalController.cs" />
     <Compile Include="Controllers\ProduccionLineasController.cs" />
     <Compile Include="Controllers\ProduccionOperadoresController.cs" />
     <Compile Include="Controllers\ProduccionRegistrosController.cs" />
@@ -4958,12 +4958,14 @@
     <Content Include="Views\Bom\CargaBom.cshtml" />
     <Content Include="Views\mm_v3\CargaMM.cshtml" />
     <Content Include="Views\class_v3\CargaClass.cshtml" />
-    <Content Include="Views\PremiumFreightAproval\Create.cshtml" />
-    <Content Include="Views\PremiumFreightAproval\Delete.cshtml" />
-    <Content Include="Views\PremiumFreightAproval\Details.cshtml" />
-    <Content Include="Views\PremiumFreightAproval\Edit.cshtml" />
-    <Content Include="Views\PremiumFreightAproval\Index.cshtml" />
+    <Content Include="Views\PremiumFreightApproval\Create.cshtml" />
+    <Content Include="Views\PremiumFreightApproval\Details.cshtml" />
+    <Content Include="Views\PremiumFreightApproval\Edit.cshtml" />
     <Content Include="Views\ProduccionResultado\Index.cshtml" />
+    <Content Include="Views\PremiumFreightApproval\Send.cshtml" />
+    <Content Include="Views\Home\ErrorGenerico.cshtml" />
+    <Content Include="Views\PremiumFreightApproval\AutorizarRechazar.cshtml" />
+    <Content Include="Views\PremiumFreightApproval\ListadoSolicitudes.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
