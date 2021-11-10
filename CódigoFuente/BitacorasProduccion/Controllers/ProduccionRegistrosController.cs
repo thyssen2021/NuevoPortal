@@ -7,10 +7,12 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using Bitacoras.Util;
 using Clases.Util;
+using IdentitySample.Models;
 using Portal_2_0.Models;
 
 namespace Portal_2_0.Controllers
@@ -31,12 +33,22 @@ namespace Portal_2_0.Controllers
                     ViewBag.MensajeAlert = TempData["Mensaje"];
                 }
 
+                //obtiene el empleado que inicio sesión
+                empleados emp = obtieneEmpleadoLogeado();
+
+                //obtiene los id lineas a las que esta asignado
+                List<int> idLineas = db.produccion_operadores.Where(x => x.id_empleado == emp.id).Select(x => x.id_linea).ToList();
+
+                List<int> idOperador = db.produccion_operadores.Where(x => x.id_empleado == emp.id ).Select(x => x.id).ToList();
+
                 var cantidadRegistrosPorPagina = 20; // parámetro
           
+                //muestra unicamente lso registros que el usuario edite
                 var produccion_registros = db.produccion_registros.Include(p => p.plantas).Include(p => p.produccion_lineas).Include(p => p.produccion_lotes).Include(p => p.produccion_operadores).Include(p => p.produccion_supervisores).Include(p => p.produccion_turnos).Where(x =>
                           //x.activo == true && 
                           (!String.IsNullOrEmpty(linea) && x.id_linea.ToString().Contains(linea))
                         && (!String.IsNullOrEmpty(planta) && x.clave_planta.ToString().Contains(planta))
+                        && idOperador.Contains(x.id_operador.Value)
                         )
                     .OrderByDescending(x => x.fecha)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
@@ -46,6 +58,7 @@ namespace Portal_2_0.Controllers
                          // x.activo==true &&
                          (!String.IsNullOrEmpty(linea) && x.id_linea.ToString().Contains(linea))
                         && (!String.IsNullOrEmpty(planta) && x.clave_planta.ToString().Contains(planta))
+                        && idOperador.Contains(x.id_operador.Value)
                        ).Count();
 
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
@@ -59,9 +72,12 @@ namespace Portal_2_0.Controllers
                     RegistrosPorPagina = cantidadRegistrosPorPagina,
                     ValoresQueryString = routeValues
                 };
+            
 
-                ViewBag.linea = new SelectList(db.produccion_lineas.Where(p => p.activo == true), "id", "linea");
-                ViewBag.planta = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
+              
+                //obtiene unicamente las lineas a las que está asignado y a la planta correspondiente
+                ViewBag.linea = new SelectList(db.produccion_lineas.Where(p => p.activo == true && idLineas.Contains(p.id) && p.clave_planta == emp.planta_clave), "id", "linea");
+                ViewBag.planta = new SelectList(db.plantas.Where(p => p.activo == true && emp.planta_clave==p.clave), "clave", "descripcion");
                 ViewBag.Paginacion = paginacion;
 
                 return View(produccion_registros);
@@ -120,13 +136,16 @@ namespace Portal_2_0.Controllers
                     TempData["Mensaje"] = new MensajesSweetAlert("No hay un horario asignado para la hora actual.", TipoMensajesSweetAlerts.WARNING);
                     return RedirectToAction("Index");
                 }
-               
+
+                //obtiene el empleado que inicio sesión
+                empleados emp = obtieneEmpleadoLogeado();
+
                 ViewBag.Planta = plantas;
                 ViewBag.Linea = lineas;
                 ViewBag.sap_platina = ComboSelect.obtieneMaterial_BOM();
                 ViewBag.sap_rollo = ComboSelect.obtieneRollo_BOM();
                 ViewBag.id_supervisor = ComboSelect.obtieneSupervisoresPlanta(planta.Value);
-                ViewBag.id_operador = ComboSelect.obtieneOperadorPorLinea(linea.Value);
+                ViewBag.id_operador = ComboSelect.obtieneOperadorPorLinea(emp,linea.Value);
                 
                 return View();
             }
@@ -204,12 +223,14 @@ namespace Portal_2_0.Controllers
                 return RedirectToAction("Index");
             }
 
+            empleados emp = obtieneEmpleadoLogeado();
+
             ViewBag.Planta = plantas;
             ViewBag.Linea = lineas;
             ViewBag.sap_platina = ComboSelect.obtieneMaterial_BOM();
             ViewBag.sap_rollo = ComboSelect.obtieneRollo_BOM();
             ViewBag.id_supervisor = ComboSelect.obtieneSupervisoresPlanta(produccion_registros.clave_planta.Value);
-            ViewBag.id_operador = ComboSelect.obtieneOperadorPorLinea(produccion_registros.id_linea.Value);
+            ViewBag.id_operador = ComboSelect.obtieneOperadorPorLinea(emp, produccion_registros.id_linea.Value);
             //para completar_valores previos
             ViewBag.c_sap_platina = c_sap_platina;
             ViewBag.c_sap_rollo = c_sap_rollo;
@@ -240,10 +261,12 @@ namespace Portal_2_0.Controllers
                     return RedirectToAction("Index");
                 }
 
+                empleados emp = obtieneEmpleadoLogeado();
+
                 ViewBag.sap_platina = ComboSelect.obtieneMaterial_BOM();
                 ViewBag.sap_rollo = ComboSelect.obtieneRollo_BOM();
                 ViewBag.id_supervisor = ComboSelect.obtieneSupervisoresPlanta(produccion.clave_planta.Value);
-                ViewBag.id_operador = ComboSelect.obtieneOperadorPorLinea(produccion.id_linea.Value);
+                ViewBag.id_operador = ComboSelect.obtieneOperadorPorLinea(emp, produccion.id_linea.Value);
                 //para completar_valores previos
                 ViewBag.c_sap_platina = produccion.sap_platina;
                 ViewBag.c_sap_rollo = produccion.sap_rollo;
@@ -301,6 +324,8 @@ namespace Portal_2_0.Controllers
                 });
             }
 
+            empleados emp = obtieneEmpleadoLogeado();
+
             produccion_registros.plantas = db.plantas.Find(produccion_registros.clave_planta);
             produccion_registros.produccion_lineas = db.produccion_lineas.Find(produccion_registros.id_linea);
             produccion_registros.produccion_turnos = db.produccion_turnos.Find(produccion_registros.id_turno);
@@ -308,7 +333,7 @@ namespace Portal_2_0.Controllers
             ViewBag.sap_platina = ComboSelect.obtieneMaterial_BOM();
             ViewBag.sap_rollo = ComboSelect.obtieneRollo_BOM();
             ViewBag.id_supervisor = ComboSelect.obtieneSupervisoresPlanta(produccion_registros.clave_planta.Value);
-            ViewBag.id_operador = ComboSelect.obtieneOperadorPorLinea(produccion_registros.id_linea.Value);
+            ViewBag.id_operador = ComboSelect.obtieneOperadorPorLinea(emp, produccion_registros.id_linea.Value);
             //para completar_valores previos
             ViewBag.c_sap_platina = c_sap_platina;
             ViewBag.c_sap_rollo = c_sap_rollo;
@@ -762,8 +787,7 @@ namespace Portal_2_0.Controllers
         ///</summary>
         ///<return>
         ///retorna un JsonResult con las opciones disponibles
-        ///
-        
+        ///        
         public JsonResult obtienePesoBascula(string ip = "")
         {
             byte[] msg = Encoding.UTF8.GetBytes("Portal");
@@ -822,12 +846,47 @@ namespace Portal_2_0.Controllers
             {
                 list[0] = new { Message = "Error: "+e.Message };
             }
-
-
-
            
             return Json(list, JsonRequestBehavior.AllowGet);
         }
-        
+
+
+        ///<summary>
+        ///Retorna si la contraseña ingresada es correcta
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con el resultado
+        ///        
+        public JsonResult VerificaPassword(int? idSupervisor, string password = "")
+        {
+            var list = new object[1];
+
+            if (idSupervisor == null) {
+                list[0] = new {Status="Error", Message = "No se envíó el id de Supervisor." };
+                return Json(list, JsonRequestBehavior.AllowGet);
+            }
+
+            ApplicationUser userSupervisor =  _userManager.Users.FirstOrDefault(x => x.IdEmpleado == idSupervisor);
+
+            if (userSupervisor == null)
+            {
+                list[0] = new { Status = "Error", Message = "No existe el supervisor." };
+                return Json(list, JsonRequestBehavior.AllowGet);
+            }
+
+            Task<bool> validado = _userManager.CheckPasswordAsync(userSupervisor, password);
+
+            //si el password es correcto
+            if (validado.Result)
+            {
+                list[0] = new { Status = "OK", Message = "Contraseña Correcta" };
+                return Json(list, JsonRequestBehavior.AllowGet);
+            }
+            else {
+                list[0] = new { Status = "FALSE", Message = "Contraseña incorrecta" };
+                return Json(list, JsonRequestBehavior.AllowGet);
+            }           
+           
+        }
     }
 }

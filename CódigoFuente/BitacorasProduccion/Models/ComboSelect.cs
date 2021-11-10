@@ -178,12 +178,12 @@ namespace Portal_2_0.Models
         ///</summary>
         ///<return>
         ///retorna un List<SelectListItem> con las opciones disponibles
-        public static List<SelectListItem> obtieneOperadorPorLinea(int linea = 0)
+        public static List<SelectListItem> obtieneOperadorPorLinea(empleados emp, int linea = 0)
         {
             Portal_2_0Entities db = new Portal_2_0Entities();
 
             //obtiene todos los posibles valores
-            List<produccion_operadores> listado = db.produccion_operadores.Where(p => p.activo == true && p.id_linea == linea).ToList();
+            List<produccion_operadores> listado = db.produccion_operadores.Where(p => p.activo == true && p.id_linea == linea && p.id_empleado==emp.id).ToList();
 
             var items = new List<SelectListItem>();
 
@@ -196,11 +196,11 @@ namespace Portal_2_0.Models
                             }).ToList();
 
             //agrega valor vacio
-            items.Insert(0, new SelectListItem()
-            {
-                Text = "-- Seleccione un valor --",
-                Value = ""
-            });
+            //items.Insert(0, new SelectListItem()
+            //{
+            //    Text = "-- Seleccione un valor --",
+            //    Value = ""
+            //});
 
             return items;
         }

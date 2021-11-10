@@ -52,22 +52,22 @@ namespace Portal_2_0.Models
         public Nullable<double> peso_regreso_rollo_real { get; set; }
 
         [Display(Name = "Peso Báscula Kgs")]
-        [Required(ErrorMessage = "El campo Peso Báscula Kgs es requerido")]
+        //[Required(ErrorMessage = "El campo Peso Báscula Kgs es requerido")]
         [Range(0, int.MaxValue, ErrorMessage = "Ingrese un valor positivo")]
         public Nullable<double> peso_bascula_kgs { get; set; }
 
         [Display(Name = "Peso Despunte kgs")]
-        [Required(ErrorMessage = "El campo Peso Despunte es requerido")]
+        //[Required(ErrorMessage = "El campo Peso Despunte es requerido")]
         [Range(0, int.MaxValue, ErrorMessage = "Ingrese un valor positivo")]
         public Nullable<double> peso_despunte_kgs { get; set; }
 
-        [Required(ErrorMessage = "El campo Peso Cola Kgs es requerido")]
+        //[Required(ErrorMessage = "El campo Peso Cola Kgs es requerido")]
         [Range(0, int.MaxValue, ErrorMessage = "Ingrese un valor positivo")]
         [Display(Name = "Peso Cola Kgs")]
         public Nullable<double> peso_cola_kgs { get; set; }
 
         [Display(Name = "Total Pieza Ajuste")]
-        [Required(ErrorMessage = "El campo Total Piezas Ajuste es requerido")]
+        //[Required(ErrorMessage = "El campo Total Piezas Ajuste es requerido")]
         [Range(0, 1000, ErrorMessage = "Ingrese un valor positivo entre 1 y 1000")]
         public Nullable<int> total_piezas_ajuste { get; set; }
 

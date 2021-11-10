@@ -97,7 +97,7 @@
                                             <div class="form-group row ">
                                                 <label class="control-label col-md-2 col-sm-2" for="planta">Planta</label>
                                                 <div class="col-md-6 col-sm-6 ">
-                                                    @Html.DropDownList("planta", null, "-- Seleccione un valor --", htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                                    @Html.DropDownList("planta", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
                                                 </div>
 
                                             </div>
@@ -106,7 +106,6 @@
                                                 <div class="col-md-6 col-sm-6 ">
                                                     @Html.DropDownList("linea", null, "-- Seleccione un valor --", htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
                                                 </div>
-
                                             </div>
 
                                         }
@@ -183,10 +182,10 @@
                                                                     @Html.DisplayFor(modelItem => item.produccion_lineas.linea)
                                                                 </td>
                                                                 <td>
-                                                                    @item.produccion_operadores.empleados.nombre @item.produccion_operadores.empleados.apellido1
+                                                                    @item.produccion_operadores.empleados.ConcatNombre
                                                                 </td>
                                                                 <td>
-                                                                    @item.produccion_supervisores.empleados.nombre @item.produccion_operadores.empleados.apellido1
+                                                                    @item.produccion_supervisores.empleados.ConcatNombre
                                                                 </td>
                                                                 <td>
                                                                     @Html.DisplayFor(modelItem => item.produccion_turnos.descripcion)

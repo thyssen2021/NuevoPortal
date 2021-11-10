@@ -3,7 +3,6 @@
     window.onload = function () {
         document.getElementById('menu_toggle').click();
     }
-
     //inicializa los data table
     $('#datatable_1').DataTable({
         "paging": false,
@@ -16,29 +15,29 @@
     //cuando hay cambio de planta
     $("#planta").change(function () {
 
-        //llamada ajax para obtener las lineas por planta
-        $.ajax({
-            type: 'POST',
-            url: '/Combos/obtieneLineasPlantas',
-            data: { clavePlanta: $(this).val() },
-            success: function (data) {
-                populateDropdown($("#linea"), data);
+        ////llamada ajax para obtener las lineas por planta
+        //$.ajax({
+        //    type: 'POST',
+        //    url: '/Combos/obtieneLineasPlantas',
+        //    data: { clavePlanta: $(this).val() },
+        //    success: function (data) {
+        //        populateDropdown($("#linea"), data);
                 verificaEstadoCombos();
-            },
-            async: false
-        });
+        //    },
+        //    async: false
+        //});
 
-        //oculta la tabla y la paginación
-        $('#body_tabla').hide();
-        $('#nav_paginacion').hide();
+        ////oculta la tabla y la paginación
+        //$('#body_tabla').hide();
+        //$('#nav_paginacion').hide();
     });
 
     $("#linea").change(function () {
         verificaEstadoCombos();
     });
 
-    seleccionaValoresDefault();
-
+   seleccionaValoresDefault();
+    //verificaEstadoCombos();
 
     // Initialize Select2 Elements
     $('.select2bs4').select2({
@@ -63,14 +62,16 @@ function verificaEstadoCombos() {
     }
 
     var linea = $("#linea option:selected").val();
+
     //si linea esta vacia
     if (linea == "") {
        // $("#crearFormButton").prop("disabled", true);
         $("#crearFormButton").fadeOut(1000);
+        $('#body_tabla').hide();
+        $('#nav_paginacion').hide();
     }
     else {
-        //$("#crearFormButton").prop("disabled", false);
-        $("#crearFormButton").fadeIn(1000);       
+        //$("#crearFormButton").prop("disabled", false);           
         $("#buscarForm").submit();
         $.blockUI({
             css: {
@@ -104,16 +105,16 @@ function seleccionaValoresDefault() {
             $("#planta").val("");
         }
 
-        //realiza llamada para lineas
-        $.ajax({
-            type: 'POST',
-            url: '/Combos/obtieneLineasPlantas',
-            data: { clavePlanta: cPlanta.value },
-            success: function (data) {
-                populateDropdown($("#linea"), data);
-            },
-            async: false
-        });
+        ////realiza llamada para lineas
+        //$.ajax({
+        //    type: 'POST',
+        //    url: '/Combos/obtieneLineasPlantas',
+        //    data: { clavePlanta: cPlanta.value },
+        //    success: function (data) {
+        //        populateDropdown($("#linea"), data);
+        //    },
+        //    async: false
+        //});
 
 
         if (cLinea != null && cLinea.value != 0) {

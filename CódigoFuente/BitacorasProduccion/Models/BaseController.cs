@@ -87,7 +87,8 @@ namespace Portal_2_0.Models
                 empleado = new empleados
                 {
                     id = 0,
-                    nombre = "NO DISPONIBLE"
+                    nombre = "NO DISPONIBLE",
+                    planta_clave =0,
                 };
 
             return empleado;

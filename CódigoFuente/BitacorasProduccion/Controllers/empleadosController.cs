@@ -109,10 +109,10 @@ namespace Portal_2_0.Controllers
                 if (empleadoBusca == null)
                 {
                     //busca por 8ID
-                    empleadoBusca = db.empleados.Where(s => s.C8ID == empleados.C8ID)
+                    empleadoBusca = db.empleados.Where(s => s.C8ID == empleados.C8ID && !String.IsNullOrEmpty(empleados.C8ID))
                                         .FirstOrDefault();
 
-                    if (empleadoBusca == null)    {
+                    if (empleadoBusca == null)  {
 
                         empleados.activo = true;
                         //convierte a mayúsculas
@@ -226,7 +226,7 @@ namespace Portal_2_0.Controllers
                 {
 
                     //busca por 8ID
-                    empleadoBusca = db.empleados.Where(s => s.C8ID == empleados.C8ID && s.id != empleados.id)
+                    empleadoBusca = db.empleados.Where(s => s.C8ID == empleados.C8ID && s.id != empleados.id && !String.IsNullOrEmpty(empleados.C8ID))
                                         .FirstOrDefault();
 
                     if (empleadoBusca == null)

@@ -28,7 +28,17 @@ namespace Portal_2_0.Controllers
                 {
                     ViewBag.MensajeAlert = TempData["Mensaje"];
                 }
-                          
+
+                empleados emp = obtieneEmpleadoLogeado();
+
+                //muestra error en caso de querer solicitar una planta distinta
+                if (clave_planta !=null && clave_planta != emp.planta_clave) {
+                    ViewBag.Titulo = "¡Lo sentimos!¡No se puede acceder a la información solicitada!";
+                    ViewBag.Descripcion = "No puede consultar la información de la planta solicitada.";
+
+                    return View("../Home/ErrorGenerico");
+                }
+               
 
                 CultureInfo provider = CultureInfo.InvariantCulture;
 
@@ -39,8 +49,10 @@ namespace Portal_2_0.Controllers
                 {
                     if (!String.IsNullOrEmpty(fecha_inicial))
                         dateInicial = Convert.ToDateTime(fecha_inicial);
-                    if (!String.IsNullOrEmpty(fecha_final))
-                        dateFinal = Convert.ToDateTime(fecha_final);
+                    if (!String.IsNullOrEmpty(fecha_final)) { 
+                            dateFinal = Convert.ToDateTime(fecha_final);
+                            dateFinal = dateFinal.AddHours(23).AddMinutes(59).AddSeconds(59);
+                        }
                 }
                 catch (FormatException e)
                 {
@@ -122,7 +134,7 @@ namespace Portal_2_0.Controllers
                 };
 
                 ViewBag.id_linea = new SelectList(db.produccion_lineas.Where(p => p.activo == true), "id", "linea");
-                ViewBag.clave_planta = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
+                ViewBag.clave_planta = new SelectList(db.plantas.Where(p => p.activo == true && p.clave == emp.planta_clave), "clave", "descripcion");
                 ViewBag.Paginacion = paginacion;
 
                 return View(listado);
@@ -149,7 +161,10 @@ namespace Portal_2_0.Controllers
                     if (!String.IsNullOrEmpty(fecha_inicial))
                         dateInicial = Convert.ToDateTime(fecha_inicial);
                     if (!String.IsNullOrEmpty(fecha_final))
+                    {
                         dateFinal = Convert.ToDateTime(fecha_final);
+                        dateFinal = dateFinal.AddHours(23).AddMinutes(59).AddSeconds(59);
+                    }
                 }
                 catch (FormatException e)
                 {

@@ -65,8 +65,6 @@ $(document).ready(function () {
         }
     });
 
-
-
     //calcula los datos la primera vez que carga la página
     calculaDatos();
 });
@@ -94,10 +92,17 @@ var Toast = Swal.mixin({
     }
 });
 
+//muestra el modal de captura de peso
+function mostrarModalPass() {
+    $('#modalPass').modal('show');
+    $('#password').val('');
+}
+
 
 //muestra el modal de captura de peso
 function mostrarModal() {
     $('#myModal').modal('show')
+    $('#peso_manual').val('');
     let peso_manual = $('#peso_manual').val();
     //verifica si es un numero
     if (isNaN(peso_manual)) {
@@ -114,6 +119,35 @@ function mostrarModal() {
 //muestra el modal de captura de peso
 function muestraModalSocket() {
     $('#myModalTipoPieza').modal('show')
+}
+
+//verifica la contraseña ingresada
+function verificarContraseña(idSupervisor) {
+    let passSupervisor = $('#password').val();
+
+    //verifica el si la contraseña es correcta
+    $.ajax({
+        type: 'POST',
+        url: '/ProduccionRegistros/VerificaPassword',
+        data: { idSupervisor: idSupervisor, password: passSupervisor },
+        success: function (data) {
+            console.log(data);
+            if (data[0].Status == "OK") {
+                $('#modalPass').modal('hide');
+                mostrarModal();
+            } else {
+                $('#modalPass').modal('hide')
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Contraseña incorrecta.'
+                })
+            }
+        },
+        async: true
+    });    
+
+    let pass = $('#password').val('');
 }
 
 //muestra el modal de captura de peso

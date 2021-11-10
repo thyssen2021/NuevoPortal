@@ -63,7 +63,7 @@ CREATE VIEW [dbo].[view_produccion_resultados] AS
 		,s.[Scrap de ingeniería (buenas + Ajuste)_Total_Piezas_Kg]
 		,s.[Peso Neto_total piezas de ajuste_Kgs]
 		,s.[Peso puntas y colas reales_Kg]					
-		,(ISNULL(s.[Peso Bruto Kgs], 0) + ISNULL(s.[Peso puntas y colas reales_Kg], 0))/NULLIF(CAST(s.[Peso de rollo usado real _Kg] AS float),0) AS [Balance_de_Scrap_Real]
+		,(ISNULL((ISNULL(s.[Peso Bruto Kgs], 0) + ISNULL(s.[Peso puntas y colas reales_Kg], 0))/NULLIF(CAST(s.[Peso de rollo usado real _Kg] AS float),0),0)) AS [Balance_de_Scrap_Real]
 FROM(
 SELECT 
 	r.*
