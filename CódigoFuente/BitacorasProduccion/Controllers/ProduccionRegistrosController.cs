@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -780,6 +781,148 @@ namespace Portal_2_0.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        // GET: ProduccionRegistros/CargarRespaldo
+        public ActionResult CargarRespaldo()
+        {
+            if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REGISTRO))
+            {
+                return View();
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+        }
+
+        // POST: ProduccionRegistros/CargarRespaldo
+        [HttpPost]
+        public ActionResult CargarRespaldo(ExcelViewModel excelViewModel, FormCollection collection)
+        {
+            if (ModelState.IsValid)
+            {
+
+
+                string msjError = "No se ha podido leer el archivo seleccionado.";
+
+                //lee el archivo seleccionado
+                try
+                {
+                    HttpPostedFileBase stream = Request.Files["PostedFile"];
+
+
+                    if (stream.InputStream.Length > 8388608)
+                    {
+                        msjError = "Sólo se permiten archivos con peso menor a 8 MB.";
+                        throw new Exception(msjError);
+                    }
+                    else
+                    {
+                        string extension = Path.GetExtension(excelViewModel.PostedFile.FileName);
+                        if (extension.ToUpper() != ".XLSM")
+                        {
+                            msjError = "Seleccione un archivo Excel válido.";
+                            throw new Exception(msjError);
+                        }
+                    }
+
+                    bool estructuraValida = false;
+
+                    ////el archivo es válido
+                    //List<bom_en_sap> lista = UtilExcel.LeeBom(excelViewModel.PostedFile, ref estructuraValida);
+
+
+                    //if (!estructuraValida)
+                    //{
+                    //    msjError = "No cumple con la estructura válida.";
+                    //    throw new Exception(msjError);
+                    //}
+                    //else
+                    //{
+                    //    int actualizados = 0;
+                    //    int creados = 0;
+                    //    int error = 0;
+                    //    int eliminados = 0;
+
+
+                    //    List<bom_en_sap> listAnterior = db.bom_en_sap.ToList();
+
+                    //    //determina que elementos de la lista no se encuentran en la lista anterior
+                    //    List<bom_en_sap> listDiferencias = lista.Except(listAnterior).ToList();
+
+                    //    foreach (bom_en_sap bom in listDiferencias)
+                    //    {
+                    //        try
+                    //        {
+                    //            //obtiene el elemento de BD
+                    //            bom_en_sap item = db.bom_en_sap.FirstOrDefault(x => x.Material == bom.Material && x.Plnt == bom.Plnt && x.BOM == bom.BOM && x.AltBOM == bom.AltBOM && x.Item == bom.Item);
+
+                    //            //si existe actualiza
+                    //            if (item != null)
+                    //            {
+                    //                db.Entry(item).CurrentValues.SetValues(bom);
+                    //                db.SaveChanges();
+                    //                actualizados++;
+                    //            }
+                    //            else
+                    //            {
+                    //                //crea un nuevo registro
+                    //                db.bom_en_sap.Add(bom);
+                    //                db.SaveChanges();
+                    //                creados++;
+                    //            }
+
+                    //        }
+                    //        catch (Exception e)
+                    //        {
+                    //            error++;
+                    //        }
+
+                    //    }
+                    //    //obtiene nuevamente la lista de BD
+                    //    listAnterior = db.bom_en_sap.ToList();
+                    //    //determina que elementos de la listAnterior no se encuentran en la lista Excel
+                    //    listDiferencias = listAnterior.Except(lista).ToList();
+
+                    //    //elima de BD aquellos que no se encuentren en el excel
+                    //    foreach (bom_en_sap bom in listDiferencias)
+                    //    {
+                    //        try
+                    //        {
+                    //            //obtiene el elemento de BD
+                    //            bom_en_sap item = db.bom_en_sap.FirstOrDefault(x => x.Material == bom.Material && x.Plnt == bom.Plnt && x.BOM == bom.BOM && x.AltBOM == bom.AltBOM && x.Item == bom.Item);
+
+                    //            //si existe elimina
+                    //            if (item != null)
+                    //            {
+                    //                db.Entry(item).State = EntityState.Deleted;
+                    //                db.SaveChanges();
+                    //                eliminados++;
+                    //            }
+
+                    //        }
+                    //        catch (Exception e)
+                    //        {
+                    //            error++;
+                    //        }
+
+                    //    }
+
+
+                    //    TempData["Mensaje"] = new MensajesSweetAlert("Actualizados: " + actualizados + " -> Creados: " + creados + " -> Errores: " + error + " -> Eliminados: " + eliminados, TipoMensajesSweetAlerts.INFO);
+                    //    return RedirectToAction("index");
+                    //}
+
+                }
+                catch (Exception e)
+                {
+                    ModelState.AddModelError("", msjError);
+                    return View(excelViewModel);
+                }
+
+            }
+            return View(excelViewModel);
         }
 
         ///<summary>

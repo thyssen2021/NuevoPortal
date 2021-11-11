@@ -4966,6 +4966,7 @@
     <Content Include="Views\Home\ErrorGenerico.cshtml" />
     <Content Include="Views\PremiumFreightApproval\AutorizarRechazar.cshtml" />
     <Content Include="Views\PremiumFreightApproval\ListadoSolicitudes.cshtml" />
+    <Content Include="Views\ProduccionRegistros\CargarRespaldo.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
