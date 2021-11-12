@@ -919,11 +919,12 @@ namespace Portal_2_0.Controllers
                                     respaldo_item.empleado_id = emp.id;
 
                                 //obtiene el elemento de BD
-                                produccion_respaldo item = db.produccion_respaldo.FirstOrDefault(x => x.id == respaldo_item.id);
+                                produccion_respaldo item = db.produccion_respaldo.FirstOrDefault(x => x.planta == respaldo_item.planta && x.linea == respaldo_item.linea && x.fecha==respaldo_item.fecha);
 
                                 //si existe actualiza
                                 if (item != null)
                                 {
+                                    respaldo_item.id = item.id;
                                     db.Entry(item).CurrentValues.SetValues(respaldo_item);
                                     db.SaveChanges();
                                     actualizados++;
