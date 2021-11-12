@@ -18,12 +18,13 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public empleados()
         {
-            this.produccion_operadores = new HashSet<produccion_operadores>();
-            this.produccion_supervisores = new HashSet<produccion_supervisores>();
             this.notificaciones_correo = new HashSet<notificaciones_correo>();
             this.PFA = new HashSet<PFA>();
             this.PFA_Autorizador = new HashSet<PFA_Autorizador>();
             this.PFA1 = new HashSet<PFA>();
+            this.produccion_operadores = new HashSet<produccion_operadores>();
+            this.produccion_supervisores = new HashSet<produccion_supervisores>();
+            this.produccion_respaldo = new HashSet<produccion_respaldo>();
         }
 
         public int id { get; set; }
@@ -116,10 +117,6 @@ namespace Portal_2_0.Models
         public virtual plantas plantas { get; set; }
         public virtual puesto puesto1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<produccion_operadores> produccion_operadores { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<produccion_supervisores> produccion_supervisores { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<notificaciones_correo> notificaciones_correo { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PFA> PFA { get; set; }
@@ -127,9 +124,11 @@ namespace Portal_2_0.Models
         public virtual ICollection<PFA_Autorizador> PFA_Autorizador { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PFA> PFA1 { get; set; }
-
-
-       
-
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<produccion_operadores> produccion_operadores { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<produccion_supervisores> produccion_supervisores { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<produccion_respaldo> produccion_respaldo { get; set; }
     }
 }

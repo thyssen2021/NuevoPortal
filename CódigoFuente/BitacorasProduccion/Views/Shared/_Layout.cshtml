@@ -110,7 +110,7 @@
                                                 @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REGISTRO))
                                                 {
                                                     <li class="@(ViewBag.SegundoNivel == "produccion_registros" ? "current-page" : null )"><a href="@Url.Action("Index", "ProduccionRegistros")">Bit&aacute;cora</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "produccion_respaldo" ? "current-page" : null )"><a href="@Url.Action("CargarRespaldo", "ProduccionRegistros")">CargarRespaldo</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "produccion_respaldo" ? "current-page" : null )"><a href="@Url.Action("Respaldo", "ProduccionRegistros")">Cargar Respaldo</a></li>
 
                                                 }
                                                 @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REPORTE))

@@ -14,8 +14,63 @@ DROP VIEW IF EXISTS dbo.view_historico_resultado;
 GO
 CREATE VIEW [dbo].view_historico_resultado AS
 
-SELECT 
-	ISNULL(ROW_NUMBER() OVER (ORDER BY v2.fecha), 0) as id,
+SELECT
+	ISNULL(ROW_NUMBER() OVER (ORDER BY v3.fecha), 0) as id,
+	v3.* FROM (
+SELECT       
+      [operador] AS [Operador]
+      ,[supervisor] as [Supervisor]
+      ,[sap_platina] as [SAP Platina]
+      ,[tipo_material] AS [Tipo de Material]
+      ,[numero_parte_cliente] AS [Número de Parte  de cliente]
+      ,[sap_rollo] AS [SAP Rollo]
+      ,[material] AS [Material]
+      ,[fecha] AS [Fecha]
+      ,[turno] AS [Turno]
+      ,[hora] AS [Hora]
+      ,[orden_sap] AS [Orden SAP]
+      ,[orden_sap_2] AS [Orden en SAP 2]
+      ,[pieza_por_golpe] AS [Pieza por Golpe]
+      ,[numero_rollo] AS [N° de Rollo]
+      ,[lote_rollo] AS [Lote de rollo]
+      ,[peso_etiqueta] AS [Peso Etiqueta (Kg)]
+      ,[peso_regreso_rollo_real] AS [Peso de regreso de rollo Real]
+      ,[peso_rollo_usado] AS [Peso de rollo usado]
+      ,[peso_bascula_kgs] AS [Peso Báscula Kgs]
+      ,[piezas_por_paquete] AS [Piezas por paquete]
+      ,[total_piezas] AS [Total de piezas]
+      ,[peso_rollo_consumido] AS [Peso de rollo consumido]
+      ,[numero_golpes] AS [Numero de golpes]
+	  ,null AS  [Kg restante de rollo]
+      ,[peso_despunte_kgs] AS [Peso despunte kgs#]
+      ,[peso_cola_kgs] AS [Peso cola Kgs#]
+      ,[porcentaje_punta_y_colas] AS [Porcentaje de puntas y colas]
+      ,[total_piezas_ajuste] AS [Total de piezas de Ajustes]
+      ,[peso_bruto_kgs] AS [Peso Bruto_Kgs]
+      ,[peso_real_pieza_bruto] AS [Peso Real Pieza Bruto]
+      ,[peso_real_pieza_neto] AS [Peso Real Pieza Neto]
+      ,[scrap_natural] AS [Scrap Natural]
+      ,[peso_neto_sap] AS [Peso neto SAP]
+      ,[peso_bruto_sap] AS [Peso Bruto SAP]
+      ,[balance_scrap] AS [Balance_de_Scrap]
+	  ,[linea] AS [Linea]
+	  ,[planta] AS [Planta]      
+	  ,YEAR(fecha) AS [Anio]
+	  ,null as [Column40]
+	  ,[ordenes_por_pieza] AS [Ordenes por pieza]
+      ,[peso_rollo_usado_real_kgs] AS [Peso de rollo usado real _Kg]
+      ,[peso_bruto_total_piezas_kgs] AS [Peso bruto Total piezas_Kg]
+      ,[peso_neto_total_piezas_kgs] AS [Peso NetoTotal piezas_Kg]
+      ,[scrap_ingenieria_buenas_mas_ajuste] AS [Scrap de ingeniería (buenas + Ajuste)_Total_Piezas_Kg]
+      ,[peso_neto_total_piezas_ajuste] AS [Peso Neto_total piezas de ajuste_Kgs]
+      ,[peso_punta_y_colas_reales] AS  [Peso puntas y colas reales_Kg]
+      ,[balance_scrap_real] AS [Balance_de_Scrap_Real]
+  FROM [dbo].[produccion_respaldo]
+
+  UNION ALL
+
+SELECT
+	--ISNULL(ROW_NUMBER() OVER (ORDER BY v2.fecha), 0) as id,
 	v2.* FROM (SELECT v1.* FROM (
 	
 	SELECT distinct d2.* FROM(
@@ -133,7 +188,7 @@ SELECT
 
  UNION ALL
 
-SELECT TOP (100) 
+SELECT  
 		--[id]
       [Operador]
       ,[Supervisor]
@@ -186,4 +241,4 @@ SELECT TOP (100)
       ,[Peso puntas y colas reales_Kg]
       ,[Balance_de_Scrap_Real]
   FROM [Portal_2_0].[dbo].[view_produccion_resultados])v2
-	WHERE Fecha is not null
+	WHERE Fecha is not null)v3 

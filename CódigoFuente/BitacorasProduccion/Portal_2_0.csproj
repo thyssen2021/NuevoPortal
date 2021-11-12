@@ -336,6 +336,9 @@
     <Compile Include="Models\produccion_registros.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\produccion_respaldo.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\produccion_supervisores.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -4967,6 +4970,7 @@
     <Content Include="Views\PremiumFreightApproval\AutorizarRechazar.cshtml" />
     <Content Include="Views\PremiumFreightApproval\ListadoSolicitudes.cshtml" />
     <Content Include="Views\ProduccionRegistros\CargarRespaldo.cshtml" />
+    <Content Include="Views\ProduccionRegistros\Respaldo.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

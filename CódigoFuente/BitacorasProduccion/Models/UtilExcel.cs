@@ -155,6 +155,348 @@ namespace Portal_2_0.Models
             return lista;
         }
 
+        ///<summary>
+        ///Lee un archivo de excel y carga el listado con el respaldo de bitacora
+        ///</summary>
+        ///<return>
+        ///Devuelve un List<produccion_respaldp> con los datos leidos
+        ///</return>
+        ///<param name="streamPostedFile">
+        ///Stream del archivo recibido en el formulario
+        ///</param>
+        public static List<produccion_respaldo> LeeRespaldoBitacora(HttpPostedFileBase streamPostedFile, ref bool valido)
+        {
+            List<produccion_respaldo> lista = new List<produccion_respaldo>();
+
+            //crea el reader del archivo
+            using (var reader = ExcelReaderFactory.CreateReader(streamPostedFile.InputStream))
+            {
+                //obtiene el dataset del archivo de excel
+                var result = reader.AsDataSet();
+
+                //estable la variable a false por defecto
+                valido = false;
+
+                //recorre todas las hojas del archivo
+                foreach (DataTable table in result.Tables)
+                {
+                    //busca si existe una hoja llamada "dante"
+                    if (table.TableName.ToUpper() == "ROLLOS")
+                    {
+                        valido = true;
+
+                        //se obtienen las cabeceras
+                        List<string> encabezados = new List<string>();
+
+                        for (int i = 0; i < table.Columns.Count; i++)
+                        {
+                            string title = table.Rows[3][i].ToString();
+
+                            if (!string.IsNullOrEmpty(title))
+                                encabezados.Add(title.ToUpper());
+                        }
+
+
+                        //verifica que la estrura del archivo sea válida
+                        if (!encabezados.Contains("OPERADOR") || !encabezados.Contains("SUPERVISOR") || !encabezados.Contains("TIPO DE MATERIAL")
+                            || !encabezados.Contains("SAP ROLLO") || !encabezados.Contains("MATERIAL") || !encabezados.Contains("FECHA"))
+                        {
+                            valido = false;
+                            return lista;
+                        }
+
+                        //las primeras cinco filas se omite (encabezado)
+                        for (int i = 5; i < table.Rows.Count; i++)
+                        {
+                            try
+                            {
+                                //variables
+
+                                String planta = String.Empty;
+                                String linea = String.Empty;
+                                string supervisor = String.Empty;
+                                string operador = String.Empty;
+                                string sap_platina = String.Empty;
+                                string tipo_material = String.Empty;
+                                string numero_parte_cliente = String.Empty;
+                                string sap_rollo = String.Empty;
+                                string material = String.Empty;
+                                DateTime fecha = DateTime.MinValue;
+                                string turno = String.Empty;
+                                DateTime hora = DateTime.MinValue;
+                                string orden_sap = String.Empty;
+                                string orden_sap_2 = String.Empty;
+                                Nullable<double> piezas_por_golpe = null;
+                                String numero_rollo = String.Empty;
+                                String lote_rollo = String.Empty;
+                                Nullable<double> peso_etiqueta = null;
+                                Nullable<double> peso_regreso_rollo_real = null;
+                                Nullable<double> peso_rollo_usado = null;
+                                Nullable<double> peso_bascula_kgs = null;
+                                Nullable<double> total_piezas = null;
+                                Nullable<double> numero_golpes = null;
+                                Nullable<double> peso_despunte_kgs = null;
+                                Nullable<double> peso_cola_kgs = null;
+                                Nullable<double> porcentaje_punta_y_colas = null;
+                                Nullable<double> total_piezas_ajuste = null;
+                                Nullable<double> peso_bruto_kgs = null;
+                                Nullable<double> peso_real_pieza_bruto = null;
+                                Nullable<double> peso_real_pieza_neto = null;
+                                Nullable<double> scrap_natural = null;
+                                Nullable<double> peso_neto_sap = null;
+                                Nullable<double> peso_bruto_sap = null;
+                                Nullable<double> balance_scrap = null;
+                                Nullable<double> ordenes_por_pieza = null;
+                                Nullable<double> peso_rollo_usado_real_kgs = null;
+                                Nullable<double> peso_bruto_total_piezas_kgs = null;
+                                Nullable<double> peso_neto_total_piezas_kgs = null;
+                                Nullable<double> scrap_ingenieria_buenas_mas_ajuste = null;
+                                Nullable<double> peso_neto_total_piezas_ajuste = null;
+                                Nullable<double> peso_punta_y_colas_reales = null;
+                                Nullable<double> balance_scrap_real = null;
+
+                                //recorre todas los encabezados
+                                for (int j = 0; j < encabezados.Count; j++)
+                                {
+                                    //si operador es vacio pasa a la siguiente linea
+                                    if (String.IsNullOrEmpty(table.Rows[i][2].ToString()))
+                                    {
+                                        break;
+                                    }
+
+                                    //obtiene la cabezara de i
+                                    switch (encabezados[j])
+                                    {
+
+                                        case "PLANTA":
+                                            planta = table.Rows[i][j].ToString();
+                                            break;
+                                        case "LINEA":
+                                            linea = table.Rows[i][j].ToString();
+                                            break;
+                                        case "OPERADOR":
+                                            operador = table.Rows[i][j].ToString();
+                                            break;
+                                        case "SUPERVISOR":
+                                            supervisor = table.Rows[i][j].ToString();
+                                            break;
+                                        case "SAP PLATINA":
+                                            sap_platina = table.Rows[i][j].ToString();
+                                            break;
+                                        case "TIPO DE MATERIAL":
+                                            tipo_material = table.Rows[i][j].ToString();
+                                            break;
+                                        case "NÚMERO DE PARTE DE CLIENTE":
+                                            numero_parte_cliente = table.Rows[i][j].ToString();
+                                            break;
+                                        case "SAP ROLLO":
+                                            sap_rollo = table.Rows[i][j].ToString();
+                                            break;
+                                        case "MATERIAL":
+                                            material = table.Rows[i][j].ToString();
+                                            break;
+                                        case "FECHA":
+                                            if (DateTime.TryParse(table.Rows[i][j].ToString(), out DateTime f))
+                                                fecha = f;
+                                            break;
+                                        case "TURNO":
+                                            turno = table.Rows[i][j].ToString();
+                                            break;
+                                        case "HORA":
+                                            if (DateTime.TryParse(table.Rows[i][j].ToString(),out DateTime h))
+                                            {
+                                                fecha = fecha.AddHours(h.Hour).AddMinutes(h.Minute).AddSeconds(h.Second);
+                                                hora = fecha;                                               
+                                            }
+                                            break;
+                                        case "ORDEN SAP":
+                                            orden_sap = table.Rows[i][j].ToString();
+                                            break;
+                                        case "ORDEN EN SAP 2":
+                                            orden_sap_2 = table.Rows[i][j].ToString();
+                                            break;
+                                        case "PIEZA POR GOLPE":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double ppg))
+                                                piezas_por_golpe = ppg;
+                                            break;
+                                        case "N° DE ROLLO":
+                                            numero_rollo = table.Rows[i][j].ToString();
+                                            break;
+                                        case "LOTE DE ROLLO":
+                                            lote_rollo = table.Rows[i][j].ToString();
+                                            break;
+                                        case "PESO ETIQUETA (KG)":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double pe))
+                                                peso_etiqueta = pe;
+                                            break;
+                                        case "PESO DE REGRESO DE ROLLO REAL":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double prrr))
+                                                peso_regreso_rollo_real = prrr;
+                                            break;
+                                        case "PESO DE ROLLO USADO":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double pru))
+                                                peso_rollo_usado = pru;
+                                            break;
+                                        case "PESO BÁSCULA KGS":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double pbk))
+                                                peso_bascula_kgs = pbk;
+                                            break;
+                                        case "TOTAL DE PIEZAS":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double tp))
+                                                total_piezas = tp;
+                                            break;
+                                        case "NUMERO DE GOLPES":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double ng))
+                                                numero_golpes = ng;
+                                            break;
+                                        case "PESO DESPUNTE KGS.":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double pd))
+                                                peso_despunte_kgs = pd;
+                                            break;
+                                        case "PESO COLA KGS.":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double pc))
+                                                peso_cola_kgs = pc;
+                                            break;
+                                        case "PORCENTAJE DE PUNTAS Y COLAS":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double ppc))
+                                                porcentaje_punta_y_colas = ppc;
+                                            break;
+                                        case "TOTAL DE PIEZAS DE AJUSTES":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double tpa))
+                                                total_piezas_ajuste = tpa;
+                                            break;
+                                        case "PESO BRUTO KGS":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double pb))
+                                                peso_bruto_kgs = pb;
+                                            break;
+                                        case "PESO REAL PIEZA BRUTO":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double prpb))
+                                                peso_real_pieza_bruto = prpb;
+                                            break;
+                                        case "PESO REAL PIEZA NETO":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double prpn))
+                                                peso_real_pieza_neto = prpn;
+                                            break;
+                                        case "SCRAP NATURAL":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double sn))
+                                                scrap_natural = sn;
+                                            break;
+                                        case "PESO NETO SAP":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double pns))
+                                                peso_neto_sap = pns;
+                                            break;
+                                        case "PESO BRUTO SAP":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double pbs))
+                                                peso_bruto_sap = pbs;
+                                            break;
+                                        case "BALANCE DE SCRAP":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double bs))
+                                                balance_scrap = bs;
+                                            break;
+                                        case "ORDENES POR PIEZA":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double opp))
+                                                ordenes_por_pieza = opp;
+                                            break;
+                                        case "PESO DE ROLLO USADO REAL KG":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double prur))
+                                                peso_rollo_usado_real_kgs = prur;
+                                            break;
+                                        case "PESO BRUTO TOTAL PIEZAS KG":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double pbtp))
+                                                peso_bruto_total_piezas_kgs = pbtp;
+                                            break;
+                                        case "PESO NETOTOTAL PIEZAS KG":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double pntp))
+                                                peso_neto_total_piezas_kgs = pntp;
+                                            break;
+                                        case "SCRAP DE INGENIERÍA (BUENAS + AJUSTE) TOTAL PIEZAS KG":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double siba))
+                                                scrap_ingenieria_buenas_mas_ajuste = siba;
+                                            break;
+                                        case "PESO NETO TOTAL PIEZAS DE AJUSTE KGS":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double pntpa))
+                                                peso_neto_total_piezas_ajuste = pntpa;
+                                            break;
+                                        case "PESO PUNTAS Y COLAS REALES KG":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double ppcr))
+                                                peso_punta_y_colas_reales = ppcr;
+                                            break;
+                                        case "BALANCE DE SCRAP REAL":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double bsr))
+                                                balance_scrap_real = bsr;
+                                            break;
+                                    }
+                                }
+
+                                //no agrega si no hay operador
+                                if (!String.IsNullOrEmpty(operador))
+                                {
+                                    //agrega a la lista con los datos leidos
+                                    lista.Add(new produccion_respaldo()
+                                    {
+                                        fecha_carga = DateTime.Now,
+                                        planta = !String.IsNullOrEmpty(planta) ? planta : null,
+                                        linea = !String.IsNullOrEmpty(linea) ? linea : null,
+                                        supervisor = !String.IsNullOrEmpty(supervisor) ? supervisor : null,
+                                        operador = !String.IsNullOrEmpty(operador) ? operador : null,
+                                        sap_platina = !String.IsNullOrEmpty(sap_platina) ? sap_platina : null,
+                                        tipo_material = !String.IsNullOrEmpty(tipo_material) ? tipo_material : null,
+                                        numero_parte_cliente = !String.IsNullOrEmpty(numero_parte_cliente) ? numero_parte_cliente : null,
+                                        sap_rollo = !String.IsNullOrEmpty(sap_rollo) ? sap_rollo : null,
+                                        material = !String.IsNullOrEmpty(material) ? material : null,
+                                        fecha = fecha,
+                                        turno = !String.IsNullOrEmpty(turno) ? turno : null,
+                                        hora = hora,
+                                        orden_sap = !String.IsNullOrEmpty(orden_sap) ? orden_sap : null,
+                                        orden_sap_2 = !String.IsNullOrEmpty(orden_sap_2) ? orden_sap_2 : null,
+                                        pieza_por_golpe = piezas_por_golpe,
+                                        numero_rollo = !String.IsNullOrEmpty(numero_rollo) ? numero_rollo : null,
+                                        lote_rollo = !String.IsNullOrEmpty(lote_rollo) ? lote_rollo : null,
+                                        peso_etiqueta = peso_etiqueta,
+                                        peso_regreso_rollo_real = peso_regreso_rollo_real,
+                                        peso_rollo_usado = peso_rollo_usado,
+                                        peso_bascula_kgs = peso_bascula_kgs,
+                                        total_piezas = total_piezas,
+                                        numero_golpes = numero_golpes,
+                                        peso_despunte_kgs = peso_despunte_kgs,
+                                        peso_cola_kgs = peso_cola_kgs,
+                                        porcentaje_punta_y_colas = porcentaje_punta_y_colas,
+                                        total_piezas_ajuste = total_piezas_ajuste,
+                                        peso_bruto_kgs = peso_bruto_kgs,
+                                        peso_real_pieza_bruto = peso_real_pieza_bruto,
+                                        peso_real_pieza_neto = peso_real_pieza_neto,
+                                        scrap_natural = scrap_natural,
+                                        peso_neto_sap = peso_neto_sap,
+                                        peso_bruto_sap = peso_bruto_sap,
+                                        balance_scrap = balance_scrap,
+                                        ordenes_por_pieza = ordenes_por_pieza,
+                                        peso_rollo_usado_real_kgs = peso_rollo_usado_real_kgs,
+                                        peso_bruto_total_piezas_kgs = peso_bruto_total_piezas_kgs,
+                                        peso_neto_total_piezas_kgs = peso_neto_total_piezas_kgs,
+                                        scrap_ingenieria_buenas_mas_ajuste = scrap_ingenieria_buenas_mas_ajuste,
+                                        peso_neto_total_piezas_ajuste = peso_neto_total_piezas_ajuste,
+                                        peso_punta_y_colas_reales = peso_punta_y_colas_reales,
+                                        balance_scrap_real = balance_scrap_real,
+                                    });
+                                }
+                               
+
+                               
+                            }
+                            catch (Exception e)
+                            {
+                                System.Diagnostics.Debug.Print("Error: " + e.Message);
+                            }
+                        }
+
+                    }
+                }
+
+            }
+
+            return lista;
+        }
+
 
         ///<summary>
         ///Lee un archivo de excel y carga el listado de class

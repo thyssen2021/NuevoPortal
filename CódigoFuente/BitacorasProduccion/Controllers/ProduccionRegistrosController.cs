@@ -783,11 +783,66 @@ namespace Portal_2_0.Controllers
             base.Dispose(disposing);
         }
 
+        // GET: ProduccionRegistros/Respaldo
+        public ActionResult Respaldo(int pagina = 1)
+        {
+            if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REGISTRO))
+            {
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
+                //obtiene el empleado que inicio sesión
+                empleados emp = obtieneEmpleadoLogeado();
+            
+
+                var cantidadRegistrosPorPagina = 20; // parámetro
+
+                //muestra unicamente lso registros que el usuario edite
+                var produccion_registros = db.produccion_respaldo.Include(p => p.empleados).Where(
+                         x => x.empleado_id == emp.id
+                        )
+                    .OrderByDescending(x => x.fecha)
+                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                    .Take(cantidadRegistrosPorPagina).ToList();
+
+                var totalDeRegistros = db.produccion_respaldo.Include(p => p.empleados).Where(
+                         x => x.empleado_id == emp.id                        
+                       ).Count();
+
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();             
+
+                Paginacion paginacion = new Paginacion
+                {
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                ViewBag.Paginacion = paginacion;
+
+                return View(produccion_registros);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+        }
+
         // GET: ProduccionRegistros/CargarRespaldo
         public ActionResult CargarRespaldo()
         {
             if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REGISTRO))
             {
+
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
                 return View();
             }
             else
@@ -830,89 +885,97 @@ namespace Portal_2_0.Controllers
                     bool estructuraValida = false;
 
                     ////el archivo es válido
-                    //List<bom_en_sap> lista = UtilExcel.LeeBom(excelViewModel.PostedFile, ref estructuraValida);
+                    List<produccion_respaldo> lista = UtilExcel.LeeRespaldoBitacora(excelViewModel.PostedFile, ref estructuraValida);
 
 
-                    //if (!estructuraValida)
-                    //{
-                    //    msjError = "No cumple con la estructura válida.";
-                    //    throw new Exception(msjError);
-                    //}
-                    //else
-                    //{
-                    //    int actualizados = 0;
-                    //    int creados = 0;
-                    //    int error = 0;
-                    //    int eliminados = 0;
+                    if (!estructuraValida)
+                    {
+                        msjError = "No cumple con la estructura válida.";
+                        throw new Exception(msjError);
+                    }
+                    else
+                    {
+                        int actualizados = 0;
+                        int creados = 0;
+                        int error = 0;
+
+                        //obtiene el empleado que inicio sesión
+                        empleados emp = obtieneEmpleadoLogeado();
+
+                        List<produccion_respaldo> listAnterior = db.produccion_respaldo.ToList();
+
+                        //determina que elementos de la lista no se encuentran en la lista anterior
+                        List<produccion_respaldo> listDiferencias = lista.Except(listAnterior).ToList();
+
+                        //determina cuales ya existian
+                        int exitentes = lista.Intersect(listAnterior).Count();
+
+                        foreach (produccion_respaldo respaldo_item in listDiferencias)
+                        {
+                            try
+                            {
+                                //si hay valor en id empleado lo asigna
+                                if (emp.id != 0)
+                                    respaldo_item.empleado_id = emp.id;
+
+                                //obtiene el elemento de BD
+                                produccion_respaldo item = db.produccion_respaldo.FirstOrDefault(x => x.id == respaldo_item.id);
+
+                                //si existe actualiza
+                                if (item != null)
+                                {
+                                    db.Entry(item).CurrentValues.SetValues(respaldo_item);
+                                    db.SaveChanges();
+                                    actualizados++;
+                                }
+                                else
+                                {
+                                    //crea un nuevo registro
+                                    db.produccion_respaldo.Add(respaldo_item);
+                                    db.SaveChanges();
+                                    creados++;
+                                }
+
+                            }
+                            catch (Exception e)
+                            {
+                                error++;
+                            }
+
+                        }
+                        
+                        ////obtiene nuevamente la lista de BD
+                        //listAnterior = db.bom_en_sap.ToList();
+                        ////determina que elementos de la listAnterior no se encuentran en la lista Excel
+                        //listDiferencias = listAnterior.Except(lista).ToList();
+
+                        ////elima de BD aquellos que no se encuentren en el excel
+                        //foreach (bom_en_sap bom in listDiferencias)
+                        //{
+                        //    try
+                        //    {
+                        //        //obtiene el elemento de BD
+                        //        bom_en_sap item = db.bom_en_sap.FirstOrDefault(x => x.Material == bom.Material && x.Plnt == bom.Plnt && x.BOM == bom.BOM && x.AltBOM == bom.AltBOM && x.Item == bom.Item);
+
+                        //        //si existe elimina
+                        //        if (item != null)
+                        //        {
+                        //            db.Entry(item).State = EntityState.Deleted;
+                        //            db.SaveChanges();
+                        //            eliminados++;
+                        //        }
+
+                        //    }
+                        //    catch (Exception e)
+                        //    {
+                        //        error++;
+                        //    }
+                        //}
 
 
-                    //    List<bom_en_sap> listAnterior = db.bom_en_sap.ToList();
-
-                    //    //determina que elementos de la lista no se encuentran en la lista anterior
-                    //    List<bom_en_sap> listDiferencias = lista.Except(listAnterior).ToList();
-
-                    //    foreach (bom_en_sap bom in listDiferencias)
-                    //    {
-                    //        try
-                    //        {
-                    //            //obtiene el elemento de BD
-                    //            bom_en_sap item = db.bom_en_sap.FirstOrDefault(x => x.Material == bom.Material && x.Plnt == bom.Plnt && x.BOM == bom.BOM && x.AltBOM == bom.AltBOM && x.Item == bom.Item);
-
-                    //            //si existe actualiza
-                    //            if (item != null)
-                    //            {
-                    //                db.Entry(item).CurrentValues.SetValues(bom);
-                    //                db.SaveChanges();
-                    //                actualizados++;
-                    //            }
-                    //            else
-                    //            {
-                    //                //crea un nuevo registro
-                    //                db.bom_en_sap.Add(bom);
-                    //                db.SaveChanges();
-                    //                creados++;
-                    //            }
-
-                    //        }
-                    //        catch (Exception e)
-                    //        {
-                    //            error++;
-                    //        }
-
-                    //    }
-                    //    //obtiene nuevamente la lista de BD
-                    //    listAnterior = db.bom_en_sap.ToList();
-                    //    //determina que elementos de la listAnterior no se encuentran en la lista Excel
-                    //    listDiferencias = listAnterior.Except(lista).ToList();
-
-                    //    //elima de BD aquellos que no se encuentren en el excel
-                    //    foreach (bom_en_sap bom in listDiferencias)
-                    //    {
-                    //        try
-                    //        {
-                    //            //obtiene el elemento de BD
-                    //            bom_en_sap item = db.bom_en_sap.FirstOrDefault(x => x.Material == bom.Material && x.Plnt == bom.Plnt && x.BOM == bom.BOM && x.AltBOM == bom.AltBOM && x.Item == bom.Item);
-
-                    //            //si existe elimina
-                    //            if (item != null)
-                    //            {
-                    //                db.Entry(item).State = EntityState.Deleted;
-                    //                db.SaveChanges();
-                    //                eliminados++;
-                    //            }
-
-                    //        }
-                    //        catch (Exception e)
-                    //        {
-                    //            error++;
-                    //        }
-
-                    //    }
-
-
-                    //    TempData["Mensaje"] = new MensajesSweetAlert("Actualizados: " + actualizados + " -> Creados: " + creados + " -> Errores: " + error + " -> Eliminados: " + eliminados, TipoMensajesSweetAlerts.INFO);
-                    //    return RedirectToAction("index");
-                    //}
+                        TempData["Mensaje"] = new MensajesSweetAlert("Creados: " + creados + " -> Actualizados: " + actualizados + " -> Existentes: "+exitentes+"-> Errores: " + error , TipoMensajesSweetAlerts.INFO);
+                        return RedirectToAction("Respaldo");
+                    }
 
                 }
                 catch (Exception e)

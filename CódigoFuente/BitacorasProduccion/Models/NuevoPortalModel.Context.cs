@@ -28,7 +28,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<Area> Area { get; set; }
         public virtual DbSet<bom_en_sap> bom_en_sap { get; set; }
         public virtual DbSet<class_v3> class_v3 { get; set; }
-        public virtual DbSet<empleados> empleados { get; set; }
         public virtual DbSet<mm_v3> mm_v3 { get; set; }
         public virtual DbSet<plantas> plantas { get; set; }
         public virtual DbSet<produccion_datos_entrada> produccion_datos_entrada { get; set; }
@@ -51,5 +50,7 @@ namespace Portal_2_0.Models
         public virtual DbSet<PFA> PFA { get; set; }
         public virtual DbSet<PFA_Autorizador> PFA_Autorizador { get; set; }
         public virtual DbSet<view_historico_resultado> view_historico_resultado { get; set; }
+        public virtual DbSet<empleados> empleados { get; set; }
+        public virtual DbSet<produccion_respaldo> produccion_respaldo { get; set; }
     }
 }
