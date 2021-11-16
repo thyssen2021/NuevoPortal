@@ -93,6 +93,10 @@
                         <div class="row">
                             <div class="col-sm-12">
                                 <div class="card-box ">
+                                    @if (@ViewBag.TiempoAutorizado != null)
+                                    {
+                                        <span>@ViewBag.TiempoAutorizado</span>
+                                    }
                                     <dl class="row">
                                         <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_supervisor)</dt>
                                         <dd class="col-sm-10">@Model.produccion_supervisores.empleados.ConcatNombre</dd>
@@ -594,12 +598,20 @@
                     <label class="control-label col-md-12">
                         @Model.produccion_supervisores.empleados.ConcatNombre
                     </label>
+                    <!--TIEMPO PERMITIDO-->
+                    <label class="control-label col-md-3" for="tiempo">
+                        Tiempo Permitido (min):
+                    </label>
+                    <div class="col-md-9">
+                        <input type="number" id="tiempo" class="form-control col-md-12" style="text-align: left" value="5" min="1" max="300"  autocomplete="off">
+                        <span id="error_tiempo" class="text-danger" style="display:none">Ingrese un número válido entre 1 y 300</span>
+                    </div>
                     <!--PASSWORD-->
                     <label class="control-label col-md-3" for="password">
                         Contraseña:
                     </label>
                     <div class="col-md-9">
-                        <input  type="password" id="password" class="form-control col-md-12" style="text-align: left" value="" autocomplete="off">
+                        <input type="password" id="password" class="form-control col-md-12" style="text-align: left" value="" autocomplete="off">
                     </div>
                 </div>
             </div>

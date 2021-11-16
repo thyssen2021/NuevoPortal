@@ -42,7 +42,7 @@
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
-                        <br />
+                        <br />                      
                         @using (Html.BeginForm("Edit", "ProduccionRegistros", FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
                         {
                             @Html.AntiForgeryToken()
@@ -132,9 +132,7 @@
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
-
     @Scripts.Render(Url.Content("~/Scripts/Forms/ProduccionRegistrosEdit.js"))
-
    
 }
 

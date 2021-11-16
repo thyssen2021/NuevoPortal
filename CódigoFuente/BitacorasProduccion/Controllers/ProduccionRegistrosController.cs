@@ -263,7 +263,7 @@ namespace Portal_2_0.Controllers
                 }
 
                 empleados emp = obtieneEmpleadoLogeado();
-
+                            
                 ViewBag.sap_platina = ComboSelect.obtieneMaterial_BOM();
                 ViewBag.sap_rollo = ComboSelect.obtieneRollo_BOM();
                 ViewBag.id_supervisor = ComboSelect.obtieneSupervisoresPlanta(produccion.clave_planta.Value);
@@ -392,7 +392,6 @@ namespace Portal_2_0.Controllers
                 if (class_ == null)
                     class_ = new class_v3 { };
 
-                
                 ViewBag.MM = mm;
                 ViewBag.Class = class_;
                 return View(produccion);
@@ -1064,7 +1063,7 @@ namespace Portal_2_0.Controllers
         ///<return>
         ///retorna un JsonResult con el resultado
         ///        
-        public JsonResult VerificaPassword(int? idSupervisor, string password = "")
+        public JsonResult VerificaPassword(int? idSupervisor, double? tiempo, string password = "")
         {
             var list = new object[1];
 
@@ -1087,6 +1086,11 @@ namespace Portal_2_0.Controllers
             if (validado.Result)
             {
                 list[0] = new { Status = "OK", Message = "Contraseña Correcta" };
+
+                //guarda en variable de sesión el tiempo permitido
+                if(tiempo!=null && tiempo.HasValue)
+                Session["TiempoAutorizado"] = DateTime.Now.AddMinutes(tiempo.Value);
+
                 return Json(list, JsonRequestBehavior.AllowGet);
             }
             else {
@@ -1094,6 +1098,37 @@ namespace Portal_2_0.Controllers
                 return Json(list, JsonRequestBehavior.AllowGet);
             }           
            
+        }
+
+        ///<summary>
+        ///Verifica si tiene permiso para modificar
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con el resultado
+        ///        
+        public JsonResult VerificaTiempoPermitido()
+        {
+            var list = new object[1];
+
+            DateTime autorizacion = DateTime.Now.AddDays(-1);
+            if (Session["TiempoAutorizado"] != null)
+                autorizacion = Convert.ToDateTime(Session["TiempoAutorizado"]);
+
+            int estado = DateTime.Compare(autorizacion, DateTime.Now);
+
+            //si el tiempo de autorizacion es mayor al tiempo actual
+            if (estado>=1)
+            {
+                list[0] = new { Status = "OK", Message = "Está autorizado" };
+
+                return Json(list, JsonRequestBehavior.AllowGet);
+            }
+            else
+            {
+                list[0] = new { Status = "FALSE", Message = "No está autorizado" };
+                return Json(list, JsonRequestBehavior.AllowGet);
+            }
+
         }
     }
 }

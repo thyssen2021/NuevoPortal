@@ -65,6 +65,24 @@ $(document).ready(function () {
         }
     });
 
+    //agrega el evento para comprobar si es un numero valido el tiempo permitido
+    $('#tiempo').on('input', function (e) {
+
+        let tiempo = $('#tiempo').val();
+
+        //verifica si es un numero
+        if (isNaN(tiempo)) {
+            $('#error_tiempo').show();
+            $('#aceptar_pass').prop("disabled", true)
+        } else if (tiempo >= 1 && tiempo <= 300) {
+            $('#error_tiempo').hide();
+            $('#aceptar_pass').prop("disabled", false)
+        } else {
+            $('#error_tiempo').show();
+            $('#aceptar_pass').prop("disabled", true)
+        }
+    });
+
     //calcula los datos la primera vez que carga la página
     calculaDatos();
 });
@@ -94,8 +112,16 @@ var Toast = Swal.mixin({
 
 //muestra el modal de captura de peso
 function mostrarModalPass() {
-    $('#modalPass').modal('show');
-    $('#password').val('');
+    let autorizado = VerificaTiempo();
+    if (autorizado) {
+        mostrarModal();
+    }
+    else {
+        $('#modalPass').modal('show');
+        $('#password').val('');
+    }
+
+    
 }
 
 
@@ -124,12 +150,12 @@ function muestraModalSocket() {
 //verifica la contraseña ingresada
 function verificarContraseña(idSupervisor) {
     let passSupervisor = $('#password').val();
-
+    let tiempo = $('#tiempo').val();
     //verifica el si la contraseña es correcta
     $.ajax({
         type: 'POST',
         url: '/ProduccionRegistros/VerificaPassword',
-        data: { idSupervisor: idSupervisor, password: passSupervisor },
+        data: { idSupervisor: idSupervisor, tiempo: tiempo, password: passSupervisor },
         success: function (data) {
             console.log(data);
             if (data[0].Status == "OK") {
@@ -148,6 +174,30 @@ function verificarContraseña(idSupervisor) {
     });    
 
     let pass = $('#password').val('');
+}
+
+//verifica si está dentro del tiempo autorizado
+function VerificaTiempo() {
+
+    let valor = false;
+    //verifica el si la contraseña es correcta
+    $.ajax({
+        type: 'POST',
+        url: '/ProduccionRegistros/VerificaTiempoPermitido',
+        data: {  },
+        success: function (data) {
+            console.log(data);
+            if (data[0].Status == "OK") {
+                valor = true;
+            } else {
+                valor = false;
+            }
+        },
+        async: false
+    });
+
+    return valor;
+
 }
 
 //muestra el modal de captura de peso
