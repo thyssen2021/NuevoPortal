@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Web;
@@ -43,6 +44,7 @@ namespace Portal_2_0.Controllers
                 ViewBag.Details = true;
                 ViewBag.SendToAuthorizer = true;
                 ViewBag.AuthorizarRechazar = false;
+                ViewBag.Create = true;
                 return View("ListadoSolicitudes", pFA.ToList());
             }
             else
@@ -77,6 +79,7 @@ namespace Portal_2_0.Controllers
                 ViewBag.Details = true;
                 ViewBag.SendToAuthorizer = false;
                 ViewBag.AuthorizarRechazar = false;
+                ViewBag.Create = true;
                 return View("ListadoSolicitudes", pFA.ToList());
             }
             else
@@ -111,6 +114,7 @@ namespace Portal_2_0.Controllers
                 ViewBag.Details = true;
                 ViewBag.SendToAuthorizer = false;
                 ViewBag.AuthorizarRechazar = false;
+                ViewBag.Create = true;
                 return View("ListadoSolicitudes",pFA.ToList());
             }
             else
@@ -140,10 +144,11 @@ namespace Portal_2_0.Controllers
                 //configura los parametros de la vista
                 ViewBag.Title = "Listado Solicitudes Rechazadas";
                 ViewBag.SegundoNivel = "PFA_registro";
-                ViewBag.Edit = false;
+                ViewBag.Edit = true;
                 ViewBag.Details = true;
-                ViewBag.SendToAuthorizer = false;
+                ViewBag.SendToAuthorizer = true;
                 ViewBag.AuthorizarRechazar = false;
+                ViewBag.Create = true;
                 return View("ListadoSolicitudes", pFA.ToList());
             }
             else
@@ -167,9 +172,10 @@ namespace Portal_2_0.Controllers
                 empleados empleado = obtieneEmpleadoLogeado();
 
                 var pFA = db.PFA.Include(p => p.empleados).Include(p => p.empleados1).Include(p => p.PFA_Recovered_cost).Include(p => p.PFA_Border_port).Include(p => p.PFA_Department).Include(p => p.PFA_Destination_plant).Include(p => p.PFA_Reason).Include(p => p.PFA_Responsible_cost).Include(p => p.PFA_Type_shipment).Include(p => p.PFA_Volume)
-                    .Where(x => x.estatus == PFA_Status.ENVIADO && x.id_PFA_autorizador == empleado.id)
-                    .OrderByDescending(x => x.date_request);
-                
+                     .Where(x => x.estatus == PFA_Status.ENVIADO && x.id_PFA_autorizador == empleado.id)
+                     .OrderByDescending(x => x.date_request);
+
+
                 //configura los parametros de la vista
                 ViewBag.Title = "Listado Solicitudes Pendientes";
                 ViewBag.SegundoNivel = "PFA_autorizar";
@@ -284,12 +290,99 @@ namespace Portal_2_0.Controllers
             }
         }
 
+        //Generación de Reportes
+        // GET: PremiumFreightAproval
+        public ActionResult ReportesPFA(int? id_PFA_user, int? id_PFA_reason, int? id_PFA_responsible_cost, string fecha_inicial, string fecha_final, int pagina = 1)
+        {
+            if (TieneRol(TipoRoles.PFA_VISUALIZACION))
+            {
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
+                CultureInfo provider = CultureInfo.InvariantCulture;
+
+                DateTime dateInicial = new DateTime(2000, 1, 1);  //fecha inicial por defecto
+                DateTime dateFinal = DateTime.Now;          //fecha final por defecto
+
+                try
+                {
+                    if (!String.IsNullOrEmpty(fecha_inicial))
+                        dateInicial = Convert.ToDateTime(fecha_inicial);
+                    if (!String.IsNullOrEmpty(fecha_final))
+                    {
+                        dateFinal = Convert.ToDateTime(fecha_final);
+                        dateFinal = dateFinal.AddHours(23).AddMinutes(59).AddSeconds(59);
+                    }
+                }
+                catch (FormatException e)
+                {
+                    Console.WriteLine("Error de Formato: " + e.Message);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error al convertir: " + ex.Message);
+                }
+
+            
+                var cantidadRegistrosPorPagina = 20; // parámetro
+
+                var listado = db.PFA.Include(p => p.empleados).Include(p => p.empleados1).Include(p => p.PFA_Recovered_cost).Include(p => p.PFA_Border_port).Include(p => p.PFA_Department).Include(p => p.PFA_Destination_plant).Include(p => p.PFA_Reason).Include(p => p.PFA_Responsible_cost).Include(p => p.PFA_Type_shipment).Include(p => p.PFA_Volume)
+                   .Where(x =>
+                   (id_PFA_user == null || x.id_solicitante==id_PFA_user)
+                   && (id_PFA_reason == null || x.id_PFA_reason == id_PFA_reason)
+                   && (id_PFA_responsible_cost == null || x.id_PFA_responsible_cost == id_PFA_responsible_cost)
+                   && x.date_request >= dateInicial && x.date_request <= dateFinal                   
+                   )
+                   .OrderBy(x => x.id)
+                   .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                   .Take(cantidadRegistrosPorPagina).ToList();
+
+                var totalDeRegistros = db.PFA.Include(p => p.empleados).Include(p => p.empleados1).Include(p => p.PFA_Recovered_cost).Include(p => p.PFA_Border_port).Include(p => p.PFA_Department).Include(p => p.PFA_Destination_plant).Include(p => p.PFA_Reason).Include(p => p.PFA_Responsible_cost).Include(p => p.PFA_Type_shipment).Include(p => p.PFA_Volume)
+                   .Where(x =>
+                    (id_PFA_user == null || x.id_solicitante == id_PFA_user)
+                   && (id_PFA_reason == null || x.id_PFA_reason == id_PFA_reason)
+                   && (id_PFA_responsible_cost == null || x.id_PFA_responsible_cost == id_PFA_responsible_cost)
+                   && x.date_request >= dateInicial && x.date_request <= dateFinal
+                   ).Count();
+
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                routeValues["id_PFA_user"] = id_PFA_user;
+                routeValues["id_PFA_reason"] = id_PFA_reason;
+                routeValues["id_PFA_responsible_cost"] = id_PFA_responsible_cost;
+                routeValues["fecha_inicial"] = fecha_inicial;
+                routeValues["fecha_final"] = fecha_final;
+
+                Paginacion paginacion = new Paginacion
+                {
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                //////////////////////////////////////////////////
+                List<int> idsCapturistas = db.PFA.Select(x => x.id_solicitante).Distinct().ToList();
+
+                ViewBag.id_PFA_user = AddFirstItem(new SelectList(db.empleados.Where(x => idsCapturistas.Contains(x.id)), "id", "ConcatNombre"));               
+                ViewBag.id_PFA_reason = AddFirstItem(new SelectList(db.PFA_Reason, "id", "descripcion"));
+                ViewBag.id_PFA_responsible_cost = AddFirstItem(new SelectList(db.PFA_Responsible_cost, "id", "descripcion"));
+                ViewBag.Paginacion = paginacion;
+                return View(listado);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+        }
 
         // GET: PremiumFreightAproval/Details/5
         public ActionResult Details(int? id)
         {
 
-            if (TieneRol(TipoRoles.PFA_REGISTRO))
+            if (TieneRol(TipoRoles.PFA_REGISTRO) || TieneRol(TipoRoles.PFA_AUTORIZACION))
             {
 
                 if (id == null)
@@ -360,6 +453,9 @@ namespace Portal_2_0.Controllers
 
                 db.PFA.Add(pFA);
                 db.SaveChanges();
+
+                if (pFA.estatus == PFA_Status.RECHAZADO)
+                    return RedirectToAction("RechazadasCapturista");
 
                 //agrega el mensaje para sweetalert
                 TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);
@@ -454,6 +550,10 @@ namespace Portal_2_0.Controllers
 
                 //agrega el mensaje para sweetalert
                 TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
+
+                if (pFA.estatus == PFA_Status.RECHAZADO)
+                    return RedirectToAction("RechazadasCapturista");
+
                 return RedirectToAction("Index");
             }
             //obtiene el usuario logeado
@@ -520,6 +620,16 @@ namespace Portal_2_0.Controllers
             try
             {
                 db.SaveChanges();
+                //envia correo electronico
+                EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+
+                List<String> correos = new List<string>(); //correos TO
+                correos.Add("alfredo.xochitemol@lagermex.com.mx");
+
+                //if (!String.IsNullOrEmpty(pfa.empleados1.correo))
+                //    correos.Add(pfa.empleados1.correo);
+
+                envioCorreo.SendEmailAsync(correos, "Su solicitud de PFA ha sido autorizada.", envioCorreo.getBodyPFAAutorizado(pfa));
             }
             catch (System.Data.Entity.Validation.DbEntityValidationException ex)
             {
@@ -544,6 +654,65 @@ namespace Portal_2_0.Controllers
                 return RedirectToAction("Index");
             }
             TempData["Mensaje"] = new MensajesSweetAlert("La solicitud ha sido aprobada.", TipoMensajesSweetAlerts.SUCCESS);
+            return RedirectToAction("AutorizadorPendientes");
+        }
+
+        // POST: PremiumFreightAproval/Rechazar/5
+        [HttpPost, ActionName("Rechazar")]
+        [ValidateAntiForgeryToken]
+        public ActionResult RechazarConfirmed(FormCollection collection)
+        {
+
+            int id = 0;
+            if (!String.IsNullOrEmpty(collection["id"]))
+                Int32.TryParse(collection["id"], out id);
+
+            String razonRechazo = collection["razon_rechazo"];
+
+
+            PFA pfa = db.PFA.Find(id);
+            pfa.estatus = PFA_Status.RECHAZADO;
+            pfa.razon_rechazo = razonRechazo;
+            
+            db.Entry(pfa).State = EntityState.Modified;
+            try
+            {
+                db.SaveChanges();
+
+                //envia correo electronico
+                EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+
+                List<String> correos = new List<string>(); //correos TO
+                correos.Add("alfredo.xochitemol@lagermex.com.mx");
+
+                //if (!String.IsNullOrEmpty(pfa.empleados1.correo))
+                //    correos.Add(pfa.empleados1.correo);
+
+                envioCorreo.SendEmailAsync(correos, "Su solicitud de PFA ha sido Rechazada", envioCorreo.getBodyPFARechazado(pfa));
+            }
+            catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+            {
+                // Retrieve the error messages as a list of strings.
+                var errorMessages = ex.EntityValidationErrors
+                        .SelectMany(x => x.ValidationErrors)
+                        .Select(x => x.ErrorMessage);
+
+                // Join the list to a single string.
+                var fullErrorMessage = string.Join("; ", errorMessages);
+
+                // Combine the original exception message with the new one.
+                var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
+
+                TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
+                return RedirectToAction("Index");
+
+            }
+            catch (Exception e)
+            {
+                TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
+                return RedirectToAction("Index");
+            }
+            TempData["Mensaje"] = new MensajesSweetAlert("La solicitud ha sido rechazada correctamente.", TipoMensajesSweetAlerts.SUCCESS);
             return RedirectToAction("AutorizadorPendientes");
         }
 
@@ -577,12 +746,24 @@ namespace Portal_2_0.Controllers
         public ActionResult SendConfirmed(int id)
         {
             PFA pfa = db.PFA.Find(id);
+            string estatusAnterior = pfa.estatus;
             pfa.estatus = PFA_Status.ENVIADO;
 
             db.Entry(pfa).State = EntityState.Modified;
             try
             {
                 db.SaveChanges();
+
+                //envia correo electronico
+                EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+
+                List<String> correos = new List<string>(); //correos TO
+                correos.Add("alfredo.xochitemol@lagermex.com.mx");
+
+                //if (!String.IsNullOrEmpty(pfa.empleados.correo))
+                //    correos.Add(pfa.empleados.correo); //agrega correo de autorizador
+
+                envioCorreo.SendEmailAsync(correos, "Ha recibido una solicitud PFA, para su aprobación.", envioCorreo.getBodyPFAEnviado(pfa));
             }
             catch (System.Data.Entity.Validation.DbEntityValidationException ex)
             {
@@ -606,7 +787,12 @@ namespace Portal_2_0.Controllers
                 TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
                 return RedirectToAction("Index");
             }
+
             TempData["Mensaje"] = new MensajesSweetAlert("La solicitud ha sido enviada", TipoMensajesSweetAlerts.SUCCESS);
+
+            if (estatusAnterior == PFA_Status.RECHAZADO)
+                return RedirectToAction("RechazadasCapturista");
+
             return RedirectToAction("Index");
         }
 

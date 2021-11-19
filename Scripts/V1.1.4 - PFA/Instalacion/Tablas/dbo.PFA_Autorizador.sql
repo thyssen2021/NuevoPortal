@@ -44,7 +44,7 @@ GO
 
 SET IDENTITY_INSERT [PFA_Autorizador] ON 
 --Sólo para desarrollo
-INSERT [PFA_Autorizador] ([id],[id_empleado],  [activo]) VALUES (1,438, 1)
+--INSERT [PFA_Autorizador] ([id],[id_empleado],  [activo]) VALUES (1,438, 1)
 
 SET IDENTITY_INSERT [PFA_Autorizador] OFF
 GO

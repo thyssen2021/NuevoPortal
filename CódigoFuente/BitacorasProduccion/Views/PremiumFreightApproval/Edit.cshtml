@@ -63,7 +63,6 @@
                         {
                             @Html.AntiForgeryToken()
 
-
                             if (!Html.ViewData.ModelState.IsValid)
                             {
                                 <div class="alert alert-danger" role="alert">
@@ -77,20 +76,34 @@
                             @Html.HiddenFor(model => model.activo)
                             @Html.HiddenFor(model => model.date_request)
                             @Html.HiddenFor(model => model.estatus)
+                            @Html.HiddenFor(model => model.razon_rechazo)
 
                             <div class="form-group row">
-
+                                @if (Model.estatus == Bitacoras.Util.PFA_Status.RECHAZADO && !String.IsNullOrEmpty(Model.razon_rechazo))
+                                {
+                                    <div class="alert alert-danger col-md-12" role="alert">
+                                        <i class="fa fa-exclamation-triangle" style="color:yellow"></i> @Model.razon_rechazo
+                                    </div>
+                                }
                             </div>
+                           
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.id_solicitante, new { @class = "control-label col-md-1" })
-                                <input type="text" class="form-control col-md-5" value="@solicitante.nombre @solicitante.apellido1 @solicitante.apellido2" readonly>
+                                <input type="text" class="form-control col-md-4" value="@solicitante.ConcatNombre" readonly>
                                 @Html.ValidationMessageFor(model => model.id_solicitante, "", new { @class = "text-danger" })
                                 <!--Request date-->
-                                <label class="control-label col-md-4 float-right">
+                                <label class="control-label col-md-2 float-right">
                                     Date of Request
                                 </label>
                                 <div class="col-md-2">
-                                    <input type="text" class="form-control col-md-12" style="text-align: right;" value="@DateTime.Now.ToString("yyyy-MM-dd")" readonly>
+                                    <input type="text" class="form-control col-md-12" style="text-align: right;" value="@Model.date_request.ToString("yyyy-MM-dd")" readonly>
+                                </div>
+                                <!--ID Solicitud-->
+                                <label class="control-label col-md-2 float-right">
+                                    Number of PFA
+                                </label>
+                                <div class="col-md-1">
+                                    <input type="text" class="form-control col-md-12" style="text-align: right;" value="@Model.id" readonly>
                                 </div>
                             </div>
                             <div class="ln_solid"></div>
@@ -195,7 +208,7 @@
                                 </div>
 
                                 <label class="control-label col-md-2">
-                                    Total Coast to Recover (usd)
+                                    Total Cost to Recover (usd)
                                 </label>
                                 <div class="col-md-2">
                                     <input type="text" id="total_coast_to_recover" name="total_coast_to_recover" class="form-control col-md-12" style="text-align: right;" value="" readonly>

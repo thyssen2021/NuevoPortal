@@ -142,7 +142,7 @@
           <Property Name="date_request" Type="datetime" Nullable="false" />
           <Property Name="sap_part_number" Type="varchar" MaxLength="15" Nullable="false" />
           <Property Name="customer_part_number" Type="varchar" MaxLength="15" Nullable="false" />
-          <Property Name="volume" Type="int" Nullable="false" />
+          <Property Name="volume" Type="decimal" Precision="11" Scale="2" Nullable="false" />
           <Property Name="mill" Type="varchar" MaxLength="35" Nullable="false" />
           <Property Name="customer" Type="varchar" MaxLength="40" Nullable="false" />
           <Property Name="total_cost" Type="decimal" Precision="11" Scale="2" Nullable="false" />
@@ -1450,8 +1450,47 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <EntitySet Name="PFA_Responsible_cost" EntityType="Portal_2_0Model.PFA_Responsible_cost" />
           <EntitySet Name="PFA_Type_shipment" EntityType="Portal_2_0Model.PFA_Type_shipment" />
           <EntitySet Name="PFA_Volume" EntityType="Portal_2_0Model.PFA_Volume" />
-          <EntitySet Name="PFA" EntityType="Portal_2_0Model.PFA" />
           <EntitySet Name="PFA_Autorizador" EntityType="Portal_2_0Model.PFA_Autorizador" />
+          <EntitySet Name="view_historico_resultado" EntityType="Portal_2_0Model.view_historico_resultado" />
+          <EntitySet Name="empleados" EntityType="Portal_2_0Model.empleados" />
+          <AssociationSet Name="FK_empleados_planta_clave" Association="Portal_2_0Model.FK_empleados_planta_clave">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="empleados" EntitySet="empleados" />
+          </AssociationSet>
+          <AssociationSet Name="FK_empleados_puesto" Association="Portal_2_0Model.FK_empleados_puesto">
+            <End Role="puesto" EntitySet="puesto" />
+            <End Role="empleados" EntitySet="empleados" />
+          </AssociationSet>
+          <AssociationSet Name="FK_notificaciones_correo_empleado" Association="Portal_2_0Model.FK_notificaciones_correo_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="notificaciones_correo" EntitySet="notificaciones_correo" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PFA_Autorizador_empleado" Association="Portal_2_0Model.FK_PFA_Autorizador_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="PFA_Autorizador" EntitySet="PFA_Autorizador" />
+          </AssociationSet>
+          <AssociationSet Name="FK_produccion_operadores_id_empleado" Association="Portal_2_0Model.FK_produccion_operadores_id_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="produccion_operadores" EntitySet="produccion_operadores" />
+          </AssociationSet>
+          <AssociationSet Name="FK_produccion_supervisores_id_empleado" Association="Portal_2_0Model.FK_produccion_supervisores_id_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="produccion_supervisores" EntitySet="produccion_supervisores" />
+          </AssociationSet>
+          <EntitySet Name="produccion_respaldo" EntityType="Portal_2_0Model.produccion_respaldo" />
+          <AssociationSet Name="FK_produccion_respaldo_id_empleado" Association="Portal_2_0Model.FK_produccion_respaldo_id_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="produccion_respaldo" EntitySet="produccion_respaldo" />
+          </AssociationSet>
+          <EntitySet Name="PFA" EntityType="Portal_2_0Model.PFA" />
+          <AssociationSet Name="FK_PFA_autorizador" Association="Portal_2_0Model.FK_PFA_autorizador">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="PFA" EntitySet="PFA" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PFA_solicitante" Association="Portal_2_0Model.FK_PFA_solicitante">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="PFA" EntitySet="PFA" />
+          </AssociationSet>
           <AssociationSet Name="FK_id_PFA_recovered_cost" Association="Portal_2_0Model.FK_id_PFA_recovered_cost">
             <End Role="PFA_Recovered_cost" EntitySet="PFA_Recovered_cost" />
             <End Role="PFA" EntitySet="PFA" />
@@ -1483,45 +1522,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <AssociationSet Name="FK_PFA_volume" Association="Portal_2_0Model.FK_PFA_volume">
             <End Role="PFA_Volume" EntitySet="PFA_Volume" />
             <End Role="PFA" EntitySet="PFA" />
-          </AssociationSet>
-          <EntitySet Name="view_historico_resultado" EntityType="Portal_2_0Model.view_historico_resultado" />
-          <EntitySet Name="empleados" EntityType="Portal_2_0Model.empleados" />
-          <AssociationSet Name="FK_empleados_planta_clave" Association="Portal_2_0Model.FK_empleados_planta_clave">
-            <End Role="plantas" EntitySet="plantas" />
-            <End Role="empleados" EntitySet="empleados" />
-          </AssociationSet>
-          <AssociationSet Name="FK_empleados_puesto" Association="Portal_2_0Model.FK_empleados_puesto">
-            <End Role="puesto" EntitySet="puesto" />
-            <End Role="empleados" EntitySet="empleados" />
-          </AssociationSet>
-          <AssociationSet Name="FK_notificaciones_correo_empleado" Association="Portal_2_0Model.FK_notificaciones_correo_empleado">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="notificaciones_correo" EntitySet="notificaciones_correo" />
-          </AssociationSet>
-          <AssociationSet Name="FK_PFA_autorizador" Association="Portal_2_0Model.FK_PFA_autorizador">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="PFA" EntitySet="PFA" />
-          </AssociationSet>
-          <AssociationSet Name="FK_PFA_Autorizador_empleado" Association="Portal_2_0Model.FK_PFA_Autorizador_empleado">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="PFA_Autorizador" EntitySet="PFA_Autorizador" />
-          </AssociationSet>
-          <AssociationSet Name="FK_PFA_solicitante" Association="Portal_2_0Model.FK_PFA_solicitante">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="PFA" EntitySet="PFA" />
-          </AssociationSet>
-          <AssociationSet Name="FK_produccion_operadores_id_empleado" Association="Portal_2_0Model.FK_produccion_operadores_id_empleado">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="produccion_operadores" EntitySet="produccion_operadores" />
-          </AssociationSet>
-          <AssociationSet Name="FK_produccion_supervisores_id_empleado" Association="Portal_2_0Model.FK_produccion_supervisores_id_empleado">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="produccion_supervisores" EntitySet="produccion_supervisores" />
-          </AssociationSet>
-          <EntitySet Name="produccion_respaldo" EntityType="Portal_2_0Model.produccion_respaldo" />
-          <AssociationSet Name="FK_produccion_respaldo_id_empleado" Association="Portal_2_0Model.FK_produccion_respaldo_id_empleado">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="produccion_respaldo" EntitySet="produccion_respaldo" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="notificaciones_correo">
@@ -1606,6 +1606,240 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <Property Name="activo" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="PFA" Relationship="Portal_2_0Model.FK_PFA_volume" FromRole="PFA_Volume" ToRole="PFA" />
         </EntityType>
+        <EntityType Name="PFA_Autorizador">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_empleado" Type="Int32" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_PFA_Autorizador_empleado" FromRole="PFA_Autorizador" ToRole="empleados" />
+        </EntityType>
+        <EntityType Name="view_historico_resultado">
+          <Key>
+            <PropertyRef Name="id" />
+            <PropertyRef Name="Planta" />
+          </Key>
+          <Property Name="id" Type="Int64" Nullable="false" />
+          <Property Name="Operador" Type="String" MaxLength="767" FixedLength="false" Unicode="true" />
+          <Property Name="Supervisor" Type="String" MaxLength="767" FixedLength="false" Unicode="true" />
+          <Property Name="SAP_Platina" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Tipo_de_Material" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Número_de_Parte__de_cliente" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="SAP_Rollo" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Material" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Fecha" Type="DateTime" Precision="3" />
+          <Property Name="Turno" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Hora" Type="DateTime" Precision="3" />
+          <Property Name="Orden_SAP" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="Orden_en_SAP_2" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="Pieza_por_Golpe" Type="Double" />
+          <Property Name="N__de_Rollo" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Lote_de_rollo" Type="String" MaxLength="256" FixedLength="false" Unicode="false" />
+          <Property Name="Peso_Etiqueta__Kg_" Type="Double" />
+          <Property Name="Peso_de_regreso_de_rollo_Real" Type="Double" />
+          <Property Name="Peso_de_rollo_usado" Type="Double" />
+          <Property Name="Peso_Báscula_Kgs" Type="Double" />
+          <Property Name="Piezas_por_paquete" Type="Double" />
+          <Property Name="Total_de_piezas" Type="Double" />
+          <Property Name="Peso_de_rollo_consumido" Type="Double" />
+          <Property Name="Numero_de_golpes" Type="Double" />
+          <Property Name="Kg_restante_de_rollo" Type="Double" />
+          <Property Name="Peso_despunte_kgs_" Type="Double" />
+          <Property Name="Peso_cola_Kgs_" Type="Double" />
+          <Property Name="Porcentaje_de_puntas_y_colas" Type="Double" />
+          <Property Name="Total_de_piezas_de_Ajustes" Type="Double" />
+          <Property Name="Peso_Bruto_Kgs" Type="Double" />
+          <Property Name="Peso_Real_Pieza_Bruto" Type="Double" />
+          <Property Name="Peso_Real_Pieza_Neto" Type="Double" />
+          <Property Name="Scrap_Natural" Type="Double" />
+          <Property Name="Peso_neto_SAP" Type="Double" />
+          <Property Name="Peso_Bruto_SAP" Type="Double" />
+          <Property Name="Balance_de_Scrap" Type="Double" />
+          <Property Name="Linea" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Planta" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Anio" Type="Int32" />
+          <Property Name="Column40" Type="Double" />
+          <Property Name="Ordenes_por_pieza" Type="Double" />
+          <Property Name="Peso_de_rollo_usado_real__Kg" Type="Double" />
+          <Property Name="Peso_bruto_Total_piezas_Kg" Type="Double" />
+          <Property Name="Peso_NetoTotal_piezas_Kg" Type="Double" />
+          <Property Name="Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg" Type="Double" />
+          <Property Name="Peso_Neto_total_piezas_de_ajuste_Kgs" Type="Double" />
+          <Property Name="Peso_puntas_y_colas_reales_Kg" Type="Double" />
+          <Property Name="Balance_de_Scrap_Real" Type="Double" />
+        </EntityType>
+        <EntityType Name="empleados">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="nueva_fecha_nacimiento" Type="DateTime" Precision="0" />
+          <Property Name="planta_clave" Type="Int32" />
+          <Property Name="clave" Type="Int32" />
+          <Property Name="activo" Type="Boolean" />
+          <Property Name="numeroEmpleado" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="nombre" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="apellido1" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="apellido2" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="nacimientoFecha" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="correo" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="telefono" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="extension" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="celular" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="nivel" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="puesto" Type="Int32" />
+          <Property Name="compania" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="ingresoFecha" Type="DateTime" Precision="0" />
+          <Property Name="bajaFecha" Type="DateTime" Precision="0" />
+          <Property Name="C8ID" Type="String" MaxLength="8" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_empleados_planta_clave" FromRole="empleados" ToRole="plantas" />
+          <NavigationProperty Name="puesto1" Relationship="Portal_2_0Model.FK_empleados_puesto" FromRole="empleados" ToRole="puesto" />
+          <NavigationProperty Name="notificaciones_correo" Relationship="Portal_2_0Model.FK_notificaciones_correo_empleado" FromRole="empleados" ToRole="notificaciones_correo" />
+          <NavigationProperty Name="PFA_Autorizador" Relationship="Portal_2_0Model.FK_PFA_Autorizador_empleado" FromRole="empleados" ToRole="PFA_Autorizador" />
+          <NavigationProperty Name="produccion_operadores" Relationship="Portal_2_0Model.FK_produccion_operadores_id_empleado" FromRole="empleados" ToRole="produccion_operadores" />
+          <NavigationProperty Name="produccion_supervisores" Relationship="Portal_2_0Model.FK_produccion_supervisores_id_empleado" FromRole="empleados" ToRole="produccion_supervisores" />
+          <NavigationProperty Name="produccion_respaldo" Relationship="Portal_2_0Model.FK_produccion_respaldo_id_empleado" FromRole="empleados" ToRole="produccion_respaldo" />
+          <NavigationProperty Name="PFA" Relationship="Portal_2_0Model.FK_PFA_autorizador" FromRole="empleados" ToRole="PFA" />
+          <NavigationProperty Name="PFA1" Relationship="Portal_2_0Model.FK_PFA_solicitante" FromRole="empleados" ToRole="PFA" />
+          </EntityType>
+        <Association Name="FK_empleados_planta_clave">
+          <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="empleados">
+              <PropertyRef Name="planta_clave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_empleados_puesto">
+          <End Type="Portal_2_0Model.puesto" Role="puesto" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="puesto">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="empleados">
+              <PropertyRef Name="puesto" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_notificaciones_correo_empleado">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.notificaciones_correo" Role="notificaciones_correo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="notificaciones_correo">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PFA_Autorizador_empleado">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.PFA_Autorizador" Role="PFA_Autorizador" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PFA_Autorizador">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_produccion_operadores_id_empleado">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.produccion_operadores" Role="produccion_operadores" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="produccion_operadores">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_produccion_supervisores_id_empleado">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.produccion_supervisores" Role="produccion_supervisores" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="produccion_supervisores">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="produccion_respaldo">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="empleado_id" Type="Int32" />
+          <Property Name="fecha_carga" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="planta" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="linea" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="operador" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="supervisor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="sap_platina" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="tipo_material" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="numero_parte_cliente" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
+          <Property Name="sap_rollo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="material" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="fecha" Type="DateTime" Precision="3" />
+          <Property Name="turno" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="hora" Type="DateTime" Precision="3" />
+          <Property Name="orden_sap" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="orden_sap_2" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="pieza_por_golpe" Type="Double" />
+          <Property Name="numero_rollo" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="lote_rollo" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="peso_etiqueta" Type="Double" />
+          <Property Name="peso_regreso_rollo_real" Type="Double" />
+          <Property Name="peso_rollo_usado" Type="Double" />
+          <Property Name="peso_bascula_kgs" Type="Double" />
+          <Property Name="piezas_por_paquete" Type="Double" />
+          <Property Name="total_piezas" Type="Double" />
+          <Property Name="peso_rollo_consumido" Type="Double" />
+          <Property Name="numero_golpes" Type="Double" />
+          <Property Name="peso_despunte_kgs" Type="Double" />
+          <Property Name="peso_cola_kgs" Type="Double" />
+          <Property Name="porcentaje_punta_y_colas" Type="Double" />
+          <Property Name="total_piezas_ajuste" Type="Double" />
+          <Property Name="peso_bruto_kgs" Type="Double" />
+          <Property Name="peso_real_pieza_bruto" Type="Double" />
+          <Property Name="peso_real_pieza_neto" Type="Double" />
+          <Property Name="scrap_natural" Type="Double" />
+          <Property Name="peso_neto_sap" Type="Double" />
+          <Property Name="peso_bruto_sap" Type="Double" />
+          <Property Name="balance_scrap" Type="Double" />
+          <Property Name="ordenes_por_pieza" Type="Double" />
+          <Property Name="peso_rollo_usado_real_kgs" Type="Double" />
+          <Property Name="peso_bruto_total_piezas_kgs" Type="Double" />
+          <Property Name="peso_neto_total_piezas_kgs" Type="Double" />
+          <Property Name="scrap_ingenieria_buenas_mas_ajuste" Type="Double" />
+          <Property Name="peso_neto_total_piezas_ajuste" Type="Double" />
+          <Property Name="peso_punta_y_colas_reales" Type="Double" />
+          <Property Name="balance_scrap_real" Type="Double" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_produccion_respaldo_id_empleado" FromRole="produccion_respaldo" ToRole="empleados" />
+        </EntityType>
+        <Association Name="FK_produccion_respaldo_id_empleado">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.produccion_respaldo" Role="produccion_respaldo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="produccion_respaldo">
+              <PropertyRef Name="empleado_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityType Name="PFA">
           <Key>
             <PropertyRef Name="id" />
@@ -1624,7 +1858,7 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <Property Name="date_request" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="sap_part_number" Type="String" Nullable="false" MaxLength="15" FixedLength="false" Unicode="false" />
           <Property Name="customer_part_number" Type="String" Nullable="false" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="volume" Type="Int32" Nullable="false" />
+          <Property Name="volume" Type="Decimal" Nullable="false" Precision="11" Scale="2" />
           <Property Name="mill" Type="String" Nullable="false" MaxLength="35" FixedLength="false" Unicode="false" />
           <Property Name="customer" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
           <Property Name="total_cost" Type="Decimal" Nullable="false" Precision="11" Scale="2" />
@@ -1635,6 +1869,8 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <Property Name="estatus" Type="String" Nullable="false" MaxLength="12" FixedLength="false" Unicode="false" />
           <Property Name="fecha_aprobacion" Type="DateTime" Precision="3" />
           <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_PFA_autorizador" FromRole="PFA" ToRole="empleados" />
+          <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_PFA_solicitante" FromRole="PFA" ToRole="empleados" />
           <NavigationProperty Name="PFA_Recovered_cost" Relationship="Portal_2_0Model.FK_id_PFA_recovered_cost" FromRole="PFA" ToRole="PFA_Recovered_cost" />
           <NavigationProperty Name="PFA_Border_port" Relationship="Portal_2_0Model.FK_PFA_border_port" FromRole="PFA" ToRole="PFA_Border_port" />
           <NavigationProperty Name="PFA_Department" Relationship="Portal_2_0Model.FK_PFA_Department" FromRole="PFA" ToRole="PFA_Department" />
@@ -1643,18 +1879,31 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <NavigationProperty Name="PFA_Responsible_cost" Relationship="Portal_2_0Model.FK_PFA_responsible_cost" FromRole="PFA" ToRole="PFA_Responsible_cost" />
           <NavigationProperty Name="PFA_Type_shipment" Relationship="Portal_2_0Model.FK_PFA_type_shipment" FromRole="PFA" ToRole="PFA_Type_shipment" />
           <NavigationProperty Name="PFA_Volume" Relationship="Portal_2_0Model.FK_PFA_volume" FromRole="PFA" ToRole="PFA_Volume" />
-          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_PFA_autorizador" FromRole="PFA" ToRole="empleados" />
-          <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_PFA_solicitante" FromRole="PFA" ToRole="empleados" />
         </EntityType>
-        <EntityType Name="PFA_Autorizador">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_empleado" Type="Int32" />
-          <Property Name="activo" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_PFA_Autorizador_empleado" FromRole="PFA_Autorizador" ToRole="empleados" />
-        </EntityType>
+        <Association Name="FK_PFA_autorizador">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.PFA" Role="PFA" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PFA">
+              <PropertyRef Name="id_PFA_autorizador" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PFA_solicitante">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.PFA" Role="PFA" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PFA">
+              <PropertyRef Name="id_solicitante" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_id_PFA_recovered_cost">
           <End Type="Portal_2_0Model.PFA_Recovered_cost" Role="PFA_Recovered_cost" Multiplicity="1" />
           <End Type="Portal_2_0Model.PFA" Role="PFA" Multiplicity="*" />
@@ -1748,255 +1997,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
             </Principal>
             <Dependent Role="PFA">
               <PropertyRef Name="id_PFA_volume" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <EntityType Name="view_historico_resultado">
-          <Key>
-            <PropertyRef Name="id" />
-            <PropertyRef Name="Planta" />
-          </Key>
-          <Property Name="id" Type="Int64" Nullable="false" />
-          <Property Name="Operador" Type="String" MaxLength="767" FixedLength="false" Unicode="true" />
-          <Property Name="Supervisor" Type="String" MaxLength="767" FixedLength="false" Unicode="true" />
-          <Property Name="SAP_Platina" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Tipo_de_Material" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Número_de_Parte__de_cliente" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="SAP_Rollo" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Material" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Fecha" Type="DateTime" Precision="3" />
-          <Property Name="Turno" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Hora" Type="DateTime" Precision="3" />
-          <Property Name="Orden_SAP" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
-          <Property Name="Orden_en_SAP_2" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
-          <Property Name="Pieza_por_Golpe" Type="Double" />
-          <Property Name="N__de_Rollo" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Lote_de_rollo" Type="String" MaxLength="256" FixedLength="false" Unicode="false" />
-          <Property Name="Peso_Etiqueta__Kg_" Type="Double" />
-          <Property Name="Peso_de_regreso_de_rollo_Real" Type="Double" />
-          <Property Name="Peso_de_rollo_usado" Type="Double" />
-          <Property Name="Peso_Báscula_Kgs" Type="Double" />
-          <Property Name="Piezas_por_paquete" Type="Double" />
-          <Property Name="Total_de_piezas" Type="Double" />
-          <Property Name="Peso_de_rollo_consumido" Type="Double" />
-          <Property Name="Numero_de_golpes" Type="Double" />
-          <Property Name="Kg_restante_de_rollo" Type="Double" />
-          <Property Name="Peso_despunte_kgs_" Type="Double" />
-          <Property Name="Peso_cola_Kgs_" Type="Double" />
-          <Property Name="Porcentaje_de_puntas_y_colas" Type="Double" />
-          <Property Name="Total_de_piezas_de_Ajustes" Type="Double" />
-          <Property Name="Peso_Bruto_Kgs" Type="Double" />
-          <Property Name="Peso_Real_Pieza_Bruto" Type="Double" />
-          <Property Name="Peso_Real_Pieza_Neto" Type="Double" />
-          <Property Name="Scrap_Natural" Type="Double" />
-          <Property Name="Peso_neto_SAP" Type="Double" />
-          <Property Name="Peso_Bruto_SAP" Type="Double" />
-          <Property Name="Balance_de_Scrap" Type="Double" />
-          <Property Name="Linea" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Planta" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Anio" Type="Int32" />
-          <Property Name="Column40" Type="Double" />
-          <Property Name="Ordenes_por_pieza" Type="Double" />
-          <Property Name="Peso_de_rollo_usado_real__Kg" Type="Double" />
-          <Property Name="Peso_bruto_Total_piezas_Kg" Type="Double" />
-          <Property Name="Peso_NetoTotal_piezas_Kg" Type="Double" />
-          <Property Name="Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg" Type="Double" />
-          <Property Name="Peso_Neto_total_piezas_de_ajuste_Kgs" Type="Double" />
-          <Property Name="Peso_puntas_y_colas_reales_Kg" Type="Double" />
-          <Property Name="Balance_de_Scrap_Real" Type="Double" />
-        </EntityType>
-        <EntityType Name="empleados">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="nueva_fecha_nacimiento" Type="DateTime" Precision="0" />
-          <Property Name="planta_clave" Type="Int32" />
-          <Property Name="clave" Type="Int32" />
-          <Property Name="activo" Type="Boolean" />
-          <Property Name="numeroEmpleado" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="nombre" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="apellido1" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="apellido2" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="nacimientoFecha" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="correo" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="telefono" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="extension" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="celular" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="nivel" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="puesto" Type="Int32" />
-          <Property Name="compania" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="ingresoFecha" Type="DateTime" Precision="0" />
-          <Property Name="bajaFecha" Type="DateTime" Precision="0" />
-          <Property Name="C8ID" Type="String" MaxLength="8" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_empleados_planta_clave" FromRole="empleados" ToRole="plantas" />
-          <NavigationProperty Name="puesto1" Relationship="Portal_2_0Model.FK_empleados_puesto" FromRole="empleados" ToRole="puesto" />
-          <NavigationProperty Name="notificaciones_correo" Relationship="Portal_2_0Model.FK_notificaciones_correo_empleado" FromRole="empleados" ToRole="notificaciones_correo" />
-          <NavigationProperty Name="PFA" Relationship="Portal_2_0Model.FK_PFA_autorizador" FromRole="empleados" ToRole="PFA" />
-          <NavigationProperty Name="PFA_Autorizador" Relationship="Portal_2_0Model.FK_PFA_Autorizador_empleado" FromRole="empleados" ToRole="PFA_Autorizador" />
-          <NavigationProperty Name="PFA1" Relationship="Portal_2_0Model.FK_PFA_solicitante" FromRole="empleados" ToRole="PFA" />
-          <NavigationProperty Name="produccion_operadores" Relationship="Portal_2_0Model.FK_produccion_operadores_id_empleado" FromRole="empleados" ToRole="produccion_operadores" />
-          <NavigationProperty Name="produccion_supervisores" Relationship="Portal_2_0Model.FK_produccion_supervisores_id_empleado" FromRole="empleados" ToRole="produccion_supervisores" />
-          <NavigationProperty Name="produccion_respaldo" Relationship="Portal_2_0Model.FK_produccion_respaldo_id_empleado" FromRole="empleados" ToRole="produccion_respaldo" />
-        </EntityType>
-        <Association Name="FK_empleados_planta_clave">
-          <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="plantas">
-              <PropertyRef Name="clave" />
-            </Principal>
-            <Dependent Role="empleados">
-              <PropertyRef Name="planta_clave" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_empleados_puesto">
-          <End Type="Portal_2_0Model.puesto" Role="puesto" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="puesto">
-              <PropertyRef Name="clave" />
-            </Principal>
-            <Dependent Role="empleados">
-              <PropertyRef Name="puesto" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_notificaciones_correo_empleado">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.notificaciones_correo" Role="notificaciones_correo" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="notificaciones_correo">
-              <PropertyRef Name="id_empleado" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_PFA_autorizador">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
-          <End Type="Portal_2_0Model.PFA" Role="PFA" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="PFA">
-              <PropertyRef Name="id_PFA_autorizador" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_PFA_Autorizador_empleado">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.PFA_Autorizador" Role="PFA_Autorizador" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="PFA_Autorizador">
-              <PropertyRef Name="id_empleado" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_PFA_solicitante">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
-          <End Type="Portal_2_0Model.PFA" Role="PFA" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="PFA">
-              <PropertyRef Name="id_solicitante" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_produccion_operadores_id_empleado">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
-          <End Type="Portal_2_0Model.produccion_operadores" Role="produccion_operadores" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="produccion_operadores">
-              <PropertyRef Name="id_empleado" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_produccion_supervisores_id_empleado">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
-          <End Type="Portal_2_0Model.produccion_supervisores" Role="produccion_supervisores" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="produccion_supervisores">
-              <PropertyRef Name="id_empleado" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <EntityType Name="produccion_respaldo">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="empleado_id" Type="Int32" />
-          <Property Name="fecha_carga" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="planta" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="linea" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="operador" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="supervisor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="sap_platina" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="tipo_material" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="numero_parte_cliente" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
-          <Property Name="sap_rollo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="material" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="fecha" Type="DateTime" Precision="3" />
-          <Property Name="turno" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="hora" Type="DateTime" Precision="3" />
-          <Property Name="orden_sap" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
-          <Property Name="orden_sap_2" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
-          <Property Name="pieza_por_golpe" Type="Double" />
-          <Property Name="numero_rollo" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="lote_rollo" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="peso_etiqueta" Type="Double" />
-          <Property Name="peso_regreso_rollo_real" Type="Double" />
-          <Property Name="peso_rollo_usado" Type="Double" />
-          <Property Name="peso_bascula_kgs" Type="Double" />
-          <Property Name="piezas_por_paquete" Type="Double" />
-          <Property Name="total_piezas" Type="Double" />
-          <Property Name="peso_rollo_consumido" Type="Double" />
-          <Property Name="numero_golpes" Type="Double" />
-          <Property Name="peso_despunte_kgs" Type="Double" />
-          <Property Name="peso_cola_kgs" Type="Double" />
-          <Property Name="porcentaje_punta_y_colas" Type="Double" />
-          <Property Name="total_piezas_ajuste" Type="Double" />
-          <Property Name="peso_bruto_kgs" Type="Double" />
-          <Property Name="peso_real_pieza_bruto" Type="Double" />
-          <Property Name="peso_real_pieza_neto" Type="Double" />
-          <Property Name="scrap_natural" Type="Double" />
-          <Property Name="peso_neto_sap" Type="Double" />
-          <Property Name="peso_bruto_sap" Type="Double" />
-          <Property Name="balance_scrap" Type="Double" />
-          <Property Name="ordenes_por_pieza" Type="Double" />
-          <Property Name="peso_rollo_usado_real_kgs" Type="Double" />
-          <Property Name="peso_bruto_total_piezas_kgs" Type="Double" />
-          <Property Name="peso_neto_total_piezas_kgs" Type="Double" />
-          <Property Name="scrap_ingenieria_buenas_mas_ajuste" Type="Double" />
-          <Property Name="peso_neto_total_piezas_ajuste" Type="Double" />
-          <Property Name="peso_punta_y_colas_reales" Type="Double" />
-          <Property Name="balance_scrap_real" Type="Double" />
-          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_produccion_respaldo_id_empleado" FromRole="produccion_respaldo" ToRole="empleados" />
-        </EntityType>
-        <Association Name="FK_produccion_respaldo_id_empleado">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.produccion_respaldo" Role="produccion_respaldo" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="produccion_respaldo">
-              <PropertyRef Name="empleado_id" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -2284,37 +2284,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="PFA">
-            <EntityTypeMapping TypeName="Portal_2_0Model.PFA">
-              <MappingFragment StoreEntitySet="PFA">
-                <ScalarProperty Name="activo" ColumnName="activo" />
-                <ScalarProperty Name="fecha_aprobacion" ColumnName="fecha_aprobacion" />
-                <ScalarProperty Name="estatus" ColumnName="estatus" />
-                <ScalarProperty Name="razon_rechazo" ColumnName="razon_rechazo" />
-                <ScalarProperty Name="comentarios" ColumnName="comentarios" />
-                <ScalarProperty Name="promise_recovering_date" ColumnName="promise_recovering_date" />
-                <ScalarProperty Name="total_pf_cost" ColumnName="total_pf_cost" />
-                <ScalarProperty Name="total_cost" ColumnName="total_cost" />
-                <ScalarProperty Name="customer" ColumnName="customer" />
-                <ScalarProperty Name="mill" ColumnName="mill" />
-                <ScalarProperty Name="volume" ColumnName="volume" />
-                <ScalarProperty Name="customer_part_number" ColumnName="customer_part_number" />
-                <ScalarProperty Name="sap_part_number" ColumnName="sap_part_number" />
-                <ScalarProperty Name="date_request" ColumnName="date_request" />
-                <ScalarProperty Name="id_PFA_autorizador" ColumnName="id_PFA_autorizador" />
-                <ScalarProperty Name="id_PFA_recovered_cost" ColumnName="id_PFA_recovered_cost" />
-                <ScalarProperty Name="id_PFA_responsible_cost" ColumnName="id_PFA_responsible_cost" />
-                <ScalarProperty Name="id_PFA_type_shipment" ColumnName="id_PFA_type_shipment" />
-                <ScalarProperty Name="id_PFA_reason" ColumnName="id_PFA_reason" />
-                <ScalarProperty Name="id_PFA_destination_plant" ColumnName="id_PFA_destination_plant" />
-                <ScalarProperty Name="id_PFA_border_port" ColumnName="id_PFA_border_port" />
-                <ScalarProperty Name="id_PFA_volume" ColumnName="id_PFA_volume" />
-                <ScalarProperty Name="id_PFA_Department" ColumnName="id_PFA_Department" />
-                <ScalarProperty Name="id_solicitante" ColumnName="id_solicitante" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="PFA_Autorizador">
             <EntityTypeMapping TypeName="Portal_2_0Model.PFA_Autorizador">
               <MappingFragment StoreEntitySet="PFA_Autorizador">
@@ -2453,6 +2422,37 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
                 <ScalarProperty Name="planta" ColumnName="planta" />
                 <ScalarProperty Name="fecha_carga" ColumnName="fecha_carga" />
                 <ScalarProperty Name="empleado_id" ColumnName="empleado_id" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PFA">
+            <EntityTypeMapping TypeName="Portal_2_0Model.PFA">
+              <MappingFragment StoreEntitySet="PFA">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="fecha_aprobacion" ColumnName="fecha_aprobacion" />
+                <ScalarProperty Name="estatus" ColumnName="estatus" />
+                <ScalarProperty Name="razon_rechazo" ColumnName="razon_rechazo" />
+                <ScalarProperty Name="comentarios" ColumnName="comentarios" />
+                <ScalarProperty Name="promise_recovering_date" ColumnName="promise_recovering_date" />
+                <ScalarProperty Name="total_pf_cost" ColumnName="total_pf_cost" />
+                <ScalarProperty Name="total_cost" ColumnName="total_cost" />
+                <ScalarProperty Name="customer" ColumnName="customer" />
+                <ScalarProperty Name="mill" ColumnName="mill" />
+                <ScalarProperty Name="volume" ColumnName="volume" />
+                <ScalarProperty Name="customer_part_number" ColumnName="customer_part_number" />
+                <ScalarProperty Name="sap_part_number" ColumnName="sap_part_number" />
+                <ScalarProperty Name="date_request" ColumnName="date_request" />
+                <ScalarProperty Name="id_PFA_autorizador" ColumnName="id_PFA_autorizador" />
+                <ScalarProperty Name="id_PFA_recovered_cost" ColumnName="id_PFA_recovered_cost" />
+                <ScalarProperty Name="id_PFA_responsible_cost" ColumnName="id_PFA_responsible_cost" />
+                <ScalarProperty Name="id_PFA_type_shipment" ColumnName="id_PFA_type_shipment" />
+                <ScalarProperty Name="id_PFA_reason" ColumnName="id_PFA_reason" />
+                <ScalarProperty Name="id_PFA_destination_plant" ColumnName="id_PFA_destination_plant" />
+                <ScalarProperty Name="id_PFA_border_port" ColumnName="id_PFA_border_port" />
+                <ScalarProperty Name="id_PFA_volume" ColumnName="id_PFA_volume" />
+                <ScalarProperty Name="id_PFA_Department" ColumnName="id_PFA_Department" />
+                <ScalarProperty Name="id_solicitante" ColumnName="id_solicitante" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

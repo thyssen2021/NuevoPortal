@@ -47,10 +47,10 @@ namespace Portal_2_0.Models
         public virtual DbSet<PFA_Responsible_cost> PFA_Responsible_cost { get; set; }
         public virtual DbSet<PFA_Type_shipment> PFA_Type_shipment { get; set; }
         public virtual DbSet<PFA_Volume> PFA_Volume { get; set; }
-        public virtual DbSet<PFA> PFA { get; set; }
         public virtual DbSet<PFA_Autorizador> PFA_Autorizador { get; set; }
         public virtual DbSet<view_historico_resultado> view_historico_resultado { get; set; }
         public virtual DbSet<empleados> empleados { get; set; }
         public virtual DbSet<produccion_respaldo> produccion_respaldo { get; set; }
+        public virtual DbSet<PFA> PFA { get; set; }
     }
 }

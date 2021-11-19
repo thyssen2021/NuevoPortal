@@ -45,22 +45,29 @@
                     <div class="x_content">
                         <br />
 
-
-
                         <div class="form-group row">
 
                         </div>
                         <div class="form-group row">
                             @Html.LabelFor(model => model.id_solicitante, new { @class = "control-label col-md-1" })
-                            <input type="text" class="form-control col-md-5" value="@Model.empleados1.ConcatNombre" readonly>
+                            <input type="text" class="form-control col-md-4" value="@Model.empleados1.ConcatNombre" readonly>                          
                             <!--Request date-->
-                            <label class="control-label col-md-4 float-right">
+                            <label class="control-label col-md-2 float-right">
                                 Date of Request
                             </label>
                             <div class="col-md-2">
                                 <input type="text" class="form-control col-md-12" style="text-align: right;" value="@Model.date_request.ToString("yyyy-MM-dd")" readonly>
                             </div>
+                            <!--ID Solicitud-->
+                            <label class="control-label col-md-2 float-right">
+                                Number of PFA
+                            </label>
+                            <div class="col-md-1">
+                                <input type="text" class="form-control col-md-12" style="text-align: right;" value="@Model.id" readonly>
+                            </div>
                         </div>
+
+
                         <div class="ln_solid"></div>
                         <div class="form-group row">
                             <span style="color:black"><b>DEPARTMENT</b></span>
@@ -197,6 +204,26 @@
                             </div>
 
                         </div>
+
+
+
+                        @if (Model.estatus == Bitacoras.Util.PFA_Status.ENVIADO && !String.IsNullOrEmpty(Model.razon_rechazo))
+                        {
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>RAZ&Oacute;N ANTERIOR DE RECHAZO</b></span>
+                            </div>
+                           
+                            <div class="item form-group">
+                                <div class="col-md-12">
+                                    @Html.TextAreaFor(model => model.razon_rechazo, new { @class = "form-control", @rows = "4", @autocomplete = "off", @readonly = "readonly" })
+                                </div>
+
+                            </div>
+                        }
+
+
+
                         <div class="ln_solid"></div>
                         <div class="item form-group">
                             <div class="col-md-6 col-sm-6 ">
@@ -210,9 +237,9 @@
                     </div>
                 </div>
                 <div>
-                    <br />
-                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
-                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    <br />                   
+                    <a  href="javascript: history.go(-1)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver                    
                     </a>
                 </div>
             </div>
@@ -261,22 +288,29 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                <div class="form-group row">
-                    <h6>¿Realmente desea rechazar esta solicitud?</h6>
-                    <br />
+            @using (Html.BeginForm("Rechazar", null, FormMethod.Post, new { }))
+            {
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <h6>¿Realmente desea rechazar esta solicitud?</h6>
+                        <br />
 
-                    <div class="col-md-12">
-                        @Html.TextAreaFor(model => model.razon_rechazo, new { @class = "form-control", @rows = "4", @autocomplete = "off" })
-                        @Html.ValidationMessageFor(model => model.razon_rechazo, "", new { @class = "text-danger" })
+                        <div class="col-md-12">
+
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(model => model.id)
+                            @Html.TextAreaFor(model => model.razon_rechazo, new { @class = "form-control", @rows = "4", @autocomplete = "off", @required = "required" })
+                            @Html.ValidationMessageFor(model => model.razon_rechazo, "", new { @class = "text-danger" })
+                            
+                        </div>
                     </div>
                 </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning" >Rechazar</button>
+                </div>
+            }
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-warning" onclick="rechazar()">Rechazar</button>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -316,6 +350,8 @@
 
         //muestra el modal de rechazar
         function rechazar() {
+
+
             $('#modalRechazar').modal('hide')
 
         }

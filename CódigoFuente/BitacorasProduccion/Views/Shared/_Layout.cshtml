@@ -179,7 +179,7 @@
                                                 @if (User.IsInRole(TipoRoles.PFA_VISUALIZACION))
                                                 {
                                                     <h3>Finalizados</h3>
-                                                    <li class="@(ViewBag.SegundoNivel == "PFA_visualizar" ? "current-page" : null )"><a href="@Url.Action("Index", "PFA_Visualizar")">Visualizar</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_visualizar" ? "current-page" : null )"><a href="@Url.Action("ReportesPFA", "PremiumFreightApproval")">Reportes</a></li>
                                                 }
                                             </ul>
 

@@ -120,7 +120,6 @@ function mostrarModalPass() {
         $('#modalPass').modal('show');
         $('#password').val('');
     }
-
     
 }
 

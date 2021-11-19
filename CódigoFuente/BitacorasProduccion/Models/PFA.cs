@@ -70,13 +70,14 @@ namespace Portal_2_0.Models
 
         [StringLength(15, MinimumLength = 2)]
         [Display(Name = "Customer Part Number")]
-        [Required(AllowEmptyStrings = false)]
+       // [Required(AllowEmptyStrings = false)]
         public string customer_part_number { get; set; }
 
         [Range(0, int.MaxValue, ErrorMessage = "Ingrese un valor positivo")]
-        [Display(Name = "Volume (mt/pcs) ")]        
-        [Required(AllowEmptyStrings = false)]
-        public int volume { get; set; }
+        [Display(Name = "Volume (mt/pcs) ")]      
+        [RegularExpression(@"^\d+(\.\d{1,2})?$", ErrorMessage = "Ingrese sólo dos decimales")]
+        [Required]
+        public decimal volume { get; set; }
 
         [StringLength(35, MinimumLength = 2)]
         [Display(Name = "Mill/Supplier of Steel")]
@@ -110,7 +111,7 @@ namespace Portal_2_0.Models
         [Display(Name = "Comentarios")]
         public string comentarios { get; set; }
 
-        [StringLength(350, MinimumLength = 2)]
+        [StringLength(350)]
         [Display(Name = "Razon Rechazo")]
         public string razon_rechazo { get; set; }
 

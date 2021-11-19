@@ -34,7 +34,7 @@ CREATE TABLE [PFA](
 	[date_request][datetime] NOT NULL,
 	[sap_part_number][varchar](15) NOT NULL,
 	[customer_part_number][varchar](15) NOT NULL,
-	[volume][int] NOT NULL,
+	[volume][decimal](11,2) NOT NULL,
 	[mill][varchar](35) NOT NULL,
 	[customer][varchar](40) NOT NULL,
 	[total_cost][decimal](11,2) NOT NULL,
