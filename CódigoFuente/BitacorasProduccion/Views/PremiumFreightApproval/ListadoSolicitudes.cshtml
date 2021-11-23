@@ -101,6 +101,9 @@
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.promise_recovering_date)
                                                 </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.credit_debit_note_number)
+                                                </th>
 
                                             </tr>
                                         </thead>
@@ -131,6 +134,12 @@
                                                     {
                                                         <a href="@Url.Action("AutorizarRechazar", ViewBag.ControllerName, new { id = item.id })" class="btn btn-success btm-sm" title="Authorize">
                                                             <i class="fa fa-check-square-o"></i>
+                                                        </a>
+                                                    }
+                                                    @if (ViewBag.EditCredit != null && ViewBag.EditCredit)
+                                                    {
+                                                        <a href="@Url.Action("EditCreditNote", ViewBag.ControllerName, new { id = item.id })" class="btn btn-success btm-sm" title="Edit Credit Note">
+                                                            <i class="fa fa-credit-card"></i>
                                                         </a>
                                                     }
                                                 </td>
@@ -167,7 +176,9 @@
                                                 <td>
                                                     @Html.DisplayFor(modelItem => item.promise_recovering_date)
                                                 </td>
-
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.credit_debit_note_number)
+                                                </td>
                                             </tr>
                                             }
 

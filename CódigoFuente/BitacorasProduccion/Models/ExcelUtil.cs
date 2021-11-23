@@ -134,5 +134,93 @@ namespace Portal_2_0.Models
             return (array);
         }
 
+        public static byte[] GeneraReportePFAExcel(List<PFA> listado)
+        {
+
+            SLDocument oSLDocument = new SLDocument();
+
+
+            System.Data.DataTable dt = new System.Data.DataTable();
+
+            //columnas          
+            dt.Columns.Add("Number of PFA", typeof(string));
+            dt.Columns.Add("Date of Request", typeof(DateTime));
+            dt.Columns.Add("Planner/User", typeof(string));
+            dt.Columns.Add("Department", typeof(string));
+            dt.Columns.Add("Mill/Supplier of Steel", typeof(string));
+            dt.Columns.Add("Customer", typeof(string));
+            dt.Columns.Add("SAP Part number", typeof(string));
+            dt.Columns.Add("Customer Part Number", typeof(string));
+            dt.Columns.Add("Border/Port", typeof(string));
+            dt.Columns.Add("tkMM Destination Plant", typeof(string));
+            dt.Columns.Add("Reason of the PFA", typeof(string));
+            dt.Columns.Add("Type of shipment (container, truck)", typeof(string));
+            dt.Columns.Add("Responsible of the premium freight", typeof(string));
+            dt.Columns.Add("Total PF Cost usd/mt", typeof(double));
+            dt.Columns.Add("Total Original Cost usd/mt", typeof(double));
+            dt.Columns.Add("Total Cost To Recover", typeof(double));
+            dt.Columns.Add("How is Recovered Cost", typeof(string));
+            dt.Columns.Add("Promise Recovered Date", typeof(DateTime));
+            dt.Columns.Add("Credit/debit note number", typeof(string));
+            dt.Columns.Add("Status", typeof(string));
+
+
+
+            ////registros , rows
+            foreach (PFA item in listado)
+            {
+                dt.Rows.Add(item.id, item.date_request, item.empleados1.ConcatNombre, item.PFA_Department.descripcion, item.mill, item.customer, 
+                item.sap_part_number, item.customer_part_number, item.PFA_Border_port.descripcion, item.PFA_Destination_plant.descripcion,
+                item.PFA_Reason.descripcion, item.PFA_Type_shipment.descripcion,  item.PFA_Responsible_cost.descripcion,
+                item.total_pf_cost, item.total_cost, item.TotalCostToRecover, item.PFA_Recovered_cost.descripcion, item.promise_recovering_date, item.credit_debit_note_number, item.estatus);
+            }
+
+            //crea la hoja de FACTURAS y la selecciona
+            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Reporte PFA");
+            oSLDocument.ImportDataTable(1, 1, dt, true);
+
+            //estilo para ajustar al texto
+            SLStyle styleWrap = oSLDocument.CreateStyle();
+            styleWrap.SetWrapText(true);
+
+            //estilo para el encabezado
+            SLStyle styleHeader = oSLDocument.CreateStyle();
+            styleHeader.Font.Bold = true;
+            styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
+
+            ////estilo para fecha
+            SLStyle styleShortDate = oSLDocument.CreateStyle();
+            styleShortDate.FormatCode = "yyyy/MM/dd";
+            oSLDocument.SetColumnStyle(2, styleShortDate);
+            oSLDocument.SetColumnStyle(18, styleShortDate);
+
+
+            SLStyle styleHeaderFont = oSLDocument.CreateStyle();
+            styleHeaderFont.Font.FontName = "Calibri";
+            styleHeaderFont.Font.FontSize = 11;
+            styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
+            styleHeaderFont.Font.Bold = true;
+
+            //da estilo a la hoja de excel
+            //inmoviliza el encabezado
+            oSLDocument.FreezePanes(1, 0);
+
+            oSLDocument.Filter("A1", "T1");
+            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+
+            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
+            oSLDocument.SetRowStyle(1, styleHeader);
+            oSLDocument.SetRowStyle(1, styleHeaderFont);
+
+            oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
+
+            System.IO.Stream stream = new System.IO.MemoryStream();
+
+            oSLDocument.SaveAs(stream);
+
+            byte[] array = Bitacoras.Util.StreamUtil.ToByteArray(stream);
+
+            return (array);
+        }
     }
 }

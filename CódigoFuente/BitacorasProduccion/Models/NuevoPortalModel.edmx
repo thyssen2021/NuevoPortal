@@ -140,8 +140,8 @@
           <Property Name="id_PFA_recovered_cost" Type="int" Nullable="false" />
           <Property Name="id_PFA_autorizador" Type="int" Nullable="false" />
           <Property Name="date_request" Type="datetime" Nullable="false" />
-          <Property Name="sap_part_number" Type="varchar" MaxLength="15" Nullable="false" />
-          <Property Name="customer_part_number" Type="varchar" MaxLength="15" Nullable="false" />
+          <Property Name="sap_part_number" Type="varchar" MaxLength="40" Nullable="false" />
+          <Property Name="customer_part_number" Type="varchar" MaxLength="40" Nullable="false" />
           <Property Name="volume" Type="decimal" Precision="11" Scale="2" Nullable="false" />
           <Property Name="mill" Type="varchar" MaxLength="35" Nullable="false" />
           <Property Name="customer" Type="varchar" MaxLength="40" Nullable="false" />
@@ -150,6 +150,7 @@
           <Property Name="promise_recovering_date" Type="datetime" Nullable="false" />
           <Property Name="comentarios" Type="varchar" MaxLength="350" />
           <Property Name="razon_rechazo" Type="varchar" MaxLength="350" />
+          <Property Name="credit_debit_note_number" Type="varchar" MaxLength="35" />
           <Property Name="estatus" Type="varchar" MaxLength="12" Nullable="false" />
           <Property Name="fecha_aprobacion" Type="datetime" />
           <Property Name="activo" Type="bit" Nullable="false" />
@@ -1856,8 +1857,8 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <Property Name="id_PFA_recovered_cost" Type="Int32" Nullable="false" />
           <Property Name="id_PFA_autorizador" Type="Int32" Nullable="false" />
           <Property Name="date_request" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="sap_part_number" Type="String" Nullable="false" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="customer_part_number" Type="String" Nullable="false" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="sap_part_number" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="customer_part_number" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
           <Property Name="volume" Type="Decimal" Nullable="false" Precision="11" Scale="2" />
           <Property Name="mill" Type="String" Nullable="false" MaxLength="35" FixedLength="false" Unicode="false" />
           <Property Name="customer" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
@@ -1866,6 +1867,7 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <Property Name="promise_recovering_date" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="comentarios" Type="String" MaxLength="350" FixedLength="false" Unicode="false" />
           <Property Name="razon_rechazo" Type="String" MaxLength="350" FixedLength="false" Unicode="false" />
+          <Property Name="credit_debit_note_number" Type="String" MaxLength="35" FixedLength="false" Unicode="false" />
           <Property Name="estatus" Type="String" Nullable="false" MaxLength="12" FixedLength="false" Unicode="false" />
           <Property Name="fecha_aprobacion" Type="DateTime" Precision="3" />
           <Property Name="activo" Type="Boolean" Nullable="false" />
@@ -2432,6 +2434,7 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
                 <ScalarProperty Name="activo" ColumnName="activo" />
                 <ScalarProperty Name="fecha_aprobacion" ColumnName="fecha_aprobacion" />
                 <ScalarProperty Name="estatus" ColumnName="estatus" />
+                <ScalarProperty Name="credit_debit_note_number" ColumnName="credit_debit_note_number" />
                 <ScalarProperty Name="razon_rechazo" ColumnName="razon_rechazo" />
                 <ScalarProperty Name="comentarios" ColumnName="comentarios" />
                 <ScalarProperty Name="promise_recovering_date" ColumnName="promise_recovering_date" />

@@ -17,6 +17,7 @@ namespace Clases.Util
         public const string REPORTES_PESADAS = "ReportePesadas";
         public const string PFA_REGISTRO = "PFA_RegistroFormato";
         public const string PFA_AUTORIZACION = "PFA_AutorizacionFormato";
+        public const string PFA_CATALOGOS = "PFA_AdministracionCatalogos";
         public const string PFA_VISUALIZACION = "PFA_VisualizacionFormato";
     }
 }

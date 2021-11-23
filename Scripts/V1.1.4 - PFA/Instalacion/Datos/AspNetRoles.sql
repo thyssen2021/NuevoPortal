@@ -60,6 +60,12 @@ BEGIN
 		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PFA_AutorizacionFormato')
 	END
 
+	--REPORTE PFA EDICIÓN CATÁLOGOS
+	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PFA_AdministracionCatalogos' )
+	BEGIN
+		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PFA_AdministracionCatalogos')
+	END
+
 	--REPORTE PFA Visualización DE FORMATOS
 	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PFA_VisualizacionFormato' )
 	BEGIN

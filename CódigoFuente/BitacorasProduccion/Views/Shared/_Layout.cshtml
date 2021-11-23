@@ -162,9 +162,9 @@
                                                     <li class="@(ViewBag.SegundoNivel == "PFA_autorizar" ? "current-page" : null )"><a href="@Url.Action("AutorizadorPendientes", "PremiumFreightApproval")">PF por Autorizar</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "PFA_autorizar" ? "current-page" : null )"><a href="@Url.Action("AutorizadorRechazadas", "PremiumFreightApproval")">PF Rechazadas</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "PFA_autorizar" ? "current-page" : null )"><a href="@Url.Action("AutorizadorAutorizadas", "PremiumFreightApproval")">PF Autorizadas</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "PFA_autorizar" ? "current-page" : null )"><a href="@Url.Action("AutorizadorFinalizadas", "PremiumFreightApproval")">PF Finalizadas</a></li>
+                                                    @*<li class="@(ViewBag.SegundoNivel == "PFA_autorizar" ? "current-page" : null )"><a href="@Url.Action("AutorizadorFinalizadas", "PremiumFreightApproval")">PF Finalizadas</a></li>*@
                                                 }
-                                                @if (User.IsInRole(TipoRoles.PFA_AUTORIZACION))
+                                                @if (User.IsInRole(TipoRoles.PFA_CATALOGOS))
                                                 {
 
                                                     <li class="@(ViewBag.SegundoNivel == "PFA_autorizar" ? "active" : null )">
@@ -178,7 +178,7 @@
                                                 }
                                                 @if (User.IsInRole(TipoRoles.PFA_VISUALIZACION))
                                                 {
-                                                    <h3>Finalizados</h3>
+                                                    <h3>Reportes</h3>
                                                     <li class="@(ViewBag.SegundoNivel == "PFA_visualizar" ? "current-page" : null )"><a href="@Url.Action("ReportesPFA", "PremiumFreightApproval")">Reportes</a></li>
                                                 }
                                             </ul>

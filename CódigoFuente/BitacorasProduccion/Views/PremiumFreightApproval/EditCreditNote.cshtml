@@ -12,7 +12,7 @@
 
 @section estilos
 {
-  
+
     <style>
         label {
             text-align: right;
@@ -41,14 +41,12 @@
                     </div>
                     <div class="x_content">
                         <br />
-                        <div class="form-group row">
-                            @if (Model.estatus == Bitacoras.Util.PFA_Status.RECHAZADO && !String.IsNullOrEmpty(Model.razon_rechazo))
-                            {
-                                <div class="alert alert-danger col-md-12" role="alert">
-                                    <i class="fa fa-exclamation-triangle" style="color:yellow"></i> @Model.razon_rechazo
-                                </div>
-                            }
-                        </div>
+                        @if (!Html.ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                @Html.ValidationSummary("", new { @class = "text-white" })
+                            </div>
+                        }
                         <div class="form-group row">
                             <!--Estado-->
                             <label class="control-label col-md-10 float-right">
@@ -202,63 +200,102 @@
                         <div class="form-group row">
                             <span style="color:black"><b>INFO RECORVERED</b></span>
                         </div>
-                        <div class="form-group row">
-                            @Html.LabelFor(model => model.id_PFA_recovered_cost, new { @class = "control-label col-md-1" })
-                            <div class="col-md-3">
-                                <input type="text" class="form-control col-md-12" value="@Model.PFA_Recovered_cost.descripcion" readonly>
-                            </div>
-                            @Html.LabelFor(model => model.promise_recovering_date, new { @class = "control-label col-md-1" })
-                            <div class="col-md-3">
-                                <input type="text" class="form-control col-md-12" value="@Model.promise_recovering_date.ToString("yyyy-MM-dd")" readonly>
-                            </div>
-                            @Html.LabelFor(model => model.credit_debit_note_number, new { @class = "control-label col-md-1" })
-                            <div class="col-md-3">
-                                <input type="text" class="form-control col-md-12" value="@Model.credit_debit_note_number" readonly>
-                            </div>
-                        </div>
 
-                        <div class="ln_solid"></div>
-                        <div class="form-group row">
-                            <span style="color:black"><b>AUTHORIZER</b></span>
-                        </div>
-                        <div class="item form-group">
-                            @Html.LabelFor(model => model.id_PFA_autorizador, new { @class = "control-label col-md-1" })
-                            <div class="col-md-6">
-                                <input type="text" class="form-control col-md-12" value="@Model.empleados.ConcatNombre" readonly>
-                            </div>
-                        </div>
-                        <div class="ln_solid"></div>
-                        <div class="form-group row">
-                            <span style="color:black"><b>COMENTARIOS</b></span>
-                        </div>
-                        <div class="item form-group">
-                            @Html.LabelFor(model => model.comentarios, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align: left" })
-
-                        </div>
-                        <div class="item form-group">
-                            <div class="col-md-12">
-                                @Html.TextAreaFor(model => model.comentarios, new { @class = "form-control", @rows = "4", @autocomplete = "off", @readonly = "readonly" })
-                            </div>
-
-                        </div>
-
-
-
-                        @if (Model.estatus == Bitacoras.Util.PFA_Status.ENVIADO && !String.IsNullOrEmpty(Model.razon_rechazo))
+                        @using (Html.BeginForm("EditCreditNote", "PremiumFreightApproval", FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
                         {
+                            @Html.AntiForgeryToken()
+
+
+
+                            @Html.HiddenFor(model => model.id)
+                            @Html.HiddenFor(model => model.id_solicitante)
+                            @Html.HiddenFor(model => model.id_PFA_Department)
+                            @Html.HiddenFor(model => model.id_PFA_volume)
+                            @Html.HiddenFor(model => model.id_PFA_border_port)
+                            @Html.HiddenFor(model => model.id_PFA_destination_plant)
+                            @Html.HiddenFor(model => model.id_PFA_reason)
+                            @Html.HiddenFor(model => model.id_PFA_type_shipment)
+                            @Html.HiddenFor(model => model.id_PFA_responsible_cost)
+                            @Html.HiddenFor(model => model.id_PFA_recovered_cost)
+                            @Html.HiddenFor(model => model.id_PFA_autorizador)
+                            @Html.HiddenFor(model => model.date_request)
+                            @Html.HiddenFor(model => model.sap_part_number)
+                            @Html.HiddenFor(model => model.customer_part_number)
+                            @Html.HiddenFor(model => model.volume)
+                            @Html.HiddenFor(model => model.mill)
+                            @Html.HiddenFor(model => model.customer)
+                            @Html.HiddenFor(model => model.total_cost)
+                            @Html.HiddenFor(model => model.total_pf_cost)
+                            @Html.HiddenFor(model => model.promise_recovering_date)
+                            @Html.HiddenFor(model => model.comentarios)
+                            @Html.HiddenFor(model => model.razon_rechazo)
+                            @Html.HiddenFor(model => model.estatus)
+                            @Html.HiddenFor(model => model.fecha_aprobacion)
+                            @Html.HiddenFor(model => model.activo)
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.id_PFA_recovered_cost, new { @class = "control-label col-md-1" })
+                                <div class="col-md-3">
+                                    <input type="text" class="form-control col-md-12" value="@Model.PFA_Recovered_cost.descripcion" readonly>
+                                </div>
+                                @Html.LabelFor(model => model.promise_recovering_date, new { @class = "control-label col-md-1" })
+                                <div class="col-md-3">
+                                    <input type="text" class="form-control col-md-12" value="@Model.promise_recovering_date.ToString("yyyy-MM-dd")" readonly>
+                                </div>
+                                @Html.LabelFor(model => model.credit_debit_note_number, new { @class = "control-label col-md-1" })
+                                <div class="col-md-3">
+                                    @Html.EditorFor(m => m.credit_debit_note_number, new { htmlAttributes = new { @class = "form-control", @style ="background:rgb(255,255,180)", @autocomplete="off" } })
+                                    @Html.ValidationMessageFor(model => model.credit_debit_note_number, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
                             <div class="ln_solid"></div>
                             <div class="form-group row">
-                                <span style="color:black"><b>RAZ&Oacute;N ANTERIOR DE RECHAZO</b></span>
+                                <span style="color:black"><b>AUTHORIZER</b></span>
                             </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id_PFA_autorizador, new { @class = "control-label col-md-1" })
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control col-md-12" value="@Model.empleados.ConcatNombre" readonly>
+                                </div>
+                            </div>
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>COMENTARIOS</b></span>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.comentarios, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align: left" })
 
+                            </div>
                             <div class="item form-group">
                                 <div class="col-md-12">
-                                    @Html.TextAreaFor(model => model.razon_rechazo, new { @class = "form-control", @rows = "4", @autocomplete = "off", @readonly = "readonly" })
+                                    @Html.TextAreaFor(model => model.comentarios, new { @class = "form-control", @rows = "4", @autocomplete = "off", @readonly = "readonly" })
                                 </div>
 
                             </div>
-                        }
 
+
+                            if (Model.estatus == Bitacoras.Util.PFA_Status.ENVIADO && !String.IsNullOrEmpty(Model.razon_rechazo))
+                            {
+                                <div class="ln_solid"></div>
+                                <div class="form-group row">
+                                    <span style="color:black"><b>RAZ&Oacute;N ANTERIOR DE RECHAZO</b></span>
+                                </div>
+
+                                <div class="item form-group">
+                                    <div class="col-md-12">
+                                        @Html.TextAreaFor(model => model.razon_rechazo, new { @class = "form-control", @rows = "4", @autocomplete = "off", @readonly = "readonly" })
+                                    </div>
+
+                                </div>
+                            }
+
+                            <div class="item form-group">
+                                <div class="col-md-12 col-sm-12 offset-md-12">
+                                    <button type="submit" class="btn btn-success btn-lg float-lg-right">Guardar</button>
+                                </div>
+                            </div>
+                        }
                     </div>
 
                 </div>

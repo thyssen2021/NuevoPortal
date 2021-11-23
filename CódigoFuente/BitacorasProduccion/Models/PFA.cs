@@ -15,7 +15,7 @@ namespace Portal_2_0.Models
 
     public partial class PFA
     {
-        [Display(Name = "Number of PFA")]        
+        [Display(Name = "Number of PFA")]
         public int id { get; set; }
 
         [Required(AllowEmptyStrings = false)]
@@ -63,18 +63,18 @@ namespace Portal_2_0.Models
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public System.DateTime date_request { get; set; }
 
-        [StringLength(15, MinimumLength = 2)]
-        [Display(Name = "SAP Part number")]        
+        [StringLength(40, MinimumLength = 2)]
+        [Display(Name = "SAP Part number")]
         [Required(AllowEmptyStrings = false)]
         public string sap_part_number { get; set; }
 
-        [StringLength(15, MinimumLength = 2)]
+        [StringLength(40, MinimumLength = 2)]
         [Display(Name = "Customer Part Number")]
-       // [Required(AllowEmptyStrings = false)]
+        // [Required(AllowEmptyStrings = false)]
         public string customer_part_number { get; set; }
 
         [Range(0, int.MaxValue, ErrorMessage = "Ingrese un valor positivo")]
-        [Display(Name = "Volume (mt/pcs) ")]      
+        [Display(Name = "Volume (mt/pcs) ")]
         [RegularExpression(@"^\d+(\.\d{1,2})?$", ErrorMessage = "Ingrese sólo dos decimales")]
         [Required]
         public decimal volume { get; set; }
@@ -91,8 +91,8 @@ namespace Portal_2_0.Models
 
         [Range(0, int.MaxValue, ErrorMessage = "Ingrese un valor positivo")]
         [Display(Name = "Total Original Cost usd/mt")]
-        [RegularExpression(@"^\d+(\.\d{1,2})?$", ErrorMessage ="Ingrese sólo dos decimales")]
-        [Required]        
+        [RegularExpression(@"^\d+(\.\d{1,2})?$", ErrorMessage = "Ingrese sólo dos decimales")]
+        [Required]
         public decimal total_cost { get; set; }
 
         [Range(0, int.MaxValue, ErrorMessage = "Ingrese un valor positivo")]
@@ -115,6 +115,9 @@ namespace Portal_2_0.Models
         [Display(Name = "Razon Rechazo")]
         public string razon_rechazo { get; set; }
 
+        [StringLength(35)]
+        [Display(Name = "Credit/debit note number")]
+        public string credit_debit_note_number { get; set; }
         [Display(Name = "Status")]
         public string estatus { get; set; }
 
@@ -131,7 +134,7 @@ namespace Portal_2_0.Models
         {
             get
             {
-                return total_pf_cost-total_cost;
+                return total_pf_cost - total_cost;
             }
         }
 

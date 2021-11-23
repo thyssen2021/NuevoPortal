@@ -11,7 +11,7 @@ GO
 /*****************************************************************************
 *  Tipo de objeto:      Table
 *  Funcion: Crea una tabla para guardar los notificaciones_correo
-*  Autor :  Alfredo Xochitemol	Cruz
+*  Autor :  Alfredo Xochitemol Cruz
 *  Fecha de Creación: 2021/11/01
 *  Log de Mantenimiento: 
 *  Date         Modified By       Description            
@@ -45,8 +45,8 @@ GO
 
 SET IDENTITY_INSERT [notificaciones_correo] ON 
 --Sólo para desarrollo
-INSERT [notificaciones_correo] ([id],[id_empleado], [descripcion], [activo]) VALUES (1,438,N'PFA_MANAGER', 1)
-INSERT [notificaciones_correo] ([id],[id_empleado], [descripcion], [activo]) VALUES (2,438,N'PFA_FINALIZADO', 1)
+--INSERT [notificaciones_correo] ([id],[id_empleado], [descripcion], [activo]) VALUES (1,438,N'PFA_MANAGER', 1)
+--INSERT [notificaciones_correo] ([id],[id_empleado], [descripcion], [activo]) VALUES (2,438,N'PFA_FINALIZADO', 1)
 
 SET IDENTITY_INSERT [notificaciones_correo] OFF
 GO

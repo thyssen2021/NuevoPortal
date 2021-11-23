@@ -47,12 +47,16 @@ namespace Portal_2_0.Models
         /// <summary>
         /// Agrega un elemento a un select list
         /// </summary>
-        public static SelectList AddFirstItem(SelectList origList)
+        public static SelectList AddFirstItem(SelectList origList, string textoPorDefecto = "")
         {
+            string defaultText_ = "-- Seleccione un valor --";
+
+            if (!string.IsNullOrEmpty(textoPorDefecto))
+                defaultText_ = textoPorDefecto;
 
             SelectListItem firstItem = new SelectListItem()
             {
-                Text = "-- Seleccione un valor --",
+                Text = defaultText_,
                 Value =""
             };
 
@@ -68,6 +72,8 @@ namespace Portal_2_0.Models
 
             return new SelectList(newList, "Value", "Text", selectedItemValue);
         }
+
+
 
         /// <summary>
         /// Obtiene el empleado logeado  

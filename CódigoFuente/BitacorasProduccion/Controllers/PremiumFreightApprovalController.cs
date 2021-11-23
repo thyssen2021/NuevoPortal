@@ -213,6 +213,7 @@ namespace Portal_2_0.Controllers
                 ViewBag.Title = "Listado Solicitudes Autorizadas";
                 ViewBag.SegundoNivel = "PFA_autorizar";
                 ViewBag.Edit = false;
+                ViewBag.EditCredit = true;
                 ViewBag.Details = true;
                 ViewBag.SendToAuthorizer = false;
                 ViewBag.AuthorizarRechazar = false;
@@ -292,7 +293,7 @@ namespace Portal_2_0.Controllers
 
         //Generación de Reportes
         // GET: PremiumFreightAproval
-        public ActionResult ReportesPFA(int? id_PFA_user, int? id_PFA_reason, int? id_PFA_responsible_cost, string fecha_inicial, string fecha_final, int pagina = 1)
+        public ActionResult ReportesPFA(int? id_PFA_user, int? id_PFA_reason, int? id_PFA_responsible_cost, string fecha_inicial, string fecha_final, string status, int pagina = 1)
         {
             if (TieneRol(TipoRoles.PFA_VISUALIZACION))
             {
@@ -334,7 +335,8 @@ namespace Portal_2_0.Controllers
                    (id_PFA_user == null || x.id_solicitante==id_PFA_user)
                    && (id_PFA_reason == null || x.id_PFA_reason == id_PFA_reason)
                    && (id_PFA_responsible_cost == null || x.id_PFA_responsible_cost == id_PFA_responsible_cost)
-                   && x.date_request >= dateInicial && x.date_request <= dateFinal                   
+                   && x.date_request >= dateInicial && x.date_request <= dateFinal
+                   && (String.IsNullOrEmpty(status) || x.estatus == status)
                    )
                    .OrderBy(x => x.id)
                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
@@ -346,6 +348,7 @@ namespace Portal_2_0.Controllers
                    && (id_PFA_reason == null || x.id_PFA_reason == id_PFA_reason)
                    && (id_PFA_responsible_cost == null || x.id_PFA_responsible_cost == id_PFA_responsible_cost)
                    && x.date_request >= dateInicial && x.date_request <= dateFinal
+                   && (String.IsNullOrEmpty(status) || x.estatus == status)
                    ).Count();
 
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
@@ -354,6 +357,7 @@ namespace Portal_2_0.Controllers
                 routeValues["id_PFA_responsible_cost"] = id_PFA_responsible_cost;
                 routeValues["fecha_inicial"] = fecha_inicial;
                 routeValues["fecha_final"] = fecha_final;
+                routeValues["status"] = status;
 
                 Paginacion paginacion = new Paginacion
                 {
@@ -363,12 +367,27 @@ namespace Portal_2_0.Controllers
                     ValoresQueryString = routeValues
                 };
 
-                //////////////////////////////////////////////////
                 List<int> idsCapturistas = db.PFA.Select(x => x.id_solicitante).Distinct().ToList();
+                List<string> estatusList = db.PFA.Select(x => x.estatus).Distinct().ToList();
 
-                ViewBag.id_PFA_user = AddFirstItem(new SelectList(db.empleados.Where(x => idsCapturistas.Contains(x.id)), "id", "ConcatNombre"));               
-                ViewBag.id_PFA_reason = AddFirstItem(new SelectList(db.PFA_Reason, "id", "descripcion"));
-                ViewBag.id_PFA_responsible_cost = AddFirstItem(new SelectList(db.PFA_Responsible_cost, "id", "descripcion"));
+                //crea un Select  list para el estatus
+                List<SelectListItem> newList = new List<SelectListItem>();
+
+                foreach (string statusItem in estatusList) {
+                    newList.Add(new SelectListItem()
+                    {
+                        Text = statusItem,
+                        Value = statusItem
+                    });
+                }
+
+                SelectList selectListItemsStatus =  new SelectList(newList, "Value", "Text", string.Empty);
+            
+
+                ViewBag.id_PFA_user = AddFirstItem(new SelectList(db.empleados.Where(x => idsCapturistas.Contains(x.id)), "id", "ConcatNombre"), "-- Todos --");               
+                ViewBag.id_PFA_reason = AddFirstItem(new SelectList(db.PFA_Reason, "id", "descripcion"), "-- Todos --");
+                ViewBag.status = AddFirstItem(selectListItemsStatus, "-- Todos --");
+                ViewBag.id_PFA_responsible_cost = AddFirstItem(new SelectList(db.PFA_Responsible_cost, "id", "descripcion"), "-- Todos --");
                 ViewBag.Paginacion = paginacion;
                 return View(listado);
             }
@@ -382,7 +401,7 @@ namespace Portal_2_0.Controllers
         public ActionResult Details(int? id)
         {
 
-            if (TieneRol(TipoRoles.PFA_REGISTRO) || TieneRol(TipoRoles.PFA_AUTORIZACION))
+            if (TieneRol(TipoRoles.PFA_REGISTRO) || TieneRol(TipoRoles.PFA_AUTORIZACION) || TieneRol(TipoRoles.PFA_VISUALIZACION))
             {
 
                 if (id == null)
@@ -576,6 +595,68 @@ namespace Portal_2_0.Controllers
             return View(pFA);
         }
 
+        // GET: PremiumFreightAproval/Edit/5
+        public ActionResult EditCreditNote(int? id)
+        {
+
+            if (TieneRol(TipoRoles.PFA_AUTORIZACION))
+            {
+                //obtiene el usuario logeado
+
+                if (id == null)
+                {
+                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                }
+                PFA pFA = db.PFA.Find(id);
+                if (pFA == null)
+                {
+                    return HttpNotFound();
+                }
+
+                //verifica si se puede editar
+                if (pFA.estatus != PFA_Status.APROBADO)
+                {
+                    ViewBag.Titulo = "¡Lo sentimos!¡No se puede modificar esta solicitud!";
+                    ViewBag.Descripcion = "Aún no se puede modificar una solicitud, espere a que sea aprobada.";
+
+                    return View("../Home/ErrorGenerico");
+                }
+                               
+                return View(pFA);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+
+        }
+
+        // POST: PremiumFreightAproval/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
+        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditCreditNote(PFA pFA)
+        {
+            if (ModelState.IsValid)
+            {
+                db.Entry(pFA).State = EntityState.Modified;
+                db.SaveChanges();
+
+                //agrega el mensaje para sweetalert
+                TempData["Mensaje"] = new MensajesSweetAlert("Se ha actualizado el número de nota crédito/débito de la solicitud num: "+pFA.id, TipoMensajesSweetAlerts.SUCCESS);
+
+                if (pFA.estatus == PFA_Status.RECHAZADO)
+                    return RedirectToAction("RechazadasCapturista");
+
+                return RedirectToAction("AutorizadorAutorizadas");
+            }
+            PFA pFA1 = db.PFA.Find(pFA.id);
+            pFA1.credit_debit_note_number = pFA.credit_debit_note_number;
+
+            return View(pFA1);
+        }
 
         // GET: PremiumFreightAproval/AutorizarRechazar/5
         public ActionResult AutorizarRechazar(int? id)
@@ -630,6 +711,21 @@ namespace Portal_2_0.Controllers
                 //    correos.Add(pfa.empleados1.correo);
 
                 envioCorreo.SendEmailAsync(correos, "Su solicitud de PFA ha sido autorizada.", envioCorreo.getBodyPFAAutorizado(pfa));
+
+                //envia correo de notificacion
+                correos = new List<string>();
+                notificaciones_correo notificaciones_Correo = db.notificaciones_correo.FirstOrDefault(x => x.descripcion == NotificacionesCorreo.PFA_CC_INFO);
+
+                if (notificaciones_Correo != null)
+                {
+                    empleados emp = db.empleados.Find(notificaciones_Correo.id_empleado);
+
+                    if (emp != null && !String.IsNullOrEmpty(emp.correo))
+                    {
+                        correos.Add(emp.correo);
+                        envioCorreo.SendEmailAsync(correos, "Se ha autorizado una solicitud de PFA", envioCorreo.getBodyPFARechazadoInfo(pfa));
+                    }
+                }
             }
             catch (System.Data.Entity.Validation.DbEntityValidationException ex)
             {
@@ -689,6 +785,21 @@ namespace Portal_2_0.Controllers
                 //    correos.Add(pfa.empleados1.correo);
 
                 envioCorreo.SendEmailAsync(correos, "Su solicitud de PFA ha sido Rechazada", envioCorreo.getBodyPFARechazado(pfa));
+
+                //envia correo de notificacion
+                correos = new List<string>();
+                notificaciones_correo notificaciones_Correo = db.notificaciones_correo.FirstOrDefault(x=> x.descripcion == NotificacionesCorreo.PFA_CC_INFO);
+
+                if (notificaciones_Correo != null) {
+                    empleados emp = db.empleados.Find(notificaciones_Correo.id_empleado);
+
+                    if (emp != null && !String.IsNullOrEmpty(emp.correo))
+                    {
+                        correos.Add(emp.correo);
+                        envioCorreo.SendEmailAsync(correos, "Se ha rechazado una solicitud de PFA", envioCorreo.getBodyPFARechazadoInfo(pfa));
+                    }
+                }
+                
             }
             catch (System.Data.Entity.Validation.DbEntityValidationException ex)
             {
@@ -796,6 +907,70 @@ namespace Portal_2_0.Controllers
             return RedirectToAction("Index");
         }
 
+        public ActionResult Exportar(int? id_PFA_user, int? id_PFA_reason, int? id_PFA_responsible_cost, string fecha_inicial, string fecha_final, string status)
+        {
+            if (TieneRol(TipoRoles.PFA_VISUALIZACION))
+            {
+                CultureInfo provider = CultureInfo.InvariantCulture;
+
+                DateTime dateInicial = new DateTime(2000, 1, 1);  //fecha inicial por defecto
+                DateTime dateFinal = DateTime.Now;          //fecha final por defecto
+
+                try
+                {
+                    if (!String.IsNullOrEmpty(fecha_inicial))
+                        dateInicial = Convert.ToDateTime(fecha_inicial);
+                    if (!String.IsNullOrEmpty(fecha_final))
+                    {
+                        dateFinal = Convert.ToDateTime(fecha_final);
+                        dateFinal = dateFinal.AddHours(23).AddMinutes(59).AddSeconds(59);
+                    }
+                }
+                catch (FormatException e)
+                {
+                    Console.WriteLine("Error de Formato: " + e.Message);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error al convertir: " + ex.Message);
+                }
+
+
+
+                var listado = db.PFA.Include(p => p.empleados).Include(p => p.empleados1).Include(p => p.PFA_Recovered_cost).Include(p => p.PFA_Border_port).Include(p => p.PFA_Department).Include(p => p.PFA_Destination_plant).Include(p => p.PFA_Reason).Include(p => p.PFA_Responsible_cost).Include(p => p.PFA_Type_shipment).Include(p => p.PFA_Volume)
+                  .Where(x =>
+                  (id_PFA_user == null || x.id_solicitante == id_PFA_user)
+                  && (id_PFA_reason == null || x.id_PFA_reason == id_PFA_reason)
+                  && (id_PFA_responsible_cost == null || x.id_PFA_responsible_cost == id_PFA_responsible_cost)
+                  && x.date_request >= dateInicial && x.date_request <= dateFinal
+                   && (String.IsNullOrEmpty(status) || x.estatus == status)
+                  )
+                  .OrderBy(x => x.id)
+                  .ToList();
+
+                byte[] stream = ExcelUtil.GeneraReportePFAExcel(listado);
+
+
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+                    // for example foo.bak
+                    FileName = "Reporte_PFA_" + fecha_inicial + "_" + dateFinal.ToString("yyyy-MM-dd") + ".xlsx",
+
+                    // always prompt the user for downloading, set to true if you want 
+                    // the browser to try to show the file inline
+                    Inline = false,
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                return File(stream, "application/vnd.ms-excel");
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
         protected override void Dispose(bool disposing)
         {
             if (disposing)

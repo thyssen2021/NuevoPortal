@@ -51,7 +51,7 @@
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_supervisores_id_empleado" />
         <EntityTypeShape EntityType="Portal_2_0Model.produccion_respaldo" Width="1.5" PointX="15.125" PointY="15.625" />
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_respaldo_id_empleado" />
-        <EntityTypeShape EntityType="Portal_2_0Model.PFA" Width="1.5" PointX="18.125" PointY="16.25" />
+        <EntityTypeShape EntityType="Portal_2_0Model.PFA" Width="1.5" PointX="18.125" PointY="16.125" />
         <AssociationConnector Association="Portal_2_0Model.FK_PFA_autorizador" />
         <AssociationConnector Association="Portal_2_0Model.FK_PFA_solicitante" />
         <AssociationConnector Association="Portal_2_0Model.FK_id_PFA_recovered_cost" />

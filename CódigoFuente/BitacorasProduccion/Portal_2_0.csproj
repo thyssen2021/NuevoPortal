@@ -375,7 +375,9 @@
     <Content Include="Content\build\images\loading.gif" />
     <Content Include="Content\build\js\custom.js" />
     <Content Include="Content\build\js\custom.min.js" />
+    <Content Include="Content\emails_plantillas\PFA_solicitud_autorizada_info.html" />
     <Content Include="Content\emails_plantillas\PFA_solicitud_autorizada.html" />
+    <Content Include="Content\emails_plantillas\PFA_solicitud_rechazada_info.html" />
     <Content Include="Content\emails_plantillas\PFA_solicitud_rechazada.html" />
     <Content Include="Content\emails_plantillas\PFA_solicitud_recibida.html" />
     <Content Include="Content\font-awesome.css" />
@@ -4976,6 +4978,7 @@
     <Content Include="Views\ProduccionRegistros\CargarRespaldo.cshtml" />
     <Content Include="Views\ProduccionRegistros\Respaldo.cshtml" />
     <Content Include="Views\PremiumFreightApproval\ReportesPFA.cshtml" />
+    <Content Include="Views\PremiumFreightApproval\EditCreditNote.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
