@@ -244,7 +244,7 @@ namespace Portal_2_0.Controllers
                     .OrderByDescending(x => x.date_request);
 
                 //configura los parametros de la vista
-                ViewBag.Title = "Listado Solicitudes Autorizadas";
+                ViewBag.Title = "Listado Solicitudes Rechazadas";
                 ViewBag.SegundoNivel = "PFA_autorizar";
                 ViewBag.Edit = false;
                 ViewBag.Details = true;
@@ -401,7 +401,8 @@ namespace Portal_2_0.Controllers
         public ActionResult Details(int? id)
         {
 
-            if (TieneRol(TipoRoles.PFA_REGISTRO) || TieneRol(TipoRoles.PFA_AUTORIZACION) || TieneRol(TipoRoles.PFA_VISUALIZACION))
+            if (TieneRol(TipoRoles.PFA_REGISTRO) || TieneRol(TipoRoles.PFA_AUTORIZACION) 
+                || TieneRol(TipoRoles.PFA_VISUALIZACION))
             {
 
                 if (id == null)
@@ -438,14 +439,14 @@ namespace Portal_2_0.Controllers
                 List<int?> idsAutorizadores = db.PFA_Autorizador.Select(x=> x.id_empleado).ToList();
 
                 ViewBag.id_PFA_autorizador = AddFirstItem(new SelectList(db.empleados.Where(x => idsAutorizadores.Contains(x.id)), "id", "ConcatNombre"));
-                ViewBag.id_PFA_recovered_cost = AddFirstItem(new SelectList(db.PFA_Recovered_cost, "id", "descripcion"));
-                ViewBag.id_PFA_border_port = AddFirstItem(new SelectList(db.PFA_Border_port, "id", "descripcion"));
-                ViewBag.id_PFA_Department = AddFirstItem(new SelectList(db.PFA_Department, "id", "descripcion")); 
-                ViewBag.id_PFA_destination_plant = AddFirstItem(new SelectList(db.PFA_Destination_plant, "id", "descripcion"));
-                ViewBag.id_PFA_reason = AddFirstItem(new SelectList(db.PFA_Reason, "id", "descripcion"));
-                ViewBag.id_PFA_responsible_cost = AddFirstItem(new SelectList(db.PFA_Responsible_cost, "id", "descripcion"));
-                ViewBag.id_PFA_type_shipment = AddFirstItem(new SelectList(db.PFA_Type_shipment, "id", "descripcion"));
-                ViewBag.id_PFA_volume = new SelectList(db.PFA_Volume, "id", "descripcion");
+                ViewBag.id_PFA_recovered_cost = AddFirstItem(new SelectList(db.PFA_Recovered_cost.Where(x=> x.activo==true), "id", "descripcion"));
+                ViewBag.id_PFA_border_port = AddFirstItem(new SelectList(db.PFA_Border_port.Where(x => x.activo == true), "id", "descripcion"));
+                ViewBag.id_PFA_Department = AddFirstItem(new SelectList(db.PFA_Department.Where(x => x.activo == true), "id", "descripcion")); 
+                ViewBag.id_PFA_destination_plant = AddFirstItem(new SelectList(db.PFA_Destination_plant.Where(x => x.activo == true), "id", "descripcion"));
+                ViewBag.id_PFA_reason = AddFirstItem(new SelectList(db.PFA_Reason.Where(x => x.activo == true), "id", "descripcion"));
+                ViewBag.id_PFA_responsible_cost = AddFirstItem(new SelectList(db.PFA_Responsible_cost.Where(x => x.activo == true), "id", "descripcion"));
+                ViewBag.id_PFA_type_shipment = AddFirstItem(new SelectList(db.PFA_Type_shipment.Where(x => x.activo == true), "id", "descripcion"));
+                ViewBag.id_PFA_volume = new SelectList(db.PFA_Volume.Where(x => x.activo == true), "id", "descripcion");
               
                 return View();
             }
@@ -491,14 +492,14 @@ namespace Portal_2_0.Controllers
             List<int?> idsAutorizadores = db.PFA_Autorizador.Select(x => x.id_empleado).ToList();
 
             ViewBag.id_PFA_autorizador = AddFirstItem(new SelectList(db.empleados.Where(x => idsAutorizadores.Contains(x.id)), "id", "ConcatNombre"));
-            ViewBag.id_PFA_recovered_cost = AddFirstItem(new SelectList(db.PFA_Recovered_cost, "id", "descripcion"));
-            ViewBag.id_PFA_border_port = AddFirstItem(new SelectList(db.PFA_Border_port, "id", "descripcion"));
-            ViewBag.id_PFA_Department = AddFirstItem(new SelectList(db.PFA_Department, "id", "descripcion"));
-            ViewBag.id_PFA_destination_plant = AddFirstItem(new SelectList(db.PFA_Destination_plant, "id", "descripcion"));
-            ViewBag.id_PFA_reason = AddFirstItem(new SelectList(db.PFA_Reason, "id", "descripcion"));
-            ViewBag.id_PFA_responsible_cost = AddFirstItem(new SelectList(db.PFA_Responsible_cost, "id", "descripcion"));
-            ViewBag.id_PFA_type_shipment = AddFirstItem(new SelectList(db.PFA_Type_shipment, "id", "descripcion"));
-            ViewBag.id_PFA_volume = new SelectList(db.PFA_Volume, "id", "descripcion");
+            ViewBag.id_PFA_recovered_cost = AddFirstItem(new SelectList(db.PFA_Recovered_cost.Where(x => x.activo == true), "id", "descripcion"));
+            ViewBag.id_PFA_border_port = AddFirstItem(new SelectList(db.PFA_Border_port.Where(x => x.activo == true), "id", "descripcion"));
+            ViewBag.id_PFA_Department = AddFirstItem(new SelectList(db.PFA_Department.Where(x => x.activo == true), "id", "descripcion"));
+            ViewBag.id_PFA_destination_plant = AddFirstItem(new SelectList(db.PFA_Destination_plant.Where(x => x.activo == true), "id", "descripcion"));
+            ViewBag.id_PFA_reason = AddFirstItem(new SelectList(db.PFA_Reason.Where(x => x.activo == true), "id", "descripcion"));
+            ViewBag.id_PFA_responsible_cost = AddFirstItem(new SelectList(db.PFA_Responsible_cost.Where(x => x.activo == true), "id", "descripcion"));
+            ViewBag.id_PFA_type_shipment = AddFirstItem(new SelectList(db.PFA_Type_shipment.Where(x => x.activo == true), "id", "descripcion"));
+            ViewBag.id_PFA_volume = new SelectList(db.PFA_Volume.Where(x => x.activo == true), "id", "descripcion");
             return View(pFA);
         }
 
@@ -536,14 +537,14 @@ namespace Portal_2_0.Controllers
                 List<int?> idsAutorizadores = db.PFA_Autorizador.Select(x => x.id_empleado).ToList();
 
                 ViewBag.id_PFA_autorizador = AddFirstItem(new SelectList(db.empleados.Where(x => idsAutorizadores.Contains(x.id)), "id", "ConcatNombre"));
-                ViewBag.id_PFA_recovered_cost = AddFirstItem(new SelectList(db.PFA_Recovered_cost, "id", "descripcion"));
-                ViewBag.id_PFA_border_port = AddFirstItem(new SelectList(db.PFA_Border_port, "id", "descripcion"));
-                ViewBag.id_PFA_Department = AddFirstItem(new SelectList(db.PFA_Department, "id", "descripcion"));
-                ViewBag.id_PFA_destination_plant = AddFirstItem(new SelectList(db.PFA_Destination_plant, "id", "descripcion"));
-                ViewBag.id_PFA_reason = AddFirstItem(new SelectList(db.PFA_Reason, "id", "descripcion"));
-                ViewBag.id_PFA_responsible_cost = AddFirstItem(new SelectList(db.PFA_Responsible_cost, "id", "descripcion"));
-                ViewBag.id_PFA_type_shipment = AddFirstItem(new SelectList(db.PFA_Type_shipment, "id", "descripcion"));
-                ViewBag.id_PFA_volume = new SelectList(db.PFA_Volume, "id", "descripcion");
+                ViewBag.id_PFA_recovered_cost = AddFirstItem(new SelectList(db.PFA_Recovered_cost.Where(x => x.activo == true), "id", "descripcion"));
+                ViewBag.id_PFA_border_port = AddFirstItem(new SelectList(db.PFA_Border_port.Where(x => x.activo == true), "id", "descripcion"));
+                ViewBag.id_PFA_Department = AddFirstItem(new SelectList(db.PFA_Department.Where(x => x.activo == true), "id", "descripcion"));
+                ViewBag.id_PFA_destination_plant = AddFirstItem(new SelectList(db.PFA_Destination_plant.Where(x => x.activo == true), "id", "descripcion"));
+                ViewBag.id_PFA_reason = AddFirstItem(new SelectList(db.PFA_Reason.Where(x => x.activo == true), "id", "descripcion"));
+                ViewBag.id_PFA_responsible_cost = AddFirstItem(new SelectList(db.PFA_Responsible_cost.Where(x => x.activo == true), "id", "descripcion"));
+                ViewBag.id_PFA_type_shipment = AddFirstItem(new SelectList(db.PFA_Type_shipment.Where(x => x.activo == true), "id", "descripcion"));
+                ViewBag.id_PFA_volume = new SelectList(db.PFA_Volume.Where(x => x.activo == true), "id", "descripcion");
                 return View(pFA);
 
             }
@@ -583,14 +584,14 @@ namespace Portal_2_0.Controllers
             List<int?> idsAutorizadores = db.PFA_Autorizador.Select(x => x.id_empleado).ToList();
 
             ViewBag.id_PFA_autorizador = AddFirstItem(new SelectList(db.empleados.Where(x => idsAutorizadores.Contains(x.id)), "id", "ConcatNombre"));
-            ViewBag.id_PFA_recovered_cost = AddFirstItem(new SelectList(db.PFA_Recovered_cost, "id", "descripcion"));
-            ViewBag.id_PFA_border_port = AddFirstItem(new SelectList(db.PFA_Border_port, "id", "descripcion"));
-            ViewBag.id_PFA_Department = AddFirstItem(new SelectList(db.PFA_Department, "id", "descripcion"));
-            ViewBag.id_PFA_destination_plant = AddFirstItem(new SelectList(db.PFA_Destination_plant, "id", "descripcion"));
-            ViewBag.id_PFA_reason = AddFirstItem(new SelectList(db.PFA_Reason, "id", "descripcion"));
-            ViewBag.id_PFA_responsible_cost = AddFirstItem(new SelectList(db.PFA_Responsible_cost, "id", "descripcion"));
-            ViewBag.id_PFA_type_shipment = AddFirstItem(new SelectList(db.PFA_Type_shipment, "id", "descripcion"));
-            ViewBag.id_PFA_volume = new SelectList(db.PFA_Volume, "id", "descripcion");
+            ViewBag.id_PFA_recovered_cost = AddFirstItem(new SelectList(db.PFA_Recovered_cost.Where(x => x.activo == true), "id", "descripcion"));
+            ViewBag.id_PFA_border_port = AddFirstItem(new SelectList(db.PFA_Border_port.Where(x => x.activo == true), "id", "descripcion"));
+            ViewBag.id_PFA_Department = AddFirstItem(new SelectList(db.PFA_Department.Where(x => x.activo == true), "id", "descripcion"));
+            ViewBag.id_PFA_destination_plant = AddFirstItem(new SelectList(db.PFA_Destination_plant.Where(x => x.activo == true), "id", "descripcion"));
+            ViewBag.id_PFA_reason = AddFirstItem(new SelectList(db.PFA_Reason.Where(x => x.activo == true), "id", "descripcion"));
+            ViewBag.id_PFA_responsible_cost = AddFirstItem(new SelectList(db.PFA_Responsible_cost.Where(x => x.activo == true), "id", "descripcion"));
+            ViewBag.id_PFA_type_shipment = AddFirstItem(new SelectList(db.PFA_Type_shipment.Where(x => x.activo == true), "id", "descripcion"));
+            ViewBag.id_PFA_volume = new SelectList(db.PFA_Volume.Where(x => x.activo == true), "id", "descripcion");
 
             return View(pFA);
         }

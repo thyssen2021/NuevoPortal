@@ -167,12 +167,17 @@
                                                 @if (User.IsInRole(TipoRoles.PFA_CATALOGOS))
                                                 {
 
-                                                    <li class="@(ViewBag.SegundoNivel == "PFA_autorizar" ? "active" : null )">
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_catalogos" ? "active" : null )">
                                                         <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
                                                         <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "bitacoras_produccion_catalogos" ? "display:block" : null )">
-                                                            <li class="@(ViewBag.TercelNivel == "PFA_department" ? "current-page" : null )"><a href="@Url.Action( "Index", "PFA_Departments")">Departments</a></li>
-                                                            <li class="@(ViewBag.TercelNivel == "PFA_volume" ? "current-page" : null )"><a href="@Url.Action( "Index", "PFA_Volume")">Volume</a></li>
-                                                            <li class="@(ViewBag.TercelNivel == "PFA_Reason" ? "current-page" : null )"><a href="@Url.Action( "Index", "PFA_Reason")">Reasons PFA</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "PFA_Department" ? "current-page" : null )"><a href="@Url.Action( "Index", "PFA_Department")">Departments</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "PFA_Volume" ? "current-page" : null )"><a href="@Url.Action( "Index", "PFA_Volume")">Volume</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "PFA_Border_port" ? "current-page" : null )"><a href="@Url.Action( "Index", "PFA_Border_port")">Border/Port</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "PFA_Destination_plant" ? "current-page" : null )"><a href="@Url.Action( "Index", "PFA_Destination_plant")">Destination Plant</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "PFA_Reason" ? "current-page" : null )"><a href="@Url.Action( "Index", "PFA_Reason")">Reason of PFA</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "PFA_Recovered_cost" ? "current-page" : null )"><a href="@Url.Action( "Index", "PFA_Recovered_cost")">How is Recovered Cost</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "PFA_Responsible_cost" ? "current-page" : null )"><a href="@Url.Action( "Index", "PFA_Responsible_cost")">Responsible of PF</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "PFA_Type_shipment" ? "current-page" : null )"><a href="@Url.Action( "Index", "PFA_Type_shipment")">Type of shipment</a></li>
                                                         </ul>
                                                     </li>
                                                 }
