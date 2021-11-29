@@ -27,6 +27,13 @@
             }
     </style>
 }
+
+@if (Model != null && Model.id_PFA_autorizador > 0)
+{
+    <input type="hidden" value="@Model.id_PFA_autorizador" id="idAutorizador" />
+}
+
+
 <div class="right_col" role="main">
     <div class="">
         <div class="page-title">
@@ -58,7 +65,7 @@
                             }
 
                             //Valores ocultos
-                            <input type="hidden" id="id_solicitante" name="id_solicitante" value="@solicitante.id" >
+                            <input type="hidden" id="id_solicitante" name="id_solicitante" value="@solicitante.id">
 
                             <div class="form-group row">
 
@@ -257,55 +264,6 @@
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
-
-    <script>
-        $(document).ready(function () {
-
-            //Agrega el evento a todos los input
-            $("#total_cost").each(function () {
-                $(this).on('input', function (e) {
-                    calculaCostToRecover()
-                });
-            });
-            $("#total_pf_cost").each(function () {
-                $(this).on('input', function (e) {
-                    calculaCostToRecover()
-                });
-            });
-
-            calculaCostToRecover();
-
-            // Initialize Select2 Elements (debe ir después de asignar el valor)
-            $('.select2bs4').select2({
-                theme: 'bootstrap4'
-            })
-        });
-
-        //agranda el tamaño de la barra
-        window.onload = function () {
-            document.getElementById('menu_toggle').click();
-        }
-
-        //calcula cost to recover
-        function calculaCostToRecover(str, defaultValue) {
-            let total_cost = TryParseFloat($('#total_cost').val(), 0);
-            let total_pf_cost = TryParseFloat($('#total_pf_cost').val(), 0);
-            $('#total_coast_to_recover').val((total_pf_cost - total_cost).toFixed(2));
-        }
-
-        //convierte texto a float
-        function TryParseFloat(str, defaultValue) {
-            var retValue = defaultValue;
-            if (str !== null) {
-                if (str.length > 0) {
-                    if (!isNaN(str)) {
-                        retValue = parseFloat(str);
-                    }
-                }
-            }
-            return retValue;
-        }
-
-    </script>
+    @Scripts.Render(Url.Content("~/Scripts/Forms/PFA_create.js"))
 }
 

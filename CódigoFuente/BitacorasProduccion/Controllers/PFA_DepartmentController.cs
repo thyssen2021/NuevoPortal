@@ -169,7 +169,7 @@ namespace Portal_2_0.Controllers
         // GET: PFA_Departmet/Disable/5
         public ActionResult Disable(int? id)
         {
-            if (TieneRol(TipoRoles.ADMIN))
+            if (TieneRol(TipoRoles.PFA_CATALOGOS))
             {
                 if (id == null)
                 {
@@ -230,7 +230,7 @@ namespace Portal_2_0.Controllers
         // GET: Plantas/Enable/5
         public ActionResult Enable(int? id)
         {
-            if (TieneRol(TipoRoles.ADMIN))
+            if (TieneRol(TipoRoles.PFA_CATALOGOS))
             {
                 if (id == null)
                 {

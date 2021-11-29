@@ -40,7 +40,7 @@
     string status = string.Empty;
     if (paginacionFiltros.ValoresQueryString["status"] != null)
     {
-        filtroFechaFinal = paginacionFiltros.ValoresQueryString["status"].ToString();
+        status = paginacionFiltros.ValoresQueryString["status"].ToString();
     }
 
 }
@@ -270,10 +270,14 @@
                                         </nav>
 
                                         <div class="form-group">
-                                            @ViewContext.RouteData.Values["clave_planta"]
                                             <a href="@Url.Action("Exportar", ViewBag.ControllerName, new
                                                 {
-                                                    parametrosEjemplo = "Ejemplo",
+                                                    id_PFA_user = idUsuario,
+                                                    id_PFA_reason = idReason,
+                                                    id_PFA_responsible_cost = idResponsible,
+                                                    fecha_inicial = filtroFechaInicio,
+                                                    fecha_final = filtroFechaFinal,
+                                                    status = status,
 
                                                 })" class="btn btn-success btm-sm" target="_blank" title="Reporte">
                                                 <i class="fa fa-file-excel-o"></i> Exportar Excel

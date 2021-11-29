@@ -3863,6 +3863,8 @@
     <Content Include="Scripts\Forms\empleados.js" />
     <Content Include="Scripts\Forms\areas.js" />
     <Content Include="Scripts\Forms\operadores_produccion.js" />
+    <Content Include="Scripts\Forms\PFA_create.js" />
+    <Content Include="Scripts\Forms\PFA_edit.js" />
     <Content Include="Scripts\Forms\ProduccionRegistrosCreate.js" />
     <Content Include="Scripts\Forms\ProduccionRegistrosEdit.js" />
     <Content Include="Scripts\Forms\ProduccionRegistrosIndex.js" />
