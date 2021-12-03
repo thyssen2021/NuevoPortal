@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Web;
@@ -32,11 +33,11 @@ namespace Portal_2_0.Controllers
                 //obtiene el usuario logeado
                 empleados empleado = obtieneEmpleadoLogeado();
 
-             
+
                 var pFA = db.PFA.Include(p => p.empleados).Include(p => p.empleados1).Include(p => p.PFA_Recovered_cost).Include(p => p.PFA_Border_port).Include(p => p.PFA_Department).Include(p => p.PFA_Destination_plant).Include(p => p.PFA_Reason).Include(p => p.PFA_Responsible_cost).Include(p => p.PFA_Type_shipment).Include(p => p.PFA_Volume)
                     .Where(x => x.estatus == PFA_Status.CREADO && x.id_solicitante == empleado.id)
-                    .OrderByDescending(x=> x.date_request);
-                
+                    .OrderByDescending(x => x.date_request);
+
                 //configura los parametros de la vista
                 ViewBag.Title = "Listado Solicitudes Creadas";
                 ViewBag.SegundoNivel = "PFA_registro";
@@ -67,11 +68,11 @@ namespace Portal_2_0.Controllers
                 }
 
                 empleados empleado = obtieneEmpleadoLogeado();
-                
+
                 var pFA = db.PFA.Include(p => p.empleados).Include(p => p.empleados1).Include(p => p.PFA_Recovered_cost).Include(p => p.PFA_Border_port).Include(p => p.PFA_Department).Include(p => p.PFA_Destination_plant).Include(p => p.PFA_Reason).Include(p => p.PFA_Responsible_cost).Include(p => p.PFA_Type_shipment).Include(p => p.PFA_Volume)
                     .Where(x => x.estatus == PFA_Status.ENVIADO && x.id_solicitante == empleado.id)
                     .OrderByDescending(x => x.date_request);
-                
+
                 //configura los parametros de la vista
                 ViewBag.Title = "Listado Solicitudes Pendientes";
                 ViewBag.SegundoNivel = "PFA_registro";
@@ -111,11 +112,12 @@ namespace Portal_2_0.Controllers
                 ViewBag.Title = "Listado Solicitudes Aprobadas";
                 ViewBag.SegundoNivel = "PFA_registro";
                 ViewBag.Edit = false;
+                ViewBag.EditCredit = true;
                 ViewBag.Details = true;
                 ViewBag.SendToAuthorizer = false;
                 ViewBag.AuthorizarRechazar = false;
                 ViewBag.Create = true;
-                return View("ListadoSolicitudes",pFA.ToList());
+                return View("ListadoSolicitudes", pFA.ToList());
             }
             else
             {
@@ -327,12 +329,12 @@ namespace Portal_2_0.Controllers
                     Console.WriteLine("Error al convertir: " + ex.Message);
                 }
 
-            
+
                 var cantidadRegistrosPorPagina = 20; // parámetro
 
                 var listado = db.PFA.Include(p => p.empleados).Include(p => p.empleados1).Include(p => p.PFA_Recovered_cost).Include(p => p.PFA_Border_port).Include(p => p.PFA_Department).Include(p => p.PFA_Destination_plant).Include(p => p.PFA_Reason).Include(p => p.PFA_Responsible_cost).Include(p => p.PFA_Type_shipment).Include(p => p.PFA_Volume)
                    .Where(x =>
-                   (id_PFA_user == null || x.id_solicitante==id_PFA_user)
+                   (id_PFA_user == null || x.id_solicitante == id_PFA_user)
                    && (id_PFA_reason == null || x.id_PFA_reason == id_PFA_reason)
                    && (id_PFA_responsible_cost == null || x.id_PFA_responsible_cost == id_PFA_responsible_cost)
                    && x.date_request >= dateInicial && x.date_request <= dateFinal
@@ -373,7 +375,8 @@ namespace Portal_2_0.Controllers
                 //crea un Select  list para el estatus
                 List<SelectListItem> newList = new List<SelectListItem>();
 
-                foreach (string statusItem in estatusList) {
+                foreach (string statusItem in estatusList)
+                {
                     newList.Add(new SelectListItem()
                     {
                         Text = statusItem,
@@ -381,10 +384,10 @@ namespace Portal_2_0.Controllers
                     });
                 }
 
-                SelectList selectListItemsStatus =  new SelectList(newList, "Value", "Text", string.Empty);
-            
+                SelectList selectListItemsStatus = new SelectList(newList, "Value", "Text", string.Empty);
 
-                ViewBag.id_PFA_user = AddFirstItem(new SelectList(db.empleados.Where(x => idsCapturistas.Contains(x.id)), "id", "ConcatNombre"), "-- Todos --");               
+
+                ViewBag.id_PFA_user = AddFirstItem(new SelectList(db.empleados.Where(x => idsCapturistas.Contains(x.id)), "id", "ConcatNombre"), "-- Todos --");
                 ViewBag.id_PFA_reason = AddFirstItem(new SelectList(db.PFA_Reason, "id", "descripcion"), "-- Todos --");
                 ViewBag.status = AddFirstItem(selectListItemsStatus, "-- Todos --");
                 ViewBag.id_PFA_responsible_cost = AddFirstItem(new SelectList(db.PFA_Responsible_cost, "id", "descripcion"), "-- Todos --");
@@ -401,7 +404,7 @@ namespace Portal_2_0.Controllers
         public ActionResult Details(int? id)
         {
 
-            if (TieneRol(TipoRoles.PFA_REGISTRO) || TieneRol(TipoRoles.PFA_AUTORIZACION) 
+            if (TieneRol(TipoRoles.PFA_REGISTRO) || TieneRol(TipoRoles.PFA_AUTORIZACION)
                 || TieneRol(TipoRoles.PFA_VISUALIZACION))
             {
 
@@ -436,18 +439,18 @@ namespace Portal_2_0.Controllers
                 ViewBag.Solicitante = empleado;
 
                 //obtiene el listado de ids de empleado de los autorizadores
-                List<int?> idsAutorizadores = db.PFA_Autorizador.Select(x=> x.id_empleado).ToList();
+                List<int?> idsAutorizadores = db.PFA_Autorizador.Select(x => x.id_empleado).ToList();
 
                 ViewBag.id_PFA_autorizador = AddFirstItem(new SelectList(db.empleados.Where(x => idsAutorizadores.Contains(x.id)), "id", "ConcatNombre"));
-                ViewBag.id_PFA_recovered_cost = AddFirstItem(new SelectList(db.PFA_Recovered_cost.Where(x=> x.activo==true), "id", "descripcion"));
+                ViewBag.id_PFA_recovered_cost = AddFirstItem(new SelectList(db.PFA_Recovered_cost.Where(x => x.activo == true), "id", "descripcion"));
                 ViewBag.id_PFA_border_port = AddFirstItem(new SelectList(db.PFA_Border_port.Where(x => x.activo == true), "id", "descripcion"));
-                ViewBag.id_PFA_Department = AddFirstItem(new SelectList(db.PFA_Department.Where(x => x.activo == true), "id", "descripcion")); 
+                ViewBag.id_PFA_Department = AddFirstItem(new SelectList(db.PFA_Department.Where(x => x.activo == true), "id", "descripcion"));
                 ViewBag.id_PFA_destination_plant = AddFirstItem(new SelectList(db.PFA_Destination_plant.Where(x => x.activo == true), "id", "descripcion"));
                 ViewBag.id_PFA_reason = AddFirstItem(new SelectList(db.PFA_Reason.Where(x => x.activo == true), "id", "descripcion"));
                 ViewBag.id_PFA_responsible_cost = AddFirstItem(new SelectList(db.PFA_Responsible_cost.Where(x => x.activo == true), "id", "descripcion"));
                 ViewBag.id_PFA_type_shipment = AddFirstItem(new SelectList(db.PFA_Type_shipment.Where(x => x.activo == true), "id", "descripcion"));
                 ViewBag.id_PFA_volume = new SelectList(db.PFA_Volume.Where(x => x.activo == true), "id", "descripcion");
-              
+
                 return View();
             }
             else
@@ -455,7 +458,7 @@ namespace Portal_2_0.Controllers
                 return View("../Home/ErrorPermisos");
             }
 
-           
+
         }
 
         // POST: PremiumFreightAproval/Create
@@ -467,18 +470,113 @@ namespace Portal_2_0.Controllers
         {
             if (ModelState.IsValid)
             {
-                pFA.estatus = PFA_Status.CREADO;
-                pFA.date_request = DateTime.Now;
-                pFA.activo = true;
 
-                db.PFA.Add(pFA);
-                db.SaveChanges();
 
-                if (pFA.estatus == PFA_Status.RECHAZADO)
-                    return RedirectToAction("RechazadasCapturista");
+                try
+                {
+                    biblioteca_digital archivo = new biblioteca_digital { };
 
-                //agrega el mensaje para sweetalert
-                TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);
+                    if (pFA.PostedFile != null) //en caso de haya un archivo seleccionado
+                    {
+                        if (pFA.PostedFile.InputStream.Length > 5242880)
+                        {
+                            throw new Exception("Sólo se permiten archivos menores a 5MB");
+                        }
+                        else //si tiene la longitud correcta
+                        {
+                            string extension = Path.GetExtension(pFA.PostedFile.FileName);
+                            if (extension.ToUpper() != ".XLS"   //si no contiene una extensión válida
+                                && extension.ToUpper() != ".XLSX"
+                                && extension.ToUpper() != ".DOC"
+                                && extension.ToUpper() != ".DOCX"
+                                && extension.ToUpper() != ".PDF"
+                                && extension.ToUpper() != ".PNG"
+                                && extension.ToUpper() != ".JPG"
+                                && extension.ToUpper() != ".JPEG"
+                                && extension.ToUpper() != ".RAR"
+                                && extension.ToUpper() != ".ZIP"
+                                )
+                            {
+                                throw new Exception("Sólo se permiten archivos con extensión .xls, .xlsx, .doc, .docx, .pdf, .png, .jpg, .jpeg, .rar, .zip");
+                            }
+                            else
+                            { //si tiene la extension correcta GUARDA EN BASE DE DATOS
+
+                                String nombreArchivo = pFA.PostedFile.FileName;
+
+                                //recorta el nombre del archivo en caso de ser necesario
+                                if (nombreArchivo.Length > 80)
+                                {
+                                    nombreArchivo = nombreArchivo.Substring(0, 78 - extension.Length) + extension;
+                                }
+
+                                //lee el archivo en un arreglo de bytes
+                                byte[] fileData = null;
+                                using (var binaryReader = new BinaryReader(pFA.PostedFile.InputStream))
+                                {
+                                    fileData = binaryReader.ReadBytes(pFA.PostedFile.ContentLength);
+                                }
+
+                                //genera el archivo de biblioce digital
+                                archivo = new biblioteca_digital
+                                {
+                                    Nombre = nombreArchivo,
+                                    MimeType = UsoStrings.RecortaString(pFA.PostedFile.ContentType, 80),
+                                    Datos = fileData
+                                };
+
+                                //guarda en BD
+                                db.biblioteca_digital.Add(archivo);
+                                db.SaveChanges();
+
+                            }
+                        }
+                    }
+
+
+                    pFA.estatus = PFA_Status.CREADO;
+                    pFA.date_request = DateTime.Now;
+                    pFA.activo = true;
+
+                    if (archivo.Id > 0) //si existe algún archivo en biblioteca digital
+                        pFA.id_document_support = archivo.Id;
+
+                    db.PFA.Add(pFA);
+                    db.SaveChanges();
+
+                    //if (pFA.estatus == PFA_Status.RECHAZADO)
+                    //    return RedirectToAction("RechazadasCapturista");
+
+                    //agrega el mensaje para sweetalert
+                    TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);
+
+
+                }
+                catch (Exception e)
+                {
+
+                    ModelState.AddModelError("", e.Message);
+
+                    empleados empleado2 = obtieneEmpleadoLogeado();
+
+                    ViewBag.Solicitante = empleado2;
+
+                    //obtiene el listado de ids de empleado de los autorizadores
+                    var idsAutorizadores2 = db.PFA_Autorizador.Select(x => x.id_empleado).ToList();
+
+                    ViewBag.id_PFA_autorizador = AddFirstItem(new SelectList(db.empleados.Where(x => idsAutorizadores2.Contains(x.id)), "id", "ConcatNombre"));
+                    ViewBag.id_PFA_recovered_cost = AddFirstItem(new SelectList(db.PFA_Recovered_cost.Where(x => x.activo == true), "id", "descripcion"));
+                    ViewBag.id_PFA_border_port = AddFirstItem(new SelectList(db.PFA_Border_port.Where(x => x.activo == true), "id", "descripcion"));
+                    ViewBag.id_PFA_Department = AddFirstItem(new SelectList(db.PFA_Department.Where(x => x.activo == true), "id", "descripcion"));
+                    ViewBag.id_PFA_destination_plant = AddFirstItem(new SelectList(db.PFA_Destination_plant.Where(x => x.activo == true), "id", "descripcion"));
+                    ViewBag.id_PFA_reason = AddFirstItem(new SelectList(db.PFA_Reason.Where(x => x.activo == true), "id", "descripcion"));
+                    ViewBag.id_PFA_responsible_cost = AddFirstItem(new SelectList(db.PFA_Responsible_cost.Where(x => x.activo == true), "id", "descripcion"));
+                    ViewBag.id_PFA_type_shipment = AddFirstItem(new SelectList(db.PFA_Type_shipment.Where(x => x.activo == true), "id", "descripcion"));
+                    ViewBag.id_PFA_volume = new SelectList(db.PFA_Volume.Where(x => x.activo == true), "id", "descripcion");
+                    return View(pFA);
+                }
+
+
 
                 return RedirectToAction("Index");
             }
@@ -510,7 +608,7 @@ namespace Portal_2_0.Controllers
             if (TieneRol(TipoRoles.PFA_REGISTRO))
             {
                 //obtiene el usuario logeado
-             
+
                 if (id == null)
                 {
                     return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -522,7 +620,8 @@ namespace Portal_2_0.Controllers
                 }
 
                 //verifica si se puede editar
-                if (pFA.estatus != PFA_Status.CREADO && pFA.estatus != PFA_Status.RECHAZADO) {
+                if (pFA.estatus != PFA_Status.CREADO && pFA.estatus != PFA_Status.RECHAZADO)
+                {
                     ViewBag.Titulo = "¡Lo sentimos!¡No se puede modificar esta solicitud!";
                     ViewBag.Descripcion = "No se puede modificar una solicitud que ha sido enviada, aprobada o finalizada.";
 
@@ -553,7 +652,7 @@ namespace Portal_2_0.Controllers
                 return View("../Home/ErrorPermisos");
             }
 
-           
+
         }
 
         // POST: PremiumFreightAproval/Edit/5
@@ -565,14 +664,143 @@ namespace Portal_2_0.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(pFA).State = EntityState.Modified;
-                db.SaveChanges();
+                biblioteca_digital archivo = new biblioteca_digital { };
 
-                //agrega el mensaje para sweetalert
-                TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
+                try
+                {
 
-                if (pFA.estatus == PFA_Status.RECHAZADO)
-                    return RedirectToAction("RechazadasCapturista");
+                    if (pFA.PostedFile != null) //en caso de haya un archivo seleccionado
+                    {
+                        if (pFA.PostedFile.InputStream.Length > 5242880)
+                        {
+                            throw new Exception("Sólo se permiten archivos menores a 5MB");
+                        }
+                        else //si tiene la longitud correcta
+                        {
+                            string extension = Path.GetExtension(pFA.PostedFile.FileName);
+                            if (extension.ToUpper() != ".XLS"   //si no contiene una extensión válida
+                                && extension.ToUpper() != ".XLSX"
+                                && extension.ToUpper() != ".DOC"
+                                && extension.ToUpper() != ".DOCX"
+                                && extension.ToUpper() != ".PDF"
+                                && extension.ToUpper() != ".PNG"
+                                && extension.ToUpper() != ".JPG"
+                                && extension.ToUpper() != ".JPEG"
+                                && extension.ToUpper() != ".RAR"
+                                && extension.ToUpper() != ".ZIP"
+                                )
+                            {
+                                throw new Exception("Sólo se permiten archivos con extensión .xls, .xlsx, .doc, .docx, .pdf, .png, .jpg, .jpeg, .rar, .zip");
+                            }
+                            else
+                            { //si tiene la extension correcta GUARDA EN BASE DE DATOS
+
+                                String nombreArchivo = pFA.PostedFile.FileName;
+
+                                //recorta el nombre del archivo en caso de ser necesario
+                                if (nombreArchivo.Length > 80)
+                                {
+                                    nombreArchivo = nombreArchivo.Substring(0, 78 - extension.Length) + extension;
+                                }
+
+                                //lee el archivo en un arreglo de bytes
+                                byte[] fileData = null;
+                                using (var binaryReader = new BinaryReader(pFA.PostedFile.InputStream))
+                                {
+                                    fileData = binaryReader.ReadBytes(pFA.PostedFile.ContentLength);
+                                }
+
+
+                                //si tiene archivo hace un update sino hace un create
+                                if (pFA.id_document_support.HasValue)//si tiene valor hace un update
+                                {
+                                    archivo = db.biblioteca_digital.Find(pFA.id_document_support.Value);
+                                    archivo.Nombre = nombreArchivo;
+                                    archivo.MimeType = UsoStrings.RecortaString(pFA.PostedFile.ContentType, 80);
+                                    archivo.Datos = fileData;
+
+                                    db.Entry(archivo).State = EntityState.Modified;
+                                    db.SaveChanges();
+                                }
+                                else
+                                { //si no tiene hace un create 
+
+                                    //genera el archivo de biblioteca digital
+                                    archivo = new biblioteca_digital
+                                    {
+                                        Nombre = nombreArchivo,
+                                        MimeType = UsoStrings.RecortaString(pFA.PostedFile.ContentType, 80),
+                                        Datos = fileData
+                                    };
+
+                                    //update en BD
+                                    db.biblioteca_digital.Add(archivo);
+                                    db.SaveChanges();
+                                }
+
+                            }
+                        }
+                    }
+                    //en caso de que no se envie archivo y cost is accepted es false
+                    else if (pFA.id_PFA_responsible_cost<=1||( pFA.cost_is_accepted.HasValue && !pFA.cost_is_accepted.Value && pFA.id_document_support.HasValue))
+                    {
+                        //busca archivo y lo elimina
+                        archivo = db.biblioteca_digital.Find(pFA.id_document_support.Value);
+
+                        if (archivo != null)
+                        {
+                            //coloca como null el idDocumento y guarda para evitar conflictos de sql
+                            pFA.id_document_support = null;
+                            db.Entry(pFA).State = EntityState.Modified;
+                            db.SaveChanges();
+
+                            db.biblioteca_digital.Remove(archivo);
+                            db.SaveChanges();
+
+                            archivo = new biblioteca_digital { }; 
+
+                        }
+
+                    }
+
+                    if (archivo.Id > 0) //si existe algún archivo en biblioteca digital
+                        pFA.id_document_support = archivo.Id;
+
+                    db.Entry(pFA).State = EntityState.Modified;
+                    db.SaveChanges();
+
+                    //agrega el mensaje para sweetalert
+                    TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
+
+                    if (pFA.estatus == PFA_Status.RECHAZADO)
+                        return RedirectToAction("RechazadasCapturista");
+
+                }
+                catch (Exception e)
+                {
+
+                    ModelState.AddModelError("", e.Message);
+
+                    empleados empleado2 = obtieneEmpleadoLogeado();
+
+                    ViewBag.Solicitante = empleado2;
+
+                    //obtiene el listado de ids de empleado de los autorizadores
+                    var idsAutorizadores2 = db.PFA_Autorizador.Select(x => x.id_empleado).ToList();
+
+                    ViewBag.id_PFA_autorizador = AddFirstItem(new SelectList(db.empleados.Where(x => idsAutorizadores2.Contains(x.id)), "id", "ConcatNombre"));
+                    ViewBag.id_PFA_recovered_cost = AddFirstItem(new SelectList(db.PFA_Recovered_cost.Where(x => x.activo == true), "id", "descripcion"));
+                    ViewBag.id_PFA_border_port = AddFirstItem(new SelectList(db.PFA_Border_port.Where(x => x.activo == true), "id", "descripcion"));
+                    ViewBag.id_PFA_Department = AddFirstItem(new SelectList(db.PFA_Department.Where(x => x.activo == true), "id", "descripcion"));
+                    ViewBag.id_PFA_destination_plant = AddFirstItem(new SelectList(db.PFA_Destination_plant.Where(x => x.activo == true), "id", "descripcion"));
+                    ViewBag.id_PFA_reason = AddFirstItem(new SelectList(db.PFA_Reason.Where(x => x.activo == true), "id", "descripcion"));
+                    ViewBag.id_PFA_responsible_cost = AddFirstItem(new SelectList(db.PFA_Responsible_cost.Where(x => x.activo == true), "id", "descripcion"));
+                    ViewBag.id_PFA_type_shipment = AddFirstItem(new SelectList(db.PFA_Type_shipment.Where(x => x.activo == true), "id", "descripcion"));
+                    ViewBag.id_PFA_volume = new SelectList(db.PFA_Volume.Where(x => x.activo == true), "id", "descripcion");
+                    return View(pFA);
+                }
+
+
 
                 return RedirectToAction("Index");
             }
@@ -600,7 +828,7 @@ namespace Portal_2_0.Controllers
         public ActionResult EditCreditNote(int? id)
         {
 
-            if (TieneRol(TipoRoles.PFA_AUTORIZACION))
+            if (TieneRol(TipoRoles.PFA_AUTORIZACION) || TieneRol(TipoRoles.PFA_REGISTRO))
             {
                 //obtiene el usuario logeado
 
@@ -622,7 +850,7 @@ namespace Portal_2_0.Controllers
 
                     return View("../Home/ErrorGenerico");
                 }
-                               
+
                 return View(pFA);
             }
             else
@@ -646,10 +874,10 @@ namespace Portal_2_0.Controllers
                 db.SaveChanges();
 
                 //agrega el mensaje para sweetalert
-                TempData["Mensaje"] = new MensajesSweetAlert("Se ha actualizado el número de nota crédito/débito de la solicitud num: "+pFA.id, TipoMensajesSweetAlerts.SUCCESS);
+                TempData["Mensaje"] = new MensajesSweetAlert("Se ha actualizado la solicitud num: " + pFA.id, TipoMensajesSweetAlerts.SUCCESS);
 
-                if (pFA.estatus == PFA_Status.RECHAZADO)
-                    return RedirectToAction("RechazadasCapturista");
+                if (TieneRol(TipoRoles.PFA_REGISTRO))
+                    return RedirectToAction("AutorizadasCapturista");
 
                 return RedirectToAction("AutorizadorAutorizadas");
             }
@@ -724,7 +952,7 @@ namespace Portal_2_0.Controllers
                     if (emp != null && !String.IsNullOrEmpty(emp.correo))
                     {
                         correos.Add(emp.correo);
-                        envioCorreo.SendEmailAsync(correos, "Se ha autorizado una solicitud de PFA", envioCorreo.getBodyPFARechazadoInfo(pfa));
+                        envioCorreo.SendEmailAsync(correos, "Se ha autorizado una solicitud de PFA", envioCorreo.getBodyPFAAutorizadoInfo(pfa));
                     }
                 }
             }
@@ -770,7 +998,7 @@ namespace Portal_2_0.Controllers
             PFA pfa = db.PFA.Find(id);
             pfa.estatus = PFA_Status.RECHAZADO;
             pfa.razon_rechazo = razonRechazo;
-            
+
             db.Entry(pfa).State = EntityState.Modified;
             try
             {
@@ -789,9 +1017,10 @@ namespace Portal_2_0.Controllers
 
                 //envia correo de notificacion
                 correos = new List<string>();
-                notificaciones_correo notificaciones_Correo = db.notificaciones_correo.FirstOrDefault(x=> x.descripcion == NotificacionesCorreo.PFA_CC_INFO);
+                notificaciones_correo notificaciones_Correo = db.notificaciones_correo.FirstOrDefault(x => x.descripcion == NotificacionesCorreo.PFA_CC_INFO);
 
-                if (notificaciones_Correo != null) {
+                if (notificaciones_Correo != null)
+                {
                     empleados emp = db.empleados.Find(notificaciones_Correo.id_empleado);
 
                     if (emp != null && !String.IsNullOrEmpty(emp.correo))
@@ -800,7 +1029,7 @@ namespace Portal_2_0.Controllers
                         envioCorreo.SendEmailAsync(correos, "Se ha rechazado una solicitud de PFA", envioCorreo.getBodyPFARechazadoInfo(pfa));
                     }
                 }
-                
+
             }
             catch (System.Data.Entity.Validation.DbEntityValidationException ex)
             {
@@ -831,7 +1060,7 @@ namespace Portal_2_0.Controllers
         // GET: PremiumFreightAproval/Send/5
         public ActionResult Send(int? id)
         {
-           if (TieneRol(TipoRoles.PFA_REGISTRO))
+            if (TieneRol(TipoRoles.PFA_REGISTRO))
             {
 
                 if (id == null)

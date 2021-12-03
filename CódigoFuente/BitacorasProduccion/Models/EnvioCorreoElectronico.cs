@@ -12,10 +12,30 @@ namespace Portal_2_0.Models
 {
     public class EnvioCorreoElectronico
     {
+        private delegate void DelegateEmail(List<string> emailsTo, string subject, string message); //delegate for the action
 
         public string NOMBRE_FROM { get { return "thyssenkrupp Materials de México"; } }
 
-        public Task SendEmailAsync(List<string> emailsTo, string subject, string message)
+        public void SendEmailAsync(List<string> emailsTo, string subject, string message)
+        {
+            try
+            {
+              
+                DelegateEmail sd = DelegateEmailMethod;
+
+                IAsyncResult asyncResult = sd.BeginInvoke(emailsTo,subject,message,null,null);
+            }
+          
+            catch (Exception ex)
+            {
+                // TODO: handle exception
+                throw new InvalidOperationException(ex.Message);
+            }
+
+            //return Task.FromResult(0);
+        }
+
+        public void DelegateEmailMethod(List<string> emailsTo, string subject, string message)
         {
             try
             {
@@ -41,7 +61,7 @@ namespace Portal_2_0.Models
                 //agrega los destinatarios
                 foreach (string email in emailsTo)
                 {
-                    if(!string.IsNullOrEmpty(email))
+                    if (!string.IsNullOrEmpty(email))
                         mail.To.Add(new MailAddress(email));
                 }
 
@@ -57,7 +77,8 @@ namespace Portal_2_0.Models
                 };
 
 
-                // Send it...         
+                // Send it...
+                //client.SendMailAsync(mail);
                 client.Send(mail);
             }
             catch (System.Net.Mail.SmtpException emailExeption)
@@ -72,7 +93,7 @@ namespace Portal_2_0.Models
                 throw new InvalidOperationException(ex.Message);
             }
 
-            return Task.FromResult(0);
+            //return Task.FromResult(0);
         }
 
         //metodo para el body de uuna solicitud enviada

@@ -12,10 +12,61 @@
         });
     });
 
+
+
+    //agrega el evento para mostrar o ocultar estado de Aceptacion
+    $("#id_PFA_responsible_cost").change(function () {
+        let seleccion = $(this).val();
+      
+        if (seleccion != "" && seleccion != "1") {
+            $("#div_separador_soporte").fadeIn(700);
+            $("#div_is_accepted").fadeIn(700);           
+        } else {
+            $("#cost_is_accepted").val('');
+            
+            $('#cost_is_accepted').select2({
+                theme: 'bootstrap4'
+            })
+
+            $("#div_separador_soporte").fadeOut(700);
+            $("#div_is_accepted").fadeOut(700);
+
+            //$("#div_email_support").fadeOut(700, function () {
+            //    $("#email_support").val('');
+            //});
+            $("#div_document_support").fadeOut(700, function () {
+                $("#PostedFile").val('');
+            });
+        }
+
+    });
+
+
+    //agrega el evento para mostrar o ocultar el soporte en caso de true
+    $("#cost_is_accepted").change(function () {
+        let seleccion = $(this).val();
+
+        if (seleccion == "true") {
+           /* $("#div_email_support").fadeIn(700);*/
+            $("#div_document_support").fadeIn(700);
+        } else {
+            //$("#div_email_support").fadeOut(700, function () {
+            //    $("#email_support").val('');
+            //});
+            $("#div_document_support").fadeOut(700, function () {
+                $("#PostedFile").val('');
+            });
+        }
+
+    });
+
+
     calculaCostToRecover();
 
     //selecciona autorizador por defecto
     seleccionaAutorizador();
+
+    
 
     // Initialize Select2 Elements (debe ir después de asignar el valor)
     $('.select2bs4').select2({
@@ -46,6 +97,7 @@ function seleccionaAutorizador() {
 
     }
 }
+
 
 //calcula cost to recover
 function calculaCostToRecover(str, defaultValue) {

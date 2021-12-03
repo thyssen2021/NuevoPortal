@@ -37,6 +37,10 @@ namespace Portal_2_0.Models
 
         public bool TieneRol(String rol)
         {
+            if (User.Identity == null) { //cierra sesión 
+                return false;
+            }
+
             if (_userManager.IsInRoleAsync(User.Identity.GetUserId(), rol).Result)
             {
                 return true;
@@ -169,6 +173,11 @@ namespace Portal_2_0.Models
         //obtiene el usuario actual
         private string getUsuario()
         {
+            if (User.Identity == null)
+            {  
+                return string.Empty;
+            }
+
             string userName = User.Identity.Name;
 
             if (String.IsNullOrEmpty(userName))

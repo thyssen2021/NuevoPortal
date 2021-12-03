@@ -51,6 +51,7 @@ namespace Portal_2_0.Models
         public virtual DbSet<view_historico_resultado> view_historico_resultado { get; set; }
         public virtual DbSet<empleados> empleados { get; set; }
         public virtual DbSet<produccion_respaldo> produccion_respaldo { get; set; }
+        public virtual DbSet<biblioteca_digital> biblioteca_digital { get; set; }
         public virtual DbSet<PFA> PFA { get; set; }
     }
 }

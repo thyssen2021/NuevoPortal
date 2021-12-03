@@ -39,8 +39,11 @@ namespace Portal_2_0.Controllers
 
                 //obtiene los id lineas a las que esta asignado
                 List<int> idLineas = db.produccion_operadores.Where(x => x.id_empleado == emp.id).Select(x => x.id_linea).ToList();
+                //obtiene el lsitado de ids de operadores
+                //List<int> idOperador = db.produccion_operadores.Where(x => x.id_empleado == emp.id ).Select(x => x.id).ToList();
 
-                List<int> idOperador = db.produccion_operadores.Where(x => x.id_empleado == emp.id ).Select(x => x.id).ToList();
+                //verifica si es supervisor
+                //bool esOperador = db.produccion_supervisores.Where(x => x.id_empleado == emp.id).Select(x => x.id).ToList().Count > 0 ? true: false;
 
                 var cantidadRegistrosPorPagina = 20; // parámetro
           
@@ -49,7 +52,7 @@ namespace Portal_2_0.Controllers
                           //x.activo == true && 
                           (!String.IsNullOrEmpty(linea) && x.id_linea.ToString().Contains(linea))
                         && (!String.IsNullOrEmpty(planta) && x.clave_planta.ToString().Contains(planta))
-                        && idOperador.Contains(x.id_operador.Value)
+                   //     && (idOperador.Contains(x.id_operador.Value) || esOperador)
                         )
                     .OrderByDescending(x => x.fecha)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
@@ -59,7 +62,7 @@ namespace Portal_2_0.Controllers
                          // x.activo==true &&
                          (!String.IsNullOrEmpty(linea) && x.id_linea.ToString().Contains(linea))
                         && (!String.IsNullOrEmpty(planta) && x.clave_planta.ToString().Contains(planta))
-                        && idOperador.Contains(x.id_operador.Value)
+                 //       && (idOperador.Contains(x.id_operador.Value) || esOperador)
                        ).Count();
 
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();

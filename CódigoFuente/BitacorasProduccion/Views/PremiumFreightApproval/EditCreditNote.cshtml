@@ -12,8 +12,11 @@
 
 @section estilos
 {
-
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">s
     <style>
+
         label {
             text-align: right;
         }
@@ -174,6 +177,36 @@
                             </div>
                         </div>
 
+                        @if (Model != null && Model.cost_is_accepted.HasValue)
+                        {
+                            <div class="ln_solid"></div>
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.cost_is_accepted, new { @class = "control-label col-md-2" })
+                                <div class="col-md-2">
+                                    <input type="text" class="form-control col-md-12" value="@(Model.cost_is_accepted.Value?"True":"False")" readonly>
+                                </div>
+                            </div>
+                        }
+
+                        @if (Model != null && Model.id_document_support > 0 && Model.cost_is_accepted.HasValue && Model.cost_is_accepted.Value)
+                        {
+                            <div class="form-group row" id="div_document_support">
+                                @Html.LabelFor(model => model.id_document_support, new { @class = "control-label col-md-2" })
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control col-md-12" style="text-align: left;" value="@Model.biblioteca_digital.Nombre" readonly>
+                                </div>
+                                <div class="col-md-4">
+                                    <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = Model.id_document_support})" class="btn btn-success btm-sm" title="Download">
+                                        <i class="fa fa-download"></i>
+                                    </a>
+                                    <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = Model.id_document_support, inline=true})" class="btn btn-info btm-sm" target="_blank" title="Inline">
+                                        <i class="fa fa-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        }
+
                         <div class="ln_solid"></div>
                         <div class="form-group row">
                             <span style="color:black"><b>COST</b></span>
@@ -198,7 +231,7 @@
 
                         <div class="ln_solid"></div>
                         <div class="form-group row">
-                            <span style="color:black"><b>INFO RECORVERED</b></span>
+                            <span style="color:black"><b>INFO RECOVERED</b></span>
                         </div>
 
                         @using (Html.BeginForm("EditCreditNote", "PremiumFreightApproval", FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
@@ -232,6 +265,10 @@
                             @Html.HiddenFor(model => model.estatus)
                             @Html.HiddenFor(model => model.fecha_aprobacion)
                             @Html.HiddenFor(model => model.activo)
+                            @Html.HiddenFor(model => model.cost_is_accepted)
+                            @Html.HiddenFor(model => model.email_support)
+                            @Html.HiddenFor(model => model.id_document_support)
+
 
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.id_PFA_recovered_cost, new { @class = "control-label col-md-1" })
@@ -244,8 +281,16 @@
                                 </div>
                                 @Html.LabelFor(model => model.credit_debit_note_number, new { @class = "control-label col-md-1" })
                                 <div class="col-md-3">
-                                    @Html.EditorFor(m => m.credit_debit_note_number, new { htmlAttributes = new { @class = "form-control", @style ="background:rgb(255,255,180)", @autocomplete="off" } })
+                                    @Html.EditorFor(m => m.credit_debit_note_number, new { htmlAttributes = new { @class = "form-control", @style = "background:rgb(255,255,180)", @autocomplete = "off" } })
                                     @Html.ValidationMessageFor(model => model.credit_debit_note_number, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.is_recovered, new { @class = "control-label col-md-1" })
+                                <div class="col-md-2">
+                                    @Html.EditorFor(m => m.is_recovered, new { htmlAttributes = new { @class = "form-control ", @style = "width:100%; background:rgb(255,255,180)" } })
+                                    @Html.ValidationMessageFor(model => model.is_recovered, "", new { @class = "text-danger" })
                                 </div>
                             </div>
 
@@ -312,13 +357,18 @@
 
 @section scripts
 {
-
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
     <script>
         //agranda el tamaño de la barra
         window.onload = function () {
             document.getElementById('menu_toggle').click();
 
         }
+        // Initialize Select2 Elements (debe ir después de asignar el valor)
+        $('.select2bs4').select2({
+            theme: 'bootstrap4'
+        })
     </script>
 
 }

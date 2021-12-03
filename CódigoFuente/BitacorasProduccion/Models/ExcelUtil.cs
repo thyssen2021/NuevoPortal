@@ -162,6 +162,7 @@ namespace Portal_2_0.Models
             dt.Columns.Add("How is Recovered Cost", typeof(string));
             dt.Columns.Add("Promise Recovered Date", typeof(DateTime));
             dt.Columns.Add("Credit/debit note number", typeof(string));
+            dt.Columns.Add("Is Recovered?", typeof(bool));
             dt.Columns.Add("Status", typeof(string));
 
 
@@ -172,11 +173,11 @@ namespace Portal_2_0.Models
                 dt.Rows.Add(item.id, item.date_request, item.empleados1.ConcatNombre, item.PFA_Department.descripcion, item.mill, item.customer, 
                 item.sap_part_number, item.customer_part_number, item.PFA_Border_port.descripcion, item.PFA_Destination_plant.descripcion,
                 item.PFA_Reason.descripcion, item.PFA_Type_shipment.descripcion,  item.PFA_Responsible_cost.descripcion,
-                item.total_pf_cost, item.total_cost, item.TotalCostToRecover, item.PFA_Recovered_cost.descripcion, item.promise_recovering_date, item.credit_debit_note_number, item.estatus);
+                item.total_pf_cost, item.total_cost, item.TotalCostToRecover, item.PFA_Recovered_cost.descripcion, item.promise_recovering_date, item.credit_debit_note_number, item.is_recovered, item.estatus);
             }
 
             //crea la hoja de FACTURAS y la selecciona
-            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Reporte PFA");
+            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "PFA Report");
             oSLDocument.ImportDataTable(1, 1, dt, true);
 
             //estilo para ajustar al texto
@@ -205,7 +206,7 @@ namespace Portal_2_0.Models
             //inmoviliza el encabezado
             oSLDocument.FreezePanes(1, 0);
 
-            oSLDocument.Filter("A1", "T1");
+            oSLDocument.Filter("A1", "U1");
             oSLDocument.AutoFitColumn(1, dt.Columns.Count);
 
             oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);

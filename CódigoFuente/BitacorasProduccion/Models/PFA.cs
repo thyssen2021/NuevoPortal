@@ -9,9 +9,11 @@
 
 namespace Portal_2_0.Models
 {
+    using Foolproof;
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
+    using System.Web;
 
     public partial class PFA
     {
@@ -129,6 +131,30 @@ namespace Portal_2_0.Models
         [Display(Name = "Active")]
         public bool activo { get; set; }
 
+
+        [RequiredIf("is_required_cost_is_accepted", true, ErrorMessage = "The field PFA cost is accepted/approved is Required")]
+        [Display(Name = "PFA cost is accepted/approved")]
+        public Nullable<bool> cost_is_accepted { get; set; }
+
+        [DataType(DataType.EmailAddress)]
+        [EmailAddress]
+        [Display(Name = "Attached Email")]
+        public string email_support { get; set; }
+       
+        [Display(Name = "Support of acceptance")]
+        public Nullable<int> id_document_support { get; set; }
+
+        [Required]
+        [Display(Name = "Is recovered?")]
+        public Nullable<bool> is_recovered { get; set; }
+
+
+        //Para el archivo de soporte
+        [RequiredIfTrue("is_support_of_acceptance", ErrorMessage = "Support of acceptance is Required")]
+        [Display(Name = "Support of acceptance")]
+        // [RegularExpression(@"^.*\.(xls|xlsx|XLS|XLSX|doc|DOC|docx|DOCX|pdf|PDF|png|PNG|jpg|JPG|jpeg|JPEG|rar|RAR|zip|ZIP|)$", ErrorMessage = "Seleccione una extensión válida.")]
+        public HttpPostedFileBase PostedFile { get; set; }
+
         //CALCULA EL TotalCostToRecover
         public decimal TotalCostToRecover
         {
@@ -138,6 +164,23 @@ namespace Portal_2_0.Models
             }
         }
 
+        //Para foolproof
+        public bool is_required_cost_is_accepted
+        {
+            get
+            {
+                return id_PFA_responsible_cost > 1 ;
+            }
+        }
+        public bool is_support_of_acceptance
+        {
+            get
+            {
+                return cost_is_accepted!=null && cost_is_accepted.Value && (id_document_support==null ||id_document_support<=0);
+            }
+        }
+
+        public virtual biblioteca_digital biblioteca_digital { get; set; }
         public virtual empleados empleados { get; set; }
         public virtual empleados empleados1 { get; set; }
         public virtual PFA_Recovered_cost PFA_Recovered_cost { get; set; }

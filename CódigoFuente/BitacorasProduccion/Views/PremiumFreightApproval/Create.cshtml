@@ -28,10 +28,12 @@
     </style>
 }
 
+
 @if (Model != null && Model.id_PFA_autorizador > 0)
 {
     <input type="hidden" value="@Model.id_PFA_autorizador" id="idAutorizador" />
 }
+
 
 
 <div class="right_col" role="main">
@@ -52,7 +54,8 @@
                     </div>
                     <div class="x_content">
                         <br />
-                        @using (Html.BeginForm("Create", "PremiumFreightApproval", FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+
+                        @using (Html.BeginForm("Create", "PremiumFreightApproval", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal form-label-left" }))
                         {
                             @Html.AntiForgeryToken()
 
@@ -149,6 +152,7 @@
                             <div class="form-group row">
                                 <span style="color:black"><b>PREMIUM FREIGHT</b></span>
                             </div>
+
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.id_PFA_reason, new { @class = "control-label col-md-1" })
                                 <div class="col-md-3">
@@ -164,6 +168,37 @@
                                 <div class="col-md-3">
                                     @Html.DropDownList("id_PFA_responsible_cost", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                     @Html.ValidationMessageFor(model => model.id_PFA_responsible_cost, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="ln_solid" id="div_separador_soporte" style="@(Model!=null && Model.id_PFA_responsible_cost >1 ? "" : "display:none" )"></div>
+
+                            <div class="form-group row" id="div_is_accepted" style="@(Model!=null && Model.id_PFA_responsible_cost >1 ? "" : "display:none" )">
+                                @Html.LabelFor(model => model.cost_is_accepted, new { @class = "control-label col-md-2" })
+                                <div class="col-md-4">
+                                    @Html.EditorFor(m => m.cost_is_accepted, new { htmlAttributes = new { @class = "form-control select2bs4", @style = "width:100%" } })
+                                    @Html.ValidationMessageFor(model => model.cost_is_accepted, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            @*<div class="form-group row" id="div_email_support" style="@(Model!=null && Model.cost_is_accepted.HasValue && Model.cost_is_accepted.Value ? "" : "display:none" )">
+                @Html.LabelFor(model => model.email_support, new { @class = "control-label col-md-2" })
+                <div class="col-md-4">
+                    @Html.EditorFor(m => m.email_support, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                    @Html.ValidationMessageFor(model => model.email_support, "", new { @class = "text-danger" })
+                </div>
+            </div>*@
+
+                            <div class="form-group row" id="div_document_support" style="@(Model!=null && Model.cost_is_accepted.HasValue && Model.cost_is_accepted.Value ? "" : "display:none" )">
+                                @Html.LabelFor(model => model.id_document_support, new { @class = "control-label col-md-2" })
+                                <div class="col-md-6">
+
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            @Html.TextBoxFor(m => m.PostedFile, new { type = "file", @accept = ".xls,.xlsx,.png, .jpeg, .jpg, .pdf, .doc, .docx, .rar, .zip" })
+
+                                        </div>
+                                    </div>
+                                    @Html.ValidationMessageFor(m => m.PostedFile, "", new { @class = "text-danger" })
                                 </div>
                             </div>
 
@@ -192,7 +227,7 @@
                             </div>
                             <div class="ln_solid"></div>
                             <div class="form-group row">
-                                <span style="color:black"><b>INFO RECORVERED</b></span>
+                                <span style="color:black"><b>INFO RECOVERED</b></span>
                             </div>
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.id_PFA_recovered_cost, new { @class = "control-label col-md-1" })
@@ -210,6 +245,13 @@
                                     @Html.EditorFor(m => m.credit_debit_note_number, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
                                     @Html.ValidationMessageFor(model => model.credit_debit_note_number, "", new { @class = "text-danger" })
                                 </div>
+                            </div>
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.is_recovered, new { @class = "control-label col-md-1" })
+                                <div class="col-md-2">
+                                    @Html.EditorFor(m => m.is_recovered, new { htmlAttributes = new { @class = "form-control select2bs4", @style = "width:100%" } })
+                                    @Html.ValidationMessageFor(model => model.is_recovered, "", new { @class = "text-danger" })
+                                </div>                               
                             </div>
 
 
@@ -243,7 +285,7 @@
                             <div class="ln_solid"></div>
                             <div class="item form-group">
                                 <div class="col-md-12 col-sm-12 offset-md-12">
-                                    <button type="submit" class="btn btn-success btn-lg float-lg-right">Guardar</button>
+                                    <button type="submit" class="btn btn-success btn-lg float-lg-right">Save</button>
                                 </div>
                             </div>
                         }
@@ -251,8 +293,8 @@
                 </div>
                 <div>
                     <br />
-                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
-                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Back">
+                        <i class="fa fa-arrow-circle-left"></i> Back to List
                     </a>
                 </div>
             </div>
@@ -265,5 +307,6 @@
     @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
     @Scripts.Render(Url.Content("~/Scripts/Forms/PFA_create.js"))
+    @Scripts.Render(Url.Content("~/Scripts/MvcFoolproofJQueryValidation.js"))
 }
 

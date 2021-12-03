@@ -12,7 +12,7 @@
 
 @section estilos
 {
-  
+
     <style>
         label {
             text-align: right;
@@ -58,19 +58,19 @@
                                 @switch (Model.estatus)
                                 {
                                     case Bitacoras.Util.PFA_Status.APROBADO:
-                                        <input type="button" class="form-control col-md-12" style="text-align: right; background: rgb(200 255 200); font-weight: bold" value="@Model.estatus" readonly>
+                                        <input type="text" class="form-control col-md-12" style="text-align: right; background: rgb(200 255 200); font-weight: bold" value="@Model.estatus" readonly>
                                         break;
                                     case Bitacoras.Util.PFA_Status.RECHAZADO:
-                                        <input type="button" class="form-control col-md-12" style="text-align: right; background: rgb(255 200 200); font-weight: bold" value="@Model.estatus" readonly>
+                                        <input type="text" class="form-control col-md-12" style="text-align: right; background: rgb(255 200 200); font-weight: bold" value="@Model.estatus" readonly>
                                         break;
                                     case Bitacoras.Util.PFA_Status.ENVIADO:
-                                        <input type="button" class="form-control col-md-12" style="text-align: right; background: rgb(101 203 245); font-weight: bold" value="@Model.estatus" readonly>
+                                        <input type="text" class="form-control col-md-12" style="text-align: right; background: rgb(101 203 245); font-weight: bold" value="@Model.estatus" readonly>
                                         break;
                                     case Bitacoras.Util.PFA_Status.FINALIZADO:
-                                        <input type="button" class="form-control col-md-12" style="text-align: right; background: rgb(255 255 180); font-weight: bold" value="@Model.estatus" readonly>
+                                        <input type="text" class="form-control col-md-12" style="text-align: right; background: rgb(255 255 180); font-weight: bold" value="@Model.estatus" readonly>
                                         break;
                                     default:
-                                        <input type="button" class="form-control col-md-12" style="text-align: right; background: rgb(240 240 240); font-weight: bold" value="@Model.estatus" readonly>
+                                        <input type="text" class="form-control col-md-12" style="text-align: right; background: rgb(240 240 240); font-weight: bold" value="@Model.estatus" readonly>
                                         break;
 
                                 }
@@ -176,6 +176,37 @@
                             </div>
                         </div>
 
+                        @if (Model != null && Model.cost_is_accepted.HasValue)
+                        {
+                            <div class="ln_solid"></div>
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.cost_is_accepted, new { @class = "control-label col-md-2" })
+                                <div class="col-md-2">
+                                    <input type="text" class="form-control col-md-12" value="@(Model.cost_is_accepted.Value?"True":"False")" readonly>
+                                </div>
+                            </div>
+                        }
+
+                        @if (Model != null && Model.id_document_support > 0 && Model.cost_is_accepted.HasValue && Model.cost_is_accepted.Value)
+                        {
+                            <div class="form-group row" id="div_document_support">
+                                @Html.LabelFor(model => model.id_document_support, new { @class = "control-label col-md-2" })
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control col-md-12" style="text-align: left;" value="@Model.biblioteca_digital.Nombre" readonly>
+                                </div>
+                                <div class="col-md-4">
+                                    <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = Model.id_document_support})" class="btn btn-success btm-sm" title="Download">
+                                        <i class="fa fa-download"></i>
+                                    </a>
+                                    <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = Model.id_document_support, inline=true})" class="btn btn-info btm-sm" target="_blank" title="Inline">
+                                        <i class="fa fa-eye"></i>
+                                    </a>
+                                </div>
+
+                            </div>
+                        }
+
                         <div class="ln_solid"></div>
                         <div class="form-group row">
                             <span style="color:black"><b>COST</b></span>
@@ -216,6 +247,17 @@
                                 <input type="text" class="form-control col-md-12" value="@Model.credit_debit_note_number" readonly>
                             </div>
                         </div>
+
+                        @if (Model != null && Model.is_recovered.HasValue)
+                        {
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.is_recovered, new { @class = "control-label col-md-1" })
+                                <div class="col-md-2">
+                                    <input type="text" class="form-control col-md-12" value="@(Model.is_recovered.Value?"True":"False")" readonly>
+                                </div>
+                            </div>
+                        }
 
                         <div class="ln_solid"></div>
                         <div class="form-group row">

@@ -484,4 +484,5 @@ function borrarLote(id) {
     $("#div_lotes_" + id).fadeOut(700, function () {
         $(this).remove();
     });
+    calculaDatos();
 }

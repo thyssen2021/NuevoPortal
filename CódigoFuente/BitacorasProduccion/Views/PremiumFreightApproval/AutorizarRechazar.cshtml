@@ -50,7 +50,7 @@
                         </div>
                         <div class="form-group row">
                             @Html.LabelFor(model => model.id_solicitante, new { @class = "control-label col-md-1" })
-                            <input type="text" class="form-control col-md-4" value="@Model.empleados1.ConcatNombre" readonly>                          
+                            <input type="text" class="form-control col-md-4" value="@Model.empleados1.ConcatNombre" readonly>
                             <!--Request date-->
                             <label class="control-label col-md-2 float-right">
                                 Date of Request
@@ -143,6 +143,37 @@
                             </div>
                         </div>
 
+                        @if (Model != null && Model.cost_is_accepted.HasValue)
+                        {
+                            <div class="ln_solid"></div>
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.cost_is_accepted, new { @class = "control-label col-md-2" })
+                                <div class="col-md-2">
+                                    <input type="text" class="form-control col-md-12" value="@(Model.cost_is_accepted.Value?"True":"False")" readonly>
+                                </div>
+                            </div>
+                        }
+
+                        @if (Model != null && Model.id_document_support > 0 && Model.cost_is_accepted.HasValue && Model.cost_is_accepted.Value)
+                        {
+                            <div class="form-group row" id="div_document_support">
+                                @Html.LabelFor(model => model.id_document_support, new { @class = "control-label col-md-2" })
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control col-md-12" style="text-align: left;" value="@Model.biblioteca_digital.Nombre" readonly>
+                                </div>
+                                <div class="col-md-4">
+                                    <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = Model.id_document_support})" class="btn btn-success btm-sm" title="Download">
+                                        <i class="fa fa-download"></i>
+                                    </a>
+                                    <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = Model.id_document_support, inline=true})" class="btn btn-info btm-sm" target="_blank" title="Inline">
+                                        <i class="fa fa-eye"></i>
+                                    </a>
+                                </div>
+
+                            </div>
+                        }
+
                         <div class="ln_solid"></div>
                         <div class="form-group row">
                             <span style="color:black"><b>COST</b></span>
@@ -178,7 +209,21 @@
                             <div class="col-md-3">
                                 <input type="text" class="form-control col-md-12" value="@Model.promise_recovering_date.ToString("yyyy-MM-dd")" readonly>
                             </div>
+                            @Html.LabelFor(model => model.credit_debit_note_number, new { @class = "control-label col-md-1" })
+                            <div class="col-md-3">
+                                <input type="text" class="form-control col-md-12" value="@Model.credit_debit_note_number" readonly>
+                            </div>
                         </div>
+
+                        @if (Model != null && Model.is_recovered.HasValue)
+                        {   
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.is_recovered, new { @class = "control-label col-md-1" })
+                                <div class="col-md-2">
+                                    <input type="text" class="form-control col-md-12" value="@(Model.is_recovered.Value?"True":"False")" readonly>
+                                </div>
+                            </div>
+                        }
 
                         <div class="ln_solid"></div>
                         <div class="form-group row">
@@ -213,7 +258,7 @@
                             <div class="form-group row">
                                 <span style="color:black"><b>RAZ&Oacute;N ANTERIOR DE RECHAZO</b></span>
                             </div>
-                           
+
                             <div class="item form-group">
                                 <div class="col-md-12">
                                     @Html.TextAreaFor(model => model.razon_rechazo, new { @class = "form-control", @rows = "4", @autocomplete = "off", @readonly = "readonly" })

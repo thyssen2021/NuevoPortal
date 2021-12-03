@@ -59,7 +59,7 @@
                     </div>
                     <div class="x_content">
                         <br />
-                        @using (Html.BeginForm("Edit", "PremiumFreightApproval", FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                        @using (Html.BeginForm("Edit", "PremiumFreightApproval", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal form-label-left" }))
                         {
                             @Html.AntiForgeryToken()
 
@@ -77,6 +77,7 @@
                             @Html.HiddenFor(model => model.date_request)
                             @Html.HiddenFor(model => model.estatus)
                             @Html.HiddenFor(model => model.razon_rechazo)
+                            @Html.HiddenFor(model => model.id_document_support)
 
                             <div class="form-group row">
                                 @if (Model.estatus == Bitacoras.Util.PFA_Status.RECHAZADO && !String.IsNullOrEmpty(Model.razon_rechazo))
@@ -191,6 +192,73 @@
                                 </div>
                             </div>
 
+                            //PARA SUBIDA DE ARCHIVOS
+
+                            <div class="ln_solid" id="div_separador_soporte" style="@(Model!=null && Model.id_PFA_responsible_cost >1 ? "" : "display:none" )"></div>
+
+
+                            <div class="form-group row" id="div_is_accepted" style="@(Model!=null && Model.id_PFA_responsible_cost >1 ? "" : "display:none" )">
+                                @Html.LabelFor(model => model.cost_is_accepted, new { @class = "control-label col-md-2" })
+                                <div class="col-md-4">
+                                    @Html.EditorFor(m => m.cost_is_accepted, new { htmlAttributes = new { @class = "form-control select2bs4", @style = "width:100%" } })
+                                    @Html.ValidationMessageFor(model => model.cost_is_accepted, "", new { @class = "text-danger" })
+                                </div>
+                            </div>@*<div class="form-group row" id="div_email_support" style="@(Model!=null && Model.cost_is_accepted.HasValue && Model.cost_is_accepted.Value ? "" : "display:none" )">
+                @Html.LabelFor(model => model.email_support, new { @class = "control-label col-md-2" })
+                <div class="col-md-4">
+                    @Html.EditorFor(m => m.email_support, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                    @Html.ValidationMessageFor(model => model.email_support, "", new { @class = "text-danger" })
+                </div>
+            </div>*@
+
+                            if (Model != null && Model.id_document_support > 0 && Model.cost_is_accepted.HasValue && Model.cost_is_accepted.Value)
+                            {
+                                <div class="form-group row" id="div_document_support">
+                                    @Html.LabelFor(model => model.id_document_support, new { @class = "control-label col-md-2" })
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control col-md-12" style="text-align: right;" value="@Model.biblioteca_digital.Nombre" readonly>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = Model.id_document_support})" class="btn btn-success btm-sm" title="Download">
+                                            <i class="fa fa-download"></i>
+                                        </a>
+                                        <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = Model.id_document_support, inline=true})" class="btn btn-info btm-sm" target="_blank" title="Inline">
+                                            <i class="fa fa-eye"></i>
+                                        </a>
+                                        <a onclick="muestraFileInput()" class="btn btn-danger btm-sm" title="Delete" style="color:white">
+                                            <i class="fa fa-close"></i>
+                                        </a>
+                                    </div>
+
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="form-group row" id="div_document_support" style="@(Model != null && Model.cost_is_accepted.HasValue && Model.cost_is_accepted.Value ? "" : "display:none" )">
+                                    @Html.LabelFor(model => model.id_document_support, new { @class = "control-label col-md-2" })
+                                    <div class="col-md-6">
+                                        <div class="input-group">
+                                            <div class="custom-file">
+                                                @Html.TextBoxFor(m => m.PostedFile, new { type = "file", @accept = ".xls,.xlsx,.png, .jpeg, .jpg, .pdf, .doc, .docx, .rar, .zip" })
+                                            </div>
+                                        </div>
+                                        @Html.ValidationMessageFor(m => m.PostedFile, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            }
+
+                            <div class="form-group row" id="div_document_support_2" style="display:none">
+                                @Html.LabelFor(model => model.id_document_support, new { @class = "control-label col-md-2" })
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            @Html.TextBoxFor(m => m.PostedFile, new { type = "file", @accept = ".xls,.xlsx,.png, .jpeg, .jpg, .pdf, .doc, .docx, .rar, .zip", @required = "required" })
+                                        </div>
+                                    </div>
+                                    @Html.ValidationMessageFor(m => m.PostedFile, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
                             <div class="ln_solid"></div>
                             <div class="form-group row">
                                 <span style="color:black"><b>COST</b></span>
@@ -216,7 +284,7 @@
                             </div>
                             <div class="ln_solid"></div>
                             <div class="form-group row">
-                                <span style="color:black"><b>INFO RECORVERED</b></span>
+                                <span style="color:black"><b>INFO RECOVERED</b></span>
                             </div>
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.id_PFA_recovered_cost, new { @class = "control-label col-md-1" })
@@ -233,6 +301,13 @@
                                 <div class="col-md-3">
                                     @Html.EditorFor(m => m.credit_debit_note_number, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
                                     @Html.ValidationMessageFor(model => model.credit_debit_note_number, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.is_recovered, new { @class = "control-label col-md-1" })
+                                <div class="col-md-2">
+                                    @Html.EditorFor(m => m.is_recovered, new { htmlAttributes = new { @class = "form-control select2bs4", @style = "width:100%" } })
+                                    @Html.ValidationMessageFor(model => model.is_recovered, "", new { @class = "text-danger" })
                                 </div>
                             </div>
 

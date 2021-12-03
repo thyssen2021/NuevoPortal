@@ -45,7 +45,12 @@ CREATE TABLE [PFA](
 	[credit_debit_note_number][varchar](35) NULL,
 	[estatus][varchar](12) NOT NULL ,
 	[fecha_aprobacion][datetime] NULL,	
-	[activo] [bit] NOT NULL	
+	[activo] [bit] NOT NULL,
+	--para agregar suporte a PFA
+	[cost_is_accepted][bit] NULL,
+	[email_support][varchar](100) NULL,
+	[id_document_support][int] NULL,
+	[is_recovered][bit] NULL
  CONSTRAINT [PK_PFA] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
@@ -113,6 +118,12 @@ alter table [PFA]
  add constraint FK_PFA_autorizador
   foreign key (id_PFA_autorizador)
   references empleados(id);
+
+  -- restriccion de clave foranea
+alter table [PFA]
+ add constraint FK_PFA_documento
+  foreign key (id_document_support)
+  references biblioteca_digital(id);
   
 -- restricción default
 ALTER TABLE [PFA] ADD  CONSTRAINT [DF_PFA_activo]  DEFAULT (1) FOR [activo]

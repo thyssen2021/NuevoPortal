@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Web;
 using System.Web.Mvc;
 
@@ -72,7 +73,7 @@ namespace Portal_2_0.Controllers
                 if (i == 0)//en caso de item por defecto
                     list[i] = new { value = "", name = listado[i].nombre };
                 else
-                    list[i] = new { value = listado[i].id, name = ("("+listado[i].numeroEmpleado+") "+ listado[i].nombre +" "+ listado[i].apellido1+" "+ listado[i].apellido2) };
+                    list[i] = new { value = listado[i].id, name = ("(" + listado[i].numeroEmpleado + ") " + listado[i].nombre + " " + listado[i].apellido1 + " " + listado[i].apellido2) };
             }
             return Json(list, JsonRequestBehavior.AllowGet);
         }
@@ -146,7 +147,7 @@ namespace Portal_2_0.Controllers
         ///</summary>
         ///<return>
         ///retorna un JsonResult con las opciones disponibles
-        public JsonResult obtieneEmail( int numEmpleado = 0 )
+        public JsonResult obtieneEmail(int numEmpleado = 0)
         {
 
             //obtiene todos los posibles valores
@@ -155,7 +156,7 @@ namespace Portal_2_0.Controllers
             //inicializa la lista de objetos
             var empleado = new object[1];
 
-            if (emp ==null || String.IsNullOrEmpty(emp.correo))
+            if (emp == null || String.IsNullOrEmpty(emp.correo))
             { //no hay correo
                 empleado[0] = new { email = "NO DISPONIBLE" };
             }
@@ -175,16 +176,17 @@ namespace Portal_2_0.Controllers
         public JsonResult obtieneRollosBom(string material = "")
         {
             //obtiene todos los posibles valores
-            List<bom_en_sap> listado = db.bom_en_sap.Where(p => p.activo == true && p.Quantity > 0 && !p.Material.StartsWith("sm") && p.Material==material).ToList();
+            List<bom_en_sap> listado = db.bom_en_sap.Where(p => p.activo == true && p.Quantity > 0 && !p.Material.StartsWith("sm") && p.Material == material).ToList();
 
             //realiza un distict de los materiales
             List<string> distinctList = listado.Where(m => m.Material == material).Select(m => m.Component).Distinct().ToList();
 
             //inserta el valor por default
-            distinctList.Insert(0,  "-- Seleccione un valor --");
+            distinctList.Insert(0, "-- Seleccione un valor --");
 
             //En caso de "Temporal" agrega temporal como opcion
-            if (material.ToUpper().Contains("TEMPORAL")) {
+            if (material.ToUpper().Contains("TEMPORAL"))
+            {
                 distinctList.Add("TEMPORAL");
             }
 
@@ -195,11 +197,42 @@ namespace Portal_2_0.Controllers
             for (int i = 0; i < distinctList.Count; i++)
             {
                 if (i == 0)//en caso de item por defecto
-                    list[i] = new { value = "", name = distinctList[i]};
+                    list[i] = new { value = "", name = distinctList[i] };
                 else
                     list[i] = new { value = distinctList[i], name = distinctList[i] };
             }
             return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult DownloadFile(int? idDocumento, bool inline = false)
+        {
+            if (idDocumento == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            biblioteca_digital archivo = db.biblioteca_digital.Find(idDocumento);
+
+            if (archivo == null)
+            {
+                return View("../Error/NotFound");
+            }
+
+            
+            var cd = new System.Net.Mime.ContentDisposition
+            {
+                // for example foo.bak
+                FileName = archivo.Nombre,
+
+                // always prompt the user for downloading, set to true if you want 
+                // the browser to try to show the file inline
+                Inline = inline,
+            };
+
+            Response.AppendHeader("Content-Disposition", cd.ToString());
+            
+            return File(archivo.Datos, archivo.MimeType);
+
         }
     }
 }

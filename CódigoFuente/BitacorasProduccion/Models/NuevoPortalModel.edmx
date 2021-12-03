@@ -15,6 +15,15 @@
           <Property Name="listaCorreoElectronico" Type="varchar" MaxLength="100" />
           <Property Name="plantaClave" Type="int" />
         </EntityType>
+        <EntityType Name="biblioteca_digital">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Nombre" Type="nvarchar" MaxLength="80" Nullable="false" />
+          <Property Name="MimeType" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Datos" Type="varbinary(max)" Nullable="false" />
+        </EntityType>
         <EntityType Name="bom_en_sap">
           <Key>
             <PropertyRef Name="Material" />
@@ -154,6 +163,10 @@
           <Property Name="estatus" Type="varchar" MaxLength="12" Nullable="false" />
           <Property Name="fecha_aprobacion" Type="datetime" />
           <Property Name="activo" Type="bit" Nullable="false" />
+          <Property Name="cost_is_accepted" Type="bit" />
+          <Property Name="email_support" Type="varchar" MaxLength="100" />
+          <Property Name="id_document_support" Type="int" />
+          <Property Name="is_recovered" Type="bit" />
         </EntityType>
         <EntityType Name="PFA_Autorizador">
           <Key>
@@ -558,6 +571,18 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_PFA_documento">
+          <End Role="biblioteca_digital" Type="Self.biblioteca_digital" Multiplicity="0..1" />
+          <End Role="PFA" Type="Self.PFA" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="biblioteca_digital">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="PFA">
+              <PropertyRef Name="id_document_support" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_PFA_reason">
           <End Role="PFA_Reason" Type="Self.PFA_Reason" Multiplicity="1" />
           <End Role="PFA" Type="Self.PFA" Multiplicity="*" />
@@ -800,6 +825,7 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
         </Association>
         <EntityContainer Name="Portal_2_0ModelStoreContainer">
           <EntitySet Name="Area" EntityType="Self.Area" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="biblioteca_digital" EntityType="Self.biblioteca_digital" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="bom_en_sap" EntityType="Self.bom_en_sap" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="class_v3" EntityType="Self.class_v3" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="empleados" EntityType="Self.empleados" Schema="dbo" store:Type="Tables" />
@@ -915,6 +941,10 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           </AssociationSet>
           <AssociationSet Name="FK_PFA_destination_plant" Association="Self.FK_PFA_destination_plant">
             <End Role="PFA_Destination_plant" EntitySet="PFA_Destination_plant" />
+            <End Role="PFA" EntitySet="PFA" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PFA_documento" Association="Self.FK_PFA_documento">
+            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
             <End Role="PFA" EntitySet="PFA" />
           </AssociationSet>
           <AssociationSet Name="FK_PFA_reason" Association="Self.FK_PFA_reason">
@@ -1483,7 +1513,12 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
             <End Role="empleados" EntitySet="empleados" />
             <End Role="produccion_respaldo" EntitySet="produccion_respaldo" />
           </AssociationSet>
+          <EntitySet Name="biblioteca_digital" EntityType="Portal_2_0Model.biblioteca_digital" />
           <EntitySet Name="PFA" EntityType="Portal_2_0Model.PFA" />
+          <AssociationSet Name="FK_PFA_documento" Association="Portal_2_0Model.FK_PFA_documento">
+            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
+            <End Role="PFA" EntitySet="PFA" />
+          </AssociationSet>
           <AssociationSet Name="FK_PFA_autorizador" Association="Portal_2_0Model.FK_PFA_autorizador">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="PFA" EntitySet="PFA" />
@@ -1841,6 +1876,16 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="biblioteca_digital">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Nombre" Type="String" Nullable="false" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="MimeType" Type="String" Nullable="false" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="Datos" Type="Binary" Nullable="false" MaxLength="Max" FixedLength="false" />
+          <NavigationProperty Name="PFA" Relationship="Portal_2_0Model.FK_PFA_documento" FromRole="biblioteca_digital" ToRole="PFA" />
+        </EntityType>
         <EntityType Name="PFA">
           <Key>
             <PropertyRef Name="id" />
@@ -1871,6 +1916,11 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <Property Name="estatus" Type="String" Nullable="false" MaxLength="12" FixedLength="false" Unicode="false" />
           <Property Name="fecha_aprobacion" Type="DateTime" Precision="3" />
           <Property Name="activo" Type="Boolean" Nullable="false" />
+          <Property Name="cost_is_accepted" Type="Boolean" />
+          <Property Name="email_support" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="id_document_support" Type="Int32" />
+          <Property Name="is_recovered" Type="Boolean" />
+          <NavigationProperty Name="biblioteca_digital" Relationship="Portal_2_0Model.FK_PFA_documento" FromRole="PFA" ToRole="biblioteca_digital" />
           <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_PFA_autorizador" FromRole="PFA" ToRole="empleados" />
           <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_PFA_solicitante" FromRole="PFA" ToRole="empleados" />
           <NavigationProperty Name="PFA_Recovered_cost" Relationship="Portal_2_0Model.FK_id_PFA_recovered_cost" FromRole="PFA" ToRole="PFA_Recovered_cost" />
@@ -1882,6 +1932,18 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <NavigationProperty Name="PFA_Type_shipment" Relationship="Portal_2_0Model.FK_PFA_type_shipment" FromRole="PFA" ToRole="PFA_Type_shipment" />
           <NavigationProperty Name="PFA_Volume" Relationship="Portal_2_0Model.FK_PFA_volume" FromRole="PFA" ToRole="PFA_Volume" />
         </EntityType>
+        <Association Name="FK_PFA_documento">
+          <End Type="Portal_2_0Model.biblioteca_digital" Role="biblioteca_digital" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.PFA" Role="PFA" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="biblioteca_digital">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="PFA">
+              <PropertyRef Name="id_document_support" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_PFA_autorizador">
           <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
           <End Type="Portal_2_0Model.PFA" Role="PFA" Multiplicity="*" />
@@ -2428,9 +2490,23 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="biblioteca_digital">
+            <EntityTypeMapping TypeName="Portal_2_0Model.biblioteca_digital">
+              <MappingFragment StoreEntitySet="biblioteca_digital">
+                <ScalarProperty Name="Datos" ColumnName="Datos" />
+                <ScalarProperty Name="MimeType" ColumnName="MimeType" />
+                <ScalarProperty Name="Nombre" ColumnName="Nombre" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="PFA">
             <EntityTypeMapping TypeName="Portal_2_0Model.PFA">
               <MappingFragment StoreEntitySet="PFA">
+                <ScalarProperty Name="is_recovered" ColumnName="is_recovered" />
+                <ScalarProperty Name="id_document_support" ColumnName="id_document_support" />
+                <ScalarProperty Name="email_support" ColumnName="email_support" />
+                <ScalarProperty Name="cost_is_accepted" ColumnName="cost_is_accepted" />
                 <ScalarProperty Name="activo" ColumnName="activo" />
                 <ScalarProperty Name="fecha_aprobacion" ColumnName="fecha_aprobacion" />
                 <ScalarProperty Name="estatus" ColumnName="estatus" />

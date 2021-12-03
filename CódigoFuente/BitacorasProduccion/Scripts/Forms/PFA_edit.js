@@ -12,6 +12,61 @@
         });
     });
 
+
+    //agrega el evento para mostrar o ocultar estado de Aceptacion
+    $("#id_PFA_responsible_cost").change(function () {
+        let seleccion = $(this).val();
+
+        if (seleccion != "" && seleccion != "1") {
+            $("#div_separador_soporte").fadeIn(700);
+            $("#div_is_accepted").fadeIn(700);
+        } else {
+            $("#cost_is_accepted").val('');
+
+            $('#cost_is_accepted').select2({
+                theme: 'bootstrap4'
+            })
+
+            $("#div_separador_soporte").fadeOut(700);
+            $("#div_is_accepted").fadeOut(700);
+
+            //$("#div_email_support").fadeOut(700, function () {
+            //    $("#email_support").val('');
+            //});
+            $("#div_document_support").fadeOut(700, function () {
+                $("#PostedFile").val('');
+            });
+
+            $("#div_document_support_2").fadeOut(700, function () {
+                $("#PostedFile").val('');
+            });
+        }
+
+    });
+
+
+    //agrega el evento para mostrar o ocultar el soporte en caso de true
+    $("#cost_is_accepted").change(function () {
+        let seleccion = $(this).val();
+
+        if (seleccion == "true") {
+            /* $("#div_email_support").fadeIn(700);*/
+            $("#div_document_support").fadeIn(700);
+        } else {
+            //$("#div_email_support").fadeOut(700, function () {
+            //    $("#email_support").val('');
+            //});
+            $("#div_document_support").fadeOut(700, function () {
+                $("#PostedFile").val('');
+            });
+
+            $("#div_document_support_2").fadeOut(700, function () {
+                $("#PostedFile").val('');
+            });
+        }
+
+    });
+
     calculaCostToRecover();
     seleccionaValoresDefault();
 
@@ -25,6 +80,14 @@
 //agranda el tamaño de la barra
 window.onload = function () {
     document.getElementById('menu_toggle').click();
+}
+
+//muestra el formulario de carga de archivo
+function muestraFileInput() {
+    $("#div_document_support").fadeOut(700, function () {
+        $("#PostedFile").val('');
+    });
+    $("#div_document_support_2").fadeIn(700);
 }
 
 //selecciona los valores que carga por defecto
