@@ -44,8 +44,8 @@ GO
 
 
 SET IDENTITY_INSERT [notificaciones_correo] ON 
---Sólo para desarrollo
---INSERT [notificaciones_correo] ([id],[id_empleado], [descripcion], [activo]) VALUES (1,438,N'PFA_MANAGER', 1)
+--Productivo (cc ana luisa)
+INSERT [notificaciones_correo] ([id],[id_empleado], [descripcion], [activo]) VALUES (1,131,N'PFA_CC_INFO', 1)
 --INSERT [notificaciones_correo] ([id],[id_empleado], [descripcion], [activo]) VALUES (2,438,N'PFA_FINALIZADO', 1)
 
 SET IDENTITY_INSERT [notificaciones_correo] OFF

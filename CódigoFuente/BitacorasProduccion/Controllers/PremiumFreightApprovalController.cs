@@ -934,10 +934,11 @@ namespace Portal_2_0.Controllers
                 EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
 
                 List<String> correos = new List<string>(); //correos TO
-                correos.Add("alfredo.xochitemol@lagermex.com.mx");
+               
+                //correos.Add("alfredo.xochitemol@lagermex.com.mx");
 
-                //if (!String.IsNullOrEmpty(pfa.empleados1.correo))
-                //    correos.Add(pfa.empleados1.correo);
+                if (!String.IsNullOrEmpty(pfa.empleados1.correo))
+                    correos.Add(pfa.empleados1.correo);
 
                 envioCorreo.SendEmailAsync(correos, "Su solicitud de PFA ha sido autorizada.", envioCorreo.getBodyPFAAutorizado(pfa));
 
@@ -952,6 +953,7 @@ namespace Portal_2_0.Controllers
                     if (emp != null && !String.IsNullOrEmpty(emp.correo))
                     {
                         correos.Add(emp.correo);
+                        //correos.Add("alfredo.xochitemol@lagermex.com.mx");
                         envioCorreo.SendEmailAsync(correos, "Se ha autorizado una solicitud de PFA", envioCorreo.getBodyPFAAutorizadoInfo(pfa));
                     }
                 }
@@ -1008,10 +1010,11 @@ namespace Portal_2_0.Controllers
                 EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
 
                 List<String> correos = new List<string>(); //correos TO
-                correos.Add("alfredo.xochitemol@lagermex.com.mx");
+               
+                //correos.Add("alfredo.xochitemol@lagermex.com.mx");
 
-                //if (!String.IsNullOrEmpty(pfa.empleados1.correo))
-                //    correos.Add(pfa.empleados1.correo);
+                if (!String.IsNullOrEmpty(pfa.empleados1.correo))
+                    correos.Add(pfa.empleados1.correo);
 
                 envioCorreo.SendEmailAsync(correos, "Su solicitud de PFA ha sido Rechazada", envioCorreo.getBodyPFARechazado(pfa));
 
@@ -1026,6 +1029,7 @@ namespace Portal_2_0.Controllers
                     if (emp != null && !String.IsNullOrEmpty(emp.correo))
                     {
                         correos.Add(emp.correo);
+                        //correos.Add("alfredo.xochitemol@lagermex.com.mx");
                         envioCorreo.SendEmailAsync(correos, "Se ha rechazado una solicitud de PFA", envioCorreo.getBodyPFARechazadoInfo(pfa));
                     }
                 }
@@ -1099,10 +1103,10 @@ namespace Portal_2_0.Controllers
                 EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
 
                 List<String> correos = new List<string>(); //correos TO
-                correos.Add("alfredo.xochitemol@lagermex.com.mx");
+                //correos.Add("alfredo.xochitemol@lagermex.com.mx");
 
-                //if (!String.IsNullOrEmpty(pfa.empleados.correo))
-                //    correos.Add(pfa.empleados.correo); //agrega correo de autorizador
+                if (!String.IsNullOrEmpty(pfa.empleados.correo))
+                    correos.Add(pfa.empleados.correo); //agrega correo de autorizador
 
                 envioCorreo.SendEmailAsync(correos, "Ha recibido una solicitud PFA, para su aprobación.", envioCorreo.getBodyPFAEnviado(pfa));
             }

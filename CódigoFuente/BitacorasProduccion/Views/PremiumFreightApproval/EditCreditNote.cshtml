@@ -59,19 +59,19 @@
                                 @switch (Model.estatus)
                                 {
                                     case Bitacoras.Util.PFA_Status.APROBADO:
-                                        <input type="button" class="form-control col-md-12" style="text-align: right; background: rgb(200 255 200); font-weight: bold" value="@Model.estatus" readonly>
+                                        <input type="text" class="form-control col-md-12" style="text-align: right; background: rgb(200 255 200); font-weight: bold" value="@Model.estatus" readonly>
                                         break;
                                     case Bitacoras.Util.PFA_Status.RECHAZADO:
-                                        <input type="button" class="form-control col-md-12" style="text-align: right; background: rgb(255 200 200); font-weight: bold" value="@Model.estatus" readonly>
+                                        <input type="text" class="form-control col-md-12" style="text-align: right; background: rgb(255 200 200); font-weight: bold" value="@Model.estatus" readonly>
                                         break;
                                     case Bitacoras.Util.PFA_Status.ENVIADO:
-                                        <input type="button" class="form-control col-md-12" style="text-align: right; background: rgb(101 203 245); font-weight: bold" value="@Model.estatus" readonly>
+                                        <input type="text" class="form-control col-md-12" style="text-align: right; background: rgb(101 203 245); font-weight: bold" value="@Model.estatus" readonly>
                                         break;
                                     case Bitacoras.Util.PFA_Status.FINALIZADO:
-                                        <input type="button" class="form-control col-md-12" style="text-align: right; background: rgb(255 255 180); font-weight: bold" value="@Model.estatus" readonly>
+                                        <input type="text" class="form-control col-md-12" style="text-align: right; background: rgb(255 255 180); font-weight: bold" value="@Model.estatus" readonly>
                                         break;
                                     default:
-                                        <input type="button" class="form-control col-md-12" style="text-align: right; background: rgb(240 240 240); font-weight: bold" value="@Model.estatus" readonly>
+                                        <input type="text" class="form-control col-md-12" style="text-align: right; background: rgb(240 240 240); font-weight: bold" value="@Model.estatus" readonly>
                                         break;
 
                                 }

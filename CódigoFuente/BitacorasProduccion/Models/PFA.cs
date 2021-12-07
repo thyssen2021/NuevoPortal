@@ -94,6 +94,7 @@ namespace Portal_2_0.Models
         [Range(0, int.MaxValue, ErrorMessage = "Ingrese un valor positivo")]
         [Display(Name = "Total Original Cost usd/mt")]
         [RegularExpression(@"^\d+(\.\d{1,2})?$", ErrorMessage = "Ingrese sólo dos decimales")]
+        [LessThan("total_pf_cost")]
         [Required]
         public decimal total_cost { get; set; }
 

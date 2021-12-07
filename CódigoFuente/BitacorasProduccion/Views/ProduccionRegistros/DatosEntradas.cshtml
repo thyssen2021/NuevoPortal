@@ -632,5 +632,19 @@
     @Scripts.Render("~/bundles/dataTables_js")
     @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
     @Scripts.Render(Url.Content("~/Scripts/Forms/datosEntrada.js"))
+    <script>
+        //muestra modal de confirmación de cerrar pagina    
+
+        // Warning
+        $(window).on('beforeunload', function () {
+            return "Any changes will be lost";
+        });
+
+        // Form Submit
+        $(document).on("submit", "form", function (event) {
+            // disable unload warning
+            $(window).off('beforeunload');
+        });
+    </script>
 }
 

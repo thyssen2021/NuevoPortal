@@ -8,28 +8,23 @@ namespace Bitacoras.Util
 {
     public class TimeSpanUtil
     {
-        public static Boolean CalculateDalUren(DateTime datum, TimeSpan? dalStart, TimeSpan? dalEnd)
+        public static Boolean CalculateDalUren(DateTime time,
+                                      TimeSpan startTime, TimeSpan endTime)
         {
-            Boolean isDal = false;
-            DateTime StartDate = DateTime.Today;
-            DateTime EndDate = DateTime.Today;
-
-            //Check whether the dalEnd is lesser than dalStart
-            if (dalStart >= dalEnd)
+            if (endTime == startTime)
             {
-                //Increase the date if dalEnd is timespan of the Nextday 
-                EndDate = EndDate.AddDays(1);
+                return true;
             }
-
-            //Assign the dalStart and dalEnd to the Dates
-            StartDate = StartDate.Date + dalStart.Value;
-            EndDate = EndDate.Date + dalEnd.Value;
-
-            if ((datum >= StartDate) && (datum <= EndDate))
+            else if (endTime < startTime)
             {
-                isDal = true;
+                return time.TimeOfDay <= endTime ||
+                    time.TimeOfDay >= startTime;
             }
-            return isDal;
+            else
+            {
+                return time.TimeOfDay >= startTime &&
+                    time.TimeOfDay <= endTime;
+            } 
         }
     }
 }

@@ -23,7 +23,24 @@
 
 
 
-    });    
+    });
+
+    //agrega el evento a los formularios
+    //$('form:not(.js-allow-double-submission)').preventDoubleSubmission();
+
+    var submittedFormContent = null;
+    $('form:not(.js-allow-double-submission)').submit(function (e) {
+        var newFormContent = $(this).serialize();
+        if (submittedFormContent === newFormContent) {
+            console.log('ya se envio el formulario')
+            e.preventDefault(true);
+        }
+        else {
+            console.log('Enviando el formulario')
+            submittedFormContent = newFormContent;
+        }
+    });
+
 
 });
 
@@ -34,3 +51,22 @@ function clicMenu(num) {
         document.getElementById('menu_toggle').click();
     }
 }
+
+// jQuery plugin to prevent double submission of forms
+jQuery.fn.preventDoubleSubmission = function () {
+    $(this).on('submit', function (e) {
+        var $form = $(this);
+
+        if ($form.data('submitted') === true) {
+            // Previously submitted - don't submit again
+            console.log('Ya se envio el formulario')
+            e.preventDefault();
+        } else {           
+            // Mark it so that the next submit can be ignored
+            $form.data('submitted', true);
+        }
+    });
+
+    // Keep chainability
+    return this;
+};

@@ -146,7 +146,8 @@ FROM
 	JOIN [Portal_2_0].[dbo].[empleados] as em ON po.id_empleado = em.id
 	JOIN [Portal_2_0].[dbo].[empleados] as ems ON ps.id_empleado = ems.id
 	JOIN [Portal_2_0].[dbo].produccion_turnos as pt ON pr.id_turno = pt.id
-	JOIN [Portal_2_0].[dbo].produccion_datos_entrada as pd ON pr.id = pd.id_produccion_registro			
+	JOIN [Portal_2_0].[dbo].produccion_datos_entrada as pd ON pr.id = pd.id_produccion_registro	
+	where pr.activo <>0
 	)t)p)q)r)s
 	)
 				
