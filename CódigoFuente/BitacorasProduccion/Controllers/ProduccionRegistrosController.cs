@@ -413,8 +413,8 @@ namespace Portal_2_0.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult DatosEntradas(produccion_registros produccion_registros)
-        {            
-
+        {
+           
             bool error=false;
 
             foreach (produccion_lotes lote in produccion_registros.produccion_lotes)
@@ -427,16 +427,22 @@ namespace Portal_2_0.Controllers
                 ModelState.AddModelError("", "Verifique que se haya especificado al menos un lote izquierdo o derecho para cada lote.");
             }else if (ModelState.IsValid)
             {
-                //verifica que si existe en un registro en datos entrada
-                produccion_datos_entrada datos_Entrada = db.produccion_datos_entrada.FirstOrDefault(x => x.id_produccion_registro == produccion_registros.id);
+                //verifica que si existe en un registro en datos entrada            
 
-                if (datos_Entrada == null) //si no existe en BD crea la entrada
+                if (db.produccion_datos_entrada.Find(produccion_registros.id) == null) //si no existe en BD crea la entrada
                 {
                     db.produccion_datos_entrada.Add(produccion_registros.produccion_datos_entrada);
-                    db.SaveChanges();
+                    try
+                    {
+                        db.SaveChanges();
+                    }
+                    catch {
+                        EscribeExcepcion(new Exception ("Trato de registrarse datos duplicados: "+produccion_registros.id), Clases.Models.EntradaRegistroEvento.TipoEntradaRegistroEvento.Error);
+                    }
                 }
                 else {
                     //si existe lo modifica
+                    produccion_datos_entrada datos_Entrada = db.produccion_datos_entrada.Find(produccion_registros.id);
                     // Activity already exist in database and modify it
                     db.Entry(datos_Entrada).CurrentValues.SetValues(produccion_registros.produccion_datos_entrada);
                     db.Entry(datos_Entrada).State = EntityState.Modified;
