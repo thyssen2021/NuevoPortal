@@ -211,6 +211,7 @@
     <Compile Include="Controllers\PFA_Type_shipmentController.cs" />
     <Compile Include="Controllers\PFA_VolumeController.cs" />
     <Compile Include="Controllers\PlantasController.cs" />
+    <Compile Include="Controllers\PolizaManualController.cs" />
     <Compile Include="Controllers\PremiumFreightApprovalController.cs" />
     <Compile Include="Controllers\ProduccionLineasController.cs" />
     <Compile Include="Controllers\ProduccionOperadoresController.cs" />
@@ -273,6 +274,9 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Cube_tkmmModel.edmx</DependentUpon>
     </Compile>
+    <Compile Include="Models\currency.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\empleados.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -334,6 +338,21 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\plantas.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\PM_autorizadores.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\PM_conceptos.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\PM_tipo_poliza.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\PM_validadores.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\poliza_manual.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\produccion_datos_entrada.cs">
@@ -5050,6 +5069,11 @@
     <Content Include="Views\PFA_Type_shipment\Edit.cshtml" />
     <Content Include="Views\PFA_Type_shipment\Enable.cshtml" />
     <Content Include="Views\PFA_Type_shipment\Index.cshtml" />
+    <Content Include="Views\PolizaManual\Create.cshtml" />
+    <Content Include="Views\PolizaManual\Delete.cshtml" />
+    <Content Include="Views\PolizaManual\Details.cshtml" />
+    <Content Include="Views\PolizaManual\Edit.cshtml" />
+    <Content Include="Views\PolizaManual\ListadoPolizas.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

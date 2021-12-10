@@ -20,7 +20,8 @@ GO
 
 
 CREATE TABLE [PM_conceptos](
-	[id_poliza] [int] IDENTITY(1,1) NOT NULL,
+	[id][int] IDENTITY(1,1) NOT NULL,
+	[id_poliza] [int] NOT NULL,
 	[cuenta] [int] NOT NULL,
 	[cc] [int] NULL,
 	[concepto][varchar](80) NULL,
@@ -30,10 +31,19 @@ CREATE TABLE [PM_conceptos](
 
  CONSTRAINT [PK_PM_conceptos] PRIMARY KEY CLUSTERED 
 (
-	[id_poliza] ASC
+	[id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+
+
+--agregar FK
+-- restriccion de clave foranea
+alter table [PM_conceptos]
+ add constraint FK_PM_conceptos_id_poliza
+  foreign key (id_poliza)
+  references poliza_manual(id);
+
 	  
 IF object_id(N'PM_conceptos',N'U') IS NOT NULL
 	BEGIN

@@ -72,6 +72,38 @@ BEGIN
 		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PFA_VisualizacionFormato')
 	END
 
+	---------------- PÓLIZAS MANUALES ----------------
+	-- Registros
+	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PolizasManuales_CreacionRegistros' )
+	BEGIN
+		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PolizasManuales_CreacionRegistros')
+	END
+
+	-- Validación por áreas
+	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PolizasManuales_ValidacionPorArea' )
+	BEGIN
+		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PolizasManuales_ValidacionPorArea')
+	END
+
+	-- Autorización (Controlling)
+	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PolizasManuales_AutorizacionControlling' )
+	BEGIN
+		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PolizasManuales_AutorizacionControlling')
+	END
+
+	-- Registro de poliza (Contabilidad)
+	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PolizasManuales_RegistroContabilidad' )
+	BEGIN
+		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PolizasManuales_RegistroContabilidad')
+	END
+
+	-- Catálogos de Póliza
+	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PolizasManuales_catalogos' )
+	BEGIN
+		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PolizasManuales_catalogos')
+	END
+
+
 
 PRINT '<<<CORRECTO: La TABLA dbo.AspNetRoles ha sido INICIALIZADA en la Base de Datos: ' + db_name() + ' en el Servidor: ' + @@servername + '  >>>'     	
 

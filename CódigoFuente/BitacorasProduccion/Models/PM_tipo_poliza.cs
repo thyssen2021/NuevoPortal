@@ -12,26 +12,19 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class biblioteca_digital
+    public partial class PM_tipo_poliza
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public biblioteca_digital()
+        public PM_tipo_poliza()
         {
-            this.PFA = new HashSet<PFA>();
             this.poliza_manual = new HashSet<poliza_manual>();
-            this.poliza_manual1 = new HashSet<poliza_manual>();
         }
     
-        public int Id { get; set; }
-        public string Nombre { get; set; }
-        public string MimeType { get; set; }
-        public byte[] Datos { get; set; }
+        public int id { get; set; }
+        public string descripcion { get; set; }
+        public bool activo { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<PFA> PFA { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<poliza_manual> poliza_manual { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<poliza_manual> poliza_manual1 { get; set; }
     }
 }

@@ -19,16 +19,18 @@ namespace Portal_2_0.Models
         public empleados()
         {
             this.notificaciones_correo = new HashSet<notificaciones_correo>();
-            this.PFA = new HashSet<PFA>();
             this.PFA_Autorizador = new HashSet<PFA_Autorizador>();
-            this.PFA1 = new HashSet<PFA>();
             this.produccion_operadores = new HashSet<produccion_operadores>();
             this.produccion_supervisores = new HashSet<produccion_supervisores>();
             this.produccion_respaldo = new HashSet<produccion_respaldo>();
+            this.PFA = new HashSet<PFA>();
+            this.PFA1 = new HashSet<PFA>();
+            this.PM_autorizadores = new HashSet<PM_autorizadores>();
+            this.PM_validadores = new HashSet<PM_validadores>();
+            this.poliza_manual = new HashSet<poliza_manual>();
         }
-
+    
         public int id { get; set; }
-
         [Required]
         [DataType(DataType.Date)]
         [Display(Name = "Fecha de Nacimiento")]
@@ -37,9 +39,7 @@ namespace Portal_2_0.Models
 
         [Required]
         [Display(Name = "Planta")]
-        public Nullable<int> planta_clave { get; set; }
-
-
+        public Nullable<int> planta_clave { get; set; }                
         public Nullable<int> clave { get; set; }
 
         [Display(Name = "Estatus")]
@@ -104,7 +104,6 @@ namespace Portal_2_0.Models
         [RegularExpression("(^[0-9]+$)", ErrorMessage = "Sólo se permiten números.")]
         public string C8ID { get; set; }
 
-
         //concatena el nombre
         public string ConcatNombre
         {
@@ -119,16 +118,22 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<notificaciones_correo> notificaciones_correo { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<PFA> PFA { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PFA_Autorizador> PFA_Autorizador { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<PFA> PFA1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<produccion_operadores> produccion_operadores { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<produccion_supervisores> produccion_supervisores { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<produccion_respaldo> produccion_respaldo { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<PFA> PFA { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<PFA> PFA1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<PM_autorizadores> PM_autorizadores { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<PM_validadores> PM_validadores { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<poliza_manual> poliza_manual { get; set; }
     }
 }

@@ -141,6 +141,8 @@
 
                                     }
 
+                                    @*MENÚ PREMIUM FREIGHT APPROVAL*@
+
                                     @if (User.IsInRole(TipoRoles.PFA_REGISTRO) || User.IsInRole(TipoRoles.PFA_AUTORIZACION) || User.IsInRole(TipoRoles.PFA_VISUALIZACION))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "PFA" ? "active" : null )">
@@ -191,6 +193,62 @@
                                         </li>
 
                                     }
+
+                                    @*MENÚ POLIZAS MANUALES*@
+                                    @if (User.IsInRole(TipoRoles.PM_AUTORIZAR_CONTROLLING) || User.IsInRole(TipoRoles.PM_CONTABILIDAD_REGISTRO) || User.IsInRole(TipoRoles.PM_REGISTRO) || User.IsInRole(TipoRoles.PM_VALIDAR_POR_AREA))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "polizas_manuales" ? "active" : null )">
+                                            <a><i class="fa fa-table"></i> P&oacute;lizas Manuales<span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu">
+
+                                                @if (User.IsInRole(TipoRoles.PM_REGISTRO))
+                                                {
+                                                    <h3>Crear Formato</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_registro" ? "current-page" : null )"><a href="@Url.Action("CapturistaCreadas", "PolizaManual")">P&oacute;lizas Creadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_registro" ? "current-page" : null )"><a href="@Url.Action("CapturistaPendientes", "PolizaManual")">P&oacute;lizas Pendientes</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_registro" ? "current-page" : null )"><a href="@Url.Action("CapturistaRechazadas", "PolizaManual")">P&oacute;lizas Rechazadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_registro" ? "current-page" : null )"><a href="@Url.Action("CapturistaRegistradas", "PolizaManual")">P&oacute;lizas Registradas</a></li>
+                                                }
+
+                                                @if (User.IsInRole(TipoRoles.PM_VALIDAR_POR_AREA))
+                                                {
+                                                    <h3>Validaci&oacute;n PM</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_validar_area" ? "current-page" : null )"><a href="@Url.Action("ValidadorPendientes", "PolizaManual")">P&oacute;lizas por Validar</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_validar_area" ? "current-page" : null )"><a href="@Url.Action("ValidadorRechazadas", "PolizaManual")">P&oacute;lizas Rechazadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_validar_area" ? "current-page" : null )"><a href="@Url.Action("ValidadorAutorizadas", "PolizaManual")">P&oacute;lizas Autorizadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_validar_area" ? "current-page" : null )"><a href="@Url.Action("ValidadorRegistradas", "PolizaManual")">P&oacute;lizas Registradas</a></li>
+                                                }
+
+                                                @if (User.IsInRole(TipoRoles.PM_AUTORIZAR_CONTROLLING))
+                                                {
+                                                    <h3>Autorizar PM</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_autorizar_controlling" ? "current-page" : null )"><a href="@Url.Action("AutorizadorPendientes", "PolizaManual")">P&oacute;lizas por Autorizar</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_autorizar_controlling" ? "current-page" : null )"><a href="@Url.Action("AutorizadorRechazadas", "PolizaManual")">P&oacute;lizas Rechazadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_autorizar_controlling" ? "current-page" : null )"><a href="@Url.Action("AutorizadorRegistradas", "PolizaManual")">P&oacute;lizas Registradas</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.PM_CONTABILIDAD_REGISTRO))
+                                                {
+                                                    <h3>Contabilidad PM</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_registro_contabilidad" ? "current-page" : null )"><a href="@Url.Action("ContabilidadPendientes", "PolizaManual")">P&oacute;lizas Pendientes</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_registro_contabilidad" ? "current-page" : null )"><a href="@Url.Action("ContabilidadRegistradas", "PolizaManual")">P&oacute;lizas Registradas</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.PM_CATALOGOS))
+                                                {
+
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_catalogos" ? "active" : null )">
+                                                        <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
+                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "PM_catalogos" ? "display:block" : null )">
+                                                            <li class="@(ViewBag.TercelNivel == "PFA_tipo_poliza" ? "current-page" : null )"><a href="@Url.Action( "Index", "PolizasManuales")">Tipos de P&oacute;liza</a></li>
+                                                        </ul>
+                                                    </li>
+                                                }
+
+                                            </ul>
+
+                                        </li>
+
+                                    }
+
 
                                     @if (User.IsInRole(TipoRoles.USERS))
                                     {

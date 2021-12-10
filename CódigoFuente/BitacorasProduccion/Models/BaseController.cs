@@ -51,7 +51,7 @@ namespace Portal_2_0.Models
         /// <summary>
         /// Agrega un elemento a un select list
         /// </summary>
-        public static SelectList AddFirstItem(SelectList origList, string textoPorDefecto = "")
+        public static SelectList AddFirstItem(SelectList origList, string textoPorDefecto = "", string selected = "" )
         {
             string defaultText_ = "-- Seleccione un valor --";
 
@@ -68,7 +68,7 @@ namespace Portal_2_0.Models
             newList.Insert(0, firstItem);
 
             var selectedItem = newList.FirstOrDefault(item => item.Selected);
-            var selectedItemValue = String.Empty;
+            var selectedItemValue = selected;
             if (selectedItem != null)
             {
                 selectedItemValue = selectedItem.Value;

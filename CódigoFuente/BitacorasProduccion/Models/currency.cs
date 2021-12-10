@@ -12,26 +12,31 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class biblioteca_digital
+    public partial class currency
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public biblioteca_digital()
+        public currency()
         {
-            this.PFA = new HashSet<PFA>();
             this.poliza_manual = new HashSet<poliza_manual>();
-            this.poliza_manual1 = new HashSet<poliza_manual>();
         }
     
-        public int Id { get; set; }
-        public string Nombre { get; set; }
-        public string MimeType { get; set; }
-        public byte[] Datos { get; set; }
-    
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<PFA> PFA { get; set; }
+        public string CurrencyISO { get; set; }
+        public string CurrencyName { get; set; }
+        public string Money { get; set; }
+        public string Symbol { get; set; }
+        public bool activo { get; set; }
+
+        
+        //Concatena clave y nombre
+        public string CocatCurrency
+        {
+            get
+            {
+                return "("+CurrencyISO+") "+CurrencyName;
+            }
+        }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<poliza_manual> poliza_manual { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<poliza_manual> poliza_manual1 { get; set; }
     }
 }
