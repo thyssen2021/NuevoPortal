@@ -60,6 +60,7 @@
     <Compile Include="Util\MensajesSweetAlert.cs" />
     <Compile Include="Util\NotificacionesCorreo.cs" />
     <Compile Include="Util\PFA_Status.cs" />
+    <Compile Include="Util\PM_Status.cs" />
     <Compile Include="Util\StreamUtil.cs" />
     <Compile Include="Util\TimeSpanUtil.cs" />
     <Compile Include="Util\TipoRoles.cs" />

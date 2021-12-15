@@ -25,7 +25,7 @@ namespace Clases.Util
         public const string PM_REGISTRO = "PolizasManuales_CreacionRegistros";
         public const string PM_VALIDAR_POR_AREA = "PolizasManuales_ValidacionPorArea";
         public const string PM_AUTORIZAR_CONTROLLING = "PolizasManuales_AutorizacionControlling";
-        public const string PM_CONTABILIDAD_REGISTRO = "PolizasManuales_RegistroContabilidad";
+        public const string PM_CONTABILIDAD = "PolizasManuales_RegistroContabilidad";
         public const string PM_CATALOGOS = "PolizasManuales_catalogos";
         
     }

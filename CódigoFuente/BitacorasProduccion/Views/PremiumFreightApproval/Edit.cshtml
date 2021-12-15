@@ -211,7 +211,7 @@
                 </div>
             </div>*@
 
-                            if (Model != null && Model.id_document_support > 0 && Model.cost_is_accepted.HasValue && Model.cost_is_accepted.Value)
+                            if (Model != null && Model.id_document_support.HasValue && Model.cost_is_accepted.HasValue && Model.cost_is_accepted.Value)
                             {
                                 <div class="form-group row" id="div_document_support">
                                     @Html.LabelFor(model => model.id_document_support, new { @class = "control-label col-md-2" })
@@ -247,6 +247,9 @@
                                 </div>
                             }
 
+                            @* input para saber si está o no activo el campo de soporte *@
+                            <input type="hidden" name="cambio_documento_soporte" id="cambio_documento_soporte" value="0" />
+
                             <div class="form-group row" id="div_document_support_2" style="display:none">
                                 @Html.LabelFor(model => model.id_document_support, new { @class = "control-label col-md-2" })
                                 <div class="col-md-6">
@@ -256,6 +259,16 @@
                                         </div>
                                     </div>
                                     @Html.ValidationMessageFor(m => m.PostedFile, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="col-md-1">
+                                    <div class="input-group">
+                                        @if (Model.id_document_support.HasValue)
+                                        {
+                                            <a onclick="ocultaFileInput()" class="btn btn-warning btm-sm" title="Deshacer" style="color:white">
+                                                <i class="fa fa-refresh"></i>
+                                            </a>
+                                        }
+                                    </div>
                                 </div>
                             </div>
 

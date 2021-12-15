@@ -82,12 +82,27 @@ window.onload = function () {
     document.getElementById('menu_toggle').click();
 }
 
+//variable para saber si ha cambiado el formulario y asi no se detenga por doble submit
+var documento_soporte_cambios = 1;
+
 //muestra el formulario de carga de archivo
 function muestraFileInput() {
     $("#div_document_support").fadeOut(700, function () {
         $("#PostedFile").val('');
     });
     $("#div_document_support_2").fadeIn(700);
+
+    document.getElementById('cambio_documento_soporte').value = ++documento_soporte_cambios;
+}
+
+//oculta el formulario de carga de archivo
+function ocultaFileInput() {
+    $("#div_document_support").fadeIn(700, function () {
+        $("#PostedFile").val('');
+    });
+    $("#div_document_support_2").fadeOut(700);
+
+    document.getElementById('cambio_documento_soporte').value = ++documento_soporte_cambios;
 }
 
 //selecciona los valores que carga por defecto

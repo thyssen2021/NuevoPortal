@@ -269,9 +269,10 @@
         </EntityType>
         <EntityType Name="PM_conceptos">
           <Key>
-            <PropertyRef Name="id_poliza" />
+            <PropertyRef Name="id" />
           </Key>
-          <Property Name="id_poliza" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_poliza" Type="int" Nullable="false" />
           <Property Name="cuenta" Type="int" Nullable="false" />
           <Property Name="cc" Type="int" />
           <Property Name="concepto" Type="varchar" MaxLength="80" />
@@ -723,6 +724,18 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_PM_conceptos_id_poliza">
+          <End Role="poliza_manual" Type="Self.poliza_manual" Multiplicity="1" />
+          <End Role="PM_conceptos" Type="Self.PM_conceptos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="poliza_manual">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PM_conceptos">
+              <PropertyRef Name="id_poliza" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_PM_validadores_empleado">
           <End Role="empleados" Type="Self.empleados" Multiplicity="0..1" />
           <End Role="PM_validadores" Type="Self.PM_validadores" Multiplicity="*" />
@@ -1164,6 +1177,10 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <AssociationSet Name="FK_PM_autorizadores_empleado" Association="Self.FK_PM_autorizadores_empleado">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="PM_autorizadores" EntitySet="PM_autorizadores" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PM_conceptos_id_poliza" Association="Self.FK_PM_conceptos_id_poliza">
+            <End Role="poliza_manual" EntitySet="poliza_manual" />
+            <End Role="PM_conceptos" EntitySet="PM_conceptos" />
           </AssociationSet>
           <AssociationSet Name="FK_PM_validadores_empleado" Association="Self.FK_PM_validadores_empleado">
             <End Role="empleados" EntitySet="empleados" />
@@ -1796,7 +1813,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           </AssociationSet>
           <EntitySet Name="currency" EntityType="Portal_2_0Model.currency" />
           <EntitySet Name="PM_autorizadores" EntityType="Portal_2_0Model.PM_autorizadores" />
-          <EntitySet Name="PM_conceptos" EntityType="Portal_2_0Model.PM_conceptos" />
           <EntitySet Name="PM_tipo_poliza" EntityType="Portal_2_0Model.PM_tipo_poliza" />
           <EntitySet Name="PM_validadores" EntityType="Portal_2_0Model.PM_validadores" />
           <EntitySet Name="poliza_manual" EntityType="Portal_2_0Model.poliza_manual" />
@@ -1839,6 +1855,11 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <AssociationSet Name="FK_poliza_manual_validador" Association="Portal_2_0Model.FK_poliza_manual_validador">
             <End Role="PM_validadores" EntitySet="PM_validadores" />
             <End Role="poliza_manual" EntitySet="poliza_manual" />
+          </AssociationSet>
+          <EntitySet Name="PM_conceptos" EntityType="Portal_2_0Model.PM_conceptos" />
+          <AssociationSet Name="FK_PM_conceptos_id_poliza" Association="Portal_2_0Model.FK_PM_conceptos_id_poliza">
+            <End Role="poliza_manual" EntitySet="poliza_manual" />
+            <End Role="PM_conceptos" EntitySet="PM_conceptos" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="notificaciones_correo">
@@ -2371,18 +2392,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_PM_autorizadores_empleado" FromRole="PM_autorizadores" ToRole="empleados" />
           <NavigationProperty Name="poliza_manual" Relationship="Portal_2_0Model.FK_poliza_manual_autorizador" FromRole="PM_autorizadores" ToRole="poliza_manual" />
         </EntityType>
-        <EntityType Name="PM_conceptos">
-          <Key>
-            <PropertyRef Name="id_poliza" />
-          </Key>
-          <Property Name="id_poliza" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="cuenta" Type="Int32" Nullable="false" />
-          <Property Name="cc" Type="Int32" />
-          <Property Name="concepto" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
-          <Property Name="poliza" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="debe" Type="Decimal" Precision="11" Scale="2" />
-          <Property Name="haber" Type="Decimal" Precision="11" Scale="2" />
-        </EntityType>
         <EntityType Name="PM_tipo_poliza">
           <Key>
             <PropertyRef Name="id" />
@@ -2431,6 +2440,7 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <NavigationProperty Name="PM_autorizadores" Relationship="Portal_2_0Model.FK_poliza_manual_autorizador" FromRole="poliza_manual" ToRole="PM_autorizadores" />
           <NavigationProperty Name="PM_tipo_poliza" Relationship="Portal_2_0Model.FK_poliza_manual_tipo_poliza" FromRole="poliza_manual" ToRole="PM_tipo_poliza" />
           <NavigationProperty Name="PM_validadores" Relationship="Portal_2_0Model.FK_poliza_manual_validador" FromRole="poliza_manual" ToRole="PM_validadores" />
+          <NavigationProperty Name="PM_conceptos" Relationship="Portal_2_0Model.FK_PM_conceptos_id_poliza" FromRole="poliza_manual" ToRole="PM_conceptos" />
         </EntityType>
         <Association Name="FK_poliza_manual_documento_registro">
           <End Type="Portal_2_0Model.biblioteca_digital" Role="biblioteca_digital" Multiplicity="0..1" />
@@ -2549,6 +2559,32 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
             </Principal>
             <Dependent Role="poliza_manual">
               <PropertyRef Name="id_validador" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="PM_conceptos">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_poliza" Type="Int32" Nullable="false" />
+          <Property Name="cuenta" Type="Int32" Nullable="false" />
+          <Property Name="cc" Type="Int32" />
+          <Property Name="concepto" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
+          <Property Name="poliza" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="debe" Type="Decimal" Precision="11" Scale="2" />
+          <Property Name="haber" Type="Decimal" Precision="11" Scale="2" />
+          <NavigationProperty Name="poliza_manual" Relationship="Portal_2_0Model.FK_PM_conceptos_id_poliza" FromRole="PM_conceptos" ToRole="poliza_manual" />
+        </EntityType>
+        <Association Name="FK_PM_conceptos_id_poliza">
+          <End Type="Portal_2_0Model.poliza_manual" Role="poliza_manual" Multiplicity="1" />
+          <End Type="Portal_2_0Model.PM_conceptos" Role="PM_conceptos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="poliza_manual">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PM_conceptos">
+              <PropertyRef Name="id_poliza" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -3044,19 +3080,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="PM_conceptos">
-            <EntityTypeMapping TypeName="Portal_2_0Model.PM_conceptos">
-              <MappingFragment StoreEntitySet="PM_conceptos">
-                <ScalarProperty Name="haber" ColumnName="haber" />
-                <ScalarProperty Name="debe" ColumnName="debe" />
-                <ScalarProperty Name="poliza" ColumnName="poliza" />
-                <ScalarProperty Name="concepto" ColumnName="concepto" />
-                <ScalarProperty Name="cc" ColumnName="cc" />
-                <ScalarProperty Name="cuenta" ColumnName="cuenta" />
-                <ScalarProperty Name="id_poliza" ColumnName="id_poliza" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="PM_tipo_poliza">
             <EntityTypeMapping TypeName="Portal_2_0Model.PM_tipo_poliza">
               <MappingFragment StoreEntitySet="PM_tipo_poliza">
@@ -3094,6 +3117,20 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
                 <ScalarProperty Name="id_planta" ColumnName="id_planta" />
                 <ScalarProperty Name="currency_iso" ColumnName="currency_iso" />
                 <ScalarProperty Name="id_PM_tipo_poliza" ColumnName="id_PM_tipo_poliza" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PM_conceptos">
+            <EntityTypeMapping TypeName="Portal_2_0Model.PM_conceptos">
+              <MappingFragment StoreEntitySet="PM_conceptos">
+                <ScalarProperty Name="haber" ColumnName="haber" />
+                <ScalarProperty Name="debe" ColumnName="debe" />
+                <ScalarProperty Name="poliza" ColumnName="poliza" />
+                <ScalarProperty Name="concepto" ColumnName="concepto" />
+                <ScalarProperty Name="cc" ColumnName="cc" />
+                <ScalarProperty Name="cuenta" ColumnName="cuenta" />
+                <ScalarProperty Name="id_poliza" ColumnName="id_poliza" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

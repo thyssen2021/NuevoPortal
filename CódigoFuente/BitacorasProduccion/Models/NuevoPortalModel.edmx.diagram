@@ -66,7 +66,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_PFA_volume" />
         <EntityTypeShape EntityType="Portal_2_0Model.currency" Width="1.5" PointX="15.875" PointY="30.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.PM_autorizadores" Width="1.5" PointX="15.125" PointY="4.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.PM_conceptos" Width="1.5" PointX="5.375" PointY="8.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.PM_tipo_poliza" Width="1.5" PointX="15.875" PointY="33.625" />
         <EntityTypeShape EntityType="Portal_2_0Model.PM_validadores" Width="1.5" PointX="15.125" PointY="2" />
         <EntityTypeShape EntityType="Portal_2_0Model.poliza_manual" Width="1.5" PointX="18.125" PointY="9.25" />
@@ -80,6 +79,8 @@
         <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_autorizador" />
         <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_tipo_poliza" />
         <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_validador" />
+        <EntityTypeShape EntityType="Portal_2_0Model.PM_conceptos" Width="1.5" PointX="20.375" PointY="10.875" />
+        <AssociationConnector Association="Portal_2_0Model.FK_PM_conceptos_id_poliza" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

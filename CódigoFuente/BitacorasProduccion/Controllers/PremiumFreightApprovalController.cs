@@ -73,7 +73,7 @@ namespace Portal_2_0.Controllers
 
                 //configura los parametros de la vista
                 ViewBag.Title = "Listado Solicitudes Pendientes";
-                ViewBag.SegundoNivel = "PFA_registro";
+                ViewBag.SegundoNivel = "PFA_pendientes_capturista";
                 ViewBag.Edit = false;
                 ViewBag.Details = true;
                 ViewBag.SendToAuthorizer = false;
@@ -108,7 +108,7 @@ namespace Portal_2_0.Controllers
 
                 //configura los parametros de la vista
                 ViewBag.Title = "Listado Solicitudes Aprobadas";
-                ViewBag.SegundoNivel = "PFA_registro";
+                ViewBag.SegundoNivel = "PFA_autorizadas_capturista";
                 ViewBag.Edit = false;
                 ViewBag.EditCredit = true;
                 ViewBag.Details = true;
@@ -143,7 +143,7 @@ namespace Portal_2_0.Controllers
 
                 //configura los parametros de la vista
                 ViewBag.Title = "Listado Solicitudes Rechazadas";
-                ViewBag.SegundoNivel = "PFA_registro";
+                ViewBag.SegundoNivel = "PFA_rechazadas_capturista";
                 ViewBag.Edit = true;
                 ViewBag.Details = true;
                 ViewBag.SendToAuthorizer = true;
@@ -178,7 +178,7 @@ namespace Portal_2_0.Controllers
 
                 //configura los parametros de la vista
                 ViewBag.Title = "Listado Solicitudes Pendientes";
-                ViewBag.SegundoNivel = "PFA_autorizar";
+                ViewBag.SegundoNivel = "PFA_autorizador_pendientes";
                 ViewBag.Edit = false;
                 ViewBag.Details = false;
                 ViewBag.SendToAuthorizer = false;
@@ -211,7 +211,7 @@ namespace Portal_2_0.Controllers
 
                 //configura los parametros de la vista
                 ViewBag.Title = "Listado Solicitudes Autorizadas";
-                ViewBag.SegundoNivel = "PFA_autorizar";
+                ViewBag.SegundoNivel = "PFA_autorizador_autorizadas";
                 ViewBag.Edit = false;
                 ViewBag.EditCredit = true;
                 ViewBag.Details = true;
@@ -245,7 +245,7 @@ namespace Portal_2_0.Controllers
 
                 //configura los parametros de la vista
                 ViewBag.Title = "Listado Solicitudes Rechazadas";
-                ViewBag.SegundoNivel = "PFA_autorizar";
+                ViewBag.SegundoNivel = "PFA_autorizador_rechazadas";
                 ViewBag.Edit = false;
                 ViewBag.Details = true;
                 ViewBag.SendToAuthorizer = false;
@@ -606,7 +606,6 @@ namespace Portal_2_0.Controllers
             if (TieneRol(TipoRoles.PFA_REGISTRO))
             {
                 //obtiene el usuario logeado
-
                 if (id == null)
                 {
                     return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -783,6 +782,10 @@ namespace Portal_2_0.Controllers
 
                     ViewBag.Solicitante = empleado2;
 
+                    //cargar el documento de soporte
+                    if (pFA.id_document_support.HasValue)
+                        pFA.biblioteca_digital = db.biblioteca_digital.Find(pFA.id_document_support);
+
                     //obtiene el listado de ids de empleado de los autorizadores
                     var idsAutorizadores2 = db.PFA_Autorizador.Select(x => x.id_empleado).ToList();
 
@@ -805,6 +808,10 @@ namespace Portal_2_0.Controllers
             //obtiene el usuario logeado
             empleados empleado = obtieneEmpleadoLogeado();
             ViewBag.Solicitante = empleado;
+
+            //cargar el documento de soporte
+            if (pFA.id_document_support.HasValue)
+                pFA.biblioteca_digital = db.biblioteca_digital.Find(pFA.id_document_support);
 
             //obtiene el listado de ids de empleado de los autorizadores
             List<int?> idsAutorizadores = db.PFA_Autorizador.Select(x => x.id_empleado).ToList();

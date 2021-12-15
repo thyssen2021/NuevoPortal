@@ -153,17 +153,17 @@
                                                 {
                                                     <h3>Registro</h3>
                                                     <li class="@(ViewBag.SegundoNivel == "PFA_registro" ? "current-page" : null )"><a href="@Url.Action("Index", "PremiumFreightApproval")">Solicitudes Creadas</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "PFA_registro" ? "current-page" : null )"><a href="@Url.Action("PendientesCapturista", "PremiumFreightApproval")">Solicitudes Pendientes</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "PFA_registro" ? "current-page" : null )"><a href="@Url.Action("RechazadasCapturista", "PremiumFreightApproval")">Solicitudes Rechazadas</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "PFA_registro" ? "current-page" : null )"><a href="@Url.Action("AutorizadasCapturista", "PremiumFreightApproval")">Solicitudes Autorizadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_pendientes_capturista" ? "current-page" : null )"><a href="@Url.Action("PendientesCapturista", "PremiumFreightApproval")">Solicitudes Pendientes</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_rechazadas_capturista" ? "current-page" : null )"><a href="@Url.Action("RechazadasCapturista", "PremiumFreightApproval")">Solicitudes Rechazadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_autorizadas_capturista" ? "current-page" : null )"><a href="@Url.Action("AutorizadasCapturista", "PremiumFreightApproval")">Solicitudes Autorizadas</a></li>
                                                 }
 
                                                 @if (User.IsInRole(TipoRoles.PFA_AUTORIZACION))
                                                 {
                                                     <h3>Autorizaci&oacute;n</h3>
-                                                    <li class="@(ViewBag.SegundoNivel == "PFA_autorizar" ? "current-page" : null )"><a href="@Url.Action("AutorizadorPendientes", "PremiumFreightApproval")">PF por Autorizar</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "PFA_autorizar" ? "current-page" : null )"><a href="@Url.Action("AutorizadorRechazadas", "PremiumFreightApproval")">PF Rechazadas</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "PFA_autorizar" ? "current-page" : null )"><a href="@Url.Action("AutorizadorAutorizadas", "PremiumFreightApproval")">PF Autorizadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_autorizador_pendientes" ? "current-page" : null )"><a href="@Url.Action("AutorizadorPendientes", "PremiumFreightApproval")">PF por Autorizar</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_autorizador_rechazadas" ? "current-page" : null )"><a href="@Url.Action("AutorizadorRechazadas", "PremiumFreightApproval")">PF Rechazadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_autorizador_autorizadas" ? "current-page" : null )"><a href="@Url.Action("AutorizadorAutorizadas", "PremiumFreightApproval")">PF Autorizadas</a></li>
                                                     @*<li class="@(ViewBag.SegundoNivel == "PFA_autorizar" ? "current-page" : null )"><a href="@Url.Action("AutorizadorFinalizadas", "PremiumFreightApproval")">PF Finalizadas</a></li>*@
                                                 }
                                                 @if (User.IsInRole(TipoRoles.PFA_CATALOGOS))
@@ -195,7 +195,7 @@
                                     }
 
                                     @*MENÚ POLIZAS MANUALES*@
-                                    @if (User.IsInRole(TipoRoles.PM_AUTORIZAR_CONTROLLING) || User.IsInRole(TipoRoles.PM_CONTABILIDAD_REGISTRO) || User.IsInRole(TipoRoles.PM_REGISTRO) || User.IsInRole(TipoRoles.PM_VALIDAR_POR_AREA))
+                                    @if (User.IsInRole(TipoRoles.PM_AUTORIZAR_CONTROLLING) || User.IsInRole(TipoRoles.PM_CONTABILIDAD) || User.IsInRole(TipoRoles.PM_REGISTRO) || User.IsInRole(TipoRoles.PM_VALIDAR_POR_AREA) || User.IsInRole(TipoRoles.PM_CATALOGOS))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "polizas_manuales" ? "active" : null )">
                                             <a><i class="fa fa-table"></i> P&oacute;lizas Manuales<span class="fa fa-chevron-down"></span></a>
@@ -205,9 +205,9 @@
                                                 {
                                                     <h3>Crear Formato</h3>
                                                     <li class="@(ViewBag.SegundoNivel == "PM_registro" ? "current-page" : null )"><a href="@Url.Action("CapturistaCreadas", "PolizaManual")">P&oacute;lizas Creadas</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "PM_registro" ? "current-page" : null )"><a href="@Url.Action("CapturistaPendientes", "PolizaManual")">P&oacute;lizas Pendientes</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "PM_registro" ? "current-page" : null )"><a href="@Url.Action("CapturistaRechazadas", "PolizaManual")">P&oacute;lizas Rechazadas</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "PM_registro" ? "current-page" : null )"><a href="@Url.Action("CapturistaRegistradas", "PolizaManual")">P&oacute;lizas Registradas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_pendientes" ? "current-page" : null )"><a href="@Url.Action("CapturistaPendientes", "PolizaManual")">P&oacute;lizas Pendientes</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_rechazadas" ? "current-page" : null )"><a href="@Url.Action("CapturistaRechazadas", "PolizaManual")">P&oacute;lizas Rechazadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_finalizadas" ? "current-page" : null )"><a href="@Url.Action("CapturistaFinalizadas", "PolizaManual")">P&oacute;lizas Finalizadas</a></li>
                                                 }
 
                                                 @if (User.IsInRole(TipoRoles.PM_VALIDAR_POR_AREA))
@@ -226,7 +226,7 @@
                                                     <li class="@(ViewBag.SegundoNivel == "PM_autorizar_controlling" ? "current-page" : null )"><a href="@Url.Action("AutorizadorRechazadas", "PolizaManual")">P&oacute;lizas Rechazadas</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "PM_autorizar_controlling" ? "current-page" : null )"><a href="@Url.Action("AutorizadorRegistradas", "PolizaManual")">P&oacute;lizas Registradas</a></li>
                                                 }
-                                                @if (User.IsInRole(TipoRoles.PM_CONTABILIDAD_REGISTRO))
+                                                @if (User.IsInRole(TipoRoles.PM_CONTABILIDAD))
                                                 {
                                                     <h3>Contabilidad PM</h3>
                                                     <li class="@(ViewBag.SegundoNivel == "PM_registro_contabilidad" ? "current-page" : null )"><a href="@Url.Action("ContabilidadPendientes", "PolizaManual")">P&oacute;lizas Pendientes</a></li>
