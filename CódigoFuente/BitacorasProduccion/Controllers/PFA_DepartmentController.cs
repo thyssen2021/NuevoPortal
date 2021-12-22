@@ -40,12 +40,12 @@ namespace Portal_2_0.Controllers
             {
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 PFA_Department pFA_Department = db.PFA_Department.Find(id);
                 if (pFA_Department == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
                 return View(pFA_Department);
             }
@@ -111,12 +111,12 @@ namespace Portal_2_0.Controllers
             {
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 PFA_Department pFA_Department = db.PFA_Department.Find(id);
                 if (pFA_Department == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
                 return View(pFA_Department);
             }
@@ -173,12 +173,12 @@ namespace Portal_2_0.Controllers
             {
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 PFA_Department item = db.PFA_Department.Find(id);
                 if (item == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
                 return View(item);
             }
@@ -234,12 +234,12 @@ namespace Portal_2_0.Controllers
             {
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                  PFA_Department item = db.PFA_Department.Find(id);
                 if (item == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
                 return View(item);
             }

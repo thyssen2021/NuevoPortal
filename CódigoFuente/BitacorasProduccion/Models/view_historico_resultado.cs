@@ -156,5 +156,24 @@ namespace Portal_2_0.Models
 
         [Display(Name = "Balance de Scrap Real")]
         public Nullable<double> Balance_de_Scrap_Real { get; set; }
+
+        //retorna el IdRegistro
+        public int? IdRegistro
+        {
+            get
+            {
+                try
+                {
+                    return Convert.ToInt32(this.Column40.Value);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+        }
+
+      
+
     }
 }

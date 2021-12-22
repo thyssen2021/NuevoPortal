@@ -42,12 +42,12 @@ namespace Portal_2_0.Controllers
             {
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 plantas plantas = db.plantas.Find(id);
                 if (plantas == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
                 return View(plantas);
             }
@@ -98,12 +98,12 @@ namespace Portal_2_0.Controllers
             {
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 plantas plantas = db.plantas.Find(id);
                 if (plantas == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
                 return View(plantas);
             }
@@ -139,12 +139,12 @@ namespace Portal_2_0.Controllers
             {
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 plantas plantas = db.plantas.Find(id);
                 if (plantas == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
                 return View(plantas);
             }
@@ -200,12 +200,12 @@ namespace Portal_2_0.Controllers
             {
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 plantas plantas = db.plantas.Find(id);
                 if (plantas == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
                 return View(plantas);
             }

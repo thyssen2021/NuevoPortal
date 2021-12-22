@@ -44,12 +44,12 @@ namespace Portal_2_0.Controllers
             {
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 produccion_operadores produccion_operadores = db.produccion_operadores.Find(id);
                 if (produccion_operadores == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
                 return View(produccion_operadores);
             }
@@ -144,12 +144,12 @@ namespace Portal_2_0.Controllers
             {
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 produccion_operadores produccion_operadores = db.produccion_operadores.Find(id);
                 if (produccion_operadores == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
                 ViewBag.id_empleado = new SelectList(db.empleados.Where(p => p.activo == true), "id", "numeroEmpleado", produccion_operadores.id_empleado);
                 ViewBag.id_linea = new SelectList(db.produccion_lineas.Where(p => p.activo == true), "id", "linea", produccion_operadores.id_linea);
@@ -232,12 +232,12 @@ namespace Portal_2_0.Controllers
 
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 produccion_operadores valor = db.produccion_operadores.Find(id);
                 if (valor == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
                 return View(valor);
 
@@ -295,12 +295,12 @@ namespace Portal_2_0.Controllers
 
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 produccion_operadores valor = db.produccion_operadores.Find(id);
                 if (valor == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
                 return View(valor);
 

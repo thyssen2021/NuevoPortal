@@ -43,12 +43,12 @@ namespace Portal_2_0.Controllers
             {
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 produccion_lineas produccion_lineas = db.produccion_lineas.Find(id);
                 if (produccion_lineas == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
                 return View(produccion_lineas);
             }
@@ -101,12 +101,12 @@ namespace Portal_2_0.Controllers
             {
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 produccion_lineas produccion_lineas = db.produccion_lineas.Find(id);
                 if (produccion_lineas == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
                 ViewBag.clave_planta = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion", produccion_lineas.clave_planta);
                 return View(produccion_lineas);
@@ -143,12 +143,12 @@ namespace Portal_2_0.Controllers
 
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 produccion_lineas valor = db.produccion_lineas.Find(id);
                 if (valor == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
                 return View(valor);
 
@@ -206,12 +206,12 @@ namespace Portal_2_0.Controllers
 
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 produccion_lineas valor = db.produccion_lineas.Find(id);
                 if (valor == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
                 return View(valor);
 

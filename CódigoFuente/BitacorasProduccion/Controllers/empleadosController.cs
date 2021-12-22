@@ -48,12 +48,12 @@ namespace Portal_2_0.Controllers
             {
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 empleados empleados = db.empleados.Find(id);
                 if (empleados == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
                 return View(empleados);
             }
@@ -167,12 +167,12 @@ namespace Portal_2_0.Controllers
             {
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 empleados empleados = db.empleados.Find(id);
                 if (empleados == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
 
                 //valores enviados previamente
@@ -294,12 +294,12 @@ namespace Portal_2_0.Controllers
             {               
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 empleados empleado = db.empleados.Find(id);
                 if (empleado == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
                 return View(empleado);
                
@@ -356,12 +356,12 @@ namespace Portal_2_0.Controllers
             {
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 empleados empleado = db.empleados.Find(id);
                 if (empleado == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
                 return View(empleado);
 

@@ -25,7 +25,12 @@ SELECT
       ,[numero_parte_cliente] AS [Número de Parte  de cliente]
       ,[sap_rollo] AS [SAP Rollo]
       ,[material] AS [Material]
-      ,[fecha] AS [Fecha]
+	  , CASE
+            WHEN DATEPART(HOUR, fecha) = 0 AND DATEPART(MINUTE, fecha)= 0 AND  DATEPART(SECOND, fecha)= 0
+               THEN  DATEADD(HOUR, DATEPART(HOUR, hora),  DATEADD(MINUTE, DATEPART(MINUTE, hora), DATEADD(SECOND, DATEPART(SECOND, hora), fecha))  ) 
+               ELSE fecha
+       END as [Fecha]
+      --,[fecha] AS [Fecha]
       ,[turno] AS [Turno]
       ,[hora] AS [Hora]
       ,[orden_sap] AS [Orden SAP]
@@ -81,7 +86,12 @@ SELECT
       ,[Número de Parte  de cliente]
       ,[SAP Rollo]
       ,[Material]
-      ,[Fecha]
+      , CASE
+            WHEN DATEPART(HOUR, fecha) = 0 AND DATEPART(MINUTE, fecha)= 0 AND  DATEPART(SECOND, fecha)= 0
+               THEN  DATEADD(HOUR, DATEPART(HOUR, [Hora ]),  DATEADD(MINUTE, DATEPART(MINUTE, [Hora ]), DATEADD(SECOND, DATEPART(SECOND, [Hora ]), fecha))  ) 
+               ELSE fecha
+       END as [Fecha]
+      --,[fecha] AS [Fecha]
       ,[Turno]
       ,[Hora ] AS [Hora]
       ,[Orden SAP]
@@ -116,7 +126,7 @@ SELECT
       ,ISNULL([Linea],SUBSTRING( [Operador ],1,10)) AS [Linea]
       ,ISNULL([Column38],'Puebla') as [Planta]
       ,YEAR(Fecha) AS [Anio]
-      ,[Column40]
+      ,null as [Column40]
       ,[Ordenes por pieza]
       ,[Peso de rollo usado real _Kg]
       ,[Peso bruto Total piezas_Kg]
@@ -137,7 +147,12 @@ SELECT
       ,[Número de Parte  de cliente]
       ,[SAP Rollo]
       ,[Material]
-      ,[Fecha]
+       , CASE
+            WHEN DATEPART(HOUR, fecha) = 0 AND DATEPART(MINUTE, fecha)= 0 AND  DATEPART(SECOND, fecha)= 0
+               THEN  DATEADD(HOUR, DATEPART(HOUR, [Hora]),  DATEADD(MINUTE, DATEPART(MINUTE, [Hora]), DATEADD(SECOND, DATEPART(SECOND, [Hora]), fecha))  ) 
+               ELSE fecha
+       END as [Fecha]
+      --,[fecha] AS [Fecha]
       ,[Turno]
       ,[Hora]
       ,[Orden SAP]
@@ -172,7 +187,7 @@ SELECT
       ,ISNULL([Column37],SUBSTRING( [Operador],1,10)) AS [Linea]
       ,ISNULL([Column38],'Silao') as [Planta]
       ,YEAR(Fecha) AS [Anio]
-      ,[Column40]
+      ,null as [Column40]
       ,[Ordenes por pieza]
       ,[Peso de rollo usado real _Kg]
       ,[Peso bruto Total piezas_Kg]
@@ -231,7 +246,7 @@ SELECT
       ,[Column37] AS [Linea]
       ,[Column38] AS [Planta]
       ,[Column39] AS [Anio]
-      ,[Column40]
+	  ,CONVERT(float, [Column40]) AS [Column40]
       ,[Ordenes por pieza]
       ,[Peso de rollo usado real _Kg]
       ,[Peso bruto Total piezas_Kg]

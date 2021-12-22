@@ -18,7 +18,7 @@ namespace Portal_2_0.Controllers
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
         // GET: ProduccionReportes
-        public ActionResult Index(int? clave_planta, int? id_linea, string fecha_inicial, string fecha_final, int pagina = 1)
+        public ActionResult Index(int? clave_planta, int? id_linea, string fecha_inicial, string fecha_final, string tipo_reporte, string fecha_turno, int? turno, int pagina = 1)
         {
 
             if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE))
@@ -44,6 +44,7 @@ namespace Portal_2_0.Controllers
 
                 DateTime dateInicial = new DateTime(2000,1,1);  //fecha inicial por defecto
                 DateTime dateFinal = DateTime.Now;          //fecha final por defecto
+                DateTime dateTurno = DateTime.Now;          //fecha turno por defecto
 
                 try
                 {
@@ -52,7 +53,9 @@ namespace Portal_2_0.Controllers
                     if (!String.IsNullOrEmpty(fecha_final)) { 
                             dateFinal = Convert.ToDateTime(fecha_final);
                             dateFinal = dateFinal.AddHours(23).AddMinutes(59).AddSeconds(59);
-                        }
+                       }
+                    if (!String.IsNullOrEmpty(fecha_turno))
+                        dateTurno = Convert.ToDateTime(fecha_turno);
                 }
                 catch (FormatException e)
                 {
@@ -87,6 +90,7 @@ namespace Portal_2_0.Controllers
                 {
                     linea = id_linea.Value;
                 }
+
                 produccion_lineas produccion_Lineas = db.produccion_lineas.Find(linea);
                 if (produccion_Lineas == null)
                 {
@@ -96,34 +100,96 @@ namespace Portal_2_0.Controllers
                     };
                 }
 
+                //valor por defecto para turno
+                int id_turno = 0;
+
+                if (turno != null)
+                    id_turno = turno.Value;
+
+                produccion_turnos turno1 = db.produccion_turnos.Find(id_turno);
+
+                //si no hay turno lo inicializa
+                if (turno1 == null)
+                    turno1 = new produccion_turnos { id=0 };
+
+
                 var cantidadRegistrosPorPagina = 20; // parámetro
 
-                var listado = db.view_historico_resultado.Where(
-                    x=> 
-                    x.Planta.ToUpper().Contains(planta.descripcion.ToUpper()) 
-                    && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
-                    && x.Fecha >= dateInicial && x.Fecha <= dateFinal
-                    && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
-                    && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
-                    )
-                    .OrderBy(x=> x.id)
-                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
-                    .Take(cantidadRegistrosPorPagina).ToList();
+                //REALIZA LA CONSULTA DEPENDIENDO DEL TIPO
+                String tipoR = "sabana";  //valor por defecto 
+                if (!String.IsNullOrEmpty(tipo_reporte)) {
+                    tipoR = tipo_reporte;
+                }
 
-                var totalDeRegistros = db.view_historico_resultado.Where(
-                    x =>
-                    x.Planta.ToUpper().Contains(planta.descripcion.ToUpper())
-                    && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
-                    && x.Fecha >= dateInicial && x.Fecha <= dateFinal
-                    && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
-                    && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
-                    ).Count();
+                List<view_historico_resultado> listado = new List<view_historico_resultado>();
+                int totalDeRegistros = 0;
+
+                if (tipoR.Contains("sabana")) {             //BUSCA POR SÁBANA
+                    listado = db.view_historico_resultado.Where(
+                        x =>
+                        x.Planta.ToUpper().Contains(planta.descripcion.ToUpper())
+                        && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
+                        && x.Fecha >= dateInicial && x.Fecha <= dateFinal
+                        && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
+                        && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
+                        )
+                        .OrderBy(x => x.id)
+                        .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                        .Take(cantidadRegistrosPorPagina).ToList();
+
+                    totalDeRegistros = db.view_historico_resultado.Where(
+                        x =>
+                        x.Planta.ToUpper().Contains(planta.descripcion.ToUpper())
+                        && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
+                        && x.Fecha >= dateInicial && x.Fecha <= dateFinal
+                        && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
+                        && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
+                        ).Count();
+                } else if (tipoR.Contains("turno")) { //BUSCA POR TURNO
+                    //determina la hora inicial y final del turno                   
+                    DateTime fecha_fin_turno = dateTurno.Add(turno1.hora_fin);
+                    //hora inicial
+                    dateTurno = dateTurno.Add(turno1.hora_inicio);
+
+                    //si la hora fin es menor a la hora inicio es otro dia
+                    if (TimeSpan.Compare(turno1.hora_inicio, turno1.hora_fin) == 1)
+                        fecha_fin_turno = fecha_fin_turno.AddDays(1);                   
+
+
+                    listado = db.view_historico_resultado.Where(
+                       x =>
+                       //ver comparar por el campo hora=?
+                       x.Planta.ToUpper().Contains(planta.descripcion.ToUpper())
+                       && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
+                       && (x.Turno.ToUpper().Contains(turno1.descripcion.ToUpper()) || x.Turno.ToUpper().Contains(turno1.valor.ToString()) || id_turno == 0)
+                       && x.Fecha >= dateTurno && x.Fecha <= fecha_fin_turno 
+                       && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
+                       && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
+                       )
+                       .OrderBy(x => x.id)
+                       .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                       .Take(cantidadRegistrosPorPagina).ToList();
+
+                    totalDeRegistros = db.view_historico_resultado.Where(
+                        x =>
+                         x.Planta.ToUpper().Contains(planta.descripcion.ToUpper())
+                       && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
+                       && (x.Turno.ToUpper().Contains(turno1.descripcion.ToUpper()) || x.Turno.ToUpper().Contains(turno1.valor.ToString()) || id_turno == 0)
+                       && x.Fecha >= dateTurno && x.Fecha <= fecha_fin_turno
+                       && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
+                       && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
+                        ).Count();
+
+                }
 
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
                 routeValues["clave_planta"] = clave_planta;
                 routeValues["id_linea"] = id_linea;
                 routeValues["fecha_inicial"] = fecha_inicial;
                 routeValues["fecha_final"] = fecha_final;
+                routeValues["tipo_reporte"] = tipo_reporte;
+                routeValues["fecha_turno"] = fecha_turno;
+                routeValues["turno"] = turno;
 
                 Paginacion paginacion = new Paginacion
                 {
@@ -134,6 +200,7 @@ namespace Portal_2_0.Controllers
                 };
 
                 ViewBag.id_linea = new SelectList(db.produccion_lineas.Where(p => p.activo == true), "id", "linea");
+                ViewBag.turno = new SelectList(db.produccion_turnos.Where(p => p.activo.HasValue && p.activo.Value && p.clave_planta == emp.planta_clave ), "id", "descripcion");
                 ViewBag.clave_planta = new SelectList(db.plantas.Where(p => p.activo == true && p.clave == emp.planta_clave), "clave", "descripcion");
                 ViewBag.Paginacion = paginacion;
 
@@ -147,7 +214,7 @@ namespace Portal_2_0.Controllers
         }
                
      
-        public ActionResult Exportar(int? clave_planta, int? id_linea, string fecha_inicial, string fecha_final)
+        public ActionResult Exportar(int? clave_planta, int? id_linea, string fecha_inicial, string fecha_final, string tipo_reporte, string fecha_turno, int? turno, int pagina = 1)
         {
             if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE))
             {
@@ -155,6 +222,7 @@ namespace Portal_2_0.Controllers
 
                 DateTime dateInicial = new DateTime(2000, 1, 1);  //fecha inicial por defecto
                 DateTime dateFinal = DateTime.Now;          //fecha final por defecto
+                DateTime dateTurno = DateTime.Now;          //fecha turno por defecto
 
                 try
                 {
@@ -165,6 +233,8 @@ namespace Portal_2_0.Controllers
                         dateFinal = Convert.ToDateTime(fecha_final);
                         dateFinal = dateFinal.AddHours(23).AddMinutes(59).AddSeconds(59);
                     }
+                    if (!String.IsNullOrEmpty(fecha_turno))
+                        dateTurno = Convert.ToDateTime(fecha_turno);
                 }
                 catch (FormatException e)
                 {
@@ -208,17 +278,75 @@ namespace Portal_2_0.Controllers
                     };
                 }
 
-                var listado = db.view_historico_resultado.Where(
-                    x =>
-                    x.Planta.ToUpper().Contains(planta.descripcion.ToUpper())
-                    && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
-                    && x.Fecha >= dateInicial && x.Fecha <= dateFinal
-                    && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
-                    && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
-                    )
-                    .OrderBy(x => x.id).ToList();
+                //valor por defecto para turno
+                int id_turno = 0;
 
-                byte[] stream = ExcelUtil.GeneraReporteBitacorasExcel(listado);
+                if (turno != null)
+                    id_turno = turno.Value;
+
+                produccion_turnos turno1 = db.produccion_turnos.Find(id_turno);
+
+                //si no hay turno lo inicializa
+                if (turno1 == null)
+                    turno1 = new produccion_turnos { id = 0 };
+
+
+                //REALIZA LA CONSULTA DEPENDIENDO DEL TIPO
+                String tipoR = "sabana";  //valor por defecto 
+                if (!String.IsNullOrEmpty(tipo_reporte))
+                {
+                    tipoR = tipo_reporte;
+                }
+
+                List<view_historico_resultado> listado = new List<view_historico_resultado>();
+
+                bool porturno = false;
+
+                if (tipoR.Contains("sabana"))
+                {             //BUSCA POR SÁBANA
+                    listado = db.view_historico_resultado.Where(
+                        x =>
+                        x.Planta.ToUpper().Contains(planta.descripcion.ToUpper())
+                        && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
+                        && x.Fecha >= dateInicial && x.Fecha <= dateFinal
+                        && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
+                        && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
+                        )
+                        .OrderBy(x => x.id)
+                       .ToList();
+
+                  
+                }
+                else if (tipoR.Contains("turno"))
+                { //BUSCA POR TURNO
+                    porturno = true;
+                    //determina la hora inicial y final del turno                   
+                    DateTime fecha_fin_turno = dateTurno.Add(turno1.hora_fin);
+                    //hora inicial
+                    dateTurno = dateTurno.Add(turno1.hora_inicio);
+
+                    //si la hora fin es menor a la hora inicio es otro dia
+                    if (TimeSpan.Compare(turno1.hora_inicio, turno1.hora_fin) == 1)
+                        fecha_fin_turno = fecha_fin_turno.AddDays(1);
+
+
+                    listado = db.view_historico_resultado.Where(
+                       x =>
+                       //ver comparar por el campo hora=?
+                       x.Planta.ToUpper().Contains(planta.descripcion.ToUpper())
+                       && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
+                       && (x.Turno.ToUpper().Contains(turno1.descripcion.ToUpper()) || x.Turno.ToUpper().Contains(turno1.valor.ToString()) || id_turno == 0)
+                       && x.Fecha >= dateTurno && x.Fecha <= fecha_fin_turno
+                       && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
+                       && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
+                       )
+                       .OrderBy(x => x.id)
+                       .ToList();
+
+                }
+                
+
+                byte[] stream = ExcelUtil.GeneraReporteBitacorasExcel(listado, porturno);
 
 
                 var cd = new System.Net.Mime.ContentDisposition

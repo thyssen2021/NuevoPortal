@@ -83,6 +83,7 @@ namespace Portal_2_0.Models
         public Nullable<System.DateTime> fecha_autorizacion { get; set; }
 
         [Display(Name = "Comentario de rechazo")]
+        [StringLength(355, MinimumLength = 5)]
         public string comentario_rechazo { get; set; }
 
         [StringLength(355, MinimumLength = 5)]

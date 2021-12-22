@@ -116,9 +116,7 @@ namespace Portal_2_0.Controllers
 
                 ViewBag.Paginacion = paginacion;
                 //Viewbags para los botones
-                ViewBag.Edit = true;
                 ViewBag.Details = true;
-                ViewBag.EnviarValidacion = true;
                 ViewBag.Title = "Listado Pólizas Pendientes";
                 ViewBag.SegundoNivel = "PM_pendientes";
                 ViewBag.Create = true;
@@ -228,12 +226,70 @@ namespace Portal_2_0.Controllers
 
                 ViewBag.Paginacion = paginacion;
                 //Viewbags para los botones
-                ViewBag.Edit = true;
+               
                 ViewBag.Details = true;
-                ViewBag.EnviarValidacion = true;
                 ViewBag.Title = "Listado Pólizas Finalizadas";
                 ViewBag.SegundoNivel = "PM_finalizadas";
                 ViewBag.Create = true;
+
+                return View("ListadoPolizas", listado);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+        // GET: PolizaManual/ValidadorPendientes
+        public ActionResult ValidadorPendientes(int pagina = 1)
+        {
+
+            if (TieneRol(TipoRoles.PM_VALIDAR_POR_AREA))
+            {
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
+                var cantidadRegistrosPorPagina = 20; // parámetro
+
+                //obtiene el usuario logeado
+                empleados empleado = obtieneEmpleadoLogeado();
+
+                //busca el validador por el id de empleado
+                PM_validadores validador = db.PM_validadores.FirstOrDefault(x => x.id_empleado == empleado.id);                
+                int idValidador = validador == null? 0: validador.id;
+                
+                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                    .Where(x => x.id_elaborador == empleado.id && x.estatus == PM_Status.ENVIADO_A_AREA && x.id_validador==idValidador)
+                    .OrderByDescending(x => x.fecha_creacion)
+                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                   .Take(cantidadRegistrosPorPagina).ToList();
+
+                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores).Count();
+
+                //para paginación
+
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                //routeValues["material"] = material;
+
+                Paginacion paginacion = new Paginacion
+                {
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                ViewBag.Paginacion = paginacion;
+                //Viewbags para los botones
+
+                ViewBag.Details = true;
+                ViewBag.Validar = true;
+                ViewBag.Title = "Listado Pólizas Pendientes";
+                ViewBag.SegundoNivel = "PM_validar_area_pendientes";                
 
                 return View("ListadoPolizas", listado);
             }
@@ -248,17 +304,17 @@ namespace Portal_2_0.Controllers
         public ActionResult Details(int? id)
         {
             if (TieneRol(TipoRoles.PM_AUTORIZAR_CONTROLLING) || TieneRol(TipoRoles.PM_VALIDAR_POR_AREA)
-              || TieneRol(TipoRoles.PM_CONTABILIDAD)|| TieneRol(TipoRoles.PM_VALIDAR_POR_AREA))
+              || TieneRol(TipoRoles.PM_CONTABILIDAD)|| TieneRol(TipoRoles.PM_REGISTRO))
             {
 
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 poliza_manual poliza_manual = db.poliza_manual.Find(id);
                 if (poliza_manual == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
                 return View(poliza_manual);
             }
@@ -267,6 +323,235 @@ namespace Portal_2_0.Controllers
                 return View("../Home/ErrorPermisos");
             }
         }
+
+        // GET: PolizaManual/EnviarParaValidacion/5
+        public ActionResult EnviarParaValidacion(int? id)
+        {
+            if (TieneRol(TipoRoles.PM_REGISTRO) )
+            {
+
+                if (id == null)
+                {
+                    return View("../Error/BadRequest");
+                }
+                poliza_manual poliza_manual = db.poliza_manual.Find(id);
+                if (poliza_manual == null)
+                {
+                    return View("../Error/NotFound");
+                }
+                return View(poliza_manual);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+        }
+
+        // POST: PremiumFreightAproval/Send/5
+        [HttpPost, ActionName("EnviarParaValidacion")]
+        [ValidateAntiForgeryToken]
+        public ActionResult EnviarParaValidacionConfirmed(int id)
+        {
+            poliza_manual pm = db.poliza_manual.Find(id);
+            string estatusAnterior = pm.estatus;
+            pm.estatus = PM_Status.ENVIADO_A_CONTROLLING;
+
+            db.Entry(pm).State = EntityState.Modified;
+            try
+            {
+                db.SaveChanges();
+
+
+                //envia correo electronico
+                EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+
+                List<String> correos = new List<string>(); //correos TO
+                correos.Add("alfredo.xochitemol@lagermex.com.mx");
+
+                //if (!String.IsNullOrEmpty(pm.PM_validadores.empleados.correo))
+                //    correos.Add(pm.PM_validadores.empleados.correo); //agrega correo de autorizador
+
+                envioCorreo.SendEmailAsync(correos, "Ha recibido una Póliza Manual para su aprobación.", envioCorreo.getBodyPMSendValidador(pm));
+            }
+            catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+            {
+                // Retrieve the error messages as a list of strings.
+                var errorMessages = ex.EntityValidationErrors
+                        .SelectMany(x => x.ValidationErrors)
+                        .Select(x => x.ErrorMessage);
+
+                // Join the list to a single string.
+                var fullErrorMessage = string.Join("; ", errorMessages);
+
+                // Combine the original exception message with the new one.
+                var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
+
+                TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
+                return RedirectToAction("CapturistaCreadas");
+
+            }
+            catch (Exception e)
+            {
+                TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
+                return RedirectToAction("CapturistaCreadas");
+            }
+
+            TempData["Mensaje"] = new MensajesSweetAlert("La Póliza Manual ha sido enviada", TipoMensajesSweetAlerts.SUCCESS);
+
+            if (estatusAnterior == PM_Status.RECHAZADO)
+                return RedirectToAction("CapturistaRechazadas");
+
+            return RedirectToAction("CapturistaCreadas");
+        }
+
+        // GET: PolizaManual/ValidarArea/5
+        public ActionResult ValidarArea(int? id)
+        {
+            if (TieneRol(TipoRoles.PM_REGISTRO))
+            {
+
+                if (id == null)
+                {
+                    return View("../Error/BadRequest");
+                }
+                poliza_manual poliza_manual = db.poliza_manual.Find(id);
+                if (poliza_manual == null)
+                {
+                    return View("../Error/NotFound");
+                }
+                return View(poliza_manual);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+        }
+
+
+        // POST: PremiumFreightAproval/Rechazar/5
+        [HttpPost, ActionName("RechazarAreaPM")]
+        [ValidateAntiForgeryToken]
+        public ActionResult RechazarAreaPMConfirmed(FormCollection collection)
+        {
+
+            int id = 0;
+            if (!String.IsNullOrEmpty(collection["id"]))
+                Int32.TryParse(collection["id"], out id);
+
+            String razonRechazo = collection["comentario_rechazo"];
+
+
+            poliza_manual poliza = db.poliza_manual.Find(id);
+            poliza.estatus = PM_Status.RECHAZADO;
+            poliza.comentario_rechazo = razonRechazo;
+
+            db.Entry(poliza).State = EntityState.Modified;
+            try
+            {
+                db.SaveChanges();
+
+                //envia correo electronico
+                EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+
+                List<String> correos = new List<string>(); //correos TO
+
+                correos.Add("alfredo.xochitemol@lagermex.com.mx");
+
+                //if (!String.IsNullOrEmpty(poliza.empleados.correo))
+                 //   correos.Add(poliza.empleados.correo);
+
+                envioCorreo.SendEmailAsync(correos, "Su Póliza Manual ha sido Rechazada", "envioCorreo.getBodyPolizaRechazado(poliza)");
+
+            }
+            catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+            {
+                // Retrieve the error messages as a list of strings.
+                var errorMessages = ex.EntityValidationErrors
+                        .SelectMany(x => x.ValidationErrors)
+                        .Select(x => x.ErrorMessage);
+
+                // Join the list to a single string.
+                var fullErrorMessage = string.Join("; ", errorMessages);
+
+                // Combine the original exception message with the new one.
+                var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
+
+                TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
+                return RedirectToAction("ValidadorPendientes");
+
+            }
+            catch (Exception e)
+            {
+                TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
+                return RedirectToAction("ValidadorPendientes");
+            }
+            TempData["Mensaje"] = new MensajesSweetAlert("La Poliza ha sido rechazada correctamente.", TipoMensajesSweetAlerts.SUCCESS);
+            return RedirectToAction("ValidadorPendientes");
+        }
+
+        // POST: PremiumFreightAproval/ValidarAreaPM/5
+        [HttpPost, ActionName("ValidarAreaPM")]
+        [ValidateAntiForgeryToken]
+        public ActionResult ValidarAreaPMConfirmed(FormCollection collection)
+        {
+
+            int id = 0;
+            if (!String.IsNullOrEmpty(collection["id"]))
+                Int32.TryParse(collection["id"], out id);
+
+
+            poliza_manual poliza = db.poliza_manual.Find(id);
+            poliza.estatus = PM_Status.VALIDADO_POR_AREA;
+            poliza.fecha_validacion= DateTime.Now;
+            //***** AGREGAR CAMPO DE SELECCIÓN DE AUTORIZADOR ********
+
+            db.Entry(poliza).State = EntityState.Modified;
+            try
+            {
+                db.SaveChanges();
+                //envia correo electronico
+                EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+
+                List<String> correos = new List<string>(); //correos TO
+
+                correos.Add("alfredo.xochitemol@lagermex.com.mx");
+
+                // *** LEER EMAIL DE AUTORIZADOR ******
+               // if (!String.IsNullOrEmpty(poliza.empleados.correo))
+               //     correos.Add(poliza.empleados.correo);
+
+                envioCorreo.SendEmailAsync(correos, "La poliza ha sido válidada por el área.", "envioCorreo.getBodyPolizaManualAutorizado(poliza)");
+
+                /* ANALIZAR SI NECESARIO MANDAR CORREO TANTO AL AUTORIZADOR COMO AL USUARIO */
+
+
+            }
+            catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+            {
+                // Retrieve the error messages as a list of strings.
+                var errorMessages = ex.EntityValidationErrors
+                        .SelectMany(x => x.ValidationErrors)
+                        .Select(x => x.ErrorMessage);
+
+                // Join the list to a single string.
+                var fullErrorMessage = string.Join("; ", errorMessages);
+
+                // Combine the original exception message with the new one.
+                var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
+
+                TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
+                return RedirectToAction("ValidadorPendientes");
+
+            }
+            catch (Exception e)
+            {
+                TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
+                return RedirectToAction("ValidadorPendientes");
+            }
+            TempData["Mensaje"] = new MensajesSweetAlert("La póliza ha sido autorizada.", TipoMensajesSweetAlerts.SUCCESS);
+            return RedirectToAction("ValidadorPendientes");
+        }
+
 
         // GET: PolizaManual/Create
         public ActionResult Create()
@@ -406,12 +691,12 @@ namespace Portal_2_0.Controllers
             {
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 poliza_manual poliza_manual = db.poliza_manual.Find(id);
                 if (poliza_manual == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
 
 
@@ -574,12 +859,12 @@ namespace Portal_2_0.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return View("../Error/BadRequest");
             }
             poliza_manual poliza_manual = db.poliza_manual.Find(id);
             if (poliza_manual == null)
             {
-                return HttpNotFound();
+                return View("../Error/NotFound");
             }
             return View(poliza_manual);
         }

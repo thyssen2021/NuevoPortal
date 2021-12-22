@@ -65,6 +65,9 @@ $(document).ready(function () {
 
     //calcula los datos la primera vez que carga la página
     calculaDatos();
+
+    //llamada al método para asignar el número de lote
+    AsignaNumeroLote();
 });
 
 //agranda el tamaño de la barra
@@ -283,11 +286,13 @@ function calculaDatos() {
     //agrega el valor de la bácula a la tabla
     document.getElementById("td_peso_real_pieza_neto").innerHTML = peso_real_pieza_neto.toFixed(3);
     //asigna el peso real pieza bruto
-    document.getElementById("td_peso_real_pieza_bruto").innerHTML = obtienePesoRealPiezaBruto().toFixed(6);
+    let prpb = obtienePesoRealPiezaBruto().toFixed(3);
+    document.getElementById("td_peso_real_pieza_bruto").innerHTML = prpb;
+    $('#peso_real_pieza_bruto_input').val(prpb);
     //crear y llamar método para obtener el scrap natural td_scrap_natural
-    document.getElementById("td_scrap_natural").innerHTML = obtieneScrapNatural().toFixed(6);
+    document.getElementById("td_scrap_natural").innerHTML = obtieneScrapNatural().toFixed(3);
     //asiga el valor del peso bruto
-    $('#peso_bruto_kgs').val(obtienePesoBrutoKgs().toFixed(6));
+    $('#peso_bruto_kgs').val(obtienePesoBrutoKgs().toFixed(3));
     //asiga el numero de golpes (VERIFICAR LA FORMULA)
     $('#numero_golpes').val(numero_golpes.toFixed(0));
 
@@ -299,17 +304,17 @@ function calculaDatos() {
     //asigna el valor de las ordenes por pieza
     document.getElementById("td_ordenes_pieza").innerHTML = ordenes_por_pieza;
     //asiga el valor de peso rollo real usado
-    document.getElementById("td_peso_rollo_usado_real").innerHTML = peso_rollo_usado_real.toFixed(4);
+    document.getElementById("td_peso_rollo_usado_real").innerHTML = peso_rollo_usado_real.toFixed(3);
     //asigna el valor de peso bruto total pieza kg
-    document.getElementById("td_peso_bruto_total_piezas").innerHTML = peso_bruto_total_piezas.toFixed(4);
+    document.getElementById("td_peso_bruto_total_piezas").innerHTML = peso_bruto_total_piezas.toFixed(3);
     //asigna el valor de peso neto total pieza kg
-    document.getElementById("td_peso_neto_total_piezas").innerHTML = peso_neto_total_piezas.toFixed(4);
+    document.getElementById("td_peso_neto_total_piezas").innerHTML = peso_neto_total_piezas.toFixed(3);
     //asigna scrap ingenieria buenas + ajuste
-    document.getElementById("td_scrap_ingenieria").innerHTML = scrap_ingenieria_buenas_ajuste.toFixed(4);
+    document.getElementById("td_scrap_ingenieria").innerHTML = scrap_ingenieria_buenas_ajuste.toFixed(3);
     //asigna el valor peso neto  total piezas de ajuste
-    document.getElementById("td_peso_neto_total_piezas_ajuste").innerHTML = peso_neto_total_piezas_ajuste_kgs.toFixed(4);
+    document.getElementById("td_peso_neto_total_piezas_ajuste").innerHTML = peso_neto_total_piezas_ajuste_kgs.toFixed(3);
     //asiga el valor de peso punta y cola reales
-    document.getElementById("td_peso_punta_colas_reales").innerHTML = peso_punta_y_cola_reales.toFixed(4);
+    document.getElementById("td_peso_punta_colas_reales").innerHTML = peso_punta_y_cola_reales.toFixed(3);
     //asiga el balance de scrap real
     document.getElementById("td_balance_scrap_reales").innerHTML = balance_scrap_real.toFixed(2) + ' %';
     cambiaColorCelda("fila_balance_scrap_real", balance_scrap_real);
@@ -418,6 +423,9 @@ function AgregarConcepto() {
 
         `
                                                         <div class="form-group row" id="div_lotes_`+ num + `">
+                                                                        <div class="col-md-1">
+                                                                            <input style="text-align:center; background-color:antiquewhite" type="text" class="form-control col-md-12 input-contador-lotes" value="" readonly="readonly">
+                                                                        </div>
                                                                         <input type="hidden" name="produccion_lotes.Index" id="produccion_lotes.Index" value="`+ num + `" />
                                                                         <label class="control-label col-md-1" for="produccion_lotes[`+ num + `].numero_lote_izquierdo">
                                                                             <span class="float-right">Lote Izquierdo</span>
@@ -446,7 +454,7 @@ function AgregarConcepto() {
                                                                     </div>
                                                                 `
     );
-    $("#div_lotes_" + num).hide().fadeIn(700);
+    $("#div_lotes_" + num).hide().fadeIn(500);
     num++;
 
 
@@ -456,6 +464,9 @@ function AgregarConcepto() {
             calculaDatos();
         });
     });
+
+
+    AsignaNumeroLote();
 }
 
 //borra un lote
@@ -465,4 +476,15 @@ function borrarLote(id) {
         $(this).remove();
     });
     calculaDatos();
+    AsignaNumeroLote();
+}
+
+//numera los lotes
+function AsignaNumeroLote() {
+    let indice = 1;
+
+    $('.input-contador-lotes').each(function (index) {
+        $(this).val(indice);
+        indice++;
+    });
 }

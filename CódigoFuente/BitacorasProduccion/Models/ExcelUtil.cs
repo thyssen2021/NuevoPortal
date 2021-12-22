@@ -11,13 +11,18 @@ namespace Portal_2_0.Models
 {
     public class ExcelUtil
     {
+        
+        public static byte[] GeneraReporteBitacorasExcel(List<view_historico_resultado> listado, bool tipo_turno=false) {
+         
 
-        public static byte[] GeneraReporteBitacorasExcel(List<view_historico_resultado> listado) {
+            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"),"Sheet1");
+            Portal_2_0Entities db = new Portal_2_0Entities();
 
-            SLDocument oSLDocument = new SLDocument();
-
-          
             System.Data.DataTable dt = new System.Data.DataTable();
+
+            //para llevar el control de si es encabezado o no
+            List<bool> filasEncabezados = new List<bool>();
+            filasEncabezados.Add(false); //es el encabezado principal
 
             //columnas
             dt.Columns.Add("Planta", typeof(string));
@@ -41,6 +46,8 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Peso Regreso Rollo Real", typeof(string));
             dt.Columns.Add("Peso Rollo Usado", typeof(double));
             dt.Columns.Add("Peso Báscula", typeof(double));
+            dt.Columns.Add("No. Lote Izquierdo", typeof(double));
+            dt.Columns.Add("No. Lote Derecho", typeof(double));
             dt.Columns.Add("Piezas por Paquete", typeof(double));
             dt.Columns.Add("Total Piezas", typeof(double));
             dt.Columns.Add("Peso de Rollo Consumido", typeof(double));
@@ -65,19 +72,66 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Peso Neto Total Piezas de Ajuste Kgs", typeof(double));
             dt.Columns.Add("Peso Punta y Colas Reales kgs", typeof(double));
             dt.Columns.Add("Balance de Scrap Real", typeof(double));
-            
 
-
+ 
             //registros , rows
             foreach (view_historico_resultado item in listado)
             {
                 dt.Rows.Add(item.Planta, item.Linea, item.Operador, item.Supervisor, item.SAP_Platina, item.Tipo_de_Material, item.Número_de_Parte__de_cliente, item.SAP_Rollo, item.Material, item.Fecha,
                     item.Turno, String.Format("{0:T}", item.Hora), item.Orden_SAP, item.Orden_en_SAP_2, item.Pieza_por_Golpe, item.N__de_Rollo, item.Lote_de_rollo, item.Peso_Etiqueta__Kg_, item.Peso_de_regreso_de_rollo_Real
-                    , item.Peso_de_rollo_usado, item.Peso_Báscula_Kgs, item.Piezas_por_paquete, item.Total_de_piezas, item.Peso_de_rollo_consumido, item.Numero_de_golpes, item.Kg_restante_de_rollo, item.Peso_despunte_kgs_,
+                    , item.Peso_de_rollo_usado, item.Peso_Báscula_Kgs,null, null, null, item.Total_de_piezas, item.Peso_de_rollo_consumido, item.Numero_de_golpes, item.Kg_restante_de_rollo, item.Peso_despunte_kgs_,
                      item.Peso_cola_Kgs_, item.Porcentaje_de_puntas_y_colas, item.Total_de_piezas_de_Ajustes,item.Peso_Bruto_Kgs, item.Peso_Real_Pieza_Bruto, item.Peso_Real_Pieza_Neto, item.Scrap_Natural
                      , item.Peso_neto_SAP, item.Peso_Bruto_SAP, item.Balance_de_Scrap, item.Ordenes_por_pieza, item.Peso_de_rollo_usado_real__Kg, item.Peso_bruto_Total_piezas_Kg, item.Peso_NetoTotal_piezas_Kg
                      , item.Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg,item.Peso_Neto_total_piezas_de_ajuste_Kgs, item.Peso_puntas_y_colas_reales_Kg, item.Balance_de_Scrap_Real);
+
+                filasEncabezados.Add(true);
+
+                produccion_registros p = null;
+                //busca si tiene registro en el nuevo sistema
+                if (item.IdRegistro.HasValue)
+                    p = db.produccion_registros.Find(item.IdRegistro.Value);
+
+                //obtiene la cantidad de fila actual
+                int fila_inicial = filasEncabezados.Count + 1;
+
+                //si tiene registro, agrega los lotes
+                if (p != null) {
+                    foreach (produccion_lotes lote in p.produccion_lotes) {
+                        dt.Rows.Add(null, null, null, null, null, null, null, null, null, null,
+                      null, null, null, null, null, null, null, null,null
+                      , null, null, lote.numero_lote_izquierdo, lote.numero_lote_derecho, lote.piezas_paquete.Value, null, null, null, null, null,
+                       null, null, null, null, null, null, null
+                       , null, null, null, null, null, null, null
+                       , null, null, null, null);
+                        filasEncabezados.Add(false);
+                    }                
+                }
+
+                //obtiene la fila final
+                int fila_final = filasEncabezados.Count + 1;
+
+                //verifica si hubo cambios
+                if (fila_inicial != fila_final)
+                {
+                    oSLDocument.GroupRows(fila_inicial, fila_final - 1);
+                  
+                }
             }
+
+            double sumaRolloUsado = listado.Sum(item => item.Peso_de_rollo_usado.HasValue ? item.Peso_de_rollo_usado.Value:0);
+            double sumaNumGolpes = listado.Sum(item => item.Numero_de_golpes.HasValue ? item.Numero_de_golpes.Value : 0);
+            double promedioBalanceScrap = listado.Average(item => item.Balance_de_Scrap.HasValue ? item.Balance_de_Scrap.Value : 0);
+            double promedioBalanceScrapReal = listado.Average(item => item.Balance_de_Scrap_Real.HasValue ? item.Balance_de_Scrap_Real.Value : 0);
+
+            if(tipo_turno)
+            //fila para sumatorias
+            dt.Rows.Add(null, null, null, null, null, null, null, null, null, null,
+                    null, null, null, null, null, null, null, null, null
+                    , sumaRolloUsado, null, null, null, null, null, null, sumaNumGolpes, null, null,
+                     null, null, null, null, null, null, null
+                     , null, null, promedioBalanceScrap, null, null, null, null
+                     , null, null, null, promedioBalanceScrapReal);
+
 
             //crea la hoja de FACTURAS y la selecciona
             oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Sábana Producción");
@@ -92,17 +146,44 @@ namespace Portal_2_0.Models
             styleHeader.Font.Bold = true;
             styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
 
+            //estilo para el encabezado de cada fila
+            SLStyle styleHeaderRow = oSLDocument.CreateStyle();
+            styleHeaderRow.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#daeef3"), System.Drawing.ColorTranslator.FromHtml("#daeef3"));
+
+            //estilo para cada lote
+            SLStyle styleLoteInfo = oSLDocument.CreateStyle();
+            styleLoteInfo.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffffcc"), System.Drawing.ColorTranslator.FromHtml("#ffffcc"));
+            styleLoteInfo.Border.BottomBorder.BorderStyle = BorderStyleValues.Thin;
+            styleLoteInfo.Border.BottomBorder.Color = System.Drawing.Color.LightGray;
+            styleLoteInfo.Border.TopBorder.BorderStyle = BorderStyleValues.Thin;
+            styleLoteInfo.Border.TopBorder.Color = System.Drawing.Color.LightGray;
+            styleLoteInfo.Border.LeftBorder.BorderStyle = BorderStyleValues.Thin;
+            styleLoteInfo.Border.LeftBorder.Color = System.Drawing.Color.LightGray;
+            styleLoteInfo.Border.RightBorder.BorderStyle = BorderStyleValues.Thin;
+            styleLoteInfo.Border.RightBorder.Color = System.Drawing.Color.LightGray;
+
+
+            //estilo para sumatorias
+            if (tipo_turno)
+            {
+                SLStyle styleFooter = oSLDocument.CreateStyle();
+                styleFooter.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#c6efce"), System.Drawing.ColorTranslator.FromHtml("#c6efce"));
+                styleFooter.Font.Bold = true;
+                styleFooter.Font.FontColor = System.Drawing.ColorTranslator.FromHtml("#006100");
+                oSLDocument.SetRowStyle(filasEncabezados.Count + 1, styleFooter);
+            }
+
             //estilo para fecha
             SLStyle styleShortDate = oSLDocument.CreateStyle();
             styleShortDate.FormatCode = "yyyy/MM/dd";
             oSLDocument.SetColumnStyle(10, styleShortDate);
 
-            //estilo para fecha
+            //estilo para porcentanjes
             SLStyle stylePercent = oSLDocument.CreateStyle();
             stylePercent.FormatCode = "0.00%";
-            oSLDocument.SetColumnStyle(29, stylePercent);
-            oSLDocument.SetColumnStyle(37, stylePercent);
-            oSLDocument.SetColumnStyle(45, stylePercent);
+            oSLDocument.SetColumnStyle(31, stylePercent);
+            oSLDocument.SetColumnStyle(39, stylePercent);
+            oSLDocument.SetColumnStyle(47, stylePercent);
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
             styleHeaderFont.Font.FontName = "Calibri";
@@ -110,20 +191,45 @@ namespace Portal_2_0.Models
             styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
             styleHeaderFont.Font.Bold = true;
 
+            //estilo para numeros
+            SLStyle styleNumber = oSLDocument.CreateStyle();
+            styleNumber.FormatCode = "#,##0.000";
 
             //da estilo a la hoja de excel
+
+            //aplica formato a las filas de encabezado
+            for (int i = 0; i < filasEncabezados.Count; i++)
+            {
+                if (filasEncabezados[i])
+                {
+                    oSLDocument.SetRowStyle(i + 1, styleHeaderRow);
+                }
+                else
+                {
+                    oSLDocument.SetCellStyle(i + 1, 22, i + 1, 24, styleLoteInfo);
+                }
+                //colapsa todas las filas
+                oSLDocument.CollapseRows(i + 1);
+            }
+
+            //da estilo a los numero
+            oSLDocument.SetColumnStyle(33,38, styleNumber);
+            oSLDocument.SetColumnStyle(42,46, styleNumber);
 
             //inmoviliza el encabezado
             oSLDocument.FreezePanes(1, 0);
 
-            oSLDocument.Filter("A1", "AS1");
-            oSLDocument.AutoFitColumn(1, 45);
+            oSLDocument.Filter("A1", "AU1");
+            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
 
-            oSLDocument.SetColumnStyle(1, 45, styleWrap);
+            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
             oSLDocument.SetRowStyle(1, styleHeader);
-            oSLDocument.SetRowStyle(1, styleHeaderFont);
+            oSLDocument.SetRowStyle(1, styleHeaderFont);          
 
-            oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
+          
+            oSLDocument.CollapseRows(filasEncabezados.Count+1);
+
+            oSLDocument.SetRowHeight(1, filasEncabezados.Count + 1, 15.0);
 
             System.IO.Stream stream = new System.IO.MemoryStream();
 

@@ -32,13 +32,33 @@
         filtroFechaFinal = paginacionFiltros.ValoresQueryString["fecha_final"].ToString();
     }
 
+    string tipo_reporte = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["tipo_reporte"] != null)
+    {
+        tipo_reporte = paginacionFiltros.ValoresQueryString["tipo_reporte"].ToString();
+    }
+
+    string filtroFechaTurno = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["fecha_turno"] != null)
+    {
+        filtroFechaTurno = paginacionFiltros.ValoresQueryString["fecha_turno"].ToString();
+    }
+
+    string filtroTurno = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["turno"] != null)
+    {
+        filtroTurno = paginacionFiltros.ValoresQueryString["turno"].ToString();
+    }
+
+
 }
 
 @section estilos
 {
     <!-- DataTables -->
     @Styles.Render("~/Content/dataTables_css")
-
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/flat/green.css")" rel="stylesheet">
     <!-- SweetAlert2 -->
     <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
     <!-- Select2 -->
@@ -50,6 +70,9 @@
 {
     <input type="hidden" value="@idLinea" id="cLinea" />
 }
+
+    <input type="hidden" value="@tipo_reporte" id="cTipoReporte" />
+
 
 @*Para SweetAlert*@
 @if (mensajeAlerta != null)
@@ -89,9 +112,33 @@
                                         @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
                                         {
                                             <div class="form-group row ">
+                                                <label class="control-label col-md-2 col-sm-2" for="tipo_reporte">Tipo Reporte</label>
+                                                <div class="col-md-6 col-sm-6 ">
+                                                    <p>
+                                                        <div class="col-md-2 col-sm-2 ">
+                                                            <label>
+                                                                <input type="radio" class="flat tipo_reporte" name="tipo_reporte" id="tipo_reporte_sabana" value="sabana" checked required />
+                                                                S&aacute;bana
+                                                            </label>
+                                                        </div>
+                                                        <div class="col-md-3 col-sm-3 ">
+                                                            <label>
+                                                                <input type="radio" class="flat tipo_reporte" name="tipo_reporte" id="tipo_reporte_turno" value="turno" />
+                                                                Por turno
+                                                            </label>
+                                                        </div>
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div class="ln_solid"></div>
+
+                                            <div class="form-group row">
+                                            </div>
+                                            <div class="form-group row ">
                                                 <label class="control-label col-md-2 col-sm-2" for="planta">Planta</label>
                                                 <div class="col-md-6 col-sm-6 ">
-                                                    @Html.DropDownList("clave_planta", null,  htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                                    @Html.DropDownList("clave_planta", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
                                                 </div>
 
                                             </div>
@@ -101,17 +148,29 @@
                                                     @Html.DropDownList("id_linea", null, "-- Seleccione un valor --", htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                                 </div>
                                             </div>
-                                            <div class="form-group row ">
+
+                                            <div class="form-group row" id="div_sabana">
                                                 <label class="control-label col-md-2 col-sm-2" for="fecha_inicial">Fecha Inicial</label>
                                                 <div class="col-md-3 col-sm-3">
                                                     <input type="date" class="form-control" name="fecha_inicial" id="fecha_inicial" value="@filtroFechaInicio">
                                                 </div>
-                                                <label class="control-label col-md-2 col-sm-2" for="fecha_final">Fecha Final</label>
+                                                <label class="control-label col-md-1 col-sm-1" for="fecha_final">Fecha Final</label>
                                                 <div class="col-md-3 col-sm-3">
                                                     <input type="date" class="form-control" name="fecha_final" id="fecha_final" value="@filtroFechaFinal">
                                                 </div>
                                             </div>
-                                            <div class="form-group row ">                                              
+
+                                            <div class="form-group row" id="div_turno">
+                                                <label class="control-label col-md-2 col-sm-2" for="fecha_turno">Fecha</label>
+                                                <div class="col-md-3 col-sm-3">
+                                                    <input type="date" class="form-control" name="fecha_turno" id="fecha_turno" value="@filtroFechaTurno">
+                                                </div>
+                                                <label class="control-label col-md-1 col-sm-1" for="turno">Turno</label>
+                                                <div class="col-md-3 col-sm-3 ">
+                                                    @Html.DropDownList("turno", null, "-- Seleccione un valor --", htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group row ">
                                                 <div class="col-md-10 col-sm-10">
                                                     <input type="submit" value="buscar" class="btn btn-info float-right" />
                                                 </div>
@@ -357,16 +416,16 @@
                                                             @Html.DisplayFor(modelItem => item.Total_de_piezas_de_Ajustes)
                                                         </td>
                                                         <td>
-                                                            @Html.DisplayFor(modelItem => item.Peso_Bruto_Kgs)
+                                                            @String.Format("{0:N3}", item.Peso_Bruto_Kgs)
                                                         </td>
                                                         <td>
-                                                            @Html.DisplayFor(modelItem => item.Peso_Real_Pieza_Bruto)
+                                                            @String.Format("{0:N3}", item.Peso_Real_Pieza_Bruto)
                                                         </td>
                                                         <td>
                                                             @Html.DisplayFor(modelItem => item.Peso_Real_Pieza_Neto)
                                                         </td>
                                                         <td>
-                                                            @Html.DisplayFor(modelItem => item.Scrap_Natural)
+                                                            @String.Format("{0:N3}", item.Scrap_Natural)
                                                         </td>
                                                         <td>
                                                             @Html.DisplayFor(modelItem => item.Peso_neto_SAP)
@@ -384,28 +443,28 @@
                                                             @Html.DisplayFor(modelItem => item.Peso_de_rollo_usado_real__Kg)
                                                         </td>
                                                         <td>
-                                                            @Html.DisplayFor(modelItem => item.Peso_bruto_Total_piezas_Kg)
+                                                            @String.Format("{0:N3}", item.Peso_bruto_Total_piezas_Kg)
                                                         </td>
                                                         <td>
-                                                            @Html.DisplayFor(modelItem => item.Peso_NetoTotal_piezas_Kg)
+                                                            @String.Format("{0:N3}", item.Peso_NetoTotal_piezas_Kg)
                                                         </td>
                                                         <td>
-                                                            @Html.DisplayFor(modelItem => item.Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg)
+                                                            @String.Format("{0:N3}", item.Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg)
                                                         </td>
                                                         <td>
                                                             @Html.DisplayFor(modelItem => item.Peso_Neto_total_piezas_de_ajuste_Kgs)
                                                         </td>
                                                         <td>
-                                                            @Html.DisplayFor(modelItem => item.Peso_puntas_y_colas_reales_Kg)
+                                                            @String.Format("{0:N3}", item.Peso_puntas_y_colas_reales_Kg)
                                                         </td>
                                                         <td>
                                                             @String.Format("{0:P2}", item.Balance_de_Scrap_Real)
                                                         </td>
                                                         @*<td>
-                                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-                            </td>*@
+                                                                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                                                                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                                                                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                                                            </td>*@
                                                     </tr>
                                                 }
 
@@ -434,19 +493,23 @@
                                                     clave_planta = clavePlanta,
                                                     id_linea = idLinea,
                                                     fecha_inicial = filtroFechaInicio,
-                                                    fecha_final = filtroFechaFinal
+                                                    fecha_final = filtroFechaFinal,
+                                                    tipo_reporte = tipo_reporte,
+                                                    fecha_turno = filtroFechaTurno,
+                                                    turno = filtroTurno
+
                                                 })" class="btn btn-success btm-sm" target="_blank" title="Reporte">
                                                 <i class="fa fa-file-excel-o"></i> Exportar Excel
                                             </a>
 
 
                                         </div>
-                                     }
-                                    </div>
-                               
-                                
+                                    }
+                                </div>
+
+
                             </div>
-                            
+
                         </div>
                     </div>
                 </div>
@@ -463,8 +526,10 @@
     @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
 
     @Scripts.Render("~/bundles/dataTables_js")
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
 
-    <script>
+<script>
 
         $(document).ready(function () {
             //agranda el tamaño de la barra
@@ -481,25 +546,10 @@
                 "info": false
             });
 
-            //cuando hay cambio de planta
-            $("#clave_planta").change(function () {
 
-                //llamada ajax para obtener las lineas por planta
-                $.ajax({
-                    type: 'POST',
-                    url: '/Combos/obtieneLineasPlantas',
-                    data: { clavePlanta: $(this).val() },
-                    success: function (data) {
-                        populateDropdown($("#id_linea"), data);
-                        verificaEstadoCombos();
-                    },
-                    async: false
-                });
 
-            });
-
-            $("#linea").change(function () {
-                verificaEstadoCombos();
+            $('#tipo_reporte_sabana').on('ifChanged', function (event) {
+                actualizaFormulario();
             });
 
             seleccionaValoresDefault();
@@ -513,7 +563,20 @@
 
         });
 
-
+        //muestra/oculta campos de tipo de reporte
+        function actualizaFormulario() {
+            if ($("#tipo_reporte_sabana").is(':checked')) {
+                $("#div_sabana").fadeIn();
+                $("#div_turno").hide();
+                $('#turno').prop("required", false);
+                $('#fecha_turno').prop("required", false);
+            } else {
+                $("#div_sabana").hide();
+                $("#div_turno").fadeIn();
+                $('#turno').prop("required", true);
+                $('#fecha_turno').prop("required", true);
+            }
+        }
 
         //activa y desactiva los combos
         function verificaEstadoCombos() {
@@ -529,30 +592,7 @@
                 $("#id_linea").prop("disabled", false);
             }
 
-            //var linea = $("#id_linea option:selected").val();
-            ////si linea esta vacia
-            //if (linea == "") {
-            //    // $("#crearFormButton").prop("disabled", true);
-            //    //$("#crearFormButton").fadeOut(1000);
-            //}
-            //else {
-            //    //$("#crearFormButton").prop("disabled", false);
-            //    $("#crearFormButton").fadeIn(1000);
-            //    $("#buscarForm").submit();
-            //    $.blockUI({
-            //        css: {
-            //            border: 'none',
-            //            padding: '15px',
-            //            backgroundColor: '#000',
-            //            '-webkit-border-radius': '10px',
-            //            '-moz-border-radius': '10px',
-            //            opacity: .3,
-            //            color: '#fff'
-            //        },
-            //        message: '<h3>Cargando...</h3>'
 
-            //    });
-            //}
         }
 
 
@@ -595,6 +635,18 @@
                 verificaEstadoCombos();
             }
 
+            //verifica el tipo de reporte
+            let tipo_reporte = document.getElementById("cTipoReporte");
+            if (tipo_reporte != null && tipo_reporte.value == "turno") {
+                $('#tipo_reporte_turno').prop("checked", true);                
+            } else {
+                $('#tipo_reporte_sabana').prop("checked", true);
+            }
+
+            actualizaFormulario();
+
+
+
             // Initialize Select2 Elements
             $('.select2bs4').select2({
                 theme: 'bootstrap4'
@@ -612,9 +664,9 @@
 
         //borra los datos del formulario para restablecerlo
         var form = document.getElementById("buscarForm");
-      
 
-    </script>
+
+</script>
 
 }
 

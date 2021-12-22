@@ -408,12 +408,12 @@ namespace Portal_2_0.Controllers
 
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 PFA pFA = db.PFA.Find(id);
                 if (pFA == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
                 return View(pFA);
 
@@ -608,12 +608,12 @@ namespace Portal_2_0.Controllers
                 //obtiene el usuario logeado
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 PFA pFA = db.PFA.Find(id);
                 if (pFA == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
 
                 //verifica si se puede editar
@@ -839,12 +839,12 @@ namespace Portal_2_0.Controllers
 
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 PFA pFA = db.PFA.Find(id);
                 if (pFA == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
 
                 //verifica si se puede editar
@@ -900,12 +900,12 @@ namespace Portal_2_0.Controllers
 
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 PFA pFA = db.PFA.Find(id);
                 if (pFA == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
                 return View(pFA);
 
@@ -1074,12 +1074,12 @@ namespace Portal_2_0.Controllers
 
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 PFA pFA = db.PFA.Find(id);
                 if (pFA == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
                 return View(pFA);
 

@@ -357,7 +357,7 @@ namespace Portal_2_0.Controllers
                 //verifica si se envio un id
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
 
                 //busca si existe el registro de produccion
@@ -465,6 +465,19 @@ namespace Portal_2_0.Controllers
                     db.SaveChanges();
                 }
 
+                //actualiza y turno  por la ultima modificacion              
+                produccion_registros pd = db.produccion_registros.Find(produccion_registros.id);
+                pd.fecha = DateTime.Now;
+
+                //actualiza el turno por la ultima modificacion
+                var turnos = db.produccion_turnos.Where(x => x.clave_planta == pd.clave_planta.Value); //listado de turnos
+                foreach (produccion_turnos t in turnos)
+                    if (TimeSpanUtil.CalculateDalUren(DateTime.Now, t.hora_inicio, t.hora_fin))
+                        pd.id_turno = t.id;
+
+                db.Entry(pd).State = EntityState.Modified;
+                db.SaveChanges();
+
 
                 TempData["Mensaje"] = new MensajesSweetAlert("Se ha actualizado el registro correctamente", TipoMensajesSweetAlerts.SUCCESS);
 
@@ -507,7 +520,7 @@ namespace Portal_2_0.Controllers
                 //verifica si se envio un id
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
 
                 //busca si existe el registro de produccion
@@ -566,7 +579,7 @@ namespace Portal_2_0.Controllers
                 //verifica si se envio un id
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
 
                 //busca si existe el registro de produccion
@@ -678,7 +691,7 @@ namespace Portal_2_0.Controllers
                 //verifica si se envio un id
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
 
                 //busca si existe el registro de produccion

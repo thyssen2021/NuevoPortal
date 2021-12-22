@@ -418,6 +418,7 @@
     <Content Include="Content\emails_plantillas\PFA_solicitud_autorizada.html" />
     <Content Include="Content\emails_plantillas\PFA_solicitud_rechazada_info.html" />
     <Content Include="Content\emails_plantillas\PFA_solicitud_rechazada.html" />
+    <Content Include="Content\emails_plantillas\PM_envio_a_validador.html" />
     <Content Include="Content\emails_plantillas\PFA_solicitud_recibida.html" />
     <Content Include="Content\font-awesome.css" />
     <Content Include="Content\font-awesome.min.css" />
@@ -427,6 +428,7 @@
     <Content Include="Content\images\logo_2.jpg" />
     <Content Include="Content\images\logo_3.png" />
     <Content Include="Content\images\logo_4_200px.png" />
+    <Content Include="Content\images\logo_ico.png" />
     <Content Include="Content\login.css" />
     <Content Include="Content\menu-css.css" />
     <Content Include="Content\not-found.css" />
@@ -4818,6 +4820,7 @@
     <Content Include="Models\NuevoPortalModel.edmx.diagram">
       <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
     </Content>
+    <Content Include="Content\plantillas_excel\plantilla_reporte_produccion.xlsx" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
     <Content Include="Scripts\jquery-3.4.1.min.js" />
@@ -5074,6 +5077,8 @@
     <Content Include="Views\PolizaManual\Details.cshtml" />
     <Content Include="Views\PolizaManual\Edit.cshtml" />
     <Content Include="Views\PolizaManual\ListadoPolizas.cshtml" />
+    <Content Include="Views\PolizaManual\EnviarParaValidacion.cshtml" />
+    <Content Include="Views\PolizaManual\ValidarArea.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

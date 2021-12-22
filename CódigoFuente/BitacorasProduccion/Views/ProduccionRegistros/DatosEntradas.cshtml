@@ -12,6 +12,11 @@
     Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
 }
 
+<meta http-equiv="Expires" content="0">
+<meta http-equiv="Last-Modified" content="0">
+<meta http-equiv="Cache-Control" content="no-cache, mustrevalidate">
+<meta http-equiv="Pragma" content="no-cache">
+
 @section estilos
 {
     <!-- DataTables -->
@@ -256,6 +261,10 @@
                                 @foreach (Portal_2_0.Models.produccion_lotes lote in Model.produccion_lotes)
                                 {
                                     <div class="form-group row" id="div_lotes_@contador">
+                                        <div class="col-md-1">
+                                            <input style="text-align:center; background-color:antiquewhite" type="text" class="form-control col-md-12 input-contador-lotes" value="" readonly="readonly">
+                                        </div>
+
                                         <input type="hidden" name="produccion_lotes.Index" id="produccion_lotes.Index" value="@contador" />
                                         <label class="control-label col-md-1" for="produccion_lotes[@contador].numero_lote_izquierdo">
                                             <span class="float-right">Lote Izquierdo</span>
@@ -296,7 +305,7 @@
                             </div>
                             <!---------------------  -----------  -----------  -----------  ------------------>
                             <div class="form-group row">
-                               
+
                                 <!--Total de piezas-->
                                 <label class="control-label col-md-1" for="total_piezas">
                                     Total de piezas
@@ -357,7 +366,7 @@
 
                             <div class="ln_solid"></div>
                             <div class="form-group row">
-                                <span style="color:black"><b>PESO REAL PIEZA NETO</b></span>
+                                <span style="color:black"><b>PESO REAL PIEZA</b></span>
                             </div>
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.produccion_datos_entrada.peso_real_pieza_neto, new { @class = "control-label col-md-1" })
@@ -374,12 +383,18 @@
                                     {
                                         <input type="button" value="Obtener Peso Báscula" class="btn btn-round btn-info float-left" onclick="muestraModalSocket(); return false;" disabled>
                                     }
-
-
                                 </div>
-                                <div class="col-md-7">
+                                <div class="col-md-2">
                                     <input id="modal_button" type="button" value="Captura Manual" class="btn btn-round btn-warning float-right" onclick="mostrarModalPass(); return false;">
                                 </div>
+                                <!-- Peso Real Pieza Bruto -->
+                                <label class="control-label col-md-2" for="peso_bruto_kgs">
+                                    Peso Real Pieza Bruto
+                                </label>
+                                <div class="col-md-2">
+                                    <input type="text" id="peso_real_pieza_bruto_input" class="form-control col-md-12" value="" readonly>
+                                </div>
+
                             </div>
 
                             <div class="ln_solid"></div>
@@ -604,7 +619,7 @@
                         Tiempo Permitido (min):
                     </label>
                     <div class="col-md-9">
-                        <input type="number" id="tiempo" class="form-control col-md-12" style="text-align: left" value="5" min="1" max="300"  autocomplete="off">
+                        <input type="number" id="tiempo" class="form-control col-md-12" style="text-align: left" value="5" min="1" max="300" autocomplete="off">
                         <span id="error_tiempo" class="text-danger" style="display:none">Ingrese un número válido entre 1 y 300</span>
                     </div>
                     <!--PASSWORD-->
@@ -633,7 +648,7 @@
     @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
     @Scripts.Render(Url.Content("~/Scripts/Forms/datosEntrada.js"))
     <script>
-        //muestra modal de confirmación de cerrar pagina    
+        //muestra modal de confirmación de cerrar pagina
 
         // Warning
         $(window).on('beforeunload', function () {

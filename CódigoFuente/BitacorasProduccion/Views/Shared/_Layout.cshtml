@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title> Portal thyssenkrupp | @ViewBag.Title </title>
-
+    <link rel="shortcut icon" type="image/x-icon" href="~/Content/images/logo_ico.png" />
     <!-- Bootstrap -->
     <link href="@Url.Content("~/Content/vendors/bootstrap/dist/css/bootstrap.min.css")" rel="stylesheet">
     <!-- Font Awesome -->
@@ -27,15 +27,15 @@
             background-color: #0094ff;
             color: azure;
         }
+
         .page-item.active .page-link {
             background-color: #0094ff !important;
             color: azure !important;
         }
 
         .page-link {
-            color:black !important;
+            color: black !important;
         }
-       
     </style>
 
     @RenderSection("estilos", required: false)
@@ -213,10 +213,10 @@
                                                 @if (User.IsInRole(TipoRoles.PM_VALIDAR_POR_AREA))
                                                 {
                                                     <h3>Validaci&oacute;n PM</h3>
-                                                    <li class="@(ViewBag.SegundoNivel == "PM_validar_area" ? "current-page" : null )"><a href="@Url.Action("ValidadorPendientes", "PolizaManual")">P&oacute;lizas por Validar</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "PM_validar_area" ? "current-page" : null )"><a href="@Url.Action("ValidadorRechazadas", "PolizaManual")">P&oacute;lizas Rechazadas</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "PM_validar_area" ? "current-page" : null )"><a href="@Url.Action("ValidadorAutorizadas", "PolizaManual")">P&oacute;lizas Autorizadas</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "PM_validar_area" ? "current-page" : null )"><a href="@Url.Action("ValidadorRegistradas", "PolizaManual")">P&oacute;lizas Registradas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_validar_area_pendientes" ? "current-page" : null )"><a href="@Url.Action("ValidadorPendientes", "PolizaManual")">P&oacute;lizas por Validar</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_validar_area_rechazadas" ? "current-page" : null )"><a href="@Url.Action("ValidadorRechazadas", "PolizaManual")">P&oacute;lizas Rechazadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_validar_area_autorizadas" ? "current-page" : null )"><a href="@Url.Action("ValidadorAutorizadas", "PolizaManual")">P&oacute;lizas Autorizadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_validar_area_finalizadas" ? "current-page" : null )"><a href="@Url.Action("ValidadorFinalizadas", "PolizaManual")">P&oacute;lizas Finalizadas</a></li>
                                                 }
 
                                                 @if (User.IsInRole(TipoRoles.PM_AUTORIZAR_CONTROLLING))

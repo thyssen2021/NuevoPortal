@@ -45,13 +45,13 @@ namespace Portal_2_0.Controllers
             {
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 plantas plantas = db.plantas.Find(id);
                 Area area = db.Area.Find(id);
                 if (area == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
                 return View(area);
             }
@@ -124,12 +124,12 @@ namespace Portal_2_0.Controllers
             {
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 Area area = db.Area.Find(id);
                 if (area == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
 
                 ViewBag.plantaClave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
@@ -171,12 +171,12 @@ namespace Portal_2_0.Controllers
             {
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }               
                 Area area = db.Area.Find(id);
                 if (area == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
                 return View(area);
             }
@@ -232,12 +232,12 @@ namespace Portal_2_0.Controllers
             {
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 Area area = db.Area.Find(id);
                 if (area == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
                 }
                 return View(area);
             }

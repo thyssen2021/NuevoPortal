@@ -2,7 +2,7 @@
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewBag.Title = "Detalles de Póliza Manual";
+    ViewBag.Title = "Enviar Póliza Manual";
     ViewBag.PrimerNivel = "polizas_manuales";
     ViewBag.SegundoNivel = "PM_registro";
     ViewBag.ControllerName = "PolizaManual";
@@ -33,6 +33,7 @@
     <div class="">
         <div class="page-title">
             <div class="title_left">
+                <h4>@ViewBag.Title</h4>
             </div>
         </div>
 
@@ -308,7 +309,7 @@
                                 <input type="text" class="form-control col-md-5" value="NO DISPONIBLE" readonly>
                             }
 
-                            <!-- Fecha validadcion -->
+                            <!-- Fecha validacion -->
                             @Html.LabelFor(model => model.fecha_autorizacion, new { @class = "control-label col-md-2 float-right" })
 
                             <div class="col-md-4">
@@ -323,14 +324,61 @@
                             </div>
                         </div>
 
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+
+                        </div>
+                        <div class="col-md-12">
+                            <p class="float-md-left">
+                                <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = Model.id})" class="btn btn-info btn-lg" title="Editar">
+                                    <i class="fa fa-pencil-square-o"></i> Editar
+                                </a>
+                            </p>
+                            <p class="float-md-right">
+                                <button type="submit" class="btn btn-success btn-lg float-lg-right" onclick="mostrarModalEnviar()"><i class="fa fa-send"></i>  Enviar</button>
+                            </p>
+                        </div>
+
                     </div>
                 </div>
                 <div>
                     <br />
-                    <a href="javascript: history.go(-1)" class="btn btn-round btn-info btm-sm float-right" title="Volver">
+                    <a href="javascript: history.go(-1)" class="btn btn-round btn-info btm-sm" title="Volver">
                         <i class="fa fa-arrow-circle-left"></i> Volver
                     </a>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Confirmación -->
+<div class="modal fade" id="modalConfirmacion" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Enviar P&oacute;liza Manual</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <h6>¿Realmente desea enviar esta P&oacute;liza para su validaci&oacute;n?</h6>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+
+                    <div class="form-actions no-color float-md-right">
+                        <input type="submit" value="Enviar" class="btn btn-success" />
+                    </div>
+                }
+
             </div>
         </div>
     </div>
@@ -343,6 +391,12 @@
         //agranda el tamaño de la barra
         window.onload = function () {
             clicMenu(1);
+        }
+
+        //muestra el modal para enviar
+        function mostrarModalEnviar() {
+            $('#modalConfirmacion').modal('show')
+
         }
     </script>
 

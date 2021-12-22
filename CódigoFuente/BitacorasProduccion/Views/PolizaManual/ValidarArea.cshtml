@@ -2,9 +2,9 @@
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewBag.Title = "Detalles de Póliza Manual";
+    ViewBag.Title = "Validar Póliza Manual";
     ViewBag.PrimerNivel = "polizas_manuales";
-    ViewBag.SegundoNivel = "PM_registro";
+    ViewBag.SegundoNivel = "PM_validar_area_pendientes";
     ViewBag.ControllerName = "PolizaManual";
 }
 
@@ -33,6 +33,7 @@
     <div class="">
         <div class="page-title">
             <div class="title_left">
+                <h4>@ViewBag.Title</h4>
             </div>
         </div>
 
@@ -308,7 +309,7 @@
                                 <input type="text" class="form-control col-md-5" value="NO DISPONIBLE" readonly>
                             }
 
-                            <!-- Fecha validadcion -->
+                            <!-- Fecha validacion -->
                             @Html.LabelFor(model => model.fecha_autorizacion, new { @class = "control-label col-md-2 float-right" })
 
                             <div class="col-md-4">
@@ -323,11 +324,21 @@
                             </div>
                         </div>
 
+                        <div class="ln_solid"></div>
+                        <div class="item form-group">
+                            <div class="col-md-6 col-sm-6 ">
+                                <button type="submit" class="btn btn-danger btn-lg" onclick="mostrarModalRechazar()">Rechazar</button>
+                            </div>
+                            <div class="col-md-6 col-sm-6 ">
+                                <button type="submit" class="btn btn-success btn-lg float-lg-right" onclick="mostrarModalAutorizar()">Validar</button>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
                 <div>
                     <br />
-                    <a href="javascript: history.go(-1)" class="btn btn-round btn-info btm-sm float-right" title="Volver">
+                    <a href="javascript: history.go(-1)" class="btn btn-round btn-info btm-sm" title="Volver">
                         <i class="fa fa-arrow-circle-left"></i> Volver
                     </a>
                 </div>
@@ -336,13 +347,92 @@
     </div>
 </div>
 
+<!-- Modal Autorizar -->
+<div class="modal fade" id="modalAutorizar" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Validar</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <h6>¿Realmente desea validar esta solicitud?</h6>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+
+                @using (Html.BeginForm("ValidarAreaPM", null, FormMethod.Post, new { }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(model => model.id)
+                    <button type="submit" class="btn btn-primary">Validar</button>
+                }
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Rechazar -->
+<div class="modal fade" id="modalRechazar" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Rechazar</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("RechazarAreaPM", null, FormMethod.Post, new { }))
+            {
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <h6>¿Realmente desea rechazar esta solicitud?</h6>
+                        <br />
+                        <div class="col-md-12">
+                            <h6>Comentario:</h6>
+                            </div>
+                            <div class="col-md-12">
+
+                                @Html.AntiForgeryToken()
+                                @Html.HiddenFor(model => model.id)
+                                @Html.TextAreaFor(model => model.comentario_rechazo, new { @class = "form-control", @rows = "4", @autocomplete = "off", @required = "required" })
+                                @Html.ValidationMessageFor(model => model.comentario_rechazo, "", new { @class = "text-danger" })
+
+                            </div>
+                        </div>
+                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning">Rechazar</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
 @section scripts
 {
-
+    @Scripts.Render("~/bundles/jqueryval")
     <script>
         //agranda el tamaño de la barra
         window.onload = function () {
             clicMenu(1);
+        }
+
+        //muestra el modal de autorizar
+        function mostrarModalAutorizar() {
+            $('#modalAutorizar').modal('show')
+
+        }
+
+        //muestra el modal de rechazar
+        function mostrarModalRechazar() {
+            $('#modalRechazar').modal('show')
         }
     </script>
 

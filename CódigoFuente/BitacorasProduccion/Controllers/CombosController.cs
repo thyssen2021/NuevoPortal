@@ -208,7 +208,7 @@ namespace Portal_2_0.Controllers
         {
             if (idDocumento == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return View("../Error/BadRequest");
             }
 
             biblioteca_digital archivo = db.biblioteca_digital.Find(idDocumento);
