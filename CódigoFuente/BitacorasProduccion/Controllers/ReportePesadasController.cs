@@ -46,7 +46,7 @@ namespace Portal_2_0.Controllers
                     Console.WriteLine("Error al convertir: " + ex.Message);
                 }
 
-                List<Bitacoras.DBUtil.ReportePesada> listado = Bitacoras.DBUtil.ReportesPesadasDBUtil.ObtieneReporteSilao(cliente, dateInicial, dateFinal);
+                List<Bitacoras.DBUtil.ReportePesada> listado = Bitacoras.DBUtil.ReportesPesadasDBUtil.ObtieneReporteSilao(cliente, dateInicial, dateFinal.AddHours(23).AddMinutes(59).AddSeconds(59));
 
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
                 routeValues["cliente"] = cliente;
@@ -98,7 +98,7 @@ namespace Portal_2_0.Controllers
                     Console.WriteLine("Error al convertir: " + ex.Message);
                 }
 
-                List<Bitacoras.DBUtil.ReportePesada> listado = Bitacoras.DBUtil.ReportesPesadasDBUtil.ObtieneReportePuebla(cliente, dateInicial, dateFinal);
+                List<Bitacoras.DBUtil.ReportePesada> listado = Bitacoras.DBUtil.ReportesPesadasDBUtil.ObtieneReportePuebla(cliente, dateInicial, dateFinal.AddHours(23).AddMinutes(59).AddSeconds(59));
 
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
                 routeValues["cliente"] = cliente;
