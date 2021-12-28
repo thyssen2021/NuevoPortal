@@ -4,8 +4,10 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewBag.Title = "Validar Póliza Manual";
     ViewBag.PrimerNivel = "polizas_manuales";
-    ViewBag.SegundoNivel = "PM_validar_area_pendientes";
-    ViewBag.ControllerName = "PolizaManual";
+    ViewBag.SegundoNivel = "PM_autorizar_controlling_pendientes";
+    ViewBag.ControllerName = "AutorizarControlling";
+
+    Portal_2_0.Models.empleados empleado = (Portal_2_0.Models.empleados)ViewBag.Empleado; 
 }
 
 
@@ -303,9 +305,9 @@
                             <!-- Autorizador -->
                             @Html.LabelFor(model => model.id_autorizador, new { @class = "control-label col-md-1" })
 
-                            @if (Model.id_autorizador.HasValue)
+                            @if (empleado.id>0)
                             {
-                                <input type="text" class="form-control col-md-5" value="@Model.PM_autorizadores.empleados.ConcatNombre" readonly>
+                                <input type="text" class="form-control col-md-5" value="@empleado.ConcatNombre" readonly>
                             }
                             else
                             {
@@ -375,15 +377,15 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            @using (Html.BeginForm("ValidarAreaPM", null, FormMethod.Post, new { }))
+            @using (Html.BeginForm("AutorizarControlling", null, FormMethod.Post, new { }))
             {
                 <div class="modal-body">
                     <div class="form-group row">
-                        <p>¿Desea validar esta póliza y enviarla a Controlling para su autorización?</p>
+                        <p>¿Desea validar esta p&oacute;liza y enviarla a Controlling para su autorizaci&oacute;n?</p>
                     </div>
                     @Html.AntiForgeryToken()
                     @Html.HiddenFor(model => model.id)
-                   
+
                     <div class="col-md-12">
                     </div>
                 </div>
@@ -406,7 +408,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            @using (Html.BeginForm("RechazarAreaPM", null, FormMethod.Post, new { }))
+            @using (Html.BeginForm("RechazarControlling", null, FormMethod.Post, new { }))
             {
                 <div class="modal-body">
                     <div class="form-group row">

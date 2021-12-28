@@ -36,7 +36,7 @@ CREATE TABLE [poliza_manual](
 	[fecha_autorizacion][datetime] NULL,
 	[comentario_rechazo][varchar](355) NULL,
 	[descripcion_poliza][varchar](355) NULL,
-	[estatus][varchar](20) NOT NULL,
+	[estatus][varchar](30) NOT NULL,
  CONSTRAINT [PK_poliza_manual] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC

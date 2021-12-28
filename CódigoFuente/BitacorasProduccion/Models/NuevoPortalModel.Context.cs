@@ -18,7 +18,6 @@ namespace Portal_2_0.Models
         public Portal_2_0Entities()
             : base("name=Portal_2_0Entities")
         {
-            ((IObjectContextAdapter)this).ObjectContext.CommandTimeout = 180;
         }
     
         protected override void OnModelCreating(DbModelBuilder modelBuilder)

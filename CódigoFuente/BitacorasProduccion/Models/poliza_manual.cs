@@ -45,7 +45,7 @@ namespace Portal_2_0.Models
         public int id_elaborador { get; set; }
 
         [Display(Name = "Valida")]
-        [Required(AllowEmptyStrings = false)]
+        [Required(ErrorMessage ="El usuario quien valida es obligatorio.", AllowEmptyStrings = false)]
         public Nullable<int> id_validador { get; set; }
 
         [Display(Name = "Autoriza")]
@@ -107,7 +107,7 @@ namespace Portal_2_0.Models
         {
             get
             {
-                return !(id>0);
+                return !(id > 0);
             }
         }
 
@@ -117,8 +117,9 @@ namespace Portal_2_0.Models
             get
             {
                 decimal total = 0;
-                
-                foreach (PM_conceptos item in PM_conceptos) {
+
+                foreach (PM_conceptos item in PM_conceptos)
+                {
                     if (item.debe.HasValue)
                         total += item.debe.Value;
                 }

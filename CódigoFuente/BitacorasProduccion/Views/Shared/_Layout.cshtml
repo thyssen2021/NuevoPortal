@@ -215,16 +215,17 @@
                                                     <h3>Validaci&oacute;n PM</h3>
                                                     <li class="@(ViewBag.SegundoNivel == "PM_validar_area_pendientes" ? "current-page" : null )"><a href="@Url.Action("ValidadorPendientes", "PolizaManual")">P&oacute;lizas por Validar</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "PM_validar_area_rechazadas" ? "current-page" : null )"><a href="@Url.Action("ValidadorRechazadas", "PolizaManual")">P&oacute;lizas Rechazadas</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "PM_validar_area_autorizadas" ? "current-page" : null )"><a href="@Url.Action("ValidadorAutorizadas", "PolizaManual")">P&oacute;lizas Autorizadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_validar_area_enviadas" ? "current-page" : null )"><a href="@Url.Action("ValidadorEnviadas", "PolizaManual")">P&oacute;lizas Enviadas</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "PM_validar_area_finalizadas" ? "current-page" : null )"><a href="@Url.Action("ValidadorFinalizadas", "PolizaManual")">P&oacute;lizas Finalizadas</a></li>
                                                 }
 
                                                 @if (User.IsInRole(TipoRoles.PM_AUTORIZAR_CONTROLLING))
                                                 {
                                                     <h3>Autorizar PM</h3>
-                                                    <li class="@(ViewBag.SegundoNivel == "PM_autorizar_controlling" ? "current-page" : null )"><a href="@Url.Action("AutorizadorPendientes", "PolizaManual")">P&oacute;lizas por Autorizar</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "PM_autorizar_controlling" ? "current-page" : null )"><a href="@Url.Action("AutorizadorRechazadas", "PolizaManual")">P&oacute;lizas Rechazadas</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "PM_autorizar_controlling" ? "current-page" : null )"><a href="@Url.Action("AutorizadorRegistradas", "PolizaManual")">P&oacute;lizas Registradas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_autorizar_controlling_pendientes" ? "current-page" : null )"><a href="@Url.Action("AutorizadorPendientes", "PolizaManual")">P&oacute;lizas por Autorizar</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_autorizar_controlling_rechazadas" ? "current-page" : null )"><a href="@Url.Action("AutorizadorRechazadas", "PolizaManual")">P&oacute;lizas Rechazadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_autorizar_controlling_enviadas" ? "current-page" : null )"><a href="@Url.Action("AutorizadorEnviadas", "PolizaManual")">P&oacute;lizas Enviadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_autorizar_controlling_registradas" ? "current-page" : null )"><a href="@Url.Action("AutorizadorRegistradas", "PolizaManual")">P&oacute;lizas Registradas</a></li>
                                                 }
                                                 @if (User.IsInRole(TipoRoles.PM_CONTABILIDAD))
                                                 {
@@ -238,8 +239,20 @@
                                                     <li class="@(ViewBag.SegundoNivel == "PM_catalogos" ? "active" : null )">
                                                         <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
                                                         <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "PM_catalogos" ? "display:block" : null )">
-                                                            <li class="@(ViewBag.TercelNivel == "PFA_tipo_poliza" ? "current-page" : null )"><a href="@Url.Action( "Index", "PolizasManuales")">Tipos de P&oacute;liza</a></li>
-                                                        </ul>
+                                                            <li class="@(ViewBag.TercelNivel == "PM_tipo_poliza" ? "current-page" : null )"><a href="@Url.Action( "Index", "TiposPoliza")">Tipos de P&oacute;liza</a></li>
+                                                        </ul>                                                       
+                                                    </li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.ADMIN))
+                                                {
+
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_catalogos_admin" ? "active" : null )">
+                                                        <a>C&aacute;talogos ADMIN<span class="fa fa-chevron-down"></span></a>
+                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "PM_catalogos" ? "display:block" : null )">
+                                                            <li class="@(ViewBag.TercelNivel == "PM_validadores" ? "current-page" : null )"><a href="@Url.Action( "Index", "PM_validadores")">Jefes de &aacute;rea</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == " PM_autorizadores" ? "current-page" : null )"><a href="@Url.Action( "Index", "PM_autorizadores")">Controlling</a></li>
+                                                        </ul>                                                      
+                                                        
                                                     </li>
                                                 }
 

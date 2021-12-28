@@ -113,6 +113,15 @@ namespace Portal_2_0.Models
             }
         }
 
+        //concatena el número de empleado con el nombre
+        public string ConcatNumEmpleadoNombre
+        {
+            get
+            {
+                return string.Format("({0}) {1} {2} {3}",numeroEmpleado, nombre, apellido1, apellido2);
+            }
+        }
+
         public virtual plantas plantas { get; set; }
         public virtual puesto puesto1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

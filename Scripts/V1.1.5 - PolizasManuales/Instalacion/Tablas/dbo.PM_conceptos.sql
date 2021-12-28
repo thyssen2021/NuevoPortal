@@ -22,9 +22,9 @@ GO
 CREATE TABLE [PM_conceptos](
 	[id][int] IDENTITY(1,1) NOT NULL,
 	[id_poliza] [int] NOT NULL,
-	[cuenta] [int] NOT NULL,
-	[cc] [int] NULL,
-	[concepto][varchar](80) NULL,
+	[cuenta] [varchar](15) NOT NULL,
+	[cc] [varchar](15) NULL,
+	[concepto][varchar](120) NULL,
 	[poliza][varchar](10) NULL,
 	[debe][decimal](11,2) NULL,
 	[haber][decimal](11,2) NULL

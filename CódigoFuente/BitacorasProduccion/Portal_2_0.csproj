@@ -211,6 +211,8 @@
     <Compile Include="Controllers\PFA_Type_shipmentController.cs" />
     <Compile Include="Controllers\PFA_VolumeController.cs" />
     <Compile Include="Controllers\PlantasController.cs" />
+    <Compile Include="Controllers\PM_autorizadoresController.cs" />
+    <Compile Include="Controllers\PM_validadoresController.cs" />
     <Compile Include="Controllers\PolizaManualController.cs" />
     <Compile Include="Controllers\PremiumFreightApprovalController.cs" />
     <Compile Include="Controllers\ProduccionLineasController.cs" />
@@ -418,6 +420,8 @@
     <Content Include="Content\emails_plantillas\PFA_solicitud_autorizada.html" />
     <Content Include="Content\emails_plantillas\PFA_solicitud_rechazada_info.html" />
     <Content Include="Content\emails_plantillas\PFA_solicitud_rechazada.html" />
+    <Content Include="Content\emails_plantillas\PM_autorizacion_validador.html" />
+    <Content Include="Content\emails_plantillas\PM_rechazo.html" />
     <Content Include="Content\emails_plantillas\PM_envio_a_validador.html" />
     <Content Include="Content\emails_plantillas\PFA_solicitud_recibida.html" />
     <Content Include="Content\font-awesome.css" />
@@ -5079,6 +5083,15 @@
     <Content Include="Views\PolizaManual\ListadoPolizas.cshtml" />
     <Content Include="Views\PolizaManual\EnviarParaValidacion.cshtml" />
     <Content Include="Views\PolizaManual\ValidarArea.cshtml" />
+    <Content Include="Views\PM_validadores\Create.cshtml" />
+    <Content Include="Views\PM_validadores\Disable.cshtml" />
+    <Content Include="Views\PM_validadores\Index.cshtml" />
+    <Content Include="Views\PM_validadores\Enable.cshtml" />
+    <Content Include="Views\PM_autorizadores\Create.cshtml" />
+    <Content Include="Views\PM_autorizadores\Disable.cshtml" />
+    <Content Include="Views\PM_autorizadores\Enable.cshtml" />
+    <Content Include="Views\PM_autorizadores\Index.cshtml" />
+    <Content Include="Views\PolizaManual\AutorizarControlling.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

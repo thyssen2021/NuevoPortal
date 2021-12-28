@@ -152,7 +152,7 @@
                             </div>
 
                             <div class="table-responsive">
-                                <table id="datatable_1" class="table table-striped table-bordered " cellspacing="0" width="100%">
+                                <table id="datatable_1" class="table table-striped table-bordered" cellspacing="0" width="100%">
                                     <thead>
                                         <tr style=" background-color: #0094ff; color: azure;">
                                             <th width="12%">
@@ -186,15 +186,15 @@
                                             <tr id="div_concepto_@contador">
                                                 <input type="hidden" name="PM_conceptos.Index" id="produccion_lotes.Index" value="@contador" />
                                                 <td>
-                                                    <input style=" font-size: 12px;" type="number" name="PM_conceptos[@contador].cuenta" id="PM_conceptos[@contador].cuenta" class="form-control col-md-12" value="@item.cuenta" autocomplete="off" required>
+                                                    <input style=" font-size: 12px;" type="text" name="PM_conceptos[@contador].cuenta" id="PM_conceptos[@contador].cuenta" class="form-control col-md-12" value="@item.cuenta" autocomplete="off" maxlength="15" required>
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[@contador].cuenta" data-valmsg-replace="true"></span>
                                                 </td>
                                                 <td>
-                                                    <input style=" font-size: 12px;" type="number" name="PM_conceptos[@contador].cc" id="PM_conceptos[@contador].cc" class="form-control col-md-12" value="@item.cc" autocomplete="off">
+                                                    <input style=" font-size: 12px;" type="text" name="PM_conceptos[@contador].cc" id="PM_conceptos[@contador].cc" class="form-control col-md-12" value="@item.cc" maxlength="15" autocomplete="off">
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[@contador].cc" data-valmsg-replace="true"></span>
                                                 </td>
                                                 <td>
-                                                    <textarea style="font-size: 12px;" type="text" name="PM_conceptos[@contador].concepto" id="PM_conceptos[@contador].concepto" class="form-control col-md-12" autocomplete="off" maxlength="80" required>@item.concepto</textarea>
+                                                    <textarea style="font-size: 12px;" type="text" name="PM_conceptos[@contador].concepto" id="PM_conceptos[@contador].concepto" class="form-control col-md-12" autocomplete="off" maxlength="120" required>@item.concepto</textarea>
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[@contador].concepto" data-valmsg-replace="true"></span>
                                                 </td>
                                                 <td>
@@ -466,15 +466,15 @@
                                         <tr  id="div_concepto_`+ num + `">
                                             <input type="hidden" name="PM_conceptos.Index" id="produccion_lotes.Index" value="`+ num + `" />
                                                 <td>
-                                                    <input style=" font-size: 12px;" type="number" name="PM_conceptos[`+ num + `].cuenta" id="PM_conceptos[` + num + `].cuenta" class="form-control col-md-12" value="" autocomplete="off"  required>
+                                                    <input style=" font-size: 12px;" type="text" name="PM_conceptos[`+ num + `].cuenta" id="PM_conceptos[` + num + `].cuenta" class="form-control col-md-12" value="" autocomplete="off" maxlength="15" required>
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[` + num + `].cuenta" data-valmsg-replace="true"></span>
                                                 </td>
                                                 <td>
-                                                    <input style=" font-size: 12px;" type="number" name="PM_conceptos[`+ num + `].cc" id="PM_conceptos[` + num + `].cc" class="form-control col-md-12" value="" autocomplete="off">
+                                                    <input style=" font-size: 12px;" type="text" name="PM_conceptos[`+ num + `].cc" id="PM_conceptos[` + num + `].cc" class="form-control col-md-12" value="" maxlength="15" autocomplete="off">
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[` + num + `].cc" data-valmsg-replace="true"></span>
                                                 </td>
                                                 <td>
-                                                    <textarea style="font-size: 12px;" type="text" name="PM_conceptos[`+ num + `].concepto" id="PM_conceptos[` + num + `].concepto" class="form-control col-md-12" value="" autocomplete="off" maxlength="80" required></textarea>
+                                                    <textarea style="font-size: 12px;" type="text" name="PM_conceptos[`+ num + `].concepto" id="PM_conceptos[` + num + `].concepto" class="form-control col-md-12" value="" autocomplete="off" maxlength="120" required></textarea>
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[` + num + `].concepto" data-valmsg-replace="true"></span>
                                                 </td>
                                                 <td>

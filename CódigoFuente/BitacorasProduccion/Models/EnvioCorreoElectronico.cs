@@ -79,6 +79,7 @@ namespace Portal_2_0.Models
 
                 // Send it...
                 //client.SendMailAsync(mail);
+                if(mail.To.Count>0)
                 client.Send(mail);
             }
             catch (System.Net.Mail.SmtpException emailExeption)
@@ -96,6 +97,7 @@ namespace Portal_2_0.Models
             //return Task.FromResult(0);
         }
 
+        #region correos PFA
         //metodo para el body de uuna solicitud enviada
         public string getBodyPFAEnviado(PFA pFA)
         {
@@ -226,6 +228,9 @@ namespace Portal_2_0.Models
             return body;
         }
 
+        #endregion
+
+        #region correos Póliza Manual
         //metodo para obtener el body de Poliza Manual enviada a Validador
         public string getBodyPMSendValidador(poliza_manual poliza)
         {
@@ -249,6 +254,55 @@ namespace Portal_2_0.Models
             return body;
         }
 
+        //metodo para obtener el body de Poliza Manual cuando se valida una poliza por el jefe de area
+        public string getBodyPMValidadoPorArea(poliza_manual poliza)
+        {
+            //obtiene la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+
+            string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/PM_autorizacion_validador.html"));
+
+            //body = body.Replace("#VALIDADOR", poliza.PM_validadores.empleados.ConcatNombre);
+            body = body.Replace("#VALIDADOR", poliza.PM_validadores.empleados.ConcatNombre);
+            body = body.Replace("#NUM_PM", poliza.id.ToString());
+            body = body.Replace("#DOCUMENTO_SAP", poliza.numero_documento_sap);
+            body = body.Replace("#TIPO_PM", poliza.PM_tipo_poliza.descripcion);
+            body = body.Replace("#PLANTA", poliza.plantas.descripcion);
+            body = body.Replace("#MONEDA", poliza.currency.CocatCurrency);
+            body = body.Replace("#FECHA_DOCUMENTO", poliza.fecha_documento.ToString("dd/MM/yyyy"));
+            body = body.Replace("#DESCRIPCION_PM", poliza.descripcion_poliza);
+            body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
+            body = body.Replace("#ENLACE", domainName + "/PolizaManual/Details/" + poliza.id);
+
+            return body;
+        }
+
+        //metodo para obtener el body de Poliza Manual cuando una Póliza ha sido rechazada
+        public string getBodyPMRechazada(poliza_manual poliza, string nombreRechazante)
+        {
+            //obtiene la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+
+            string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/PM_rechazo.html"));
+
+
+            //body = body.Replace("#VALIDADOR", poliza.PM_validadores.empleados.ConcatNombre);
+            body = body.Replace("#RECHAZANTE", nombreRechazante);
+            body = body.Replace("#NUM_PM", poliza.id.ToString());
+            body = body.Replace("#DOCUMENTO_SAP", poliza.numero_documento_sap);
+            body = body.Replace("#TIPO_PM", poliza.PM_tipo_poliza.descripcion);
+            body = body.Replace("#PLANTA", poliza.plantas.descripcion);
+            body = body.Replace("#MONEDA", poliza.currency.CocatCurrency);
+            body = body.Replace("#FECHA_DOCUMENTO", poliza.fecha_documento.ToString("dd/MM/yyyy"));
+            body = body.Replace("#DESCRIPCION_PM", poliza.descripcion_poliza);
+            body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
+            body = body.Replace("#RECHAZO", String.IsNullOrEmpty(poliza.comentario_rechazo)?String.Empty:poliza.comentario_rechazo);
+            body = body.Replace("#ENLACE", domainName + "/PolizaManual/Edit/" + poliza.id);
+
+            return body;
+        }
+
+        #endregion
 
 
     }

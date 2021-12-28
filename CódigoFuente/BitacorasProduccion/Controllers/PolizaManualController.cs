@@ -18,6 +18,8 @@ namespace Portal_2_0.Controllers
     {
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
+
+        #region ViewsCapturista
         // GET: PolizaManual/CaptutistaCreadas
         public ActionResult CapturistaCreadas(int pagina = 1)
         {
@@ -93,7 +95,7 @@ namespace Portal_2_0.Controllers
 
                 var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
                     .Where(x => x.id_elaborador == empleado.id 
-                    && (x.estatus == PM_Status.ENVIADO_A_AREA || x.estatus == PM_Status.ENVIADO_A_CONTABILIDAD || x.estatus == PM_Status.ENVIADO_A_CONTROLLING
+                    && (x.estatus == PM_Status.ENVIADO_A_AREA || x.estatus == PM_Status.ENVIADO_A_CONTABILIDAD || x.estatus == PM_Status.ENVIADO_A_CONTROLLING || x.estatus == PM_Status.AUTORIZADO_CONTROLLING || x.estatus==PM_Status.VALIDADO_POR_AREA
                     || x.estatus == PM_Status.AUTORIZADO_CONTROLLING) )
                     .OrderByDescending(x => x.fecha_creacion)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
@@ -241,6 +243,9 @@ namespace Portal_2_0.Controllers
 
         }
 
+        #endregion
+
+        #region viewsValidador
         // GET: PolizaManual/ValidadorPendientes
         public ActionResult ValidadorPendientes(int pagina = 1)
         {
@@ -263,7 +268,7 @@ namespace Portal_2_0.Controllers
                 int idValidador = validador == null? 0: validador.id;
                 
                 var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
-                    .Where(x => x.id_elaborador == empleado.id && x.estatus == PM_Status.ENVIADO_A_AREA && x.id_validador==idValidador)
+                    .Where(x =>  x.estatus == PM_Status.ENVIADO_A_AREA && x.id_validador==idValidador)
                     .OrderByDescending(x => x.fecha_creacion)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
@@ -300,6 +305,411 @@ namespace Portal_2_0.Controllers
 
         }
 
+
+        public ActionResult ValidadorRechazadas(int pagina = 1)
+        {
+
+            if (TieneRol(TipoRoles.PM_VALIDAR_POR_AREA))
+            {
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
+                var cantidadRegistrosPorPagina = 20; // parámetro
+
+                //obtiene el usuario logeado
+                empleados empleado = obtieneEmpleadoLogeado();
+
+                //busca el validador por el id de empleado
+                PM_validadores validador = db.PM_validadores.FirstOrDefault(x => x.id_empleado == empleado.id);
+                int idValidador = validador == null ? 0 : validador.id;
+
+                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                    .Where(x => x.estatus == PM_Status.RECHAZADO && x.id_validador == idValidador)
+                    .OrderByDescending(x => x.fecha_creacion)
+                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                   .Take(cantidadRegistrosPorPagina).ToList();
+
+                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores).Count();
+
+                //para paginación
+
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                //routeValues["material"] = material;
+
+                Paginacion paginacion = new Paginacion
+                {
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                ViewBag.Paginacion = paginacion;
+                //Viewbags para los botones
+
+                ViewBag.Details = true;
+                ViewBag.Title = "Listado Pólizas Rechazadas";
+                ViewBag.SegundoNivel = "PM_validar_area_rechazadas";
+
+                return View("ListadoPolizas", listado);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+        public ActionResult ValidadorEnviadas(int pagina = 1)
+        {
+
+            if (TieneRol(TipoRoles.PM_VALIDAR_POR_AREA))
+            {
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
+                var cantidadRegistrosPorPagina = 20; // parámetro
+
+                //obtiene el usuario logeado
+                empleados empleado = obtieneEmpleadoLogeado();
+
+                //busca el validador por el id de empleado
+                PM_validadores validador = db.PM_validadores.FirstOrDefault(x => x.id_empleado == empleado.id);
+                int idValidador = validador == null ? 0 : validador.id;
+
+                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                    .Where(x => (x.estatus == PM_Status.ENVIADO_A_CONTROLLING || x.estatus == PM_Status.ENVIADO_A_CONTABILIDAD)  && x.id_validador == idValidador)
+                    .OrderByDescending(x => x.fecha_creacion)
+                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                   .Take(cantidadRegistrosPorPagina).ToList();
+
+                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores).Count();
+
+                //para paginación
+
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                //routeValues["material"] = material;
+
+                Paginacion paginacion = new Paginacion
+                {
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                ViewBag.Paginacion = paginacion;
+                //Viewbags para los botones
+
+                ViewBag.Details = true;
+                ViewBag.Title = "Listado Pólizas Enviadas";
+                ViewBag.SegundoNivel = "PM_validar_area_enviadas";
+
+                return View("ListadoPolizas", listado);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+
+        public ActionResult ValidadorFinalizadas(int pagina = 1)
+        {
+
+            if (TieneRol(TipoRoles.PM_VALIDAR_POR_AREA))
+            {
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
+                var cantidadRegistrosPorPagina = 20; // parámetro
+
+                //obtiene el usuario logeado
+                empleados empleado = obtieneEmpleadoLogeado();
+
+                //busca el validador por el id de empleado
+                PM_validadores validador = db.PM_validadores.FirstOrDefault(x => x.id_empleado == empleado.id);
+                int idValidador = validador == null ? 0 : validador.id;
+
+                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                    .Where(x => (x.estatus == PM_Status.FINALIZADO ) && x.id_validador == idValidador)
+                    .OrderByDescending(x => x.fecha_creacion)
+                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                   .Take(cantidadRegistrosPorPagina).ToList();
+
+                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores).Count();
+
+                //para paginación
+
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                //routeValues["material"] = material;
+
+                Paginacion paginacion = new Paginacion
+                {
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                ViewBag.Paginacion = paginacion;
+                //Viewbags para los botones
+
+                ViewBag.Details = true;
+                ViewBag.Title = "Listado Pólizas Finalizadas";
+                ViewBag.SegundoNivel = "PM_validar_area_finalizadas";
+
+                return View("ListadoPolizas", listado);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+        #endregion
+
+        #region ViewsAutorizadorControlling
+
+        // GET: PolizaManual/AutorizadorPendientes
+        public ActionResult AutorizadorPendientes(int pagina = 1)
+        {
+
+            if (TieneRol(TipoRoles.PM_AUTORIZAR_CONTROLLING))
+            {
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
+                var cantidadRegistrosPorPagina = 20; // parámetro
+                               
+
+                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                    .Where(x => x.estatus == PM_Status.ENVIADO_A_CONTROLLING )
+                    .OrderByDescending(x => x.fecha_creacion)
+                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                   .Take(cantidadRegistrosPorPagina).ToList();
+
+                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores).Count();
+
+                //para paginación
+
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                //routeValues["material"] = material;
+
+                Paginacion paginacion = new Paginacion
+                {
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                ViewBag.Paginacion = paginacion;
+                //Viewbags para los botones
+
+                ViewBag.Details = true;
+                ViewBag.Autorizar = true;
+                ViewBag.Title = "Listado Pólizas Pendientes";
+                ViewBag.SegundoNivel = "PM_autorizar_controlling_pendientes";
+
+                return View("ListadoPolizas", listado);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+        public ActionResult AutorizadorRechazadas(int pagina = 1)
+        {
+
+            if (TieneRol(TipoRoles.PM_AUTORIZAR_CONTROLLING))
+            {
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
+                var cantidadRegistrosPorPagina = 20; // parámetro
+
+                //obtiene el usuario logeado
+                empleados empleado = obtieneEmpleadoLogeado();
+
+                //busca el validador por el id de empleado
+                PM_autorizadores autorizador = db.PM_autorizadores.FirstOrDefault(x => x.id_empleado == empleado.id);
+                int idAutorizador = autorizador == null ? 0 : autorizador.id;
+
+                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                    .Where(x => x.estatus == PM_Status.RECHAZADO && x.id_autorizador == idAutorizador)
+                    .OrderByDescending(x => x.fecha_creacion)
+                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                   .Take(cantidadRegistrosPorPagina).ToList();
+
+                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores).Count();
+
+                //para paginación
+
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                //routeValues["material"] = material;
+
+                Paginacion paginacion = new Paginacion
+                {
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                ViewBag.Paginacion = paginacion;
+                //Viewbags para los botones
+
+                ViewBag.Details = true;
+                ViewBag.Title = "Listado Pólizas Rechazadas";
+                ViewBag.SegundoNivel = "PM_autorizar_controlling_rechazadas";
+
+                return View("ListadoPolizas", listado);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+        public ActionResult AutorizadorEnviadas(int pagina = 1)
+        {
+
+            if (TieneRol(TipoRoles.PM_AUTORIZAR_CONTROLLING))
+            {
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
+                var cantidadRegistrosPorPagina = 20; // parámetro
+
+                //obtiene el usuario logeado
+                empleados empleado = obtieneEmpleadoLogeado();
+
+                //busca el validador por el id de empleado
+                PM_autorizadores autorizador = db.PM_autorizadores.FirstOrDefault(x => x.id_empleado == empleado.id);
+                int idAutorizador = autorizador == null ? 0 : autorizador.id;
+
+                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                    .Where(x => x.estatus == PM_Status.ENVIADO_A_CONTABILIDAD && x.id_autorizador == idAutorizador)
+                    .OrderByDescending(x => x.fecha_creacion)
+                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                   .Take(cantidadRegistrosPorPagina).ToList();
+
+                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores).Count();
+
+                //para paginación
+
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                //routeValues["material"] = material;
+
+                Paginacion paginacion = new Paginacion
+                {
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                ViewBag.Paginacion = paginacion;
+                //Viewbags para los botones
+
+                ViewBag.Details = true;
+                ViewBag.Title = "Listado Pólizas Enviadas";
+                ViewBag.SegundoNivel = "PM_autorizar_controlling_enviadas";
+
+                return View("ListadoPolizas", listado);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+        public ActionResult AutorizadorRegistradas(int pagina = 1)
+        {
+
+            if (TieneRol(TipoRoles.PM_AUTORIZAR_CONTROLLING))
+            {
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
+                var cantidadRegistrosPorPagina = 20; // parámetro
+
+                //obtiene el usuario logeado
+                empleados empleado = obtieneEmpleadoLogeado();
+
+                //busca el validador por el id de empleado
+                PM_autorizadores autorizador = db.PM_autorizadores.FirstOrDefault(x => x.id_empleado == empleado.id);
+                int idAutorizador = autorizador == null ? 0 : autorizador.id;
+
+                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                    .Where(x => x.estatus == PM_Status.FINALIZADO && x.id_autorizador == idAutorizador)
+                    .OrderByDescending(x => x.fecha_creacion)
+                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                   .Take(cantidadRegistrosPorPagina).ToList();
+
+                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores).Count();
+
+                //para paginación
+
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                //routeValues["material"] = material;
+
+                Paginacion paginacion = new Paginacion
+                {
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                ViewBag.Paginacion = paginacion;
+                //Viewbags para los botones
+
+                ViewBag.Details = true;
+                ViewBag.Title = "Listado Pólizas Finalizadas";
+                ViewBag.SegundoNivel = "PM_autorizar_controlling_registradas";
+
+                return View("ListadoPolizas", listado);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+
+        #endregion
+
+
         // GET: PolizaManual/Details/5
         public ActionResult Details(int? id)
         {
@@ -324,6 +734,7 @@ namespace Portal_2_0.Controllers
             }
         }
 
+        #region Envio Validacion
         // GET: PolizaManual/EnviarParaValidacion/5
         public ActionResult EnviarParaValidacion(int? id)
         {
@@ -354,7 +765,7 @@ namespace Portal_2_0.Controllers
         {
             poliza_manual pm = db.poliza_manual.Find(id);
             string estatusAnterior = pm.estatus;
-            pm.estatus = PM_Status.ENVIADO_A_CONTROLLING;
+            pm.estatus = PM_Status.ENVIADO_A_AREA;
 
             db.Entry(pm).State = EntityState.Modified;
             try
@@ -387,6 +798,8 @@ namespace Portal_2_0.Controllers
                 var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
 
                 TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
+                if (estatusAnterior == PM_Status.RECHAZADO)
+                    return RedirectToAction("CapturistaRechazadas");
                 return RedirectToAction("CapturistaCreadas");
 
             }
@@ -404,10 +817,14 @@ namespace Portal_2_0.Controllers
             return RedirectToAction("CapturistaCreadas");
         }
 
+        #endregion
+
+        #region validar_rechazar_area
+
         // GET: PolizaManual/ValidarArea/5
         public ActionResult ValidarArea(int? id)
         {
-            if (TieneRol(TipoRoles.PM_REGISTRO))
+            if (TieneRol(TipoRoles.PM_VALIDAR_POR_AREA))
             {
 
                 if (id == null)
@@ -419,6 +836,8 @@ namespace Portal_2_0.Controllers
                 {
                     return View("../Error/NotFound");
                 }
+
+           
                 return View(poliza_manual);
             }
             else
@@ -460,7 +879,7 @@ namespace Portal_2_0.Controllers
                 //if (!String.IsNullOrEmpty(poliza.empleados.correo))
                  //   correos.Add(poliza.empleados.correo);
 
-                envioCorreo.SendEmailAsync(correos, "Su Póliza Manual ha sido Rechazada", "envioCorreo.getBodyPolizaRechazado(poliza)");
+                envioCorreo.SendEmailAsync(correos, "La Póliza Manual #" + poliza.id + " ha sido Rechazada.", envioCorreo.getBodyPMRechazada(poliza, poliza.PM_validadores.ConcatNameValidador));
 
             }
             catch (System.Data.Entity.Validation.DbEntityValidationException ex)
@@ -501,9 +920,9 @@ namespace Portal_2_0.Controllers
 
 
             poliza_manual poliza = db.poliza_manual.Find(id);
-            poliza.estatus = PM_Status.VALIDADO_POR_AREA;
+            poliza.estatus = PM_Status.ENVIADO_A_CONTROLLING;
             poliza.fecha_validacion= DateTime.Now;
-            //***** AGREGAR CAMPO DE SELECCIÓN DE AUTORIZADOR ********
+           // poliza.id_autorizador = Convert.ToInt32(collection["id_autorizador"]);
 
             db.Entry(poliza).State = EntityState.Modified;
             try
@@ -520,7 +939,7 @@ namespace Portal_2_0.Controllers
                // if (!String.IsNullOrEmpty(poliza.empleados.correo))
                //     correos.Add(poliza.empleados.correo);
 
-                envioCorreo.SendEmailAsync(correos, "La poliza ha sido válidada por el área.", "envioCorreo.getBodyPolizaManualAutorizado(poliza)");
+                envioCorreo.SendEmailAsync(correos, "La Poliza Manual #"+poliza.id+" ha sido válidada por el área.", envioCorreo.getBodyPMValidadoPorArea(poliza));
 
                 /* ANALIZAR SI NECESARIO MANDAR CORREO TANTO AL AUTORIZADOR COMO AL USUARIO */
 
@@ -551,6 +970,175 @@ namespace Portal_2_0.Controllers
             TempData["Mensaje"] = new MensajesSweetAlert("La póliza ha sido autorizada.", TipoMensajesSweetAlerts.SUCCESS);
             return RedirectToAction("ValidadorPendientes");
         }
+
+        #endregion
+
+        #region autorizar_rechazar_controlling
+
+        // GET: PolizaManual/AutorizarControlling/5
+        public ActionResult AutorizarControlling(int? id)
+        {
+            if (TieneRol(TipoRoles.PM_AUTORIZAR_CONTROLLING))
+            {
+
+                if (id == null)
+                {
+                    return View("../Error/BadRequest");
+                }
+                poliza_manual poliza_manual = db.poliza_manual.Find(id);
+                if (poliza_manual == null)
+                {
+                    return View("../Error/NotFound");
+                }
+                //obtiene el usuario logeado
+                empleados empleado = obtieneEmpleadoLogeado();
+
+                ViewBag.Empleado = empleado;
+
+                return View(poliza_manual);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+        }
+
+        // POST: PremiumFreightAproval/Rechazar/5
+        [HttpPost, ActionName("RechazarControlling")]
+        [ValidateAntiForgeryToken]
+        public ActionResult RechazarControllingConfirmed(FormCollection collection)
+        {
+
+            int id = 0;
+            if (!String.IsNullOrEmpty(collection["id"]))
+                Int32.TryParse(collection["id"], out id);
+
+            String razonRechazo = collection["comentario_rechazo"];
+
+
+            poliza_manual poliza = db.poliza_manual.Find(id);
+            poliza.estatus = PM_Status.RECHAZADO;
+            poliza.comentario_rechazo = razonRechazo;
+            poliza.fecha_validacion = null; //borra la fecha de validación de área
+
+            //obtiene el usuario logeado
+            empleados empleado = obtieneEmpleadoLogeado();
+
+
+            db.Entry(poliza).State = EntityState.Modified;
+            try
+            {
+                db.SaveChanges();
+
+                //envia correo electronico
+                EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+
+                List<String> correos = new List<string>(); //correos TO
+
+                correos.Add("alfredo.xochitemol@lagermex.com.mx");
+
+                //if (!String.IsNullOrEmpty(poliza.empleados.correo))
+                //   correos.Add(poliza.empleados.correo);
+
+                envioCorreo.SendEmailAsync(correos, "La Póliza Manual #" + poliza.id + " ha sido Rechazada.", envioCorreo.getBodyPMRechazada(poliza, empleado.ConcatNombre));
+
+            }
+            catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+            {
+                // Retrieve the error messages as a list of strings.
+                var errorMessages = ex.EntityValidationErrors
+                        .SelectMany(x => x.ValidationErrors)
+                        .Select(x => x.ErrorMessage);
+
+                // Join the list to a single string.
+                var fullErrorMessage = string.Join("; ", errorMessages);
+
+                // Combine the original exception message with the new one.
+                var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
+
+                TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
+                return RedirectToAction("ValidadorPendientes");
+
+            }
+            catch (Exception e)
+            {
+                TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
+                return RedirectToAction("ValidadorPendientes");
+            }
+            TempData["Mensaje"] = new MensajesSweetAlert("La Poliza ha sido rechazada correctamente.", TipoMensajesSweetAlerts.SUCCESS);
+            return RedirectToAction("ValidadorPendientes");
+        }
+
+        // POST: PremiumFreightAproval/ValidarAreaPM/5
+        [HttpPost, ActionName("AutorizarControlling")]
+        [ValidateAntiForgeryToken]
+        public ActionResult AutorizarControllingConfirmed(FormCollection collection)
+        {
+
+            int id = 0;
+            if (!String.IsNullOrEmpty(collection["id"]))
+                Int32.TryParse(collection["id"], out id);
+
+            int id_autorizador = 0;
+            if (!String.IsNullOrEmpty(collection["id_autorizador"]))
+                Int32.TryParse(collection["id_autorizador"], out id_autorizador);
+
+
+            poliza_manual poliza = db.poliza_manual.Find(id);
+            poliza.estatus = PM_Status.ENVIADO_A_CONTROLLING;
+            poliza.fecha_autorizacion = DateTime.Now;
+            
+            if(id_autorizador>0)
+                poliza.id_autorizador = id_autorizador;
+
+            db.Entry(poliza).State = EntityState.Modified;
+            try
+            {
+                db.SaveChanges();
+                //envia correo electronico
+                EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+
+                List<String> correos = new List<string>(); //correos TO
+
+                correos.Add("alfredo.xochitemol@lagermex.com.mx");
+
+                // *** LEER EMAIL DE AUTORIZADOR ******
+                // if (!String.IsNullOrEmpty(poliza.empleados.correo))
+                //     correos.Add(poliza.empleados.correo);
+
+                envioCorreo.SendEmailAsync(correos, "La Poliza Manual #" + poliza.id + " ha sido válidada por el área.", envioCorreo.getBodyPMValidadoPorArea(poliza));
+
+                /* ANALIZAR SI NECESARIO MANDAR CORREO TANTO AL AUTORIZADOR COMO AL USUARIO */
+
+
+            }
+            catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+            {
+                // Retrieve the error messages as a list of strings.
+                var errorMessages = ex.EntityValidationErrors
+                        .SelectMany(x => x.ValidationErrors)
+                        .Select(x => x.ErrorMessage);
+
+                // Join the list to a single string.
+                var fullErrorMessage = string.Join("; ", errorMessages);
+
+                // Combine the original exception message with the new one.
+                var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
+
+                TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
+                return RedirectToAction("ValidadorPendientes");
+
+            }
+            catch (Exception e)
+            {
+                TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
+                return RedirectToAction("ValidadorPendientes");
+            }
+            TempData["Mensaje"] = new MensajesSweetAlert("La póliza ha sido autorizada.", TipoMensajesSweetAlerts.SUCCESS);
+            return RedirectToAction("ValidadorPendientes");
+        }
+
+        #endregion
 
 
         // GET: PolizaManual/Create
@@ -594,6 +1182,8 @@ namespace Portal_2_0.Controllers
 
             decimal debe = 0;
             decimal haber = 0;
+            bool existenConceptosVacios = false;
+
 
             //determina si las sumas son iguales
             foreach (PM_conceptos item in poliza_manual.PM_conceptos)
@@ -604,7 +1194,15 @@ namespace Portal_2_0.Controllers
                 //suma el valor de haber
                 if (item.haber.HasValue)
                     haber += item.haber.Value;
+
+                //verifica si extisten conceptos vacios
+                if (!item.debe.HasValue && !item.haber.HasValue)
+                    existenConceptosVacios = true;
             }
+
+            //agrega error si los campos estan vacíos
+            if (existenConceptosVacios)
+                ModelState.AddModelError("", "Verifique que todos los conceptos tengan al menos un valor asignado.");
 
             //verifica si las sumas son diferentes
             if (debe != haber)
@@ -699,6 +1297,15 @@ namespace Portal_2_0.Controllers
                     return View("../Error/NotFound");
                 }
 
+                //verifica si se puede editar
+                if (poliza_manual.estatus != PM_Status.CREADO && poliza_manual.estatus != PM_Status.RECHAZADO)
+                {
+                    ViewBag.Titulo = "¡Lo sentimos!¡No se puede modificar esta Póliza!";
+                    ViewBag.Descripcion = "No se puede modificar una póliza que ha sido enviada, aprobada o finalizada.";
+
+                    return View("../Home/ErrorGenerico");
+                }
+
 
                 ViewBag.currency_iso = AddFirstItem(new SelectList(db.currency.Where(x => x.activo), "CurrencyISO", "CocatCurrency"), selected: poliza_manual.currency_iso);
                 ViewBag.id_PM_tipo_poliza = AddFirstItem(new SelectList(db.PM_tipo_poliza.Where(x => x.activo), "id", "descripcion"), selected: poliza_manual.id_PM_tipo_poliza.ToString());
@@ -729,6 +1336,7 @@ namespace Portal_2_0.Controllers
 
             decimal debe = 0;
             decimal haber = 0;
+            bool existenConceptosVacios = false;
 
             //determina si las sumas son iguales
             foreach (PM_conceptos item in poliza_manual.PM_conceptos)
@@ -739,7 +1347,15 @@ namespace Portal_2_0.Controllers
                 //suma el valor de haber
                 if (item.haber.HasValue)
                     haber += item.haber.Value;
+
+                //verifica si extisten conceptos vacios
+                if (!item.debe.HasValue && !item.haber.HasValue)
+                    existenConceptosVacios = true;
             }
+
+            //agrega error si los campos estan vacíos
+            if (existenConceptosVacios)
+                ModelState.AddModelError("", "Verifique que todos los conceptos tengan al menos un valor asignado.");
 
             //verifica si las sumas son diferentes
             if (debe != haber)
@@ -833,6 +1449,10 @@ namespace Portal_2_0.Controllers
                 db.SaveChanges();
 
                 TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
+
+                if (poliza.estatus == PM_Status.RECHAZADO)
+                    return RedirectToAction("CapturistaRechazadas");
+
                 return RedirectToAction("CapturistaCreadas");
             }
 
@@ -854,32 +1474,7 @@ namespace Portal_2_0.Controllers
             return View(poliza_manual);
         }
 
-        // GET: PolizaManual/Delete/5
-        public ActionResult Delete(int? id)
-        {
-            if (id == null)
-            {
-                return View("../Error/BadRequest");
-            }
-            poliza_manual poliza_manual = db.poliza_manual.Find(id);
-            if (poliza_manual == null)
-            {
-                return View("../Error/NotFound");
-            }
-            return View(poliza_manual);
-        }
-
-        // POST: PolizaManual/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
-        {
-            poliza_manual poliza_manual = db.poliza_manual.Find(id);
-            db.poliza_manual.Remove(poliza_manual);
-            db.SaveChanges();
-            return RedirectToAction("Index");
-        }
-
+       
         protected override void Dispose(bool disposing)
         {
             if (disposing)

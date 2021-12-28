@@ -11,18 +11,15 @@ namespace Portal_2_0.Models
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-
+    
     public partial class PM_conceptos
     {
         public int id { get; set; }
         public int id_poliza { get; set; }
-        public int cuenta { get; set; }
-        public Nullable<int> cc { get; set; }
+        public string cuenta { get; set; }
+        public string cc { get; set; }
         public string concepto { get; set; }
         public string poliza { get; set; }
-
-        [RegularExpression(@"^\d+(\.\d{1,2})?$", ErrorMessage = "Ingrese sólo dos decimales")]
         public Nullable<decimal> debe { get; set; }
         public Nullable<decimal> haber { get; set; }
     

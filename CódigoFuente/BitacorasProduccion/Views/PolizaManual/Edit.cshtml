@@ -93,7 +93,14 @@
 
 
                             //@Html.HiddenFor(model => model.id_planta)
-
+                            <div class="form-group row">
+                                @if (Model.estatus == Bitacoras.Util.PFA_Status.RECHAZADO && !String.IsNullOrEmpty(Model.comentario_rechazo))
+                                {
+                                    <div class="alert alert-danger col-md-12" role="alert">
+                                        <i class="fa fa-exclamation-triangle" style="color:yellow"></i> @Model.comentario_rechazo
+                                    </div>
+                                }
+                            </div>
 
                             <div class="ln_solid"></div>
 
@@ -191,15 +198,15 @@
                                                 <input type="hidden" name="PM_conceptos[@contador].id_poliza" id="PM_conceptos[@contador].id_poliza" value="@item.id_poliza" />
 
                                                 <td>
-                                                    <input style=" font-size: 12px;" type="number" name="PM_conceptos[@contador].cuenta" id="PM_conceptos[@contador].cuenta" class="form-control col-md-12" value="@item.cuenta" autocomplete="off" required>
+                                                    <input style=" font-size: 12px;" type="text" name="PM_conceptos[@contador].cuenta" id="PM_conceptos[@contador].cuenta" class="form-control col-md-12" value="@item.cuenta" maxlength="15" autocomplete="off" required>
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[@contador].cuenta" data-valmsg-replace="true"></span>
                                                 </td>
                                                 <td>
-                                                    <input style=" font-size: 12px;" type="number" name="PM_conceptos[@contador].cc" id="PM_conceptos[@contador].cc" class="form-control col-md-12" value="@item.cc" autocomplete="off">
+                                                    <input style=" font-size: 12px;" type="text" name="PM_conceptos[@contador].cc" id="PM_conceptos[@contador].cc" class="form-control col-md-12" value="@item.cc" maxlength="15" autocomplete="off">
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[@contador].cc" data-valmsg-replace="true"></span>
                                                 </td>
                                                 <td>
-                                                    <textarea style="font-size: 12px;" type="text" name="PM_conceptos[@contador].concepto" id="PM_conceptos[@contador].concepto" class="form-control col-md-12" autocomplete="off" maxlength="80" required>@item.concepto</textarea>
+                                                    <textarea style="font-size: 12px;" type="text" name="PM_conceptos[@contador].concepto" id="PM_conceptos[@contador].concepto" class="form-control col-md-12" autocomplete="off" maxlength="120" required>@item.concepto</textarea>
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[@contador].concepto" data-valmsg-replace="true"></span>
                                                 </td>
                                                 <td>
@@ -306,10 +313,11 @@
                                 </div>
                                 <div class="col-md-1">
                                     <div class="input-group">
-                                        @if (Model.id_documento_soporte.HasValue) {
-                                        <a onclick="ocultaFileInput()" class="btn btn-warning btm-sm" title="Deshacer" style="color:white">
-                                            <i class="fa fa-refresh"></i>
-                                        </a>
+                                        @if (Model.id_documento_soporte.HasValue)
+                                        {
+                                            <a onclick="ocultaFileInput()" class="btn btn-warning btm-sm" title="Deshacer" style="color:white">
+                                                <i class="fa fa-refresh"></i>
+                                            </a>
                                         }
                                     </div>
                                 </div>
@@ -539,7 +547,7 @@
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[` + num + `].cc" data-valmsg-replace="true"></span>
                                                 </td>
                                                 <td>
-                                                    <textarea style="font-size: 12px;" type="text" name="PM_conceptos[`+ num + `].concepto" id="PM_conceptos[` + num + `].concepto" class="form-control col-md-12" value="" autocomplete="off" maxlength="80" required></textarea>
+                                                    <textarea style="font-size: 12px;" type="text" name="PM_conceptos[`+ num + `].concepto" id="PM_conceptos[` + num + `].concepto" class="form-control col-md-12" value="" autocomplete="off" maxlength="120" required></textarea>
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[` + num + `].concepto" data-valmsg-replace="true"></span>
                                                 </td>
                                                 <td>
