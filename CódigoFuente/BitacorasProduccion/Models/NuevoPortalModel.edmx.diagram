@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="3d6b38e8516649fd9491aed00dbc6337" Name="Diagram1" ZoomLevel="75">
+      <Diagram DiagramId="3d6b38e8516649fd9491aed00dbc6337" Name="Diagram1" ZoomLevel="80">
         <EntityTypeShape EntityType="Portal_2_0Model.Area" Width="1.5" PointX="3" PointY="5.5" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.bom_en_sap" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.class_v3" Width="1.5" PointX="2.75" PointY="0.75" IsExpanded="true" />
@@ -42,20 +42,10 @@
         <EntityTypeShape EntityType="Portal_2_0Model.PFA_Volume" Width="1.5" PointX="7.5" PointY="33.25" />
         <EntityTypeShape EntityType="Portal_2_0Model.PFA_Autorizador" Width="1.5" PointX="9.75" PointY="4.125" />
         <EntityTypeShape EntityType="Portal_2_0Model.view_historico_resultado" Width="1.5" PointX="2.375" PointY="15.25" />
-        <EntityTypeShape EntityType="Portal_2_0Model.empleados" Width="1.875" PointX="12.5" PointY="0.75" />
-        <AssociationConnector Association="Portal_2_0Model.FK_empleados_planta_clave" />
-        <AssociationConnector Association="Portal_2_0Model.FK_empleados_puesto" />
-        <AssociationConnector Association="Portal_2_0Model.FK_notificaciones_correo_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_PFA_Autorizador_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_produccion_operadores_id_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_produccion_supervisores_id_empleado" />
         <EntityTypeShape EntityType="Portal_2_0Model.produccion_respaldo" Width="1.5" PointX="15.125" PointY="15.625" />
-        <AssociationConnector Association="Portal_2_0Model.FK_produccion_respaldo_id_empleado" />
         <EntityTypeShape EntityType="Portal_2_0Model.biblioteca_digital" Width="1.5" PointX="15.875" PointY="27.125" />
         <EntityTypeShape EntityType="Portal_2_0Model.PFA" Width="1.5" PointX="18.125" PointY="15.75" />
         <AssociationConnector Association="Portal_2_0Model.FK_PFA_documento" />
-        <AssociationConnector Association="Portal_2_0Model.FK_PFA_autorizador" />
-        <AssociationConnector Association="Portal_2_0Model.FK_PFA_solicitante" />
         <AssociationConnector Association="Portal_2_0Model.FK_id_PFA_recovered_cost" />
         <AssociationConnector Association="Portal_2_0Model.FK_PFA_border_port" />
         <AssociationConnector Association="Portal_2_0Model.FK_PFA_Department" />
@@ -65,22 +55,33 @@
         <AssociationConnector Association="Portal_2_0Model.FK_PFA_type_shipment" />
         <AssociationConnector Association="Portal_2_0Model.FK_PFA_volume" />
         <EntityTypeShape EntityType="Portal_2_0Model.currency" Width="1.5" PointX="15.875" PointY="30.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.PM_autorizadores" Width="1.5" PointX="15.125" PointY="4.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.PM_tipo_poliza" Width="1.5" PointX="15.875" PointY="33.625" />
         <EntityTypeShape EntityType="Portal_2_0Model.PM_validadores" Width="1.5" PointX="15.125" PointY="2" />
-        <AssociationConnector Association="Portal_2_0Model.FK_PM_autorizadores_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_PM_validadores_empleado" />
-        <EntityTypeShape EntityType="Portal_2_0Model.poliza_manual" Width="1.5" PointX="21.125" PointY="15.125" />
+        <EntityTypeShape EntityType="Portal_2_0Model.PM_conceptos" Width="1.5" PointX="23.375" PointY="16.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.empleados" Width="1.5" PointX="12.5" PointY="0.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.PM_autorizadores" Width="1.5" PointX="14.75" PointY="6.625" />
+        <EntityTypeShape EntityType="Portal_2_0Model.poliza_manual" Width="1.5" PointX="21.125" PointY="15.75" />
         <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_documento_registro" />
         <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_documento_soporte" />
         <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_currency" />
-        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_elaborador" />
-        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_empleados_planta_clave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_empleados_puesto" />
+        <AssociationConnector Association="Portal_2_0Model.FK_notificaciones_correo_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_PFA_autorizador" />
+        <AssociationConnector Association="Portal_2_0Model.FK_PFA_Autorizador_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_PFA_solicitante" />
+        <AssociationConnector Association="Portal_2_0Model.FK_PM_autorizadores_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_PM_validadores_empleado" />
         <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_autorizador" />
+        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_contabilidad" />
+        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_elaborador" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_operadores_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_respaldo_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_supervisores_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_PM_conceptos_id_poliza" />
         <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_tipo_poliza" />
         <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_validador" />
-        <EntityTypeShape EntityType="Portal_2_0Model.PM_conceptos" Width="1.5" PointX="23.375" PointY="16.75" />
-        <AssociationConnector Association="Portal_2_0Model.FK_PM_conceptos_id_poliza" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -65,6 +65,9 @@
                         {
                             @Html.AntiForgeryToken()
 
+                            @* input para saber si está o no activo el campo de soporte *@
+                            <input type="hidden" name="cambio_documento_soporte" id="cambio_documento_soporte" value="0" />
+
                             <div class="form-group row">
                                 <div class="col-md-12" style="text-align:center">
                                     <h3 class="green"><i class="fa fa-table"></i> P&Oacute;LIZA DE DIARIO</h3>
@@ -83,7 +86,6 @@
                             @Html.HiddenFor(model => model.id)
                             @Html.HiddenFor(model => model.id_elaborador)
                             @Html.HiddenFor(model => model.estatus)
-                            @Html.HiddenFor(model => model.id)
                             @Html.HiddenFor(model => model.id_documento_soporte)
                             @Html.HiddenFor(model => model.id_documento_registro)
                             @Html.HiddenFor(model => model.fecha_creacion)
@@ -331,7 +333,7 @@
 
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.id_elaborador, new { @class = "control-label col-md-1" })
-                                <input type="text" class="form-control col-md-5" value="@Model.empleados.ConcatNombre" readonly>
+                                <input type="text" class="form-control col-md-5" value="@Model.empleados2.ConcatNombre" readonly>
                                 @Html.ValidationMessageFor(model => model.id_elaborador, "", new { @class = "text-danger" })
 
                                 <!-- Fecha validadcion -->
@@ -363,6 +365,37 @@
                                     }
                                 </div>
 
+                            </div>
+                            <div class="form-group row">
+                                <!-- Contabilidad -->
+                                @Html.LabelFor(model => model.id_contabilidad, new { @class = "control-label col-md-1" })
+
+                                @if (Model.id_contabilidad.HasValue)
+                                {
+                                    <input type="text" class="form-control col-md-5" value="@Model.empleados1.ConcatNombre" readonly>
+                                }
+                                else
+                                {
+                                    <input type="text" class="form-control col-md-5" value="NO DISPONIBLE" readonly>
+                                }
+
+                                <!-- Fecha registro -->
+                                @Html.LabelFor(model => model.fecha_registro, new { @class = "control-label col-md-2 float-right" })
+
+                                <div class="col-md-4">
+                                    @if (Model.fecha_registro.HasValue)
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="@Model.fecha_registro.Value" readonly>
+                                    }
+                                    else if (Model.id_contabilidad.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO)
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
+                                    }
+                                    else
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
+                                    }
+                                </div>
                             </div>
 
                             <div class="item form-group">
@@ -415,7 +448,16 @@
             calculaDatos();
 
 
+            //aumenta en uso cada vez que se hace un cambio en el archivo de soporte
+            $("#PostedFileSoporte").on("change", function () {
+                document.getElementById('cambio_documento_soporte').value = ++documento_soporte_cambios;
+            });
+
+            
         });
+
+        //variable para saber si ha cambiado el formulario y asi no se detenga por doble submit
+        var documento_soporte_cambios = 1;
 
         //variable global para el id
         var num = 0;
@@ -539,11 +581,11 @@
                                             <input type="hidden" name="PM_conceptos.Index" id="produccion_lotes.Index" value="`+ num + `" />
                                             <input type="hidden" name="PM_conceptos[`+ num + `].id_poliza" id="PM_conceptos[` + num + `].id_poliza" value="@Model.id" />
                                                 <td>
-                                                    <input style=" font-size: 12px;" type="number" name="PM_conceptos[`+ num + `].cuenta" id="PM_conceptos[` + num + `].cuenta" class="form-control col-md-12" value="" autocomplete="off"  required>
+                                                    <input style=" font-size: 12px;" type="text" name="PM_conceptos[`+ num + `].cuenta" id="PM_conceptos[` + num + `].cuenta" class="form-control col-md-12" value="" autocomplete="off"  required>
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[` + num + `].cuenta" data-valmsg-replace="true"></span>
                                                 </td>
                                                 <td>
-                                                    <input style=" font-size: 12px;" type="number" name="PM_conceptos[`+ num + `].cc" id="PM_conceptos[` + num + `].cc" class="form-control col-md-12" value="" autocomplete="off">
+                                                    <input style=" font-size: 12px;" type="text" name="PM_conceptos[`+ num + `].cc" id="PM_conceptos[` + num + `].cc" class="form-control col-md-12" value="" autocomplete="off">
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[` + num + `].cc" data-valmsg-replace="true"></span>
                                                 </td>
                                                 <td>

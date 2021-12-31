@@ -256,8 +256,6 @@
                         }
 
 
-
-
                         <div class="ln_solid"></div>
                         <div class="form-group row">
                             <span style="color:black"><b>MOVIMIENTOS</b></span>
@@ -266,7 +264,7 @@
                         <div class="form-group row">
                             <!-- Capturista -->
                             @Html.LabelFor(model => model.id_elaborador, new { @class = "control-label col-md-1" })
-                            <input type="text" class="form-control col-md-5" value="@Model.empleados.ConcatNombre" readonly>
+                            <input type="text" class="form-control col-md-5" value="@Model.empleados2.ConcatNombre" readonly>
                             <!-- Fecha validadcion -->
                             @Html.LabelFor(model => model.fecha_creacion, new { @class = "control-label col-md-2 float-right" })
                             <div class="col-md-4">
@@ -293,6 +291,10 @@
                                 {
                                     <input type="text" class="form-control col-md-12" value="@Model.fecha_validacion.Value" readonly>
                                 }
+                                else if (Model.id_validador.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO)
+                                {
+                                    <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
+                                }
                                 else
                                 {
                                     <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
@@ -305,20 +307,55 @@
 
                             @if (Model.id_autorizador.HasValue)
                             {
-                                <input type="text" class="form-control col-md-5" value="@Model.PM_autorizadores.empleados.ConcatNombre" readonly>
+                                <input type="text" class="form-control col-md-5" value="@Model.empleados.ConcatNombre" readonly>
                             }
                             else
                             {
                                 <input type="text" class="form-control col-md-5" value="NO DISPONIBLE" readonly>
                             }
 
-                            <!-- Fecha validacion -->
+                            <!-- Fecha validadcion -->
                             @Html.LabelFor(model => model.fecha_autorizacion, new { @class = "control-label col-md-2 float-right" })
 
                             <div class="col-md-4">
                                 @if (Model.fecha_autorizacion.HasValue)
                                 {
                                     <input type="text" class="form-control col-md-12" value="@Model.fecha_autorizacion.Value" readonly>
+                                }
+                                else if (Model.id_autorizador.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO)
+                                {
+                                    <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
+                                }
+                                else
+                                {
+                                    <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
+                                }
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <!-- Contabilidad -->
+                            @Html.LabelFor(model => model.id_contabilidad, new { @class = "control-label col-md-1" })
+
+                            @if (Model.id_contabilidad.HasValue)
+                            {
+                                <input type="text" class="form-control col-md-5" value="@Model.empleados1.ConcatNombre" readonly>
+                            }
+                            else
+                            {
+                                <input type="text" class="form-control col-md-5" value="NO DISPONIBLE" readonly>
+                            }
+
+                            <!-- Fecha registro -->
+                            @Html.LabelFor(model => model.fecha_registro, new { @class = "control-label col-md-2 float-right" })
+
+                            <div class="col-md-4">
+                                @if (Model.fecha_registro.HasValue)
+                                {
+                                    <input type="text" class="form-control col-md-12" value="@Model.fecha_registro.Value" readonly>
+                                }
+                                else if (Model.id_contabilidad.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO)
+                                {
+                                    <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
                                 }
                                 else
                                 {

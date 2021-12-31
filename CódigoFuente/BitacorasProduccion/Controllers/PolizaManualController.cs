@@ -37,13 +37,15 @@ namespace Portal_2_0.Controllers
                 //obtiene el usuario logeado
                 empleados empleado = obtieneEmpleadoLogeado();
 
-                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
                     .Where(x => x.id_elaborador == empleado.id && x.estatus == PM_Status.CREADO )
                     .OrderByDescending(x => x.fecha_creacion)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
-                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores).Count();
+                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                    .Where(x => x.id_elaborador == empleado.id && x.estatus == PM_Status.CREADO)
+                    .Count();
 
                 //para paginación
 
@@ -93,7 +95,7 @@ namespace Portal_2_0.Controllers
                 //obtiene el usuario logeado
                 empleados empleado = obtieneEmpleadoLogeado();
 
-                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
                     .Where(x => x.id_elaborador == empleado.id 
                     && (x.estatus == PM_Status.ENVIADO_A_AREA || x.estatus == PM_Status.ENVIADO_A_CONTABILIDAD || x.estatus == PM_Status.ENVIADO_A_CONTROLLING || x.estatus == PM_Status.AUTORIZADO_CONTROLLING || x.estatus==PM_Status.VALIDADO_POR_AREA
                     || x.estatus == PM_Status.AUTORIZADO_CONTROLLING) )
@@ -101,7 +103,11 @@ namespace Portal_2_0.Controllers
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
-                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores).Count();
+                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                    .Where(x => x.id_elaborador == empleado.id
+                    && (x.estatus == PM_Status.ENVIADO_A_AREA || x.estatus == PM_Status.ENVIADO_A_CONTABILIDAD || x.estatus == PM_Status.ENVIADO_A_CONTROLLING || x.estatus == PM_Status.AUTORIZADO_CONTROLLING || x.estatus == PM_Status.VALIDADO_POR_AREA
+                    || x.estatus == PM_Status.AUTORIZADO_CONTROLLING))
+                   .Count();
 
                 //para paginación
 
@@ -149,14 +155,15 @@ namespace Portal_2_0.Controllers
                 //obtiene el usuario logeado
                 empleados empleado = obtieneEmpleadoLogeado();
 
-                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
                     .Where(x => x.id_elaborador == empleado.id && x.estatus == PM_Status.RECHAZADO )
                     .OrderByDescending(x => x.fecha_creacion)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
-                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores).Count();
-
+                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                    .Where(x => x.id_elaborador == empleado.id && x.estatus == PM_Status.RECHAZADO)
+                    .Count();
                 //para paginación
 
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
@@ -205,13 +212,15 @@ namespace Portal_2_0.Controllers
                 //obtiene el usuario logeado
                 empleados empleado = obtieneEmpleadoLogeado();
 
-                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
                     .Where(x => x.id_elaborador == empleado.id && x.estatus == PM_Status.FINALIZADO)
                     .OrderByDescending(x => x.fecha_creacion)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
-                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores).Count();
+                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                    .Where(x => x.id_elaborador == empleado.id && x.estatus == PM_Status.FINALIZADO)
+                 .Count();
 
                 //para paginación
 
@@ -267,13 +276,15 @@ namespace Portal_2_0.Controllers
                 PM_validadores validador = db.PM_validadores.FirstOrDefault(x => x.id_empleado == empleado.id);                
                 int idValidador = validador == null? 0: validador.id;
                 
-                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
                     .Where(x =>  x.estatus == PM_Status.ENVIADO_A_AREA && x.id_validador==idValidador)
                     .OrderByDescending(x => x.fecha_creacion)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
-                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores).Count();
+                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                    .Where(x => x.estatus == PM_Status.ENVIADO_A_AREA && x.id_validador == idValidador)
+                    .Count();
 
                 //para paginación
 
@@ -326,14 +337,15 @@ namespace Portal_2_0.Controllers
                 PM_validadores validador = db.PM_validadores.FirstOrDefault(x => x.id_empleado == empleado.id);
                 int idValidador = validador == null ? 0 : validador.id;
 
-                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
                     .Where(x => x.estatus == PM_Status.RECHAZADO && x.id_validador == idValidador)
                     .OrderByDescending(x => x.fecha_creacion)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
-                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores).Count();
-
+                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                    .Where(x => x.estatus == PM_Status.RECHAZADO && x.id_validador == idValidador)
+                    .Count();
                 //para paginación
 
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
@@ -383,13 +395,15 @@ namespace Portal_2_0.Controllers
                 PM_validadores validador = db.PM_validadores.FirstOrDefault(x => x.id_empleado == empleado.id);
                 int idValidador = validador == null ? 0 : validador.id;
 
-                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
                     .Where(x => (x.estatus == PM_Status.ENVIADO_A_CONTROLLING || x.estatus == PM_Status.ENVIADO_A_CONTABILIDAD)  && x.id_validador == idValidador)
                     .OrderByDescending(x => x.fecha_creacion)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
-                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores).Count();
+                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                    .Where(x => (x.estatus == PM_Status.ENVIADO_A_CONTROLLING || x.estatus == PM_Status.ENVIADO_A_CONTABILIDAD) && x.id_validador == idValidador)
+                    .Count();
 
                 //para paginación
 
@@ -441,14 +455,15 @@ namespace Portal_2_0.Controllers
                 PM_validadores validador = db.PM_validadores.FirstOrDefault(x => x.id_empleado == empleado.id);
                 int idValidador = validador == null ? 0 : validador.id;
 
-                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
                     .Where(x => (x.estatus == PM_Status.FINALIZADO ) && x.id_validador == idValidador)
                     .OrderByDescending(x => x.fecha_creacion)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
-                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores).Count();
-
+                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                    .Where(x => (x.estatus == PM_Status.FINALIZADO) && x.id_validador == idValidador)
+                    .Count();
                 //para paginación
 
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
@@ -497,14 +512,15 @@ namespace Portal_2_0.Controllers
                 var cantidadRegistrosPorPagina = 20; // parámetro
                                
 
-                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
                     .Where(x => x.estatus == PM_Status.ENVIADO_A_CONTROLLING )
                     .OrderByDescending(x => x.fecha_creacion)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
-                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores).Count();
-
+                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                    .Where(x => x.estatus == PM_Status.ENVIADO_A_CONTROLLING)
+                    .Count();
                 //para paginación
 
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
@@ -549,19 +565,17 @@ namespace Portal_2_0.Controllers
                 var cantidadRegistrosPorPagina = 20; // parámetro
 
                 //obtiene el usuario logeado
-                empleados empleado = obtieneEmpleadoLogeado();
+                empleados empleado = obtieneEmpleadoLogeado();                             
 
-                //busca el validador por el id de empleado
-                PM_autorizadores autorizador = db.PM_autorizadores.FirstOrDefault(x => x.id_empleado == empleado.id);
-                int idAutorizador = autorizador == null ? 0 : autorizador.id;
-
-                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
-                    .Where(x => x.estatus == PM_Status.RECHAZADO && x.id_autorizador == idAutorizador)
+                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                    .Where(x => x.estatus == PM_Status.RECHAZADO && x.id_autorizador.HasValue)
                     .OrderByDescending(x => x.fecha_creacion)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
-                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores).Count();
+                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                    .Where(x => x.estatus == PM_Status.RECHAZADO && x.id_autorizador.HasValue)
+                    .Count();
 
                 //para paginación
 
@@ -608,18 +622,15 @@ namespace Portal_2_0.Controllers
                 //obtiene el usuario logeado
                 empleados empleado = obtieneEmpleadoLogeado();
 
-                //busca el validador por el id de empleado
-                PM_autorizadores autorizador = db.PM_autorizadores.FirstOrDefault(x => x.id_empleado == empleado.id);
-                int idAutorizador = autorizador == null ? 0 : autorizador.id;
-
-                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
-                    .Where(x => x.estatus == PM_Status.ENVIADO_A_CONTABILIDAD && x.id_autorizador == idAutorizador)
+                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                    .Where(x => x.estatus == PM_Status.ENVIADO_A_CONTABILIDAD)
                     .OrderByDescending(x => x.fecha_creacion)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
-                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores).Count();
-
+                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                    .Where(x => x.estatus == PM_Status.ENVIADO_A_CONTABILIDAD)
+                    .Count();
                 //para paginación
 
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
@@ -663,20 +674,17 @@ namespace Portal_2_0.Controllers
                 var cantidadRegistrosPorPagina = 20; // parámetro
 
                 //obtiene el usuario logeado
-                empleados empleado = obtieneEmpleadoLogeado();
+               // empleados empleado = obtieneEmpleadoLogeado();                           
 
-                //busca el validador por el id de empleado
-                PM_autorizadores autorizador = db.PM_autorizadores.FirstOrDefault(x => x.id_empleado == empleado.id);
-                int idAutorizador = autorizador == null ? 0 : autorizador.id;
-
-                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
-                    .Where(x => x.estatus == PM_Status.FINALIZADO && x.id_autorizador == idAutorizador)
+                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                    .Where(x => x.estatus == PM_Status.FINALIZADO /*&& x.id_autorizador == empleado.id*/)
                     .OrderByDescending(x => x.fecha_creacion)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
-                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_autorizadores).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores).Count();
-
+                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                    .Where(x => x.estatus == PM_Status.FINALIZADO /*&& x.id_autorizador == empleado.id*/)
+                    .Count();
                 //para paginación
 
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
@@ -709,30 +717,113 @@ namespace Portal_2_0.Controllers
 
         #endregion
 
-
-        // GET: PolizaManual/Details/5
-        public ActionResult Details(int? id)
+        #region ViewsContabilidad
+        public ActionResult ContabilidadPendientes(int pagina = 1)
         {
-            if (TieneRol(TipoRoles.PM_AUTORIZAR_CONTROLLING) || TieneRol(TipoRoles.PM_VALIDAR_POR_AREA)
-              || TieneRol(TipoRoles.PM_CONTABILIDAD)|| TieneRol(TipoRoles.PM_REGISTRO))
-            {
 
-                if (id == null)
+            if (TieneRol(TipoRoles.PM_CONTABILIDAD))
+            {
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
                 {
-                    return View("../Error/BadRequest");
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
                 }
-                poliza_manual poliza_manual = db.poliza_manual.Find(id);
-                if (poliza_manual == null)
+
+                var cantidadRegistrosPorPagina = 20; // parámetro
+
+
+                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                    .Where(x => x.estatus == PM_Status.ENVIADO_A_CONTABILIDAD)
+                    .OrderByDescending(x => x.fecha_creacion)
+                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                   .Take(cantidadRegistrosPorPagina).ToList();
+
+                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                    .Where(x => x.estatus == PM_Status.ENVIADO_A_CONTABILIDAD)
+                    .Count();
+                //para paginación
+
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                //routeValues["material"] = material;
+
+                Paginacion paginacion = new Paginacion
                 {
-                    return View("../Error/NotFound");
-                }
-                return View(poliza_manual);
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                ViewBag.Paginacion = paginacion;
+                //Viewbags para los botones
+
+                ViewBag.Details = true;
+                ViewBag.Finalizar = true;
+                ViewBag.Title = "Listado Pólizas Pendientes";
+                ViewBag.SegundoNivel = "PM_contabilidad_pendientes";
+
+                return View("ListadoPolizas", listado);
             }
             else
             {
                 return View("../Home/ErrorPermisos");
             }
+
         }
+        public ActionResult ContabilidadRegistradas(int pagina = 1)
+        {
+
+            if (TieneRol(TipoRoles.PM_CONTABILIDAD))
+            {
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
+                var cantidadRegistrosPorPagina = 20; // parámetro
+
+
+                var listado = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                    .Where(x => x.estatus == PM_Status.FINALIZADO)
+                    .OrderByDescending(x => x.fecha_creacion)
+                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                   .Take(cantidadRegistrosPorPagina).ToList();
+
+                var totalDeRegistros = db.poliza_manual.Include(p => p.biblioteca_digital).Include(p => p.biblioteca_digital1).Include(p => p.currency).Include(p => p.empleados).Include(p => p.plantas).Include(p => p.PM_tipo_poliza).Include(p => p.PM_validadores)
+                    .Where(x => x.estatus == PM_Status.FINALIZADO)
+                    .Count();
+                //para paginación
+
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                //routeValues["material"] = material;
+
+                Paginacion paginacion = new Paginacion
+                {
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                ViewBag.Paginacion = paginacion;
+                //Viewbags para los botones
+
+                ViewBag.Details = true;
+                ViewBag.Title = "Listado Pólizas Registradas";
+                ViewBag.SegundoNivel = "PM_contabilidad_registradas";
+
+                return View("ListadoPolizas", listado);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+        #endregion
+
 
         #region Envio Validacion
         // GET: PolizaManual/EnviarParaValidacion/5
@@ -749,6 +840,15 @@ namespace Portal_2_0.Controllers
                 if (poliza_manual == null)
                 {
                     return View("../Error/NotFound");
+                }
+
+                //verifica si se puede enviar para validacion
+                if (poliza_manual.estatus != PM_Status.CREADO && poliza_manual.estatus != PM_Status.RECHAZADO)
+                {
+                    ViewBag.Titulo = "¡Lo sentimos!¡No se puede enviar esta Póliza!";
+                    ViewBag.Descripcion = "No se puede enviar una póliza que ya ha sido enviada, aprobada o finalizada.";
+
+                    return View("../Home/ErrorGenerico");
                 }
                 return View(poliza_manual);
             }
@@ -837,7 +937,15 @@ namespace Portal_2_0.Controllers
                     return View("../Error/NotFound");
                 }
 
-           
+                //verifica si se puede editar
+                if (poliza_manual.estatus != PM_Status.ENVIADO_A_AREA)
+                {
+                    ViewBag.Titulo = "¡Lo sentimos!¡No se puede validar esta Póliza!";
+                    ViewBag.Descripcion = "No se puede validar una póliza que ha sido validada, rechazada o finalizada.";
+
+                    return View("../Home/ErrorGenerico");
+                }
+
                 return View(poliza_manual);
             }
             else
@@ -863,6 +971,7 @@ namespace Portal_2_0.Controllers
             poliza_manual poliza = db.poliza_manual.Find(id);
             poliza.estatus = PM_Status.RECHAZADO;
             poliza.comentario_rechazo = razonRechazo;
+            poliza.fecha_validacion = null; //borra la fecha de validación de área si existiera
 
             db.Entry(poliza).State = EntityState.Modified;
             try
@@ -967,7 +1076,7 @@ namespace Portal_2_0.Controllers
                 TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
                 return RedirectToAction("ValidadorPendientes");
             }
-            TempData["Mensaje"] = new MensajesSweetAlert("La póliza ha sido autorizada.", TipoMensajesSweetAlerts.SUCCESS);
+            TempData["Mensaje"] = new MensajesSweetAlert("La póliza ha sido validada y enviada para su autorización.", TipoMensajesSweetAlerts.SUCCESS);
             return RedirectToAction("ValidadorPendientes");
         }
 
@@ -990,6 +1099,16 @@ namespace Portal_2_0.Controllers
                 {
                     return View("../Error/NotFound");
                 }
+             
+                //verifica si se puede autorizar
+                if (poliza_manual.estatus != PM_Status.ENVIADO_A_CONTROLLING)
+                {
+                    ViewBag.Titulo = "¡Lo sentimos!¡No se puede validar esta Póliza!";
+                    ViewBag.Descripcion = "No se puede validar una póliza que ya ha sido validada, rechazada o finalizada.";
+
+                    return View("../Home/ErrorGenerico");
+                }
+
                 //obtiene el usuario logeado
                 empleados empleado = obtieneEmpleadoLogeado();
 
@@ -1019,10 +1138,15 @@ namespace Portal_2_0.Controllers
             poliza_manual poliza = db.poliza_manual.Find(id);
             poliza.estatus = PM_Status.RECHAZADO;
             poliza.comentario_rechazo = razonRechazo;
-            poliza.fecha_validacion = null; //borra la fecha de validación de área
-
+            //poliza.fecha_validacion = null; //borra la fecha de validación de área
+            poliza.fecha_autorizacion = null; //borra la fecha de autorización si existiera  
+            
             //obtiene el usuario logeado
             empleados empleado = obtieneEmpleadoLogeado();
+
+            //asigna el id de empleado del autorizador
+            if (empleado.id > 0)
+                poliza.id_autorizador = empleado.id;
 
 
             db.Entry(poliza).State = EntityState.Modified;
@@ -1057,16 +1181,16 @@ namespace Portal_2_0.Controllers
                 var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
 
                 TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
-                return RedirectToAction("ValidadorPendientes");
+                return RedirectToAction("AutorizadorPendientes");
 
             }
             catch (Exception e)
             {
                 TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
-                return RedirectToAction("ValidadorPendientes");
+                return RedirectToAction("AutorizadorPendientes");
             }
             TempData["Mensaje"] = new MensajesSweetAlert("La Poliza ha sido rechazada correctamente.", TipoMensajesSweetAlerts.SUCCESS);
-            return RedirectToAction("ValidadorPendientes");
+            return RedirectToAction("AutorizadorPendientes");
         }
 
         // POST: PremiumFreightAproval/ValidarAreaPM/5
@@ -1077,19 +1201,19 @@ namespace Portal_2_0.Controllers
 
             int id = 0;
             if (!String.IsNullOrEmpty(collection["id"]))
-                Int32.TryParse(collection["id"], out id);
-
-            int id_autorizador = 0;
-            if (!String.IsNullOrEmpty(collection["id_autorizador"]))
-                Int32.TryParse(collection["id_autorizador"], out id_autorizador);
-
+                Int32.TryParse(collection["id"], out id);            
 
             poliza_manual poliza = db.poliza_manual.Find(id);
-            poliza.estatus = PM_Status.ENVIADO_A_CONTROLLING;
+            poliza.estatus = PM_Status.ENVIADO_A_CONTABILIDAD;
             poliza.fecha_autorizacion = DateTime.Now;
+
+            //obtiene el usuario logeado
+            empleados empleado = obtieneEmpleadoLogeado();
+
+            //asigna el id de empleado del autorizador
+            if (empleado.id > 0)
+                poliza.id_autorizador = empleado.id;
             
-            if(id_autorizador>0)
-                poliza.id_autorizador = id_autorizador;
 
             db.Entry(poliza).State = EntityState.Modified;
             try
@@ -1102,11 +1226,11 @@ namespace Portal_2_0.Controllers
 
                 correos.Add("alfredo.xochitemol@lagermex.com.mx");
 
-                // *** LEER EMAIL DE AUTORIZADOR ******
+                // *** LEER EMAIL DE ELABORADOR ******
                 // if (!String.IsNullOrEmpty(poliza.empleados.correo))
                 //     correos.Add(poliza.empleados.correo);
 
-                envioCorreo.SendEmailAsync(correos, "La Poliza Manual #" + poliza.id + " ha sido válidada por el área.", envioCorreo.getBodyPMValidadoPorArea(poliza));
+                envioCorreo.SendEmailAsync(correos, "La Poliza Manual #" + poliza.id + " ha sido autorizada por Controlling.", envioCorreo.getBodyPMValidadoPorControlling(poliza));
 
                 /* ANALIZAR SI NECESARIO MANDAR CORREO TANTO AL AUTORIZADOR COMO AL USUARIO */
 
@@ -1126,21 +1250,211 @@ namespace Portal_2_0.Controllers
                 var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
 
                 TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
-                return RedirectToAction("ValidadorPendientes");
+                return RedirectToAction("AutorizadorPendientes");
 
             }
             catch (Exception e)
             {
                 TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
-                return RedirectToAction("ValidadorPendientes");
+                return RedirectToAction("AutorizadorPendientes");
             }
             TempData["Mensaje"] = new MensajesSweetAlert("La póliza ha sido autorizada.", TipoMensajesSweetAlerts.SUCCESS);
-            return RedirectToAction("ValidadorPendientes");
+            return RedirectToAction("AutorizadorPendientes");
+        }
+
+        #endregion
+
+        #region contabilidad finalizar
+
+        public ActionResult FinalizarContabilidad(int? id)
+        {
+            if (TieneRol(TipoRoles.PM_CONTABILIDAD))
+            {
+
+                if (id == null)
+                {
+                    return View("../Error/BadRequest");
+                }
+                poliza_manual poliza_manual = db.poliza_manual.Find(id);
+                if (poliza_manual == null)
+                {
+                    return View("../Error/NotFound");
+                }
+
+                //verifica si se puede autorizar
+                if (poliza_manual.estatus != PM_Status.ENVIADO_A_CONTABILIDAD)
+                {
+                    ViewBag.Titulo = "¡Lo sentimos!¡No se puede modificar esta Póliza!";
+                    ViewBag.Descripcion = "No se puede modificar una poliza que jaya sido rechazada o finalizada.";
+
+                    return View("../Home/ErrorGenerico");
+                }
+
+                //obtiene el usuario logeado
+                empleados empleado = obtieneEmpleadoLogeado();
+
+                ViewBag.Empleado = empleado;
+
+                return View(poliza_manual);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+        }
+
+        // POST: PolizaManual/FinalizarContabilidad/5
+        [HttpPost, ActionName("FinalizarContabilidad")]
+        [ValidateAntiForgeryToken]
+        public ActionResult FinalizarContabilidadConfirmed(poliza_manual poliza_manual)
+        {
+
+            poliza_manual poliza = db.poliza_manual.Find(poliza_manual.id);
+            poliza.estatus = PM_Status.FINALIZADO;
+
+            //pone la fecha actual
+            poliza.fecha_registro = DateTime.Now; 
+
+            //obtiene el usuario logeado
+            empleados empleado = obtieneEmpleadoLogeado();
+
+            //asigna el id de empleado del autorizador
+            if (empleado.id > 0)
+                poliza.id_contabilidad = empleado.id;
+
+            poliza.numero_documento_sap = poliza_manual.numero_documento_sap;
+
+            //verifica si el archivo es válido
+            if (poliza_manual.PostedFileRegistro != null && poliza_manual.PostedFileRegistro.InputStream.Length > 5242880)
+                ModelState.AddModelError("", "Sólo se permiten archivos menores a 5MB.");
+            else if (poliza_manual.PostedFileRegistro != null)
+            { //verifica la extensión del archivo
+                string extension = Path.GetExtension(poliza_manual.PostedFileRegistro.FileName);
+                if (extension.ToUpper() != ".XLS"   //si no contiene una extensión válida
+                               && extension.ToUpper() != ".XLSX"
+                               && extension.ToUpper() != ".DOC"
+                               && extension.ToUpper() != ".DOCX"
+                               && extension.ToUpper() != ".PDF"
+                               && extension.ToUpper() != ".PNG"
+                               && extension.ToUpper() != ".JPG"
+                               && extension.ToUpper() != ".JPEG"
+                               && extension.ToUpper() != ".RAR"
+                               && extension.ToUpper() != ".ZIP"
+                               )
+                    ModelState.AddModelError("", "Sólo se permiten archivos con extensión .xls, .xlsx, .doc, .docx, .pdf, .png, .jpg, .jpeg, .rar, .zip.");
+                else
+                { //si la extension y el tamaño son válidos
+                    String nombreArchivo = poliza_manual.PostedFileRegistro.FileName;
+
+                    //recorta el nombre del archivo en caso de ser necesario
+                    if (nombreArchivo.Length > 80)
+                        nombreArchivo = nombreArchivo.Substring(0, 78 - extension.Length) + extension;
+
+                    //lee el archivo en un arreglo de bytes
+                    byte[] fileData = null;
+                    using (var binaryReader = new BinaryReader(poliza_manual.PostedFileRegistro.InputStream))
+                    {
+                        fileData = binaryReader.ReadBytes(poliza_manual.PostedFileRegistro.ContentLength);
+                    }
+
+                    //genera el archivo de biblioce digital
+                    biblioteca_digital archivo = new biblioteca_digital
+                    {
+                        Nombre = nombreArchivo,
+                        MimeType = UsoStrings.RecortaString(poliza_manual.PostedFileRegistro.ContentType, 80),
+                        Datos = fileData
+                    };
+
+                    //update en BD
+                    db.biblioteca_digital.Add(archivo);
+                    db.SaveChanges();
+
+                    //relaciona el archivo con la poliza (despues se guarda en BD)
+                    poliza.id_documento_registro = archivo.Id;  //documento soporte
+
+                }
+            }
+
+            db.Entry(poliza).State = EntityState.Modified;
+            //en caso de que el modelo sea válido guarda en BD
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    db.SaveChanges();
+
+                    //envia correo electronico
+                    EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+
+                    List<String> correos = new List<string>(); //correos TO
+
+                    correos.Add("alfredo.xochitemol@lagermex.com.mx");
+
+                    //if (!String.IsNullOrEmpty(poliza.empleados.correo))
+                    //   correos.Add(poliza.empleados.correo);
+
+                    envioCorreo.SendEmailAsync(correos, "La Póliza Manual #" + poliza.id + " ha sido registrada correctamente.", envioCorreo.getBodyPMRegistradoPorContabilidad(poliza));
+
+                }
+                catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+                {
+                    // Retrieve the error messages as a list of strings.
+                    var errorMessages = ex.EntityValidationErrors
+                            .SelectMany(x => x.ValidationErrors)
+                            .Select(x => x.ErrorMessage);
+
+                    // Join the list to a single string.
+                    var fullErrorMessage = string.Join("; ", errorMessages);
+
+                    // Combine the original exception message with the new one.
+                    var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
+
+                    TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
+                    return RedirectToAction("ContabilidadPendientes");
+
+                }
+                catch (Exception e)
+                {
+                    TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
+                    return RedirectToAction("ContabilidadPendientes");
+                }
+            }
+            else {
+                //en caso de que el modelo no sea válido
+                ViewBag.Empleado = empleado;
+                return View(db.poliza_manual.Find(poliza_manual.id));
+            }
+            TempData["Mensaje"] = new MensajesSweetAlert("La Poliza ha sido registrada correctamente.", TipoMensajesSweetAlerts.SUCCESS);
+            return RedirectToAction("ContabilidadPendientes");
         }
 
         #endregion
 
 
+
+        // GET: PolizaManual/Details/5
+        public ActionResult Details(int? id)
+        {
+            if (TieneRol(TipoRoles.PM_AUTORIZAR_CONTROLLING) || TieneRol(TipoRoles.PM_VALIDAR_POR_AREA)
+              || TieneRol(TipoRoles.PM_CONTABILIDAD) || TieneRol(TipoRoles.PM_REGISTRO))
+            {
+
+                if (id == null)
+                {
+                    return View("../Error/BadRequest");
+                }
+                poliza_manual poliza_manual = db.poliza_manual.Find(id);
+                if (poliza_manual == null)
+                {
+                    return View("../Error/NotFound");
+                }
+                return View(poliza_manual);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+        }
         // GET: PolizaManual/Create
         public ActionResult Create()
         {
@@ -1262,7 +1576,7 @@ namespace Portal_2_0.Controllers
 
                 db.poliza_manual.Add(poliza_manual);
 
-                TempData["Mensaje"] = new MensajesSweetAlert("Se ha actualizado el registro correctamente", TipoMensajesSweetAlerts.SUCCESS);
+                TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);
 
 
                 db.SaveChanges();

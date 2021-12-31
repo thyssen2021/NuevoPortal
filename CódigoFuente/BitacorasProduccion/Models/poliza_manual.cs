@@ -21,6 +21,7 @@ namespace Portal_2_0.Models
         public poliza_manual()
         {
             this.PM_conceptos = new HashSet<PM_conceptos>();
+            //para valores por defecto en formularios
             fecha_documento = DateTime.Now;
             currency_iso = "USD";
         }
@@ -45,11 +46,14 @@ namespace Portal_2_0.Models
         public int id_elaborador { get; set; }
 
         [Display(Name = "Valida")]
-        [Required(ErrorMessage ="El usuario quien valida es obligatorio.", AllowEmptyStrings = false)]
+        [Required(ErrorMessage = "El usuario quien valida es obligatorio.", AllowEmptyStrings = false)]
         public Nullable<int> id_validador { get; set; }
 
         [Display(Name = "Autoriza")]
         public Nullable<int> id_autorizador { get; set; }
+
+        [Display(Name = "Contabilidad")]
+        public Nullable<int> id_contabilidad { get; set; }
 
         [Display(Name = "Soporte de Póliza")]
         public Nullable<int> id_documento_soporte { get; set; }
@@ -82,6 +86,11 @@ namespace Portal_2_0.Models
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public Nullable<System.DateTime> fecha_autorizacion { get; set; }
 
+        [Display(Name = "Fecha Registro en SAP")]
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        public Nullable<System.DateTime> fecha_registro { get; set; }
+
         [Display(Name = "Comentario de rechazo")]
         [StringLength(355, MinimumLength = 5)]
         public string comentario_rechazo { get; set; }
@@ -110,6 +119,8 @@ namespace Portal_2_0.Models
                 return !(id > 0);
             }
         }
+        public HttpPostedFileBase PostedFileRegistro { get; set; }
+
 
         //obtiene el total de debe
         public decimal totalDebe
@@ -143,15 +154,17 @@ namespace Portal_2_0.Models
             }
         }
 
+
         public virtual biblioteca_digital biblioteca_digital { get; set; }
         public virtual biblioteca_digital biblioteca_digital1 { get; set; }
         public virtual currency currency { get; set; }
         public virtual empleados empleados { get; set; }
+        public virtual empleados empleados1 { get; set; }
+        public virtual empleados empleados2 { get; set; }
         public virtual plantas plantas { get; set; }
-        public virtual PM_autorizadores PM_autorizadores { get; set; }
-        public virtual PM_tipo_poliza PM_tipo_poliza { get; set; }
-        public virtual PM_validadores PM_validadores { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PM_conceptos> PM_conceptos { get; set; }
+        public virtual PM_tipo_poliza PM_tipo_poliza { get; set; }
+        public virtual PM_validadores PM_validadores { get; set; }
     }
 }

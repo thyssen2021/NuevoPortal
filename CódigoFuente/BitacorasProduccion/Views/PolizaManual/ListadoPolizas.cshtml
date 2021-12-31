@@ -91,7 +91,6 @@
                                                     <th>
                                                         @Html.DisplayNameFor(model => model.fecha_autorizacion)
                                                     </th>
-
                                                     <th>
                                                         @Html.DisplayNameFor(model => model.estatus)
                                                     </th>
@@ -99,7 +98,6 @@
                                                     <th>
                                                         @Html.DisplayNameFor(model => model.id_elaborador)
                                                     </th>
-
 
                                                 </tr>
                                             </thead>
@@ -121,18 +119,19 @@
                                                                     <i class="fa fa-check-circle-o"></i>
                                                                 </a>
                                                             }
+                                                            @if (ViewBag.Finalizar != null && ViewBag.Finalizar)
+                                                            {
+                                                                <a href="@Url.Action("FinalizarContabilidad", ViewBag.ControllerName, new { id = item.id })" class="btn btn-success " title="Finalizar">
+                                                                    <i class="fa fa-list-alt"></i>
+                                                                </a>
+                                                            }
                                                             @if (ViewBag.Edit != null && ViewBag.Edit)
                                                             {
                                                                 <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = item.id})" class="btn btn-success " title="Editar">
                                                                     <i class="fa fa-pencil-square-o"></i>
                                                                 </a>
                                                             }
-                                                            @if (ViewBag.Details != null && ViewBag.Details)
-                                                            {
-                                                                <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.id })" class="btn btn-secondary " title="Detalles">
-                                                                    <i class="fa fa-info-circle"></i>
-                                                                </a>
-                                                            }
+
                                                             @if (ViewBag.EnviarValidacion != null && ViewBag.EnviarValidacion)
                                                             {
                                                                 <a href="@Url.Action("EnviarParaValidacion", ViewBag.ControllerName, new { id = item.id })" class="btn btn-info " title="Enviar">
@@ -140,7 +139,12 @@
                                                                 </a>
                                                             }
 
-
+                                                            @if (ViewBag.Details != null && ViewBag.Details)
+                                                            {
+                                                                <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.id })" class="btn btn-secondary " title="Detalles">
+                                                                    <i class="fa fa-info-circle"></i>
+                                                                </a>
+                                                            }
 
                                                         </td>
                                                         <td style="text-align:center">
@@ -168,7 +172,7 @@
                                                             @Html.DisplayFor(modelItem => item.estatus)
                                                         </td>
                                                         <td>
-                                                            @Html.DisplayFor(modelItem => item.empleados.ConcatNombre)
+                                                            @Html.DisplayFor(modelItem => item.empleados2.ConcatNombre)
                                                         </td>
                                                     </tr>
                                                 }

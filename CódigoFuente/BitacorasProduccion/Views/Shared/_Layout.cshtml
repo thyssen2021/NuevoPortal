@@ -230,29 +230,27 @@
                                                 @if (User.IsInRole(TipoRoles.PM_CONTABILIDAD))
                                                 {
                                                     <h3>Contabilidad PM</h3>
-                                                    <li class="@(ViewBag.SegundoNivel == "PM_registro_contabilidad" ? "current-page" : null )"><a href="@Url.Action("ContabilidadPendientes", "PolizaManual")">P&oacute;lizas Pendientes</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "PM_registro_contabilidad" ? "current-page" : null )"><a href="@Url.Action("ContabilidadRegistradas", "PolizaManual")">P&oacute;lizas Registradas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_contabilidad_pendientes" ? "current-page" : null )"><a href="@Url.Action("ContabilidadPendientes", "PolizaManual")">P&oacute;lizas Pendientes</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_contabilidad_registradas" ? "current-page" : null )"><a href="@Url.Action("ContabilidadRegistradas", "PolizaManual")">P&oacute;lizas Registradas</a></li>
                                                 }
                                                 @if (User.IsInRole(TipoRoles.PM_CATALOGOS))
                                                 {
 
-                                                    <li class="@(ViewBag.SegundoNivel == "PM_catalogos" ? "active" : null )">
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_catalogos" ? "active" : "" )">
                                                         <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
                                                         <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "PM_catalogos" ? "display:block" : null )">
-                                                            <li class="@(ViewBag.TercelNivel == "PM_tipo_poliza" ? "current-page" : null )"><a href="@Url.Action( "Index", "TiposPoliza")">Tipos de P&oacute;liza</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "PM_tipo_poliza" ? "current-page" : null )"><a href="@Url.Action( "Index", "PM_tipo_poliza")">Tipos de P&oacute;liza</a></li>
                                                         </ul>                                                       
                                                     </li>
                                                 }
                                                 @if (User.IsInRole(TipoRoles.ADMIN))
                                                 {
-
-                                                    <li class="@(ViewBag.SegundoNivel == "PM_catalogos_admin" ? "active" : null )">
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_catalogos_admin" ? "active" : "" )">
                                                         <a>C&aacute;talogos ADMIN<span class="fa fa-chevron-down"></span></a>
                                                         <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "PM_catalogos" ? "display:block" : null )">
                                                             <li class="@(ViewBag.TercelNivel == "PM_validadores" ? "current-page" : null )"><a href="@Url.Action( "Index", "PM_validadores")">Jefes de &aacute;rea</a></li>
                                                             <li class="@(ViewBag.TercelNivel == " PM_autorizadores" ? "current-page" : null )"><a href="@Url.Action( "Index", "PM_autorizadores")">Controlling</a></li>
-                                                        </ul>                                                      
-                                                        
+                                                        </ul>               
                                                     </li>
                                                 }
 

@@ -49,15 +49,15 @@ namespace Portal_2_0.Models
         public virtual DbSet<PFA_Volume> PFA_Volume { get; set; }
         public virtual DbSet<PFA_Autorizador> PFA_Autorizador { get; set; }
         public virtual DbSet<view_historico_resultado> view_historico_resultado { get; set; }
-        public virtual DbSet<empleados> empleados { get; set; }
         public virtual DbSet<produccion_respaldo> produccion_respaldo { get; set; }
         public virtual DbSet<biblioteca_digital> biblioteca_digital { get; set; }
         public virtual DbSet<PFA> PFA { get; set; }
         public virtual DbSet<currency> currency { get; set; }
-        public virtual DbSet<PM_autorizadores> PM_autorizadores { get; set; }
         public virtual DbSet<PM_tipo_poliza> PM_tipo_poliza { get; set; }
         public virtual DbSet<PM_validadores> PM_validadores { get; set; }
-        public virtual DbSet<poliza_manual> poliza_manual { get; set; }
         public virtual DbSet<PM_conceptos> PM_conceptos { get; set; }
+        public virtual DbSet<empleados> empleados { get; set; }
+        public virtual DbSet<PM_autorizadores> PM_autorizadores { get; set; }
+        public virtual DbSet<poliza_manual> poliza_manual { get; set; }
     }
 }

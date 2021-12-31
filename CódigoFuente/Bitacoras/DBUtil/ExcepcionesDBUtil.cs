@@ -18,7 +18,7 @@ namespace Clases.DBUtil
         public static void RegistraExcepcion(EntradaRegistroEvento entrada)
         {
 
-            string cadenaConexion = cadenaConexion = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+            string cadenaConexion = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
 
             using (var conn = new SqlConnection(cadenaConexion))
             {

@@ -15,12 +15,6 @@ namespace Portal_2_0.Models
 
     public partial class PM_autorizadores
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public PM_autorizadores()
-        {
-            this.poliza_manual = new HashSet<poliza_manual>();
-        }
-    
         public int id { get; set; }
         [Required(ErrorMessage = "El campo empleado es requerido.", AllowEmptyStrings = false)]
         [Display(Name = "Empleado")]
@@ -39,7 +33,5 @@ namespace Portal_2_0.Models
         }
 
         public virtual empleados empleados { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<poliza_manual> poliza_manual { get; set; }
     }
 }

@@ -25,7 +25,7 @@ namespace Clases.DBUtil
 
             string username = String.Empty;
 
-            string cadenaConexion = cadenaConexion = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+            string cadenaConexion = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(cadenaConexion))
             {
                 try
@@ -68,7 +68,7 @@ namespace Clases.DBUtil
 
             int idEmpleado = 0;
 
-            string cadenaConexion = cadenaConexion = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+            string cadenaConexion = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(cadenaConexion))
             {
                 try

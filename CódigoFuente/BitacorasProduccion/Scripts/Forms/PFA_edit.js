@@ -67,6 +67,11 @@
 
     });
 
+    //aumenta en uso cada vez que se hace un cambio en el archivo de soporte
+    $("#PostedFile").on("change", function () {
+        document.getElementById('cambio_documento_soporte').value = ++documento_soporte_cambios;
+    });
+
     calculaCostToRecover();
     seleccionaValoresDefault();
 
@@ -76,6 +81,9 @@
         theme: 'bootstrap4'
     })
 });
+
+//variable para saber si ha cambiado el formulario y asi no se detenga por doble submit
+var documento_soporte_cambios = 1;
 
 //agranda el tamaño de la barra
 window.onload = function () {

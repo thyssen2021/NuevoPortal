@@ -42,7 +42,6 @@
             color: #221f1f;
             font-weight: bolder;
         }
-
     </style>
 }
 
@@ -247,7 +246,7 @@
                             </div>
 
                             <div class="item form-group">
-                                @Html.LabelFor(model => model.descripcion_poliza, new { @class = "control-label col-md-12 col-sm-12", @style= "text-align:left" })
+                                @Html.LabelFor(model => model.descripcion_poliza, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align:left" })
 
                             </div>
                             <div class="item form-group">
@@ -268,7 +267,7 @@
 
                                     <div class="input-group">
                                         <div class="custom-file">
-                                            @Html.TextBoxFor(m => m.PostedFileSoporte, new { @class = "custom-file-input", type = "file", @accept = ".xls,.xlsx,.png, .jpeg, .jpg, .pdf, .doc, .docx, .rar, .zip"})
+                                            @Html.TextBoxFor(m => m.PostedFileSoporte, new { @class = "custom-file-input", type = "file", @accept = ".xls,.xlsx,.png, .jpeg, .jpg, .pdf, .doc, .docx, .rar, .zip" })
                                             <label class="custom-file-label" for="PostedFileSoporte" style="text-align:left">Seleccione un archivo...</label>
                                         </div>
                                     </div>
@@ -342,7 +341,6 @@
     @Scripts.Render(Url.Content("~/Scripts/MvcFoolproofJQueryValidation.js"))
     @Scripts.Render("~/bundles/dataTables_js")
     <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
-
     <script>
         $(document).ready(function () {
 
@@ -357,7 +355,7 @@
                 theme: 'bootstrap4'
             })
 
-            jQuery.extend(jQuery.validator.messages, {               
+            jQuery.extend(jQuery.validator.messages, {
                 step: jQuery.validator.format("Ingrese únicamente dos decimales")
             });
 
@@ -374,7 +372,7 @@
         function asignaEventosInput() {
             //Agrega el evento a todos los input
             $(".debe").each(function () {
-                $(this).on('input', function (e) {                    
+                $(this).on('input', function (e) {
                     calculaDatos()
                 });
             });
@@ -460,41 +458,41 @@
         //agrega una fila para los conceptos
         function AgregarConcepto() {
 
-            
+
             $("#body_conceptos").append(
                 `
-                                        <tr  id="div_concepto_`+ num + `">
-                                            <input type="hidden" name="PM_conceptos.Index" id="produccion_lotes.Index" value="`+ num + `" />
-                                                <td>
-                                                    <input style=" font-size: 12px;" type="text" name="PM_conceptos[`+ num + `].cuenta" id="PM_conceptos[` + num + `].cuenta" class="form-control col-md-12" value="" autocomplete="off" maxlength="15" required>
-                                                    <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[` + num + `].cuenta" data-valmsg-replace="true"></span>
-                                                </td>
-                                                <td>
-                                                    <input style=" font-size: 12px;" type="text" name="PM_conceptos[`+ num + `].cc" id="PM_conceptos[` + num + `].cc" class="form-control col-md-12" value="" maxlength="15" autocomplete="off">
-                                                    <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[` + num + `].cc" data-valmsg-replace="true"></span>
-                                                </td>
-                                                <td>
-                                                    <textarea style="font-size: 12px;" type="text" name="PM_conceptos[`+ num + `].concepto" id="PM_conceptos[` + num + `].concepto" class="form-control col-md-12" value="" autocomplete="off" maxlength="120" required></textarea>
-                                                    <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[` + num + `].concepto" data-valmsg-replace="true"></span>
-                                                </td>
-                                                <td>
-                                                     <input style=" font-size: 12px;" type="text" name="PM_conceptos[`+ num + `].poliza" id="PM_conceptos[` + num + `].poliza" class="form-control col-md-12" value="" autocomplete="off"  maxlength="10">
-                                                    <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[` + num + `].poliza" data-valmsg-replace="true"></span>
-                                                </td>
-                                                <td>
-                                                     <input style="text-align:right; font-size: 12px;" type="number" step="0.01" min="0"  name="PM_conceptos[`+ num + `].debe" id="PM_conceptos[` + num + `].debe" class="form-control col-md-12 debe" value="" autocomplete="off">
-                                                    <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[` + num + `].debe" data-valmsg-replace="true"></span>
-                                                </td>     
-                                                <td>
-                                                    <input style="text-align:right; font-size: 12px;" type="number" step="0.01" min="0" name="PM_conceptos[`+ num + `].haber" id="PM_conceptos[` + num + `].haber" class="form-control col-md-12 haber" value="" autocomplete="off">
-                                                    <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[` + num + `].haber" data-valmsg-replace="true"></span>
-                                                </td>
-                                                <td>
-                                                     <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarConcepto(` + num + `); return false;">
-                                                </td>
-                                         </tr>
+                                                <tr  id="div_concepto_`+ num + `">
+                                                    <input type="hidden" name="PM_conceptos.Index" id="produccion_lotes.Index" value="`+ num + `" />
+                                                        <td>
+                                                            <input style=" font-size: 12px;" type="text" name="PM_conceptos[`+ num + `].cuenta" id="PM_conceptos[` + num + `].cuenta" class="form-control col-md-12" value="" autocomplete="off" maxlength="15" required>
+                                                            <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[` + num + `].cuenta" data-valmsg-replace="true"></span>
+                                                        </td>
+                                                        <td>
+                                                            <input style=" font-size: 12px;" type="text" name="PM_conceptos[`+ num + `].cc" id="PM_conceptos[` + num + `].cc" class="form-control col-md-12" value="" maxlength="15" autocomplete="off">
+                                                            <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[` + num + `].cc" data-valmsg-replace="true"></span>
+                                                        </td>
+                                                        <td>
+                                                            <textarea style="font-size: 12px;" type="text" name="PM_conceptos[`+ num + `].concepto" id="PM_conceptos[` + num + `].concepto" class="form-control col-md-12" value="" autocomplete="off" maxlength="120" required></textarea>
+                                                            <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[` + num + `].concepto" data-valmsg-replace="true"></span>
+                                                        </td>
+                                                        <td>
+                                                             <input style=" font-size: 12px;" type="text" name="PM_conceptos[`+ num + `].poliza" id="PM_conceptos[` + num + `].poliza" class="form-control col-md-12" value="" autocomplete="off"  maxlength="10">
+                                                            <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[` + num + `].poliza" data-valmsg-replace="true"></span>
+                                                        </td>
+                                                        <td>
+                                                             <input style="text-align:right; font-size: 12px;" type="number" step="0.01" min="0"  name="PM_conceptos[`+ num + `].debe" id="PM_conceptos[` + num + `].debe" class="form-control col-md-12 debe" value="" autocomplete="off">
+                                                            <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[` + num + `].debe" data-valmsg-replace="true"></span>
+                                                        </td>
+                                                        <td>
+                                                            <input style="text-align:right; font-size: 12px;" type="number" step="0.01" min="0" name="PM_conceptos[`+ num + `].haber" id="PM_conceptos[` + num + `].haber" class="form-control col-md-12 haber" value="" autocomplete="off">
+                                                            <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[` + num + `].haber" data-valmsg-replace="true"></span>
+                                                        </td>
+                                                        <td>
+                                                             <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarConcepto(` + num + `); return false;">
+                                                        </td>
+                                                 </tr>
 
-                                           `
+                                                   `
             );
             $("#div_concepto_" + num).hide().fadeIn(700);
 
@@ -511,7 +509,7 @@
             $("#div_concepto_" + id).fadeOut(0, function () {
                 $(this).remove();
             });
-           
+
             calculaDatos()
         }
 

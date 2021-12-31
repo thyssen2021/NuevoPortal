@@ -26,7 +26,8 @@ CREATE TABLE [poliza_manual](
 	[id_planta][int] NOT NULL,
 	[id_elaborador][int] NOT NULL,
 	[id_validador][int] NULL,
-	[id_autorizador][int] NULL,
+	[id_autorizador][int] NULL, --de la tabla empleados
+	[id_contabilidad][int] NULL,		--de la tabla empleados
 	[id_documento_soporte][int] NULL,
 	[id_documento_registro][int] NULL,
 	[numero_documento_sap][varchar](15) NULL,
@@ -34,6 +35,7 @@ CREATE TABLE [poliza_manual](
 	[fecha_documento][datetime] NOT NULL,
 	[fecha_validacion][datetime] NULL,
 	[fecha_autorizacion][datetime] NULL,
+	[fecha_registro][datetime] NULL,
 	[comentario_rechazo][varchar](355) NULL,
 	[descripcion_poliza][varchar](355) NULL,
 	[estatus][varchar](30) NOT NULL,
@@ -79,7 +81,13 @@ alter table [poliza_manual]
   alter table [poliza_manual]
  add constraint FK_poliza_manual_autorizador
   foreign key (id_autorizador)
-  references PM_autorizadores(id);
+  references empleados(id);
+
+   -- restriccion de clave foranea
+  alter table [poliza_manual]
+ add constraint FK_poliza_manual_contabilidad
+  foreign key (id_contabilidad)
+  references empleados(id);
 
   -- restriccion de clave foranea
 alter table [poliza_manual]

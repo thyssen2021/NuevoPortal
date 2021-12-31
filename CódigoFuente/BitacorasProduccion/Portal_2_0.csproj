@@ -212,6 +212,7 @@
     <Compile Include="Controllers\PFA_VolumeController.cs" />
     <Compile Include="Controllers\PlantasController.cs" />
     <Compile Include="Controllers\PM_autorizadoresController.cs" />
+    <Compile Include="Controllers\PM_tipo_polizaController.cs" />
     <Compile Include="Controllers\PM_validadoresController.cs" />
     <Compile Include="Controllers\PolizaManualController.cs" />
     <Compile Include="Controllers\PremiumFreightApprovalController.cs" />
@@ -420,6 +421,8 @@
     <Content Include="Content\emails_plantillas\PFA_solicitud_autorizada.html" />
     <Content Include="Content\emails_plantillas\PFA_solicitud_rechazada_info.html" />
     <Content Include="Content\emails_plantillas\PFA_solicitud_rechazada.html" />
+    <Content Include="Content\emails_plantillas\PM_confirmacion_registro.html" />
+    <Content Include="Content\emails_plantillas\PM_autorizacion_controlling.html" />
     <Content Include="Content\emails_plantillas\PM_autorizacion_validador.html" />
     <Content Include="Content\emails_plantillas\PM_rechazo.html" />
     <Content Include="Content\emails_plantillas\PM_envio_a_validador.html" />
@@ -3892,6 +3895,7 @@
     <Content Include="Scripts\bootstrap.bundle.min.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Scripts\bs-custom-file-input.min.js" />
     <Content Include="Scripts\esm\popper-utils.js" />
     <Content Include="Scripts\esm\popper-utils.min.js" />
     <Content Include="Scripts\esm\popper.js" />
@@ -5077,7 +5081,6 @@
     <Content Include="Views\PFA_Type_shipment\Enable.cshtml" />
     <Content Include="Views\PFA_Type_shipment\Index.cshtml" />
     <Content Include="Views\PolizaManual\Create.cshtml" />
-    <Content Include="Views\PolizaManual\Delete.cshtml" />
     <Content Include="Views\PolizaManual\Details.cshtml" />
     <Content Include="Views\PolizaManual\Edit.cshtml" />
     <Content Include="Views\PolizaManual\ListadoPolizas.cshtml" />
@@ -5092,6 +5095,13 @@
     <Content Include="Views\PM_autorizadores\Enable.cshtml" />
     <Content Include="Views\PM_autorizadores\Index.cshtml" />
     <Content Include="Views\PolizaManual\AutorizarControlling.cshtml" />
+    <Content Include="Views\PolizaManual\FinalizarContabilidad.cshtml" />
+    <Content Include="Views\PM_tipo_poliza\Create.cshtml" />
+    <Content Include="Views\PM_tipo_poliza\Details.cshtml" />
+    <Content Include="Views\PM_tipo_poliza\Disable.cshtml" />
+    <Content Include="Views\PM_tipo_poliza\Edit.cshtml" />
+    <Content Include="Views\PM_tipo_poliza\Enable.cshtml" />
+    <Content Include="Views\PM_tipo_poliza\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

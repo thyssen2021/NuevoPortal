@@ -2,10 +2,12 @@
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewBag.Title = "Enviar Póliza Manual";
+    ViewBag.Title = "Finalizar Registro de Póliza Manual";
     ViewBag.PrimerNivel = "polizas_manuales";
-    ViewBag.SegundoNivel = "PM_registro";
+    ViewBag.SegundoNivel = "PM_contabilidad_pendientes";
     ViewBag.ControllerName = "PolizaManual";
+
+    Portal_2_0.Models.empleados empleado = (Portal_2_0.Models.empleados)ViewBag.Empleado;
 }
 
 
@@ -27,6 +29,9 @@
             font-weight: bolder;
         }
     </style>
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
 }
 
 <div class="right_col" role="main">
@@ -56,7 +61,6 @@
                         </div>
 
 
-
                         <div class="ln_solid"></div>
 
                         <div class="form-group row">
@@ -70,9 +74,9 @@
                                 <input type="text" class="form-control col-md-12" value="@Model.plantas.descripcion" readonly>
                             </div>
                             <!--Documento SAP-->
-                            @Html.LabelFor(model => model.numero_documento_sap, new { @class = "control-label col-md-2" })
-                            <div class="col-md-2">
-                                <input type="text" class="form-control col-md-12" value="@Model.numero_documento_sap" readonly>
+                            
+                            <div class="col-md-4">
+                                
                             </div>
                             <!-- Id póliza -->
                             <label class="control-label col-md-2 float-right">
@@ -331,20 +335,18 @@
                                 }
                             </div>
                         </div>
-
                         <div class="form-group row">
                             <!-- Contabilidad -->
                             @Html.LabelFor(model => model.id_contabilidad, new { @class = "control-label col-md-1" })
 
-                            @if (Model.id_contabilidad.HasValue)
+                            @if (empleado.id > 0)
                             {
-                                <input type="text" class="form-control col-md-5" value="@Model.empleados1.ConcatNombre" readonly>
+                                <input type="text" class="form-control col-md-5" value="@empleado.ConcatNombre" readonly>
                             }
                             else
                             {
                                 <input type="text" class="form-control col-md-5" value="NO DISPONIBLE" readonly>
                             }
-
                             <!-- Fecha registro -->
                             @Html.LabelFor(model => model.fecha_registro, new { @class = "control-label col-md-2 float-right" })
 
@@ -364,20 +366,61 @@
                             </div>
                         </div>
 
+                        @*PARA SUBIR EL DOCUMENTO DE SOPORTE DE REGISTRO EN SAP*@
+
                         <div class="ln_solid"></div>
                         <div class="form-group row">
+                            <span style="color:black"><b>DOCUMENTO DE REGISTRO</b></span>
+                        </div>
+                        @using (Html.BeginForm("FinalizarContabilidad", null, FormMethod.Post, new { enctype = "multipart/form-data" }))
+                        {
 
-                        </div>
-                        <div class="col-md-12">
-                            <p class="float-md-left">
-                                <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = Model.id})" class="btn btn-info btn-lg" title="Editar">
-                                    <i class="fa fa-pencil-square-o"></i> Editar
-                                </a>
-                            </p>
-                            <p class="float-md-right">
-                                <button type="submit" class="btn btn-success btn-lg float-lg-right" onclick="mostrarModalEnviar()"><i class="fa fa-send"></i>  Enviar</button>
-                            </p>
-                        </div>
+                            @Html.AntiForgeryToken()
+
+
+                            @* input para saber si está o no activo el campo de soporte *@
+                            <input type="hidden" name="cambio_documento" id="cambio_documento" value="0" />
+
+
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", new { @class = "text-white" })
+                                </div>
+                            }
+                            @Html.HiddenFor(model => model.id)
+                            @Html.HiddenFor(model => model.id_validador)
+                            @Html.HiddenFor(model => model.descripcion_poliza)
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.id_documento_registro, new { @class = "control-label col-md-2" })
+                                <div class="col-md-5">
+
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            @Html.TextBoxFor(m => m.PostedFileRegistro, new { @class = "custom-file-input", type = "file", @accept = ".xls,.xlsx,.png, .jpeg, .jpg, .pdf, .doc, .docx, .rar, .zip", @required = "required" })
+                                            <label class="custom-file-label" for="PostedFileSoporte" style="text-align:left">Seleccione un archivo...</label>
+                                        </div>
+                                    </div>
+                                    @Html.ValidationMessageFor(m => m.PostedFileRegistro, "", new { @class = "text-danger" })
+                                </div>
+                                <!--Documento SAP-->
+                                @Html.LabelFor(model => model.numero_documento_sap, new { @class = "control-label col-md-2" })
+                                <div class="col-md-2">
+                                    @Html.EditorFor(m => m.numero_documento_sap, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @required = "required" } })
+                                    @Html.ValidationMessageFor(model => model.numero_documento_sap, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+
+
+                            <div class="ln_solid"></div>
+                            <div class="item form-group">
+                                <div class="col-md-12 col-sm-12 ">
+                                    <button type="submit" class="btn btn-success btn-lg float-lg-right">Finalizar Registro</button>
+                                </div>
+                            </div>
+                        }
 
                     </div>
                 </div>
@@ -392,51 +435,50 @@
     </div>
 </div>
 
-<!-- Modal Confirmación -->
-<div class="modal fade" id="modalConfirmacion" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle">Enviar P&oacute;liza Manual</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group row">
-                    <h6>¿Realmente desea enviar esta P&oacute;liza para su validaci&oacute;n?</h6>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
 
-                @using (Html.BeginForm())
-                {
-                    @Html.AntiForgeryToken()
-
-                    <div class="form-actions no-color float-md-right">
-                        <input type="submit" value="Enviar" class="btn btn-success" />
-                    </div>
-                }
-
-            </div>
-        </div>
-    </div>
-</div>
 
 @section scripts
 {
-
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
     <script>
+
+        $(document).ready(function () {
+
+            //inicializa en input file
+            bsCustomFileInput.init()
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //aumenta en uso cada vez que se hace un cambio en el archivo de soporte
+            $("#PostedFileRegistro").on("change", function () {
+                document.getElementById('cambio_documento').value = ++documento_soporte_cambios;
+            });
+
+
+        });
+
+        //variable para saber si ha cambiado el formulario y asi no se detenga por doble submit
+        var documento_soporte_cambios = 1;
+
         //agranda el tamaño de la barra
         window.onload = function () {
             clicMenu(1);
         }
 
-        //muestra el modal para enviar
-        function mostrarModalEnviar() {
-            $('#modalConfirmacion').modal('show')
+        //muestra el modal de autorizar
+        function mostrarModalAutorizar() {
+            $('#modalAutorizar').modal('show')
 
+        }
+
+        //muestra el modal de rechazar
+        function mostrarModalRechazar() {
+            $('#modalRechazar').modal('show')
         }
     </script>
 
