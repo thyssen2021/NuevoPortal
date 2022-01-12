@@ -200,6 +200,7 @@
     <Compile Include="Controllers\empleadosController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\InspeccionRegistrosController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\mm_v3Controller.cs" />
     <Compile Include="Controllers\PFA_Border_portController.cs" />
@@ -286,6 +287,18 @@
     <Compile Include="Models\EnvioCorreoElectronico.cs" />
     <Compile Include="Models\ExcelUtil.cs" />
     <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\inspeccion_categoria_fallas.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\inspeccion_datos_generales.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\inspeccion_fallas.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\inspeccion_pieza_descarte_produccion.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\mm_v3.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
@@ -5102,6 +5115,8 @@
     <Content Include="Views\PM_tipo_poliza\Edit.cshtml" />
     <Content Include="Views\PM_tipo_poliza\Enable.cshtml" />
     <Content Include="Views\PM_tipo_poliza\Index.cshtml" />
+    <Content Include="Views\InspeccionRegistros\BusquedaRegistro.cshtml" />
+    <Content Include="Views\InspeccionRegistros\RegistroPiezasDescarte.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

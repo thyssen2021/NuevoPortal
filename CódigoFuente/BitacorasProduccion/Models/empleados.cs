@@ -30,6 +30,7 @@ namespace Portal_2_0.Models
             this.produccion_operadores = new HashSet<produccion_operadores>();
             this.produccion_respaldo = new HashSet<produccion_respaldo>();
             this.produccion_supervisores = new HashSet<produccion_supervisores>();
+            this.inspeccion_datos_generales = new HashSet<inspeccion_datos_generales>();
         }
 
         public int id { get; set; }
@@ -151,5 +152,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<produccion_respaldo> produccion_respaldo { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<produccion_supervisores> produccion_supervisores { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<inspeccion_datos_generales> inspeccion_datos_generales { get; set; }
     }
 }

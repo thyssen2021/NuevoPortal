@@ -11,6 +11,7 @@ namespace Portal_2_0.Models
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
 
     public partial class class_v3 : IEquatable<class_v3>
     {
@@ -18,6 +19,7 @@ namespace Portal_2_0.Models
         public string Grade { get; set; }
         public string Customer { get; set; }
         public string Shape { get; set; }
+        [Display(Name = "Número de Parte")]
         public string Customer_part_number { get; set; }
         public string Surface { get; set; }
         public string Gauge___Metric { get; set; }

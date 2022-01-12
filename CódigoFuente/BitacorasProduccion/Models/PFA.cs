@@ -52,7 +52,7 @@ namespace Portal_2_0.Models
         [Display(Name = "Responsible of the PF")]
         public int id_PFA_responsible_cost { get; set; }
 
-        [Required(AllowEmptyStrings = false)]
+        //[Required(AllowEmptyStrings = false)]
         [Display(Name = "How is Recovered Cost")]
         public int id_PFA_recovered_cost { get; set; }
 
@@ -104,7 +104,7 @@ namespace Portal_2_0.Models
         [RegularExpression(@"^\d+(\.\d{1,2})?$", ErrorMessage = "Ingrese sólo dos decimales")]
         public decimal total_pf_cost { get; set; }
 
-        [Required]
+        //[Required]
         [Display(Name = "Promise Recovered Date")]
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
@@ -145,7 +145,7 @@ namespace Portal_2_0.Models
         [Display(Name = "Support of acceptance")]
         public Nullable<int> id_document_support { get; set; }
 
-        [Required]
+        //[Required]
         [Display(Name = "Is recovered?")]
         public Nullable<bool> is_recovered { get; set; }
 

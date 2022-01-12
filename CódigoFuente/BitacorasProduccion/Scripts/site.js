@@ -53,6 +53,10 @@ function clicMenu(num) {
     }
 }
 
+function volverAtras() {
+    history.go(-1);
+}
+
 //convierte texto a float
 function ConvierteAFloat(str, defaultValue) {
     var retValue = defaultValue;

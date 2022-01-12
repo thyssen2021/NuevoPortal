@@ -476,9 +476,9 @@ namespace Portal_2_0.Controllers
 
                     if (pFA.PostedFile != null) //en caso de haya un archivo seleccionado
                     {
-                        if (pFA.PostedFile.InputStream.Length > 5242880)
+                        if (pFA.PostedFile.InputStream.Length > 10485760)
                         {
-                            throw new Exception("Sólo se permiten archivos menores a 5MB");
+                            throw new Exception("Sólo se permiten archivos menores a 10MB");
                         }
                         else //si tiene la longitud correcta
                         {
@@ -668,9 +668,9 @@ namespace Portal_2_0.Controllers
 
                     if (pFA.PostedFile != null) //en caso de haya un archivo seleccionado
                     {
-                        if (pFA.PostedFile.InputStream.Length > 5242880)
+                        if (pFA.PostedFile.InputStream.Length > 10485760)
                         {
-                            throw new Exception("Sólo se permiten archivos menores a 5MB");
+                            throw new Exception("Sólo se permiten archivos menores a 10MB");
                         }
                         else //si tiene la longitud correcta
                         {
@@ -850,11 +850,15 @@ namespace Portal_2_0.Controllers
                 //verifica si se puede editar
                 if (pFA.estatus != PFA_Status.APROBADO)
                 {
+
+                   
+                   
                     ViewBag.Titulo = "¡Lo sentimos!¡No se puede modificar esta solicitud!";
                     ViewBag.Descripcion = "Aún no se puede modificar una solicitud, espere a que sea aprobada.";
 
                     return View("../Home/ErrorGenerico");
                 }
+                ViewBag.id_PFA_recovered_cost = AddFirstItem(new SelectList(db.PFA_Recovered_cost.Where(x => x.activo == true), "id", "descripcion"), selected: pFA.id_PFA_recovered_cost.ToString());
 
                 return View(pFA);
             }
@@ -873,9 +877,16 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult EditCreditNote(PFA pFA)
         {
-            if (ModelState.IsValid)
+            PFA pFA1 = db.PFA.Find(pFA.id);
+
+            try
             {
-                db.Entry(pFA).State = EntityState.Modified;
+                pFA1.id_PFA_recovered_cost = pFA.id_PFA_recovered_cost;
+                pFA1.promise_recovering_date = pFA.promise_recovering_date;
+                pFA1.credit_debit_note_number = pFA.credit_debit_note_number;
+                pFA1.is_recovered = pFA.is_recovered;
+
+                db.Entry(pFA1).State = EntityState.Modified;
                 db.SaveChanges();
 
                 //agrega el mensaje para sweetalert
@@ -886,10 +897,11 @@ namespace Portal_2_0.Controllers
 
                 return RedirectToAction("AutorizadorAutorizadas");
             }
-            PFA pFA1 = db.PFA.Find(pFA.id);
-            pFA1.credit_debit_note_number = pFA.credit_debit_note_number;
-
-            return View(pFA1);
+            catch (Exception e){
+                ModelState.AddModelError("", e.Message);
+                ViewBag.id_PFA_recovered_cost = AddFirstItem(new SelectList(db.PFA_Recovered_cost.Where(x => x.activo == true), "id", "descripcion"), selected: pFA.id_PFA_recovered_cost.ToString());
+                return View(pFA1);
+            }
         }
 
         // GET: PremiumFreightAproval/AutorizarRechazar/5

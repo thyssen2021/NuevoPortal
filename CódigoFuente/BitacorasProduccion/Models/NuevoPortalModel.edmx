@@ -97,6 +97,43 @@
           <Property Name="bajaFecha" Type="date" />
           <Property Name="8ID" Type="varchar" MaxLength="8" />
         </EntityType>
+        <EntityType Name="inspeccion_categoria_fallas">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="inspeccion_datos_generales">
+          <Key>
+            <PropertyRef Name="id_produccion_registro" />
+          </Key>
+          <Property Name="id_produccion_registro" Type="int" Nullable="false" />
+          <Property Name="id_empleado_inspector" Type="int" Nullable="false" />
+          <Property Name="comentarios" Type="varchar" MaxLength="255" />
+        </EntityType>
+        <EntityType Name="inspeccion_fallas">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_categoria_falla" Type="int" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="80" Nullable="false" />
+          <Property Name="aplica_en_calculo" Type="bit" Nullable="false" />
+          <Property Name="dano_interno" Type="bit" Nullable="false" />
+          <Property Name="dano_externo" Type="bit" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="inspeccion_pieza_descarte_produccion">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_produccion_registro" Type="int" Nullable="false" />
+          <Property Name="id_falla" Type="int" Nullable="false" />
+          <Property Name="cantidad" Type="int" Nullable="false" />
+        </EntityType>
         <EntityType Name="mm_v3">
           <Key>
             <PropertyRef Name="Material" />
@@ -567,6 +604,66 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
             </Principal>
             <Dependent Role="PFA">
               <PropertyRef Name="id_PFA_recovered_cost" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_inspeccion_datos_generales_id_empleado_inspector">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="1" />
+          <End Role="inspeccion_datos_generales" Type="Self.inspeccion_datos_generales" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="inspeccion_datos_generales">
+              <PropertyRef Name="id_empleado_inspector" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_inspeccion_datos_generales_id_produccion_registro">
+          <End Role="produccion_registros" Type="Self.produccion_registros" Multiplicity="1" />
+          <End Role="inspeccion_datos_generales" Type="Self.inspeccion_datos_generales" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="produccion_registros">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="inspeccion_datos_generales">
+              <PropertyRef Name="id_produccion_registro" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_inspeccion_fallas_id_categoria">
+          <End Role="inspeccion_categoria_fallas" Type="Self.inspeccion_categoria_fallas" Multiplicity="1" />
+          <End Role="inspeccion_fallas" Type="Self.inspeccion_fallas" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="inspeccion_categoria_fallas">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="inspeccion_fallas">
+              <PropertyRef Name="id_categoria_falla" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_inspeccion_pieza_descarte_produccion_id_falla">
+          <End Role="inspeccion_fallas" Type="Self.inspeccion_fallas" Multiplicity="1" />
+          <End Role="inspeccion_pieza_descarte_produccion" Type="Self.inspeccion_pieza_descarte_produccion" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="inspeccion_fallas">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="inspeccion_pieza_descarte_produccion">
+              <PropertyRef Name="id_falla" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_inspeccion_pieza_descarte_produccion_id_produccion_registro">
+          <End Role="produccion_registros" Type="Self.produccion_registros" Multiplicity="1" />
+          <End Role="inspeccion_pieza_descarte_produccion" Type="Self.inspeccion_pieza_descarte_produccion" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="produccion_registros">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="inspeccion_pieza_descarte_produccion">
+              <PropertyRef Name="id_produccion_registro" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1045,6 +1142,10 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <EntitySet Name="class_v3" EntityType="Self.class_v3" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="currency" EntityType="Self.currency" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="empleados" EntityType="Self.empleados" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="inspeccion_categoria_fallas" EntityType="Self.inspeccion_categoria_fallas" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="inspeccion_datos_generales" EntityType="Self.inspeccion_datos_generales" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="inspeccion_fallas" EntityType="Self.inspeccion_fallas" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="inspeccion_pieza_descarte_produccion" EntityType="Self.inspeccion_pieza_descarte_produccion" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="mm_v3" EntityType="Self.mm_v3" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="notificaciones_correo" EntityType="Self.notificaciones_correo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PFA" EntityType="Self.PFA" Schema="dbo" store:Type="Tables" />
@@ -1139,6 +1240,26 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <AssociationSet Name="FK_id_PFA_recovered_cost" Association="Self.FK_id_PFA_recovered_cost">
             <End Role="PFA_Recovered_cost" EntitySet="PFA_Recovered_cost" />
             <End Role="PFA" EntitySet="PFA" />
+          </AssociationSet>
+          <AssociationSet Name="FK_inspeccion_datos_generales_id_empleado_inspector" Association="Self.FK_inspeccion_datos_generales_id_empleado_inspector">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="inspeccion_datos_generales" EntitySet="inspeccion_datos_generales" />
+          </AssociationSet>
+          <AssociationSet Name="FK_inspeccion_datos_generales_id_produccion_registro" Association="Self.FK_inspeccion_datos_generales_id_produccion_registro">
+            <End Role="produccion_registros" EntitySet="produccion_registros" />
+            <End Role="inspeccion_datos_generales" EntitySet="inspeccion_datos_generales" />
+          </AssociationSet>
+          <AssociationSet Name="FK_inspeccion_fallas_id_categoria" Association="Self.FK_inspeccion_fallas_id_categoria">
+            <End Role="inspeccion_categoria_fallas" EntitySet="inspeccion_categoria_fallas" />
+            <End Role="inspeccion_fallas" EntitySet="inspeccion_fallas" />
+          </AssociationSet>
+          <AssociationSet Name="FK_inspeccion_pieza_descarte_produccion_id_falla" Association="Self.FK_inspeccion_pieza_descarte_produccion_id_falla">
+            <End Role="inspeccion_fallas" EntitySet="inspeccion_fallas" />
+            <End Role="inspeccion_pieza_descarte_produccion" EntitySet="inspeccion_pieza_descarte_produccion" />
+          </AssociationSet>
+          <AssociationSet Name="FK_inspeccion_pieza_descarte_produccion_id_produccion_registro" Association="Self.FK_inspeccion_pieza_descarte_produccion_id_produccion_registro">
+            <End Role="produccion_registros" EntitySet="produccion_registros" />
+            <End Role="inspeccion_pieza_descarte_produccion" EntitySet="inspeccion_pieza_descarte_produccion" />
           </AssociationSet>
           <AssociationSet Name="FK_notificaciones_correo_empleado" Association="Self.FK_notificaciones_correo_empleado">
             <End Role="empleados" EntitySet="empleados" />
@@ -1482,6 +1603,8 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <NavigationProperty Name="produccion_operadores" Relationship="Self.FK_produccion_registros_operador" FromRole="produccion_registros" ToRole="produccion_operadores" />
           <NavigationProperty Name="produccion_supervisores" Relationship="Self.FK_produccion_registros_supervisor" FromRole="produccion_registros" ToRole="produccion_supervisores" />
           <NavigationProperty Name="produccion_turnos" Relationship="Self.FK_produccion_registros_turnos" FromRole="produccion_registros" ToRole="produccion_turnos" />
+          <NavigationProperty Name="inspeccion_datos_generales" Relationship="Portal_2_0Model.FK_inspeccion_datos_generales_id_produccion_registro" FromRole="produccion_registros" ToRole="inspeccion_datos_generales" />
+          <NavigationProperty Name="inspeccion_pieza_descarte_produccion" Relationship="Portal_2_0Model.FK_inspeccion_pieza_descarte_produccion_id_produccion_registro" FromRole="produccion_registros" ToRole="inspeccion_pieza_descarte_produccion" />
         </EntityType>
         <EntityType Name="produccion_supervisores">
           <Key>
@@ -1882,6 +2005,30 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <AssociationSet Name="FK_poliza_manual_validador" Association="Portal_2_0Model.FK_poliza_manual_validador">
             <End Role="PM_validadores" EntitySet="PM_validadores" />
             <End Role="poliza_manual" EntitySet="poliza_manual" />
+          </AssociationSet>
+          <EntitySet Name="inspeccion_categoria_fallas" EntityType="Portal_2_0Model.inspeccion_categoria_fallas" />
+          <EntitySet Name="inspeccion_datos_generales" EntityType="Portal_2_0Model.inspeccion_datos_generales" />
+          <EntitySet Name="inspeccion_fallas" EntityType="Portal_2_0Model.inspeccion_fallas" />
+          <EntitySet Name="inspeccion_pieza_descarte_produccion" EntityType="Portal_2_0Model.inspeccion_pieza_descarte_produccion" />
+          <AssociationSet Name="FK_inspeccion_datos_generales_id_empleado_inspector" Association="Portal_2_0Model.FK_inspeccion_datos_generales_id_empleado_inspector">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="inspeccion_datos_generales" EntitySet="inspeccion_datos_generales" />
+          </AssociationSet>
+          <AssociationSet Name="FK_inspeccion_fallas_id_categoria" Association="Portal_2_0Model.FK_inspeccion_fallas_id_categoria">
+            <End Role="inspeccion_categoria_fallas" EntitySet="inspeccion_categoria_fallas" />
+            <End Role="inspeccion_fallas" EntitySet="inspeccion_fallas" />
+          </AssociationSet>
+          <AssociationSet Name="FK_inspeccion_datos_generales_id_produccion_registro" Association="Portal_2_0Model.FK_inspeccion_datos_generales_id_produccion_registro">
+            <End Role="produccion_registros" EntitySet="produccion_registros" />
+            <End Role="inspeccion_datos_generales" EntitySet="inspeccion_datos_generales" />
+          </AssociationSet>
+          <AssociationSet Name="FK_inspeccion_pieza_descarte_produccion_id_falla" Association="Portal_2_0Model.FK_inspeccion_pieza_descarte_produccion_id_falla">
+            <End Role="inspeccion_fallas" EntitySet="inspeccion_fallas" />
+            <End Role="inspeccion_pieza_descarte_produccion" EntitySet="inspeccion_pieza_descarte_produccion" />
+          </AssociationSet>
+          <AssociationSet Name="FK_inspeccion_pieza_descarte_produccion_id_produccion_registro" Association="Portal_2_0Model.FK_inspeccion_pieza_descarte_produccion_id_produccion_registro">
+            <End Role="produccion_registros" EntitySet="produccion_registros" />
+            <End Role="inspeccion_pieza_descarte_produccion" EntitySet="inspeccion_pieza_descarte_produccion" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="notificaciones_correo">
@@ -2330,6 +2477,7 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <NavigationProperty Name="produccion_operadores" Relationship="Portal_2_0Model.FK_produccion_operadores_id_empleado" FromRole="empleados" ToRole="produccion_operadores" />
           <NavigationProperty Name="produccion_respaldo" Relationship="Portal_2_0Model.FK_produccion_respaldo_id_empleado" FromRole="empleados" ToRole="produccion_respaldo" />
           <NavigationProperty Name="produccion_supervisores" Relationship="Portal_2_0Model.FK_produccion_supervisores_id_empleado" FromRole="empleados" ToRole="produccion_supervisores" />
+          <NavigationProperty Name="inspeccion_datos_generales" Relationship="Portal_2_0Model.FK_inspeccion_datos_generales_id_empleado_inspector" FromRole="empleados" ToRole="inspeccion_datos_generales" />
         </EntityType>
         <EntityType Name="PM_autorizadores">
           <Key>
@@ -2623,6 +2771,110 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
             </Principal>
             <Dependent Role="poliza_manual">
               <PropertyRef Name="id_validador" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="inspeccion_categoria_fallas">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="inspeccion_fallas" Relationship="Portal_2_0Model.FK_inspeccion_fallas_id_categoria" FromRole="inspeccion_categoria_fallas" ToRole="inspeccion_fallas" />
+        </EntityType>
+        <EntityType Name="inspeccion_datos_generales">
+          <Key>
+            <PropertyRef Name="id_produccion_registro" />
+          </Key>
+          <Property Name="id_produccion_registro" Type="Int32" Nullable="false" />
+          <Property Name="id_empleado_inspector" Type="Int32" Nullable="false" />
+          <Property Name="comentarios" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_inspeccion_datos_generales_id_empleado_inspector" FromRole="inspeccion_datos_generales" ToRole="empleados" />
+          <NavigationProperty Name="produccion_registros" Relationship="Portal_2_0Model.FK_inspeccion_datos_generales_id_produccion_registro" FromRole="inspeccion_datos_generales" ToRole="produccion_registros" />
+        </EntityType>
+        <EntityType Name="inspeccion_fallas">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_categoria_falla" Type="Int32" Nullable="false" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="80" FixedLength="false" Unicode="false" />
+          <Property Name="aplica_en_calculo" Type="Boolean" Nullable="false" />
+          <Property Name="dano_interno" Type="Boolean" Nullable="false" />
+          <Property Name="dano_externo" Type="Boolean" Nullable="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="inspeccion_categoria_fallas" Relationship="Portal_2_0Model.FK_inspeccion_fallas_id_categoria" FromRole="inspeccion_fallas" ToRole="inspeccion_categoria_fallas" />
+          <NavigationProperty Name="inspeccion_pieza_descarte_produccion" Relationship="Portal_2_0Model.FK_inspeccion_pieza_descarte_produccion_id_falla" FromRole="inspeccion_fallas" ToRole="inspeccion_pieza_descarte_produccion" />
+        </EntityType>
+        <EntityType Name="inspeccion_pieza_descarte_produccion">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_produccion_registro" Type="Int32" Nullable="false" />
+          <Property Name="id_falla" Type="Int32" Nullable="false" />
+          <Property Name="cantidad" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="inspeccion_fallas" Relationship="Portal_2_0Model.FK_inspeccion_pieza_descarte_produccion_id_falla" FromRole="inspeccion_pieza_descarte_produccion" ToRole="inspeccion_fallas" />
+          <NavigationProperty Name="produccion_registros" Relationship="Portal_2_0Model.FK_inspeccion_pieza_descarte_produccion_id_produccion_registro" FromRole="inspeccion_pieza_descarte_produccion" ToRole="produccion_registros" />
+        </EntityType>
+        <Association Name="FK_inspeccion_datos_generales_id_empleado_inspector">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.inspeccion_datos_generales" Role="inspeccion_datos_generales" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="inspeccion_datos_generales">
+              <PropertyRef Name="id_empleado_inspector" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_inspeccion_fallas_id_categoria">
+          <End Type="Portal_2_0Model.inspeccion_categoria_fallas" Role="inspeccion_categoria_fallas" Multiplicity="1" />
+          <End Type="Portal_2_0Model.inspeccion_fallas" Role="inspeccion_fallas" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="inspeccion_categoria_fallas">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="inspeccion_fallas">
+              <PropertyRef Name="id_categoria_falla" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_inspeccion_datos_generales_id_produccion_registro">
+          <End Type="Portal_2_0Model.produccion_registros" Role="produccion_registros" Multiplicity="1" />
+          <End Type="Portal_2_0Model.inspeccion_datos_generales" Role="inspeccion_datos_generales" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="produccion_registros">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="inspeccion_datos_generales">
+              <PropertyRef Name="id_produccion_registro" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_inspeccion_pieza_descarte_produccion_id_falla">
+          <End Type="Portal_2_0Model.inspeccion_fallas" Role="inspeccion_fallas" Multiplicity="1" />
+          <End Type="Portal_2_0Model.inspeccion_pieza_descarte_produccion" Role="inspeccion_pieza_descarte_produccion" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="inspeccion_fallas">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="inspeccion_pieza_descarte_produccion">
+              <PropertyRef Name="id_falla" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_inspeccion_pieza_descarte_produccion_id_produccion_registro">
+          <End Type="Portal_2_0Model.produccion_registros" Role="produccion_registros" Multiplicity="1" />
+          <End Type="Portal_2_0Model.inspeccion_pieza_descarte_produccion" Role="inspeccion_pieza_descarte_produccion" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="produccion_registros">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="inspeccion_pieza_descarte_produccion">
+              <PropertyRef Name="id_produccion_registro" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -3171,6 +3423,47 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
                 <ScalarProperty Name="id_planta" ColumnName="id_planta" />
                 <ScalarProperty Name="currency_iso" ColumnName="currency_iso" />
                 <ScalarProperty Name="id_PM_tipo_poliza" ColumnName="id_PM_tipo_poliza" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="inspeccion_categoria_fallas">
+            <EntityTypeMapping TypeName="Portal_2_0Model.inspeccion_categoria_fallas">
+              <MappingFragment StoreEntitySet="inspeccion_categoria_fallas">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="inspeccion_datos_generales">
+            <EntityTypeMapping TypeName="Portal_2_0Model.inspeccion_datos_generales">
+              <MappingFragment StoreEntitySet="inspeccion_datos_generales">
+                <ScalarProperty Name="comentarios" ColumnName="comentarios" />
+                <ScalarProperty Name="id_empleado_inspector" ColumnName="id_empleado_inspector" />
+                <ScalarProperty Name="id_produccion_registro" ColumnName="id_produccion_registro" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="inspeccion_fallas">
+            <EntityTypeMapping TypeName="Portal_2_0Model.inspeccion_fallas">
+              <MappingFragment StoreEntitySet="inspeccion_fallas">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="dano_externo" ColumnName="dano_externo" />
+                <ScalarProperty Name="dano_interno" ColumnName="dano_interno" />
+                <ScalarProperty Name="aplica_en_calculo" ColumnName="aplica_en_calculo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="id_categoria_falla" ColumnName="id_categoria_falla" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="inspeccion_pieza_descarte_produccion">
+            <EntityTypeMapping TypeName="Portal_2_0Model.inspeccion_pieza_descarte_produccion">
+              <MappingFragment StoreEntitySet="inspeccion_pieza_descarte_produccion">
+                <ScalarProperty Name="cantidad" ColumnName="cantidad" />
+                <ScalarProperty Name="id_falla" ColumnName="id_falla" />
+                <ScalarProperty Name="id_produccion_registro" ColumnName="id_produccion_registro" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

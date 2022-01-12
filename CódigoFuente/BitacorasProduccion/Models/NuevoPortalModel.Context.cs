@@ -59,5 +59,9 @@ namespace Portal_2_0.Models
         public virtual DbSet<empleados> empleados { get; set; }
         public virtual DbSet<PM_autorizadores> PM_autorizadores { get; set; }
         public virtual DbSet<poliza_manual> poliza_manual { get; set; }
+        public virtual DbSet<inspeccion_categoria_fallas> inspeccion_categoria_fallas { get; set; }
+        public virtual DbSet<inspeccion_datos_generales> inspeccion_datos_generales { get; set; }
+        public virtual DbSet<inspeccion_fallas> inspeccion_fallas { get; set; }
+        public virtual DbSet<inspeccion_pieza_descarte_produccion> inspeccion_pieza_descarte_produccion { get; set; }
     }
 }

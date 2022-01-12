@@ -240,17 +240,18 @@
                                                         <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
                                                         <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "PM_catalogos" ? "display:block" : null )">
                                                             <li class="@(ViewBag.TercelNivel == "PM_tipo_poliza" ? "current-page" : null )"><a href="@Url.Action( "Index", "PM_tipo_poliza")">Tipos de P&oacute;liza</a></li>
-                                                        </ul>                                                       
+                                                        </ul>
                                                     </li>
                                                 }
                                                 @if (User.IsInRole(TipoRoles.ADMIN))
                                                 {
+                                                    <h3>Cat&aacute;logos</h3>
                                                     <li class="@(ViewBag.SegundoNivel == "PM_catalogos_admin" ? "active" : "" )">
                                                         <a>C&aacute;talogos ADMIN<span class="fa fa-chevron-down"></span></a>
                                                         <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "PM_catalogos" ? "display:block" : null )">
                                                             <li class="@(ViewBag.TercelNivel == "PM_validadores" ? "current-page" : null )"><a href="@Url.Action( "Index", "PM_validadores")">Jefes de &aacute;rea</a></li>
                                                             <li class="@(ViewBag.TercelNivel == " PM_autorizadores" ? "current-page" : null )"><a href="@Url.Action( "Index", "PM_autorizadores")">Controlling</a></li>
-                                                        </ul>               
+                                                        </ul>
                                                     </li>
                                                 }
 
@@ -260,6 +261,38 @@
 
                                     }
 
+                                    @*MENÚ INSPECCIÓN DE PIEZAS*@
+
+                                    @if (User.IsInRole(TipoRoles.INSPECCION_CATALOGOS) || User.IsInRole(TipoRoles.INSPECCION_REGISTRO) || User.IsInRole(TipoRoles.INSPECCION_REPORTES))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "Inspeccion" ? "active" : null )">
+                                            <a><i class="fa fa-search"></i> Piezas de Descarte<span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu">
+
+                                                @if (User.IsInRole(TipoRoles.INSPECCION_REGISTRO))
+                                                {
+                                                    <h3>Registro</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "Inspeccion_registro" ? "current-page" : null )"><a href="@Url.Action("BusquedaRegistro", "InspeccionRegistros")">Registro de Piezas</a></li>
+                                                }
+
+                                                @if (User.IsInRole(TipoRoles.INSPECCION_REPORTES))
+                                                {
+                                                    <h3>Cat&aacute;logos</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "Inspeccion_inspectores" ? "current-page" : null )"><a href="@Url.Action("AutorizadorPendientes", "InspeccionRegistros")">Inspectores</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "Inspeccion_categorias" ? "current-page" : null )"><a href="@Url.Action("AutorizadorPendientes", "InspeccionRegistros")">Categorias</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "Inspeccion_fallas" ? "current-page" : null )"><a href="@Url.Action("AutorizadorPendientes", "InspeccionRegistros")">Fallas</a></li>
+
+                                                }
+                                                @if (User.IsInRole(TipoRoles.PFA_VISUALIZACION))
+                                                {
+                                                    <h3>Reportes</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "PFA_visualizar" ? "current-page" : null )"><a href="@Url.Action("ReportesPFA", "InspeccionRegistros")">Reportes</a></li>
+                                                }
+                                            </ul>
+
+                                        </li>
+
+                                    }
 
                                     @if (User.IsInRole(TipoRoles.USERS))
                                     {

@@ -204,6 +204,42 @@ namespace Portal_2_0.Controllers
             return Json(list, JsonRequestBehavior.AllowGet);
         }
 
+        ///<summary>
+        ///Obtiene todas las fallas
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles que esten activas
+        public JsonResult obtieneFallas()
+        {
+            //obtiene todos los posibles valores
+            List<inspeccion_categoria_fallas> listado = db.inspeccion_categoria_fallas.Where(p => p.activo == true).ToList();
+
+            String textoSelects = "<option value=''>-- Seleccione un valor --</option>";
+
+            foreach (inspeccion_categoria_fallas item in listado)
+            {
+
+                textoSelects += "<optgroup label = '" + item.descripcion + "'>";
+
+                foreach (inspeccion_fallas falla in item.inspeccion_fallas)
+                {
+                    if(falla.activo)
+                        textoSelects += "<option value='" + falla.id + "'>" + falla.descripcion + "</option>";
+                }
+
+                textoSelects += "</optgroup>";
+            }
+
+            //inicializa la lista de objetos
+            var list = new object[1];
+
+            list[0] = new { text = textoSelects };
+
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+
+
         public ActionResult DownloadFile(int? idDocumento, bool inline = false)
         {
             if (idDocumento == null)
@@ -218,7 +254,7 @@ namespace Portal_2_0.Controllers
                 return View("../Error/NotFound");
             }
 
-            
+
             var cd = new System.Net.Mime.ContentDisposition
             {
                 // for example foo.bak
@@ -230,7 +266,7 @@ namespace Portal_2_0.Controllers
             };
 
             Response.AppendHeader("Content-Disposition", cd.ToString());
-            
+
             return File(archivo.Datos, archivo.MimeType);
 
         }

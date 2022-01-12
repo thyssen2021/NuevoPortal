@@ -239,45 +239,21 @@
                             @Html.AntiForgeryToken()
 
 
-
                             @Html.HiddenFor(model => model.id)
-                            @Html.HiddenFor(model => model.id_solicitante)
-                            @Html.HiddenFor(model => model.id_PFA_Department)
-                            @Html.HiddenFor(model => model.id_PFA_volume)
-                            @Html.HiddenFor(model => model.id_PFA_border_port)
-                            @Html.HiddenFor(model => model.id_PFA_destination_plant)
-                            @Html.HiddenFor(model => model.id_PFA_reason)
-                            @Html.HiddenFor(model => model.id_PFA_type_shipment)
-                            @Html.HiddenFor(model => model.id_PFA_responsible_cost)
-                            @Html.HiddenFor(model => model.id_PFA_recovered_cost)
-                            @Html.HiddenFor(model => model.id_PFA_autorizador)
-                            @Html.HiddenFor(model => model.date_request)
-                            @Html.HiddenFor(model => model.sap_part_number)
-                            @Html.HiddenFor(model => model.customer_part_number)
-                            @Html.HiddenFor(model => model.volume)
-                            @Html.HiddenFor(model => model.mill)
-                            @Html.HiddenFor(model => model.customer)
-                            @Html.HiddenFor(model => model.total_cost)
-                            @Html.HiddenFor(model => model.total_pf_cost)
-                            @Html.HiddenFor(model => model.promise_recovering_date)
-                            @Html.HiddenFor(model => model.comentarios)
-                            @Html.HiddenFor(model => model.razon_rechazo)
-                            @Html.HiddenFor(model => model.estatus)
-                            @Html.HiddenFor(model => model.fecha_aprobacion)
-                            @Html.HiddenFor(model => model.activo)
-                            @Html.HiddenFor(model => model.cost_is_accepted)
-                            @Html.HiddenFor(model => model.email_support)
-                            @Html.HiddenFor(model => model.id_document_support)
+
+                           
 
 
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.id_PFA_recovered_cost, new { @class = "control-label col-md-1" })
                                 <div class="col-md-3">
-                                    <input type="text" class="form-control col-md-12" value="@Model.PFA_Recovered_cost.descripcion" readonly>
+                                    @Html.DropDownList("id_PFA_recovered_cost", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%; background:rgb(255,255,180)" })
+                                    @Html.ValidationMessageFor(model => model.id_PFA_recovered_cost, "", new { @class = "text-danger" })
                                 </div>
                                 @Html.LabelFor(model => model.promise_recovering_date, new { @class = "control-label col-md-1" })
                                 <div class="col-md-3">
-                                    <input type="text" class="form-control col-md-12" value="@Model.promise_recovering_date.ToString("yyyy-MM-dd")" readonly>
+                                    @Html.EditorFor(m => m.promise_recovering_date, new { htmlAttributes = new { @class = "form-control", @style = "background:rgb(255,255,180)" } })
+                                    @Html.ValidationMessageFor(model => model.promise_recovering_date, "", new { @class = "text-danger" })
                                 </div>
                                 @Html.LabelFor(model => model.credit_debit_note_number, new { @class = "control-label col-md-1" })
                                 <div class="col-md-3">
@@ -366,9 +342,9 @@
 
         }
         // Initialize Select2 Elements (debe ir después de asignar el valor)
-        $('.select2bs4').select2({
-            theme: 'bootstrap4'
-        })
+        //$('.select2bs4').select2({
+        //    theme: 'bootstrap4'
+        //})
     </script>
 
 }

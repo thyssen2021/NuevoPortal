@@ -12,13 +12,17 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
+    using System.Linq;
 
     public partial class produccion_registros
     {
+        private Portal_2_0Entities db = new Portal_2_0Entities();
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public produccion_registros()
         {
             this.produccion_lotes = new HashSet<produccion_lotes>();
+            this.inspeccion_pieza_descarte_produccion = new HashSet<inspeccion_pieza_descarte_produccion>();
         }
 
         public int id { get; set; }
@@ -52,6 +56,31 @@ namespace Portal_2_0.Models
         [Display(Name = "Estado")]
         public Nullable<bool> activo { get; set; }
 
+        //retorna el objeto mm y el cobjeto class asociado
+        public mm_v3 MM_asociado
+        {
+            get
+            {
+                mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == this.sap_platina);
+                if (mm == null)
+                    mm = new mm_v3 { };
+
+                return mm;
+            }
+        }
+
+        public class_v3 Class_asociado
+        {
+            get
+            {
+                class_v3 class_ = db.class_v3.FirstOrDefault(x => x.Object == this.sap_platina);
+                if (class_ == null)
+                    class_ = new class_v3 { };
+
+                return class_;
+            }
+        }
+
         public virtual plantas plantas { get; set; }
         public virtual produccion_datos_entrada produccion_datos_entrada { get; set; }
         public virtual produccion_lineas produccion_lineas { get; set; }
@@ -60,5 +89,8 @@ namespace Portal_2_0.Models
         public virtual produccion_operadores produccion_operadores { get; set; }
         public virtual produccion_supervisores produccion_supervisores { get; set; }
         public virtual produccion_turnos produccion_turnos { get; set; }
+        public virtual inspeccion_datos_generales inspeccion_datos_generales { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<inspeccion_pieza_descarte_produccion> inspeccion_pieza_descarte_produccion { get; set; }
     }
 }
