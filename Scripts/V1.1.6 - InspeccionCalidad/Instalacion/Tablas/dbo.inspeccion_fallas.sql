@@ -106,13 +106,12 @@ INSERT INTO [dbo].[inspeccion_fallas] ([id],[id_categoria_falla],[descripcion],[
 INSERT INTO [dbo].[inspeccion_fallas] ([id],[id_categoria_falla],[descripcion],[aplica_en_calculo],[dano_interno],[dano_externo],[activo])VALUES(47,5,N'Puntos brillantes',1,0,1,1)
 INSERT INTO [dbo].[inspeccion_fallas] ([id],[id_categoria_falla],[descripcion],[aplica_en_calculo],[dano_interno],[dano_externo],[activo])VALUES(48,5,N'Rayas / Scratches',1,0,1,1)
 INSERT INTO [dbo].[inspeccion_fallas] ([id],[id_categoria_falla],[descripcion],[aplica_en_calculo],[dano_interno],[dano_externo],[activo])VALUES(49,5,N'Stencil',1,0,1,1)
-INSERT INTO [dbo].[inspeccion_fallas] ([id],[id_categoria_falla],[descripcion],[aplica_en_calculo],[dano_interno],[dano_externo],[activo])VALUES(50,5,N'Dross Solo Puebla',0,0,1,1)
-INSERT INTO [dbo].[inspeccion_fallas] ([id],[id_categoria_falla],[descripcion],[aplica_en_calculo],[dano_interno],[dano_externo],[activo])VALUES(51,5,N'Holds Solo Puebla',0,0,1,1)
-INSERT INTO [dbo].[inspeccion_fallas] ([id],[id_categoria_falla],[descripcion],[aplica_en_calculo],[dano_interno],[dano_externo],[activo])VALUES(52,5,N'Ash / Ceniza Solo Puebla',0,0,1,1)
-INSERT INTO [dbo].[inspeccion_fallas] ([id],[id_categoria_falla],[descripcion],[aplica_en_calculo],[dano_interno],[dano_externo],[activo])VALUES(53,5,N'Escurrimiento de Zinc Solo Puebla',0,0,1,1)
-INSERT INTO [dbo].[inspeccion_fallas] ([id],[id_categoria_falla],[descripcion],[aplica_en_calculo],[dano_interno],[dano_externo],[activo])VALUES(54,5,N'Camber Solo Puebla',0,0,1,1)
+INSERT INTO [dbo].[inspeccion_fallas] ([id],[id_categoria_falla],[descripcion],[aplica_en_calculo],[dano_interno],[dano_externo],[activo])VALUES(50,5,N'Dross Solo Puebla',1,0,1,1)
+INSERT INTO [dbo].[inspeccion_fallas] ([id],[id_categoria_falla],[descripcion],[aplica_en_calculo],[dano_interno],[dano_externo],[activo])VALUES(51,5,N'Holds Solo Puebla',1,0,1,1)
+INSERT INTO [dbo].[inspeccion_fallas] ([id],[id_categoria_falla],[descripcion],[aplica_en_calculo],[dano_interno],[dano_externo],[activo])VALUES(52,5,N'Ash / Ceniza Solo Puebla',1,0,1,1)
+INSERT INTO [dbo].[inspeccion_fallas] ([id],[id_categoria_falla],[descripcion],[aplica_en_calculo],[dano_interno],[dano_externo],[activo])VALUES(53,5,N'Escurrimiento de Zinc Solo Puebla',1,0,1,1)
+INSERT INTO [dbo].[inspeccion_fallas] ([id],[id_categoria_falla],[descripcion],[aplica_en_calculo],[dano_interno],[dano_externo],[activo])VALUES(54,5,N'Camber Solo Puebla',1,0,1,1)
 INSERT INTO [dbo].[inspeccion_fallas] ([id],[id_categoria_falla],[descripcion],[aplica_en_calculo],[dano_interno],[dano_externo],[activo])VALUES(55,5,N'Otros',1,0,1,1)
-
 
 
 SET IDENTITY_INSERT [inspeccion_fallas] OFF

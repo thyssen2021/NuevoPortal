@@ -12,9 +12,13 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
+    using System.Linq;
 
     public partial class produccion_datos_entrada
     {
+
+        private Portal_2_0Entities db = new Portal_2_0Entities();
+
         public int id_produccion_registro { get; set; }
         [Required(ErrorMessage = "El Peso Real Neto es requerido", AllowEmptyStrings = false)]
         [Display(Name = "Peso Real Pieza Neto")]   //viene de la báscula
@@ -80,6 +84,55 @@ namespace Portal_2_0.Models
         [StringLength(600)]
         public string comentarios { get; set; }
 
+        //calcula el peso de rollo usado
+        public double PesoRegresoRolloUsado
+        {
+            get
+            {
+                double pesoEtiqueta = 0;
+                double pesoRegresoRolloReal = 0;
+
+                if (this.peso_etiqueta.HasValue)
+                    pesoEtiqueta = this.peso_etiqueta.Value;
+
+                if (this.peso_regreso_rollo_real.HasValue)
+                    pesoRegresoRolloReal = this.peso_regreso_rollo_real.Value;
+
+                return pesoEtiqueta - pesoRegresoRolloReal;
+            }
+        }
+
+        //obtiene el numero de pezas de descarte con daño interno * Peso Real Pieza NEto
+        public double TotalKgNGInterno()
+        {
+           
+                produccion_registros produccion = db.produccion_registros.FirstOrDefault(x => x.id == this.id_produccion_registro);
+
+                if (produccion != null && this.peso_real_pieza_neto.HasValue)
+                {
+                    return this.peso_real_pieza_neto.Value * produccion.NumPiezasDescarteDanoInterno();
+                }
+                else { 
+                    return 0;
+                }
+           
+        }
+
+        public double TotalKgNGExterno()
+        {
+
+            produccion_registros produccion = db.produccion_registros.FirstOrDefault(x => x.id == this.id_produccion_registro);
+
+            if (produccion != null && this.peso_real_pieza_neto.HasValue)
+            {
+                return this.peso_real_pieza_neto.Value * produccion.NumPiezasDescarteDanoExterno();
+            }
+            else
+            {
+                return 0;
+            }
+
+        }
 
         public virtual produccion_registros produccion_registros { get; set; }
     }

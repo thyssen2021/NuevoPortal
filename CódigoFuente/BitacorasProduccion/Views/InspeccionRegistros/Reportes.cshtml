@@ -1,9 +1,9 @@
-﻿@model IEnumerable<Portal_2_0.Models.produccion_registros>
+﻿@model IEnumerable<Portal_2_0.Models.PPM>
 
 @{
     ViewBag.Title = "Registros de Producción";
     ViewBag.PrimerNivel = "Inspeccion";
-    ViewBag.SegundoNivel = "Inspeccion_registro";
+    ViewBag.SegundoNivel = "Inspeccion_reportes";
     ViewBag.ControllerName = "InspeccionRegistros";
 
     Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
@@ -43,7 +43,7 @@
 {
     <!-- DataTables -->
     @Styles.Render("~/Content/dataTables_css")
-   
+
     <!-- SweetAlert2 -->
     <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
     <!-- Select2 -->
@@ -110,26 +110,28 @@
                                             </div>
                                             <div class="form-group row ">
                                                 <label class="control-label col-md-2 col-sm-2" for="planta">Planta</label>
-                                                <div class="col-md-6 col-sm-6 ">
+                                                <div class="col-md-3 col-sm-3 ">
                                                     @Html.DropDownList("clave_planta", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="clave_planta" data-valmsg-replace="true"></span>
                                                 </div>
+                                                <label class="control-label col-md-1 col-sm-1" for="linea">L&iacute;nea</label>
+                                                <div class="col-md-3 col-sm-3 ">
+                                                    @Html.DropDownList("id_linea", null, "-- Seleccione un valor --", htmlAttributes: new { @class = "form-control select2bs4", @required = "required", @style = "width:100%" })
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="id_linea" data-valmsg-replace="true"></span>
+                                                </div>
+                                            </div>
 
-                                            </div>
-                                            <div class="form-group row ">
-                                                <label class="control-label col-md-2 col-sm-2" for="linea">L&iacute;nea</label>
-                                                <div class="col-md-6 col-sm-6 ">
-                                                    @Html.DropDownList("id_linea", null, "-- Seleccione un valor --", htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
-                                                </div>
-                                            </div>
 
                                             <div class="form-group row">
                                                 <label class="control-label col-md-2 col-sm-2" for="fecha_inicial">Fecha Inicial</label>
                                                 <div class="col-md-3 col-sm-3">
-                                                    <input type="date" class="form-control" name="fecha_inicial" id="fecha_inicial" value="@filtroFechaInicio">
+                                                    <input type="date" class="form-control" name="fecha_inicial" id="fecha_inicial" value="@filtroFechaInicio" required>
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="fecha_inicial" data-valmsg-replace="true"></span>
                                                 </div>
                                                 <label class="control-label col-md-1 col-sm-1" for="fecha_final">Fecha Final</label>
                                                 <div class="col-md-3 col-sm-3">
-                                                    <input type="date" class="form-control" name="fecha_final" id="fecha_final" value="@filtroFechaFinal">
+                                                    <input type="date" class="form-control" name="fecha_final" id="fecha_final" value="@filtroFechaFinal" required>
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="fecha_final" data-valmsg-replace="true"></span>
                                                 </div>
                                             </div>
                                             <div class="form-group row ">
@@ -142,117 +144,46 @@
                                     </div>
                                     @if (Model.Count() > 0)
                                     {
-                                <table id="datatable_1" class="table table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
-                                    <thead>
-                                        <tr>
-                                            <th>Acciones</th>
-                                            <th>
-                                                Planta
-                                            </th>
-                                            <th>
-                                                @Html.DisplayNameFor(model => model.fecha)
-                                            </th>
-                                            <th>
-                                                @Html.DisplayNameFor(model => model.produccion_turnos.descripcion)
-                                            </th>
-                                            <th>
-                                                @Html.DisplayNameFor(model => model.sap_platina)
-                                            </th>
-                                            <th>
-                                                @Html.DisplayNameFor(model => model.sap_rollo)
-                                            </th>
-                                            <th>
-                                                @Html.DisplayNameFor(model => model.Class_asociado.Customer_part_number)
-                                            </th>
-                                            <th>
-                                                @Html.DisplayNameFor(model => model.produccion_datos_entrada.orden_sap)
-                                            </th>
-                                            <th>
-                                                L&iacute;nea
-                                            </th>
-                                            <th>
-                                                Operador
-                                            </th>
-                                            <th>
-                                                Supervisor
-                                            </th>
-                                            <th>
-                                                Inspector
-                                            </th>
-
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var item in Model)
-                                        {
-                                        <tr class="@(item.inspeccion_datos_generales!=null ? "fondo_verde" : "" )">
-                                            <td>
-
-                                                <a href="@Url.Action("RegistroPiezasDescarte", ViewBag.ControllerName, new { 
-                                                    id = item.id,clave_planta = clavePlanta,
-                                                    id_linea = idLinea,
-                                                    fecha_inicial = filtroFechaInicio,
-                                                    fecha_final = filtroFechaFinal,
-                                                    pagina = numPagina})" class="btn btn-success btm-sm" title="Registrar Piezas de Descarte">
-                                                    <i class="fa fa-keyboard-o"></i>
-                                                </a>
-                                                <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.id,clave_planta = clavePlanta,
-                                                    id_linea = idLinea,
-                                                    fecha_inicial = filtroFechaInicio,
-                                                    fecha_final = filtroFechaFinal,
-                                                    pagina = numPagina})" class="btn btn-info btm-sm" title="Detalles">
-                                                    <i class="fa fa-eye"></i>
-                                                </a>
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.plantas.descripcion)
-                                            </td>
-                                            <td>
-                                                @item.fecha
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.produccion_turnos.descripcion)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.sap_platina)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.sap_rollo)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.Class_asociado.Customer_part_number)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.produccion_datos_entrada.orden_sap)
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(modelItem => item.produccion_lineas.linea)
-                                            </td>
-                                            <td>
-                                                @item.produccion_operadores.empleados.ConcatNombre
-                                            </td>
-                                            <td>
-                                                @item.produccion_supervisores.empleados.ConcatNombre
-                                            </td>
-                                            <td>
-                                                @if (item.inspeccion_datos_generales != null && item.inspeccion_datos_generales.empleados != null)
+                                        <table id="datatable_1" class="table table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                                            <thead>
+                                                <tr>
+                                                    <th>Fecha</th>
+                                                    <th>Piezas Descarte KG (interno)</th>
+                                                    <th>Piezas Cortadas Toneladas</th>
+                                                    <th>PPM's</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var item in Model)
                                                 {
-                                                    @item.inspeccion_datos_generales.empleados.ConcatNombre
+                                                    <tr>
+                                                        <th>@item.fecha.Value.ToString("yyyy-MM-dd")</th>
+                                                        <th> @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.PiezasDescarteKG_internos)</th>
+                                                        <th>
+                                                            @if (item.PiezasCortadasTon > 0)
+                                                            {
+                                                                <span>@string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.PiezasCortadasTon)</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span>--</span>
+                                                            }
+                                                        </th>
+                                                        <th>
+                                                            @if (item.CalculoPPM_interno.HasValue && !double.IsNaN(item.CalculoPPM_interno.Value))
+                                                            {
+                                                                @item.CalculoPPM_interno.Value.ToString("0.00")
+                                                            }
+                                                            else
+                                                            {
+                                                                <span>--</span>
+                                                            }
+
+                                                        </th>
+                                                    </tr>
                                                 }
-                                                else { 
-                                                    <span>PENDIENTE</span>
-                                                }
-
-
-                                            </td>
-
-                                        </tr>
-                                        }
-
-
-
-                                    </tbody>
-                                </table>
+                                            </tbody>
+                                        </table>
                                     }
                                     else
                                     {
@@ -267,23 +198,20 @@
                                             @{Html.RenderPartial("_Paginacion", Model);}
                                         </nav>
 
-                                        @*<div class="form-group">
+                                        <div class="form-group">
                                             @ViewContext.RouteData.Values["clave_planta"]
                                             <a href="@Url.Action("Exportar", ViewBag.ControllerName, new
-                                                {
-                                                    clave_planta = clavePlanta,
-                                                    id_linea = idLinea,
-                                                    fecha_inicial = filtroFechaInicio,
-                                                    fecha_final = filtroFechaFinal,
-                                                    tipo_reporte = tipo_reporte,
-                                                    fecha_turno = filtroFechaTurno,
-                                                    turno = filtroTurno
+                                                    {
+                                                        clave_planta = clavePlanta,
+                                                        id_linea = idLinea,
+                                                        fecha_inicial = filtroFechaInicio,
+                                                        fecha_final = filtroFechaFinal,
 
-                                                })" class="btn btn-success btm-sm" target="_blank" title="Reporte">
+                                                    })" class="btn btn-success btm-sm" target="_blank" title="Reporte">
                                                 <i class="fa fa-file-excel-o"></i> Exportar Excel
                                             </a>
 
-                                        </div>*@
+                                        </div>
                                     }
                                 </div>
 
@@ -304,10 +232,9 @@
     <!-- SweetAlert2 -->
     @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
     @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
-
+    @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render("~/bundles/dataTables_js")
-    <!-- iCheck -->
-    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+
 
     <script>
 
@@ -336,7 +263,7 @@
 
         });
 
-    
+
         //activa y desactiva los combos
         function verificaEstadoCombos() {
 
@@ -393,8 +320,8 @@
             } else { //en caso de que no haya valores previos (CREATE)
                 verificaEstadoCombos();
             }
-                     
-                     
+
+
 
             // Initialize Select2 Elements
             $('.select2bs4').select2({

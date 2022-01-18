@@ -200,7 +200,9 @@
     <Compile Include="Controllers\empleadosController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\inspeccionCategoriaFallasController.cs" />
     <Compile Include="Controllers\InspeccionRegistrosController.cs" />
+    <Compile Include="Controllers\inspeccion_fallasController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\mm_v3Controller.cs" />
     <Compile Include="Controllers\PFA_Border_portController.cs" />
@@ -371,6 +373,7 @@
     <Compile Include="Models\poliza_manual.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\PPM.cs" />
     <Compile Include="Models\produccion_datos_entrada.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -5117,6 +5120,23 @@
     <Content Include="Views\PM_tipo_poliza\Index.cshtml" />
     <Content Include="Views\InspeccionRegistros\BusquedaRegistro.cshtml" />
     <Content Include="Views\InspeccionRegistros\RegistroPiezasDescarte.cshtml" />
+    <Content Include="Views\InspeccionRegistros\Details.cshtml" />
+    <Content Include="Views\InspeccionRegistros\Reportes.cshtml" />
+    <Content Include="Views\inspeccionCategoriaFallas\Index.cshtml" />
+    <Content Include="Views\inspeccionCategoriaFallas\Enable.cshtml" />
+    <Content Include="Views\inspeccionCategoriaFallas\Edit.cshtml" />
+    <Content Include="Views\inspeccionCategoriaFallas\Disable.cshtml" />
+    <Content Include="Views\inspeccionCategoriaFallas\Details.cshtml" />
+    <Content Include="Views\inspeccionCategoriaFallas\Create.cshtml" />
+    <Content Include="Views\inspeccion_fallas\Create.cshtml" />
+    <Content Include="Views\inspeccion_fallas\Details.cshtml" />
+    <Content Include="Views\inspeccion_fallas\Edit.cshtml" />
+    <Content Include="Views\inspeccion_fallas\Index.cshtml" />
+    <Content Include="Views\inspeccion_fallas\Enable.cshtml" />
+    <Content Include="Views\inspeccion_fallas\Disable.cshtml" />
+    <Content Include="Views\inspeccion_fallas\Inspectores.cshtml" />
+    <Content Include="Views\inspeccion_fallas\CreateInspector.cshtml" />
+    <Content Include="Views\inspeccion_fallas\DisableInspector.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

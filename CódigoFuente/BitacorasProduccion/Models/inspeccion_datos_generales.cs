@@ -19,11 +19,13 @@ namespace Portal_2_0.Models
         [Display(Name = "Inspector")]
         public int id_empleado_inspector { get; set; }
 
-        [Required(AllowEmptyStrings = false)]
+        
         [StringLength(255, MinimumLength = 2)]
         [Display(Name = "Comentarios")]
         public string comentarios { get; set; }
     
+
+
         public virtual empleados empleados { get; set; }
         public virtual produccion_registros produccion_registros { get; set; }
     }

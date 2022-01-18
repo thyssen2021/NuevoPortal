@@ -14,4 +14,14 @@ namespace Portal_2_0.Models
         [Display(Name = "Archivo Excel")]
         public HttpPostedFileBase PostedFile { get; set; }
     }
+
+    /// <summary>
+    /// Modelo para crear inspector de piezas de descarte
+    /// </summary>
+    public class UserInspectorViewModel
+    {
+        [Required]       
+        [Display(Name = "Usuario")]
+        public string id_usuario { get; set; }
+    }
 }

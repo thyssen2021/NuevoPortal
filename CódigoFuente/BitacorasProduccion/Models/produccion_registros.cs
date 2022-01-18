@@ -81,6 +81,36 @@ namespace Portal_2_0.Models
             }
         }
 
+        //obtiene el numero de piezas donde aplica calculo
+        public int TotalPiezasProduccion()
+        {
+            
+                int cantidad = this.inspeccion_pieza_descarte_produccion.Where(x => x.inspeccion_fallas.aplica_en_calculo == true).ToList().Count;
+
+                return cantidad;
+            
+        }
+
+        //obtiene el numero de pezas de descarte con daño interno
+        public int NumPiezasDescarteDanoInterno()
+        {
+            
+                int cantidad = this.inspeccion_pieza_descarte_produccion.Where(x => x.inspeccion_fallas.dano_interno == true && x.inspeccion_fallas.aplica_en_calculo==true).ToList().Count;
+
+                return cantidad;
+        }
+
+        //obtiene el numero de pezas de descarte con daño interno
+        public int NumPiezasDescarteDanoExterno()
+        {
+            
+                int cantidad = this.inspeccion_pieza_descarte_produccion.Where(x => x.inspeccion_fallas.dano_externo == true && x.inspeccion_fallas.aplica_en_calculo == true).ToList().Count;
+
+                return cantidad;
+            
+        }
+
+
         public virtual plantas plantas { get; set; }
         public virtual produccion_datos_entrada produccion_datos_entrada { get; set; }
         public virtual produccion_lineas produccion_lineas { get; set; }

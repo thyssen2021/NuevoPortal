@@ -281,5 +281,32 @@ namespace Portal_2_0.Models
 
             return items;
         }
+
+        ///<summary>
+        ///Obtiene combo de usuarios
+        ///</summary>
+        ///<return>
+        ///retorna un List<SelectListItem> con las opciones disponibles
+        public static List<SelectListItem> obtieneUsuarios(List<IdentitySample.Models.ApplicationUser> usuarios)
+        {
+            
+            var items = new List<SelectListItem>();
+
+            //usando linQ
+            items = usuarios.Select(s => new SelectListItem()
+                            {
+                                Text = s.obtieneEmpleado().ConcatNombre.ToUpper() + " ("+s.Email+")",
+                                Value = s.Id
+                            }).ToList();
+
+            //agrega valor vacio
+            items.Insert(0, new SelectListItem()
+            {
+                Text = "-- Seleccione un valor --",
+                Value = ""
+            });
+
+            return items;
+        }
     }
 }

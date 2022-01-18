@@ -275,18 +275,18 @@
                                                     <li class="@(ViewBag.SegundoNivel == "Inspeccion_registro" ? "current-page" : null )"><a href="@Url.Action("BusquedaRegistro", "InspeccionRegistros")">Registro de Piezas</a></li>
                                                 }
 
-                                                @if (User.IsInRole(TipoRoles.INSPECCION_REPORTES))
+                                                @if (User.IsInRole(TipoRoles.INSPECCION_CATALOGOS))
                                                 {
                                                     <h3>Cat&aacute;logos</h3>
-                                                    <li class="@(ViewBag.SegundoNivel == "Inspeccion_inspectores" ? "current-page" : null )"><a href="@Url.Action("AutorizadorPendientes", "InspeccionRegistros")">Inspectores</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "Inspeccion_categorias" ? "current-page" : null )"><a href="@Url.Action("AutorizadorPendientes", "InspeccionRegistros")">Categorias</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "Inspeccion_fallas" ? "current-page" : null )"><a href="@Url.Action("AutorizadorPendientes", "InspeccionRegistros")">Fallas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "Inspeccion_inspectores" ? "current-page" : null )"><a href="@Url.Action("Inspectores", "inspeccion_Fallas")">Inspectores</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "Inspeccion_categorias" ? "current-page" : null )"><a href="@Url.Action("Index", "InspeccionCategoriaFallas")">Categorias</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "Inspeccion_fallas" ? "current-page" : null )"><a href="@Url.Action("Index", "inspeccion_Fallas")">Fallas</a></li>
 
                                                 }
-                                                @if (User.IsInRole(TipoRoles.PFA_VISUALIZACION))
+                                                @if (User.IsInRole(TipoRoles.INSPECCION_REPORTES))
                                                 {
                                                     <h3>Reportes</h3>
-                                                    <li class="@(ViewBag.SegundoNivel == "PFA_visualizar" ? "current-page" : null )"><a href="@Url.Action("ReportesPFA", "InspeccionRegistros")">Reportes</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "Inspeccion_reportes" ? "current-page" : null )"><a href="@Url.Action("Reportes", "InspeccionRegistros")">Reportes Piezas Descarte</a></li>
                                                 }
                                             </ul>
 
