@@ -254,6 +254,9 @@
     <Compile Include="Models\Area.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\AspNetUsers.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\BaseController.cs" />
     <Compile Include="Models\biblioteca_digital.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
@@ -299,6 +302,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\inspeccion_pieza_descarte_produccion.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\log_inicio_sesion.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\ManageViewModels.cs" />

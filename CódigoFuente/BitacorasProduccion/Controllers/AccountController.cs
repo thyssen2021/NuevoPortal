@@ -3,6 +3,7 @@ using IdentitySample.Models;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
+using Portal_2_0.Models;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ namespace IdentitySample.Controllers
     [Authorize]
     public class AccountController : Controller
     {
+        private Portal_2_0Entities db = new Portal_2_0Entities();
         public AccountController()
         {
         }
@@ -86,6 +88,20 @@ namespace IdentitySample.Controllers
             switch (result)
             {
                 case SignInStatus.Success:
+                    //inserta en log de inicio de sesion
+                    AspNetUsers usuarioASP = db.AspNetUsers.FirstOrDefault(x=>x.UserName == username);
+
+                    //guarda el inicio de sesión en el log
+                    if (usuarioASP != null) {
+                        log_inicio_sesion logLogin = new log_inicio_sesion
+                        {
+                            id_usuario = usuarioASP.Id,
+                            fecha = DateTime.Now
+                        };
+                        db.log_inicio_sesion.Add(logLogin);
+                        db.SaveChanges();
+                    }
+                 
                     return RedirectToLocal(returnUrl);
                 case SignInStatus.LockedOut:
                     return View("Lockout");

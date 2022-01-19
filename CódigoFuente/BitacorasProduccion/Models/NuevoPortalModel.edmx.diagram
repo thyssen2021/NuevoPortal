@@ -91,6 +91,9 @@
         <AssociationConnector Association="Portal_2_0Model.FK_inspeccion_datos_generales_id_produccion_registro" />
         <AssociationConnector Association="Portal_2_0Model.FK_inspeccion_pieza_descarte_produccion_id_falla" />
         <AssociationConnector Association="Portal_2_0Model.FK_inspeccion_pieza_descarte_produccion_id_produccion_registro" />
+        <EntityTypeShape EntityType="Portal_2_0Model.AspNetUsers" Width="1.5" PointX="17.375" PointY="1" />
+        <EntityTypeShape EntityType="Portal_2_0Model.log_inicio_sesion" Width="1.5" PointX="19.625" PointY="2.125" />
+        <AssociationConnector Association="Portal_2_0Model.FK_log_inicio_sesion_id_usuario" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

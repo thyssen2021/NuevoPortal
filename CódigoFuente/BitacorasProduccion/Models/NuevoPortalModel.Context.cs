@@ -63,5 +63,7 @@ namespace Portal_2_0.Models
         public virtual DbSet<inspeccion_datos_generales> inspeccion_datos_generales { get; set; }
         public virtual DbSet<inspeccion_fallas> inspeccion_fallas { get; set; }
         public virtual DbSet<inspeccion_pieza_descarte_produccion> inspeccion_pieza_descarte_produccion { get; set; }
+        public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
+        public virtual DbSet<log_inicio_sesion> log_inicio_sesion { get; set; }
     }
 }

@@ -15,6 +15,26 @@
           <Property Name="listaCorreoElectronico" Type="varchar" MaxLength="100" />
           <Property Name="plantaClave" Type="int" />
         </EntityType>
+        <EntityType Name="AspNetUsers">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="Email" Type="nvarchar" MaxLength="256" />
+          <Property Name="EmailConfirmed" Type="bit" Nullable="false" />
+          <Property Name="PasswordHash" Type="nvarchar(max)" />
+          <Property Name="SecurityStamp" Type="nvarchar(max)" />
+          <Property Name="PhoneNumber" Type="nvarchar(max)" />
+          <Property Name="PhoneNumberConfirmed" Type="bit" Nullable="false" />
+          <Property Name="TwoFactorEnabled" Type="bit" Nullable="false" />
+          <Property Name="LockoutEndDateUtc" Type="datetime" />
+          <Property Name="LockoutEnabled" Type="bit" Nullable="false" />
+          <Property Name="AccessFailedCount" Type="int" Nullable="false" />
+          <Property Name="UserName" Type="nvarchar" MaxLength="256" Nullable="false" />
+          <Property Name="Nombre" Type="nvarchar" MaxLength="40" />
+          <Property Name="FechaCreacion" Type="datetime" Nullable="false" />
+          <Property Name="IdEmpleado" Type="int" Nullable="false" />
+        </EntityType>
         <EntityType Name="biblioteca_digital">
           <Key>
             <PropertyRef Name="Id" />
@@ -133,6 +153,14 @@
           <Property Name="id_produccion_registro" Type="int" Nullable="false" />
           <Property Name="id_falla" Type="int" Nullable="false" />
           <Property Name="cantidad" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="log_inicio_sesion">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_usuario" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="fecha" Type="datetime" Nullable="false" />
         </EntityType>
         <EntityType Name="mm_v3">
           <Key>
@@ -667,6 +695,18 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_log_inicio_sesion_id_usuario">
+          <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="1" />
+          <End Role="log_inicio_sesion" Type="Self.log_inicio_sesion" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="log_inicio_sesion">
+              <PropertyRef Name="id_usuario" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_notificaciones_correo_empleado">
           <End Role="empleados" Type="Self.empleados" Multiplicity="0..1" />
           <End Role="notificaciones_correo" Type="Self.notificaciones_correo" Multiplicity="*" />
@@ -1137,6 +1177,7 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
         </Association>
         <EntityContainer Name="Portal_2_0ModelStoreContainer">
           <EntitySet Name="Area" EntityType="Self.Area" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="AspNetUsers" EntityType="Self.AspNetUsers" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="biblioteca_digital" EntityType="Self.biblioteca_digital" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="bom_en_sap" EntityType="Self.bom_en_sap" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="class_v3" EntityType="Self.class_v3" Schema="dbo" store:Type="Tables" />
@@ -1146,6 +1187,7 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <EntitySet Name="inspeccion_datos_generales" EntityType="Self.inspeccion_datos_generales" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="inspeccion_fallas" EntityType="Self.inspeccion_fallas" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="inspeccion_pieza_descarte_produccion" EntityType="Self.inspeccion_pieza_descarte_produccion" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="log_inicio_sesion" EntityType="Self.log_inicio_sesion" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="mm_v3" EntityType="Self.mm_v3" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="notificaciones_correo" EntityType="Self.notificaciones_correo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PFA" EntityType="Self.PFA" Schema="dbo" store:Type="Tables" />
@@ -1260,6 +1302,10 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <AssociationSet Name="FK_inspeccion_pieza_descarte_produccion_id_produccion_registro" Association="Self.FK_inspeccion_pieza_descarte_produccion_id_produccion_registro">
             <End Role="produccion_registros" EntitySet="produccion_registros" />
             <End Role="inspeccion_pieza_descarte_produccion" EntitySet="inspeccion_pieza_descarte_produccion" />
+          </AssociationSet>
+          <AssociationSet Name="FK_log_inicio_sesion_id_usuario" Association="Self.FK_log_inicio_sesion_id_usuario">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="log_inicio_sesion" EntitySet="log_inicio_sesion" />
           </AssociationSet>
           <AssociationSet Name="FK_notificaciones_correo_empleado" Association="Self.FK_notificaciones_correo_empleado">
             <End Role="empleados" EntitySet="empleados" />
@@ -2029,6 +2075,12 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <AssociationSet Name="FK_inspeccion_pieza_descarte_produccion_id_produccion_registro" Association="Portal_2_0Model.FK_inspeccion_pieza_descarte_produccion_id_produccion_registro">
             <End Role="produccion_registros" EntitySet="produccion_registros" />
             <End Role="inspeccion_pieza_descarte_produccion" EntitySet="inspeccion_pieza_descarte_produccion" />
+          </AssociationSet>
+          <EntitySet Name="AspNetUsers" EntityType="Portal_2_0Model.AspNetUsers" />
+          <EntitySet Name="log_inicio_sesion" EntityType="Portal_2_0Model.log_inicio_sesion" />
+          <AssociationSet Name="FK_log_inicio_sesion_id_usuario" Association="Portal_2_0Model.FK_log_inicio_sesion_id_usuario">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="log_inicio_sesion" EntitySet="log_inicio_sesion" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="notificaciones_correo">
@@ -2878,6 +2930,48 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="AspNetUsers">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="Email" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="EmailConfirmed" Type="Boolean" Nullable="false" />
+          <Property Name="PasswordHash" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="SecurityStamp" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="PhoneNumber" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="PhoneNumberConfirmed" Type="Boolean" Nullable="false" />
+          <Property Name="TwoFactorEnabled" Type="Boolean" Nullable="false" />
+          <Property Name="LockoutEndDateUtc" Type="DateTime" Precision="3" />
+          <Property Name="LockoutEnabled" Type="Boolean" Nullable="false" />
+          <Property Name="AccessFailedCount" Type="Int32" Nullable="false" />
+          <Property Name="UserName" Type="String" Nullable="false" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="Nombre" Type="String" MaxLength="40" FixedLength="false" Unicode="true" />
+          <Property Name="FechaCreacion" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="IdEmpleado" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="log_inicio_sesion" Relationship="Portal_2_0Model.FK_log_inicio_sesion_id_usuario" FromRole="AspNetUsers" ToRole="log_inicio_sesion" />
+        </EntityType>
+        <EntityType Name="log_inicio_sesion">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_usuario" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="fecha" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="AspNetUsers" Relationship="Portal_2_0Model.FK_log_inicio_sesion_id_usuario" FromRole="log_inicio_sesion" ToRole="AspNetUsers" />
+        </EntityType>
+        <Association Name="FK_log_inicio_sesion_id_usuario">
+          <End Type="Portal_2_0Model.AspNetUsers" Role="AspNetUsers" Multiplicity="1" />
+          <End Type="Portal_2_0Model.log_inicio_sesion" Role="log_inicio_sesion" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="log_inicio_sesion">
+              <PropertyRef Name="id_usuario" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -3464,6 +3558,36 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
                 <ScalarProperty Name="cantidad" ColumnName="cantidad" />
                 <ScalarProperty Name="id_falla" ColumnName="id_falla" />
                 <ScalarProperty Name="id_produccion_registro" ColumnName="id_produccion_registro" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AspNetUsers">
+            <EntityTypeMapping TypeName="Portal_2_0Model.AspNetUsers">
+              <MappingFragment StoreEntitySet="AspNetUsers">
+                <ScalarProperty Name="IdEmpleado" ColumnName="IdEmpleado" />
+                <ScalarProperty Name="FechaCreacion" ColumnName="FechaCreacion" />
+                <ScalarProperty Name="Nombre" ColumnName="Nombre" />
+                <ScalarProperty Name="UserName" ColumnName="UserName" />
+                <ScalarProperty Name="AccessFailedCount" ColumnName="AccessFailedCount" />
+                <ScalarProperty Name="LockoutEnabled" ColumnName="LockoutEnabled" />
+                <ScalarProperty Name="LockoutEndDateUtc" ColumnName="LockoutEndDateUtc" />
+                <ScalarProperty Name="TwoFactorEnabled" ColumnName="TwoFactorEnabled" />
+                <ScalarProperty Name="PhoneNumberConfirmed" ColumnName="PhoneNumberConfirmed" />
+                <ScalarProperty Name="PhoneNumber" ColumnName="PhoneNumber" />
+                <ScalarProperty Name="SecurityStamp" ColumnName="SecurityStamp" />
+                <ScalarProperty Name="PasswordHash" ColumnName="PasswordHash" />
+                <ScalarProperty Name="EmailConfirmed" ColumnName="EmailConfirmed" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="log_inicio_sesion">
+            <EntityTypeMapping TypeName="Portal_2_0Model.log_inicio_sesion">
+              <MappingFragment StoreEntitySet="log_inicio_sesion">
+                <ScalarProperty Name="fecha" ColumnName="fecha" />
+                <ScalarProperty Name="id_usuario" ColumnName="id_usuario" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
