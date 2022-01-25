@@ -25,7 +25,7 @@ CREATE TABLE [poliza_manual](
 	[currency_iso][varchar](3) NOT NULL,
 	[id_planta][int] NOT NULL,
 	[id_elaborador][int] NOT NULL,
-	[id_validador][int] NULL,
+	[id_validador][int] NULL, --de la tabla empleados
 	[id_autorizador][int] NULL, --de la tabla empleados
 	[id_contabilidad][int] NULL,		--de la tabla empleados
 	[id_documento_soporte][int] NULL,
@@ -75,7 +75,7 @@ alter table [poliza_manual]
   alter table [poliza_manual]
  add constraint FK_poliza_manual_validador
   foreign key (id_validador)
-  references PM_validadores(id);
+  references empleados(id);
 
   -- restriccion de clave foranea
   alter table [poliza_manual]
@@ -106,7 +106,7 @@ ALTER TABLE [poliza_manual] ADD  CONSTRAINT [DF_poliza_manual_fecha_creacion]  D
 
 -- restricion check
 ALTER TABLE [poliza_manual] ADD CONSTRAINT CK_poliza_manual_Estatus CHECK ([estatus] IN 
-('CREADO', 'ENVIADO_A_AREA', 'RECHAZADO', 'VALIDADO_POR_AREA', 'ENVIADO_A_CONTROLLING', 'AUTORIZADO_CONTROLLING', 'ENVIADO_A_CONTABILIDAD', 'FINALIZADO')
+('CREADO', 'ENVIADO_A_AREA', 'RECHAZADO_VALIDADOR', 'RECHAZADO_AUTORIZADOR', 'VALIDADO_POR_AREA', 'ENVIADO_SEGUNDA_VALIDACION', 'AUTORIZADO_SEGUNDA_VALIDACION', 'ENVIADO_A_CONTABILIDAD', 'FINALIZADO')
 )
 GO
 

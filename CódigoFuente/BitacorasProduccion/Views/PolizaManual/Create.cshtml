@@ -105,13 +105,13 @@
                                     @Html.ValidationMessageFor(model => model.id_planta, "", new { @class = "text-danger" })
                                 </div>
                                 <!--Documento SAP-->
-                                @Html.LabelFor(model => model.numero_documento_sap, new { @class = "control-label col-md-2" })
+                                @*@Html.LabelFor(model => model.numero_documento_sap, new { @class = "control-label col-md-2" })
                                 <div class="col-md-2">
                                     @Html.EditorFor(m => m.numero_documento_sap, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
                                     @Html.ValidationMessageFor(model => model.numero_documento_sap, "", new { @class = "text-danger" })
-                                </div>
+                                </div>*@
                                 <!-- Id póliza -->
-                                <label class="control-label col-md-2 float-right">
+                                <label class="control-label col-md-6 float-right">
                                     # P&oacute;liza
                                 </label>
                                 <div class="col-md-2">

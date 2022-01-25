@@ -241,9 +241,8 @@ namespace Portal_2_0.Models
             string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/PM_envio_a_validador.html"));
 
             //body = body.Replace("#VALIDADOR", poliza.PM_validadores.empleados.ConcatNombre);
-            body = body.Replace("#USUARIO", poliza.empleados2.ConcatNombre);
-            body = body.Replace("#NUM_PM", poliza.id.ToString());
-            body = body.Replace("#DOCUMENTO_SAP", poliza.numero_documento_sap);
+            body = body.Replace("#USUARIO", poliza.empleados2.ConcatNombre); //elaborador
+            body = body.Replace("#NUM_PM", poliza.id.ToString());           
             body = body.Replace("#TIPO_PM", poliza.PM_tipo_poliza.descripcion);
             body = body.Replace("#PLANTA", poliza.plantas.descripcion);
             body = body.Replace("#MONEDA", poliza.currency.CocatCurrency);
@@ -251,6 +250,58 @@ namespace Portal_2_0.Models
             body = body.Replace("#DESCRIPCION_PM", poliza.descripcion_poliza);
             body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
             body = body.Replace("#ENLACE", domainName + "/PolizaManual/ValidarArea/" + poliza.id);
+
+            return body;
+        }
+
+        /// <summary>
+        /// Obtiene el body de envio a Autorizador
+        /// </summary>
+        /// <param name="poliza"></param>
+        /// <returns></returns>
+        public string getBodyPMSendAutorizador(poliza_manual poliza)
+        {
+            //obtiene la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+
+            string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/PM_envio_a_autorizador.html"));
+
+            //body = body.Replace("#VALIDADOR", poliza.PM_validadores.empleados.ConcatNombre);
+            body = body.Replace("#USUARIO", poliza.empleados3.ConcatNombre); //validador
+            body = body.Replace("#NUM_PM", poliza.id.ToString());           
+            body = body.Replace("#TIPO_PM", poliza.PM_tipo_poliza.descripcion);
+            body = body.Replace("#PLANTA", poliza.plantas.descripcion);
+            body = body.Replace("#MONEDA", poliza.currency.CocatCurrency);
+            body = body.Replace("#FECHA_DOCUMENTO", poliza.fecha_documento.ToString("dd/MM/yyyy"));
+            body = body.Replace("#DESCRIPCION_PM", poliza.descripcion_poliza);
+            body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
+            body = body.Replace("#ENLACE", domainName + "/PolizaManual/AutorizarControlling/" + poliza.id);
+
+            return body;
+        }
+
+        /// <summary>
+        /// Obtiene el body de notificacion a contabilidad
+        /// </summary>
+        /// <param name="poliza"></param>
+        /// <returns></returns>
+        public string getBodyPMSendContabilidad(poliza_manual poliza)
+        {
+            //obtiene la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+
+            string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/PM_envio_a_contabilidad.html"));
+
+            //body = body.Replace("#VALIDADOR", poliza.PM_validadores.empleados.ConcatNombre);
+            body = body.Replace("#USUARIO", poliza.empleados.ConcatNombre); //autorizador
+            body = body.Replace("#NUM_PM", poliza.id.ToString());
+            body = body.Replace("#TIPO_PM", poliza.PM_tipo_poliza.descripcion);
+            body = body.Replace("#PLANTA", poliza.plantas.descripcion);
+            body = body.Replace("#MONEDA", poliza.currency.CocatCurrency);
+            body = body.Replace("#FECHA_DOCUMENTO", poliza.fecha_documento.ToString("dd/MM/yyyy"));
+            body = body.Replace("#DESCRIPCION_PM", poliza.descripcion_poliza);
+            body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
+            body = body.Replace("#ENLACE", domainName + "/PolizaManual/FinalizarContabilidad/" + poliza.id);
 
             return body;
         }
@@ -264,9 +315,8 @@ namespace Portal_2_0.Models
             string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/PM_autorizacion_validador.html"));
 
             //body = body.Replace("#VALIDADOR", poliza.PM_validadores.empleados.ConcatNombre);
-            body = body.Replace("#VALIDADOR", poliza.PM_validadores.empleados.ConcatNombre);
-            body = body.Replace("#NUM_PM", poliza.id.ToString());
-            body = body.Replace("#DOCUMENTO_SAP", poliza.numero_documento_sap);
+            body = body.Replace("#VALIDADOR", poliza.empleados3.ConcatNombre);
+            body = body.Replace("#NUM_PM", poliza.id.ToString());           
             body = body.Replace("#TIPO_PM", poliza.PM_tipo_poliza.descripcion);
             body = body.Replace("#PLANTA", poliza.plantas.descripcion);
             body = body.Replace("#MONEDA", poliza.currency.CocatCurrency);
@@ -289,8 +339,7 @@ namespace Portal_2_0.Models
 
             //body = body.Replace("#VALIDADOR", poliza.PM_validadores.empleados.ConcatNombre);
             body = body.Replace("#RECHAZANTE", nombreRechazante);
-            body = body.Replace("#NUM_PM", poliza.id.ToString());
-            body = body.Replace("#DOCUMENTO_SAP", poliza.numero_documento_sap);
+            body = body.Replace("#NUM_PM", poliza.id.ToString());           
             body = body.Replace("#TIPO_PM", poliza.PM_tipo_poliza.descripcion);
             body = body.Replace("#PLANTA", poliza.plantas.descripcion);
             body = body.Replace("#MONEDA", poliza.currency.CocatCurrency);
@@ -313,8 +362,7 @@ namespace Portal_2_0.Models
 
             //body = body.Replace("#VALIDADOR", poliza.PM_validadores.empleados.ConcatNombre);
             body = body.Replace("#AUTORIZADOR", poliza.empleados.ConcatNombre);
-            body = body.Replace("#NUM_PM", poliza.id.ToString());
-            body = body.Replace("#DOCUMENTO_SAP", poliza.numero_documento_sap);
+            body = body.Replace("#NUM_PM", poliza.id.ToString());           
             body = body.Replace("#TIPO_PM", poliza.PM_tipo_poliza.descripcion);
             body = body.Replace("#PLANTA", poliza.plantas.descripcion);
             body = body.Replace("#MONEDA", poliza.currency.CocatCurrency);

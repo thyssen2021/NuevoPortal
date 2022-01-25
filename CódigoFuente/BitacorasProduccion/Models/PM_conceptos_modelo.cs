@@ -12,12 +12,15 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class PM_validadores
+    public partial class PM_conceptos_modelo
     {
         public int id { get; set; }
-        public Nullable<int> id_empleado { get; set; }
-        public bool activo { get; set; }
+        public int id_poliza_modelo { get; set; }
+        public string cuenta { get; set; }
+        public string cc { get; set; }
+        public string concepto { get; set; }
+        public string poliza { get; set; }
     
-        public virtual empleados empleados { get; set; }
+        public virtual PM_poliza_manual_modelo PM_poliza_manual_modelo { get; set; }
     }
 }

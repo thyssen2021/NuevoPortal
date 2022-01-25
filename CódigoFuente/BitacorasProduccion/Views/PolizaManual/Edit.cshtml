@@ -85,6 +85,7 @@
                             //Valores ocultos
                             @Html.HiddenFor(model => model.id)
                             @Html.HiddenFor(model => model.id_elaborador)
+                            @Html.HiddenFor(model => model.id_validador)
                             @Html.HiddenFor(model => model.estatus)
                             @Html.HiddenFor(model => model.id_documento_soporte)
                             @Html.HiddenFor(model => model.id_documento_registro)
@@ -96,7 +97,7 @@
 
                             //@Html.HiddenFor(model => model.id_planta)
                             <div class="form-group row">
-                                @if (Model.estatus == Bitacoras.Util.PFA_Status.RECHAZADO && !String.IsNullOrEmpty(Model.comentario_rechazo))
+                                @if ((Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_VALIDADOR || Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_AUTORIZADOR) && !String.IsNullOrEmpty(Model.comentario_rechazo))
                                 {
                                     <div class="alert alert-danger col-md-12" role="alert">
                                         <i class="fa fa-exclamation-triangle" style="color:yellow"></i> @Model.comentario_rechazo
@@ -118,13 +119,13 @@
                                     @Html.ValidationMessageFor(model => model.id_planta, "", new { @class = "text-danger" })
                                 </div>
                                 <!--Documento SAP-->
-                                @Html.LabelFor(model => model.numero_documento_sap, new { @class = "control-label col-md-2" })
-                                <div class="col-md-2">
-                                    @Html.EditorFor(m => m.numero_documento_sap, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                                    @Html.ValidationMessageFor(model => model.numero_documento_sap, "", new { @class = "text-danger" })
-                                </div>
+                                @*@Html.LabelFor(model => model.numero_documento_sap, new { @class = "control-label col-md-2" })
+                <div class="col-md-2">
+                    @Html.EditorFor(m => m.numero_documento_sap, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                    @Html.ValidationMessageFor(model => model.numero_documento_sap, "", new { @class = "text-danger" })
+                </div>*@
                                 <!-- Id póliza -->
-                                <label class="control-label col-md-2 float-right">
+                                <label class="control-label col-md-6 float-right">
                                     # P&oacute;liza
                                 </label>
                                 <div class="col-md-2">
@@ -344,14 +345,18 @@
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <!-- Autorizador -->
+                                <!-- Validador -->
                                 @Html.LabelFor(model => model.id_validador, new { @class = "control-label col-md-1" })
-                                <div class="col-md-5">
-                                    @Html.DropDownList("id_validador", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
-                                    @Html.ValidationMessageFor(model => model.id_validador, "", new { @class = "text-danger" })
-                                </div>
 
-                                <!-- Fecha validadcion -->
+                                @if (Model.id_validador.HasValue)
+                                {
+                                    <input type="text" class="form-control col-md-5" value="@Model.empleados3.ConcatNombre" readonly>
+                                }
+                                else
+                                {
+                                    <input type="text" class="form-control col-md-5" value="NO DISPONIBLE" readonly>
+                                }
+                                <!-- Fecha validacion -->
                                 @Html.LabelFor(model => model.fecha_validacion, new { @class = "control-label col-md-2 float-right" })
 
                                 <div class="col-md-4">
@@ -359,12 +364,46 @@
                                     {
                                         <input type="text" class="form-control col-md-12" value="@Model.fecha_validacion.Value" readonly>
                                     }
+                                    else if (Model.id_validador.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_VALIDADOR)
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
+                                    }
                                     else
                                     {
                                         <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
                                     }
                                 </div>
+                            </div>
+                            <div class="form-group row">
+                                <!-- Autorizador -->
+                                @Html.LabelFor(model => model.id_autorizador, new { @class = "control-label col-md-1" })
 
+                                @if (Model.id_autorizador.HasValue)
+                                {
+                                    <input type="text" class="form-control col-md-5" value="@Model.empleados.ConcatNombre" readonly>
+                                }
+                                else
+                                {
+                                    <input type="text" class="form-control col-md-5" value="NO DISPONIBLE" readonly>
+                                }
+
+                                <!-- Fecha validadcion -->
+                                @Html.LabelFor(model => model.fecha_autorizacion, new { @class = "control-label col-md-2 float-right" })
+
+                                <div class="col-md-4">
+                                    @if (Model.fecha_autorizacion.HasValue)
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="@Model.fecha_autorizacion.Value" readonly>
+                                    }
+                                    else if (Model.id_autorizador.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_AUTORIZADOR)
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
+                                    }
+                                    else
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
+                                    }
+                                </div>
                             </div>
                             <div class="form-group row">
                                 <!-- Contabilidad -->
@@ -386,10 +425,6 @@
                                     @if (Model.fecha_registro.HasValue)
                                     {
                                         <input type="text" class="form-control col-md-12" value="@Model.fecha_registro.Value" readonly>
-                                    }
-                                    else if (Model.id_contabilidad.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO)
-                                    {
-                                        <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
                                     }
                                     else
                                     {

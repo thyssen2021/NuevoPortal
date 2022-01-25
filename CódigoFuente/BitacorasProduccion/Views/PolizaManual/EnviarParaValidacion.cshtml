@@ -276,7 +276,7 @@
 
                             @if (Model.id_validador.HasValue)
                             {
-                                <input type="text" class="form-control col-md-5" value="@Model.PM_validadores.empleados.ConcatNombre" readonly>
+                                <input type="text" class="form-control col-md-5" value="@Model.empleados3.ConcatNombre" readonly>
                             }
                             else
                             {
@@ -290,7 +290,7 @@
                                 {
                                     <input type="text" class="form-control col-md-12" value="@Model.fecha_validacion.Value" readonly>
                                 }
-                                else if (Model.id_validador.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO)
+                                else if (Model.id_validador.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_VALIDADOR)
                                 {
                                     <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
                                 }
@@ -321,7 +321,7 @@
                                 {
                                     <input type="text" class="form-control col-md-12" value="@Model.fecha_autorizacion.Value" readonly>
                                 }
-                                else if (Model.id_autorizador.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO)
+                                else if (Model.id_autorizador.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_AUTORIZADOR)
                                 {
                                     <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
                                 }
@@ -331,7 +331,6 @@
                                 }
                             </div>
                         </div>
-
                         <div class="form-group row">
                             <!-- Contabilidad -->
                             @Html.LabelFor(model => model.id_contabilidad, new { @class = "control-label col-md-1" })
@@ -353,10 +352,7 @@
                                 {
                                     <input type="text" class="form-control col-md-12" value="@Model.fecha_registro.Value" readonly>
                                 }
-                                else if (Model.id_contabilidad.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO)
-                                {
-                                    <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
-                                }
+
                                 else
                                 {
                                     <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
@@ -404,7 +400,7 @@
             </div>
             <div class="modal-body">
                 <div class="form-group row">
-                    <h6>¿Realmente desea enviar esta P&oacute;liza para su validaci&oacute;n?</h6>
+                    <h6>¿Realmente desea enviar esta P&oacute;liza a @Model.empleados3.ConcatNombre para su validaci&oacute;n?</h6>
                 </div>
             </div>
             <div class="modal-footer">

@@ -293,7 +293,7 @@
 
                             @if (Model.id_validador.HasValue)
                             {
-                                <input type="text" class="form-control col-md-5" value="@Model.PM_validadores.empleados.ConcatNombre" readonly>
+                                <input type="text" class="form-control col-md-5" value="@Model.empleados3.ConcatNombre" readonly>
                             }
                             else
                             {
@@ -307,7 +307,7 @@
                                 {
                                     <input type="text" class="form-control col-md-12" value="@Model.fecha_validacion.Value" readonly>
                                 }
-                                else if (Model.id_validador.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO)
+                                else if (Model.id_validador.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_VALIDADOR)
                                 {
                                     <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
                                 }
@@ -338,7 +338,7 @@
                                 {
                                     <input type="text" class="form-control col-md-12" value="@Model.fecha_autorizacion.Value" readonly>
                                 }
-                                else if (Model.id_autorizador.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO)
+                                else if (Model.id_autorizador.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_AUTORIZADOR)
                                 {
                                     <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
                                 }
@@ -369,10 +369,7 @@
                                 {
                                     <input type="text" class="form-control col-md-12" value="@Model.fecha_registro.Value" readonly>
                                 }
-                                else if (Model.id_contabilidad.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO)
-                                {
-                                    <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
-                                }
+                                
                                 else
                                 {
                                     <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>

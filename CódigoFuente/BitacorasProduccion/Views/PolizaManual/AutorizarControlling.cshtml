@@ -281,7 +281,7 @@
 
                             @if (Model.id_validador.HasValue)
                             {
-                                <input type="text" class="form-control col-md-5" value="@Model.PM_validadores.empleados.ConcatNombre" readonly>
+                                <input type="text" class="form-control col-md-5" value="@Model.empleados3.ConcatNombre" readonly>
                             }
                             else
                             {
@@ -295,7 +295,7 @@
                                 {
                                     <input type="text" class="form-control col-md-12" value="@Model.fecha_validacion.Value" readonly>
                                 }
-                                else if (Model.id_validador.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO)
+                                else if (Model.id_validador.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_VALIDADOR)
                                 {
                                     <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
                                 }
@@ -309,9 +309,9 @@
                             <!-- Autorizador -->
                             @Html.LabelFor(model => model.id_autorizador, new { @class = "control-label col-md-1" })
 
-                            @if (empleado.id > 0)
+                            @if (Model.id_autorizador.HasValue)
                             {
-                                <input type="text" class="form-control col-md-5" value="@empleado.ConcatNombre" readonly>
+                                <input type="text" class="form-control col-md-5" value="@Model.empleados.ConcatNombre" readonly>
                             }
                             else
                             {
@@ -326,7 +326,7 @@
                                 {
                                     <input type="text" class="form-control col-md-12" value="@Model.fecha_autorizacion.Value" readonly>
                                 }
-                                else if (Model.id_autorizador.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO)
+                                else if (Model.id_autorizador.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_AUTORIZADOR)
                                 {
                                     <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
                                 }
@@ -357,10 +357,7 @@
                                 {
                                     <input type="text" class="form-control col-md-12" value="@Model.fecha_registro.Value" readonly>
                                 }
-                                else if (Model.id_contabilidad.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO)
-                                {
-                                    <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
-                                }
+
                                 else
                                 {
                                     <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
@@ -368,7 +365,7 @@
                             </div>
                         </div>
 
-                        @if (Model.estatus == Bitacoras.Util.PM_Status.ENVIADO_A_CONTROLLING && !String.IsNullOrEmpty(Model.comentario_rechazo))
+                        @if (Model.estatus == Bitacoras.Util.PM_Status.ENVIADO_SEGUNDA_VALIDACION && !String.IsNullOrEmpty(Model.comentario_rechazo))
                         {
                             <div class="ln_solid"></div>
                             <div class="form-group row">
@@ -389,7 +386,7 @@
                                 <button type="submit" class="btn btn-danger btn-lg" onclick="mostrarModalRechazar()">Rechazar</button>
                             </div>
                             <div class="col-md-6 col-sm-6 ">
-                                <button type="submit" class="btn btn-success btn-lg float-lg-right" onclick="mostrarModalAutorizar()">Validar</button>
+                                <button type="submit" class="btn btn-success btn-lg float-lg-right" onclick="mostrarModalAutorizar()">Autorizar</button>
                             </div>
                         </div>
 
@@ -420,7 +417,7 @@
             {
                 <div class="modal-body">
                     <div class="form-group row">
-                        <h6>¿Desea validar esta p&oacute;liza y enviarla a Controlling para su autorizaci&oacute;n?</h6>
+                        <h6>¿Desea autorizar esta p&oacute;liza y enviarla a Contabilidad para su Registro en SAP?</h6>
                     </div>
                     @Html.AntiForgeryToken()
                     @Html.HiddenFor(model => model.id)
@@ -430,7 +427,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Validar</button>
+                    <button type="submit" class="btn btn-primary">Autorizar</button>
                 </div>
             }
         </div>

@@ -74,9 +74,9 @@
                                 <input type="text" class="form-control col-md-12" value="@Model.plantas.descripcion" readonly>
                             </div>
                             <!--Documento SAP-->
-                            
+
                             <div class="col-md-4">
-                                
+
                             </div>
                             <!-- Id póliza -->
                             <label class="control-label col-md-2 float-right">
@@ -280,7 +280,7 @@
 
                             @if (Model.id_validador.HasValue)
                             {
-                                <input type="text" class="form-control col-md-5" value="@Model.PM_validadores.empleados.ConcatNombre" readonly>
+                                <input type="text" class="form-control col-md-5" value="@Model.empleados3.ConcatNombre" readonly>
                             }
                             else
                             {
@@ -294,7 +294,7 @@
                                 {
                                     <input type="text" class="form-control col-md-12" value="@Model.fecha_validacion.Value" readonly>
                                 }
-                                else if (Model.id_validador.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO)
+                                else if (Model.id_validador.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_VALIDADOR)
                                 {
                                     <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
                                 }
@@ -325,7 +325,7 @@
                                 {
                                     <input type="text" class="form-control col-md-12" value="@Model.fecha_autorizacion.Value" readonly>
                                 }
-                                else if (Model.id_autorizador.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO)
+                                else if (Model.id_autorizador.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_AUTORIZADOR)
                                 {
                                     <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
                                 }
@@ -339,14 +339,15 @@
                             <!-- Contabilidad -->
                             @Html.LabelFor(model => model.id_contabilidad, new { @class = "control-label col-md-1" })
 
-                            @if (empleado.id > 0)
+                            @if (Model.id_contabilidad.HasValue)
                             {
-                                <input type="text" class="form-control col-md-5" value="@empleado.ConcatNombre" readonly>
+                                <input type="text" class="form-control col-md-5" value="@Model.empleados1.ConcatNombre" readonly>
                             }
                             else
                             {
                                 <input type="text" class="form-control col-md-5" value="NO DISPONIBLE" readonly>
                             }
+
                             <!-- Fecha registro -->
                             @Html.LabelFor(model => model.fecha_registro, new { @class = "control-label col-md-2 float-right" })
 
@@ -355,10 +356,7 @@
                                 {
                                     <input type="text" class="form-control col-md-12" value="@Model.fecha_registro.Value" readonly>
                                 }
-                                else if (Model.id_contabilidad.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO)
-                                {
-                                    <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
-                                }
+
                                 else
                                 {
                                     <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
