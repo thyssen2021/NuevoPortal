@@ -18,22 +18,20 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public empleados()
         {
+            this.inspeccion_datos_generales = new HashSet<inspeccion_datos_generales>();
             this.notificaciones_correo = new HashSet<notificaciones_correo>();
             this.PFA = new HashSet<PFA>();
             this.PFA_Autorizador = new HashSet<PFA_Autorizador>();
             this.PFA1 = new HashSet<PFA>();
-            this.PM_autorizadores = new HashSet<PM_autorizadores>();
-            this.PM_validadores = new HashSet<PM_validadores>();
-            this.produccion_operadores = new HashSet<produccion_operadores>();
-            this.produccion_respaldo = new HashSet<produccion_respaldo>();
-            this.produccion_supervisores = new HashSet<produccion_supervisores>();
-            this.inspeccion_datos_generales = new HashSet<inspeccion_datos_generales>();
             this.PM_departamentos = new HashSet<PM_departamentos>();
             this.PM_usuarios_capturistas = new HashSet<PM_usuarios_capturistas>();
             this.poliza_manual = new HashSet<poliza_manual>();
             this.poliza_manual1 = new HashSet<poliza_manual>();
             this.poliza_manual2 = new HashSet<poliza_manual>();
             this.poliza_manual3 = new HashSet<poliza_manual>();
+            this.produccion_operadores = new HashSet<produccion_operadores>();
+            this.produccion_respaldo = new HashSet<produccion_respaldo>();
+            this.produccion_supervisores = new HashSet<produccion_supervisores>();
         }
 
         public int id { get; set; }
@@ -131,6 +129,8 @@ namespace Portal_2_0.Models
         public virtual plantas plantas { get; set; }
         public virtual puesto puesto1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<inspeccion_datos_generales> inspeccion_datos_generales { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<notificaciones_correo> notificaciones_correo { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PFA> PFA { get; set; }
@@ -138,18 +138,6 @@ namespace Portal_2_0.Models
         public virtual ICollection<PFA_Autorizador> PFA_Autorizador { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PFA> PFA1 { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<PM_autorizadores> PM_autorizadores { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<PM_validadores> PM_validadores { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<produccion_operadores> produccion_operadores { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<produccion_respaldo> produccion_respaldo { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<produccion_supervisores> produccion_supervisores { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<inspeccion_datos_generales> inspeccion_datos_generales { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PM_departamentos> PM_departamentos { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -162,5 +150,11 @@ namespace Portal_2_0.Models
         public virtual ICollection<poliza_manual> poliza_manual2 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<poliza_manual> poliza_manual3 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<produccion_operadores> produccion_operadores { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<produccion_respaldo> produccion_respaldo { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<produccion_supervisores> produccion_supervisores { get; set; }
     }
 }

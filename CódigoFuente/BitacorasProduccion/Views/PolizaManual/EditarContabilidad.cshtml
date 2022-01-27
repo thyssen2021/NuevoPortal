@@ -2,12 +2,12 @@
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewBag.Title = "Autorizar Póliza Manual";
+    ViewBag.Title = "Efitar Póliza Manual Finalizada";
     ViewBag.PrimerNivel = "polizas_manuales";
-    ViewBag.SegundoNivel = "PM_autorizar_controlling_pendientes";
+    ViewBag.SegundoNivel = "PM_contabilidad_pendientes";
     ViewBag.ControllerName = "PolizaManual";
 
-    Portal_2_0.Models.empleados empleado = (Portal_2_0.Models.empleados)ViewBag.Empleado; 
+    Portal_2_0.Models.empleados empleado = (Portal_2_0.Models.empleados)ViewBag.Empleado;
 }
 
 
@@ -61,7 +61,6 @@
                         </div>
 
 
-
                         <div class="ln_solid"></div>
 
                         <div class="form-group row">
@@ -75,9 +74,9 @@
                                 <input type="text" class="form-control col-md-12" value="@Model.plantas.descripcion" readonly>
                             </div>
                             <!--Documento SAP-->
-                            @Html.LabelFor(model => model.numero_documento_sap, new { @class = "control-label col-md-2" })
-                            <div class="col-md-2">
-                                <input type="text" class="form-control col-md-12" value="@Model.numero_documento_sap" readonly>
+
+                            <div class="col-md-4">
+
                             </div>
                             <!-- Id póliza -->
                             <label class="control-label col-md-2 float-right">
@@ -365,30 +364,110 @@
                             </div>
                         </div>
 
-                        @if (Model.estatus == Bitacoras.Util.PM_Status.ENVIADO_SEGUNDA_VALIDACION && !String.IsNullOrEmpty(Model.comentario_rechazo))
-                        {
-                            <div class="ln_solid"></div>
-                            <div class="form-group row">
-                                <span style="color:black"><b>RAZ&Oacute;N ANTERIOR DE RECHAZO</b></span>
-                            </div>
-
-                            <div class="item form-group">
-                                <div class="col-md-12">
-                                    @Html.TextAreaFor(model => model.comentario_rechazo, new { @class = "form-control", @rows = "4", @autocomplete = "off", @readonly = "readonly" })
-                                </div>
-
-                            </div>
-                        }
+                        @*PARA SUBIR EL DOCUMENTO DE SOPORTE DE REGISTRO EN SAP*@
 
                         <div class="ln_solid"></div>
-                        <div class="item form-group">
-                            <div class="col-md-6 col-sm-6 ">
-                                <button type="submit" class="btn btn-danger btn-lg" onclick="mostrarModalRechazar()">Rechazar</button>
-                            </div>
-                            <div class="col-md-6 col-sm-6 ">
-                                <button type="submit" class="btn btn-success btn-lg float-lg-right" onclick="mostrarModalAutorizar()">Autorizar</button>
-                            </div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>DOCUMENTO DE REGISTRO</b></span>
                         </div>
+                        @using (Html.BeginForm("EditarContabilidad", null, FormMethod.Post, new { enctype = "multipart/form-data" }))
+                        {
+
+                            @Html.AntiForgeryToken()
+
+
+                            @* input para saber si está o no activo el campo de soporte *@
+                            <input type="hidden" name="cambio_documento" id="cambio_documento" value="0" />
+
+
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", new { @class = "text-white" })
+                                </div>
+                            }
+                            @Html.HiddenFor(model => model.id)
+                            @Html.HiddenFor(model => model.id_validador)
+                            @Html.HiddenFor(model => model.descripcion_poliza)
+
+                            @* input para saber si está o no activo el campo de soporte *@
+                            <input type="hidden" name="cambio_documento_soporte" id="cambio_documento_soporte" value="0" />
+
+                            if (Model != null && Model.id_documento_registro > 0)
+                            {
+                                <div class="form-group row" id="div_documento_registro_info">
+                                    @Html.LabelFor(model => model.id_documento_registro, new { @class = "control-label col-md-2" })
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control col-md-12" style="text-align: right;" value="@Model.biblioteca_digital.Nombre" readonly>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = Model.id_documento_registro})" class="btn btn-success btm-sm" title="Download">
+                                            <i class="fa fa-download"></i>
+                                        </a>
+                                        <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = Model.id_documento_registro, inline=true})" class="btn btn-info btm-sm" target="_blank" title="Inline">
+                                            <i class="fa fa-eye"></i>
+                                        </a>
+                                        <a onclick="muestraFileInput()" class="btn btn-danger btm-sm" title="Delete" style="color:white">
+                                            <i class="fa fa-close"></i>
+                                        </a>
+                                    </div>
+
+                                </div>
+                            }
+
+                            <div class="form-group row" id="div_documento_registro_input" style="@(Model.id_documento_registro.HasValue ? "display:none" : "" )">
+                                @Html.LabelFor(model => model.id_documento_registro, new { @class = "control-label col-md-2" })
+                                <div class="col-md-6">
+
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            @Html.TextBoxFor(m => m.PostedFileRegistro, new { @class = "custom-file-input", type = "file", @accept = ".xls,.xlsx,.png, .jpeg, .jpg, .pdf, .doc, .docx, .rar, .zip", @required = "required" })
+                                            <label class="custom-file-label" for="PostedFileSoporte" style="text-align:left">Seleccione un archivo...</label>
+                                        </div>
+                                    </div>
+                                    @Html.ValidationMessageFor(m => m.PostedFileRegistro, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="col-md-1">
+                                    <div class="input-group">
+                                        @if (Model.id_documento_registro.HasValue)
+                                        {
+                                            <a onclick="ocultaFileInput()" class="btn btn-warning btm-sm" title="Deshacer" style="color:white">
+                                                <i class="fa fa-refresh"></i>
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                @*@Html.LabelFor(model => model.id_documento_registro, new { @class = "control-label col-md-2" })
+                <div class="col-md-5">
+
+                    <div class="input-group">
+                        <div class="custom-file">
+                            @Html.TextBoxFor(m => m.PostedFileRegistro, new { @class = "custom-file-input", type = "file", @accept = ".xls,.xlsx,.png, .jpeg, .jpg, .pdf, .doc, .docx, .rar, .zip", @required = "required" })
+                            <label class="custom-file-label" for="PostedFileSoporte" style="text-align:left">Seleccione un archivo...</label>
+                        </div>
+                    </div>
+                    @Html.ValidationMessageFor(m => m.PostedFileRegistro, "", new { @class = "text-danger" })
+                </div>*@
+                                <!--Documento SAP-->
+                                @Html.LabelFor(model => model.numero_documento_sap, new { @class = "control-label col-md-2" })
+                                <div class="col-md-2">
+                                    @Html.EditorFor(m => m.numero_documento_sap, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @required = "required" } })
+                                    @Html.ValidationMessageFor(model => model.numero_documento_sap, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+
+
+                            <div class="ln_solid"></div>
+                            <div class="item form-group">
+                                <div class="col-md-12 col-sm-12 ">
+                                    <button type="submit" class="btn btn-success btn-lg float-lg-right">Finalizar Registro</button>
+                                </div>
+                            </div>
+                        }
 
                     </div>
                 </div>
@@ -403,88 +482,55 @@
     </div>
 </div>
 
-<!-- Modal Autorizar -->
-<div class="modal fade" id="modalAutorizar" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle">Validar</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            @using (Html.BeginForm("AutorizarControlling", null, FormMethod.Post, new { }))
-            {
-                <div class="modal-body">
-                    <div class="form-group row">
-                        <h6>¿Desea autorizar esta p&oacute;liza y enviarla a Contabilidad para su Registro en SAP?</h6>
-                    </div>
-                    @Html.AntiForgeryToken()
-                    @Html.HiddenFor(model => model.id)
 
-                    <div class="col-md-12">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Autorizar</button>
-                </div>
-            }
-        </div>
-    </div>
-</div>
-
-<!-- Modal Rechazar -->
-<div class="modal fade" id="modalRechazar" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle">Rechazar</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            @using (Html.BeginForm("RechazarControlling", null, FormMethod.Post, new { }))
-            {
-                <div class="modal-body">
-                    <div class="form-group row">
-                        <h6>¿Realmente desea rechazar esta solicitud?</h6>
-                        <br />
-                        <div class="col-md-12">
-                            <h6>Comentario:</h6>
-                        </div>
-                        <div class="col-md-12">
-
-                            @Html.AntiForgeryToken()
-                            @Html.HiddenFor(model => model.id)
-                            @Html.TextAreaFor(model => model.comentario_rechazo, new { @class = "form-control", @rows = "4", @autocomplete = "off", @required = "required" })
-                            @Html.ValidationMessageFor(model => model.comentario_rechazo, "", new { @class = "text-danger" })
-
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-warning">Rechazar</button>
-                </div>
-            }
-        </div>
-    </div>
-</div>
 
 @section scripts
 {
     @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
     <script>
 
         $(document).ready(function () {
+
+            //inicializa en input file
+            bsCustomFileInput.init()
 
             // Initialize Select2 Elements (debe ir después de asignar el valor)
             $('.select2bs4').select2({
                 theme: 'bootstrap4'
             })
+
+            //aumenta en uso cada vez que se hace un cambio en el archivo de soporte
+            $("#PostedFileRegistro").on("change", function () {
+                document.getElementById('cambio_documento').value = ++documento_soporte_cambios;
+            });
+
+
         });
+
+        //variable para saber si ha cambiado el formulario y asi no se detenga por doble submit
+        var documento_soporte_cambios = 1;
+
+        //muestra el formulario de carga de archivo
+        function muestraFileInput() {
+            $("#div_documento_registro_info").fadeOut(700, function () {
+                $("#PostedFileRegistro").val('');
+            });
+            $("#div_documento_registro_input").fadeIn(700);
+
+            document.getElementById('cambio_documento_soporte').value = ++documento_soporte_cambios;
+        }
+
+        //oculta el formulario de carga de archivo
+        function ocultaFileInput() {
+            $("#div_documento_registro_info").fadeIn(700, function () {
+                $("#PostedFileRegistro").val('');
+            });
+            $("#div_documento_registro_input").fadeOut(700);
+
+            document.getElementById('cambio_documento_soporte').value = ++documento_soporte_cambios;
+        }
 
         //agranda el tamaño de la barra
         window.onload = function () {

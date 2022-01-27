@@ -233,6 +233,12 @@
                                                     <li class="@(ViewBag.SegundoNivel == "PM_contabilidad_pendientes" ? "current-page" : null )"><a href="@Url.Action("ContabilidadPendientes", "PolizaManual")">Contabilidad - Pendientes</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "PM_contabilidad_registradas" ? "current-page" : null )"><a href="@Url.Action("ContabilidadRegistradas", "PolizaManual")">Contabilidad - Registradas</a></li>
                                                 }
+                                                @if (User.IsInRole(TipoRoles.PM_REPORTES))
+                                                {
+                                                    <h3>Reportes</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_reportes" ? "current-page" : null )"><a href="@Url.Action("Reportes", "PolizaManual")">Reportes</a></li>
+
+                                                }
                                                 @if (User.IsInRole(TipoRoles.PM_CATALOGOS) || User.IsInRole(TipoRoles.ADMIN) || User.IsInRole(TipoRoles.PM_REGISTRO))
                                                 {
                                                     <h3>Cat&aacute;logos</h3>
@@ -249,7 +255,8 @@
                                                             }
                                                             @if (User.IsInRole(TipoRoles.PM_REGISTRO))
                                                             {
-                                                                <li class="@(ViewBag.TercelNivel == "PM_poliza_modelo" ? "current-page" : null )"><a href="@Url.Action( "ListaModeloPoliza", "Demo")">P&oacute;lizas Modelo</a></li>
+
+                                                                <li class="@(ViewBag.TercelNivel == "PM_poliza_modelo" ? "current-page" : null )"><a href="@Url.Action( "Index", "PM_poliza_manual_modelo")">P&oacute;lizas Modelo</a></li>
                                                             }
                                                         </ul>
                                                     </li>
@@ -262,8 +269,7 @@
                                                         <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "PM_catalogos" ? "display:block" : null )">
                                                             <li class="@(ViewBag.TercelNivel == "PM_departamentos" ? "current-page" : null )"><a href="@Url.Action( "Index", "PM_departamentos")">Departamentos</a></li>
                                                             <li class="@(ViewBag.TercelNivel == "PM_usuarios_capturistas" ? "current-page" : null )"><a href="@Url.Action( "Index", "PM_usuarios_capturistas")">Capturistas</a></li>
-                                                            <li class="@(ViewBag.TercelNivel == "PM_validadores" ? "current-page" : null )"><a href="@Url.Action( "Index", "PM_validadores")"><del>Jefes de &aacute;rea</del></a></li>
-                                                            <li class="@(ViewBag.TercelNivel == " PM_autorizadores" ? "current-page" : null )"><a href="@Url.Action( "Index", "PM_autorizadores")"><del>Controlling</del></a></li>
+
                                                         </ul>
                                                     </li>
                                                 }

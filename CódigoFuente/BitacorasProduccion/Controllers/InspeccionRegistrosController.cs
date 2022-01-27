@@ -274,7 +274,7 @@ namespace Portal_2_0.Controllers
                     ValoresQueryString = routeValues
                 };
 
-                ViewBag.id_linea = new SelectList(db.produccion_lineas.Where(p => p.activo == true), "id", "linea");
+                ViewBag.id_linea = AddFirstItem(new SelectList(db.produccion_lineas.Where(p => p.activo == true), "id", "linea"), selected: linea.ToString());
                 ViewBag.clave_planta = new SelectList(db.plantas.Where(p => p.activo == true && p.clave == emp.planta_clave), "clave", "descripcion");
                 ViewBag.Paginacion = paginacion;
 

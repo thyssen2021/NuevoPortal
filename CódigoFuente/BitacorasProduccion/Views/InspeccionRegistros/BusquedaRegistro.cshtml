@@ -165,7 +165,10 @@
                                                 @Html.DisplayNameFor(model => model.Class_asociado.Customer_part_number)
                                             </th>
                                             <th>
-                                                @Html.DisplayNameFor(model => model.produccion_datos_entrada.orden_sap)
+                                                @Html.DisplayNameFor(model => model.produccion_datos_entrada.numero_rollo)
+                                            </th>
+                                            <th>
+                                                @Html.DisplayNameFor(model => model.produccion_datos_entrada.lote_rollo)
                                             </th>
                                             <th>
                                                 L&iacute;nea
@@ -188,7 +191,7 @@
                                         <tr class="@(item.inspeccion_datos_generales!=null ? "fondo_verde" : "" )">
                                             <td>
 
-                                                <a href="@Url.Action("RegistroPiezasDescarte", ViewBag.ControllerName, new { 
+                                                <a href="@Url.Action("RegistroPiezasDescarte", ViewBag.ControllerName, new {
                                                     id = item.id,clave_planta = clavePlanta,
                                                     id_linea = idLinea,
                                                     fecha_inicial = filtroFechaInicio,
@@ -223,7 +226,10 @@
                                                 @Html.DisplayFor(modelItem => item.Class_asociado.Customer_part_number)
                                             </td>
                                             <td>
-                                                @Html.DisplayFor(modelItem => item.produccion_datos_entrada.orden_sap)
+                                                @Html.DisplayFor(modelItem => item.produccion_datos_entrada.numero_rollo)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => item.produccion_datos_entrada.lote_rollo)
                                             </td>
                                             <td>
                                                 @Html.DisplayFor(modelItem => item.produccion_lineas.linea)
@@ -239,7 +245,8 @@
                                                 {
                                                     @item.inspeccion_datos_generales.empleados.ConcatNombre
                                                 }
-                                                else { 
+                                                else
+                                                {
                                                     <span>PENDIENTE</span>
                                                 }
 

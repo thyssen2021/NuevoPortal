@@ -128,6 +128,12 @@
                                                                 <i class="fa fa-list-alt"></i>
                                                             </a>
                                                         }
+                                                        @if (ViewBag.EditContabilidad != null && ViewBag.EditContabilidad)
+                                                        {
+                                                            <a href="@Url.Action("EditarContabilidad", ViewBag.ControllerName, new { id = item.id })" class="btn btn-success" title="Editar">
+                                                                <i class="fa fa-list-alt"></i>
+                                                            </a>
+                                                        }
                                                         @if (ViewBag.Edit != null && ViewBag.Edit)
                                                         {
                                                             <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = item.id})" class="btn btn-success " title="Editar">
@@ -211,34 +217,27 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-
+            @using (Html.BeginForm("Create", null, FormMethod.Get))
+            {
             <div class="modal-body">
-                <div class="form-group row">
-                    <h6>¿Desea utilizar una p&oacute;liza modelo?</h6>
-                </div>
-
-                <div class="form-group row">
-                <div class="col-md-12">
-                    <select name="select" class="select2bs4 col-md-12" style="width: 100%">
-                        <option value="value1" selected>-- No Utilizar --</option>
-                        <option value="value2">INC PROV SCRAP OCTUBRE 2021</option>
-                        <option value="value3">INC PROV SCRAP NOVIEMBRE 2021</option>
-                        <option value="value4">INC PROV SCRAP DICIEMBRE 2021</option>
-                        <option value="value5">INC PROV SCRAP ENERO 2022</option>
-                    </select>
-                </div>
+            <div class="form-group row">
+                <h6>¿Desea utilizar una p&oacute;liza modelo?</h6>
+            </div>
+                @if (ViewBag.id_poliza_modelo != null)
+                {
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            @Html.DropDownList("id_poliza_modelo", null, htmlAttributes: new { @class = "select2bs4 col-md-12", @style = "width:100%" })
+                        </div>
                     </div>
+                }
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                <a href="@Url.Action( "Create", ViewBag.ControllerName)" class="btn btn-success">
-                    Continuar
-                    <i class="fa fa-check"></i>
-
-                </a>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Continuar</button>
+                </div>
+            }
             </div>
-
-        </div>
     </div>
 </div>
 @section scripts

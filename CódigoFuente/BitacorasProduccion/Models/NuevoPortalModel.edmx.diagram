@@ -14,7 +14,7 @@
         <EntityTypeShape EntityType="Portal_2_0Model.produccion_lineas" Width="1.5" PointX="3" PointY="8.625" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.produccion_lotes" Width="1.5" PointX="14.25" PointY="12.375" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.produccion_operadores" Width="1.5" PointX="9.75" PointY="7.5" IsExpanded="true" />
-        <EntityTypeShape EntityType="Portal_2_0Model.produccion_registros" Width="1.5" PointX="12" PointY="9" IsExpanded="true" />
+        <EntityTypeShape EntityType="Portal_2_0Model.produccion_registros" Width="1.5" PointX="12" PointY="9.25" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.produccion_supervisores" Width="1.5" PointX="9.75" PointY="10.5" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.produccion_turnos" Width="1.5" PointX="3" PointY="12" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.puesto" Width="1.5" PointX="5.25" PointY="5.625" IsExpanded="true" />
@@ -56,26 +56,11 @@
         <AssociationConnector Association="Portal_2_0Model.FK_PFA_volume" />
         <EntityTypeShape EntityType="Portal_2_0Model.currency" Width="1.5" PointX="15.875" PointY="30.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.PM_tipo_poliza" Width="1.5" PointX="15.875" PointY="33.625" />
-        <EntityTypeShape EntityType="Portal_2_0Model.PM_validadores" Width="1.5" PointX="15.125" PointY="2" />
         <EntityTypeShape EntityType="Portal_2_0Model.PM_conceptos" Width="1.5" PointX="23.375" PointY="16.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.empleados" Width="1.5" PointX="12.5" PointY="0.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.PM_autorizadores" Width="1.5" PointX="16.125" PointY="6.625" />
-        <AssociationConnector Association="Portal_2_0Model.FK_empleados_planta_clave" />
-        <AssociationConnector Association="Portal_2_0Model.FK_empleados_puesto" />
-        <AssociationConnector Association="Portal_2_0Model.FK_notificaciones_correo_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_PFA_autorizador" />
-        <AssociationConnector Association="Portal_2_0Model.FK_PFA_Autorizador_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_PFA_solicitante" />
-        <AssociationConnector Association="Portal_2_0Model.FK_PM_autorizadores_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_PM_validadores_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_produccion_operadores_id_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_produccion_respaldo_id_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_produccion_supervisores_id_empleado" />
         <EntityTypeShape EntityType="Portal_2_0Model.inspeccion_categoria_fallas" Width="1.5" PointX="12.75" PointY="37.5" />
         <EntityTypeShape EntityType="Portal_2_0Model.inspeccion_datos_generales" Width="1.5" PointX="16.75" PointY="9.25" />
         <EntityTypeShape EntityType="Portal_2_0Model.inspeccion_fallas" Width="1.5" PointX="15" PointY="37" />
         <EntityTypeShape EntityType="Portal_2_0Model.inspeccion_pieza_descarte_produccion" Width="1.5" PointX="17.25" PointY="12.25" />
-        <AssociationConnector Association="Portal_2_0Model.FK_inspeccion_datos_generales_id_empleado_inspector" />
         <AssociationConnector Association="Portal_2_0Model.FK_inspeccion_fallas_id_categoria" />
         <AssociationConnector Association="Portal_2_0Model.FK_inspeccion_datos_generales_id_produccion_registro" />
         <AssociationConnector Association="Portal_2_0Model.FK_inspeccion_pieza_descarte_produccion_id_falla" />
@@ -91,18 +76,29 @@
         <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_documento_registro" />
         <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_documento_soporte" />
         <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_currency" />
-        <AssociationConnector Association="Portal_2_0Model.FK_PM_departamentos_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_PM_usuarios_capturistas_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_autorizador" />
-        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_contabilidad" />
-        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_elaborador" />
-        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_validador" />
         <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_planta" />
         <AssociationConnector Association="Portal_2_0Model.FK_PM_conceptos_id_poliza" />
         <AssociationConnector Association="Portal_2_0Model.FK_PM_conceptos_modelo_id_poliza" />
         <AssociationConnector Association="Portal_2_0Model.FK_PM_departamentos_depto_validacion" />
         <AssociationConnector Association="Portal_2_0Model.FK_PM_usuarios_capturistas_departamento" />
         <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_tipo_poliza" />
+        <EntityTypeShape EntityType="Portal_2_0Model.empleados" Width="1.5" PointX="12.5" PointY="0.75" />
+        <AssociationConnector Association="Portal_2_0Model.FK_empleados_planta_clave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_empleados_puesto" />
+        <AssociationConnector Association="Portal_2_0Model.FK_inspeccion_datos_generales_id_empleado_inspector" />
+        <AssociationConnector Association="Portal_2_0Model.FK_notificaciones_correo_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_PFA_autorizador" />
+        <AssociationConnector Association="Portal_2_0Model.FK_PFA_Autorizador_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_PFA_solicitante" />
+        <AssociationConnector Association="Portal_2_0Model.FK_PM_departamentos_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_PM_usuarios_capturistas_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_autorizador" />
+        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_contabilidad" />
+        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_elaborador" />
+        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_validador" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_operadores_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_respaldo_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_supervisores_id_empleado" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

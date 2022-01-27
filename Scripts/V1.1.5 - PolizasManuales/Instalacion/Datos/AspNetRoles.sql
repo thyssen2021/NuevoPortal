@@ -102,6 +102,11 @@ BEGIN
 	BEGIN
 		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PolizasManuales_catalogos')
 	END
+	-- Reportes de Póliza
+	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PolizasManuales_reportes' )
+	BEGIN
+		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PolizasManuales_reportes')
+	END
 
 
 

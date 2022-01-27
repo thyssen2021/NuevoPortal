@@ -197,7 +197,6 @@
     <Compile Include="Controllers\BomController.cs" />
     <Compile Include="Controllers\class_v3Controller.cs" />
     <Compile Include="Controllers\CombosController.cs" />
-    <Compile Include="Controllers\DemoController.cs" />
     <Compile Include="Controllers\empleadosController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -215,11 +214,10 @@
     <Compile Include="Controllers\PFA_Type_shipmentController.cs" />
     <Compile Include="Controllers\PFA_VolumeController.cs" />
     <Compile Include="Controllers\PlantasController.cs" />
-    <Compile Include="Controllers\PM_autorizadoresController.cs" />
     <Compile Include="Controllers\PM_departamentosController.cs" />
+    <Compile Include="Controllers\PM_poliza_manual_modeloController.cs" />
     <Compile Include="Controllers\PM_tipo_polizaController.cs" />
     <Compile Include="Controllers\PM_usuarios_capturistasController.cs" />
-    <Compile Include="Controllers\PM_validadoresController.cs" />
     <Compile Include="Controllers\PolizaManualController.cs" />
     <Compile Include="Controllers\PremiumFreightApprovalController.cs" />
     <Compile Include="Controllers\ProduccionLineasController.cs" />
@@ -367,9 +365,6 @@
     <Compile Include="Models\plantas.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\PM_autorizadores.cs">
-      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-    </Compile>
     <Compile Include="Models\PM_conceptos.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -386,9 +381,6 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\PM_usuarios_capturistas.cs">
-      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\PM_validadores.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\poliza_manual.cs">
@@ -3945,6 +3937,7 @@
     <Content Include="Scripts\Forms\operadores_produccion.js" />
     <Content Include="Scripts\Forms\PFA_create.js" />
     <Content Include="Scripts\Forms\PFA_edit.js" />
+    <Content Include="Scripts\Forms\PolizasModeloCreateEdit.js" />
     <Content Include="Scripts\Forms\ProduccionRegistrosCreate.js" />
     <Content Include="Scripts\Forms\ProduccionRegistrosEdit.js" />
     <Content Include="Scripts\Forms\ProduccionRegistrosIndex.js" />
@@ -5125,14 +5118,6 @@
     <Content Include="Views\PolizaManual\ListadoPolizas.cshtml" />
     <Content Include="Views\PolizaManual\EnviarParaValidacion.cshtml" />
     <Content Include="Views\PolizaManual\ValidarArea.cshtml" />
-    <Content Include="Views\PM_validadores\Create.cshtml" />
-    <Content Include="Views\PM_validadores\Disable.cshtml" />
-    <Content Include="Views\PM_validadores\Index.cshtml" />
-    <Content Include="Views\PM_validadores\Enable.cshtml" />
-    <Content Include="Views\PM_autorizadores\Create.cshtml" />
-    <Content Include="Views\PM_autorizadores\Disable.cshtml" />
-    <Content Include="Views\PM_autorizadores\Enable.cshtml" />
-    <Content Include="Views\PM_autorizadores\Index.cshtml" />
     <Content Include="Views\PolizaManual\AutorizarControlling.cshtml" />
     <Content Include="Views\PolizaManual\FinalizarContabilidad.cshtml" />
     <Content Include="Views\PM_tipo_poliza\Create.cshtml" />
@@ -5160,9 +5145,6 @@
     <Content Include="Views\inspeccion_fallas\Inspectores.cshtml" />
     <Content Include="Views\inspeccion_fallas\CreateInspector.cshtml" />
     <Content Include="Views\inspeccion_fallas\DisableInspector.cshtml" />
-    <Content Include="Views\Demo\ListaModeloPoliza.cshtml" />
-    <Content Include="Views\Demo\Create.cshtml" />
-    <Content Include="Views\Demo\Edit.cshtml" />
     <Content Include="Views\PM_departamentos\Create.cshtml" />
     <Content Include="Views\PM_departamentos\Details.cshtml" />
     <Content Include="Views\PM_departamentos\Edit.cshtml" />
@@ -5175,6 +5157,14 @@
     <Content Include="Views\PM_usuarios_capturistas\Edit.cshtml" />
     <Content Include="Views\PM_usuarios_capturistas\Enable.cshtml" />
     <Content Include="Views\PM_usuarios_capturistas\Index.cshtml" />
+    <Content Include="Views\PolizaManual\EditarContabilidad.cshtml" />
+    <Content Include="Views\PM_poliza_manual_modelo\Create.cshtml" />
+    <Content Include="Views\PM_poliza_manual_modelo\Details.cshtml" />
+    <Content Include="Views\PM_poliza_manual_modelo\Edit.cshtml" />
+    <Content Include="Views\PM_poliza_manual_modelo\Index.cshtml" />
+    <Content Include="Views\PM_poliza_manual_modelo\Enable.cshtml" />
+    <Content Include="Views\PM_poliza_manual_modelo\Disable.cshtml" />
+    <Content Include="Views\PolizaManual\Reportes.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

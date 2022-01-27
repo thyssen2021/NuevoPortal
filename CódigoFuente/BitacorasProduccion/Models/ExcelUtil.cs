@@ -241,7 +241,232 @@ namespace Portal_2_0.Models
 
             return (array);
         }
+        public static byte[] GeneraReportePMExcel(List<poliza_manual> listado)
+        {
 
+            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+
+
+            System.Data.DataTable dt = new System.Data.DataTable();
+
+            //para llevar el control de si es encabezado o no
+            List<bool> filasEncabezados = new List<bool>();
+            filasEncabezados.Add(false); //es el encabezado principal
+
+            //columnas          
+            dt.Columns.Add("ID", typeof(string));
+            dt.Columns.Add("Tipo Póliza", typeof(string));
+            dt.Columns.Add("Moneda", typeof(string));
+            dt.Columns.Add("Planta", typeof(string));
+            dt.Columns.Add("Núm. docto. SAP", typeof(string));
+            dt.Columns.Add("Descripción", typeof(string));            
+            dt.Columns.Add("Fecha documento", typeof(DateTime)); //7
+            dt.Columns.Add("Cuenta", typeof(string));//8
+            dt.Columns.Add("CC", typeof(string));
+            dt.Columns.Add("Concepto", typeof(string));
+            dt.Columns.Add("Poliza", typeof(string));
+            dt.Columns.Add("Debe", typeof(double));
+            dt.Columns.Add("Haber", typeof(double));
+            dt.Columns.Add("Total Debe", typeof(decimal));
+            dt.Columns.Add("Total Haber", typeof(decimal));
+            dt.Columns.Add("Elaboró", typeof(string));
+            dt.Columns.Add("Fecha Creación", typeof(DateTime));//17
+            dt.Columns.Add("Validó (área)", typeof(string));
+            dt.Columns.Add("Fecha Validación", typeof(DateTime));
+            dt.Columns.Add("Autorizó (doble validación)", typeof(string));
+            dt.Columns.Add("Fecha Autorización", typeof(DateTime));
+            dt.Columns.Add("Registró (contabilidad)", typeof(string));
+            dt.Columns.Add("Fecha Registro", typeof(DateTime));
+            dt.Columns.Add("Estado", typeof(string)); //24
+
+            ////registros , rows
+            foreach (poliza_manual item in listado)
+            {
+                System.Data.DataRow row = dt.NewRow();
+                row["ID"] = item.id;
+                row["Tipo Póliza"] = item.PM_tipo_poliza.descripcion;
+                row["Moneda"] = item.currency_iso;
+                row["Planta"] = item.plantas.descripcion;
+                row["Núm. docto. SAP"] = item.numero_documento_sap;
+                row["Descripción"] = item.descripcion_poliza;               
+                row["Fecha documento"] = item.fecha_documento;
+
+                if (item.empleados2 != null)
+                    row["Elaboró"] = item.empleados2.ConcatNombre;
+                else
+                    row["Elaboró"] = DBNull.Value;
+
+                row["Fecha Creación"] = item.fecha_creacion;
+
+                if (item.empleados3 != null && item.fecha_validacion.HasValue)
+                {
+                    row["Validó (área)"] = item.empleados3.ConcatNombre;
+                    row["Fecha Validación"] = item.fecha_validacion;
+                }
+                else
+                {
+                    row["Validó (área)"] = DBNull.Value;
+                    row["Fecha Validación"] = DBNull.Value;
+                }
+
+                if (item.empleados != null && item.fecha_autorizacion.HasValue)
+                {
+                    row["Autorizó (doble validación)"] = item.empleados.ConcatNombre;
+                    row["Fecha Autorización"] = item.fecha_autorizacion;
+                }
+                else
+                {
+                    row["Autorizó (doble validación)"] = DBNull.Value;
+                    row["Fecha Autorización"] = DBNull.Value;
+                }
+
+                if (item.empleados1 != null && item.fecha_registro.HasValue)
+                {
+                    row["Registró (contabilidad)"] = item.empleados1.ConcatNombre;
+                    row["Fecha Registro"] = item.fecha_registro;
+                }
+                else
+                {
+                    row["Fecha Registro"] = DBNull.Value;
+                    row["Registró (contabilidad)"] = DBNull.Value;
+                }
+
+                row["Total Debe"] = item.totalDebe;
+                row["Total Haber"] = item.totalHaber;
+
+                row["Estado"] = item.estatus;
+
+                dt.Rows.Add(row);
+                filasEncabezados.Add(true);
+                //obtiene la cantidad de fila actual
+                int fila_inicial = filasEncabezados.Count + 1;
+
+                //detalle
+                foreach (PM_conceptos c in item.PM_conceptos) {
+
+                    row = dt.NewRow();
+
+                    row["Cuenta"] = c.cuenta;
+                    row["CC"] = c.cc;
+                    row["Concepto"] = c.concepto;
+                    row["Poliza"] = c.poliza;
+
+                    if (c.debe.HasValue)
+                        row["Debe"] = c.debe.Value;
+                    else
+                        row["Debe"] = DBNull.Value;
+
+                    if (c.haber.HasValue)
+                        row["Haber"] = c.haber.Value;
+                    else
+                        row["Haber"] = DBNull.Value;
+
+                    dt.Rows.Add(row);
+                    filasEncabezados.Add(false);
+
+                }
+
+                //obtiene la fila final
+                int fila_final = filasEncabezados.Count + 1;
+
+                //verifica si hubo cambios
+                if (fila_inicial != fila_final)              
+                    oSLDocument.GroupRows(fila_inicial, fila_final - 1);
+            }
+
+
+            //crea la hoja de FACTURAS y la selecciona
+            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Reporte Pólizas Manuales");
+            oSLDocument.ImportDataTable(1, 1, dt, true);
+
+            //estilo para ajustar al texto
+            SLStyle styleWrap = oSLDocument.CreateStyle();
+            styleWrap.SetWrapText(true);
+
+            //estilo para el encabezado
+            SLStyle styleHeader = oSLDocument.CreateStyle();
+            styleHeader.Font.Bold = true;
+            styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
+
+            //estilo para el encabezado de cada fila
+            SLStyle styleHeaderRow = oSLDocument.CreateStyle();
+            styleHeaderRow.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#daeef3"), System.Drawing.ColorTranslator.FromHtml("#daeef3"));
+
+            //estilo para cada lote
+            SLStyle styleLoteInfo = oSLDocument.CreateStyle();
+            styleLoteInfo.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffffcc"), System.Drawing.ColorTranslator.FromHtml("#ffffcc"));
+            styleLoteInfo.Border.BottomBorder.BorderStyle = BorderStyleValues.Thin;
+            styleLoteInfo.Border.BottomBorder.Color = System.Drawing.Color.LightGray;
+            styleLoteInfo.Border.TopBorder.BorderStyle = BorderStyleValues.Thin;
+            styleLoteInfo.Border.TopBorder.Color = System.Drawing.Color.LightGray;
+            styleLoteInfo.Border.LeftBorder.BorderStyle = BorderStyleValues.Thin;
+            styleLoteInfo.Border.LeftBorder.Color = System.Drawing.Color.LightGray;
+            styleLoteInfo.Border.RightBorder.BorderStyle = BorderStyleValues.Thin;
+            styleLoteInfo.Border.RightBorder.Color = System.Drawing.Color.LightGray;
+
+            ////estilo para fecha
+            SLStyle styleShortDate = oSLDocument.CreateStyle();
+            styleShortDate.FormatCode = "yyyy/MM/dd";
+            oSLDocument.SetColumnStyle(7, styleShortDate);
+
+            SLStyle styleLongDate = oSLDocument.CreateStyle();
+            styleLongDate.FormatCode = "yyyy/MM/dd h:mm AM/PM";
+
+            oSLDocument.SetColumnStyle(7, styleShortDate);
+            oSLDocument.SetColumnStyle(17, styleLongDate);
+            oSLDocument.SetColumnStyle(19, styleLongDate);
+            oSLDocument.SetColumnStyle(21, styleLongDate);
+            oSLDocument.SetColumnStyle(23, styleLongDate);
+
+            SLStyle styleHeaderFont = oSLDocument.CreateStyle();
+            styleHeaderFont.Font.FontName = "Calibri";
+            styleHeaderFont.Font.FontSize = 11;
+            styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
+            styleHeaderFont.Font.Bold = true;
+
+            //estilo para numeros
+            SLStyle styleNumber = oSLDocument.CreateStyle();
+            styleNumber.FormatCode = "#,##0.00";
+
+            //da estilo a los numero
+            oSLDocument.SetColumnStyle(12, 15, styleNumber);
+
+            //da estilo a la hoja de excel
+            //inmoviliza el encabezado
+            oSLDocument.FreezePanes(1, 0);
+
+            //aplica formato a las filas de encabezado
+            for (int i = 0; i < filasEncabezados.Count; i++)
+            {
+                if (filasEncabezados[i])
+                {
+                    oSLDocument.SetRowStyle(i + 1, styleHeaderRow);
+                }
+                else
+                {
+                    oSLDocument.SetCellStyle(i + 1, 8, i + 1, 13, styleLoteInfo);
+                }
+                //colapsa todas las filas
+                oSLDocument.CollapseRows(i + 2);
+            }
+
+            oSLDocument.Filter("A1", "X1");
+            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+
+            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
+            oSLDocument.SetRowStyle(1, styleHeader);
+            oSLDocument.SetRowStyle(1, styleHeaderFont);
+
+            oSLDocument.SetRowHeight(1, filasEncabezados.Count + 1, 15.0);
+
+            System.IO.Stream stream = new System.IO.MemoryStream();
+
+            oSLDocument.SaveAs(stream);
+
+            byte[] array = Bitacoras.Util.StreamUtil.ToByteArray(stream);
+
+            return (array);
+        }
         public static byte[] GeneraReportePFAExcel(List<PFA> listado)
         {
 
@@ -381,8 +606,6 @@ namespace Portal_2_0.Models
             styleHeaderFont.Font.FontSize = 11;
             styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
             styleHeaderFont.Font.Bold = true;
-            
-
 
             SLStyle styleNumber = oSLDocument.CreateStyle();
             styleNumber.FormatCode = "#,##0.00";
@@ -491,6 +714,8 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Total de Kg NG internos", typeof(double));
             dt.Columns.Add("Peso Total Piezas OK", typeof(double));
 
+            dt.Columns.Add("Peso Puntas", typeof(double));
+            dt.Columns.Add("Peso Colas", typeof(double));
 
             foreach (produccion_registros item in listadoRegistros)
             {
@@ -499,6 +724,8 @@ namespace Portal_2_0.Models
                 string comentariosInspeccion = string.Empty;
                 double? pesoNetoUnitario = null;
                 double? totalPiezasOk = null;
+                double? pesoPuntas = null;
+                double? pesoColas = null;
 
                 //obtiene datos de inspeccion            
                 if (item.inspeccion_datos_generales != null && item.inspeccion_datos_generales.empleados != null)
@@ -512,6 +739,8 @@ namespace Portal_2_0.Models
                     loteRollo = item.produccion_datos_entrada.lote_rollo;
                     pesoNetoUnitario = item.produccion_datos_entrada.peso_real_pieza_neto;
                     totalPiezasOk = item.produccion_datos_entrada.PesoRegresoRolloUsado;
+                    pesoPuntas = item.produccion_datos_entrada.peso_despunte_kgs;
+                    pesoColas = item.produccion_datos_entrada.peso_cola_kgs;
                 }
 
                 //crea una fila
@@ -539,11 +768,28 @@ namespace Portal_2_0.Models
                         else
                             row[falla.descripcion] = DBNull.Value;
                     }
+                if(pesoNetoUnitario.HasValue)
+                    row["Peso Neto Unitario"] = pesoNetoUnitario;
+                else
+                    row["Peso Neto Unitario"] = DBNull.Value;
 
-                row["Peso Neto Unitario"] = pesoNetoUnitario;
                 row["Subtotal Piezas Daño Interno"] = item.NumPiezasDescarteDanoInterno();
                 row["Total de Kg NG internos"] = item.produccion_datos_entrada.TotalKgNGInterno();
-                row["Peso Total Piezas OK"] = totalPiezasOk;
+
+                if(totalPiezasOk.HasValue)
+                    row["Peso Total Piezas OK"] = totalPiezasOk;
+                else
+                    row["Peso Total Piezas OK"] = DBNull.Value;
+
+                if(pesoPuntas.HasValue)
+                    row["Peso Puntas"] = pesoPuntas;
+                else
+                    row["Peso Puntas"] = DBNull.Value;
+
+                if(pesoColas.HasValue)
+                    row["Peso Colas"] = pesoColas;
+                else
+                    row["Peso Colas"] = DBNull.Value;
 
                 dt.Rows.Add(row);
             }
@@ -597,7 +843,7 @@ namespace Portal_2_0.Models
             SLStyle styleFondoGray = oSLDocument.CreateStyle();
             styleFondoGray.Font.Bold = true;
             styleFondoGray.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#bebebe"), System.Drawing.ColorTranslator.FromHtml("#bebebe"));
-            oSLDocument.SetCellStyle(3, columna_falla, listadoRegistros.Count + 3, columna_falla+3, styleFondoGray);
+            oSLDocument.SetCellStyle(3, columna_falla, listadoRegistros.Count + 3, columna_falla+5, styleFondoGray);
 
             oSLDocument.ImportDataTable(3, 1, dt,true);
 

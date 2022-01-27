@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -70,6 +71,9 @@ namespace Portal_2_0.Controllers
                 ViewBag.SegundoNivel = "PM_registro";
                 ViewBag.Create = true;
 
+                //agregar viewbag con listado de polizas modelo en cada controlador de create
+                ViewBag.id_poliza_modelo = AddFirstItem(new SelectList(db.PM_poliza_manual_modelo.Where(x => x.activo == true), "id", "descripcion"));
+
                 return View("ListadoPolizas", listado);
             }
             else
@@ -130,6 +134,9 @@ namespace Portal_2_0.Controllers
                 ViewBag.SegundoNivel = "PM_pendientes";
                 ViewBag.Create = true;
 
+                //agregar viewbag con listado de polizas modelo en cada controlador de create
+                ViewBag.id_poliza_modelo = AddFirstItem(new SelectList(db.PM_poliza_manual_modelo.Where(x => x.activo == true), "id", "descripcion"));
+
                 return View("ListadoPolizas", listado);
             }
             else
@@ -187,6 +194,9 @@ namespace Portal_2_0.Controllers
                 ViewBag.SegundoNivel = "PM_rechazadas";
                 ViewBag.Create = true;
 
+                //agregar viewbag con listado de polizas modelo en cada controlador de create
+                ViewBag.id_poliza_modelo = AddFirstItem(new SelectList(db.PM_poliza_manual_modelo.Where(x => x.activo == true), "id", "descripcion"));
+
                 return View("ListadoPolizas", listado);
             }
             else
@@ -243,6 +253,9 @@ namespace Portal_2_0.Controllers
                 ViewBag.Title = "Listado Pólizas Finalizadas";
                 ViewBag.SegundoNivel = "PM_finalizadas";
                 ViewBag.Create = true;
+
+                //agregar viewbag con listado de polizas modelo en cada controlador de create
+                ViewBag.id_poliza_modelo = AddFirstItem(new SelectList(db.PM_poliza_manual_modelo.Where(x => x.activo == true), "id", "descripcion"));
 
                 return View("ListadoPolizas", listado);
             }
@@ -813,6 +826,7 @@ namespace Portal_2_0.Controllers
                 //Viewbags para los botones
 
                 ViewBag.Details = true;
+                ViewBag.EditContabilidad = true;
                 ViewBag.Title = "Listado Pólizas Registradas";
                 ViewBag.SegundoNivel = "PM_contabilidad_registradas";
 
@@ -1292,8 +1306,13 @@ namespace Portal_2_0.Controllers
 
         #endregion
 
-        #region contabilidad finalizar
+        #region contabilidad
 
+        /// <summary>
+        /// Método para finalizar un registro
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public ActionResult FinalizarContabilidad(int? id)
         {
             if (TieneRol(TipoRoles.PM_CONTABILIDAD))
@@ -1457,7 +1476,184 @@ namespace Portal_2_0.Controllers
             return RedirectToAction("ContabilidadPendientes");
         }
 
+        /// <summary>
+        /// Editar Contabilidad
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public ActionResult EditarContabilidad(int? id)
+        {
+            if (TieneRol(TipoRoles.PM_CONTABILIDAD))
+            {
+
+                if (id == null)
+                {
+                    return View("../Error/BadRequest");
+                }
+                poliza_manual poliza_manual = db.poliza_manual.Find(id);
+                if (poliza_manual == null)
+                {
+                    return View("../Error/NotFound");
+                }
+
+                //verifica si se puede autorizar
+                if (poliza_manual.estatus != PM_Status.FINALIZADO)
+                {
+                    ViewBag.Titulo = "¡Lo sentimos!¡No se puede modificar esta Póliza!";
+                    ViewBag.Descripcion = "No se puede modificar una póliza que aún no haya sido finalizado.";
+
+                    return View("../Home/ErrorGenerico");
+                }
+
+                //obtiene el usuario logeado
+                empleados empleado = obtieneEmpleadoLogeado();
+
+                ViewBag.Empleado = empleado;
+
+                return View(poliza_manual);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+        }
+
+        // POST: PolizaManual/EditarContabilidad/5
+        [HttpPost, ActionName("EditarContabilidad")]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditarContabilidadConfirmed(poliza_manual poliza_manual)
+        {
+            biblioteca_digital archivo = new biblioteca_digital { };
+
+            poliza_manual poliza = db.poliza_manual.Find(poliza_manual.id);
+
+            //pone la fecha actual
+            poliza.fecha_registro = DateTime.Now;
+
+            //obtiene el usuario logeado
+            empleados empleado = obtieneEmpleadoLogeado();
+
+            //asigna el id de empleado del autorizador
+            if (empleado.id > 0)
+                poliza.id_contabilidad = empleado.id;
+
+            poliza.numero_documento_sap = poliza_manual.numero_documento_sap;
+
+            //verifica si el archivo es válido
+            if (poliza_manual.PostedFileRegistro != null && poliza_manual.PostedFileRegistro.InputStream.Length > 5242880)
+                ModelState.AddModelError("", "Sólo se permiten archivos menores a 5MB.");
+            else if (poliza_manual.PostedFileRegistro != null)
+            { //verifica la extensión del archivo
+                string extension = Path.GetExtension(poliza_manual.PostedFileRegistro.FileName);
+                if (extension.ToUpper() != ".XLS"   //si no contiene una extensión válida
+                               && extension.ToUpper() != ".XLSX"
+                               && extension.ToUpper() != ".DOC"
+                               && extension.ToUpper() != ".DOCX"
+                               && extension.ToUpper() != ".PDF"
+                               && extension.ToUpper() != ".PNG"
+                               && extension.ToUpper() != ".JPG"
+                               && extension.ToUpper() != ".JPEG"
+                               && extension.ToUpper() != ".RAR"
+                               && extension.ToUpper() != ".ZIP"
+                               && extension.ToUpper() != ".EML"
+                               )
+                    ModelState.AddModelError("", "Sólo se permiten archivos con extensión .xls, .xlsx, .doc, .docx, .pdf, .png, .jpg, .jpeg, .rar, .zip. y .eml");
+                else
+                { //si la extension y el tamaño son válidos
+                    String nombreArchivo = poliza_manual.PostedFileRegistro.FileName;
+
+                    //recorta el nombre del archivo en caso de ser necesario
+                    if (nombreArchivo.Length > 80)
+                        nombreArchivo = nombreArchivo.Substring(0, 78 - extension.Length) + extension;
+
+                    //lee el archivo en un arreglo de bytes
+                    byte[] fileData = null;
+                    using (var binaryReader = new BinaryReader(poliza_manual.PostedFileRegistro.InputStream))
+                    {
+                        fileData = binaryReader.ReadBytes(poliza_manual.PostedFileRegistro.ContentLength);
+                    }
+
+                    //si tiene archivo hace un update sino hace un create
+                    if (poliza.id_documento_registro.HasValue)//si tiene valor hace un update
+                    {
+                        archivo = db.biblioteca_digital.Find(poliza.id_documento_registro.Value);
+                        archivo.Nombre = nombreArchivo;
+                        archivo.MimeType = UsoStrings.RecortaString(poliza_manual.PostedFileRegistro.ContentType, 80);
+                        archivo.Datos = fileData;
+
+                        db.Entry(archivo).State = EntityState.Modified;
+                        db.SaveChanges();
+                    }
+                    else
+                    { //si no tiene hace un create 
+
+                        //genera el archivo de biblioce digital
+                        archivo = new biblioteca_digital
+                        {
+                            Nombre = nombreArchivo,
+                            MimeType = UsoStrings.RecortaString(poliza_manual.PostedFileRegistro.ContentType, 80),
+                            Datos = fileData
+                        };
+
+                        //update en BD
+                        db.biblioteca_digital.Add(archivo);
+                        db.SaveChanges();
+
+                        //guarda el nuevo id
+                        poliza.id_documento_registro = archivo.Id;
+                    }
+
+                   
+
+                }
+            }
+
+            db.Entry(poliza).State = EntityState.Modified;
+            //en caso de que el modelo sea válido guarda en BD
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    db.SaveChanges();
+
+                    //////ENVIO DE EMAIL//////
+
+                }
+                catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+                {
+                    // Retrieve the error messages as a list of strings.
+                    var errorMessages = ex.EntityValidationErrors
+                            .SelectMany(x => x.ValidationErrors)
+                            .Select(x => x.ErrorMessage);
+
+                    // Join the list to a single string.
+                    var fullErrorMessage = string.Join("; ", errorMessages);
+
+                    // Combine the original exception message with the new one.
+                    var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
+
+                    TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
+                    return RedirectToAction("ContabilidadPendientes");
+
+                }
+                catch (Exception e)
+                {
+                    TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
+                    return RedirectToAction("ContabilidadPendientes");
+                }
+            }
+            else
+            {
+                //en caso de que el modelo no sea válido
+                ViewBag.Empleado = empleado;
+                return View(db.poliza_manual.Find(poliza_manual.id));
+            }
+            TempData["Mensaje"] = new MensajesSweetAlert("La Póliza ha sido registrada correctamente.", TipoMensajesSweetAlerts.SUCCESS);
+            return RedirectToAction("ContabilidadRegistradas");
+        }
+
         #endregion
+
 
 
 
@@ -1485,7 +1681,7 @@ namespace Portal_2_0.Controllers
             }
         }
         // GET: PolizaManual/Create
-        public ActionResult Create()
+        public ActionResult Create(int? id_poliza_modelo)
         {
 
             if (TieneRol(TipoRoles.PM_REGISTRO))
@@ -1516,27 +1712,15 @@ namespace Portal_2_0.Controllers
                 //aqui hacer consulta para obtener el modelo de poliza
                 List<PM_conceptos> conceptos = new List<PM_conceptos>();
 
-                conceptos.Add(new PM_conceptos { cuenta ="700800", cc="4100", concepto= "INC PROV SCRAP - ALLGAIER" });
-                conceptos.Add(new PM_conceptos { cuenta = "211220",  concepto = "INC PROV SCRAP - ALLGAIER" });
-                conceptos.Add(new PM_conceptos { cuenta = "700800", cc = "6100", concepto = "INC PROV SCRAP - ARCELOR / IN KOTE" });
-                conceptos.Add(new PM_conceptos { cuenta = "211220", concepto = "INC PROV SCRAP - ARCELOR / IN KOTE" });
-                conceptos.Add(new PM_conceptos { cuenta = "700800", cc = "6100", concepto = "INC PROV SCRAP - ARCELOR / INDIANA HARBOR" });
-                conceptos.Add(new PM_conceptos { cuenta = "211220", concepto = "INC PROV SCRAP - ARCELOR / INDIANA HARBOR" });
-                conceptos.Add(new PM_conceptos { cuenta = "700800", cc = "6100", concepto = "INC PROV SCRAP - AUTOTEK" });
-                conceptos.Add(new PM_conceptos { cuenta = "211220", concepto = "INC PROV SCRAP - AUTOTEK" });
-                conceptos.Add(new PM_conceptos { cuenta = "700800", cc = "4100", concepto = "INC PROV SCRAP - AUTOTEK" });
-                conceptos.Add(new PM_conceptos { cuenta = "211220", concepto = "INC PROV SCRAP - AUTOTEK" });
-                conceptos.Add(new PM_conceptos { cuenta = "700800", cc = "4100", concepto = "INC PROV SCRAP - BENMEX" });
-                conceptos.Add(new PM_conceptos { cuenta = "211220", concepto = "INC PROV SCRAP - BENMEX" });
-                conceptos.Add(new PM_conceptos { cuenta = "700800", cc = "6100", concepto = "INC PROV SCRAP - CALVERT" });
-                conceptos.Add(new PM_conceptos { cuenta = "211220", concepto = "INC PROV SCRAP - CALVERT" });
-                conceptos.Add(new PM_conceptos { cuenta = "700800", cc = "4100", concepto = "INC PROV SCRAP - FNG" });
-                conceptos.Add(new PM_conceptos { cuenta = "211220", concepto = "INC PROV SCRAP - FNG" });
-                conceptos.Add(new PM_conceptos { cuenta = "700800", cc = "4100", concepto = "INC PROV SCRAP - GENI" });
-                conceptos.Add(new PM_conceptos { cuenta = "211220", concepto = "INC PROV SCRAP - GENI" });
-                conceptos.Add(new PM_conceptos { cuenta = "700800", cc = "6100", concepto = "INC PROV SCRAP - GESTAMP AGUASCALIENTES" });
-                conceptos.Add(new PM_conceptos { cuenta = "211220", concepto = "INC PROV SCRAP - GESTAMP AGUASCALIENTES" });
+                //si se envia id de poliza
+                if (id_poliza_modelo != null)
+                {
+                    //busca los conceptos asociados a la poliza modelo
+                    List<PM_conceptos_modelo> listConceptos = db.PM_conceptos_modelo.Where(x => x.id_poliza_modelo == id_poliza_modelo).ToList();
 
+                    foreach (PM_conceptos_modelo item in listConceptos)
+                        conceptos.Add(new PM_conceptos { cuenta = item.cuenta, cc = item.cc, concepto = item.concepto, poliza=item.poliza });
+                }
 
                 poliza_model.PM_conceptos = conceptos;
 
@@ -1684,7 +1868,7 @@ namespace Portal_2_0.Controllers
         // GET: PolizaManual/Edit/5
         public ActionResult Edit(int? id)
         {
-            if (TieneRol(TipoRoles.PFA_REGISTRO))
+            if (TieneRol(TipoRoles.PM_REGISTRO))
             {
                 if (id == null)
                 {
@@ -1792,8 +1976,8 @@ namespace Portal_2_0.Controllers
                 ModelState.AddModelError("", "Las sumas no son iguales.");
 
             //verifica si el tamaño del archivo es válido
-            if (poliza_manual.PostedFileSoporte != null && poliza_manual.PostedFileSoporte.InputStream.Length > 5242880)
-                ModelState.AddModelError("", "Sólo se permiten archivos menores a 5MB.");
+            if (poliza_manual.PostedFileSoporte != null && poliza_manual.PostedFileSoporte.InputStream.Length > 10485760)
+                ModelState.AddModelError("", "Sólo se permiten archivos menores a 10MB.");
             else if (poliza_manual.PostedFileSoporte != null)
             { //verifica la extensión del archivo
                 string extension = Path.GetExtension(poliza_manual.PostedFileSoporte.FileName);
@@ -1807,8 +1991,9 @@ namespace Portal_2_0.Controllers
                                && extension.ToUpper() != ".JPEG"
                                && extension.ToUpper() != ".RAR"
                                && extension.ToUpper() != ".ZIP"
+                               && extension.ToUpper() != ".EML"
                                )
-                    ModelState.AddModelError("", "Sólo se permiten archivos con extensión .xls, .xlsx, .doc, .docx, .pdf, .png, .jpg, .jpeg, .rar, .zip.");
+                    ModelState.AddModelError("", "Sólo se permiten archivos con extensión .xls, .xlsx, .doc, .docx, .pdf, .png, .jpg, .jpeg, .rar, .zip. y .eml");
                 else
                 { //si la extension y el tamaño son válidos
                     String nombreArchivo = poliza_manual.PostedFileSoporte.FileName;
@@ -1913,7 +2098,196 @@ namespace Portal_2_0.Controllers
             return View(poliza_manual);
         }
 
-       
+        //Generación de Reportes
+        public ActionResult Reportes(int? clave_planta, int? id_elaborador, string fecha_creacion_inicial, string fecha_creacion_final, string fecha_documento_inicial, string fecha_documento_final, string status, int pagina = 1)
+        {
+            if (TieneRol(TipoRoles.PM_REPORTES))
+            {
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
+                CultureInfo provider = CultureInfo.InvariantCulture;
+
+                DateTime dateCreacionInicial = new DateTime(2000, 1, 1);  //fecha inicial por defecto
+                DateTime dateCreacionFinal = DateTime.Now;          //fecha final por defecto
+                DateTime dateDocumentoInicial = new DateTime(2000, 1, 1);  //fecha inicial por defecto
+                DateTime dateDocumentoFinal = DateTime.Now;          //fecha final por defecto
+
+                try
+                {
+                    //conversion de fechas para creacion
+                    if (!String.IsNullOrEmpty(fecha_creacion_inicial))
+                        dateCreacionInicial = Convert.ToDateTime(fecha_creacion_inicial);
+                    if (!String.IsNullOrEmpty(fecha_creacion_final))
+                    {
+                        dateCreacionFinal = Convert.ToDateTime(fecha_creacion_final);
+                        dateCreacionFinal = dateCreacionFinal.AddHours(23).AddMinutes(59).AddSeconds(59);
+                    }
+                    //conversion de fechas para documento
+                    if (!String.IsNullOrEmpty(fecha_documento_inicial))
+                        dateDocumentoInicial = Convert.ToDateTime(fecha_documento_inicial);
+                    if (!String.IsNullOrEmpty(fecha_documento_final))
+                    {
+                        dateDocumentoFinal = Convert.ToDateTime(fecha_documento_final);
+                        dateDocumentoFinal = dateDocumentoFinal.AddHours(23).AddMinutes(59).AddSeconds(59);
+                    }
+                }
+                catch (FormatException e)
+                {
+                    Console.WriteLine("Error de Formato: " + e.Message);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error al convertir: " + ex.Message);
+                }
+
+                var cantidadRegistrosPorPagina = 20; // parámetro
+
+                var listado = db.poliza_manual
+                   .Where(x =>
+                   (id_elaborador == null || x.id_elaborador == id_elaborador)
+                   && (clave_planta == null || x.id_planta == clave_planta)
+                   && x.fecha_creacion >= dateCreacionInicial && x.fecha_creacion <= dateCreacionFinal
+                   && x.fecha_documento >= dateDocumentoInicial && x.fecha_documento <= dateDocumentoFinal
+                   && (String.IsNullOrEmpty(status) || x.estatus == status)
+                   )
+                   .OrderBy(x => x.id)
+                   .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                   .Take(cantidadRegistrosPorPagina).ToList();
+
+                var totalDeRegistros = db.poliza_manual
+                   .Where(x =>
+                   (id_elaborador == null || x.id_elaborador == id_elaborador)
+                   && (clave_planta == null || x.id_planta == clave_planta)
+                   && x.fecha_creacion >= dateCreacionInicial && x.fecha_creacion <= dateCreacionFinal
+                   && x.fecha_documento >= dateDocumentoInicial && x.fecha_documento <= dateDocumentoFinal
+                   && (String.IsNullOrEmpty(status) || x.estatus == status)
+                   ).Count();
+
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                routeValues["clave_planta"] = clave_planta;
+                routeValues["id_elaborador"] = id_elaborador;
+                routeValues["fecha_creacion_inicial"] = fecha_creacion_inicial;
+                routeValues["fecha_creacion_final"] = fecha_creacion_final;
+                routeValues["fecha_documento_inicial"] = fecha_documento_inicial;
+                routeValues["fecha_documento_final"] = fecha_documento_final;
+                routeValues["status"] = status;
+                routeValues["pagina"] = pagina;
+
+                Paginacion paginacion = new Paginacion
+                {
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                List<int> idsCapturistas = db.poliza_manual.Select(x => x.id_elaborador).Distinct().ToList();
+                List<string> estatusList = db.poliza_manual.Select(x => x.estatus).Distinct().ToList();
+
+                //crea un Select  list para el estatus
+                List<SelectListItem> newList = new List<SelectListItem>();
+
+                foreach (string statusItem in estatusList)
+                {
+                    newList.Add(new SelectListItem()
+                    {
+                        Text = statusItem,
+                        Value = statusItem
+                    });
+                }
+
+                SelectList selectListItemsStatus = new SelectList(newList, "Value", "Text", string.Empty);
+
+
+                ViewBag.id_elaborador = AddFirstItem(new SelectList(db.empleados.Where(x => idsCapturistas.Contains(x.id)), "id", "ConcatNombre"), "-- Todos --");
+                ViewBag.clave_planta = AddFirstItem(new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion"), "-- Todos --") ;
+                ViewBag.status = AddFirstItem(selectListItemsStatus, "-- Todos --");
+                ViewBag.Paginacion = paginacion;
+                return View(listado);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+        }
+
+        public ActionResult Exportar(int? clave_planta, int? id_elaborador, string fecha_creacion_inicial, string fecha_creacion_final, string fecha_documento_inicial, string fecha_documento_final, string status)
+        {
+            if (TieneRol(TipoRoles.PFA_VISUALIZACION))
+            {
+                CultureInfo provider = CultureInfo.InvariantCulture;
+
+                DateTime dateCreacionInicial = new DateTime(2000, 1, 1);  //fecha inicial por defecto
+                DateTime dateCreacionFinal = DateTime.Now;          //fecha final por defecto
+                DateTime dateDocumentoInicial = new DateTime(2000, 1, 1);  //fecha inicial por defecto
+                DateTime dateDocumentoFinal = DateTime.Now;          //fecha final por defecto
+
+                try
+                {
+                    //conversion de fechas para creacion
+                    if (!String.IsNullOrEmpty(fecha_creacion_inicial))
+                        dateCreacionInicial = Convert.ToDateTime(fecha_creacion_inicial);
+                    if (!String.IsNullOrEmpty(fecha_creacion_final))
+                    {
+                        dateCreacionFinal = Convert.ToDateTime(fecha_creacion_final);
+                        dateCreacionFinal = dateCreacionFinal.AddHours(23).AddMinutes(59).AddSeconds(59);
+                    }
+                    //conversion de fechas para documento
+                    if (!String.IsNullOrEmpty(fecha_documento_inicial))
+                        dateDocumentoInicial = Convert.ToDateTime(fecha_documento_inicial);
+                    if (!String.IsNullOrEmpty(fecha_documento_final))
+                    {
+                        dateDocumentoFinal = Convert.ToDateTime(fecha_documento_final);
+                        dateDocumentoFinal = dateDocumentoFinal.AddHours(23).AddMinutes(59).AddSeconds(59);
+                    }
+                }
+                catch (FormatException e)
+                {
+                    Console.WriteLine("Error de Formato: " + e.Message);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error al convertir: " + ex.Message);
+                }
+
+                var listado = db.poliza_manual
+                   .Where(x =>
+                   (id_elaborador == null || x.id_elaborador == id_elaborador)
+                   && (clave_planta == null || x.id_planta == clave_planta)
+                   && x.fecha_creacion >= dateCreacionInicial && x.fecha_creacion <= dateCreacionFinal
+                   && x.fecha_documento >= dateDocumentoInicial && x.fecha_documento <= dateDocumentoFinal
+                   && (String.IsNullOrEmpty(status) || x.estatus == status)
+                   )
+                    .OrderBy(x => x.id)
+                  .ToList();
+
+                byte[] stream = ExcelUtil.GeneraReportePMExcel(listado);
+
+
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+                    // for example foo.bak
+                    FileName = "Reporte_Poliza_Manual_" +DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+                    // always prompt the user for downloading, set to true if you want 
+                    // the browser to try to show the file inline
+                    Inline = false,
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                return File(stream, "application/vnd.ms-excel");
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -1923,4 +2297,6 @@ namespace Portal_2_0.Controllers
             base.Dispose(disposing);
         }
     }
+
+    
 }
