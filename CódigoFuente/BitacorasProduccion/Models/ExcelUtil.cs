@@ -275,9 +275,11 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Fecha Validación", typeof(DateTime));
             dt.Columns.Add("Autorizó (doble validación)", typeof(string));
             dt.Columns.Add("Fecha Autorización", typeof(DateTime));
+            dt.Columns.Add("Dirección", typeof(string));
+            dt.Columns.Add("Fecha Dirección", typeof(DateTime)); //23
             dt.Columns.Add("Registró (contabilidad)", typeof(string));
-            dt.Columns.Add("Fecha Registro", typeof(DateTime));
-            dt.Columns.Add("Estado", typeof(string)); //24
+            dt.Columns.Add("Fecha Registro", typeof(DateTime)); //25
+            dt.Columns.Add("Estado", typeof(string)); //25
 
             ////registros , rows
             foreach (poliza_manual item in listado)
@@ -291,16 +293,16 @@ namespace Portal_2_0.Models
                 row["Descripción"] = item.descripcion_poliza;               
                 row["Fecha documento"] = item.fecha_documento;
 
-                if (item.empleados2 != null)
-                    row["Elaboró"] = item.empleados2.ConcatNombre;
+                if (item.empleados3 != null)
+                    row["Elaboró"] = item.empleados3.ConcatNombre;
                 else
                     row["Elaboró"] = DBNull.Value;
 
                 row["Fecha Creación"] = item.fecha_creacion;
 
-                if (item.empleados3 != null && item.fecha_validacion.HasValue)
+                if (item.empleados4 != null && item.fecha_validacion.HasValue)
                 {
-                    row["Validó (área)"] = item.empleados3.ConcatNombre;
+                    row["Validó (área)"] = item.empleados4.ConcatNombre;
                     row["Fecha Validación"] = item.fecha_validacion;
                 }
                 else
@@ -320,6 +322,18 @@ namespace Portal_2_0.Models
                     row["Fecha Autorización"] = DBNull.Value;
                 }
 
+
+                if (item.empleados2 != null && item.fecha_direccion.HasValue)
+                {
+                    row["Dirección"] = item.empleados2.ConcatNombre;
+                    row["Fecha Dirección"] = item.fecha_direccion;
+                }
+                else
+                {
+                    row["Dirección"] = DBNull.Value;
+                    row["Fecha Dirección"] = DBNull.Value;
+                }
+
                 if (item.empleados1 != null && item.fecha_registro.HasValue)
                 {
                     row["Registró (contabilidad)"] = item.empleados1.ConcatNombre;
@@ -334,7 +348,7 @@ namespace Portal_2_0.Models
                 row["Total Debe"] = item.totalDebe;
                 row["Total Haber"] = item.totalHaber;
 
-                row["Estado"] = item.estatus;
+                row["Estado"] = Bitacoras.Util.PM_Status.DescripcionStatus(item.estatus);
 
                 dt.Rows.Add(row);
                 filasEncabezados.Add(true);
@@ -417,6 +431,7 @@ namespace Portal_2_0.Models
             oSLDocument.SetColumnStyle(19, styleLongDate);
             oSLDocument.SetColumnStyle(21, styleLongDate);
             oSLDocument.SetColumnStyle(23, styleLongDate);
+            oSLDocument.SetColumnStyle(25, styleLongDate);
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
             styleHeaderFont.Font.FontName = "Calibri";
@@ -450,7 +465,7 @@ namespace Portal_2_0.Models
                 oSLDocument.CollapseRows(i + 2);
             }
 
-            oSLDocument.Filter("A1", "X1");
+            oSLDocument.Filter("A1", "Z1");
             oSLDocument.AutoFitColumn(1, dt.Columns.Count);
 
             oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);

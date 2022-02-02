@@ -215,22 +215,39 @@ function ObtenerPesoBascula(ip, denominador) {
         url: '/ProduccionRegistros/obtienePesoBascula',
         data: { ip: ip },
         success: function (data) {
-            console.log(data);
-            if (data[0].Message == "OK") {
-                let peso = TryParseFloat(data[0].Peso, 0);
-                $('#produccion_datos_entrada_peso_real_pieza_neto').val(peso / denominador);
-                Toast.fire({
-                    icon: 'success',
-                    title: 'Se capturó el peso correctamente.'
-                })
-                calculaDatos();
-            } else {
+            try {
+                console.log(data);
+                if (data[0].Message == "OK") {
+                    let peso = TryParseFloat(data[0].Peso, 0);
+                    $('#produccion_datos_entrada_peso_real_pieza_neto').val(peso / denominador);
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Se capturó el peso correctamente.'
+                    })
+                    calculaDatos();
+                } else { //en caso de que el mensaje no sea exitoso muestra mensaje
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Ocurrió un error',
+                        text: 'Intente nuevamente o capture el peso de forma manual.'
+                    })
+                }
+            } catch (error) {
+                //en caso de que no ser muestre info de ningun tipo muestra error
                 Swal.fire({
                     icon: 'error',
                     title: 'Ocurrió un error',
                     text: 'Intente nuevamente o capture el peso de forma manual.'
                 })
             }
+        },
+        error: function (textStatus, errorThrown) {
+            //en caso de error en la llamada ajax
+            Swal.fire({
+                icon: 'error',
+                title: 'Ocurrió un error',
+                text: 'Intente nuevamente o capture el peso de forma manual.'
+            })
         },
         async: true
     });

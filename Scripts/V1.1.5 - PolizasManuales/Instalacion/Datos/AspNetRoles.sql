@@ -85,10 +85,16 @@ BEGIN
 		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PolizasManuales_ValidacionPorArea')
 	END
 
-	-- Autorización (Controlling)
+	-- Autorización (DOBLE VALIDACION)
 	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PolizasManuales_AutorizacionControlling' )
 	BEGIN
 		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PolizasManuales_AutorizacionControlling')
+	END
+
+	-- Autorización (DOBLE VALIDACION)
+	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PolizasManuales_DireccionAutorizacion' )
+	BEGIN
+		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PolizasManuales_DireccionAutorizacion')
 	END
 
 	-- Registro de poliza (Contabilidad)

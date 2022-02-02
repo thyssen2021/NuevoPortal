@@ -19,7 +19,7 @@ namespace Portal_2_0.Controllers
         // GET: PM_tipo_poliza
         public ActionResult Index()
         {
-            if (TieneRol(TipoRoles.PFA_CATALOGOS))
+            if (TieneRol(TipoRoles.PM_CATALOGOS))
             {
                 //mensaje en caso de crear, editar, etc
                 if (TempData["Mensaje"] != null)
@@ -36,7 +36,7 @@ namespace Portal_2_0.Controllers
         // GET: PM_tipo_poliza/Details/5
         public ActionResult Details(int? id)
         {
-            if (TieneRol(TipoRoles.PFA_CATALOGOS))
+            if (TieneRol(TipoRoles.PM_CATALOGOS))
             {
                 if (id == null)
                 {
@@ -60,7 +60,7 @@ namespace Portal_2_0.Controllers
         // GET: PM_tipo_poliza/Create
         public ActionResult Create()
         {
-            if (TieneRol(TipoRoles.PFA_CATALOGOS))
+            if (TieneRol(TipoRoles.PM_CATALOGOS))
             {
                 return View();
             }
@@ -108,7 +108,7 @@ namespace Portal_2_0.Controllers
         public ActionResult Edit(int? id)
         {
 
-            if (TieneRol(TipoRoles.PFA_CATALOGOS))
+            if (TieneRol(TipoRoles.PM_CATALOGOS))
             {
                 if (id == null)
                 {
@@ -169,7 +169,7 @@ namespace Portal_2_0.Controllers
         // GET: PM_tipo_poliza/Disable/5
         public ActionResult Disable(int? id)
         {
-            if (TieneRol(TipoRoles.PFA_CATALOGOS))
+            if (TieneRol(TipoRoles.PM_CATALOGOS))
             {
                 if (id == null)
                 {
@@ -230,7 +230,7 @@ namespace Portal_2_0.Controllers
         // GET: PM_tipo_poliza/Enable/5
         public ActionResult Enable(int? id)
         {
-            if (TieneRol(TipoRoles.PFA_CATALOGOS))
+            if (TieneRol(TipoRoles.PM_CATALOGOS))
             {
                 if (id == null)
                 {

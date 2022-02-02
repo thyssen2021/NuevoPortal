@@ -27,6 +27,7 @@ namespace Clases.Util
         public const string PM_AUTORIZAR_CONTROLLING = "PolizasManuales_AutorizacionControlling";
         public const string PM_CONTABILIDAD = "PolizasManuales_RegistroContabilidad";
         public const string PM_CATALOGOS = "PolizasManuales_catalogos";
+        public const string PM_DIRECCION = "PolizasManuales_DireccionAutorizacion";
         public const string PM_REPORTES = "PolizasManuales_reportes";
         //Inspección calidad
         public const string INSPECCION_REGISTRO = "Inspeccion_registros";

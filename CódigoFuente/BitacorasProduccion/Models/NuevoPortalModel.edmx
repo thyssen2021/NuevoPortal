@@ -90,6 +90,7 @@
           <Property Name="CurrencyName" Type="varchar" MaxLength="35" />
           <Property Name="Money" Type="varchar" MaxLength="30" />
           <Property Name="Symbol" Type="varchar" MaxLength="3" />
+          <Property Name="LimitePoliza" Type="decimal" Precision="14" Scale="2" />
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="empleados">
@@ -397,6 +398,7 @@
           <Property Name="id_validador" Type="int" />
           <Property Name="id_autorizador" Type="int" />
           <Property Name="id_contabilidad" Type="int" />
+          <Property Name="id_direccion" Type="int" />
           <Property Name="id_documento_soporte" Type="int" />
           <Property Name="id_documento_registro" Type="int" />
           <Property Name="numero_documento_sap" Type="varchar" MaxLength="15" />
@@ -404,6 +406,7 @@
           <Property Name="fecha_documento" Type="datetime" Nullable="false" />
           <Property Name="fecha_validacion" Type="datetime" />
           <Property Name="fecha_autorizacion" Type="datetime" />
+          <Property Name="fecha_direccion" Type="datetime" />
           <Property Name="fecha_registro" Type="datetime" />
           <Property Name="comentario_rechazo" Type="varchar" MaxLength="355" />
           <Property Name="descripcion_poliza" Type="varchar" MaxLength="355" />
@@ -983,6 +986,18 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_poliza_manual_direccion">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="0..1" />
+          <End Role="poliza_manual" Type="Self.poliza_manual" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="poliza_manual">
+              <PropertyRef Name="id_direccion" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_poliza_manual_documento_registro">
           <End Role="biblioteca_digital" Type="Self.biblioteca_digital" Multiplicity="0..1" />
           <End Role="poliza_manual" Type="Self.poliza_manual" Multiplicity="*" />
@@ -1453,6 +1468,10 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
             <End Role="currency" EntitySet="currency" />
             <End Role="poliza_manual" EntitySet="poliza_manual" />
           </AssociationSet>
+          <AssociationSet Name="FK_poliza_manual_direccion" Association="Self.FK_poliza_manual_direccion">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="poliza_manual" EntitySet="poliza_manual" />
+          </AssociationSet>
           <AssociationSet Name="FK_poliza_manual_documento_registro" Association="Self.FK_poliza_manual_documento_registro">
             <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
             <End Role="poliza_manual" EntitySet="poliza_manual" />
@@ -1642,8 +1661,8 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <NavigationProperty Name="produccion_registros" Relationship="Self.FK_produccion_registros_planta_clave" FromRole="plantas" ToRole="produccion_registros" />
           <NavigationProperty Name="produccion_supervisores" Relationship="Self.FK_produccion_supervisores_clave_planta" FromRole="plantas" ToRole="produccion_supervisores" />
           <NavigationProperty Name="produccion_turnos" Relationship="Self.FK_produccion_turnos_planta_clave" FromRole="plantas" ToRole="produccion_turnos" />
-          <NavigationProperty Name="poliza_manual" Relationship="Portal_2_0Model.FK_poliza_manual_planta" FromRole="plantas" ToRole="poliza_manual" />
           <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_empleados_planta_clave" FromRole="plantas" ToRole="empleados" />
+          <NavigationProperty Name="poliza_manual" Relationship="Portal_2_0Model.FK_poliza_manual_planta" FromRole="plantas" ToRole="poliza_manual" />
         </EntityType>
         <EntityType Name="produccion_datos_entrada">
           <Key>
@@ -2035,7 +2054,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
             <End Role="PFA_Volume" EntitySet="PFA_Volume" />
             <End Role="PFA" EntitySet="PFA" />
           </AssociationSet>
-          <EntitySet Name="currency" EntityType="Portal_2_0Model.currency" />
           <EntitySet Name="PM_tipo_poliza" EntityType="Portal_2_0Model.PM_tipo_poliza" />
           <EntitySet Name="PM_conceptos" EntityType="Portal_2_0Model.PM_conceptos" />
           <EntitySet Name="inspeccion_categoria_fallas" EntityType="Portal_2_0Model.inspeccion_categoria_fallas" />
@@ -2068,6 +2086,20 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <EntitySet Name="PM_departamentos" EntityType="Portal_2_0Model.PM_departamentos" />
           <EntitySet Name="PM_poliza_manual_modelo" EntityType="Portal_2_0Model.PM_poliza_manual_modelo" />
           <EntitySet Name="PM_usuarios_capturistas" EntityType="Portal_2_0Model.PM_usuarios_capturistas" />
+          <AssociationSet Name="FK_PM_conceptos_modelo_id_poliza" Association="Portal_2_0Model.FK_PM_conceptos_modelo_id_poliza">
+            <End Role="PM_poliza_manual_modelo" EntitySet="PM_poliza_manual_modelo" />
+            <End Role="PM_conceptos_modelo" EntitySet="PM_conceptos_modelo" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PM_departamentos_depto_validacion" Association="Portal_2_0Model.FK_PM_departamentos_depto_validacion">
+            <End Role="PM_departamentos" EntitySet="PM_departamentos" />
+            <End Role="PM_departamentos1" EntitySet="PM_departamentos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PM_usuarios_capturistas_departamento" Association="Portal_2_0Model.FK_PM_usuarios_capturistas_departamento">
+            <End Role="PM_departamentos" EntitySet="PM_departamentos" />
+            <End Role="PM_usuarios_capturistas" EntitySet="PM_usuarios_capturistas" />
+          </AssociationSet>
+          <EntitySet Name="currency" EntityType="Portal_2_0Model.currency" />
+          <EntitySet Name="empleados" EntityType="Portal_2_0Model.empleados" />
           <EntitySet Name="poliza_manual" EntityType="Portal_2_0Model.poliza_manual" />
           <AssociationSet Name="FK_poliza_manual_documento_registro" Association="Portal_2_0Model.FK_poliza_manual_documento_registro">
             <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
@@ -2081,31 +2113,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
             <End Role="currency" EntitySet="currency" />
             <End Role="poliza_manual" EntitySet="poliza_manual" />
           </AssociationSet>
-          <AssociationSet Name="FK_poliza_manual_planta" Association="Portal_2_0Model.FK_poliza_manual_planta">
-            <End Role="plantas" EntitySet="plantas" />
-            <End Role="poliza_manual" EntitySet="poliza_manual" />
-          </AssociationSet>
-          <AssociationSet Name="FK_PM_conceptos_id_poliza" Association="Portal_2_0Model.FK_PM_conceptos_id_poliza">
-            <End Role="poliza_manual" EntitySet="poliza_manual" />
-            <End Role="PM_conceptos" EntitySet="PM_conceptos" />
-          </AssociationSet>
-          <AssociationSet Name="FK_PM_conceptos_modelo_id_poliza" Association="Portal_2_0Model.FK_PM_conceptos_modelo_id_poliza">
-            <End Role="PM_poliza_manual_modelo" EntitySet="PM_poliza_manual_modelo" />
-            <End Role="PM_conceptos_modelo" EntitySet="PM_conceptos_modelo" />
-          </AssociationSet>
-          <AssociationSet Name="FK_PM_departamentos_depto_validacion" Association="Portal_2_0Model.FK_PM_departamentos_depto_validacion">
-            <End Role="PM_departamentos" EntitySet="PM_departamentos" />
-            <End Role="PM_departamentos1" EntitySet="PM_departamentos" />
-          </AssociationSet>
-          <AssociationSet Name="FK_PM_usuarios_capturistas_departamento" Association="Portal_2_0Model.FK_PM_usuarios_capturistas_departamento">
-            <End Role="PM_departamentos" EntitySet="PM_departamentos" />
-            <End Role="PM_usuarios_capturistas" EntitySet="PM_usuarios_capturistas" />
-          </AssociationSet>
-          <AssociationSet Name="FK_poliza_manual_tipo_poliza" Association="Portal_2_0Model.FK_poliza_manual_tipo_poliza">
-            <End Role="PM_tipo_poliza" EntitySet="PM_tipo_poliza" />
-            <End Role="poliza_manual" EntitySet="poliza_manual" />
-          </AssociationSet>
-          <EntitySet Name="empleados" EntityType="Portal_2_0Model.empleados" />
           <AssociationSet Name="FK_empleados_planta_clave" Association="Portal_2_0Model.FK_empleados_planta_clave">
             <End Role="plantas" EntitySet="plantas" />
             <End Role="empleados" EntitySet="empleados" />
@@ -2150,6 +2157,10 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
             <End Role="empleados" EntitySet="empleados" />
             <End Role="poliza_manual" EntitySet="poliza_manual" />
           </AssociationSet>
+          <AssociationSet Name="FK_poliza_manual_direccion" Association="Portal_2_0Model.FK_poliza_manual_direccion">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="poliza_manual" EntitySet="poliza_manual" />
+          </AssociationSet>
           <AssociationSet Name="FK_poliza_manual_elaborador" Association="Portal_2_0Model.FK_poliza_manual_elaborador">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="poliza_manual" EntitySet="poliza_manual" />
@@ -2169,6 +2180,18 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <AssociationSet Name="FK_produccion_supervisores_id_empleado" Association="Portal_2_0Model.FK_produccion_supervisores_id_empleado">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="produccion_supervisores" EntitySet="produccion_supervisores" />
+          </AssociationSet>
+          <AssociationSet Name="FK_poliza_manual_planta" Association="Portal_2_0Model.FK_poliza_manual_planta">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="poliza_manual" EntitySet="poliza_manual" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PM_conceptos_id_poliza" Association="Portal_2_0Model.FK_PM_conceptos_id_poliza">
+            <End Role="poliza_manual" EntitySet="poliza_manual" />
+            <End Role="PM_conceptos" EntitySet="PM_conceptos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_poliza_manual_tipo_poliza" Association="Portal_2_0Model.FK_poliza_manual_tipo_poliza">
+            <End Role="PM_tipo_poliza" EntitySet="PM_tipo_poliza" />
+            <End Role="poliza_manual" EntitySet="poliza_manual" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="notificaciones_correo">
@@ -2535,17 +2558,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityType Name="currency">
-          <Key>
-            <PropertyRef Name="CurrencyISO" />
-          </Key>
-          <Property Name="CurrencyISO" Type="String" Nullable="false" MaxLength="3" FixedLength="false" Unicode="false" />
-          <Property Name="CurrencyName" Type="String" MaxLength="35" FixedLength="false" Unicode="false" />
-          <Property Name="Money" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="Symbol" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
-          <Property Name="activo" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="poliza_manual" Relationship="Portal_2_0Model.FK_poliza_manual_currency" FromRole="currency" ToRole="poliza_manual" />
-        </EntityType>
         <EntityType Name="PM_tipo_poliza">
           <Key>
             <PropertyRef Name="id" />
@@ -2751,6 +2763,96 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <NavigationProperty Name="PM_departamentos" Relationship="Portal_2_0Model.FK_PM_usuarios_capturistas_departamento" FromRole="PM_usuarios_capturistas" ToRole="PM_departamentos" />
           <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_PM_usuarios_capturistas_empleado" FromRole="PM_usuarios_capturistas" ToRole="empleados" />
         </EntityType>
+        <Association Name="FK_PM_conceptos_modelo_id_poliza">
+          <End Type="Portal_2_0Model.PM_poliza_manual_modelo" Role="PM_poliza_manual_modelo" Multiplicity="1" />
+          <End Type="Portal_2_0Model.PM_conceptos_modelo" Role="PM_conceptos_modelo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PM_poliza_manual_modelo">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PM_conceptos_modelo">
+              <PropertyRef Name="id_poliza_modelo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PM_departamentos_depto_validacion">
+          <End Type="Portal_2_0Model.PM_departamentos" Role="PM_departamentos" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.PM_departamentos" Role="PM_departamentos1" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PM_departamentos">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PM_departamentos1">
+              <PropertyRef Name="id_departamento_validacion" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PM_usuarios_capturistas_departamento">
+          <End Type="Portal_2_0Model.PM_departamentos" Role="PM_departamentos" Multiplicity="1" />
+          <End Type="Portal_2_0Model.PM_usuarios_capturistas" Role="PM_usuarios_capturistas" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PM_departamentos">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PM_usuarios_capturistas">
+              <PropertyRef Name="id_departamento" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="currency">
+          <Key>
+            <PropertyRef Name="CurrencyISO" />
+          </Key>
+          <Property Name="CurrencyISO" Type="String" Nullable="false" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="CurrencyName" Type="String" MaxLength="35" FixedLength="false" Unicode="false" />
+          <Property Name="Money" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="Symbol" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="LimitePoliza" Type="Decimal" Precision="14" Scale="2" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="poliza_manual" Relationship="Portal_2_0Model.FK_poliza_manual_currency" FromRole="currency" ToRole="poliza_manual" />
+        </EntityType>
+        <EntityType Name="empleados">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="nueva_fecha_nacimiento" Type="DateTime" Precision="0" />
+          <Property Name="planta_clave" Type="Int32" />
+          <Property Name="clave" Type="Int32" />
+          <Property Name="activo" Type="Boolean" />
+          <Property Name="numeroEmpleado" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="nombre" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="apellido1" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="apellido2" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="nacimientoFecha" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="correo" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="telefono" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="extension" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="celular" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="nivel" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="puesto" Type="Int32" />
+          <Property Name="compania" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="ingresoFecha" Type="DateTime" Precision="0" />
+          <Property Name="bajaFecha" Type="DateTime" Precision="0" />
+          <Property Name="C8ID" Type="String" MaxLength="8" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_empleados_planta_clave" FromRole="empleados" ToRole="plantas" />
+          <NavigationProperty Name="puesto1" Relationship="Portal_2_0Model.FK_empleados_puesto" FromRole="empleados" ToRole="puesto" />
+          <NavigationProperty Name="inspeccion_datos_generales" Relationship="Portal_2_0Model.FK_inspeccion_datos_generales_id_empleado_inspector" FromRole="empleados" ToRole="inspeccion_datos_generales" />
+          <NavigationProperty Name="notificaciones_correo" Relationship="Portal_2_0Model.FK_notificaciones_correo_empleado" FromRole="empleados" ToRole="notificaciones_correo" />
+          <NavigationProperty Name="PFA" Relationship="Portal_2_0Model.FK_PFA_autorizador" FromRole="empleados" ToRole="PFA" />
+          <NavigationProperty Name="PFA_Autorizador" Relationship="Portal_2_0Model.FK_PFA_Autorizador_empleado" FromRole="empleados" ToRole="PFA_Autorizador" />
+          <NavigationProperty Name="PFA1" Relationship="Portal_2_0Model.FK_PFA_solicitante" FromRole="empleados" ToRole="PFA" />
+          <NavigationProperty Name="PM_departamentos" Relationship="Portal_2_0Model.FK_PM_departamentos_empleado" FromRole="empleados" ToRole="PM_departamentos" />
+          <NavigationProperty Name="PM_usuarios_capturistas" Relationship="Portal_2_0Model.FK_PM_usuarios_capturistas_empleado" FromRole="empleados" ToRole="PM_usuarios_capturistas" />
+          <NavigationProperty Name="poliza_manual" Relationship="Portal_2_0Model.FK_poliza_manual_autorizador" FromRole="empleados" ToRole="poliza_manual" />
+          <NavigationProperty Name="poliza_manual1" Relationship="Portal_2_0Model.FK_poliza_manual_contabilidad" FromRole="empleados" ToRole="poliza_manual" />
+          <NavigationProperty Name="poliza_manual2" Relationship="Portal_2_0Model.FK_poliza_manual_direccion" FromRole="empleados" ToRole="poliza_manual" />
+          <NavigationProperty Name="poliza_manual3" Relationship="Portal_2_0Model.FK_poliza_manual_elaborador" FromRole="empleados" ToRole="poliza_manual" />
+          <NavigationProperty Name="poliza_manual4" Relationship="Portal_2_0Model.FK_poliza_manual_validador" FromRole="empleados" ToRole="poliza_manual" />
+          <NavigationProperty Name="produccion_operadores" Relationship="Portal_2_0Model.FK_produccion_operadores_id_empleado" FromRole="empleados" ToRole="produccion_operadores" />
+          <NavigationProperty Name="produccion_respaldo" Relationship="Portal_2_0Model.FK_produccion_respaldo_id_empleado" FromRole="empleados" ToRole="produccion_respaldo" />
+          <NavigationProperty Name="produccion_supervisores" Relationship="Portal_2_0Model.FK_produccion_supervisores_id_empleado" FromRole="empleados" ToRole="produccion_supervisores" />
+        </EntityType>
         <EntityType Name="poliza_manual">
           <Key>
             <PropertyRef Name="id" />
@@ -2763,6 +2865,7 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <Property Name="id_validador" Type="Int32" />
           <Property Name="id_autorizador" Type="Int32" />
           <Property Name="id_contabilidad" Type="Int32" />
+          <Property Name="id_direccion" Type="Int32" />
           <Property Name="id_documento_soporte" Type="Int32" />
           <Property Name="id_documento_registro" Type="Int32" />
           <Property Name="numero_documento_sap" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
@@ -2770,6 +2873,7 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <Property Name="fecha_documento" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="fecha_validacion" Type="DateTime" Precision="3" />
           <Property Name="fecha_autorizacion" Type="DateTime" Precision="3" />
+          <Property Name="fecha_direccion" Type="DateTime" Precision="3" />
           <Property Name="fecha_registro" Type="DateTime" Precision="3" />
           <Property Name="comentario_rechazo" Type="String" MaxLength="355" FixedLength="false" Unicode="false" />
           <Property Name="descripcion_poliza" Type="String" MaxLength="355" FixedLength="false" Unicode="false" />
@@ -2777,13 +2881,14 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <NavigationProperty Name="biblioteca_digital" Relationship="Portal_2_0Model.FK_poliza_manual_documento_registro" FromRole="poliza_manual" ToRole="biblioteca_digital" />
           <NavigationProperty Name="biblioteca_digital1" Relationship="Portal_2_0Model.FK_poliza_manual_documento_soporte" FromRole="poliza_manual" ToRole="biblioteca_digital" />
           <NavigationProperty Name="currency" Relationship="Portal_2_0Model.FK_poliza_manual_currency" FromRole="poliza_manual" ToRole="currency" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_poliza_manual_autorizador" FromRole="poliza_manual" ToRole="empleados" />
+          <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_poliza_manual_contabilidad" FromRole="poliza_manual" ToRole="empleados" />
+          <NavigationProperty Name="empleados2" Relationship="Portal_2_0Model.FK_poliza_manual_direccion" FromRole="poliza_manual" ToRole="empleados" />
+          <NavigationProperty Name="empleados3" Relationship="Portal_2_0Model.FK_poliza_manual_elaborador" FromRole="poliza_manual" ToRole="empleados" />
+          <NavigationProperty Name="empleados4" Relationship="Portal_2_0Model.FK_poliza_manual_validador" FromRole="poliza_manual" ToRole="empleados" />
           <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_poliza_manual_planta" FromRole="poliza_manual" ToRole="plantas" />
           <NavigationProperty Name="PM_conceptos" Relationship="Portal_2_0Model.FK_PM_conceptos_id_poliza" FromRole="poliza_manual" ToRole="PM_conceptos" />
           <NavigationProperty Name="PM_tipo_poliza" Relationship="Portal_2_0Model.FK_poliza_manual_tipo_poliza" FromRole="poliza_manual" ToRole="PM_tipo_poliza" />
-          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_poliza_manual_autorizador" FromRole="poliza_manual" ToRole="empleados" />
-          <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_poliza_manual_contabilidad" FromRole="poliza_manual" ToRole="empleados" />
-          <NavigationProperty Name="empleados2" Relationship="Portal_2_0Model.FK_poliza_manual_elaborador" FromRole="poliza_manual" ToRole="empleados" />
-          <NavigationProperty Name="empleados3" Relationship="Portal_2_0Model.FK_poliza_manual_validador" FromRole="poliza_manual" ToRole="empleados" />
         </EntityType>
         <Association Name="FK_poliza_manual_documento_registro">
           <End Type="Portal_2_0Model.biblioteca_digital" Role="biblioteca_digital" Multiplicity="0..1" />
@@ -2821,119 +2926,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_poliza_manual_planta">
-          <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="1" />
-          <End Type="Portal_2_0Model.poliza_manual" Role="poliza_manual" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="plantas">
-              <PropertyRef Name="clave" />
-            </Principal>
-            <Dependent Role="poliza_manual">
-              <PropertyRef Name="id_planta" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_PM_conceptos_id_poliza">
-          <End Type="Portal_2_0Model.poliza_manual" Role="poliza_manual" Multiplicity="1" />
-          <End Type="Portal_2_0Model.PM_conceptos" Role="PM_conceptos" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="poliza_manual">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="PM_conceptos">
-              <PropertyRef Name="id_poliza" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_PM_conceptos_modelo_id_poliza">
-          <End Type="Portal_2_0Model.PM_poliza_manual_modelo" Role="PM_poliza_manual_modelo" Multiplicity="1" />
-          <End Type="Portal_2_0Model.PM_conceptos_modelo" Role="PM_conceptos_modelo" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="PM_poliza_manual_modelo">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="PM_conceptos_modelo">
-              <PropertyRef Name="id_poliza_modelo" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_PM_departamentos_depto_validacion">
-          <End Type="Portal_2_0Model.PM_departamentos" Role="PM_departamentos" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.PM_departamentos" Role="PM_departamentos1" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="PM_departamentos">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="PM_departamentos1">
-              <PropertyRef Name="id_departamento_validacion" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_PM_usuarios_capturistas_departamento">
-          <End Type="Portal_2_0Model.PM_departamentos" Role="PM_departamentos" Multiplicity="1" />
-          <End Type="Portal_2_0Model.PM_usuarios_capturistas" Role="PM_usuarios_capturistas" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="PM_departamentos">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="PM_usuarios_capturistas">
-              <PropertyRef Name="id_departamento" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_poliza_manual_tipo_poliza">
-          <End Type="Portal_2_0Model.PM_tipo_poliza" Role="PM_tipo_poliza" Multiplicity="1" />
-          <End Type="Portal_2_0Model.poliza_manual" Role="poliza_manual" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="PM_tipo_poliza">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="poliza_manual">
-              <PropertyRef Name="id_PM_tipo_poliza" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <EntityType Name="empleados">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="nueva_fecha_nacimiento" Type="DateTime" Precision="0" />
-          <Property Name="planta_clave" Type="Int32" />
-          <Property Name="clave" Type="Int32" />
-          <Property Name="activo" Type="Boolean" />
-          <Property Name="numeroEmpleado" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="nombre" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="apellido1" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="apellido2" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="nacimientoFecha" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="correo" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="telefono" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="extension" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="celular" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="nivel" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="puesto" Type="Int32" />
-          <Property Name="compania" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="ingresoFecha" Type="DateTime" Precision="0" />
-          <Property Name="bajaFecha" Type="DateTime" Precision="0" />
-          <Property Name="C8ID" Type="String" MaxLength="8" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_empleados_planta_clave" FromRole="empleados" ToRole="plantas" />
-          <NavigationProperty Name="puesto1" Relationship="Portal_2_0Model.FK_empleados_puesto" FromRole="empleados" ToRole="puesto" />
-          <NavigationProperty Name="inspeccion_datos_generales" Relationship="Portal_2_0Model.FK_inspeccion_datos_generales_id_empleado_inspector" FromRole="empleados" ToRole="inspeccion_datos_generales" />
-          <NavigationProperty Name="notificaciones_correo" Relationship="Portal_2_0Model.FK_notificaciones_correo_empleado" FromRole="empleados" ToRole="notificaciones_correo" />
-          <NavigationProperty Name="PFA" Relationship="Portal_2_0Model.FK_PFA_autorizador" FromRole="empleados" ToRole="PFA" />
-          <NavigationProperty Name="PFA_Autorizador" Relationship="Portal_2_0Model.FK_PFA_Autorizador_empleado" FromRole="empleados" ToRole="PFA_Autorizador" />
-          <NavigationProperty Name="PFA1" Relationship="Portal_2_0Model.FK_PFA_solicitante" FromRole="empleados" ToRole="PFA" />
-          <NavigationProperty Name="PM_departamentos" Relationship="Portal_2_0Model.FK_PM_departamentos_empleado" FromRole="empleados" ToRole="PM_departamentos" />
-          <NavigationProperty Name="PM_usuarios_capturistas" Relationship="Portal_2_0Model.FK_PM_usuarios_capturistas_empleado" FromRole="empleados" ToRole="PM_usuarios_capturistas" />
-          <NavigationProperty Name="poliza_manual" Relationship="Portal_2_0Model.FK_poliza_manual_autorizador" FromRole="empleados" ToRole="poliza_manual" />
-          <NavigationProperty Name="poliza_manual1" Relationship="Portal_2_0Model.FK_poliza_manual_contabilidad" FromRole="empleados" ToRole="poliza_manual" />
-          <NavigationProperty Name="poliza_manual2" Relationship="Portal_2_0Model.FK_poliza_manual_elaborador" FromRole="empleados" ToRole="poliza_manual" />
-          <NavigationProperty Name="poliza_manual3" Relationship="Portal_2_0Model.FK_poliza_manual_validador" FromRole="empleados" ToRole="poliza_manual" />
-          <NavigationProperty Name="produccion_operadores" Relationship="Portal_2_0Model.FK_produccion_operadores_id_empleado" FromRole="empleados" ToRole="produccion_operadores" />
-          <NavigationProperty Name="produccion_respaldo" Relationship="Portal_2_0Model.FK_produccion_respaldo_id_empleado" FromRole="empleados" ToRole="produccion_respaldo" />
-          <NavigationProperty Name="produccion_supervisores" Relationship="Portal_2_0Model.FK_produccion_supervisores_id_empleado" FromRole="empleados" ToRole="produccion_supervisores" />
-        </EntityType>
         <Association Name="FK_empleados_planta_clave">
           <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="0..1" />
           <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="*" />
@@ -3066,6 +3058,18 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_poliza_manual_direccion">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.poliza_manual" Role="poliza_manual" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="poliza_manual">
+              <PropertyRef Name="id_direccion" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_poliza_manual_elaborador">
           <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
           <End Type="Portal_2_0Model.poliza_manual" Role="poliza_manual" Multiplicity="*" />
@@ -3123,6 +3127,42 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
             </Principal>
             <Dependent Role="produccion_supervisores">
               <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_poliza_manual_planta">
+          <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="1" />
+          <End Type="Portal_2_0Model.poliza_manual" Role="poliza_manual" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="poliza_manual">
+              <PropertyRef Name="id_planta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PM_conceptos_id_poliza">
+          <End Type="Portal_2_0Model.poliza_manual" Role="poliza_manual" Multiplicity="1" />
+          <End Type="Portal_2_0Model.PM_conceptos" Role="PM_conceptos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="poliza_manual">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="PM_conceptos">
+              <PropertyRef Name="id_poliza" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_poliza_manual_tipo_poliza">
+          <End Type="Portal_2_0Model.PM_tipo_poliza" Role="PM_tipo_poliza" Multiplicity="1" />
+          <End Type="Portal_2_0Model.poliza_manual" Role="poliza_manual" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PM_tipo_poliza">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="poliza_manual">
+              <PropertyRef Name="id_PM_tipo_poliza" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -3572,17 +3612,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="currency">
-            <EntityTypeMapping TypeName="Portal_2_0Model.currency">
-              <MappingFragment StoreEntitySet="currency">
-                <ScalarProperty Name="activo" ColumnName="activo" />
-                <ScalarProperty Name="Symbol" ColumnName="Symbol" />
-                <ScalarProperty Name="Money" ColumnName="Money" />
-                <ScalarProperty Name="CurrencyName" ColumnName="CurrencyName" />
-                <ScalarProperty Name="CurrencyISO" ColumnName="CurrencyISO" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="PM_tipo_poliza">
             <EntityTypeMapping TypeName="Portal_2_0Model.PM_tipo_poliza">
               <MappingFragment StoreEntitySet="PM_tipo_poliza">
@@ -3721,28 +3750,15 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="poliza_manual">
-            <EntityTypeMapping TypeName="Portal_2_0Model.poliza_manual">
-              <MappingFragment StoreEntitySet="poliza_manual">
-                <ScalarProperty Name="estatus" ColumnName="estatus" />
-                <ScalarProperty Name="descripcion_poliza" ColumnName="descripcion_poliza" />
-                <ScalarProperty Name="comentario_rechazo" ColumnName="comentario_rechazo" />
-                <ScalarProperty Name="fecha_registro" ColumnName="fecha_registro" />
-                <ScalarProperty Name="fecha_autorizacion" ColumnName="fecha_autorizacion" />
-                <ScalarProperty Name="fecha_validacion" ColumnName="fecha_validacion" />
-                <ScalarProperty Name="fecha_documento" ColumnName="fecha_documento" />
-                <ScalarProperty Name="fecha_creacion" ColumnName="fecha_creacion" />
-                <ScalarProperty Name="numero_documento_sap" ColumnName="numero_documento_sap" />
-                <ScalarProperty Name="id_documento_registro" ColumnName="id_documento_registro" />
-                <ScalarProperty Name="id_documento_soporte" ColumnName="id_documento_soporte" />
-                <ScalarProperty Name="id_contabilidad" ColumnName="id_contabilidad" />
-                <ScalarProperty Name="id_autorizador" ColumnName="id_autorizador" />
-                <ScalarProperty Name="id_validador" ColumnName="id_validador" />
-                <ScalarProperty Name="id_elaborador" ColumnName="id_elaborador" />
-                <ScalarProperty Name="id_planta" ColumnName="id_planta" />
-                <ScalarProperty Name="currency_iso" ColumnName="currency_iso" />
-                <ScalarProperty Name="id_PM_tipo_poliza" ColumnName="id_PM_tipo_poliza" />
-                <ScalarProperty Name="id" ColumnName="id" />
+          <EntitySetMapping Name="currency">
+            <EntityTypeMapping TypeName="Portal_2_0Model.currency">
+              <MappingFragment StoreEntitySet="currency">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="LimitePoliza" ColumnName="LimitePoliza" />
+                <ScalarProperty Name="Symbol" ColumnName="Symbol" />
+                <ScalarProperty Name="Money" ColumnName="Money" />
+                <ScalarProperty Name="CurrencyName" ColumnName="CurrencyName" />
+                <ScalarProperty Name="CurrencyISO" ColumnName="CurrencyISO" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -3768,6 +3784,33 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
                 <ScalarProperty Name="clave" ColumnName="clave" />
                 <ScalarProperty Name="planta_clave" ColumnName="planta_clave" />
                 <ScalarProperty Name="nueva_fecha_nacimiento" ColumnName="nueva_fecha_nacimiento" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="poliza_manual">
+            <EntityTypeMapping TypeName="Portal_2_0Model.poliza_manual">
+              <MappingFragment StoreEntitySet="poliza_manual">
+                <ScalarProperty Name="estatus" ColumnName="estatus" />
+                <ScalarProperty Name="descripcion_poliza" ColumnName="descripcion_poliza" />
+                <ScalarProperty Name="comentario_rechazo" ColumnName="comentario_rechazo" />
+                <ScalarProperty Name="fecha_registro" ColumnName="fecha_registro" />
+                <ScalarProperty Name="fecha_direccion" ColumnName="fecha_direccion" />
+                <ScalarProperty Name="fecha_autorizacion" ColumnName="fecha_autorizacion" />
+                <ScalarProperty Name="fecha_validacion" ColumnName="fecha_validacion" />
+                <ScalarProperty Name="fecha_documento" ColumnName="fecha_documento" />
+                <ScalarProperty Name="fecha_creacion" ColumnName="fecha_creacion" />
+                <ScalarProperty Name="numero_documento_sap" ColumnName="numero_documento_sap" />
+                <ScalarProperty Name="id_documento_registro" ColumnName="id_documento_registro" />
+                <ScalarProperty Name="id_documento_soporte" ColumnName="id_documento_soporte" />
+                <ScalarProperty Name="id_direccion" ColumnName="id_direccion" />
+                <ScalarProperty Name="id_contabilidad" ColumnName="id_contabilidad" />
+                <ScalarProperty Name="id_autorizador" ColumnName="id_autorizador" />
+                <ScalarProperty Name="id_validador" ColumnName="id_validador" />
+                <ScalarProperty Name="id_elaborador" ColumnName="id_elaborador" />
+                <ScalarProperty Name="id_planta" ColumnName="id_planta" />
+                <ScalarProperty Name="currency_iso" ColumnName="currency_iso" />
+                <ScalarProperty Name="id_PM_tipo_poliza" ColumnName="id_PM_tipo_poliza" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

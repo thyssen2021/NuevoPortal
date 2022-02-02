@@ -54,7 +54,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_PFA_responsible_cost" />
         <AssociationConnector Association="Portal_2_0Model.FK_PFA_type_shipment" />
         <AssociationConnector Association="Portal_2_0Model.FK_PFA_volume" />
-        <EntityTypeShape EntityType="Portal_2_0Model.currency" Width="1.5" PointX="15.875" PointY="30.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.PM_tipo_poliza" Width="1.5" PointX="15.875" PointY="33.625" />
         <EntityTypeShape EntityType="Portal_2_0Model.PM_conceptos" Width="1.5" PointX="23.375" PointY="16.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.inspeccion_categoria_fallas" Width="1.5" PointX="12.75" PointY="37.5" />
@@ -72,17 +71,15 @@
         <EntityTypeShape EntityType="Portal_2_0Model.PM_departamentos" Width="1.5" PointX="14.75" PointY="40.875" />
         <EntityTypeShape EntityType="Portal_2_0Model.PM_poliza_manual_modelo" Width="1.5" PointX="19.375" PointY="5" />
         <EntityTypeShape EntityType="Portal_2_0Model.PM_usuarios_capturistas" Width="1.5" PointX="21" PointY="25.125" />
-        <EntityTypeShape EntityType="Portal_2_0Model.poliza_manual" Width="1.5" PointX="21.125" PointY="17.75" />
-        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_documento_registro" />
-        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_documento_soporte" />
-        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_currency" />
-        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_planta" />
-        <AssociationConnector Association="Portal_2_0Model.FK_PM_conceptos_id_poliza" />
         <AssociationConnector Association="Portal_2_0Model.FK_PM_conceptos_modelo_id_poliza" />
         <AssociationConnector Association="Portal_2_0Model.FK_PM_departamentos_depto_validacion" />
         <AssociationConnector Association="Portal_2_0Model.FK_PM_usuarios_capturistas_departamento" />
-        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_tipo_poliza" />
+        <EntityTypeShape EntityType="Portal_2_0Model.currency" Width="1.5" PointX="18.875" PointY="31" />
         <EntityTypeShape EntityType="Portal_2_0Model.empleados" Width="1.5" PointX="12.5" PointY="0.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.poliza_manual" Width="1.5" PointX="21.125" PointY="16.5" />
+        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_documento_registro" />
+        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_documento_soporte" />
+        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_currency" />
         <AssociationConnector Association="Portal_2_0Model.FK_empleados_planta_clave" />
         <AssociationConnector Association="Portal_2_0Model.FK_empleados_puesto" />
         <AssociationConnector Association="Portal_2_0Model.FK_inspeccion_datos_generales_id_empleado_inspector" />
@@ -94,11 +91,15 @@
         <AssociationConnector Association="Portal_2_0Model.FK_PM_usuarios_capturistas_empleado" />
         <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_autorizador" />
         <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_contabilidad" />
+        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_direccion" />
         <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_elaborador" />
         <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_validador" />
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_operadores_id_empleado" />
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_respaldo_id_empleado" />
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_supervisores_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_PM_conceptos_id_poliza" />
+        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_tipo_poliza" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -52,7 +52,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<produccion_respaldo> produccion_respaldo { get; set; }
         public virtual DbSet<biblioteca_digital> biblioteca_digital { get; set; }
         public virtual DbSet<PFA> PFA { get; set; }
-        public virtual DbSet<currency> currency { get; set; }
         public virtual DbSet<PM_tipo_poliza> PM_tipo_poliza { get; set; }
         public virtual DbSet<PM_conceptos> PM_conceptos { get; set; }
         public virtual DbSet<inspeccion_categoria_fallas> inspeccion_categoria_fallas { get; set; }
@@ -65,7 +64,8 @@ namespace Portal_2_0.Models
         public virtual DbSet<PM_departamentos> PM_departamentos { get; set; }
         public virtual DbSet<PM_poliza_manual_modelo> PM_poliza_manual_modelo { get; set; }
         public virtual DbSet<PM_usuarios_capturistas> PM_usuarios_capturistas { get; set; }
-        public virtual DbSet<poliza_manual> poliza_manual { get; set; }
+        public virtual DbSet<currency> currency { get; set; }
         public virtual DbSet<empleados> empleados { get; set; }
+        public virtual DbSet<poliza_manual> poliza_manual { get; set; }
     }
 }

@@ -453,6 +453,7 @@
     <Content Include="Content\emails_plantillas\PM_confirmacion_registro.html" />
     <Content Include="Content\emails_plantillas\PM_autorizacion_controlling.html" />
     <Content Include="Content\emails_plantillas\PM_autorizacion_validador.html" />
+    <Content Include="Content\emails_plantillas\PM_envio_a_direccion.html" />
     <Content Include="Content\emails_plantillas\PM_envio_a_contabilidad.html" />
     <Content Include="Content\emails_plantillas\PM_envio_a_autorizador.html" />
     <Content Include="Content\emails_plantillas\PM_rechazo.html" />
@@ -5165,6 +5166,7 @@
     <Content Include="Views\PM_poliza_manual_modelo\Enable.cshtml" />
     <Content Include="Views\PM_poliza_manual_modelo\Disable.cshtml" />
     <Content Include="Views\PolizaManual\Reportes.cshtml" />
+    <Content Include="Views\PolizaManual\AutorizarDireccion.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

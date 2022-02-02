@@ -55,6 +55,9 @@ namespace Portal_2_0.Models
         [Display(Name = "Contabilidad")]
         public Nullable<int> id_contabilidad { get; set; }
 
+        [Display(Name = "Dirección")]
+        public Nullable<int> id_direccion { get; set; }
+
         [Display(Name = "Soporte de Póliza")]
         public Nullable<int> id_documento_soporte { get; set; }
 
@@ -85,6 +88,11 @@ namespace Portal_2_0.Models
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public Nullable<System.DateTime> fecha_autorizacion { get; set; }
+
+        [Display(Name = "Fecha Dirección")]
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        public Nullable<System.DateTime> fecha_direccion { get; set; }
 
         [Display(Name = "Fecha Registro en SAP")]
         [DataType(DataType.Date)]
@@ -162,6 +170,7 @@ namespace Portal_2_0.Models
         public virtual empleados empleados1 { get; set; }
         public virtual empleados empleados2 { get; set; }
         public virtual empleados empleados3 { get; set; }
+        public virtual empleados empleados4 { get; set; }
         public virtual plantas plantas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PM_conceptos> PM_conceptos { get; set; }

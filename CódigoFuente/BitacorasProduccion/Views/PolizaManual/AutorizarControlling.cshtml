@@ -268,7 +268,7 @@
                         <div class="form-group row">
                             <!-- Capturista -->
                             @Html.LabelFor(model => model.id_elaborador, new { @class = "control-label col-md-1" })
-                            <input type="text" class="form-control col-md-5" value="@Model.empleados2.ConcatNombre" readonly>
+                            <input type="text" class="form-control col-md-5" value="@Model.empleados3.ConcatNombre" readonly>
                             <!-- Fecha validadcion -->
                             @Html.LabelFor(model => model.fecha_creacion, new { @class = "control-label col-md-2 float-right" })
                             <div class="col-md-4">
@@ -281,7 +281,7 @@
 
                             @if (Model.id_validador.HasValue)
                             {
-                                <input type="text" class="form-control col-md-5" value="@Model.empleados3.ConcatNombre" readonly>
+                                <input type="text" class="form-control col-md-5" value="@Model.empleados4.ConcatNombre" readonly>
                             }
                             else
                             {
@@ -336,6 +336,34 @@
                                 }
                             </div>
                         </div>
+                        @if (Model.id_direccion.HasValue)
+                        {
+                            <div class="form-group row">
+                                <!-- Dirección -->
+                                @Html.LabelFor(model => model.id_direccion, new { @class = "control-label col-md-1" })
+
+                                <input type="text" class="form-control col-md-5" value="@Model.empleados2.ConcatNombre" readonly>
+
+
+                                <!-- Fecha registro -->
+                                @Html.LabelFor(model => model.fecha_direccion, new { @class = "control-label col-md-2 float-right" })
+
+                            <div class="col-md-4">
+                                @if (Model.fecha_direccion.HasValue)
+                                {
+                                    <input type="text" class="form-control col-md-12" value="@Model.fecha_direccion.Value" readonly>
+                                }
+                                else if (Model.id_direccion.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_DIRECCION)
+                                {
+                                    <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
+                                }
+                                else
+                                {
+                                    <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
+                                }
+                            </div>
+                            </div>
+                        }
                         <div class="form-group row">
                             <!-- Contabilidad -->
                             @Html.LabelFor(model => model.id_contabilidad, new { @class = "control-label col-md-1" })
@@ -408,7 +436,7 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle">Validar</h5>
+                <h5 class="modal-title" id="exampleModalLongTitle">Autorizar</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -417,7 +445,15 @@
             {
                 <div class="modal-body">
                     <div class="form-group row">
-                        <h6>¿Desea autorizar esta p&oacute;liza y enviarla a Contabilidad para su Registro en SAP?</h6>
+                        @if (ViewBag.MensajeDireccion != null)
+                        {
+                            <h6>@ViewBag.MensajeDireccion</h6>
+                            <h6>¿Desea continuar?</h6>
+                        }
+                        else
+                        {
+                            <h6>¿Desea autorizar esta p&oacute;liza y enviarla a Contabilidad para su Registro en SAP?</h6>
+                        }
                     </div>
                     @Html.AntiForgeryToken()
                     @Html.HiddenFor(model => model.id)

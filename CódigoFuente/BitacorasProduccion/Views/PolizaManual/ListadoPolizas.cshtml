@@ -116,6 +116,12 @@
                                                                 <i class="fa fa-check-circle-o"></i>
                                                             </a>
                                                         }
+                                                        @if (ViewBag.AutorizarDireccion != null && ViewBag.AutorizarDireccion)
+                                                        {
+                                                            <a href="@Url.Action("AutorizarDireccion", ViewBag.ControllerName, new { id = item.id })" class="btn btn-info " title="Autorizar/Rechazar">
+                                                                <i class="fa fa-check-circle-o"></i>
+                                                            </a>
+                                                        }
                                                         @if (ViewBag.Validar != null && ViewBag.Validar)
                                                         {
                                                             <a href="@Url.Action("ValidarArea", ViewBag.ControllerName, new { id = item.id })" class="btn btn-success " title="Validar">
@@ -178,10 +184,10 @@
                                                         @Html.DisplayFor(modelItem => item.fecha_autorizacion)
                                                     </td>
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.estatus)
+                                                        @Bitacoras.Util.PM_Status.DescripcionStatus(item.estatus)
                                                     </td>
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.empleados2.ConcatNombre)
+                                                        @Html.DisplayFor(modelItem => item.empleados3.ConcatNombre)
                                                     </td>
                                                 </tr>
                                             }

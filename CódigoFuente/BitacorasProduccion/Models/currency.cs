@@ -24,15 +24,15 @@ namespace Portal_2_0.Models
         public string CurrencyName { get; set; }
         public string Money { get; set; }
         public string Symbol { get; set; }
+        public Nullable<decimal> LimitePoliza { get; set; }
         public bool activo { get; set; }
 
-        
         //Concatena clave y nombre
         public string CocatCurrency
         {
             get
             {
-                return "("+CurrencyISO+") "+CurrencyName;
+                return "(" + CurrencyISO + ") " + CurrencyName;
             }
         }
 

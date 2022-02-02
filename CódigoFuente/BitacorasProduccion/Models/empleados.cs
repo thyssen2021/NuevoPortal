@@ -29,6 +29,7 @@ namespace Portal_2_0.Models
             this.poliza_manual1 = new HashSet<poliza_manual>();
             this.poliza_manual2 = new HashSet<poliza_manual>();
             this.poliza_manual3 = new HashSet<poliza_manual>();
+            this.poliza_manual4 = new HashSet<poliza_manual>();
             this.produccion_operadores = new HashSet<produccion_operadores>();
             this.produccion_respaldo = new HashSet<produccion_respaldo>();
             this.produccion_supervisores = new HashSet<produccion_supervisores>();
@@ -150,6 +151,8 @@ namespace Portal_2_0.Models
         public virtual ICollection<poliza_manual> poliza_manual2 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<poliza_manual> poliza_manual3 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<poliza_manual> poliza_manual4 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<produccion_operadores> produccion_operadores { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

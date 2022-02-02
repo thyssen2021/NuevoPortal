@@ -1021,6 +1021,7 @@ namespace Portal_2_0.Controllers
             byte[] msg = Encoding.UTF8.GetBytes("Portal");
             byte[] bytes = new byte[256];
             var list = new object[1];
+            list[0] = new { Message = "Error: Se recibe mensaje, pero no hubo macth" };
             string patron = @"(?:- *)?\d+(?:\.\d+)?";
 
             //conecta con la báscula

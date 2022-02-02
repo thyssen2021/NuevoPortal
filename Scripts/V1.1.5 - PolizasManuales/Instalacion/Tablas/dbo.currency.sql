@@ -24,6 +24,7 @@ CREATE TABLE [currency](
   [CurrencyName] VARCHAR(35)  DEFAULT NULL,
   [Money] VARCHAR(30)  DEFAULT NULL,
   [Symbol] VARCHAR(3) DEFAULT NULL,
+  [LimitePoliza] DECIMAL(14,2) NULL,
   [activo] bit NOT NULL
  CONSTRAINT [PK_currency] PRIMARY KEY CLUSTERED 
 (
@@ -42,7 +43,8 @@ INSERT INTO [dbo].[currency]
            ([CurrencyISO]
            ,[CurrencyName]
            ,[Money]
-           ,[Symbol])
+           ,[Symbol]
+		   )
      VALUES 
    ('AFN','Afghani', 'افغانۍ', '؋'),
     ('THB','Baht', 'บาทไทย', '฿'),
@@ -205,7 +207,10 @@ INSERT INTO [dbo].[currency]
     ('PLN','Zloty Polaco', 'Złoty', 'z')
 	;
 
-
+	--establece los limites de las pólizas
+	UPDATE [dbo].[currency] SET LimitePoliza= 100000.00 WHERE CurrencyISO='USD';
+	UPDATE [dbo].[currency] SET LimitePoliza= 90000.00 WHERE CurrencyISO='EUR';
+	UPDATE [dbo].[currency] SET LimitePoliza= 2000000.00 WHERE CurrencyISO='MXN';
  	  
 IF object_id(N'currency',N'U') IS NOT NULL
 	BEGIN

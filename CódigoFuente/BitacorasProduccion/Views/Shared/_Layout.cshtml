@@ -195,7 +195,9 @@
                                     }
 
                                     @*MENÚ POLIZAS MANUALES*@
-                                    @if (User.IsInRole(TipoRoles.PM_AUTORIZAR_CONTROLLING) || User.IsInRole(TipoRoles.PM_CONTABILIDAD) || User.IsInRole(TipoRoles.PM_REGISTRO) || User.IsInRole(TipoRoles.PM_VALIDAR_POR_AREA) || User.IsInRole(TipoRoles.PM_CATALOGOS))
+                                    @if (User.IsInRole(TipoRoles.PM_AUTORIZAR_CONTROLLING) || User.IsInRole(TipoRoles.PM_CONTABILIDAD) || User.IsInRole(TipoRoles.PM_REGISTRO) 
+                                        || User.IsInRole(TipoRoles.PM_VALIDAR_POR_AREA) || User.IsInRole(TipoRoles.PM_CATALOGOS) || User.IsInRole(TipoRoles.PM_DIRECCION)
+                                        || User.IsInRole(TipoRoles.PM_REPORTES))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "polizas_manuales" ? "active" : null )">
                                             <a><i class="fa fa-table"></i> P&oacute;lizas Manuales<span class="fa fa-chevron-down"></span></a>
@@ -232,6 +234,15 @@
                                                     <h3>Contabilidad PM</h3>
                                                     <li class="@(ViewBag.SegundoNivel == "PM_contabilidad_pendientes" ? "current-page" : null )"><a href="@Url.Action("ContabilidadPendientes", "PolizaManual")">Contabilidad - Pendientes</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "PM_contabilidad_registradas" ? "current-page" : null )"><a href="@Url.Action("ContabilidadRegistradas", "PolizaManual")">Contabilidad - Registradas</a></li>
+                                                }
+
+                                                @if (User.IsInRole(TipoRoles.PM_DIRECCION))
+                                                {
+                                                    <h3>Direcci&oacute;n PM</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_direccion_pendientes" ? "current-page" : null )"><a href="@Url.Action("DireccionPendientes", "PolizaManual")">Direcci&oacute;n - Pendientes</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_direccion_rechazadas" ? "current-page" : null )"><a href="@Url.Action("DireccionRechazadas", "PolizaManual")">Direcci&oacute;n - Rechazadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_direccion_autorizadas" ? "current-page" : null )"><a href="@Url.Action("DireccionAutorizadas", "PolizaManual")">Direcci&oacute;n - Autorizadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "PM_direccion_registradas" ? "current-page" : null )"><a href="@Url.Action("DireccionRegistradas", "PolizaManual")">Direcci&oacute;n - Registradas</a></li>
                                                 }
                                                 @if (User.IsInRole(TipoRoles.PM_REPORTES))
                                                 {

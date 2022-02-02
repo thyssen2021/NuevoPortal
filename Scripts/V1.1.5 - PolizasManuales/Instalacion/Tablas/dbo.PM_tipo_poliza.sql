@@ -38,6 +38,7 @@ GO
 SET IDENTITY_INSERT [PM_tipo_poliza] ON 
 
 INSERT [PM_tipo_poliza] ([id], [descripcion], [activo]) VALUES (1, N'FIJA', 1)
+INSERT [PM_tipo_poliza] ([id], [descripcion], [activo]) VALUES (2, N'REVERSIBLE', 1)
 
 SET IDENTITY_INSERT [PM_tipo_poliza] OFF
 GO
