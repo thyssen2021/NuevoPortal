@@ -4862,6 +4862,7 @@
       <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
     </Content>
     <Content Include="Content\plantillas_excel\plantilla_reporte_produccion.xlsx" />
+    <Content Include="Content\manuales\Manual_Usuario_PM.pdf" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
     <Content Include="Scripts\jquery-3.4.1.min.js" />

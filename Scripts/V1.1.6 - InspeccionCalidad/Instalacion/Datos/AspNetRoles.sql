@@ -16,92 +16,92 @@ SET QUOTED_IDENTIFIER ON
 IF object_id(N'AspNetRoles','U') IS NOT NULL
 BEGIN
 
-	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='Admin' )
-	BEGIN
-		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'Admin')
-	END
-	--USUARIOS
-	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='Usuarios' )
-	BEGIN
-		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'Usuarios')
-	END
-	--RECURSOS HUMANOS
-	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='RecursosHumanos' )
-	BEGIN
-		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'RecursosHumanos')
-	END
-	--BITACORAS REGISTRO
-	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='BitacoraProduccionRegistro' )
-	BEGIN
-		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'BitacoraProduccionRegistro')
-	END
+	--IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='Admin' )
+	--BEGIN
+	--	INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'Admin')
+	--END
+	----USUARIOS
+	--IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='Usuarios' )
+	--BEGIN
+	--	INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'Usuarios')
+	--END
+	----RECURSOS HUMANOS
+	--IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='RecursosHumanos' )
+	--BEGIN
+	--	INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'RecursosHumanos')
+	--END
+	----BITACORAS REGISTRO
+	--IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='BitacoraProduccionRegistro' )
+	--BEGIN
+	--	INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'BitacoraProduccionRegistro')
+	--END
 
-	--BITACORAS CATALOGOS
-	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='BitacoraProduccionCatalogos' )
-	BEGIN
-		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'BitacoraProduccionCatalogos')
-	END
+	----BITACORAS CATALOGOS
+	--IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='BitacoraProduccionCatalogos' )
+	--BEGIN
+	--	INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'BitacoraProduccionCatalogos')
+	--END
 
-	--REPORTE PESADAS
-	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='ReportePesadas' )
-	BEGIN
-		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'ReportePesadas')
-	END
+	----REPORTE PESADAS
+	--IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='ReportePesadas' )
+	--BEGIN
+	--	INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'ReportePesadas')
+	--END
 
-	--REPORTE PFA REGISTRO DE FORMATOS
-	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PFA_RegistroFormato' )
-	BEGIN
-		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PFA_RegistroFormato')
-	END
+	----REPORTE PFA REGISTRO DE FORMATOS
+	--IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PFA_RegistroFormato' )
+	--BEGIN
+	--	INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PFA_RegistroFormato')
+	--END
 
-	--REPORTE PFA AUTORIZACIÓN DE FORMATOS
-	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PFA_AutorizacionFormato' )
-	BEGIN
-		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PFA_AutorizacionFormato')
-	END
+	----REPORTE PFA AUTORIZACIÓN DE FORMATOS
+	--IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PFA_AutorizacionFormato' )
+	--BEGIN
+	--	INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PFA_AutorizacionFormato')
+	--END
 
-	--REPORTE PFA EDICIÓN CATÁLOGOS
-	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PFA_AdministracionCatalogos' )
-	BEGIN
-		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PFA_AdministracionCatalogos')
-	END
+	----REPORTE PFA EDICIÓN CATÁLOGOS
+	--IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PFA_AdministracionCatalogos' )
+	--BEGIN
+	--	INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PFA_AdministracionCatalogos')
+	--END
 
-	--REPORTE PFA Visualización DE FORMATOS
-	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PFA_VisualizacionFormato' )
-	BEGIN
-		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PFA_VisualizacionFormato')
-	END
+	----REPORTE PFA Visualización DE FORMATOS
+	--IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PFA_VisualizacionFormato' )
+	--BEGIN
+	--	INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PFA_VisualizacionFormato')
+	--END
 
-	---------------- PÓLIZAS MANUALES ----------------
-	-- Registros
-	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PolizasManuales_CreacionRegistros' )
-	BEGIN
-		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PolizasManuales_CreacionRegistros')
-	END
+	------------------ PÓLIZAS MANUALES ----------------
+	---- Registros
+	--IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PolizasManuales_CreacionRegistros' )
+	--BEGIN
+	--	INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PolizasManuales_CreacionRegistros')
+	--END
 
-	-- Validación por áreas
-	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PolizasManuales_ValidacionPorArea' )
-	BEGIN
-		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PolizasManuales_ValidacionPorArea')
-	END
+	---- Validación por áreas
+	--IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PolizasManuales_ValidacionPorArea' )
+	--BEGIN
+	--	INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PolizasManuales_ValidacionPorArea')
+	--END
 
-	-- Autorización (Controlling)
-	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PolizasManuales_AutorizacionControlling' )
-	BEGIN
-		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PolizasManuales_AutorizacionControlling')
-	END
+	---- Autorización (Controlling)
+	--IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PolizasManuales_AutorizacionControlling' )
+	--BEGIN
+	--	INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PolizasManuales_AutorizacionControlling')
+	--END
 
-	-- Registro de poliza (Contabilidad)
-	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PolizasManuales_RegistroContabilidad' )
-	BEGIN
-		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PolizasManuales_RegistroContabilidad')
-	END
+	---- Registro de poliza (Contabilidad)
+	--IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PolizasManuales_RegistroContabilidad' )
+	--BEGIN
+	--	INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PolizasManuales_RegistroContabilidad')
+	--END
 
-	-- Catálogos de Póliza
-	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PolizasManuales_catalogos' )
-	BEGIN
-		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PolizasManuales_catalogos')
-	END
+	---- Catálogos de Póliza
+	--IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PolizasManuales_catalogos' )
+	--BEGIN
+	--	INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PolizasManuales_catalogos')
+	--END
 
 	--------------- INSPECTORES DE CALIDAD ------------------------
 	-- inspeccion de rollos

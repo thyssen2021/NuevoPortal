@@ -51,7 +51,7 @@ GO
 
 SET IDENTITY_INSERT [PM_usuarios_capturistas] ON 
 --Desarrollo
-INSERT [PM_usuarios_capturistas] ([id],[id_empleado],[id_departamento],[activo]) VALUES (1,438,1,1)	-- Alfredo Xochitemol
+--INSERT [PM_usuarios_capturistas] ([id],[id_empleado],[id_departamento],[activo]) VALUES (1,438,1,1)	-- Alfredo Xochitemol
 
 SET IDENTITY_INSERT [PM_usuarios_capturistas] OFF
 GO

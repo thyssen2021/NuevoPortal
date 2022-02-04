@@ -91,7 +91,7 @@ BEGIN
 		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PolizasManuales_AutorizacionControlling')
 	END
 
-	-- Autorización (DOBLE VALIDACION)
+	-- Autorización (TRIPLE VALIDACION)
 	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='PolizasManuales_DireccionAutorizacion' )
 	BEGIN
 		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'PolizasManuales_DireccionAutorizacion')
