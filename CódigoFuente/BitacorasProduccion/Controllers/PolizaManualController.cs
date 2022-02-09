@@ -1514,7 +1514,10 @@ namespace Portal_2_0.Controllers
                     envioCorreo.SendEmailAsync(correos, "La Poliza Manual #" + poliza.id + " ha sido autorizada.", envioCorreo.getBodyPMNotificacionAutorizado(poliza));
 
 
-                    List<IdentitySample.Models.ApplicationUser> usuarios = await _userManager.Users.Where(x => _userManager.IsInRoleAsync(x.Id, TipoRoles.PM_CONTABILIDAD).Result == true).ToListAsync();
+                    List<IdentitySample.Models.ApplicationUser> usuarios = await _userManager.Users.ToListAsync();
+
+                    usuarios = usuarios.Where(x => _userManager.IsInRoleAsync(x.Id, TipoRoles.PM_CONTABILIDAD).Result == true).ToList();
+                   
 
                     correos = new List<string>();
 
@@ -1731,7 +1734,9 @@ namespace Portal_2_0.Controllers
                 envioCorreo.SendEmailAsync(correos, "La Poliza Manual #" + poliza.id + " ha sido autorizada.", envioCorreo.getBodyPMNotificacionAutorizado(poliza));
 
 
-                List<IdentitySample.Models.ApplicationUser> usuarios = await _userManager.Users.Where(x => _userManager.IsInRoleAsync(x.Id, TipoRoles.PM_CONTABILIDAD).Result == true).ToListAsync();
+                List<IdentitySample.Models.ApplicationUser> usuarios = await _userManager.Users.ToListAsync();
+
+                usuarios = usuarios.Where(x => _userManager.IsInRoleAsync(x.Id, TipoRoles.PM_CONTABILIDAD).Result == true).ToList();
 
                 correos = new List<string>();
 
@@ -2598,7 +2603,7 @@ namespace Portal_2_0.Controllers
         }
 
         //Generación de Reportes
-        public ActionResult Reportes(int? clave_planta, int? id_elaborador, string fecha_creacion_inicial, string fecha_creacion_final, string fecha_documento_inicial, string fecha_documento_final, string status, int pagina = 1)
+        public ActionResult Reportes(int? clave_planta, int? id_elaborador, string fecha_creacion_inicial, string fecha_creacion_final, string fecha_documento_inicial, string fecha_documento_final, string numero_documento_sap, int pagina = 1)
         {
             if (TieneRol(TipoRoles.PM_REPORTES))
             {
@@ -2651,7 +2656,7 @@ namespace Portal_2_0.Controllers
                    && (clave_planta == null || x.id_planta == clave_planta)
                    && x.fecha_creacion >= dateCreacionInicial && x.fecha_creacion <= dateCreacionFinal
                    && x.fecha_documento >= dateDocumentoInicial && x.fecha_documento <= dateDocumentoFinal
-                   && (String.IsNullOrEmpty(status) || x.estatus == status)
+                   && (String.IsNullOrEmpty(numero_documento_sap) || x.numero_documento_sap.Contains(numero_documento_sap))
                    )
                    .OrderBy(x => x.id)
                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
@@ -2663,7 +2668,7 @@ namespace Portal_2_0.Controllers
                    && (clave_planta == null || x.id_planta == clave_planta)
                    && x.fecha_creacion >= dateCreacionInicial && x.fecha_creacion <= dateCreacionFinal
                    && x.fecha_documento >= dateDocumentoInicial && x.fecha_documento <= dateDocumentoFinal
-                   && (String.IsNullOrEmpty(status) || x.estatus == status)
+                   && (String.IsNullOrEmpty(numero_documento_sap) || x.numero_documento_sap.Contains (numero_documento_sap))
                    ).Count();
 
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
@@ -2673,7 +2678,7 @@ namespace Portal_2_0.Controllers
                 routeValues["fecha_creacion_final"] = fecha_creacion_final;
                 routeValues["fecha_documento_inicial"] = fecha_documento_inicial;
                 routeValues["fecha_documento_final"] = fecha_documento_final;
-                routeValues["status"] = status;
+                routeValues["numero_documento_sap"] = numero_documento_sap;
                 routeValues["pagina"] = pagina;
 
                 Paginacion paginacion = new Paginacion
@@ -2714,7 +2719,7 @@ namespace Portal_2_0.Controllers
             }
         }
 
-        public ActionResult Exportar(int? clave_planta, int? id_elaborador, string fecha_creacion_inicial, string fecha_creacion_final, string fecha_documento_inicial, string fecha_documento_final, string status)
+        public ActionResult Exportar(int? clave_planta, int? id_elaborador, string fecha_creacion_inicial, string fecha_creacion_final, string fecha_documento_inicial, string fecha_documento_final, string numero_documento_sap)
         {
             if (TieneRol(TipoRoles.PM_REPORTES))
             {
@@ -2759,7 +2764,7 @@ namespace Portal_2_0.Controllers
                    && (clave_planta == null || x.id_planta == clave_planta)
                    && x.fecha_creacion >= dateCreacionInicial && x.fecha_creacion <= dateCreacionFinal
                    && x.fecha_documento >= dateDocumentoInicial && x.fecha_documento <= dateDocumentoFinal
-                   && (String.IsNullOrEmpty(status) || x.estatus == status)
+                   && (String.IsNullOrEmpty(numero_documento_sap) || x.numero_documento_sap.Contains(numero_documento_sap))
                    )
                     .OrderBy(x => x.id)
                   .ToList();

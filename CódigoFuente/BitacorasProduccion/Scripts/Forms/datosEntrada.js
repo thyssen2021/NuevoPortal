@@ -109,19 +109,32 @@ function mostrarModalPass() {
 
 //muestra el modal de captura de peso
 function mostrarModal() {
-    $('#myModal').modal('show')
-    $('#peso_manual').val('');
-    let peso_manual = $('#peso_manual').val();
-    //verifica si es un numero
-    if (isNaN(peso_manual)) {
-        $('#error_peso').show();
-        $('#aceptar_modal_doble').prop("disabled", true)
-        $('#aceptar_modal_sencilla').prop("disabled", true)
-    } else {
-        $('#error_peso').hide();
-        $('#aceptar_modal_doble').prop("disabled", false)
-        $('#aceptar_modal_sencilla').prop("disabled", false)
+
+    try {
+        $('#myModal').modal('show')
+        $('#peso_manual').val('');
+        let peso_manual = $('#peso_manual').val();
+        //verifica si es un numero
+        if (isNaN(peso_manual)) {
+            $('#error_peso').show();
+            $('#aceptar_modal_doble').prop("disabled", true)
+            $('#aceptar_modal_sencilla').prop("disabled", true)
+        } else {
+            $('#error_peso').hide();
+            $('#aceptar_modal_doble').prop("disabled", false)
+            $('#aceptar_modal_sencilla').prop("disabled", false)
+        }
+    } catch (error) {
+        //en caso de que no ser muestre info de ningun tipo muestra error
+        Swal.fire({
+            icon: 'error',
+            title: 'Ocurrió un error',
+            text: 'Intente nuevamente o capture el peso de forma manual.'
+        })
     }
+
+
+   
 }
 
 //muestra el modal de captura de peso
@@ -133,50 +146,72 @@ function muestraModalSocket() {
 function verificarContraseña(idSupervisor) {
     let passSupervisor = $('#password').val();
     let tiempo = $('#tiempo').val();
-    //verifica el si la contraseña es correcta
-    $.ajax({
-        type: 'POST',
-        url: '/ProduccionRegistros/VerificaPassword',
-        data: { idSupervisor: idSupervisor, tiempo: tiempo, password: passSupervisor },
-        success: function (data) {
-            console.log(data);
-            if (data[0].Status == "OK") {
-                $('#modalPass').modal('hide');
-                mostrarModal();
-            } else {
-                $('#modalPass').modal('hide')
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Contraseña incorrecta.'
-                })
-            }
-        },
-        async: true
-    });    
+    try {
+        //verifica el si la contraseña es correcta
+        $.ajax({
+            type: 'POST',
+            url: '/ProduccionRegistros/VerificaPassword',
+            data: { idSupervisor: idSupervisor, tiempo: tiempo, password: passSupervisor },
+            success: function (data) {
+                console.log(data);
+                if (data[0].Status == "OK") {
+                    $('#modalPass').modal('hide');
+                    mostrarModal();
+                } else {
+                    $('#modalPass').modal('hide')
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Contraseña incorrecta.'
+                    })
+                }
+            },
+            async: true
+        });
 
-    let pass = $('#password').val('');
+        let pass = $('#password').val('');
+
+    } catch (error) {
+        console.error(error);
+        $('#modalPass').modal('hide')
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Ha ocurrido un error al obtener la contraseña.'
+        })
+    }
+
+   
+    
 }
 
 //verifica si está dentro del tiempo autorizado
 function VerificaTiempo() {
 
+
     let valor = false;
-    //verifica el si la contraseña es correcta
-    $.ajax({
-        type: 'POST',
-        url: '/ProduccionRegistros/VerificaTiempoPermitido',
-        data: {  },
-        success: function (data) {
-            console.log(data);
-            if (data[0].Status == "OK") {
-                valor = true;
-            } else {
-                valor = false;
-            }
-        },
-        async: false
-    });
+
+    try {
+        //verifica el si la contraseña es correcta
+        $.ajax({
+            type: 'POST',
+            url: '/ProduccionRegistros/VerificaTiempoPermitido',
+            data: {},
+            success: function (data) {
+                console.log(data);
+                if (data[0].Status == "OK") {
+                    valor = true;
+                } else {
+                    valor = false;
+                }
+            },
+            async: false
+        });
+
+    } catch (error) {
+        console.error('Hubo un error al verificar el tiempo autorizado');
+        return false;
+    }
 
     return valor;
 
