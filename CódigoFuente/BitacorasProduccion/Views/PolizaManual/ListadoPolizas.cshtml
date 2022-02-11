@@ -130,7 +130,7 @@
                                                         }
                                                         @if (ViewBag.Finalizar != null && ViewBag.Finalizar)
                                                         {
-                                                            <a href="@Url.Action("FinalizarContabilidad", ViewBag.ControllerName, new { id = item.id })" class="btn btn-success " title="Finalizar">
+                                                            <a href="@Url.Action("EditarContabilidad", ViewBag.ControllerName, new { id = item.id })" class="btn btn-success " title="Finalizar">
                                                                 <i class="fa fa-list-alt"></i>
                                                             </a>
                                                         }

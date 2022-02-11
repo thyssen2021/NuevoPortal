@@ -53,6 +53,7 @@ namespace Portal_2_0.Models
         public Nullable<int> id_autorizador { get; set; }
 
         [Display(Name = "Contabilidad")]
+        [Required(ErrorMessage = "El usuario quien registrará en SAP obligatorio.", AllowEmptyStrings = false)]
         public Nullable<int> id_contabilidad { get; set; }
 
         [Display(Name = "Dirección")]

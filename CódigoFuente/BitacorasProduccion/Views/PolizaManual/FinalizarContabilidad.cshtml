@@ -347,20 +347,20 @@
                                 <!-- Fecha registro -->
                                 @Html.LabelFor(model => model.fecha_direccion, new { @class = "control-label col-md-2 float-right" })
 
-                            <div class="col-md-4">
-                                @if (Model.fecha_direccion.HasValue)
-                                {
-                                    <input type="text" class="form-control col-md-12" value="@Model.fecha_direccion.Value" readonly>
-                                }
-                                else if (Model.id_direccion.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_DIRECCION)
-                                {
-                                    <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
-                                }
-                                else
-                                {
-                                    <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
-                                }
-                            </div>
+                                <div class="col-md-4">
+                                    @if (Model.fecha_direccion.HasValue)
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="@Model.fecha_direccion.Value" readonly>
+                                    }
+                                    else if (Model.id_direccion.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_DIRECCION)
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
+                                    }
+                                    else
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
+                                    }
+                                </div>
                             </div>
                         }
                         <div class="form-group row">
@@ -417,6 +417,7 @@
                             @Html.HiddenFor(model => model.id)
                             @Html.HiddenFor(model => model.id_validador)
                             @Html.HiddenFor(model => model.descripcion_poliza)
+                            @Html.HiddenFor(model => model.id_contabilidad)
 
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.id_documento_registro, new { @class = "control-label col-md-2" })

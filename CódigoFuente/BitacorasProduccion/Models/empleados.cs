@@ -114,7 +114,7 @@ namespace Portal_2_0.Models
         {
             get
             {
-                return string.Format("{0} {1} {2}", nombre, apellido1, apellido2);
+                return string.Format("{0} {1} {2}", nombre, apellido1, apellido2).ToUpper();
             }
         }
 
@@ -123,7 +123,7 @@ namespace Portal_2_0.Models
         {
             get
             {
-                return string.Format("({0}) {1} {2} {3}", numeroEmpleado, nombre, apellido1, apellido2);
+                return string.Format("({0}) {1} {2} {3}", numeroEmpleado, nombre, apellido1, apellido2).ToUpper();
             }
         }
 

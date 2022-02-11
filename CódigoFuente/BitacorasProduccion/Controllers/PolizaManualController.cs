@@ -747,15 +747,17 @@ namespace Portal_2_0.Controllers
 
                 var cantidadRegistrosPorPagina = 20; // parámetro
 
+                //obtiene el usuario logeado
+                empleados empleado = obtieneEmpleadoLogeado();
 
                 var listado = db.poliza_manual
-                    .Where(x => x.estatus == PM_Status.ENVIADO_A_CONTABILIDAD)
+                    .Where(x => x.estatus == PM_Status.ENVIADO_A_CONTABILIDAD && x.id_contabilidad==empleado.id)
                     .OrderByDescending(x => x.fecha_creacion)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
                 var totalDeRegistros = db.poliza_manual
-                    .Where(x => x.estatus == PM_Status.ENVIADO_A_CONTABILIDAD)
+                     .Where(x => x.estatus == PM_Status.ENVIADO_A_CONTABILIDAD && x.id_contabilidad == empleado.id)
                     .Count();
                 //para paginación
 
@@ -799,15 +801,17 @@ namespace Portal_2_0.Controllers
 
                 var cantidadRegistrosPorPagina = 20; // parámetro
 
+                //obtiene el usuario logeado
+                empleados empleado = obtieneEmpleadoLogeado();
 
                 var listado = db.poliza_manual
-                     .Where(x => x.estatus == PM_Status.FINALIZADO)
+                     .Where(x => x.estatus == PM_Status.FINALIZADO && x.id_contabilidad == empleado.id)
                     .OrderByDescending(x => x.fecha_creacion)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
                 var totalDeRegistros = db.poliza_manual
-                    .Where(x => x.estatus == PM_Status.FINALIZADO)
+                    .Where(x => x.estatus == PM_Status.FINALIZADO && x.id_contabilidad == empleado.id)
                     .Count();
                 //para paginación
 
@@ -1513,28 +1517,11 @@ namespace Portal_2_0.Controllers
 
                     envioCorreo.SendEmailAsync(correos, "La Poliza Manual #" + poliza.id + " ha sido autorizada.", envioCorreo.getBodyPMNotificacionAutorizado(poliza));
 
-
-                    List<IdentitySample.Models.ApplicationUser> usuarios = await _userManager.Users.ToListAsync();
-
-                    usuarios = usuarios.Where(x => _userManager.IsInRoleAsync(x.Id, TipoRoles.PM_CONTABILIDAD).Result == true).ToList();
-                   
-
                     correos = new List<string>();
 
-                    foreach (var item in usuarios)
-                    {
-                        PM_usuarios_capturistas user = null;
-                        //busca el empleado
-                        empleados emp = db.empleados.Find(item.IdEmpleado);
-
-                        //busca el usuario capturista
-                        if (emp != null)
-                            user = db.PM_usuarios_capturistas.FirstOrDefault(x => x.id_empleado == emp.id);
-
-                        //si existe el usuario capturista y además esta activo
-                        if (user != null && user.activo == true)
-                            correos.Add(item.Email);
-                    }
+                    //agrega correo de contabilidad
+                    if (!String.IsNullOrEmpty(poliza.empleados1.correo))
+                        correos.Add(poliza.empleados1.correo); //agrega correo de contabilidad
 
 
                     //correos.Add("alfredo.xochitemol@lagermex.com.mx");
@@ -1733,28 +1720,11 @@ namespace Portal_2_0.Controllers
 
                 envioCorreo.SendEmailAsync(correos, "La Poliza Manual #" + poliza.id + " ha sido autorizada.", envioCorreo.getBodyPMNotificacionAutorizado(poliza));
 
-
-                List<IdentitySample.Models.ApplicationUser> usuarios = await _userManager.Users.ToListAsync();
-
-                usuarios = usuarios.Where(x => _userManager.IsInRoleAsync(x.Id, TipoRoles.PM_CONTABILIDAD).Result == true).ToList();
-
                 correos = new List<string>();
 
-
-                foreach (var item in usuarios)
-                {
-                    PM_usuarios_capturistas user = null;
-                    //busca el empleado
-                    empleados emp = db.empleados.Find(item.IdEmpleado);
-
-                    //busca el usuario capturista
-                    if (emp != null)
-                        user = db.PM_usuarios_capturistas.FirstOrDefault(x => x.id_empleado == emp.id);
-
-                    //si existe el usuario capturista y además esta activo
-                    if (user != null && user.activo == true)
-                        correos.Add(item.Email);
-                }
+                //agrega correo de contabilidad
+                if (!String.IsNullOrEmpty(poliza.empleados1.correo))
+                    correos.Add(poliza.empleados1.correo); //agrega correo de contabilidad
 
                 //correos.Add("alfredo.xochitemol@lagermex.com.mx");
                 envioCorreo.SendEmailAsync(correos, "La Poliza Manual #" + poliza.id + " está en espera de ser registrada en SAP.", envioCorreo.getBodyPMSendContabilidad(poliza));
@@ -1992,7 +1962,7 @@ namespace Portal_2_0.Controllers
                 }
 
                 //verifica si se puede autorizar
-                if (poliza_manual.estatus != PM_Status.FINALIZADO)
+                if (poliza_manual.estatus != PM_Status.FINALIZADO && poliza_manual.estatus != PM_Status.ENVIADO_A_CONTABILIDAD)
                 {
                     ViewBag.Titulo = "¡Lo sentimos!¡No se puede modificar esta Póliza!";
                     ViewBag.Descripcion = "No se puede modificar una póliza que aún no haya sido finalizado.";
@@ -2022,8 +1992,14 @@ namespace Portal_2_0.Controllers
 
             poliza_manual poliza = db.poliza_manual.Find(poliza_manual.id);
 
+            bool primer_registro = false;
+            if (poliza.estatus == PM_Status.ENVIADO_A_CONTABILIDAD)
+                primer_registro = true;
+
             //pone la fecha actual
             poliza.fecha_registro = DateTime.Now;
+            //pone status de finzalizado
+            poliza.estatus = PM_Status.FINALIZADO;
 
             //obtiene el usuario logeado
             empleados empleado = obtieneEmpleadoLogeado();
@@ -2112,6 +2088,31 @@ namespace Portal_2_0.Controllers
                     db.SaveChanges();
 
                     //////ENVIO DE EMAIL//////
+                    if (primer_registro) {
+                        //envia correo electronico
+                        EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+
+                        List<String> correos = new List<string>(); //correos TO
+
+                        //correos.Add("alfredo.xochitemol@lagermex.com.mx");
+
+                        //AGREGAR cORREOS A TODOS LOS INVOLUNCRADOS
+                        //Autorizador
+                        if (poliza.empleados != null && !String.IsNullOrEmpty(poliza.empleados.correo))
+                            correos.Add(poliza.empleados.correo);
+                        //direccion
+                        if (poliza.empleados2 != null && !String.IsNullOrEmpty(poliza.empleados2.correo))
+                            correos.Add(poliza.empleados2.correo);
+                        //Capturista
+                        if (poliza.empleados3 != null && !String.IsNullOrEmpty(poliza.empleados3.correo))
+                            correos.Add(poliza.empleados3.correo);
+                        //Validador
+                        if (poliza.empleados4 != null && !String.IsNullOrEmpty(poliza.empleados4.correo))
+                            correos.Add(poliza.empleados4.correo);
+
+                        envioCorreo.SendEmailAsync(correos, "La Póliza Manual #" + poliza.id + " ha sido registrada correctamente.", envioCorreo.getBodyPMRegistradoPorContabilidad(poliza));
+
+                    }
 
                 }
                 catch (System.Data.Entity.Validation.DbEntityValidationException ex)
@@ -2203,7 +2204,16 @@ namespace Portal_2_0.Controllers
                 ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas.Where(x => x.activo), "clave", "descripcion"));
                 ViewBag.id_validador = AddFirstItem(new SelectList(db.PM_departamentos.Where(x => x.id == user.id_departamento), "id_empleado_jefe", "empleados.ConcatNombre"), selected: user.PM_departamentos.id_empleado_jefe.ToString());
 
+                    //obtiene el listado de capturistas de contabilidad
+                var listadoContabilidad = db.PM_usuarios_capturistas.Where(x => x.PM_departamentos.descripcion.ToUpper().Contains("CONTABILIDAD")
+                && x.activo==true
+                ).ToList();
+
+                ViewBag.id_contabilidad = AddFirstItem(new SelectList(listadoContabilidad, "id_empleado", "empleados.ConcatNombre"));
+
                 poliza_manual poliza_model = new poliza_manual();
+
+               
 
                 //aqui hacer consulta para obtener el modelo de poliza
                 List<PM_conceptos> conceptos = new List<PM_conceptos>();
@@ -2359,6 +2369,13 @@ namespace Portal_2_0.Controllers
             ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas.Where(x => x.activo), "clave", "descripcion"));
             ViewBag.id_validador = AddFirstItem(new SelectList(db.PM_departamentos.Where(x => x.id == user.id_departamento), "id_empleado_jefe", "empleados.ConcatNombre"), selected: user.PM_departamentos.id_empleado_jefe.ToString());
 
+            //obtiene el listado de capturistas de contabilidad
+            var listadoContabilidad = db.PM_usuarios_capturistas.Where(x => x.PM_departamentos.descripcion.ToUpper().Contains("CONTABILIDAD")
+            && x.activo == true
+            ).ToList();
+
+            ViewBag.id_contabilidad = AddFirstItem(new SelectList(listadoContabilidad, "id_empleado", "empleados.ConcatNombre"));
+
             return View(poliza_manual);
         }
 
@@ -2407,6 +2424,13 @@ namespace Portal_2_0.Controllers
                 ViewBag.id_PM_tipo_poliza = AddFirstItem(new SelectList(db.PM_tipo_poliza.Where(x => x.activo), "id", "descripcion"), selected: poliza_manual.id_PM_tipo_poliza.ToString());
                 ViewBag.id_validador = AddFirstItem(new SelectList(db.PM_departamentos.Where(x => x.id == user.id_departamento), "id_empleado_jefe", "empleados.ConcatNombre"), selected: poliza_manual.id_validador.ToString());
                 ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas.Where(x => x.activo), "clave", "descripcion"), selected: poliza_manual.id_planta.ToString());
+
+                //obtiene el listado de capturistas de contabilidad
+                var listadoContabilidad = db.PM_usuarios_capturistas.Where(x => x.PM_departamentos.descripcion.ToUpper().Contains("CONTABILIDAD")
+                && x.activo == true
+                ).ToList();
+
+                ViewBag.id_contabilidad = AddFirstItem(new SelectList(listadoContabilidad, "id_empleado", "empleados.ConcatNombre"),selected: poliza_manual.id_contabilidad.ToString());
 
                 return View(poliza_manual);
             }
@@ -2598,6 +2622,13 @@ namespace Portal_2_0.Controllers
             ViewBag.id_PM_tipo_poliza = AddFirstItem(new SelectList(db.PM_tipo_poliza.Where(x => x.activo), "id", "descripcion"));
             ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas.Where(x => x.activo), "clave", "descripcion"));
             ViewBag.id_validador = AddFirstItem(new SelectList(db.PM_departamentos.Where(x => x.id == user.id_departamento), "id_empleado_jefe", "empleados.ConcatNombre"), selected: poliza_manual.id_validador.ToString());
+
+            //obtiene el listado de capturistas de contabilidad
+            var listadoContabilidad = db.PM_usuarios_capturistas.Where(x => x.PM_departamentos.descripcion.ToUpper().Contains("CONTABILIDAD")
+            && x.activo == true
+            ).ToList();
+
+            ViewBag.id_contabilidad = AddFirstItem(new SelectList(listadoContabilidad, "id_empleado", "empleados.ConcatNombre"), selected: poliza_manual.id_contabilidad.ToString());
 
             return View(poliza_manual);
         }

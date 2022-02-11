@@ -120,10 +120,10 @@
                                 </div>
                                 <!--Documento SAP-->
                                 @*@Html.LabelFor(model => model.numero_documento_sap, new { @class = "control-label col-md-2" })
-                <div class="col-md-2">
-                    @Html.EditorFor(m => m.numero_documento_sap, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                    @Html.ValidationMessageFor(model => model.numero_documento_sap, "", new { @class = "text-danger" })
-                </div>*@
+                                    <div class="col-md-2">
+                                        @Html.EditorFor(m => m.numero_documento_sap, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.numero_documento_sap, "", new { @class = "text-danger" })
+                                    </div>*@
                                 <!-- Id póliza -->
                                 <label class="control-label col-md-6 float-right">
                                     # P&oacute;liza
@@ -415,36 +415,31 @@
                                     <!-- Fecha registro -->
                                     @Html.LabelFor(model => model.fecha_direccion, new { @class = "control-label col-md-2 float-right" })
 
-                                <div class="col-md-4">
-                                    @if (Model.fecha_direccion.HasValue)
-                                    {
-                                        <input type="text" class="form-control col-md-12" value="@Model.fecha_direccion.Value" readonly>
-                                    }
-                                    else if (Model.id_direccion.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_DIRECCION)
-                                    {
-                                        <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
-                                    }
-                                    else
-                                    {
-                                        <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
-                                    }
-                                </div>
+                                    <div class="col-md-4">
+                                        @if (Model.fecha_direccion.HasValue)
+                                        {
+                                            <input type="text" class="form-control col-md-12" value="@Model.fecha_direccion.Value" readonly>
+                                        }
+                                        else if (Model.id_direccion.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_DIRECCION)
+                                        {
+                                            <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
+                                        }
+                                        else
+                                        {
+                                            <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
+                                        }
+                                    </div>
                                 </div>
                             }
                             <div class="form-group row">
                                 <!-- Contabilidad -->
                                 @Html.LabelFor(model => model.id_contabilidad, new { @class = "control-label col-md-1" })
+                                <div class="col-md-5">
+                                    @Html.DropDownList("id_contabilidad", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @Html.ValidationMessageFor(model => model.id_contabilidad, "", new { @class = "text-danger" })
+                                </div>
 
-                                @if (Model.id_contabilidad.HasValue)
-                                {
-                                    <input type="text" class="form-control col-md-5" value="@Model.empleados1.ConcatNombre" readonly>
-                                }
-                                else
-                                {
-                                    <input type="text" class="form-control col-md-5" value="NO DISPONIBLE" readonly>
-                                }
-
-                                <!-- Fecha registro -->
+                                <!-- Fecha validadcion -->
                                 @Html.LabelFor(model => model.fecha_registro, new { @class = "control-label col-md-2 float-right" })
 
                                 <div class="col-md-4">
@@ -452,12 +447,12 @@
                                     {
                                         <input type="text" class="form-control col-md-12" value="@Model.fecha_registro.Value" readonly>
                                     }
-
                                     else
                                     {
                                         <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
                                     }
                                 </div>
+
                             </div>
 
                             <div class="item form-group">
@@ -515,7 +510,7 @@
                 document.getElementById('cambio_documento_soporte').value = ++documento_soporte_cambios;
             });
 
-            
+
         });
 
         //variable para saber si ha cambiado el formulario y asi no se detenga por doble submit
