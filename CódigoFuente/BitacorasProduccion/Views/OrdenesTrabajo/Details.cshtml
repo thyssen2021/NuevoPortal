@@ -1,0 +1,147 @@
+﻿@model Portal_2_0.Models.orden_trabajo
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>orden_trabajo</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.fecha_solicitud)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.fecha_solicitud)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.nivel_urgencia)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.nivel_urgencia)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.titulo)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.titulo)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.descripcion)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.descripcion)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.fecha_asignacion)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.fecha_asignacion)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.fecha_en_proceso)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.fecha_en_proceso)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.fecha_cierre)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.fecha_cierre)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.estatus)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.estatus)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.comentario)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.comentario)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Area.descripcion)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Area.descripcion)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.biblioteca_digital.Nombre)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.biblioteca_digital.Nombre)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.biblioteca_digital1.Nombre)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.biblioteca_digital1.Nombre)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.empleados.numeroEmpleado)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.empleados.numeroEmpleado)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.empleados1.numeroEmpleado)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.empleados1.numeroEmpleado)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.empleados2.numeroEmpleado)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.empleados2.numeroEmpleado)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.produccion_lineas.linea)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.produccion_lineas.linea)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

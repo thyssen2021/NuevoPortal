@@ -195,7 +195,7 @@
                                     }
 
                                     @*MENÚ POLIZAS MANUALES*@
-                                    @if (User.IsInRole(TipoRoles.PM_AUTORIZAR_CONTROLLING) || User.IsInRole(TipoRoles.PM_CONTABILIDAD) || User.IsInRole(TipoRoles.PM_REGISTRO) 
+                                    @if (User.IsInRole(TipoRoles.PM_AUTORIZAR_CONTROLLING) || User.IsInRole(TipoRoles.PM_CONTABILIDAD) || User.IsInRole(TipoRoles.PM_REGISTRO)
                                         || User.IsInRole(TipoRoles.PM_VALIDAR_POR_AREA) || User.IsInRole(TipoRoles.PM_CATALOGOS) || User.IsInRole(TipoRoles.PM_DIRECCION)
                                         || User.IsInRole(TipoRoles.PM_REPORTES))
                                     {
@@ -326,6 +326,31 @@
                                         </li>
 
                                     }
+
+
+                                    @*MENÚ ORDENES DE TRABAJO*@
+
+                                    @if (User.IsInRole(TipoRoles.OT_ASIGNACION) || User.IsInRole(TipoRoles.OT_REPORTE) || User.IsInRole(TipoRoles.OT_RESPONSABLE)|| User.IsInRole(TipoRoles.OT_SOLICITUD))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "orden_trabajo" ? "active" : null )">
+                                            <a><i class="fa fa-wrench"></i>&Oacute;rdenes de Trabajo<span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu">
+
+                                                @if (User.IsInRole(TipoRoles.OT_SOLICITUD))
+                                                {
+                                                    <h3>Solicitudes</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "crear_solicitud" ? "current-page" : null )"><a href="@Url.Action("Create", "OrdenesTrabajo")">Crear Solicitud</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "mis_solicitudes" ? "current-page" : null )"><a href="@Url.Action("ListadoUsuario", "OrdenesTrabajo")">Mis Solicitudes</a></li>
+                                                }
+
+
+                                            </ul>
+
+                                        </li>
+
+                                    }
+
+                                    @*MENÚ DE USUARIOS*@
 
                                     @if (User.IsInRole(TipoRoles.USERS))
                                     {

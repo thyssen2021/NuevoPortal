@@ -33,5 +33,11 @@ namespace Clases.Util
         public const string INSPECCION_REGISTRO = "Inspeccion_registros";
         public const string INSPECCION_CATALOGOS = "Inspeccion_catalogos";
         public const string INSPECCION_REPORTES = "Inspeccion_reportes";
+        //Órdenes de Trabajo
+        public const string OT_SOLICITUD = "OrdenesTrabajo_Solicitud";
+        public const string OT_ASIGNACION = "OrdenesTrabajo_Asignacion";
+        public const string OT_RESPONSABLE = "OrdenesTrabajo_Responsable";
+        public const string OT_REPORTE = "OrdenesTrabajo_Reportes";
+
     }
 }

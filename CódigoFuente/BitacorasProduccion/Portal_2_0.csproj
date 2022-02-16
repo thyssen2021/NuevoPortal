@@ -205,6 +205,7 @@
     <Compile Include="Controllers\inspeccion_fallasController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\mm_v3Controller.cs" />
+    <Compile Include="Controllers\OrdenesTrabajoController.cs" />
     <Compile Include="Controllers\PFA_Border_portController.cs" />
     <Compile Include="Controllers\PFA_DepartmentController.cs" />
     <Compile Include="Controllers\PFA_Destination_plantController.cs" />
@@ -330,6 +331,12 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Models\orden_trabajo.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\OT_refacciones.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Paginacion.cs" />
     <Compile Include="Models\PFA.cs">
@@ -5168,6 +5175,12 @@
     <Content Include="Views\PM_poliza_manual_modelo\Disable.cshtml" />
     <Content Include="Views\PolizaManual\Reportes.cshtml" />
     <Content Include="Views\PolizaManual\AutorizarDireccion.cshtml" />
+    <Content Include="Views\OrdenesTrabajo\Create.cshtml" />
+    <Content Include="Views\OrdenesTrabajo\Delete.cshtml" />
+    <Content Include="Views\OrdenesTrabajo\Details.cshtml" />
+    <Content Include="Views\OrdenesTrabajo\Edit.cshtml" />
+    <Content Include="Views\OrdenesTrabajo\Index.cshtml" />
+    <Content Include="Views\OrdenesTrabajo\ListadoUsuario.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

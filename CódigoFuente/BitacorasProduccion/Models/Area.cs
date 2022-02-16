@@ -19,8 +19,8 @@ namespace Portal_2_0.Models
         public Area()
         {
             this.puesto = new HashSet<puesto>();
+            this.orden_trabajo = new HashSet<orden_trabajo>();
         }
-
 
         [Display(Name = "Clave")]
         public int clave { get; set; }
@@ -43,9 +43,10 @@ namespace Portal_2_0.Models
         [Display(Name = "Planta")]
         public Nullable<int> plantaClave { get; set; }
 
-
         public virtual plantas plantas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<puesto> puesto { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<orden_trabajo> orden_trabajo { get; set; }
     }
 }
