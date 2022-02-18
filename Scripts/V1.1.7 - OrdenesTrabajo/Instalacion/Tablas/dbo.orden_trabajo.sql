@@ -36,7 +36,7 @@ CREATE TABLE [orden_trabajo](
 	[fecha_en_proceso][datetime] NULL,
 	[fecha_cierre][datetime] NULL,
 	[estatus][varchar](20) NOT NULL,
-	[comentario][varchar](300) NOT NULL,
+	[comentario][varchar](300) NULL,
  CONSTRAINT [PK_orden_trabajo] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
@@ -94,6 +94,11 @@ ALTER TABLE [orden_trabajo] ADD  CONSTRAINT [DF_orden_trabajo_fecha_solicitud]  
 -- restricion check
 ALTER TABLE [orden_trabajo] ADD CONSTRAINT CK_orden_trabajo_Estatus CHECK ([estatus] IN 
 ('ABIERTO','ASIGNADO','EN_PROCESO', 'CERRADO')
+)
+
+-- restricion check
+ALTER TABLE [orden_trabajo] ADD CONSTRAINT CK_orden_trabajo_Nivel_Urgencia CHECK ([nivel_urgencia] IN 
+('ALTA','MEDIA','BAJA')
 )
 GO
 

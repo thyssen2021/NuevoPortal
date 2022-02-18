@@ -20,6 +20,7 @@ namespace Portal_2_0.Models
         {
             this.puesto = new HashSet<puesto>();
             this.orden_trabajo = new HashSet<orden_trabajo>();
+            this.empleados = new HashSet<empleados>();
         }
 
         [Display(Name = "Clave")]
@@ -48,5 +49,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<puesto> puesto { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<orden_trabajo> orden_trabajo { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<empleados> empleados { get; set; }
     }
 }

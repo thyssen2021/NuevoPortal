@@ -110,6 +110,7 @@
         <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_solicitante" />
         <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_linea" />
         <AssociationConnector Association="Portal_2_0Model.FK_OT_refacciones_id_orden_trabajo" />
+        <AssociationConnector Association="Portal_2_0Model.FK_empleados_area" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

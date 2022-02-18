@@ -19,7 +19,7 @@ BEGIN TRANSACTION
 		IF object_id(N'empleados','U') IS NOT NULL
 		BEGIN
 			ALTER TABLE empleados ADD id_area INT NULL
-			PRINT 'Se ha creado la columna rfc_proveedor en la tabla empleados'
+			PRINT 'Se ha creado la columna id_area en la tabla empleados'
 			
 			  -- restriccion de clave foranea
 			alter table [empleados]

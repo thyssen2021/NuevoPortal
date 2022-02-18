@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Web;
@@ -77,7 +78,6 @@ namespace Portal_2_0.Controllers
                 }
 
                 SelectList selectListItemsStatus = new SelectList(newList, "Value", "Text", estatus);
-
                 ViewBag.estatus = AddFirstItem(selectListItemsStatus,textoPorDefecto: "-- Todos --");
                 ViewBag.Paginacion = paginacion;
                 //Viewbags para los botones               
@@ -123,15 +123,18 @@ namespace Portal_2_0.Controllers
             {
                 //obtiene el usuario logeado
                 empleados empleado = obtieneEmpleadoLogeado();
-                ViewBag.Solicitante = empleado;
 
-                ViewBag.id_area = new SelectList(db.Area, "clave", "descripcion");
-                ViewBag.id_documento_cierre = new SelectList(db.biblioteca_digital, "Id", "Nombre");
-                ViewBag.id_documento_solicitud = new SelectList(db.biblioteca_digital, "Id", "Nombre");
-                ViewBag.id_asignacion = new SelectList(db.empleados, "id", "numeroEmpleado");
-                ViewBag.id_responsable = new SelectList(db.empleados, "id", "numeroEmpleado");
-                ViewBag.id_solicitante = new SelectList(db.empleados, "id", "numeroEmpleado");
-                ViewBag.id_linea = new SelectList(db.produccion_lineas, "id", "linea");
+                //verifica si es necesario mostrar el combo de lineas
+                if (empleado.Area != null && (empleado.Area.descripcion.ToUpper().Contains("PRODUCCION") || empleado.Area.descripcion.ToUpper().Contains("PRODUCCIÓN")))
+                    ViewBag.MuestraLineas = true;
+
+                //crea el select list para status
+                List<SelectListItem> selectListUrgencia = obtieneSelectListEstatus();
+
+                SelectList selectListItemsUrgencia = new SelectList(selectListUrgencia, "Value", "Text");
+                ViewBag.nivel_urgencia = AddFirstItem(selectListItemsUrgencia, textoPorDefecto: "-- Seleccionar --");
+                ViewBag.Solicitante = empleado;               
+                ViewBag.id_linea = AddFirstItem(new SelectList(db.produccion_lineas.Where(x=>x.clave_planta==empleado.planta_clave && x.activo==true), "id", "linea"));
                 return View();
 
             }
@@ -143,29 +146,98 @@ namespace Portal_2_0.Controllers
             
         }
 
-        //// POST: OrdenesTrabajo/Create
-        //// To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        //// more details see https://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult Create([Bind(Include = "id,id_solicitante,id_asignacion,id_responsable,id_area,id_linea,id_documento_solicitud,id_documento_cierre,fecha_solicitud,nivel_urgencia,titulo,descripcion,fecha_asignacion,fecha_en_proceso,fecha_cierre,estatus,comentario")] orden_trabajo orden_trabajo)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        db.orden_trabajo.Add(orden_trabajo);
-        //        db.SaveChanges();
-        //        return RedirectToAction("Index");
-        //    }
+        // POST: OrdenesTrabajo/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
+        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create(orden_trabajo orden_trabajo)
+        {
+            //obtiene el usuario logeado
+            empleados empleado = obtieneEmpleadoLogeado();
 
-        //    ViewBag.id_area = new SelectList(db.Area, "clave", "descripcion", orden_trabajo.id_area);
-        //    ViewBag.id_documento_cierre = new SelectList(db.biblioteca_digital, "Id", "Nombre", orden_trabajo.id_documento_cierre);
-        //    ViewBag.id_documento_solicitud = new SelectList(db.biblioteca_digital, "Id", "Nombre", orden_trabajo.id_documento_solicitud);
-        //    ViewBag.id_asignacion = new SelectList(db.empleados, "id", "numeroEmpleado", orden_trabajo.id_asignacion);
-        //    ViewBag.id_responsable = new SelectList(db.empleados, "id", "numeroEmpleado", orden_trabajo.id_responsable);
-        //    ViewBag.id_solicitante = new SelectList(db.empleados, "id", "numeroEmpleado", orden_trabajo.id_solicitante);
-        //    ViewBag.id_linea = new SelectList(db.produccion_lineas, "id", "linea", orden_trabajo.id_linea);
-        //    return View(orden_trabajo);
-        //}
+            //verifica si el tamaño del archivo es válido
+            if (orden_trabajo.PostedFileSolicitud != null && orden_trabajo.PostedFileSolicitud.InputStream.Length > 10485760)
+                ModelState.AddModelError("", "Sólo se permiten archivos menores a 10MB.");
+            else if (orden_trabajo.PostedFileSolicitud != null)
+            { //verifica la extensión del archivo
+                string extension = Path.GetExtension(orden_trabajo.PostedFileSolicitud.FileName);
+                if (extension.ToUpper() != ".XLS"   //si no contiene una extensión válida
+                               && extension.ToUpper() != ".XLSX"
+                               && extension.ToUpper() != ".DOC"
+                               && extension.ToUpper() != ".DOCX"
+                               && extension.ToUpper() != ".PDF"
+                               && extension.ToUpper() != ".PNG"
+                               && extension.ToUpper() != ".JPG"
+                               && extension.ToUpper() != ".JPEG"
+                               && extension.ToUpper() != ".RAR"
+                               && extension.ToUpper() != ".ZIP"
+                               && extension.ToUpper() != ".EML"
+                               )
+                    ModelState.AddModelError("", "Sólo se permiten archivos con extensión .xls, .xlsx, .doc, .docx, .pdf, .png, .jpg, .jpeg, .rar, .zip., y .eml.");
+                else
+                { //si la extension y el tamaño son válidos
+                    String nombreArchivo = orden_trabajo.PostedFileSolicitud.FileName;
+
+                    //recorta el nombre del archivo en caso de ser necesario
+                    if (nombreArchivo.Length > 80)
+                        nombreArchivo = nombreArchivo.Substring(0, 78 - extension.Length) + extension;
+
+                    //lee el archivo en un arreglo de bytes
+                    byte[] fileData = null;
+                    using (var binaryReader = new BinaryReader(orden_trabajo.PostedFileSolicitud.InputStream))
+                    {
+                        fileData = binaryReader.ReadBytes(orden_trabajo.PostedFileSolicitud.ContentLength);
+                    }
+
+                    //genera el archivo de biblioce digital
+                    biblioteca_digital archivo = new biblioteca_digital
+                    {
+                        Nombre = nombreArchivo,
+                        MimeType = UsoStrings.RecortaString(orden_trabajo.PostedFileSolicitud.ContentType, 80),
+                        Datos = fileData
+                    };
+
+                    //relaciona el archivo con la poliza (despues se guarda en BD)
+                    orden_trabajo.biblioteca_digital = archivo;  //documento soporte
+
+                }
+            }
+
+            if (ModelState.IsValid)
+            {
+                orden_trabajo.fecha_solicitud = DateTime.Now;
+                orden_trabajo.estatus = OT_Status.ABIERTO;
+
+                db.orden_trabajo.Add(orden_trabajo);
+                try
+                {
+                    db.SaveChanges();
+                    TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);
+                    return RedirectToAction("ListadoUsuario");
+                }
+                catch (Exception e) {
+                    TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: "+e.Message, TipoMensajesSweetAlerts.ERROR);
+                    return RedirectToAction("ListadoUsuario");
+                }
+            }
+
+            //En caso de que el modelo no sea válido
+
+            //verifica si es necesario mostrar el combo de lineas
+            if (empleado.Area != null && (empleado.Area.descripcion.ToUpper().Contains("PRODUCCION") || empleado.Area.descripcion.ToUpper().Contains("PRODUCCIÓN")))
+                ViewBag.MuestraLineas = true;
+
+            //crea el select list para status
+            List<SelectListItem> selectListUrgencia = obtieneSelectListEstatus();
+
+            SelectList selectListItemsUrgencia = new SelectList(selectListUrgencia, "Value", "Text");
+            ViewBag.nivel_urgencia = AddFirstItem(selectListItemsUrgencia, textoPorDefecto: "-- Seleccionar --",selected: orden_trabajo.estatus);
+            ViewBag.Solicitante = empleado;
+            ViewBag.id_linea = AddFirstItem(new SelectList(db.produccion_lineas.Where(x => x.clave_planta == empleado.planta_clave && x.activo == true), "id", "linea"),selected:orden_trabajo.estatus);
+
+            return View(orden_trabajo);
+        }
 
         //// GET: OrdenesTrabajo/Edit/5
         //public ActionResult Edit(int? id)
@@ -245,6 +317,28 @@ namespace Portal_2_0.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        [NonAction]
+        protected List<SelectListItem> obtieneSelectListEstatus() {
+            List<orden_trabajo> estatusList = new List<orden_trabajo>();
+            estatusList.Add(new orden_trabajo {descripcion = OT_nivel_urgencia.DescripcionStatus(OT_nivel_urgencia.ALTA), estatus = OT_nivel_urgencia.ALTA } );
+            estatusList.Add(new orden_trabajo { descripcion = OT_nivel_urgencia.DescripcionStatus(OT_nivel_urgencia.MEDIA), estatus = OT_nivel_urgencia.MEDIA });
+            estatusList.Add(new orden_trabajo { descripcion = OT_nivel_urgencia.DescripcionStatus(OT_nivel_urgencia.BAJA), estatus = OT_nivel_urgencia.BAJA });
+           
+            //crea un Select  list para el estatus
+            List<SelectListItem> newList = new List<SelectListItem>();
+
+            foreach (orden_trabajo item in estatusList)
+            {
+                newList.Add(new SelectListItem()
+                {
+                    Text = item.descripcion,
+                    Value = item.estatus
+                });
+            }
+
+            return newList;
         }
     }
 }

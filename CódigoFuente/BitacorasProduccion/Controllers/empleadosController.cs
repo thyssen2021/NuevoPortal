@@ -86,7 +86,7 @@ namespace Portal_2_0.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "id,nueva_fecha_nacimiento,planta_clave,clave,activo,numeroEmpleado,nombre,apellido1,apellido2,nacimientoFecha,correo,telefono,extension,celular,nivel,puesto,compania,ingresoFecha,bajaFecha, C8ID")] empleados empleados, FormCollection collection)
+        public ActionResult Create(empleados empleados, FormCollection collection)
         {
            
             //valores enviados previamente
@@ -119,6 +119,10 @@ namespace Portal_2_0.Controllers
                         empleados.nombre = empleados.nombre.ToUpper();
                         empleados.apellido1 = empleados.apellido1.ToUpper();
                         empleados.apellido2 = empleados.apellido2.ToUpper();
+                        //agrega el id_area
+                        if (c_area > 0)
+                            empleados.id_area = c_area;
+
                         db.empleados.Add(empleados);
                         db.SaveChanges();
                         TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);
@@ -175,17 +179,12 @@ namespace Portal_2_0.Controllers
                     return View("../Error/NotFound");
                 }
 
-                //valores enviados previamente
-                int c_area = 0;
-                if (empleados.puesto1 != null && empleados.puesto1.areaClave.HasValue)
-                    c_area = empleados.puesto1.areaClave.Value;
-               
                 ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
                 ViewBag.areaClave = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
                 ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion");
                 //claves seleccionadas
                 ViewBag.c_planta = empleados.planta_clave;
-                ViewBag.c_area = c_area;
+                ViewBag.c_area = empleados.id_area;
                 ViewBag.c_puesto = empleados.puesto;
                 return View(empleados);
             }
@@ -202,7 +201,7 @@ namespace Portal_2_0.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit([Bind(Include = "id,nueva_fecha_nacimiento,planta_clave,clave,activo,numeroEmpleado,nombre,apellido1,apellido2,nacimientoFecha,correo,telefono,extension,celular,nivel,puesto,compania,ingresoFecha,bajaFecha,C8ID")] empleados empleados, FormCollection collection)
+        public async Task<ActionResult> Edit(empleados empleados, FormCollection collection)
         {
             //valores enviados previamente
             int c_planta = 0;
@@ -245,7 +244,13 @@ namespace Portal_2_0.Controllers
                         empleados.nombre = empleados.nombre.ToUpper();
                         empleados.apellido1 = empleados.apellido1.ToUpper();
                         empleados.apellido2 = empleados.apellido2.ToUpper();
+                        
+                        //agrega el id_area
+                        if(c_area>0)
+                            empleados.id_area = c_area;
+
                         db.Entry(empleados).State = EntityState.Modified;
+
                         db.SaveChanges();
                         TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
                         return RedirectToAction("Index");

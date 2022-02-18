@@ -11,7 +11,9 @@ namespace Portal_2_0.Models
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.ComponentModel.DataAnnotations;
+    using System.Web;
+
     public partial class orden_trabajo
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -19,25 +21,70 @@ namespace Portal_2_0.Models
         {
             this.OT_refacciones = new HashSet<OT_refacciones>();
         }
-    
+
+        [Display(Name = "# Solicitud")]
         public int id { get; set; }
+
+        [Display(Name = "Solicitante")]
         public int id_solicitante { get; set; }
+
+        [Display(Name = "Asignación")]
         public Nullable<int> id_asignacion { get; set; }
+
+        [Display(Name = "Responsable")]
         public Nullable<int> id_responsable { get; set; }
+
+        [Display(Name = "Área")]
         public int id_area { get; set; }
+
+        [Display(Name = "Línea")]
         public Nullable<int> id_linea { get; set; }
+
+        [Display(Name = "Documento Solicitud")]
         public Nullable<int> id_documento_solicitud { get; set; }
+
+        [Display(Name = "Documento Cierre")]
         public Nullable<int> id_documento_cierre { get; set; }
+        
+        [Display(Name = "Fecha solicitud")]
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public System.DateTime fecha_solicitud { get; set; }
+
+        [Display(Name = "Urgencia")]
+        [StringLength(15)]
+        [Required(AllowEmptyStrings = false)]
         public string nivel_urgencia { get; set; }
+
+        [Display(Name = "Título")]
+        [StringLength(80, MinimumLength = 5)]
+        [Required(AllowEmptyStrings = false)]
         public string titulo { get; set; }
+
+        [Display(Name = "Descripción")]
+        [StringLength(300, MinimumLength = 5)]
+        [Required(AllowEmptyStrings = false)]
         public string descripcion { get; set; }
+
+        [Display(Name = "Fecha Asignación")]
         public Nullable<System.DateTime> fecha_asignacion { get; set; }
+
+        [Display(Name = "Fecha en Proceso")]
         public Nullable<System.DateTime> fecha_en_proceso { get; set; }
+
+        [Display(Name = "Fecha Cierre")]
         public Nullable<System.DateTime> fecha_cierre { get; set; }
+
+        [Display(Name = "Estatus")]
+        [Required(AllowEmptyStrings = false)]
         public string estatus { get; set; }
+
+        [Display(Name = "Comentario Cierre")]
+        [StringLength(300, MinimumLength = 3)]
         public string comentario { get; set; }
-    
+
+        public HttpPostedFileBase PostedFileSolicitud { get; set; }
+
         public virtual Area Area { get; set; }
         public virtual biblioteca_digital biblioteca_digital { get; set; }
         public virtual biblioteca_digital biblioteca_digital1 { get; set; }
