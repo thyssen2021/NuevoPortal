@@ -22,7 +22,7 @@ namespace Portal_2_0.Models
             this.OT_refacciones = new HashSet<OT_refacciones>();
         }
 
-        [Display(Name = "# Solicitud")]
+        [Display(Name = "Folio")]
         public int id { get; set; }
 
         [Display(Name = "Solicitante")]
@@ -45,7 +45,7 @@ namespace Portal_2_0.Models
 
         [Display(Name = "Documento Cierre")]
         public Nullable<int> id_documento_cierre { get; set; }
-        
+
         [Display(Name = "Fecha solicitud")]
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]

@@ -72,7 +72,7 @@ namespace Portal_2_0.Controllers
                 {
                     newList.Add(new SelectListItem()
                     {
-                        Text = statusItem,
+                        Text = OT_Status.DescripcionStatus(statusItem),
                         Value = statusItem
                     });
                 }
@@ -93,27 +93,30 @@ namespace Portal_2_0.Controllers
             }
         }
 
-        //// GET: OrdenesTrabajo
-        //public ActionResult Index()
-        //{
-        //    var orden_trabajo = db.orden_trabajo.Include(o => o.Area).Include(o => o.biblioteca_digital).Include(o => o.biblioteca_digital1).Include(o => o.empleados).Include(o => o.empleados1).Include(o => o.empleados2).Include(o => o.produccion_lineas);
-        //    return View(orden_trabajo.ToList());
-        //}
+        // GET: OrdenesTrabajo/Details/5
+        public ActionResult Details(int? id)
+        {
+            if (TieneRol(TipoRoles.OT_SOLICITUD) || TieneRol(TipoRoles.OT_ASIGNACION) || TieneRol(TipoRoles.OT_RESPONSABLE)
+            || TieneRol(TipoRoles.OT_REPORTE) )
+            {
 
-        //// GET: OrdenesTrabajo/Details/5
-        //public ActionResult Details(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-        //    }
-        //    orden_trabajo orden_trabajo = db.orden_trabajo.Find(id);
-        //    if (orden_trabajo == null)
-        //    {
-        //        return HttpNotFound();
-        //    }
-        //    return View(orden_trabajo);
-        //}
+                if (id == null)
+                {
+                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                }
+                orden_trabajo orden_trabajo = db.orden_trabajo.Find(id);
+                if (orden_trabajo == null)
+                {
+                    return HttpNotFound();
+                }
+                return View(orden_trabajo);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+           
+        }
 
         //// GET: OrdenesTrabajo/Create
         public ActionResult Create()
@@ -155,6 +158,10 @@ namespace Portal_2_0.Controllers
         {
             //obtiene el usuario logeado
             empleados empleado = obtieneEmpleadoLogeado();
+
+            //verificA SI TIENE un área asiganda
+            if(!(orden_trabajo.id_area>0))
+            ModelState.AddModelError("", "El usuario no tiene un área asignada, contacte al administrador del sitio para poder continuar.");
 
             //verifica si el tamaño del archivo es válido
             if (orden_trabajo.PostedFileSolicitud != null && orden_trabajo.PostedFileSolicitud.InputStream.Length > 10485760)
@@ -199,7 +206,7 @@ namespace Portal_2_0.Controllers
                     };
 
                     //relaciona el archivo con la poliza (despues se guarda en BD)
-                    orden_trabajo.biblioteca_digital = archivo;  //documento soporte
+                    orden_trabajo.biblioteca_digital1 = archivo;  //documento soporte
 
                 }
             }

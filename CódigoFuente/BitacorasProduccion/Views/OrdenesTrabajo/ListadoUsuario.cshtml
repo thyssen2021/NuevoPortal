@@ -107,10 +107,7 @@
                                             <tr>
                                                 <th>Acciones</th>
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.fecha_solicitud)
-                                                </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.nivel_urgencia)
+                                                    @Html.DisplayNameFor(model => model.id)
                                                 </th>
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.titulo)
@@ -119,106 +116,44 @@
                                                     @Html.DisplayNameFor(model => model.descripcion)
                                                 </th>
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.fecha_asignacion)
+                                                    @Html.DisplayNameFor(model => model.fecha_solicitud)
                                                 </th>
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.fecha_en_proceso)
-                                                </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.fecha_cierre)
+                                                    @Html.DisplayNameFor(model => model.nivel_urgencia)
                                                 </th>
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.estatus)
                                                 </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.comentario)
-                                                </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.Area.descripcion)
-                                                </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.biblioteca_digital.Nombre)
-                                                </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.biblioteca_digital1.Nombre)
-                                                </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.empleados.numeroEmpleado)
-                                                </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.empleados1.numeroEmpleado)
-                                                </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.empleados2.numeroEmpleado)
-                                                </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.produccion_lineas.linea)
-                                                </th>
-
                                             </tr>
                                         </thead>
                                         <tbody>
                                             @foreach (var item in Model)
                                             {
-                                                <tr>
-                                                    <td>
-                                                        @if (ViewBag.Edit != null && ViewBag.Edit)
-                                                        {
-                                                            <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = item.id})" class="btn btn-success btm-sm" title="Editar">
-                                                                <i class="fa fa-pencil-square-o"></i>
-                                                            </a>
-                                                        }
-
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.fecha_solicitud)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.nivel_urgencia)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.titulo)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.descripcion)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.fecha_asignacion)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.fecha_en_proceso)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.fecha_cierre)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.estatus)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.comentario)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.Area.descripcion)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.biblioteca_digital.Nombre)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.biblioteca_digital1.Nombre)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.empleados.numeroEmpleado)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.empleados1.numeroEmpleado)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.empleados2.numeroEmpleado)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.produccion_lineas.linea)
-                                                    </td>
-                                                </tr>
+                                            <tr>
+                                                <td>
+                                                    <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.id })" class="btn btn-secondary " title="Detalles">
+                                                        <i class="fa fa-info-circle"></i>
+                                                    </a>
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.id)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.titulo)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.descripcion)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.fecha_solicitud)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.nivel_urgencia)
+                                                </td>                                              
+                                                <td>
+                                                    @Bitacoras.Util.OT_Status.DescripcionStatus(item.estatus)
+                                                </td>                                                
+                                            </tr>
                                             }
 
                                         </tbody>
@@ -267,10 +202,10 @@
 
         });
 
-                            ////agranda el tamaño de la barra
-                            //window.onload = function () {
-                            //    document.getElementById('menu_toggle').click();
-                            //}
+        //agranda el tamaño de la barra
+        window.onload = function () {
+            clicMenu(2);
+        }
 
 
     </script>

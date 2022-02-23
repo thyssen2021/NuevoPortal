@@ -230,7 +230,7 @@
           <Property Name="fecha_en_proceso" Type="datetime" />
           <Property Name="fecha_cierre" Type="datetime" />
           <Property Name="estatus" Type="varchar" MaxLength="20" Nullable="false" />
-          <Property Name="comentario" Type="varchar" MaxLength="300" Nullable="false" />
+          <Property Name="comentario" Type="varchar" MaxLength="300" />
         </EntityType>
         <EntityType Name="OT_refacciones">
           <Key>
@@ -1751,8 +1751,8 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <Property Name="plantaClave" Type="Int32" />
           <NavigationProperty Name="plantas" Relationship="Self.FK_areas_planta_clave" FromRole="Area" ToRole="plantas" />
           <NavigationProperty Name="puesto" Relationship="Self.FK_puestos_area_clave" FromRole="Area" ToRole="puesto" />
-          <NavigationProperty Name="orden_trabajo" Relationship="Portal_2_0Model.FK_orden_trabajo_id_area" FromRole="Area" ToRole="orden_trabajo" />
           <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_empleados_area" FromRole="Area" ToRole="empleados" />
+          <NavigationProperty Name="orden_trabajo" Relationship="Portal_2_0Model.FK_orden_trabajo_id_area" FromRole="Area" ToRole="orden_trabajo" />
         </EntityType>
         <EntityType Name="bom_en_sap">
           <Key>
@@ -2375,8 +2375,12 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
             <End Role="PM_tipo_poliza" EntitySet="PM_tipo_poliza" />
             <End Role="poliza_manual" EntitySet="poliza_manual" />
           </AssociationSet>
-          <EntitySet Name="orden_trabajo" EntityType="Portal_2_0Model.orden_trabajo" />
           <EntitySet Name="OT_refacciones" EntityType="Portal_2_0Model.OT_refacciones" />
+          <AssociationSet Name="FK_empleados_area" Association="Portal_2_0Model.FK_empleados_area">
+            <End Role="Area" EntitySet="Area" />
+            <End Role="empleados" EntitySet="empleados" />
+          </AssociationSet>
+          <EntitySet Name="orden_trabajo" EntityType="Portal_2_0Model.orden_trabajo" />
           <AssociationSet Name="FK_orden_trabajo_id_area" Association="Portal_2_0Model.FK_orden_trabajo_id_area">
             <End Role="Area" EntitySet="Area" />
             <End Role="orden_trabajo" EntitySet="orden_trabajo" />
@@ -2408,10 +2412,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <AssociationSet Name="FK_OT_refacciones_id_orden_trabajo" Association="Portal_2_0Model.FK_OT_refacciones_id_orden_trabajo">
             <End Role="orden_trabajo" EntitySet="orden_trabajo" />
             <End Role="OT_refacciones" EntitySet="OT_refacciones" />
-          </AssociationSet>
-          <AssociationSet Name="FK_empleados_area" Association="Portal_2_0Model.FK_empleados_area">
-            <End Role="Area" EntitySet="Area" />
-            <End Role="empleados" EntitySet="empleados" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="notificaciones_correo">
@@ -3074,11 +3074,11 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <NavigationProperty Name="produccion_operadores" Relationship="Portal_2_0Model.FK_produccion_operadores_id_empleado" FromRole="empleados" ToRole="produccion_operadores" />
           <NavigationProperty Name="produccion_respaldo" Relationship="Portal_2_0Model.FK_produccion_respaldo_id_empleado" FromRole="empleados" ToRole="produccion_respaldo" />
           <NavigationProperty Name="produccion_supervisores" Relationship="Portal_2_0Model.FK_produccion_supervisores_id_empleado" FromRole="empleados" ToRole="produccion_supervisores" />
+          <Property Name="id_area" Type="Int32" />
+          <NavigationProperty Name="Area" Relationship="Portal_2_0Model.FK_empleados_area" FromRole="empleados" ToRole="Area" />
           <NavigationProperty Name="orden_trabajo" Relationship="Portal_2_0Model.FK_orden_trabajo_id_asignacion" FromRole="empleados" ToRole="orden_trabajo" />
           <NavigationProperty Name="orden_trabajo1" Relationship="Portal_2_0Model.FK_orden_trabajo_id_responsable" FromRole="empleados" ToRole="orden_trabajo" />
           <NavigationProperty Name="orden_trabajo2" Relationship="Portal_2_0Model.FK_orden_trabajo_id_solicitante" FromRole="empleados" ToRole="orden_trabajo" />
-          <Property Name="id_area" Type="Int32" />
-          <NavigationProperty Name="Area" Relationship="Portal_2_0Model.FK_empleados_area" FromRole="empleados" ToRole="Area" />
         </EntityType>
         <EntityType Name="poliza_manual">
           <Key>
@@ -3393,6 +3393,29 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="OT_refacciones">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_orden_trabajo" Type="Int32" Nullable="false" />
+          <Property Name="cantidad" Type="Decimal" Nullable="false" Precision="8" Scale="2" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="155" FixedLength="false" Unicode="false" />
+          <Property Name="tipo" Type="String" Nullable="false" MaxLength="15" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="orden_trabajo" Relationship="Portal_2_0Model.FK_OT_refacciones_id_orden_trabajo" FromRole="OT_refacciones" ToRole="orden_trabajo" />
+        </EntityType>
+        <Association Name="FK_empleados_area">
+          <End Type="Portal_2_0Model.Area" Role="Area" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Area">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="empleados">
+              <PropertyRef Name="id_area" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityType Name="orden_trabajo">
           <Key>
             <PropertyRef Name="id" />
@@ -3413,7 +3436,7 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <Property Name="fecha_en_proceso" Type="DateTime" Precision="3" />
           <Property Name="fecha_cierre" Type="DateTime" Precision="3" />
           <Property Name="estatus" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="comentario" Type="String" Nullable="false" MaxLength="300" FixedLength="false" Unicode="false" />
+          <Property Name="comentario" Type="String" MaxLength="300" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="Area" Relationship="Portal_2_0Model.FK_orden_trabajo_id_area" FromRole="orden_trabajo" ToRole="Area" />
           <NavigationProperty Name="biblioteca_digital" Relationship="Portal_2_0Model.FK_orden_trabajo_id_documento_cierre" FromRole="orden_trabajo" ToRole="biblioteca_digital" />
           <NavigationProperty Name="biblioteca_digital1" Relationship="Portal_2_0Model.FK_orden_trabajo_id_documento_solicitud" FromRole="orden_trabajo" ToRole="biblioteca_digital" />
@@ -3422,17 +3445,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <NavigationProperty Name="empleados2" Relationship="Portal_2_0Model.FK_orden_trabajo_id_solicitante" FromRole="orden_trabajo" ToRole="empleados" />
           <NavigationProperty Name="produccion_lineas" Relationship="Portal_2_0Model.FK_orden_trabajo_id_linea" FromRole="orden_trabajo" ToRole="produccion_lineas" />
           <NavigationProperty Name="OT_refacciones" Relationship="Portal_2_0Model.FK_OT_refacciones_id_orden_trabajo" FromRole="orden_trabajo" ToRole="OT_refacciones" />
-        </EntityType>
-        <EntityType Name="OT_refacciones">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_orden_trabajo" Type="Int32" Nullable="false" />
-          <Property Name="cantidad" Type="Decimal" Nullable="false" Precision="8" Scale="2" />
-          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="155" FixedLength="false" Unicode="false" />
-          <Property Name="tipo" Type="String" Nullable="false" MaxLength="15" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="orden_trabajo" Relationship="Portal_2_0Model.FK_OT_refacciones_id_orden_trabajo" FromRole="OT_refacciones" ToRole="orden_trabajo" />
         </EntityType>
         <Association Name="FK_orden_trabajo_id_area">
           <End Type="Portal_2_0Model.Area" Role="Area" Multiplicity="1" />
@@ -3527,18 +3539,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
             </Principal>
             <Dependent Role="OT_refacciones">
               <PropertyRef Name="id_orden_trabajo" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_empleados_area">
-          <End Type="Portal_2_0Model.Area" Role="Area" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Area">
-              <PropertyRef Name="clave" />
-            </Principal>
-            <Dependent Role="empleados">
-              <PropertyRef Name="id_area" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -4192,6 +4192,17 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="OT_refacciones">
+            <EntityTypeMapping TypeName="Portal_2_0Model.OT_refacciones">
+              <MappingFragment StoreEntitySet="OT_refacciones">
+                <ScalarProperty Name="tipo" ColumnName="tipo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="cantidad" ColumnName="cantidad" />
+                <ScalarProperty Name="id_orden_trabajo" ColumnName="id_orden_trabajo" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="orden_trabajo">
             <EntityTypeMapping TypeName="Portal_2_0Model.orden_trabajo">
               <MappingFragment StoreEntitySet="orden_trabajo">
@@ -4211,17 +4222,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
                 <ScalarProperty Name="id_responsable" ColumnName="id_responsable" />
                 <ScalarProperty Name="id_asignacion" ColumnName="id_asignacion" />
                 <ScalarProperty Name="id_solicitante" ColumnName="id_solicitante" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="OT_refacciones">
-            <EntityTypeMapping TypeName="Portal_2_0Model.OT_refacciones">
-              <MappingFragment StoreEntitySet="OT_refacciones">
-                <ScalarProperty Name="tipo" ColumnName="tipo" />
-                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
-                <ScalarProperty Name="cantidad" ColumnName="cantidad" />
-                <ScalarProperty Name="id_orden_trabajo" ColumnName="id_orden_trabajo" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

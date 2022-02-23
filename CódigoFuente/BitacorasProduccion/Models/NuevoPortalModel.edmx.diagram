@@ -100,8 +100,9 @@
         <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_planta" />
         <AssociationConnector Association="Portal_2_0Model.FK_PM_conceptos_id_poliza" />
         <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_tipo_poliza" />
-        <EntityTypeShape EntityType="Portal_2_0Model.orden_trabajo" Width="1.5" PointX="21.125" PointY="9.375" />
         <EntityTypeShape EntityType="Portal_2_0Model.OT_refacciones" Width="1.5" PointX="23.375" PointY="11.25" />
+        <AssociationConnector Association="Portal_2_0Model.FK_empleados_area" />
+        <EntityTypeShape EntityType="Portal_2_0Model.orden_trabajo" Width="1.5" PointX="21.125" PointY="9.375" />
         <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_area" />
         <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_documento_cierre" />
         <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_documento_solicitud" />
@@ -110,7 +111,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_solicitante" />
         <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_linea" />
         <AssociationConnector Association="Portal_2_0Model.FK_OT_refacciones_id_orden_trabajo" />
-        <AssociationConnector Association="Portal_2_0Model.FK_empleados_area" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

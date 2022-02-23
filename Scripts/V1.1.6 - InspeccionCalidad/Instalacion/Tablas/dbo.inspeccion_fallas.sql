@@ -117,8 +117,6 @@ INSERT INTO [dbo].[inspeccion_fallas] ([id],[id_categoria_falla],[descripcion],[
 SET IDENTITY_INSERT [inspeccion_fallas] OFF
 GO
 
-SELECT f.*, c.descripcion FROM inspeccion_fallas as f 
-	join inspeccion_categoria_fallas as c on c.id = f.id_categoria_falla 
 
 --INFO
 IF object_id(N'inspeccion_fallas',N'U') IS NOT NULL
