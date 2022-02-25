@@ -330,7 +330,7 @@
 
                                     @*MENÚ ORDENES DE TRABAJO*@
 
-                                    @if (User.IsInRole(TipoRoles.OT_ASIGNACION) || User.IsInRole(TipoRoles.OT_REPORTE) || User.IsInRole(TipoRoles.OT_RESPONSABLE)|| User.IsInRole(TipoRoles.OT_SOLICITUD))
+                                    @if (User.IsInRole(TipoRoles.OT_ASIGNACION) || User.IsInRole(TipoRoles.OT_REPORTE) || User.IsInRole(TipoRoles.OT_RESPONSABLE) || User.IsInRole(TipoRoles.OT_SOLICITUD))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "orden_trabajo" ? "active" : null )">
                                             <a><i class="fa fa-wrench"></i>&Oacute;rdenes de Trabajo<span class="fa fa-chevron-down"></span></a>
@@ -342,6 +342,30 @@
                                                     <li class="@(ViewBag.SegundoNivel == "crear_solicitud" ? "current-page" : null )"><a href="@Url.Action("Create", "OrdenesTrabajo")">Crear Solicitud</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "mis_solicitudes" ? "current-page" : null )"><a href="@Url.Action("ListadoUsuario", "OrdenesTrabajo")">Mis Solicitudes</a></li>
                                                 }
+
+
+                                            </ul>
+
+                                        </li>
+
+                                    }
+
+                                    @*MENÚ PLANTILLA BUDGET*@
+
+                                    @if (User.IsInRole(TipoRoles.BG_RESPONSABLE) || User.IsInRole(TipoRoles.BG_CONTROLLING) || User.IsInRole(TipoRoles.BG_CONTROLLING) )
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "plantilla_budget" ? "active" : null )">
+                                            <a><i class="fa fa-calculator"></i>Budget<span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu">
+
+                                                @if (User.IsInRole(TipoRoles.BG_RESPONSABLE))
+                                                {
+                                                    <h3>Centros de Costo</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "actual" ? "current-page" : null )"><a href="@Url.Action("Actual", "ResponsableBudget")">ACT FY 2020/21</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY 2021/22</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY 2022/23</a></li>
+                                                }
+                                                
 
 
                                             </ul>

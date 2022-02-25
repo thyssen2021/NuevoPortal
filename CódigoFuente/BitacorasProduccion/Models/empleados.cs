@@ -36,6 +36,7 @@ namespace Portal_2_0.Models
             this.orden_trabajo = new HashSet<orden_trabajo>();
             this.orden_trabajo1 = new HashSet<orden_trabajo>();
             this.orden_trabajo2 = new HashSet<orden_trabajo>();
+            this.budget_centro_costo = new HashSet<budget_centro_costo>();
         }
 
         public int id { get; set; }
@@ -132,6 +133,7 @@ namespace Portal_2_0.Models
                 return string.Format("({0}) {1} {2} {3}", numeroEmpleado, nombre, apellido1, apellido2).ToUpper();
             }
         }
+
         public virtual plantas plantas { get; set; }
         public virtual puesto puesto1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -164,12 +166,14 @@ namespace Portal_2_0.Models
         public virtual ICollection<produccion_respaldo> produccion_respaldo { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<produccion_supervisores> produccion_supervisores { get; set; }
+        public virtual Area Area { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<orden_trabajo> orden_trabajo { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<orden_trabajo> orden_trabajo1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<orden_trabajo> orden_trabajo2 { get; set; }
-        public virtual Area Area { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<budget_centro_costo> budget_centro_costo { get; set; }
     }
 }

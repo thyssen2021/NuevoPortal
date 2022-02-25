@@ -229,6 +229,7 @@
     <Compile Include="Controllers\ProduccionTurnosController.cs" />
     <Compile Include="Controllers\PuestosController.cs" />
     <Compile Include="Controllers\ReportePesadasController.cs" />
+    <Compile Include="Controllers\ResponsableBudgetController.cs" />
     <Compile Include="Controllers\RolesAdminController.cs" />
     <Compile Include="Controllers\UserAdminController.cs" />
     <Compile Include="Global.asax.cs">
@@ -264,6 +265,27 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\bom_en_sap.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\budget_anio_fiscal.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\budget_centro_costo.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\budget_cuenta_sap.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\budget_mapping.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\budget_mapping_bridge.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\budget_rel_anio_fiscal_centro.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\budget_valores.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\class_v3.cs">
@@ -5176,11 +5198,14 @@
     <Content Include="Views\PolizaManual\Reportes.cshtml" />
     <Content Include="Views\PolizaManual\AutorizarDireccion.cshtml" />
     <Content Include="Views\OrdenesTrabajo\Create.cshtml" />
-    <Content Include="Views\OrdenesTrabajo\Delete.cshtml" />
     <Content Include="Views\OrdenesTrabajo\Details.cshtml" />
-    <Content Include="Views\OrdenesTrabajo\Edit.cshtml" />
-    <Content Include="Views\OrdenesTrabajo\Index.cshtml" />
     <Content Include="Views\OrdenesTrabajo\ListadoUsuario.cshtml" />
+    <Content Include="Views\ResponsableBudget\Create.cshtml" />
+    <Content Include="Views\ResponsableBudget\Delete.cshtml" />
+    <Content Include="Views\ResponsableBudget\Details.cshtml" />
+    <Content Include="Views\ResponsableBudget\Edit.cshtml" />
+    <Content Include="Views\ResponsableBudget\Actual.cshtml" />
+    <Content Include="Views\ResponsableBudget\DetailsActual.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

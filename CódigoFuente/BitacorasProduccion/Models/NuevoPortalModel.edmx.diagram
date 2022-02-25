@@ -111,6 +111,22 @@
         <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_solicitante" />
         <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_linea" />
         <AssociationConnector Association="Portal_2_0Model.FK_OT_refacciones_id_orden_trabajo" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_anio_fiscal" Width="1.5" PointX="19.75" PointY="35.25" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_centro_costo" Width="1.5" PointX="14.75" PointY="4.25" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_cuenta_sap" Width="1.5" PointX="24" PointY="39.125" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_mapping" Width="1.5" PointX="21.75" PointY="39.25" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_mapping_bridge" Width="1.5" PointX="19.5" PointY="39.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_rel_anio_fiscal_centro" Width="1.5" PointX="22" PointY="1.125" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_valores" Width="1.5" PointX="26.25" PointY="15.875" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_centro_costo_id_area" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_anio_fiscal_centro_id_anio_fiscal" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_centro_costo_id_responsable" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_anio_fiscal_centro_id_centro_costo" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_cuenta_sap_id_mapping" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_valores_id_cuenta_sap" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_mapping_id_mapping_bridge" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_valores_id_rel_anio_centro" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_valores_currency_iso" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

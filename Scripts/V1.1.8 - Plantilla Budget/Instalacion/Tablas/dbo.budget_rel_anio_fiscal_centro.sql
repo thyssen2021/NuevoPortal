@@ -47,7 +47,7 @@ GO
   references budget_centro_costo(id);
 
   -- restricion check
-ALTER TABLE [budget_rel_anio_fiscal_centro] ADD CONSTRAINT CK_budget_anio_fiscal_tipo CHECK ([estatus] IN 
+ALTER TABLE [budget_rel_anio_fiscal_centro] ADD CONSTRAINT CK_budget_anio_fiscal_tipo CHECK ([tipo] IN 
 ('ACTUAL','FORECAST','BUDGET')
 )
 

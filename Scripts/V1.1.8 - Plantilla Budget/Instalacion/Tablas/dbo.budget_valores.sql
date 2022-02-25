@@ -38,10 +38,15 @@ GO
 
 -- restriccion de clave foranea
   alter table [budget_valores]
- add constraint FK_budget_valores_id_mapping_bridge
-  foreign key (id_mapping_bridge)
-  references budget_valores_bridge(id);
+ add constraint FK_budget_valores_id_rel_anio_centro
+  foreign key (id_rel_anio_centro)
+  references budget_rel_anio_fiscal_centro(id);
 
+  -- restriccion de clave foranea
+  alter table [budget_valores]
+ add constraint FK_budget_valores_id_cuenta_sap
+  foreign key (id_cuenta_sap)
+  references budget_cuenta_sap(id);
   
   -- restriccion fk
   alter table [budget_valores]
@@ -55,19 +60,8 @@ GO
   unique (id_rel_anio_centro,id_cuenta_sap,mes);
 
 
--- restricción default
-ALTER TABLE [budget_valores] ADD  CONSTRAINT [DF_budget_valores_activo]  DEFAULT (1) FOR [activo]
 GO
 
-
-SET IDENTITY_INSERT [budget_valores] ON 
-
---INSERT [budget_valores] ([id], [descripcion], [activo]) VALUES (1, N'Supplier delay', 1)
---INSERT [budget_valores] ([id], [descripcion], [activo]) VALUES (2, N'tkMM increase', 1)
---INSERT [budget_valores] ([id], [descripcion], [activo]) VALUES (3, N'Customer increase', 1)
-
-SET IDENTITY_INSERT [budget_valores] OFF
-GO
  	  
 IF object_id(N'budget_valores',N'U') IS NOT NULL
 	BEGIN

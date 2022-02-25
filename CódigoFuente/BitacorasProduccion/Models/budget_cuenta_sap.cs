@@ -12,33 +12,21 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class currency
+    public partial class budget_cuenta_sap
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public currency()
+        public budget_cuenta_sap()
         {
-            this.poliza_manual = new HashSet<poliza_manual>();
             this.budget_valores = new HashSet<budget_valores>();
         }
     
-        public string CurrencyISO { get; set; }
-        public string CurrencyName { get; set; }
-        public string Money { get; set; }
-        public string Symbol { get; set; }
-        public Nullable<decimal> LimitePoliza { get; set; }
+        public int id { get; set; }
+        public int id_mapping { get; set; }
+        public string sap_account { get; set; }
+        public string name { get; set; }
         public bool activo { get; set; }
-
-        //Concatena clave y nombre
-        public string CocatCurrency
-        {
-            get
-            {
-                return "(" + CurrencyISO + ") " + CurrencyName;
-            }
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<poliza_manual> poliza_manual { get; set; }
+    
+        public virtual budget_mapping budget_mapping { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_valores> budget_valores { get; set; }
     }

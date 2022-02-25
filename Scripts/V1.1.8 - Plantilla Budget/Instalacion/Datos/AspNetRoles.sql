@@ -18,26 +18,22 @@ BEGIN
 
 	--------------- PLANTILLA DE BUDGET ------------------------
 
-	---- Solicitud de órdenes de trabajo
-	--IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='OrdenesTrabajo_Solicitud' )
-	--BEGIN
-	--	INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'OrdenesTrabajo_Solicitud')
-	--END
-	---- Asignación de Solicitudes
-	--IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='OrdenesTrabajo_Asignacion' )
-	--BEGIN
-	--	INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'OrdenesTrabajo_Asignacion')
-	--END
-	---- Responsable ordenes de Trabajo
-	--IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='OrdenesTrabajo_Responsable' )
-	--BEGIN
-	--	INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'OrdenesTrabajo_Responsable')
-	--END
-	---- Reportes de Órdenes de trabajo
-	--IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='OrdenesTrabajo_Reportes' )
-	--BEGIN
-	--	INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'OrdenesTrabajo_Reportes')
-	--END
+	-- Responsable de centro de costo
+	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='BG_Responsable_Centro_Costo' )
+	BEGIN
+		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'BG_Responsable_Centro_Costo')
+	END
+	-- Controlling
+	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='BG_Controlling' )
+	BEGIN
+		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'BG_Controlling')
+	END
+	-- Reportes (concentrado)
+	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='BG_Reportes' )
+	BEGIN
+		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'BG_Reportes')
+	END
+
 PRINT '<<<CORRECTO: La TABLA dbo.AspNetRoles ha sido INICIALIZADA en la Base de Datos: ' + db_name() + ' en el Servidor: ' + @@servername + '  >>>'     	
 
 END

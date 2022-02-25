@@ -45,6 +45,12 @@ GO
   foreign key (id_responsable)
   references empleados(id);
 
+  SET IDENTITY_INSERT [budget_anio_fiscal] ON 
+
+--INSERT [budget_anio_fiscal] ([id], [descripcion], [anio_inicio],[mes_inicio],[anio_fin],[mes_fin]) VALUES (1,N'2020/21',2020,10,2021,09);
+
+SET IDENTITY_INSERT [budget_anio_fiscal] OFF
+
  	  
 IF object_id(N'budget_centro_costo',N'U') IS NOT NULL
 	BEGIN

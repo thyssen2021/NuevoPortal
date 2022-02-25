@@ -38,6 +38,10 @@ namespace Clases.Util
         public const string OT_ASIGNACION = "OrdenesTrabajo_Asignacion";
         public const string OT_RESPONSABLE = "OrdenesTrabajo_Responsable";
         public const string OT_REPORTE = "OrdenesTrabajo_Reportes";
+        //Plantilla Budget Controlling
+        public const string BG_RESPONSABLE = "BG_Responsable_Centro_Costo";
+        public const string BG_CONTROLLING = "BG_Controlling";
+        public const string BG_REPORTES = "BG_Reportes";
 
     }
 }

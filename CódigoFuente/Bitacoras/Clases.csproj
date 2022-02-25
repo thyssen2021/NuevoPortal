@@ -57,7 +57,9 @@
     <Compile Include="DBUtil\UsuariosDBUtil.cs" />
     <Compile Include="Models\EntradaRegistroEvento.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Util\BG_Status.cs" />
     <Compile Include="Util\MensajesSweetAlert.cs" />
+    <Compile Include="Util\Meses.cs" />
     <Compile Include="Util\NotificacionesCorreo.cs" />
     <Compile Include="Util\OT_nivel_urgencia.cs" />
     <Compile Include="Util\OT_Status.cs" />
