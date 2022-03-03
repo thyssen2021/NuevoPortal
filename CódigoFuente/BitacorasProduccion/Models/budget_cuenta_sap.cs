@@ -17,6 +17,7 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public budget_cuenta_sap()
         {
+            this.budget_comentarios_rel_anio_cuenta = new HashSet<budget_comentarios_rel_anio_cuenta>();
             this.budget_valores = new HashSet<budget_valores>();
         }
     
@@ -27,6 +28,8 @@ namespace Portal_2_0.Models
         public bool activo { get; set; }
     
         public virtual budget_mapping budget_mapping { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<budget_comentarios_rel_anio_cuenta> budget_comentarios_rel_anio_cuenta { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_valores> budget_valores { get; set; }
     }

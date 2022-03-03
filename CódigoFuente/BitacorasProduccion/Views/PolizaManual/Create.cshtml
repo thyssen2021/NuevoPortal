@@ -154,6 +154,9 @@
                                 <table id="datatable_1" class="table table-striped table-bordered" cellspacing="0" width="100%">
                                     <thead>
                                         <tr style=" background-color: #0094ff; color: azure;">
+                                            <th width="1%">
+                                                #
+                                            </th>
                                             <th width="12%">
                                                 Cuenta
                                             </th>
@@ -184,6 +187,7 @@
                                         {
                                             <tr id="div_concepto_@contador">
                                                 <input type="hidden" name="PM_conceptos.Index" id="produccion_lotes.Index" value="@contador" />
+                                                <td class="input-contador-conceptos"></td>
                                                 <td>
                                                     <input style=" font-size: 12px;" type="text" name="PM_conceptos[@contador].cuenta" id="PM_conceptos[@contador].cuenta" class="form-control col-md-12" value="@item.cuenta" autocomplete="off" maxlength="15" required>
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[@contador].cuenta" data-valmsg-replace="true"></span>
@@ -221,7 +225,7 @@
 
                                     <tfoot>
                                         <tr>
-                                            <th colspan="4" style="text-align:right">Sumas Iguales</th>
+                                            <th colspan="5" style="text-align:right">Sumas Iguales</th>
                                             <th id="total_debe" style="text-align:right">$ 0.00</th>
                                             <th id="total_haber" style="text-align:right">$ 0.00</th>
                                             <th></th>
@@ -387,6 +391,7 @@
 
             //llama el evento para calcular el valor de las sumtorias cada vez que cambia un valor
             calculaDatos();
+            AsignaNumeroConcepto()
         });
 
         //variable global para el id
@@ -415,16 +420,21 @@
             let total_debe = ObtieneTotalDebe();
             let total_haber = ObtieneTotalHaber();
 
+            //redondea a dos decimales
+            total_debe = total_debe.toFixed(2);
+            total_haber = total_haber.toFixed(2);
+
+
             //asigna el valor de total debe
             if (total_debe != null) {
-                $("#total_debe").html("$ " + total_debe.toFixed(2));
+                $("#total_debe").html("$ " + total_debe);
             } else {
                 $("#total_debe").html("$ 0.00");
             }
 
             //asigna el valor de total haber
             if (total_haber != null) {
-                $("#total_haber").html("$ " + total_haber.toFixed(2));
+                $("#total_haber").html("$ " + total_haber);
             } else {
                 $("#total_haber").html("$ 0.00");
             }
@@ -487,6 +497,7 @@
                 `
                                                 <tr  id="div_concepto_`+ num + `">
                                                     <input type="hidden" name="PM_conceptos.Index" id="produccion_lotes.Index" value="`+ num + `" />
+                                                        <td class="input-contador-conceptos"></td>
                                                         <td>
                                                             <input style=" font-size: 12px;" type="text" name="PM_conceptos[`+ num + `].cuenta" id="PM_conceptos[` + num + `].cuenta" class="form-control col-md-12" value="" autocomplete="off" maxlength="15" required>
                                                             <span class="field-validation-valid text-danger" data-valmsg-for="PM_conceptos[` + num + `].cuenta" data-valmsg-replace="true"></span>
@@ -524,7 +535,7 @@
 
             asignaEventosInput();
 
-
+            AsignaNumeroConcepto()
         }
 
         //borra un concepto
@@ -534,7 +545,18 @@
                 $(this).remove();
             });
 
+            AsignaNumeroConcepto()
             calculaDatos()
+        }
+
+        //numera los concepto
+        function AsignaNumeroConcepto() {
+            let indice = 1;
+
+            $('.input-contador-conceptos').each(function (index) {
+                $(this).html(indice);
+                indice++;
+            });
         }
 
         window.onload = function () {

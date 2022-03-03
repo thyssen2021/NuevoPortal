@@ -73,10 +73,158 @@ namespace Portal_2_0.Controllers
                     };
                 }
 
-                var valoresList = db.budget_valores.Where(x => x.id_rel_anio_centro == budget_rel_anio_fiscal_centro.id).ToList();
+                var valoresList = db.view_valores_anio_fiscal.Where(x => x.id_rel_anio_centro == budget_rel_anio_fiscal_centro.id).ToList();
 
                 ViewBag.Anio_Centro = budget_rel_anio_fiscal_centro;
                 return View(valoresList);
+
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+        // GET: ResponsableBudget/Forecast
+        public ActionResult Forecast()
+        {
+            if (TieneRol(TipoRoles.BG_RESPONSABLE))
+            {
+                //obtiene el usuario logeado
+                empleados empleado = obtieneEmpleadoLogeado();
+
+                var centros = db.budget_centro_costo.Where(x => x.id_responsable == empleado.id);
+                return View(centros.ToList());
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+        // GET: ResponsableBudget/EditForecast
+        public ActionResult EditForecast(int? id)
+        {
+
+            if (TieneRol(TipoRoles.BG_RESPONSABLE))
+            {
+                if (id == null)
+                {
+                    return View("../Error/BadRequest");
+                }
+
+                //obtiene centro de costo
+                budget_centro_costo centroCosto = db.budget_centro_costo.Find(id);
+                if (centroCosto == null)
+                    return View("../Error/NotFound");
+
+                //obtiene el año fiscal anterior (actual)
+                budget_anio_fiscal anio_Fiscal_anterior = GetAnioFiscal(DateTime.Now.AddYears(-1));
+                if (anio_Fiscal_anterior == null)
+                    return View("../Error/NotFound");
+
+                //obtiene el año fiscal actual (forecast)
+                budget_anio_fiscal anio_Fiscal_actual = GetAnioFiscal(DateTime.Now);
+                if (anio_Fiscal_actual == null)
+                    return View("../Error/NotFound");
+
+                //busca el año fiscal del centro correspondiente al año anterior
+                var budget_rel_anio_fiscal_centro = db.budget_rel_anio_fiscal_centro.Where(
+                        x => x.id_centro_costo == centroCosto.id
+                        && x.id_anio_fiscal == anio_Fiscal_anterior.id
+                        && x.tipo == BG_Status.ACTUAL       //busca unicamente ACTUAL (real{pasado})
+                    ).FirstOrDefault();
+
+                if (budget_rel_anio_fiscal_centro == null)
+                {
+                    //en caso de que no haya centro_x_anio
+                    budget_rel_anio_fiscal_centro = new budget_rel_anio_fiscal_centro
+                    {
+                        id_centro_costo = id.Value,
+                        id_anio_fiscal = anio_Fiscal_anterior.id,
+                        tipo = BG_Status.ACTUAL,
+                        estatus = true
+                    };
+                }
+
+                ////////////////////////////////////
+                //obtiene el rel de anio x centro del año actual tipo -> ACTUAL
+                var budget_rel_anio_fiscal_centro_en_curso_tipo_actual= db.budget_rel_anio_fiscal_centro.Where(
+                        x => x.id_centro_costo == centroCosto.id
+                        && x.id_anio_fiscal == anio_Fiscal_actual.id
+                        && x.tipo == BG_Status.ACTUAL       //busca unicamente ACTUAL (real{pasado})
+                    ).FirstOrDefault();
+
+                if (budget_rel_anio_fiscal_centro_en_curso_tipo_actual == null)
+                {
+                    //en caso de que no haya centro_x_anio
+                    budget_rel_anio_fiscal_centro_en_curso_tipo_actual = new budget_rel_anio_fiscal_centro
+                    {
+                        id_centro_costo = id.Value,
+                        id_anio_fiscal = anio_Fiscal_actual.id,
+                        tipo = BG_Status.ACTUAL,
+                        estatus = true
+                    };
+
+                    //si no existe crea el id rel anio x centro para el año actual
+                    db.budget_rel_anio_fiscal_centro.Add(budget_rel_anio_fiscal_centro_en_curso_tipo_actual);                  
+                        db.SaveChanges();
+                }
+
+                //obtiene el rel de anio x centro del año actual tipo -> FORECAST
+                var budget_rel_anio_fiscal_centro_en_curso_tipo_forecast = db.budget_rel_anio_fiscal_centro.Where(
+                       x => x.id_centro_costo == centroCosto.id
+                       && x.id_anio_fiscal == anio_Fiscal_actual.id
+                       && x.tipo == BG_Status.FORECAST       //busca unicamente ACTUAL (real{pasado})
+                   ).FirstOrDefault();
+
+                if (budget_rel_anio_fiscal_centro_en_curso_tipo_forecast == null)
+                {
+                    //en caso de que no haya centro_x_anio
+                    budget_rel_anio_fiscal_centro_en_curso_tipo_forecast = new budget_rel_anio_fiscal_centro
+                    {
+                        id_centro_costo = id.Value,
+                        id_anio_fiscal = anio_Fiscal_actual.id,
+                        tipo = BG_Status.FORECAST,
+                        estatus = true
+                    };
+
+                    //si no existe crea el id rel anio x centro para el año actual
+                    db.budget_rel_anio_fiscal_centro.Add(budget_rel_anio_fiscal_centro_en_curso_tipo_forecast);
+                    db.SaveChanges();
+                }
+
+                //obtiene el listado de cuantas disponibles
+                var listadoCuentas = db.budget_cuenta_sap.ToList();
+
+                //mezcla la lista de actual con forecast y el listado de cuentas
+                var valoresListActualPresente = db.view_valores_anio_fiscal.Where(x => x.id_rel_anio_centro == budget_rel_anio_fiscal_centro_en_curso_tipo_actual.id).ToList();
+                var valoresListForecastPresente = db.view_valores_anio_fiscal.Where(x => x.id_rel_anio_centro == budget_rel_anio_fiscal_centro_en_curso_tipo_forecast.id).ToList();
+
+                //crea el listado de valores de budget actual-forecast
+                List<view_valores_anio_fiscal> valoresListForecast = new List<view_valores_anio_fiscal>();
+
+                //crea una fila por cada cuenta
+                foreach (var cuenta in listadoCuentas) {
+
+                    valoresListForecast.Add(new view_valores_anio_fiscal
+                    {
+                        id_cuenta_sap = cuenta.id
+                    });
+                }
+
+                ///////////////////////////
+
+                var valoresList = db.view_valores_anio_fiscal.Where(x => x.id_rel_anio_centro == budget_rel_anio_fiscal_centro.id).ToList();
+                
+
+                ViewBag.Anio_Centro_Actual = budget_rel_anio_fiscal_centro;
+                ViewBag.Anio_Centro_Actual_Anio_Presente = budget_rel_anio_fiscal_centro_en_curso_tipo_actual;
+                ViewBag.ValoresActual = valoresList;
+                ViewBag.ValoresActualForecast = valoresListForecast;
+                return View();
 
             }
             else

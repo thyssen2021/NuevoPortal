@@ -273,6 +273,9 @@
     <Compile Include="Models\budget_centro_costo.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\budget_comentarios_rel_anio_cuenta.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\budget_cuenta_sap.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -445,6 +448,9 @@
     </Compile>
     <Compile Include="Models\UtilExcel.cs" />
     <Compile Include="Models\view_historico_resultado.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\view_valores_anio_fiscal.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -1009,6 +1015,8 @@
     <Content Include="Content\vendors\datatables.net-buttons\js\dataTables.buttons.js" />
     <Content Include="Content\vendors\datatables.net-buttons\js\dataTables.buttons.min.js" />
     <Content Include="Content\vendors\datatables.net-buttons\License.txt" />
+    <Content Include="Content\vendors\datatables.net-fixedcolumns\dataTables.fixedColumns.css" />
+    <Content Include="Content\vendors\datatables.net-fixedcolumns\dataTables.fixedColumns.min.js" />
     <Content Include="Content\vendors\datatables.net-fixedheader-bs\css\fixedHeader.bootstrap.css" />
     <Content Include="Content\vendors\datatables.net-fixedheader-bs\css\fixedHeader.bootstrap.min.css" />
     <Content Include="Content\vendors\datatables.net-fixedheader-bs\License.txt" />
@@ -5206,6 +5214,8 @@
     <Content Include="Views\ResponsableBudget\Edit.cshtml" />
     <Content Include="Views\ResponsableBudget\Actual.cshtml" />
     <Content Include="Views\ResponsableBudget\DetailsActual.cshtml" />
+    <Content Include="Views\ResponsableBudget\Forecast.cshtml" />
+    <Content Include="Views\ResponsableBudget\EditForecast.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

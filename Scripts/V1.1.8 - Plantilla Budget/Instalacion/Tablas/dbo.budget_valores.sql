@@ -25,8 +25,7 @@ CREATE TABLE [budget_valores](
 	[id_cuenta_sap][int] NOT NULL,
 	[mes][int] NOT NULL,
 	[currency_iso][varchar](3) NOT NULL,
-	[cantidad] [decimal](14,2) NOT NULL,
-	[comentario] [varchar](100) NOT NULL,
+	[cantidad] [decimal](14,2) NOT NULL
 	
  CONSTRAINT [PK_budget_valores] PRIMARY KEY CLUSTERED 
 (
@@ -59,9 +58,7 @@ GO
   add constraint UQ_budget_valores_anio_sap_mes
   unique (id_rel_anio_centro,id_cuenta_sap,mes);
 
-
 GO
-
  	  
 IF object_id(N'budget_valores',N'U') IS NOT NULL
 	BEGIN

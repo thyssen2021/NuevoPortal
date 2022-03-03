@@ -18,6 +18,11 @@ namespace Portal_2_0.Models
         public Portal_2_0Entities()
             : base("name=Portal_2_0Entities")
         {
+            // Get the ObjectContext related to this DbContext
+            var objectContext = (this as IObjectContextAdapter).ObjectContext;
+
+            // Sets the command timeout for all the commands
+            objectContext.CommandTimeout = 300;
         }
     
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -75,6 +80,8 @@ namespace Portal_2_0.Models
         public virtual DbSet<budget_mapping> budget_mapping { get; set; }
         public virtual DbSet<budget_mapping_bridge> budget_mapping_bridge { get; set; }
         public virtual DbSet<budget_rel_anio_fiscal_centro> budget_rel_anio_fiscal_centro { get; set; }
+        public virtual DbSet<budget_comentarios_rel_anio_cuenta> budget_comentarios_rel_anio_cuenta { get; set; }
         public virtual DbSet<budget_valores> budget_valores { get; set; }
+        public virtual DbSet<view_valores_anio_fiscal> view_valores_anio_fiscal { get; set; }
     }
 }
