@@ -35,9 +35,15 @@ GO
 
 -- restriccion de clave foranea
   alter table [budget_comentarios_rel_anio_cuenta]
- add constraint FK_budget_comentarios_rel_anio_cuenta_id_rel_anio_centro
-  foreign key (id_rel_anio_centro)
-  references budget_rel_anio_fiscal_centro(id);
+ add constraint FK_budget_comentarios_anio_fiscal
+  foreign key (id_anio_fiscal)
+  references budget_anio_fiscal(id);
+
+  -- restriccion de clave foranea
+  alter table [budget_comentarios_rel_anio_cuenta]
+ add constraint FK_budget_comentarios_centro_costo
+  foreign key (id_centro_costo)
+  references budget_centro_costo(id);
 
   -- restriccion de clave foranea
   alter table [budget_comentarios_rel_anio_cuenta]
@@ -47,8 +53,8 @@ GO
 
 -- restriccion unique
  alter table [budget_comentarios_rel_anio_cuenta]
-  add constraint UQ_budget_comentarios_rel_anio_cuenta_anio_sap_mes
-  unique (id_rel_anio_centro,id_cuenta_sap);
+  add constraint UQ_budget_comentarios_anio_centro
+  unique (id_anio_fiscal,id_centro_costo,id_cuenta_sap);
   
 GO
 

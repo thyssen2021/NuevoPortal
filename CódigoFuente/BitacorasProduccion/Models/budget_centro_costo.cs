@@ -11,22 +11,33 @@ namespace Portal_2_0.Models
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.ComponentModel.DataAnnotations;
+
     public partial class budget_centro_costo
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public budget_centro_costo()
         {
+            this.budget_comentarios_rel_anio_cuenta = new HashSet<budget_comentarios_rel_anio_cuenta>();
             this.budget_rel_anio_fiscal_centro = new HashSet<budget_rel_anio_fiscal_centro>();
         }
-    
+
+        [Display(Name = "Número de Parte")]
         public int id { get; set; }
+
+        [Display(Name = "Deparment")]
         public int id_area { get; set; }
+
+        [Display(Name = "Responsable")]
         public int id_responsable { get; set; }
+
+        [Display(Name = "Cost Center")]
         public string num_centro_costo { get; set; }
     
         public virtual Area Area { get; set; }
         public virtual empleados empleados { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<budget_comentarios_rel_anio_cuenta> budget_comentarios_rel_anio_cuenta { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_rel_anio_fiscal_centro> budget_rel_anio_fiscal_centro { get; set; }
     }

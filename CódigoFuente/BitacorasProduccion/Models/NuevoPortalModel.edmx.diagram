@@ -111,26 +111,27 @@
         <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_solicitante" />
         <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_linea" />
         <AssociationConnector Association="Portal_2_0Model.FK_OT_refacciones_id_orden_trabajo" />
-        <EntityTypeShape EntityType="Portal_2_0Model.budget_anio_fiscal" Width="1.5" PointX="19.75" PointY="35.25" />
-        <EntityTypeShape EntityType="Portal_2_0Model.budget_centro_costo" Width="1.5" PointX="14.75" PointY="4.25" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_cuenta_sap" Width="1.5" PointX="24" PointY="39.125" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_mapping" Width="1.5" PointX="21.75" PointY="39.25" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_mapping_bridge" Width="1.5" PointX="19.5" PointY="39.5" />
-        <EntityTypeShape EntityType="Portal_2_0Model.budget_rel_anio_fiscal_centro" Width="1.5" PointX="22" PointY="1.125" />
-        <AssociationConnector Association="Portal_2_0Model.FK_budget_centro_costo_id_area" />
-        <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_anio_fiscal_centro_id_anio_fiscal" />
-        <AssociationConnector Association="Portal_2_0Model.FK_budget_centro_costo_id_responsable" />
-        <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_anio_fiscal_centro_id_centro_costo" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_cuenta_sap_id_mapping" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_mapping_id_mapping_bridge" />
-        <EntityTypeShape EntityType="Portal_2_0Model.budget_comentarios_rel_anio_cuenta" Width="1.5" PointX="29.25" PointY="20.375" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_valores" Width="1.5" PointX="26.25" PointY="20" />
-        <EntityTypeShape EntityType="Portal_2_0Model.view_valores_anio_fiscal" Width="1.5" PointX="12.375" PointY="15.75" />
-        <AssociationConnector Association="Portal_2_0Model.FK_budget_comentarios_rel_anio_cuenta_id_cuenta_sap" />
-        <AssociationConnector Association="Portal_2_0Model.FK_budget_comentarios_rel_anio_cuenta_id_rel_anio_centro" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_valores_id_cuenta_sap" />
-        <AssociationConnector Association="Portal_2_0Model.FK_budget_valores_id_rel_anio_centro" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_valores_currency_iso" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_anio_fiscal" Width="1.5" PointX="19.75" PointY="35.125" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_centro_costo" Width="1.5" PointX="14.75" PointY="4.125" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_comentarios_rel_anio_cuenta" Width="1.5" PointX="26.25" PointY="23.625" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_rel_anio_fiscal_centro" Width="1.5" PointX="22" PointY="1.125" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_centro_costo_id_area" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_comentarios_anio_fiscal" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_anio_fiscal_centro_id_anio_fiscal" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_centro_costo_id_responsable" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_comentarios_centro_costo" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_anio_fiscal_centro_id_centro_costo" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_comentarios_rel_anio_cuenta_id_cuenta_sap" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_valores_id_rel_anio_centro" />
+        <EntityTypeShape EntityType="Portal_2_0Model.view_valores_anio_fiscal" Width="1.5" PointX="12.375" PointY="16" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

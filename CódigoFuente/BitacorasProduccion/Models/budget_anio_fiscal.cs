@@ -17,6 +17,7 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public budget_anio_fiscal()
         {
+            this.budget_comentarios_rel_anio_cuenta = new HashSet<budget_comentarios_rel_anio_cuenta>();
             this.budget_rel_anio_fiscal_centro = new HashSet<budget_rel_anio_fiscal_centro>();
         }
     
@@ -26,7 +27,36 @@ namespace Portal_2_0.Models
         public int mes_inicio { get; set; }
         public int anio_fin { get; set; }
         public int mes_fin { get; set; }
-    
+
+        /// <summary>
+        /// Indica si un mes ya es actual(true) o es Forecast(false)
+        /// </summary>
+        /// <param name="mesUtil"></param>
+        public string isActual(int mes)
+        {
+            DateTime fechaActual = DateTime.Now;
+            fechaActual = new DateTime(fechaActual.Year, fechaActual.Month, 1, 0, 0, 0);
+
+            int anio = 0;
+
+            if (mes >= 10 && mes <= 12)
+                anio = anio_inicio;
+            else if (mes >= 1 && mes < 10)
+                anio = anio_fin;
+            else
+                return String.Empty;
+
+            DateTime fechaComparacion = new DateTime(anio, mes, 1, 0, 0, 0);
+
+            if (fechaActual <= fechaComparacion)
+                return "FC";
+            else
+                return "ACT";
+
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<budget_comentarios_rel_anio_cuenta> budget_comentarios_rel_anio_cuenta { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_rel_anio_fiscal_centro> budget_rel_anio_fiscal_centro { get; set; }
     }
