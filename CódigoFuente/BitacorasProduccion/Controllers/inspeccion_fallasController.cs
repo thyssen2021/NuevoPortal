@@ -64,7 +64,7 @@ namespace Portal_2_0.Controllers
         {
             if (TieneRol(TipoRoles.INSPECCION_CATALOGOS))
             {
-                ViewBag.id_categoria_falla = AddFirstItem(new SelectList(db.inspeccion_fallas.Where(x=> x.activo==true), "id", "descripcion"));
+                ViewBag.id_categoria_falla = AddFirstItem(new SelectList(db.inspeccion_categoria_fallas.Where(x=> x.activo==true), "id", "descripcion"));
               
                 return View(new inspeccion_fallas());
             }
@@ -144,7 +144,7 @@ namespace Portal_2_0.Controllers
                 {
                     return HttpNotFound();
                 }
-                ViewBag.id_categoria_falla = AddFirstItem(new SelectList(db.inspeccion_fallas.Where(x => x.activo == true), "id", "descripcion"),selected: inspeccion_fallas.id_categoria_falla.ToString());
+                ViewBag.id_categoria_falla = AddFirstItem(new SelectList(db.inspeccion_categoria_fallas.Where(x => x.activo == true), "id", "descripcion"),selected: inspeccion_fallas.id_categoria_falla.ToString());
                 return View(inspeccion_fallas);
             }
             else

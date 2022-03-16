@@ -46,6 +46,38 @@ namespace Portal_2_0.Controllers
             return Json(list, JsonRequestBehavior.AllowGet);
         }
 
+
+        ///<summary>
+        ///Obtiene las mapping según la mapping bridge recibida
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult obtieneMapping(int id_mapping_bridge = 0)
+        {
+            //obtiene todos los posibles valores
+            List<budget_mapping> listado = db.budget_mapping.Where(p => p.id_mapping_bridge == id_mapping_bridge && p.activo == true).ToList();
+
+
+            //inserta el valor por default
+            listado.Insert(0, new budget_mapping
+            {
+                id = 0,
+                descripcion = "-- Seleccione un valor --"
+            });
+
+            //inicializa la lista de objetos
+            var list = new object[listado.Count];
+
+            //completa la lista de objetos
+            for (int i = 0; i < listado.Count; i++)
+            {
+                if (i == 0)//en caso de item por defecto
+                    list[i] = new { value = "", name = listado[i].descripcion };
+                else
+                    list[i] = new { value = listado[i].id, name = listado[i].descripcion };
+            }
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
         ///<summary>
         ///Obtiene los empleado segun la planta recibida
         ///</summary>

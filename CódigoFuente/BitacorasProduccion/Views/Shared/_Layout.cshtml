@@ -352,26 +352,46 @@
 
                                     @*MENÚ PLANTILLA BUDGET*@
 
-                                    @if (User.IsInRole(TipoRoles.BG_RESPONSABLE) || User.IsInRole(TipoRoles.BG_CONTROLLING) || User.IsInRole(TipoRoles.BG_CONTROLLING) )
+                                    @if (User.IsInRole(TipoRoles.BG_RESPONSABLE) || User.IsInRole(TipoRoles.BG_CONTROLLING) || User.IsInRole(TipoRoles.BG_REPORTES))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "plantilla_budget" ? "active" : null )">
                                             <a><i class="fa fa-calculator"></i>Budget<span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu">
+                                                @{ DateTime fechaActual = DateTime.Now;}
 
                                                 @if (User.IsInRole(TipoRoles.BG_RESPONSABLE))
                                                 {
                                                     <h3>Centros de Costo</h3>
-                                                    <li class="@(ViewBag.SegundoNivel == "actual" ? "current-page" : null )"><a href="@Url.Action("Actual", "ResponsableBudget")">ACT FY 2020/21</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY 2021/22</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY 2022/23</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "actual" ? "current-page" : null )"><a href="@Url.Action("Actual", "ResponsableBudget")">ACT FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)))</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>
                                                 }
-                                                
 
+                                                @if (User.IsInRole(TipoRoles.BG_CONTROLLING))
+                                                {
+                                                    <h3>Controlling</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "centro_costos" ? "current-page" : null )"><a href="@Url.Action("Centros", "BudgetControlling")">Centros de Costo</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "catalogos" ? "active" : "" )">
+                                                        <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
+                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "BG_catalogos" ? "display:block" : null )">
+                                                            <li class="@(ViewBag.TercelNivel == "BG_CentroCosto" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_CentroCosto")">Centros</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "BG_MappingBridge" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_MappingBridge")">Mapping Bridge</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "BG_Mapping" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_Mapping")">Mapping</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "BG_CuentasSAP" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_CuentasSAP")">Cuentas SAP</a></li>
+
+                                                        </ul>
+                                                    </li>
+
+                                                }                                               
+
+                                                @if (User.IsInRole(TipoRoles.BG_REPORTES))
+                                                {
+                                                    <h3>Reportes</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "reportes" ? "current-page" : null )"><a href="@Url.Action("Index", "ReportesBudget")">Reportes</a></li>
+                                                }
 
                                             </ul>
-
-                                        </li>
-
+                                        </li>   
                                     }
 
                                     @*MENÚ DE USUARIOS*@

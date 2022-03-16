@@ -45,20 +45,21 @@ GO
 
 SET IDENTITY_INSERT [budget_mapping] ON 
 
-INSERT [budget_mapping] ([id],[id_mapping_bridge], [descripcion], [activo]) VALUES (1,1,N'Travel / Entertainment',1)
-INSERT [budget_mapping] ([id],[id_mapping_bridge], [descripcion], [activo]) VALUES (2,2,N'Audit, Consulting & Legal Expense',1)
-INSERT [budget_mapping] ([id],[id_mapping_bridge], [descripcion], [activo]) VALUES (3,2,N'Audit, Consulting & Legal Expense',1)
-INSERT [budget_mapping] ([id],[id_mapping_bridge], [descripcion], [activo]) VALUES (4,2,N'Audit, Consulting & Legal Expense',1)
-INSERT [budget_mapping] ([id],[id_mapping_bridge], [descripcion], [activo]) VALUES (5,3,N'Office & Admin. Expenses',1)
-INSERT [budget_mapping] ([id],[id_mapping_bridge], [descripcion], [activo]) VALUES (6,3,N'Office & Admin. Expenses',1)
-INSERT [budget_mapping] ([id],[id_mapping_bridge], [descripcion], [activo]) VALUES (7,3,N'Office & Admin. Expenses',1)
-INSERT [budget_mapping] ([id],[id_mapping_bridge], [descripcion], [activo]) VALUES (8,3,N'Office & Admin. Expenses',1)
-INSERT [budget_mapping] ([id],[id_mapping_bridge], [descripcion], [activo]) VALUES (9,3,N'Office & Admin. Expenses',1)
-INSERT [budget_mapping] ([id],[id_mapping_bridge], [descripcion], [activo]) VALUES (10,3,N'Office & Admin. Expenses',1)
+INSERT [budget_mapping] ([id],[id_mapping_bridge], [descripcion], [activo]) VALUES (1,1,N'GASTOS DE VIAJE',1)
+INSERT [budget_mapping] ([id],[id_mapping_bridge], [descripcion], [activo]) VALUES (2,2,N'HONORARIOS LEGAL',1)
+INSERT [budget_mapping] ([id],[id_mapping_bridge], [descripcion], [activo]) VALUES (3,2,N'HONORARIOS AUDITORIA',1)
+INSERT [budget_mapping] ([id],[id_mapping_bridge], [descripcion], [activo]) VALUES (4,2,N'HONORARIOS CONSULTORIA',1)
+INSERT [budget_mapping] ([id],[id_mapping_bridge], [descripcion], [activo]) VALUES (5,3,N'CAPACITACION',1)
+INSERT [budget_mapping] ([id],[id_mapping_bridge], [descripcion], [activo]) VALUES (6,3,N'TELEFONO',1)
+INSERT [budget_mapping] ([id],[id_mapping_bridge], [descripcion], [activo]) VALUES (7,3,N'COMPUTO',1)
+INSERT [budget_mapping] ([id],[id_mapping_bridge], [descripcion], [activo]) VALUES (8,3,N'SEGUROS',1)
+INSERT [budget_mapping] ([id],[id_mapping_bridge], [descripcion], [activo]) VALUES (9,3,N'GASTOS DE OFICINA',1)
+INSERT [budget_mapping] ([id],[id_mapping_bridge], [descripcion], [activo]) VALUES (10,3,N'GASTO ADMIN',1)
 INSERT [budget_mapping] ([id],[id_mapping_bridge], [descripcion], [activo]) VALUES (11,4,N'Utilities',1)
-INSERT [budget_mapping] ([id],[id_mapping_bridge], [descripcion], [activo]) VALUES (12,5,N'Maintenance & Repair',1)
-INSERT [budget_mapping] ([id],[id_mapping_bridge], [descripcion], [activo]) VALUES (13,6,N'Transportation / Freight',1)
-INSERT [budget_mapping] ([id],[id_mapping_bridge], [descripcion], [activo]) VALUES (14,7,N'Warehousing / Packaging',1)
+INSERT [budget_mapping] ([id],[id_mapping_bridge], [descripcion], [activo]) VALUES (12,5,N'Mantenimiento',1)
+INSERT [budget_mapping] ([id],[id_mapping_bridge], [descripcion], [activo]) VALUES (13,6,N'FLETES',1)
+INSERT [budget_mapping] ([id],[id_mapping_bridge], [descripcion], [activo]) VALUES (14,7,N'EMPAQUE',1)
+
 
 
 SET IDENTITY_INSERT [budget_mapping] OFF

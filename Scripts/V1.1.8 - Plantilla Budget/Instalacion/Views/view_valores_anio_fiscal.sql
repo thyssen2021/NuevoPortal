@@ -20,6 +20,9 @@ SELECT  --id_rel_anio_centro,
 		r.id_anio_fiscal,		
 		r.id_centro_costo,
         [id_cuenta_sap],
+		cs.sap_account,
+		cs.name,
+		bmb.descripcion,
 		currency_iso,		
         SUM(CASE WHEN [Mes] = 1 AND CONCAT(YEAR(GETDATE()),'-',MONTH(GETDATE()),'-01')<=  CONVERT(datetime, CONCAT(a.anio_fin,'-01-01'))
 					AND CONCAT(YEAR(GETDATE()),'-',MONTH(GETDATE()),'-01')> CONVERT(datetime, CONCAT(a.anio_inicio,'-',a.mes_inicio,'-01')) 
@@ -97,9 +100,15 @@ SELECT  --id_rel_anio_centro,
 FROM budget_valores as v
 		join budget_rel_anio_fiscal_centro as r  on r.id=id_rel_anio_centro
 		join budget_anio_fiscal as a on a.id=r.id_anio_fiscal
+		join budget_cuenta_sap cs on cs.id = v.id_cuenta_sap
+		join budget_mapping bm on bm.id = cs.id_mapping
+		join budget_mapping_bridge bmb on bmb.id = bm.id_mapping_bridge
 GROUP BY --id_rel_anio_centro,
 		r.id_anio_fiscal,
 		r.id_centro_costo,		
         [id_cuenta_sap],
+		cs.sap_account,
+		cs.name,
+		bmb.descripcion,
 		currency_iso
 		) t1

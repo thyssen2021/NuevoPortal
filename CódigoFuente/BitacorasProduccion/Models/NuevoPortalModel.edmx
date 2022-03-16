@@ -733,12 +733,18 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_anio_fiscal' does not 
             <PropertyRef Name="id_anio_fiscal" />
             <PropertyRef Name="id_centro_costo" />
             <PropertyRef Name="id_cuenta_sap" />
+            <PropertyRef Name="sap_account" />
+            <PropertyRef Name="name" />
+            <PropertyRef Name="descripcion" />
             <PropertyRef Name="currency_iso" />
           </Key>
           <Property Name="id" Type="bigint" Nullable="false" />
           <Property Name="id_anio_fiscal" Type="int" Nullable="false" />
           <Property Name="id_centro_costo" Type="int" Nullable="false" />
           <Property Name="id_cuenta_sap" Type="int" Nullable="false" />
+          <Property Name="sap_account" Type="varchar" MaxLength="8" Nullable="false" />
+          <Property Name="name" Type="varchar" MaxLength="40" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="40" Nullable="false" />
           <Property Name="currency_iso" Type="varchar" MaxLength="3" Nullable="false" />
           <Property Name="Enero" Type="decimal" Precision="38" Scale="2" />
           <Property Name="Febrero" Type="decimal" Precision="38" Scale="2" />
@@ -1752,6 +1758,9 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_anio_fiscal' does not 
     [view_valores_anio_fiscal].[id_anio_fiscal] AS [id_anio_fiscal], 
     [view_valores_anio_fiscal].[id_centro_costo] AS [id_centro_costo], 
     [view_valores_anio_fiscal].[id_cuenta_sap] AS [id_cuenta_sap], 
+    [view_valores_anio_fiscal].[sap_account] AS [sap_account], 
+    [view_valores_anio_fiscal].[name] AS [name], 
+    [view_valores_anio_fiscal].[descripcion] AS [descripcion], 
     [view_valores_anio_fiscal].[currency_iso] AS [currency_iso], 
     [view_valores_anio_fiscal].[Enero] AS [Enero], 
     [view_valores_anio_fiscal].[Febrero] AS [Febrero], 
@@ -4180,12 +4189,18 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_anio_fiscal' does not 
             <PropertyRef Name="id_anio_fiscal" />
             <PropertyRef Name="id_centro_costo" />
             <PropertyRef Name="id_cuenta_sap" />
+            <PropertyRef Name="sap_account" />
+            <PropertyRef Name="name" />
+            <PropertyRef Name="descripcion" />
             <PropertyRef Name="currency_iso" />
           </Key>
           <Property Name="id" Type="Int64" Nullable="false" />
           <Property Name="id_anio_fiscal" Type="Int32" Nullable="false" />
           <Property Name="id_centro_costo" Type="Int32" Nullable="false" />
           <Property Name="id_cuenta_sap" Type="Int32" Nullable="false" />
+          <Property Name="sap_account" Type="String" Nullable="false" MaxLength="8" FixedLength="false" Unicode="false" />
+          <Property Name="name" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
           <Property Name="currency_iso" Type="String" Nullable="false" MaxLength="3" FixedLength="false" Unicode="false" />
           <Property Name="Enero" Type="Decimal" Precision="38" Scale="2" />
           <Property Name="Febrero" Type="Decimal" Precision="38" Scale="2" />
@@ -4988,6 +5003,9 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_anio_fiscal' does not 
                 <ScalarProperty Name="Febrero" ColumnName="Febrero" />
                 <ScalarProperty Name="Enero" ColumnName="Enero" />
                 <ScalarProperty Name="currency_iso" ColumnName="currency_iso" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="sap_account" ColumnName="sap_account" />
                 <ScalarProperty Name="id_cuenta_sap" ColumnName="id_cuenta_sap" />
                 <ScalarProperty Name="id_centro_costo" ColumnName="id_centro_costo" />
                 <ScalarProperty Name="id_anio_fiscal" ColumnName="id_anio_fiscal" />

@@ -19,6 +19,9 @@ namespace Portal_2_0.Models
         public int id_anio_fiscal { get; set; }
         public int id_centro_costo { get; set; }
         public int id_cuenta_sap { get; set; }
+        public string sap_account { get; set; }
+        public string name { get; set; }
+        public string descripcion { get; set; }
         public string currency_iso { get; set; }
         public Nullable<decimal> Enero { get; set; }
         public Nullable<decimal> Febrero { get; set; }
@@ -32,7 +35,7 @@ namespace Portal_2_0.Models
         public Nullable<decimal> Octubre { get; set; }
         public Nullable<decimal> Noviembre { get; set; }
         public Nullable<decimal> Diciembre { get; set; }
-        public string Comentario { get; set; }       
+        public string Comentario { get; set; }
 
         //para elementos de BD
         public budget_cuenta_sap CUENTA_SAP = null;

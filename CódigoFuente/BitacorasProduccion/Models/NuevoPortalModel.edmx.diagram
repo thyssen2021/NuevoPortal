@@ -131,7 +131,7 @@
         <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_anio_fiscal_centro_id_centro_costo" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_comentarios_rel_anio_cuenta_id_cuenta_sap" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_valores_id_rel_anio_centro" />
-        <EntityTypeShape EntityType="Portal_2_0Model.view_valores_anio_fiscal" Width="1.5" PointX="12.375" PointY="16" />
+        <EntityTypeShape EntityType="Portal_2_0Model.view_valores_anio_fiscal" Width="1.5" PointX="12.375" PointY="15.75" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

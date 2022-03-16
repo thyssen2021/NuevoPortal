@@ -11,7 +11,8 @@ namespace Portal_2_0.Models
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.ComponentModel.DataAnnotations;
+
     public partial class budget_mapping
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -21,7 +22,14 @@ namespace Portal_2_0.Models
         }
     
         public int id { get; set; }
+
+        [Required]
+        [Display(Name = "Mapping Bridge")]
         public int id_mapping_bridge { get; set; }
+
+        [Required(AllowEmptyStrings = false)]
+        [StringLength(40, MinimumLength = 2)]
+        [Display(Name = "Description")]
         public string descripcion { get; set; }
         public bool activo { get; set; }
     

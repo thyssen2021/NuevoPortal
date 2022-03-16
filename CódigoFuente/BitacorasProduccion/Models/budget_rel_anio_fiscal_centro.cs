@@ -11,7 +11,9 @@ namespace Portal_2_0.Models
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.ComponentModel.DataAnnotations;
+    using System.Web;
+
     public partial class budget_rel_anio_fiscal_centro
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -25,7 +27,7 @@ namespace Portal_2_0.Models
         public int id_centro_costo { get; set; }
         public string tipo { get; set; }
         public bool estatus { get; set; }
-
+      
         public virtual budget_anio_fiscal budget_anio_fiscal { get; set; }
         public virtual budget_centro_costo budget_centro_costo { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

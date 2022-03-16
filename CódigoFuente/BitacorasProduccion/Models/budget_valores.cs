@@ -12,7 +12,7 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class budget_valores
+    public partial class budget_valores: IEquatable<budget_valores>
     {
         public int id { get; set; }
         public int id_rel_anio_centro { get; set; }
@@ -24,5 +24,21 @@ namespace Portal_2_0.Models
         public virtual budget_cuenta_sap budget_cuenta_sap { get; set; }
         public virtual currency currency { get; set; }
         public virtual budget_rel_anio_fiscal_centro budget_rel_anio_fiscal_centro { get; set; }
+
+        public bool Equals(budget_valores other)
+        {
+            if (other is null)
+                return false;
+
+            return this.id_rel_anio_centro == other.id_rel_anio_centro
+               && this.id_cuenta_sap == other.id_cuenta_sap
+               && this.mes == other.mes
+               && this.currency == other.currency
+               && this.cantidad == other.cantidad
+               ;
+        }
+
+        public override bool Equals(object obj) => Equals(obj as view_valores_anio_fiscal);
+        public override int GetHashCode() => (id_rel_anio_centro, id_cuenta_sap, mes, currency, cantidad).GetHashCode();
     }
 }

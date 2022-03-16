@@ -1,8 +1,10 @@
-﻿using ExcelDataReader;
+﻿using Bitacoras.Util;
+using ExcelDataReader;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web;
 
 namespace Portal_2_0.Models
@@ -303,10 +305,10 @@ namespace Portal_2_0.Models
                                             turno = table.Rows[i][j].ToString();
                                             break;
                                         case "HORA":
-                                            if (DateTime.TryParse(table.Rows[i][j].ToString(),out DateTime h))
+                                            if (DateTime.TryParse(table.Rows[i][j].ToString(), out DateTime h))
                                             {
                                                 fecha = fecha.AddHours(h.Hour).AddMinutes(h.Minute).AddSeconds(h.Second);
-                                                hora = fecha;                                               
+                                                hora = fecha;
                                             }
                                             break;
                                         case "ORDEN SAP":
@@ -479,9 +481,9 @@ namespace Portal_2_0.Models
                                         balance_scrap_real = balance_scrap_real,
                                     });
                                 }
-                               
 
-                               
+
+
                             }
                             catch (Exception e)
                             {
@@ -865,6 +867,390 @@ namespace Portal_2_0.Models
 
                                     activo = true
                                 });
+                            }
+                            catch (Exception e)
+                            {
+                                System.Diagnostics.Debug.Print("Error: " + e.Message);
+                            }
+                        }
+
+                    }
+                }
+
+            }
+
+            return lista;
+        }
+
+        ///<summary>
+        ///Lee un archivo de excel y carga el listado de bom
+        ///</summary>
+        ///<return>
+        ///Devuelve un List<bom_en_sap> con los datos leidos
+        ///</return>
+        ///<param name="streamPostedFile">
+        ///Stream del archivo recibido en el formulario
+        ///</param>
+        public static List<budget_valores> LeeActual(budget_centro_costo centro, ref bool valido, ref string msjError, ref int noEncontrados )
+        {
+
+            //obtiene todas las cuentas
+            Portal_2_0Entities db = new Portal_2_0Entities();
+
+            budget_rel_anio_fiscal_centro rel = null;
+
+            List<budget_valores> lista = new List<budget_valores>();
+
+            //crea el reader del archivo
+            using (var reader = ExcelReaderFactory.CreateReader(centro.PostedFile.InputStream))
+            {
+                //obtiene el dataset del archivo de excel
+                var result = reader.AsDataSet();
+
+                //estable la variable a false por defecto
+                valido = false;
+
+                //recorre todas las hojas del archivo
+                bool existeHoja = false;
+
+                String costCenter = string.Empty;
+                string fiscalYear = String.Empty;
+
+                int anioInicio = 0;
+                int anioFin = 0;
+
+                foreach (DataTable table in result.Tables)
+                {
+                    if (table.TableName.ToUpper() == "TEMPLATE")
+                        existeHoja = true;
+                }
+                 
+                if (!existeHoja)
+                {
+                    msjError = "En el archivo seleccionado no existe una la hoja llamada 'Template'.";
+                    return lista;
+                }
+
+                foreach (DataTable table in result.Tables)
+                {
+                    //busca si existe una hoja llamada "Template"
+                    if (table.TableName.ToUpper() == "TEMPLATE")
+                    {
+                        valido = true;
+
+                        //verifica si tiene centro de costo
+                        costCenter = table.Rows[4][2].ToString();
+                        if (String.IsNullOrEmpty(costCenter))
+                        {
+                            msjError = "No ingresó centro de costo en la celda 'C5'.";
+                            valido = false;
+                            return lista;
+                        }
+
+                        //verifica si el centro de costo es el mismo que el archivo excel
+                        if (costCenter != centro.num_centro_costo) {
+                            msjError = "El centro de costo del archivo no coincide.";
+                            valido = false;
+                            return lista;
+                        }
+
+                        //verifica si tiene año fiscal
+                        fiscalYear = table.Rows[7][2].ToString();
+
+                        if (String.IsNullOrEmpty(fiscalYear))
+                        {
+                            msjError = "No ingresó año fiscal en la celda 'C8'.";
+                            valido = false;
+                            return lista;
+                        }
+                        else
+                        {   //verifica si el año fiscal tiene dos enteros
+                            String[] split = fiscalYear.Split('/');
+
+                            //si no tiene dos partes
+                            if (split.Length != 2)
+                            {
+                                msjError = "El año fiscal de la celda C8, no tiene una estructura válida.";
+                                valido = false;
+                                return lista;
+                            }
+
+                            //obtiene primer numero
+                            Match m = Regex.Match(split[0], "(\\d+)");
+                            Match m2 = Regex.Match(split[1], "(\\d+)");
+
+                            //extrae el numero de key
+                            if (m.Success && m2.Success)
+                            {
+                                int.TryParse(m.Value, out anioInicio);
+                                int.TryParse(m2.Value, out anioFin);
+
+                                //encuentra el año fiscal
+                                budget_anio_fiscal anio = db.budget_anio_fiscal.Where(x=>x.anio_inicio == anioInicio && x.anio_fin==anioFin).FirstOrDefault();
+
+                                if (anio == null) {
+                                    msjError = "El año fiscal no existe o no es correcto.";
+                                    valido = false;
+                                    return lista;
+                                }
+
+                                //identifica si el id del formulario coincide con el excel
+                                if (anio.id != centro.id_anio_fiscal)
+                                {
+                                    msjError = "El año fiscal no corresponde con el documento.";
+                                    valido = false;
+                                    return lista;
+                                }
+
+                                //verifica que exista rel_centro_costo
+                                rel = db.budget_rel_anio_fiscal_centro.Where(x => x.id_centro_costo == centro.id && x.id_anio_fiscal == anio.id && x.tipo == BG_Status.ACTUAL).FirstOrDefault();
+
+                                if (rel == null)
+                                {
+                                    msjError = "El año fiscal existe, pero no hay relación con el centro de costo.";
+                                    valido = false;
+                                    return lista;
+                                }
+                            }
+                            else
+                            {
+                                msjError = "El año fiscal de la celda C8, no tiene una estructura válida.";
+                                valido = false;
+                                return lista;
+                            }
+                        }
+
+                        
+                        //se obtienen las cabeceras
+                        List<string> encabezados = new List<string>();
+
+                        for (int i = 0; i < table.Columns.Count; i++)
+                        {
+                            string title = table.Rows[10][i].ToString();
+
+                            if (!string.IsNullOrEmpty(title))
+                                encabezados.Add(title.ToUpper());
+                        }
+
+                        //verifica que la estrura del archivo sea válida
+                        if (!encabezados.Contains("SAP ACCOUNT") || !encabezados.Contains("OCTOBER") || !encabezados.Contains("NOVEMBER")
+                            || !encabezados.Contains("DECEMBER") || !encabezados.Contains("JANUARY") || !encabezados.Contains("FEBRUARY")
+                             || !encabezados.Contains("MARCH") || !encabezados.Contains("APRIL") || !encabezados.Contains("MAY")
+                             || !encabezados.Contains("JUNE") || !encabezados.Contains("JULY") || !encabezados.Contains("AUGUST")
+                             || !encabezados.Contains("SEPTEMBER")
+                            )
+                        {
+                            msjError = "No cuenta con los encabezados correctos.";
+                            valido = false;
+                            return lista;
+                        }
+
+                      
+                        List<budget_cuenta_sap> listCuentas = db.budget_cuenta_sap.ToList();
+
+
+                        //la fila cero se omite (encabezado)
+                        for (int i = 11; i < table.Rows.Count; i++)
+                        {
+                            try
+                            {
+                                //variables
+                                string sap_account = String.Empty;
+                               
+                                decimal enero = 0;
+                                decimal febrero = 0;
+                                decimal marzo = 0;
+                                decimal abril = 0;
+                                decimal mayo = 0;
+                                decimal junio = 0;
+                                decimal julio = 0;
+                                decimal agosto = 0;
+                                decimal septiembre = 0;
+                                decimal octubre = 0;
+                                decimal noviembre = 0;
+                                decimal diciembre = 0;
+
+                                //recorre todas los encabezados
+                                for (int j = 0; j < encabezados.Count; j++)
+                                {
+                                    //obtiene la cabezara de i
+                                    switch (encabezados[j])
+                                    {
+                                        //obligatorios
+                                        case "SAP ACCOUNT":
+                                            sap_account = table.Rows[i][j].ToString();
+                                            break;                                        
+                                        case "JANUARY":
+                                            if (Decimal.TryParse(table.Rows[i][j].ToString(), out decimal ene))
+                                                enero = ene;
+                                            break;
+                                        case "FEBRUARY":
+                                            if (Decimal.TryParse(table.Rows[i][j].ToString(), out decimal feb))
+                                                febrero = feb;
+                                            break;
+                                        case "MARCH":
+                                            if (Decimal.TryParse(table.Rows[i][j].ToString(), out decimal mar))
+                                                marzo = mar;
+                                            break;
+                                        case "APRIL":
+                                            if (Decimal.TryParse(table.Rows[i][j].ToString(), out decimal apr))
+                                                abril = apr;
+                                            break;
+                                        case "MAY":
+                                            if (Decimal.TryParse(table.Rows[i][j].ToString(), out decimal may))
+                                                mayo = may;
+                                            break;
+                                        case "JUNE":
+                                            if (Decimal.TryParse(table.Rows[i][j].ToString(), out decimal jun))
+                                                junio = jun;
+                                            break;
+                                        case "JULY":
+                                            if (Decimal.TryParse(table.Rows[i][j].ToString(), out decimal jul))
+                                                julio = jul;
+                                            break;
+                                        case "AUGUST":
+                                            if (Decimal.TryParse(table.Rows[i][j].ToString(), out decimal ago))
+                                                agosto = ago;
+                                            break;
+                                        case "SEPTEMBER":
+                                            if (Decimal.TryParse(table.Rows[i][j].ToString(), out decimal sep))
+                                                septiembre = sep;
+                                            break;
+                                        case "OCTOBER":
+                                            if (Decimal.TryParse(table.Rows[i][j].ToString(), out decimal oct))
+                                                octubre = oct;
+                                            break;
+                                        case "NOVEMBER":
+                                            if (Decimal.TryParse(table.Rows[i][j].ToString(), out decimal nov))
+                                                noviembre = nov;
+                                            break;
+                                        case "DECEMBER":
+                                            if (Decimal.TryParse(table.Rows[i][j].ToString(), out decimal dic))
+                                                diciembre = dic;
+                                            break;
+                                    }
+                                }
+
+                                //obtiene la cuenta
+
+                                budget_cuenta_sap cuenta = listCuentas.Where(x => x.sap_account == sap_account).FirstOrDefault();
+
+                                if (cuenta != null ) 
+                                {
+                                    //agrega a la lista con los datos leidos
+                                    lista.Add(new budget_valores()
+                                    {
+                                       id_rel_anio_centro = rel.id,
+                                       id_cuenta_sap = cuenta.id,
+                                       mes =1,
+                                       currency_iso="USD",
+                                       cantidad = enero
+                                    });
+
+                                    lista.Add(new budget_valores()
+                                    {
+                                        id_rel_anio_centro = rel.id,
+                                        id_cuenta_sap = cuenta.id,
+                                        mes = 2,
+                                        currency_iso = "USD",
+                                        cantidad = febrero
+                                    });
+
+                                    lista.Add(new budget_valores()
+                                    {
+                                        id_rel_anio_centro = rel.id,
+                                        id_cuenta_sap = cuenta.id,
+                                        mes = 3,
+                                        currency_iso = "USD",
+                                        cantidad = marzo
+                                    });
+
+                                    lista.Add(new budget_valores()
+                                    {
+                                        id_rel_anio_centro = rel.id,
+                                        id_cuenta_sap = cuenta.id,
+                                        mes = 4,
+                                        currency_iso = "USD",
+                                        cantidad = abril
+                                    });
+
+                                    lista.Add(new budget_valores()
+                                    {
+                                        id_rel_anio_centro = rel.id,
+                                        id_cuenta_sap = cuenta.id,
+                                        mes = 5,
+                                        currency_iso = "USD",
+                                        cantidad = mayo
+                                    });
+
+                                    lista.Add(new budget_valores()
+                                    {
+                                        id_rel_anio_centro = rel.id,
+                                        id_cuenta_sap = cuenta.id,
+                                        mes = 6,
+                                        currency_iso = "USD",
+                                        cantidad = junio
+                                    });
+
+                                    lista.Add(new budget_valores()
+                                    {
+                                        id_rel_anio_centro = rel.id,
+                                        id_cuenta_sap = cuenta.id,
+                                        mes = 7,
+                                        currency_iso = "USD",
+                                        cantidad = julio
+                                    });
+
+                                    lista.Add(new budget_valores()
+                                    {
+                                        id_rel_anio_centro = rel.id,
+                                        id_cuenta_sap = cuenta.id,
+                                        mes = 8,
+                                        currency_iso = "USD",
+                                        cantidad = agosto
+                                    });
+
+                                    lista.Add(new budget_valores()
+                                    {
+                                        id_rel_anio_centro = rel.id,
+                                        id_cuenta_sap = cuenta.id,
+                                        mes = 9,
+                                        currency_iso = "USD",
+                                        cantidad = septiembre
+                                    });
+
+                                    lista.Add(new budget_valores()
+                                    {
+                                        id_rel_anio_centro = rel.id,
+                                        id_cuenta_sap = cuenta.id,
+                                        mes = 10,
+                                        currency_iso = "USD",
+                                        cantidad = octubre
+                                    });
+
+                                    lista.Add(new budget_valores()
+                                    {
+                                        id_rel_anio_centro = rel.id,
+                                        id_cuenta_sap = cuenta.id,
+                                        mes = 11,
+                                        currency_iso = "USD",
+                                        cantidad = noviembre
+                                    });
+
+                                    lista.Add(new budget_valores()
+                                    {
+                                        id_rel_anio_centro = rel.id,
+                                        id_cuenta_sap = cuenta.id,
+                                        mes = 12,
+                                        currency_iso = "USD",
+                                        cantidad = diciembre
+                                    });
+                                }
+                                else if(!string.IsNullOrEmpty(sap_account)) {
+                                    noEncontrados++;
+                                }
+
+                               
                             }
                             catch (Exception e)
                             {

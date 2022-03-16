@@ -1,0 +1,43 @@
+﻿@model Portal_2_0.Models.budget_centro_costo
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>budget_centro_costo</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.num_centro_costo)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.num_centro_costo)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Area.descripcion)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Area.descripcion)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.empleados.numeroEmpleado)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.empleados.numeroEmpleado)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

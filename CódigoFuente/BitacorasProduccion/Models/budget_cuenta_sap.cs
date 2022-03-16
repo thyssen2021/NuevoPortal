@@ -11,7 +11,8 @@ namespace Portal_2_0.Models
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.ComponentModel.DataAnnotations;
+
     public partial class budget_cuenta_sap
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -22,9 +23,21 @@ namespace Portal_2_0.Models
         }
     
         public int id { get; set; }
+
+        [Display(Name = "Mapping")]
         public int id_mapping { get; set; }
+
+        [Required(AllowEmptyStrings = false)]
+        [StringLength(8, MinimumLength = 2)]
+        [Display(Name = "SAP Account")]
         public string sap_account { get; set; }
+
+        [Required(AllowEmptyStrings = false)]
+        [StringLength(40, MinimumLength = 2)]
+        [Display(Name = "Name")]
         public string name { get; set; }
+
+        [Display(Name = "Status")]
         public bool activo { get; set; }
     
         public virtual budget_mapping budget_mapping { get; set; }

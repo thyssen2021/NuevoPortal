@@ -28,6 +28,16 @@ namespace Portal_2_0.Models
         public int anio_fin { get; set; }
         public int mes_fin { get; set; }
 
+
+        //concatena el Anio Fiscal
+        public string ConcatAnio
+        {
+            get
+            {
+                return string.Format("FY {0}/{1}", anio_inicio, anio_fin);
+            }
+        }
+
         /// <summary>
         /// Indica si un mes ya es actual(true) o es Forecast(false)
         /// </summary>

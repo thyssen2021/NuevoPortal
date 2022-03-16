@@ -22,14 +22,16 @@
         <div class="row">
             <div class="col-md-12 col-sm-12">
                 <div class="x_panel">
-
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
                     <div class="x_content">
                         <br />
                         @using (Html.BeginForm("Edit", "inspeccion_fallas", FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
                         {
                             @Html.AntiForgeryToken()
 
-                            <hr />
                             @Html.HiddenFor(model => model.id)
                             @Html.HiddenFor(model => model.activo)
 

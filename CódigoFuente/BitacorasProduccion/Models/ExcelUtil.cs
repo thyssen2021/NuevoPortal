@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
+﻿using Bitacoras.Util;
+using DocumentFormat.OpenXml.Spreadsheet;
 using SpreadsheetLight;
 using System;
 using System.Collections.Generic;
@@ -259,7 +260,7 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Moneda", typeof(string));
             dt.Columns.Add("Planta", typeof(string));
             dt.Columns.Add("Núm. docto. SAP", typeof(string));
-            dt.Columns.Add("Descripción", typeof(string));            
+            dt.Columns.Add("Descripción", typeof(string));
             dt.Columns.Add("Fecha documento", typeof(DateTime)); //7
             dt.Columns.Add("Cuenta", typeof(string));//8
             dt.Columns.Add("CC", typeof(string));
@@ -290,7 +291,7 @@ namespace Portal_2_0.Models
                 row["Moneda"] = item.currency_iso;
                 row["Planta"] = item.plantas.descripcion;
                 row["Núm. docto. SAP"] = item.numero_documento_sap;
-                row["Descripción"] = item.descripcion_poliza;               
+                row["Descripción"] = item.descripcion_poliza;
                 row["Fecha documento"] = item.fecha_documento;
 
                 if (item.empleados3 != null)
@@ -356,7 +357,8 @@ namespace Portal_2_0.Models
                 int fila_inicial = filasEncabezados.Count + 1;
 
                 //detalle
-                foreach (PM_conceptos c in item.PM_conceptos) {
+                foreach (PM_conceptos c in item.PM_conceptos)
+                {
 
                     row = dt.NewRow();
 
@@ -384,7 +386,7 @@ namespace Portal_2_0.Models
                 int fila_final = filasEncabezados.Count + 1;
 
                 //verifica si hubo cambios
-                if (fila_inicial != fila_final)              
+                if (fila_inicial != fila_final)
                     oSLDocument.GroupRows(fila_inicial, fila_final - 1);
             }
 
@@ -473,6 +475,545 @@ namespace Portal_2_0.Models
             oSLDocument.SetRowStyle(1, styleHeaderFont);
 
             oSLDocument.SetRowHeight(1, filasEncabezados.Count + 1, 15.0);
+
+            System.IO.Stream stream = new System.IO.MemoryStream();
+
+            oSLDocument.SaveAs(stream);
+
+            byte[] array = Bitacoras.Util.StreamUtil.ToByteArray(stream);
+
+            return (array);
+        }
+
+        /// <summary>
+        /// Crea un archivo excel para los datos por centro de costo
+        /// </summary>
+        /// <param name="valoresListAnioAnterior"></param>
+        /// <param name="valoresListAnioActual"></param>
+        /// <param name="valoresListAnioProximo"></param>
+        /// <returns></returns>
+        public static byte[] GeneraReporteBudgetPorCentroCosto(budget_centro_costo centro, List<view_valores_anio_fiscal> valoresListAnioAnterior, List<view_valores_anio_fiscal> valoresListAnioActual,
+            List<view_valores_anio_fiscal> valoresListAnioProximo, budget_anio_fiscal anio_Fiscal_anterior, budget_anio_fiscal anio_Fiscal_actual, budget_anio_fiscal anio_Fiscal_proximo)
+        {
+            DateTime fechaActual = DateTime.Now;
+
+            bool isActualOctubre = anio_Fiscal_actual.isActual(10) == "ACT";
+            bool isActualNoviembre = anio_Fiscal_actual.isActual(11) == "ACT";
+            bool isActualDiciembre = anio_Fiscal_actual.isActual(12) == "ACT";
+            bool isActualEnero = anio_Fiscal_actual.isActual(1) == "ACT";
+            bool isActualFebrero = anio_Fiscal_actual.isActual(2) == "ACT";
+            bool isActualMarzo = anio_Fiscal_actual.isActual(3) == "ACT";
+            bool isActualAbril = anio_Fiscal_actual.isActual(4) == "ACT";
+            bool isActualMayo = anio_Fiscal_actual.isActual(5) == "ACT";
+            bool isActualJunio = anio_Fiscal_actual.isActual(6) == "ACT";
+            bool isActualJulio = anio_Fiscal_actual.isActual(7) == "ACT";
+            bool isActualAgosto = anio_Fiscal_actual.isActual(8) == "ACT";
+            bool isActualSeptiembre = anio_Fiscal_actual.isActual(9) == "ACT";
+
+            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+
+
+            //crea los datos principales del centro de costo
+
+            oSLDocument.SetCellValue("B1", "thyssenkrupp Materials de México");
+            oSLDocument.MergeWorksheetCells(1,2, 1, 4);
+
+            oSLDocument.SetCellValue("B2", "Cost Center");
+            oSLDocument.SetCellValue("B3", "Deparment");
+            oSLDocument.SetCellValue("B4", "Responsable");
+            oSLDocument.SetCellValue("C2", centro.num_centro_costo);
+            oSLDocument.SetCellValue("C3", centro.Area.descripcion);
+            oSLDocument.SetCellValue("C4", centro.empleados.ConcatNombre);
+
+            System.Data.DataTable dt = new System.Data.DataTable();
+
+            //columnas          
+            dt.Columns.Add("Item", typeof(string));
+            dt.Columns.Add("Sap Account", typeof(string));
+            dt.Columns.Add("Name", typeof(string));
+            dt.Columns.Add("Mapping Bridge", typeof(string));
+            //Meses para Actual
+            string titulo_anterior_octubre = "ACT " + MesesUtil.OCTUBRE.Abreviation + "-" + anio_Fiscal_anterior.anio_inicio.ToString().Substring(2, 2);
+            string titulo_anterior_noviembre = "ACT " + MesesUtil.NOVIEMBRE.Abreviation + "-" + anio_Fiscal_anterior.anio_inicio.ToString().Substring(2, 2);
+            string titulo_anterior_diciembre = "ACT " + MesesUtil.DICIEMBRE.Abreviation + "-" + anio_Fiscal_anterior.anio_inicio.ToString().Substring(2, 2);
+            string titulo_anterior_enero = "ACT " + MesesUtil.ENERO.Abreviation + "-" + anio_Fiscal_anterior.anio_fin.ToString().Substring(2, 2);
+            string titulo_anterior_febrero = "ACT " + MesesUtil.FEBRERO.Abreviation + "-" + anio_Fiscal_anterior.anio_fin.ToString().Substring(2, 2);
+            string titulo_anterior_marzo = "ACT " + MesesUtil.MARZO.Abreviation + "-" + anio_Fiscal_anterior.anio_fin.ToString().Substring(2, 2);
+            string titulo_anterior_abril = "ACT " + MesesUtil.ABRIL.Abreviation + "-" + anio_Fiscal_anterior.anio_fin.ToString().Substring(2, 2);
+            string titulo_anterior_mayo = "ACT " + MesesUtil.MAYO.Abreviation + "-" + anio_Fiscal_anterior.anio_fin.ToString().Substring(2, 2);
+            string titulo_anterior_junio = "ACT " + MesesUtil.JUNIO.Abreviation + "-" + anio_Fiscal_anterior.anio_fin.ToString().Substring(2, 2);
+            string titulo_anterior_julio = "ACT " + MesesUtil.JULIO.Abreviation + "-" + anio_Fiscal_anterior.anio_fin.ToString().Substring(2, 2);
+            string titulo_anterior_agosto = "ACT " + MesesUtil.AGOSTO.Abreviation + "-" + anio_Fiscal_anterior.anio_fin.ToString().Substring(2, 2);
+            string titulo_anterior_septiembre = "ACT " + MesesUtil.SEPTIEMBRE.Abreviation + "-" + anio_Fiscal_anterior.anio_fin.ToString().Substring(2, 2);
+            string titulo_anterior_total = "Totals FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)));
+
+            dt.Columns.Add(titulo_anterior_octubre, typeof(decimal));
+            dt.Columns.Add(titulo_anterior_noviembre, typeof(decimal));
+            dt.Columns.Add(titulo_anterior_diciembre, typeof(decimal));
+            dt.Columns.Add(titulo_anterior_enero, typeof(decimal));
+            dt.Columns.Add(titulo_anterior_febrero, typeof(decimal));
+            dt.Columns.Add(titulo_anterior_marzo, typeof(decimal));
+            dt.Columns.Add(titulo_anterior_abril, typeof(decimal));
+            dt.Columns.Add(titulo_anterior_mayo, typeof(decimal)); 
+            dt.Columns.Add(titulo_anterior_junio, typeof(decimal));
+            dt.Columns.Add(titulo_anterior_julio, typeof(decimal));
+            dt.Columns.Add(titulo_anterior_agosto, typeof(decimal));
+            dt.Columns.Add(titulo_anterior_septiembre, typeof(decimal));
+            dt.Columns.Add(titulo_anterior_total, typeof(decimal));
+            //dt.Columns.Add("Comentarios");
+
+            //meses para actual/forecast
+            string titulo_actual_octubre = (isActualOctubre ? "ACT" : "FC") + " " + MesesUtil.OCTUBRE.Abreviation + "-" + anio_Fiscal_actual.anio_inicio.ToString().Substring(2, 2);
+            string titulo_actual_noviembre = (isActualNoviembre ? "ACT" : "FC") + " " + MesesUtil.NOVIEMBRE.Abreviation + "-" + anio_Fiscal_actual.anio_inicio.ToString().Substring(2, 2);
+            string titulo_actual_diciembre = (isActualDiciembre ? "ACT" : "FC") + " " + MesesUtil.DICIEMBRE.Abreviation + "-" + anio_Fiscal_actual.anio_inicio.ToString().Substring(2, 2);
+            string titulo_actual_enero = (isActualEnero ? "ACT" : "FC") + " " + MesesUtil.ENERO.Abreviation + "-" + anio_Fiscal_actual.anio_fin.ToString().Substring(2, 2);
+            string titulo_actual_febrero = (isActualFebrero ? "ACT" : "FC") + " " + MesesUtil.FEBRERO.Abreviation + "-" + anio_Fiscal_actual.anio_fin.ToString().Substring(2, 2);
+            string titulo_actual_marzo = (isActualMarzo ? "ACT" : "FC") + " " + MesesUtil.MARZO.Abreviation + "-" + anio_Fiscal_actual.anio_fin.ToString().Substring(2, 2);
+            string titulo_actual_abril = (isActualAbril ? "ACT" : "FC") + " " + MesesUtil.ABRIL.Abreviation + "-" + anio_Fiscal_actual.anio_fin.ToString().Substring(2, 2);
+            string titulo_actual_mayo = (isActualMayo ? "ACT" : "FC") + " " + MesesUtil.MAYO.Abreviation + "-" + anio_Fiscal_actual.anio_fin.ToString().Substring(2, 2);
+            string titulo_actual_junio = (isActualJunio ? "ACT" : "FC") + " " + MesesUtil.JUNIO.Abreviation + "-" + anio_Fiscal_actual.anio_fin.ToString().Substring(2, 2);
+            string titulo_actual_julio = (isActualJulio ? "ACT" : "FC") + " " + MesesUtil.JULIO.Abreviation + "-" + anio_Fiscal_actual.anio_fin.ToString().Substring(2, 2);
+            string titulo_actual_agosto = (isActualAgosto ? "ACT" : "FC") + " " + MesesUtil.AGOSTO.Abreviation + "-" + anio_Fiscal_actual.anio_fin.ToString().Substring(2, 2);
+            string titulo_actual_septiembre = (isActualSeptiembre ? "ACT" : "FC") + " " + MesesUtil.SEPTIEMBRE.Abreviation + "-" + anio_Fiscal_actual.anio_fin.ToString().Substring(2, 2);
+            string titulo_actual_total = "Totals FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual));
+
+            dt.Columns.Add(titulo_actual_octubre, typeof(decimal));
+            dt.Columns.Add(titulo_actual_noviembre, typeof(decimal));
+            dt.Columns.Add(titulo_actual_diciembre, typeof(decimal));
+            dt.Columns.Add(titulo_actual_enero, typeof(decimal));
+            dt.Columns.Add(titulo_actual_febrero, typeof(decimal));
+            dt.Columns.Add(titulo_actual_marzo, typeof(decimal));
+            dt.Columns.Add(titulo_actual_abril, typeof(decimal));
+            dt.Columns.Add(titulo_actual_mayo, typeof(decimal));
+            dt.Columns.Add(titulo_actual_junio, typeof(decimal));
+            dt.Columns.Add(titulo_actual_julio, typeof(decimal));
+            dt.Columns.Add(titulo_actual_agosto, typeof(decimal));
+            dt.Columns.Add(titulo_actual_septiembre, typeof(decimal));
+            dt.Columns.Add(titulo_actual_total, typeof(decimal));
+            //dt.Columns.Add("Comentarios");
+
+            //meses para budget
+            string titulo_proximo_octubre = "BG " + MesesUtil.OCTUBRE.Abreviation + "-" + anio_Fiscal_proximo.anio_inicio.ToString().Substring(2, 2);
+            string titulo_proximo_noviembre = "BG " + MesesUtil.NOVIEMBRE.Abreviation + "-" + anio_Fiscal_proximo.anio_inicio.ToString().Substring(2, 2);
+            string titulo_proximo_diciembre = "BG " + MesesUtil.DICIEMBRE.Abreviation + "-" + anio_Fiscal_proximo.anio_inicio.ToString().Substring(2, 2);
+            string titulo_proximo_enero = "BG " + MesesUtil.ENERO.Abreviation + "-" + anio_Fiscal_proximo.anio_fin.ToString().Substring(2, 2);
+            string titulo_proximo_febrero = "BG " + MesesUtil.FEBRERO.Abreviation + "-" + anio_Fiscal_proximo.anio_fin.ToString().Substring(2, 2);
+            string titulo_proximo_marzo = "BG " + MesesUtil.MARZO.Abreviation + "-" + anio_Fiscal_proximo.anio_fin.ToString().Substring(2, 2);
+            string titulo_proximo_abril = "BG " + MesesUtil.ABRIL.Abreviation + "-" + anio_Fiscal_proximo.anio_fin.ToString().Substring(2, 2);
+            string titulo_proximo_mayo = "BG " + MesesUtil.MAYO.Abreviation + "-" + anio_Fiscal_proximo.anio_fin.ToString().Substring(2, 2);
+            string titulo_proximo_junio = "BG " + MesesUtil.JUNIO.Abreviation + "-" + anio_Fiscal_proximo.anio_fin.ToString().Substring(2, 2);
+            string titulo_proximo_julio = "BG " + MesesUtil.JULIO.Abreviation + "-" + anio_Fiscal_proximo.anio_fin.ToString().Substring(2, 2);
+            string titulo_proximo_agosto = "BG " + MesesUtil.AGOSTO.Abreviation + "-" + anio_Fiscal_proximo.anio_fin.ToString().Substring(2, 2);
+            string titulo_proximo_septiembre = "BG " + MesesUtil.SEPTIEMBRE.Abreviation + "-" + anio_Fiscal_proximo.anio_fin.ToString().Substring(2, 2);
+            string titulo_proximo_total = "Totals FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)));
+
+            dt.Columns.Add(titulo_proximo_octubre, typeof(decimal));
+            dt.Columns.Add(titulo_proximo_noviembre, typeof(decimal));
+            dt.Columns.Add(titulo_proximo_diciembre, typeof(decimal));
+            dt.Columns.Add(titulo_proximo_enero, typeof(decimal));
+            dt.Columns.Add(titulo_proximo_febrero, typeof(decimal));
+            dt.Columns.Add(titulo_proximo_marzo, typeof(decimal));
+            dt.Columns.Add(titulo_proximo_abril, typeof(decimal));
+            dt.Columns.Add(titulo_proximo_mayo, typeof(decimal));
+            dt.Columns.Add(titulo_proximo_junio, typeof(decimal));
+            dt.Columns.Add(titulo_proximo_julio, typeof(decimal));
+            dt.Columns.Add(titulo_proximo_agosto, typeof(decimal));
+            dt.Columns.Add(titulo_proximo_septiembre, typeof(decimal));
+            dt.Columns.Add(titulo_proximo_total, typeof(decimal));
+            //dt.Columns.Add("Comentarios");
+
+
+            for (int i = 0; i < valoresListAnioAnterior.Count; i++)
+            {
+                System.Data.DataRow row = dt.NewRow();
+
+                //Inserta los datos de la cienta
+
+                row["Item"] = i+1; 
+                row["Sap Account"] = valoresListAnioAnterior[i].sap_account;
+                row["Name"] = valoresListAnioAnterior[i].name;
+                row["Mapping Bridge"] = valoresListAnioAnterior[i].descripcion;
+
+                //completa valores para el año anterior
+                #region valores anio pasado
+                if (valoresListAnioAnterior[i].Octubre.HasValue)
+                    row[titulo_anterior_octubre] = valoresListAnioAnterior[i].Octubre;
+                else
+                    row[titulo_anterior_octubre] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Noviembre.HasValue)
+                    row[titulo_anterior_noviembre] = valoresListAnioAnterior[i].Noviembre;
+                else
+                    row[titulo_anterior_noviembre] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Diciembre.HasValue)
+                    row[titulo_anterior_diciembre] = valoresListAnioAnterior[i].Diciembre;
+                else
+                    row[titulo_anterior_diciembre] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Enero.HasValue)
+                    row[titulo_anterior_enero] = valoresListAnioAnterior[i].Enero;
+                else
+                    row[titulo_anterior_enero] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Febrero.HasValue)
+                    row[titulo_anterior_febrero] = valoresListAnioAnterior[i].Febrero;
+                else
+                    row[titulo_anterior_febrero] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Marzo.HasValue)
+                    row[titulo_anterior_marzo] = valoresListAnioAnterior[i].Marzo;
+                else
+                    row[titulo_anterior_marzo] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Abril.HasValue)
+                    row[titulo_anterior_abril] = valoresListAnioAnterior[i].Abril;
+                else
+                    row[titulo_anterior_abril] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Mayo.HasValue)
+                    row[titulo_anterior_mayo] = valoresListAnioAnterior[i].Mayo;
+                else
+                    row[titulo_anterior_mayo] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Junio.HasValue)
+                    row[titulo_anterior_junio] = valoresListAnioAnterior[i].Junio;
+                else
+                    row[titulo_anterior_junio] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Julio.HasValue)
+                    row[titulo_anterior_julio] = valoresListAnioAnterior[i].Julio;
+                else
+                    row[titulo_anterior_julio] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Agosto.HasValue)
+                    row[titulo_anterior_agosto] = valoresListAnioAnterior[i].Agosto;
+                else
+                    row[titulo_anterior_agosto] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Septiembre.HasValue)
+                    row[titulo_anterior_septiembre] = valoresListAnioAnterior[i].Septiembre;
+                else
+                    row[titulo_anterior_septiembre] = DBNull.Value;
+               
+              row[titulo_anterior_total] = valoresListAnioAnterior[i].TotalMeses();
+                #endregion
+
+                //completa valores para el año actual
+                #region valores anio actual
+                if (valoresListAnioActual[i].Octubre.HasValue)
+                    row[titulo_actual_octubre] = valoresListAnioActual[i].Octubre;
+                else
+                    row[titulo_actual_octubre] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Noviembre.HasValue)
+                    row[titulo_actual_noviembre] = valoresListAnioActual[i].Noviembre;
+                else
+                    row[titulo_actual_noviembre] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Diciembre.HasValue)
+                    row[titulo_actual_diciembre] = valoresListAnioActual[i].Diciembre;
+                else
+                    row[titulo_actual_diciembre] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Enero.HasValue)
+                    row[titulo_actual_enero] = valoresListAnioActual[i].Enero;
+                else
+                    row[titulo_actual_enero] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Febrero.HasValue)
+                    row[titulo_actual_febrero] = valoresListAnioActual[i].Febrero;
+                else
+                    row[titulo_actual_febrero] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Marzo.HasValue)
+                    row[titulo_actual_marzo] = valoresListAnioActual[i].Marzo;
+                else
+                    row[titulo_actual_marzo] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Abril.HasValue)
+                    row[titulo_actual_abril] = valoresListAnioActual[i].Abril;
+                else
+                    row[titulo_actual_abril] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Mayo.HasValue)
+                    row[titulo_actual_mayo] = valoresListAnioActual[i].Mayo;
+                else
+                    row[titulo_actual_mayo] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Junio.HasValue)
+                    row[titulo_actual_junio] = valoresListAnioActual[i].Junio;
+                else
+                    row[titulo_actual_junio] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Julio.HasValue)
+                    row[titulo_actual_julio] = valoresListAnioActual[i].Julio;
+                else
+                    row[titulo_actual_julio] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Agosto.HasValue)
+                    row[titulo_actual_agosto] = valoresListAnioActual[i].Agosto;
+                else
+                    row[titulo_actual_agosto] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Septiembre.HasValue)
+                    row[titulo_actual_septiembre] = valoresListAnioActual[i].Septiembre;
+                else
+                    row[titulo_actual_septiembre] = DBNull.Value;
+
+                row[titulo_actual_total] = valoresListAnioActual[i].TotalMeses();
+                #endregion
+
+                //completa valores para el año 
+                #region valores anio poximo
+                if (valoresListAnioProximo[i].Octubre.HasValue)
+                    row[titulo_proximo_octubre] = valoresListAnioProximo[i].Octubre;
+                else
+                    row[titulo_proximo_octubre] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Noviembre.HasValue)
+                    row[titulo_proximo_noviembre] = valoresListAnioProximo[i].Noviembre;
+                else
+                    row[titulo_proximo_noviembre] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Diciembre.HasValue)
+                    row[titulo_proximo_diciembre] = valoresListAnioProximo[i].Diciembre;
+                else
+                    row[titulo_proximo_diciembre] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Enero.HasValue)
+                    row[titulo_proximo_enero] = valoresListAnioProximo[i].Enero;
+                else
+                    row[titulo_proximo_enero] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Febrero.HasValue)
+                    row[titulo_proximo_febrero] = valoresListAnioProximo[i].Febrero;
+                else
+                    row[titulo_proximo_febrero] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Marzo.HasValue)
+                    row[titulo_proximo_marzo] = valoresListAnioProximo[i].Marzo;
+                else
+                    row[titulo_proximo_marzo] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Abril.HasValue)
+                    row[titulo_proximo_abril] = valoresListAnioProximo[i].Abril;
+                else
+                    row[titulo_proximo_abril] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Mayo.HasValue)
+                    row[titulo_proximo_mayo] = valoresListAnioProximo[i].Mayo;
+                else
+                    row[titulo_proximo_mayo] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Junio.HasValue)
+                    row[titulo_proximo_junio] = valoresListAnioProximo[i].Junio;
+                else
+                    row[titulo_proximo_junio] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Julio.HasValue)
+                    row[titulo_proximo_julio] = valoresListAnioProximo[i].Julio;
+                else
+                    row[titulo_proximo_julio] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Agosto.HasValue)
+                    row[titulo_proximo_agosto] = valoresListAnioProximo[i].Agosto;
+                else
+                    row[titulo_proximo_agosto] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Septiembre.HasValue)
+                    row[titulo_proximo_septiembre] = valoresListAnioProximo[i].Septiembre;
+                else
+                    row[titulo_proximo_septiembre] = DBNull.Value;
+
+                row[titulo_proximo_total] = valoresListAnioProximo[i].TotalMeses();
+
+                #endregion
+
+                dt.Rows.Add(row);
+            }
+
+            //agregar los totales
+            System.Data.DataRow rowTotales = dt.NewRow();
+            rowTotales["Mapping Bridge"] = "Totales";
+            rowTotales[titulo_anterior_octubre] = valoresListAnioAnterior.Sum(item => item.Octubre);
+            rowTotales[titulo_anterior_noviembre] = valoresListAnioAnterior.Sum(item => item.Noviembre);
+            rowTotales[titulo_anterior_diciembre] = valoresListAnioAnterior.Sum(item => item.Diciembre);
+            rowTotales[titulo_anterior_enero] = valoresListAnioAnterior.Sum(item => item.Enero);
+            rowTotales[titulo_anterior_febrero] = valoresListAnioAnterior.Sum(item => item.Febrero);
+            rowTotales[titulo_anterior_marzo] = valoresListAnioAnterior.Sum(item => item.Marzo);
+            rowTotales[titulo_anterior_abril] = valoresListAnioAnterior.Sum(item => item.Abril);
+            rowTotales[titulo_anterior_mayo] = valoresListAnioAnterior.Sum(item => item.Mayo);
+            rowTotales[titulo_anterior_junio] = valoresListAnioAnterior.Sum(item => item.Junio);
+            rowTotales[titulo_anterior_julio] = valoresListAnioAnterior.Sum(item => item.Julio);
+            rowTotales[titulo_anterior_agosto] = valoresListAnioAnterior.Sum(item => item.Agosto);
+            rowTotales[titulo_anterior_septiembre] = valoresListAnioAnterior.Sum(item => item.Septiembre);
+            rowTotales[titulo_anterior_total] = valoresListAnioAnterior.Sum(item => item.TotalMeses());
+
+            rowTotales[titulo_proximo_octubre] = valoresListAnioProximo.Sum(item => item.Octubre);
+            rowTotales[titulo_proximo_noviembre] = valoresListAnioProximo.Sum(item => item.Noviembre);
+            rowTotales[titulo_proximo_diciembre] = valoresListAnioProximo.Sum(item => item.Diciembre);
+            rowTotales[titulo_proximo_enero] = valoresListAnioProximo.Sum(item => item.Enero);
+            rowTotales[titulo_proximo_febrero] = valoresListAnioProximo.Sum(item => item.Febrero);
+            rowTotales[titulo_proximo_marzo] = valoresListAnioProximo.Sum(item => item.Marzo);
+            rowTotales[titulo_proximo_abril] = valoresListAnioProximo.Sum(item => item.Abril);
+            rowTotales[titulo_proximo_mayo] = valoresListAnioProximo.Sum(item => item.Mayo);
+            rowTotales[titulo_proximo_junio] = valoresListAnioProximo.Sum(item => item.Junio);
+            rowTotales[titulo_proximo_julio] = valoresListAnioProximo.Sum(item => item.Julio);
+            rowTotales[titulo_proximo_agosto] = valoresListAnioProximo.Sum(item => item.Agosto);
+            rowTotales[titulo_proximo_septiembre] = valoresListAnioProximo.Sum(item => item.Septiembre);
+            rowTotales[titulo_proximo_total] = valoresListAnioProximo.Sum(item => item.TotalMeses());
+
+            rowTotales[titulo_actual_octubre] = valoresListAnioActual.Sum(item => item.Octubre);
+            rowTotales[titulo_actual_noviembre] = valoresListAnioActual.Sum(item => item.Noviembre);
+            rowTotales[titulo_actual_diciembre] = valoresListAnioActual.Sum(item => item.Diciembre);
+            rowTotales[titulo_actual_enero] = valoresListAnioActual.Sum(item => item.Enero);
+            rowTotales[titulo_actual_febrero] = valoresListAnioActual.Sum(item => item.Febrero);
+            rowTotales[titulo_actual_marzo] = valoresListAnioActual.Sum(item => item.Marzo);
+            rowTotales[titulo_actual_abril] = valoresListAnioActual.Sum(item => item.Abril);
+            rowTotales[titulo_actual_mayo] = valoresListAnioActual.Sum(item => item.Mayo);
+            rowTotales[titulo_actual_junio] = valoresListAnioActual.Sum(item => item.Junio);
+            rowTotales[titulo_actual_julio] = valoresListAnioActual.Sum(item => item.Julio);
+            rowTotales[titulo_actual_agosto] = valoresListAnioActual.Sum(item => item.Agosto);
+            rowTotales[titulo_actual_septiembre] = valoresListAnioActual.Sum(item => item.Septiembre);
+            rowTotales[titulo_actual_total] = valoresListAnioActual.Sum(item => item.TotalMeses());
+
+            dt.Rows.Add(rowTotales);
+
+
+            //define y combina las celdas de los encabezados 
+            oSLDocument.SetCellValue(4, 5, "FY " +(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1))));
+            oSLDocument.SetCellValue(5, 5, "ACTUAL");
+            oSLDocument.MergeWorksheetCells(5, 5, 5, 16);
+            oSLDocument.MergeWorksheetCells(4, 5, 4, 16);
+
+            oSLDocument.SetCellValue(4, 18, "FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual)));
+            oSLDocument.SetCellValue(5, 18, "ACTUAL/FORECAST");
+            oSLDocument.MergeWorksheetCells(5, 18, 5, 29);
+            oSLDocument.MergeWorksheetCells(4, 18, 4, 29);
+
+            oSLDocument.SetCellValue(4, 31, "FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1))));
+            oSLDocument.SetCellValue(5, 31, "BUDGET");
+            oSLDocument.MergeWorksheetCells(5, 31, 5, 42);
+            oSLDocument.MergeWorksheetCells(4, 31, 4, 42);
+
+            int filaInicial = 6;
+
+            //crea la hoja de Plantilla
+            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Template");
+            oSLDocument.ImportDataTable(filaInicial, 1, dt, true);
+
+            //estilo para ajustar al texto
+            SLStyle styleWrap = oSLDocument.CreateStyle();
+            styleWrap.SetWrapText(true);
+
+            //estilo thyssenkrupp
+            SLStyle styleThyssen = oSLDocument.CreateStyle();
+            styleThyssen.Font.Bold = true;
+            styleThyssen.Font.FontColor = System.Drawing.ColorTranslator.FromHtml("#0094ff");
+            styleThyssen.SetVerticalAlignment(VerticalAlignmentValues.Center);
+            styleThyssen.Font.FontSize = 20;
+
+
+            SLStyle styleBorder = oSLDocument.CreateStyle();
+            styleBorder.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffffcc"), System.Drawing.ColorTranslator.FromHtml("#ffffcc"));
+            styleBorder.Border.BottomBorder.BorderStyle = BorderStyleValues.Thin;
+            styleBorder.Border.BottomBorder.Color = System.Drawing.Color.Black;
+            styleBorder.Border.TopBorder.BorderStyle = BorderStyleValues.Thin;
+            styleBorder.Border.TopBorder.Color = System.Drawing.Color.Black;
+            styleBorder.Border.LeftBorder.BorderStyle = BorderStyleValues.Thin;
+            styleBorder.Border.LeftBorder.Color = System.Drawing.Color.Black;
+            styleBorder.Border.RightBorder.BorderStyle = BorderStyleValues.Thin;
+            styleBorder.Border.RightBorder.Color = System.Drawing.Color.Black;
+
+            //estilo para el encabezado
+            SLStyle styleHeader = oSLDocument.CreateStyle();
+            styleHeader.Font.Bold = true;
+            styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
+
+            //estilo para el encabezado
+            SLStyle styleTotales= oSLDocument.CreateStyle();
+            styleTotales.Font.Bold = true;
+            styleTotales.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#c6efce"), System.Drawing.ColorTranslator.FromHtml("#c6efce"));
+            styleTotales.Font.FontColor = System.Drawing.ColorTranslator.FromHtml("#005000");
+
+            SLStyle styleTotalsColor = oSLDocument.CreateStyle();
+            styleTotalsColor.Font.Bold = true;
+            styleTotalsColor.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#002060"), System.Drawing.ColorTranslator.FromHtml("#002060"));
+            styleTotalsColor.Font.FontName = "Calibri";
+            styleTotalsColor.Font.FontSize = 11;
+            styleTotalsColor.Font.FontColor = System.Drawing.Color.White;
+            styleTotalsColor.Font.Bold = true;
+
+            SLStyle styleCentrarTexto = oSLDocument.CreateStyle();
+            styleCentrarTexto.SetHorizontalAlignment(HorizontalAlignmentValues.Center);
+
+            SLStyle styleBoldTexto = oSLDocument.CreateStyle();
+            styleBoldTexto.Font.Bold=true;
+
+            SLStyle styleHeaderFont = oSLDocument.CreateStyle();
+            styleHeaderFont.Font.FontName = "Calibri";
+            styleHeaderFont.Font.FontSize = 11;
+            styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
+            styleHeaderFont.Font.Bold = true;
+
+            //estilo para numeros
+            SLStyle styleNumber = oSLDocument.CreateStyle();
+            styleNumber.FormatCode = "$  #,##0.00";
+
+           
+            //da estilo a los numero
+            //camniar cuando se agregen los comentarios
+            oSLDocument.SetColumnStyle(5, 43, styleNumber);
+
+            //da estilo a la hoja de excel
+            //inmoviliza el encabezado
+            oSLDocument.FreezePanes(filaInicial, 4);
+
+            oSLDocument.Filter("A" + filaInicial, "D1" + filaInicial);
+            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+
+            //aplica estilo a los datos generales
+            oSLDocument.SetCellStyle(2, 2, 4, 3, styleBorder);
+            oSLDocument.SetCellStyle(2, 2, 4, 2, styleBoldTexto);
+
+
+            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
+            oSLDocument.SetRowStyle(filaInicial, styleHeader);
+            oSLDocument.SetRowStyle(filaInicial, styleHeaderFont);
+
+            //aplica estilo a los encabazado de totales
+            oSLDocument.SetCellStyle(filaInicial, 17, styleTotalsColor);
+            oSLDocument.SetCellStyle(filaInicial, 30, styleTotalsColor);
+            oSLDocument.SetCellStyle(filaInicial, 42, styleTotalsColor);
+
+            //aplica estilo a las cabeceras de tipo año
+            oSLDocument.SetCellStyle(4, 5, styleHeader);
+            oSLDocument.SetCellStyle(4, 5, styleHeaderFont);
+            oSLDocument.SetCellStyle(4, 5, styleCentrarTexto);
+            oSLDocument.SetCellStyle(5, 5, styleTotalsColor);
+            oSLDocument.SetCellStyle(5, 5, styleCentrarTexto);
+
+            oSLDocument.SetCellStyle(4, 18, styleHeader);
+            oSLDocument.SetCellStyle(4, 18, styleHeaderFont);
+            oSLDocument.SetCellStyle(4, 18, styleCentrarTexto);
+            oSLDocument.SetCellStyle(5, 18, styleTotalsColor);
+            oSLDocument.SetCellStyle(5, 18, styleCentrarTexto);
+
+            oSLDocument.SetCellStyle(4, 31, styleHeader);
+            oSLDocument.SetCellStyle(4, 31, styleHeaderFont);
+            oSLDocument.SetCellStyle(4, 31, styleCentrarTexto);
+            oSLDocument.SetCellStyle(5, 31, styleTotalsColor);
+            oSLDocument.SetCellStyle(5, 31, styleCentrarTexto);
+
+            //estilo para titulo thyssen
+            oSLDocument.SetRowHeight(1, 40.0);
+            oSLDocument.SetCellStyle("B1", styleThyssen);
+
+            //estilo para totales
+            oSLDocument.SetCellStyle(valoresListAnioAnterior.Count + filaInicial + 1, 4, valoresListAnioAnterior.Count + filaInicial + 1, 43, styleTotales);
+
+            oSLDocument.SetRowHeight(2, valoresListAnioAnterior.Count + filaInicial+ 1, 15.0);
 
             System.IO.Stream stream = new System.IO.MemoryStream();
 
@@ -584,9 +1125,9 @@ namespace Portal_2_0.Models
             SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
 
             System.Data.DataTable dt = new System.Data.DataTable();
-            
+
             //crea la hoja de resumen y la selecciona
-            string hojaReportePorDia = "Reporte Por Día";         
+            string hojaReportePorDia = "Reporte Por Día";
 
             //crear la hoja y la selecciona
             oSLDocument.AddWorksheet(hojaReportePorDia);
@@ -671,7 +1212,7 @@ namespace Portal_2_0.Models
                 dt.Rows.Add(item.fecha, item.PiezasDescarteKG_internos, item.PiezasCortadasTon, item.CalculoPPM_interno);
             }
 
-        
+
             oSLDocument.ImportDataTable(1, 1, dt, true);
 
             //da estilo a la hoja de excel
@@ -679,8 +1220,8 @@ namespace Portal_2_0.Models
             oSLDocument.FreezePanes(1, 0);
 
             oSLDocument.Filter("A1", "D1");
-            
-           
+
+
             oSLDocument.SetRowStyle(1, styleHeader);
             oSLDocument.SetRowStyle(1, styleHeaderFont);
 
@@ -720,8 +1261,8 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Observaciones", typeof(string));
             dt.Columns.Add("Total Piezas", typeof(string));
 
-            foreach (inspeccion_categoria_fallas falla_c in listadoFallas)            
-                foreach (inspeccion_fallas falla in falla_c.inspeccion_fallas.OrderBy(x => x.id))               
+            foreach (inspeccion_categoria_fallas falla_c in listadoFallas)
+                foreach (inspeccion_fallas falla in falla_c.inspeccion_fallas.OrderBy(x => x.id))
                     dt.Columns.Add(falla.descripcion, typeof(int));
 
             dt.Columns.Add("Peso Neto Unitario", typeof(double));
@@ -750,7 +1291,8 @@ namespace Portal_2_0.Models
                 }
 
                 //obtiene valores de datos entrada
-                if (item.produccion_datos_entrada != null) {
+                if (item.produccion_datos_entrada != null)
+                {
                     loteRollo = item.produccion_datos_entrada.lote_rollo;
                     pesoNetoUnitario = item.produccion_datos_entrada.peso_real_pieza_neto;
                     totalPiezasOk = item.produccion_datos_entrada.PesoRegresoRolloUsado;
@@ -783,7 +1325,7 @@ namespace Portal_2_0.Models
                         else
                             row[falla.descripcion] = DBNull.Value;
                     }
-                if(pesoNetoUnitario.HasValue)
+                if (pesoNetoUnitario.HasValue)
                     row["Peso Neto Unitario"] = pesoNetoUnitario;
                 else
                     row["Peso Neto Unitario"] = DBNull.Value;
@@ -791,17 +1333,17 @@ namespace Portal_2_0.Models
                 row["Subtotal Piezas Daño Interno"] = item.NumPiezasDescarteDanoInterno();
                 row["Total de Kg NG internos"] = item.produccion_datos_entrada.TotalKgNGInterno();
 
-                if(totalPiezasOk.HasValue)
+                if (totalPiezasOk.HasValue)
                     row["Peso Total Piezas OK"] = totalPiezasOk;
                 else
                     row["Peso Total Piezas OK"] = DBNull.Value;
 
-                if(pesoPuntas.HasValue)
+                if (pesoPuntas.HasValue)
                     row["Peso Puntas"] = pesoPuntas;
                 else
                     row["Peso Puntas"] = DBNull.Value;
 
-                if(pesoColas.HasValue)
+                if (pesoColas.HasValue)
                     row["Peso Colas"] = pesoColas;
                 else
                     row["Peso Colas"] = DBNull.Value;
@@ -809,7 +1351,7 @@ namespace Portal_2_0.Models
                 dt.Rows.Add(row);
             }
 
-           
+
 
             //encabezados
             int columna_falla = 12; //inicio
@@ -848,26 +1390,27 @@ namespace Portal_2_0.Models
                     oSLDocument.SetCellStyle(3, columna_falla, styleFondo);
                     columna_falla++;
                 }
-              
-                oSLDocument.MergeWorksheetCells(1, inicioColumna, 1,columna_falla-1);
-                oSLDocument.SetCellStyle(1,inicioColumna,styleFondo);
-             
+
+                oSLDocument.MergeWorksheetCells(1, inicioColumna, 1, columna_falla - 1);
+                oSLDocument.SetCellStyle(1, inicioColumna, styleFondo);
+
             }
 
             //agrega el color de fondo a los ultimos resultados          
             SLStyle styleFondoGray = oSLDocument.CreateStyle();
             styleFondoGray.Font.Bold = true;
             styleFondoGray.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#bebebe"), System.Drawing.ColorTranslator.FromHtml("#bebebe"));
-            oSLDocument.SetCellStyle(3, columna_falla, listadoRegistros.Count + 3, columna_falla+5, styleFondoGray);
+            oSLDocument.SetCellStyle(3, columna_falla, listadoRegistros.Count + 3, columna_falla + 5, styleFondoGray);
 
-            oSLDocument.ImportDataTable(3, 1, dt,true);
+            oSLDocument.ImportDataTable(3, 1, dt, true);
 
             //agrega el color de fondo para las filas
-            for (int i = 4; i <= listadoRegistros.Count + 3; i++) {
+            for (int i = 4; i <= listadoRegistros.Count + 3; i++)
+            {
                 if (i % 2 == 0)
-                    oSLDocument.SetCellStyle(i,1, i, columna_falla-1, styleFondoRenglon);
+                    oSLDocument.SetCellStyle(i, 1, i, columna_falla - 1, styleFondoRenglon);
             }
-                
+
 
 
             //da estilo a la hoja de excel
@@ -878,7 +1421,7 @@ namespace Portal_2_0.Models
 
             styleHeaderFont.Alignment.TextRotation = 90;
 
-            oSLDocument.SetCellStyle(3,1,1,11, styleHeader);
+            oSLDocument.SetCellStyle(3, 1, 1, 11, styleHeader);
             oSLDocument.SetCellStyle(3, 1, 1, 11, styleHeaderFont);
 
             //oSLDocument.SetRowHeight(3, listadoRegistros.Count + 3, 15.0);
@@ -890,12 +1433,12 @@ namespace Portal_2_0.Models
             //da formato a la fecha
             oSLDocument.SetColumnStyle(1, styleLongDate);
             //ajusta al texto
-            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);            
+            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
 
             //encabezado
             oSLDocument.SetRowStyle(3, styleVertical);
             //primeros datos
-            oSLDocument.SetColumnStyle(1,9, styleVertical);
+            oSLDocument.SetColumnStyle(1, 9, styleVertical);
 
             oSLDocument.AutoFitColumn(1, dt.Columns.Count);
 
@@ -911,7 +1454,7 @@ namespace Portal_2_0.Models
 
             //crear la hoja y la selecciona
             string nombreHojaProduccion = "Producción";
-           
+
             oSLDocument.SelectWorksheet("Sheet1");
             oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, nombreHojaProduccion);
             oSLDocument.MoveWorksheet(nombreHojaProduccion, 3);
@@ -972,7 +1515,7 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Peso Punta y Colas Reales kgs", typeof(double));
             dt.Columns.Add("Balance de Scrap Real", typeof(double));
 
-           
+
 
             //registros , rows
             foreach (view_historico_resultado item in listadoHistorico)
@@ -1025,18 +1568,18 @@ namespace Portal_2_0.Models
             double promedioBalanceScrap = listadoHistorico.Average(item => item.Balance_de_Scrap.HasValue ? item.Balance_de_Scrap.Value : 0);
             double promedioBalanceScrapReal = listadoHistorico.Average(item => item.Balance_de_Scrap_Real.HasValue ? item.Balance_de_Scrap_Real.Value : 0);
             double sumaPesoCola = listadoHistorico.Sum(item => item.Peso_cola_Kgs_.HasValue ? item.Peso_cola_Kgs_.Value : 0);
-            double sumaPesoDespunte= listadoHistorico.Sum(item => item.Peso_despunte_kgs_.HasValue ? item.Peso_despunte_kgs_.Value : 0);
+            double sumaPesoDespunte = listadoHistorico.Sum(item => item.Peso_despunte_kgs_.HasValue ? item.Peso_despunte_kgs_.Value : 0);
 
             //fila para sumatorias
             dt.Rows.Add(null, null, null, null, null, null, null, null, null, null,
                     null, null, null, null, null, null, null, null, null
-                    , sumaRolloUsado, null, null, null, null, null, null, sumaNumGolpes, null,sumaPesoDespunte, sumaPesoCola,
+                    , sumaRolloUsado, null, null, null, null, null, null, sumaNumGolpes, null, sumaPesoDespunte, sumaPesoCola,
                       null, null, null, null, null, null
                      , null, null, promedioBalanceScrap, null, null, null, null
                      , null, null, null, promedioBalanceScrapReal);
 
             oSLDocument.ImportDataTable(1, 1, dt, true);
-                        
+
             //estilo para el encabezado de cada fila
             SLStyle styleHeaderRow = oSLDocument.CreateStyle();
             styleHeaderRow.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#daeef3"), System.Drawing.ColorTranslator.FromHtml("#daeef3"));
@@ -1055,15 +1598,15 @@ namespace Portal_2_0.Models
 
 
             //estilo para sumatorias
-           
-                SLStyle styleFooter = oSLDocument.CreateStyle();
-                styleFooter.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#c6efce"), System.Drawing.ColorTranslator.FromHtml("#c6efce"));
-                styleFooter.Font.Bold = true;
-                styleFooter.Font.FontColor = System.Drawing.ColorTranslator.FromHtml("#006100");
-                oSLDocument.SetRowStyle(filasEncabezados.Count + 1, styleFooter);
+
+            SLStyle styleFooter = oSLDocument.CreateStyle();
+            styleFooter.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#c6efce"), System.Drawing.ColorTranslator.FromHtml("#c6efce"));
+            styleFooter.Font.Bold = true;
+            styleFooter.Font.FontColor = System.Drawing.ColorTranslator.FromHtml("#006100");
+            oSLDocument.SetRowStyle(filasEncabezados.Count + 1, styleFooter);
 
             //estilo para fecha
-           
+
             oSLDocument.SetColumnStyle(10, styleShortDate);
 
             //estilo para porcentanjes
@@ -1072,7 +1615,7 @@ namespace Portal_2_0.Models
             oSLDocument.SetColumnStyle(31, stylePercent);
             oSLDocument.SetColumnStyle(39, stylePercent);
             oSLDocument.SetColumnStyle(47, stylePercent);
-                       
+
             //da estilo a la hoja de excel
 
             //aplica formato a las filas de encabezado
