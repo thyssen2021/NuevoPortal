@@ -22,6 +22,7 @@ namespace Portal_2_0.Models
         {
             this.budget_comentarios_rel_anio_cuenta = new HashSet<budget_comentarios_rel_anio_cuenta>();
             this.budget_rel_anio_fiscal_centro = new HashSet<budget_rel_anio_fiscal_centro>();
+            this.budget_rel_fy_centro = new HashSet<budget_rel_fy_centro>();
         }
 
         [Display(Name = "Número de Parte")]
@@ -46,11 +47,11 @@ namespace Portal_2_0.Models
         public int id_anio_fiscal { get; set; }
 
         //DEfine variables para rel anio centro
-        public budget_rel_anio_fiscal_centro REL_ANIO_CENTRO_ACTUAL_FORECAST = null;
-        public budget_rel_anio_fiscal_centro REL_ANIO_CENTRO_PROXIMO_BUDGET = null;
+        public budget_rel_fy_centro REL_ANIO_CENTRO_ACTUAL_FORECAST = null;
+        public budget_rel_fy_centro REL_ANIO_CENTRO_PROXIMO_BUDGET = null;
 
         //retorna el Centro de costo Actual
-        public budget_rel_anio_fiscal_centro RelAnioCentroActual_Forecast()
+        public budget_rel_fy_centro RelAnioCentroActual_Forecast()
         {
 
             if (REL_ANIO_CENTRO_ACTUAL_FORECAST != null)
@@ -58,13 +59,14 @@ namespace Portal_2_0.Models
                 return REL_ANIO_CENTRO_ACTUAL_FORECAST;
             }
 
-            List<budget_rel_anio_fiscal_centro> rels = budget_rel_anio_fiscal_centro.Where(x => x.tipo == Bitacoras.Util.BG_Status.FORECAST).ToList();
+            List<budget_rel_fy_centro> rels = budget_rel_fy_centro.Where(x => x.id_centro_costo == this.id).ToList();
 
 
-            foreach (budget_rel_anio_fiscal_centro item in rels) {
+            foreach (budget_rel_fy_centro item in rels)
+            {
 
                 DateTime timeInicial = new DateTime(item.budget_anio_fiscal.anio_inicio, item.budget_anio_fiscal.mes_inicio, 1, 0, 0, 0);
-                DateTime timeFinal = new DateTime(item.budget_anio_fiscal.anio_fin, item.budget_anio_fiscal.mes_fin, 1, 23,59 ,59).AddMonths(1).AddDays(-1);
+                DateTime timeFinal = new DateTime(item.budget_anio_fiscal.anio_fin, item.budget_anio_fiscal.mes_fin, 1, 23, 59, 59).AddMonths(1).AddDays(-1);
                 DateTime timeActual = DateTime.Now;
 
                 if ((timeActual >= timeInicial) && (timeActual <= timeFinal))
@@ -80,7 +82,7 @@ namespace Portal_2_0.Models
         }
 
         //retorna el Centro de costo Actual
-        public budget_rel_anio_fiscal_centro RelAnioCentroProximo_Budget()
+        public budget_rel_fy_centro RelAnioCentroProximo_Budget()
         {
 
             if (REL_ANIO_CENTRO_PROXIMO_BUDGET != null)
@@ -88,10 +90,10 @@ namespace Portal_2_0.Models
                 return REL_ANIO_CENTRO_PROXIMO_BUDGET;
             }
 
-            List<budget_rel_anio_fiscal_centro> rels = budget_rel_anio_fiscal_centro.Where(x => x.tipo == Bitacoras.Util.BG_Status.BUDGET).ToList();
+            List<budget_rel_fy_centro> rels = budget_rel_fy_centro.Where(x => x.id_centro_costo == this.id).ToList();
 
 
-            foreach (budget_rel_anio_fiscal_centro item in rels)
+            foreach (budget_rel_fy_centro item in rels)
             {
 
                 DateTime timeInicial = new DateTime(item.budget_anio_fiscal.anio_inicio, item.budget_anio_fiscal.mes_inicio, 1, 0, 0, 0);
@@ -117,5 +119,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<budget_comentarios_rel_anio_cuenta> budget_comentarios_rel_anio_cuenta { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_rel_anio_fiscal_centro> budget_rel_anio_fiscal_centro { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<budget_rel_fy_centro> budget_rel_fy_centro { get; set; }
     }
 }

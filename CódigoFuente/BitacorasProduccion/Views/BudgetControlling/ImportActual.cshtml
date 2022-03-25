@@ -5,9 +5,9 @@
 @{
 
 
-    List<Portal_2_0.Models.view_valores_anio_fiscal> valores_actual = (List<Portal_2_0.Models.view_valores_anio_fiscal>)ViewBag.ValoresActual;
-    List<Portal_2_0.Models.view_valores_anio_fiscal> valores_actual_forecast = (List<Portal_2_0.Models.view_valores_anio_fiscal>)ViewBag.ValoresActualForecast;
-    List<Portal_2_0.Models.view_valores_anio_fiscal> valores_budget = (List<Portal_2_0.Models.view_valores_anio_fiscal>)ViewBag.ValoresBudget;
+    List<Portal_2_0.Models.view_valores_fiscal_year> valores_actual = (List<Portal_2_0.Models.view_valores_fiscal_year>)ViewBag.ValoresActual;
+    List<Portal_2_0.Models.view_valores_fiscal_year> valores_actual_forecast = (List<Portal_2_0.Models.view_valores_fiscal_year>)ViewBag.ValoresActualForecast;
+    List<Portal_2_0.Models.view_valores_fiscal_year> valores_budget = (List<Portal_2_0.Models.view_valores_fiscal_year>)ViewBag.ValoresBudget;
 
     Portal_2_0.Models.budget_anio_fiscal anio_Fiscal_anterior = (Portal_2_0.Models.budget_anio_fiscal)ViewBag.anio_Fiscal_anterior;
     Portal_2_0.Models.budget_anio_fiscal anio_Fiscal_actual = (Portal_2_0.Models.budget_anio_fiscal)ViewBag.anio_Fiscal_actual;
@@ -160,11 +160,7 @@
                                                 </div>
                                                 @Html.ValidationMessageFor(m => m.PostedFile, "", new { @class = "text-danger" })
                                             </div>
-                                            @Html.LabelFor(model => model.id_anio_fiscal, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
-                                            <div class="col-md-2 col-sm-2">
-                                                @Html.DropDownList("id_anio_fiscal", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
-                                                @Html.ValidationMessageFor(model => model.id_anio_fiscal, "", new { @class = "text-danger" })
-                                            </div>
+                                          
                                             <div class="col-md-2">
                                                 <div>
                                                     <input type="submit" value="Load File" class="btn btn-success float-right" />
@@ -269,7 +265,7 @@
                                                                             @item.name
                                                                         </td>
                                                                         <td>
-                                                                            @item.descripcion
+                                                                            @item.mapping_bridge
                                                                         </td>
                                                                         <td class="text_derecha">
                                                                             @if (item.Octubre.HasValue)
@@ -475,7 +471,7 @@
                                                                             @item.name
                                                                         </td>
                                                                         <td>
-                                                                            @item.descripcion
+                                                                            @item.mapping_bridge
                                                                         </td>
                                                                         <td class="text_derecha">
                                                                             @if (isActualOctubre)
@@ -776,7 +772,7 @@
                                                                             @item.name
                                                                         </td>
                                                                         <td>
-                                                                            @item.descripcion
+                                                                            @item.mapping_bridge
                                                                         </td>
                                                                         <td class="text_derecha">
                                                                             <input type="hidden" id="budget_valores[@((fila*12) + 10)].id_cuenta_sap" name="budget_valores[@((fila*12) + 10)].id_cuenta_sap" value="@item.id_cuenta_sap" />

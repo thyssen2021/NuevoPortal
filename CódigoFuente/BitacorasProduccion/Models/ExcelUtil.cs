@@ -492,8 +492,8 @@ namespace Portal_2_0.Models
         /// <param name="valoresListAnioActual"></param>
         /// <param name="valoresListAnioProximo"></param>
         /// <returns></returns>
-        public static byte[] GeneraReporteBudgetPorCentroCosto(budget_centro_costo centro, List<view_valores_anio_fiscal> valoresListAnioAnterior, List<view_valores_anio_fiscal> valoresListAnioActual,
-            List<view_valores_anio_fiscal> valoresListAnioProximo, budget_anio_fiscal anio_Fiscal_anterior, budget_anio_fiscal anio_Fiscal_actual, budget_anio_fiscal anio_Fiscal_proximo)
+        public static byte[] GeneraReporteBudgetPorCentroCosto(budget_centro_costo centro, List<view_valores_fiscal_year> valoresListAnioAnterior, List<view_valores_fiscal_year> valoresListAnioActual,
+            List<view_valores_fiscal_year> valoresListAnioProximo, budget_anio_fiscal anio_Fiscal_anterior, budget_anio_fiscal anio_Fiscal_actual, budget_anio_fiscal anio_Fiscal_proximo)
         {
             DateTime fechaActual = DateTime.Now;
 
@@ -632,7 +632,7 @@ namespace Portal_2_0.Models
                 row["Item"] = i+1; 
                 row["Sap Account"] = valoresListAnioAnterior[i].sap_account;
                 row["Name"] = valoresListAnioAnterior[i].name;
-                row["Mapping Bridge"] = valoresListAnioAnterior[i].descripcion;
+                row["Mapping Bridge"] = valoresListAnioAnterior[i].mapping_bridge;
 
                 //completa valores para el año anterior
                 #region valores anio pasado

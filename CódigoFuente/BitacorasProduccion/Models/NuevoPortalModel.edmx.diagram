@@ -132,6 +132,17 @@
         <AssociationConnector Association="Portal_2_0Model.FK_budget_comentarios_rel_anio_cuenta_id_cuenta_sap" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_valores_id_rel_anio_centro" />
         <EntityTypeShape EntityType="Portal_2_0Model.view_valores_anio_fiscal" Width="1.5" PointX="12.375" PointY="15.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_cantidad" Width="1.5" PointX="29.25" PointY="30.25" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_rel_comentarios" Width="1.5" PointX="26.25" PointY="30.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_rel_fy_centro" Width="1.5" PointX="24" PointY="21" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_fy_centro_id_anio_fiscal" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_currency_iso" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_id_cuenta_sap" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_id_rel_fy_centro" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_fy_centro_id_centro_costo" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_comentarios_id_cuenta_sap" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_comentarios_id_rel_fy_centro" />
+        <EntityTypeShape EntityType="Portal_2_0Model.view_valores_fiscal_year" Width="1.5" PointX="4.375" PointY="20.75" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

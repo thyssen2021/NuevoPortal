@@ -20,8 +20,10 @@ namespace Portal_2_0.Models
         {
             this.budget_valores = new HashSet<budget_valores>();
             this.budget_comentarios_rel_anio_cuenta = new HashSet<budget_comentarios_rel_anio_cuenta>();
+            this.budget_cantidad = new HashSet<budget_cantidad>();
+            this.budget_rel_comentarios = new HashSet<budget_rel_comentarios>();
         }
-    
+
         public int id { get; set; }
 
         [Display(Name = "Mapping")]
@@ -39,11 +41,15 @@ namespace Portal_2_0.Models
 
         [Display(Name = "Status")]
         public bool activo { get; set; }
-    
+
         public virtual budget_mapping budget_mapping { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_valores> budget_valores { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_comentarios_rel_anio_cuenta> budget_comentarios_rel_anio_cuenta { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<budget_cantidad> budget_cantidad { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<budget_rel_comentarios> budget_rel_comentarios { get; set; }
     }
 }

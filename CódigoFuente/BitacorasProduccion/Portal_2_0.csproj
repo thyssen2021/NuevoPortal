@@ -275,6 +275,9 @@
     <Compile Include="Models\budget_anio_fiscal.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\budget_cantidad.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\budget_centro_costo.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -291,6 +294,12 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\budget_rel_anio_fiscal_centro.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\budget_rel_comentarios.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\budget_rel_fy_centro.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\budget_valores.cs">
@@ -321,6 +330,7 @@
     <Compile Include="Models\empleados.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\EncabezadoExcelBudget.cs" />
     <Compile Include="Models\EnvioCorreoElectronico.cs" />
     <Compile Include="Models\ExcelUtil.cs" />
     <Compile Include="Models\IdentityModels.cs" />
@@ -456,6 +466,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\view_valores_anio_fiscal.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\view_valores_fiscal_year.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -5250,6 +5263,10 @@
     <Content Include="Views\BG_CuentasSAP\Edit.cshtml" />
     <Content Include="Views\BG_CuentasSAP\Enable.cshtml" />
     <Content Include="Views\BG_CuentasSAP\Index.cshtml" />
+    <Content Include="Views\ResponsableBudget\Centros.cshtml" />
+    <Content Include="Views\ResponsableBudget\DetailsCentro.cshtml" />
+    <Content Include="Views\ResponsableBudget\EditCentroPresente.cshtml" />
+    <Content Include="Views\ResponsableBudget\EditCentroProximo.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

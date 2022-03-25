@@ -78,5 +78,9 @@ namespace Portal_2_0.Models
         public virtual DbSet<budget_comentarios_rel_anio_cuenta> budget_comentarios_rel_anio_cuenta { get; set; }
         public virtual DbSet<budget_rel_anio_fiscal_centro> budget_rel_anio_fiscal_centro { get; set; }
         public virtual DbSet<view_valores_anio_fiscal> view_valores_anio_fiscal { get; set; }
+        public virtual DbSet<budget_cantidad> budget_cantidad { get; set; }
+        public virtual DbSet<budget_rel_comentarios> budget_rel_comentarios { get; set; }
+        public virtual DbSet<budget_rel_fy_centro> budget_rel_fy_centro { get; set; }
+        public virtual DbSet<view_valores_fiscal_year> view_valores_fiscal_year { get; set; }
     }
 }

@@ -11,7 +11,8 @@ namespace Portal_2_0.Models
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.Linq;
+
     public partial class budget_anio_fiscal
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -19,6 +20,7 @@ namespace Portal_2_0.Models
         {
             this.budget_comentarios_rel_anio_cuenta = new HashSet<budget_comentarios_rel_anio_cuenta>();
             this.budget_rel_anio_fiscal_centro = new HashSet<budget_rel_anio_fiscal_centro>();
+            this.budget_rel_fy_centro = new HashSet<budget_rel_fy_centro>();
         }
     
         public int id { get; set; }
@@ -27,7 +29,6 @@ namespace Portal_2_0.Models
         public int mes_inicio { get; set; }
         public int anio_fin { get; set; }
         public int mes_fin { get; set; }
-
 
         //concatena el Anio Fiscal
         public string ConcatAnio
@@ -65,9 +66,35 @@ namespace Portal_2_0.Models
 
         }
 
+        public static budget_anio_fiscal Get_Anio_Fiscal(DateTime fecha) {
+
+            Portal_2_0Entities db = new Portal_2_0Entities();
+
+            //obtiene el listado de año fiscale
+            List<budget_anio_fiscal> listAnios = db.budget_anio_fiscal.ToList();
+
+            //recorre todos los años buscando la coincidencia
+            foreach (budget_anio_fiscal item in listAnios) {
+
+                DateTime timeInicial = new DateTime(item.anio_inicio, item.mes_inicio, 1, 0, 0, 0);
+                DateTime timeFinal = new DateTime(item.anio_fin, item.mes_fin, 1, 23, 59, 59).AddMonths(1).AddDays(-1);              
+
+                if ((fecha >= timeInicial) && (fecha <= timeFinal))
+                {
+                   
+                    return item;
+                }
+
+            }
+
+            return null;
+        }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_comentarios_rel_anio_cuenta> budget_comentarios_rel_anio_cuenta { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_rel_anio_fiscal_centro> budget_rel_anio_fiscal_centro { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<budget_rel_fy_centro> budget_rel_fy_centro { get; set; }
     }
 }
