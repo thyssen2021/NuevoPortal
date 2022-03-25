@@ -12,7 +12,6 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
-    using System.Linq;
     using System.Web;
 
     public partial class budget_centro_costo
@@ -20,24 +19,26 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public budget_centro_costo()
         {
-            this.budget_comentarios_rel_anio_cuenta = new HashSet<budget_comentarios_rel_anio_cuenta>();
-            this.budget_rel_anio_fiscal_centro = new HashSet<budget_rel_anio_fiscal_centro>();
             this.budget_rel_fy_centro = new HashSet<budget_rel_fy_centro>();
+            this.budget_responsables = new HashSet<budget_responsables>();
         }
 
         [Display(Name = "Número de Parte")]
         public int id { get; set; }
 
-        [Display(Name = "Deparment")]
-        public int id_area { get; set; }
+        [Display(Name = "Departamento")]
+        public int id_budget_departamento { get; set; }
 
-        [Display(Name = "Responsable")]
-        public int id_responsable { get; set; }
+        [Required(AllowEmptyStrings = false)]
+        [StringLength(40, MinimumLength = 2)]
+        [Display(Name = "Descripción")]
+        public string descripcion { get; set; }
 
         [Required(AllowEmptyStrings = false)]
         [StringLength(6, MinimumLength = 2)]
-        [Display(Name = "Cost Center")]
+        [Display(Name = "Descripción")]
         public string num_centro_costo { get; set; }
+
 
         //para el archivo de importación 
         [Display(Name = "Document")]
@@ -113,13 +114,10 @@ namespace Portal_2_0.Models
         }
 
 
-        public virtual Area Area { get; set; }
-        public virtual empleados empleados { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<budget_comentarios_rel_anio_cuenta> budget_comentarios_rel_anio_cuenta { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<budget_rel_anio_fiscal_centro> budget_rel_anio_fiscal_centro { get; set; }
+        public virtual budget_departamentos budget_departamentos { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_rel_fy_centro> budget_rel_fy_centro { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<budget_responsables> budget_responsables { get; set; }
     }
 }

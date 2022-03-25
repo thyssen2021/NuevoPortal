@@ -36,7 +36,7 @@ namespace Portal_2_0.Models
             this.orden_trabajo = new HashSet<orden_trabajo>();
             this.orden_trabajo1 = new HashSet<orden_trabajo>();
             this.orden_trabajo2 = new HashSet<orden_trabajo>();
-            this.budget_centro_costo = new HashSet<budget_centro_costo>();
+            this.budget_responsables = new HashSet<budget_responsables>();
         }
 
         public int id { get; set; }
@@ -174,6 +174,6 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<orden_trabajo> orden_trabajo2 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<budget_centro_costo> budget_centro_costo { get; set; }
+        public virtual ICollection<budget_responsables> budget_responsables { get; set; }
     }
 }

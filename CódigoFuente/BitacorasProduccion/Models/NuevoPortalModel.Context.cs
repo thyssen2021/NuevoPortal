@@ -74,7 +74,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<budget_mapping_bridge> budget_mapping_bridge { get; set; }
         public virtual DbSet<budget_valores> budget_valores { get; set; }
         public virtual DbSet<budget_anio_fiscal> budget_anio_fiscal { get; set; }
-        public virtual DbSet<budget_centro_costo> budget_centro_costo { get; set; }
         public virtual DbSet<budget_comentarios_rel_anio_cuenta> budget_comentarios_rel_anio_cuenta { get; set; }
         public virtual DbSet<budget_rel_anio_fiscal_centro> budget_rel_anio_fiscal_centro { get; set; }
         public virtual DbSet<view_valores_anio_fiscal> view_valores_anio_fiscal { get; set; }
@@ -82,5 +81,9 @@ namespace Portal_2_0.Models
         public virtual DbSet<budget_rel_comentarios> budget_rel_comentarios { get; set; }
         public virtual DbSet<budget_rel_fy_centro> budget_rel_fy_centro { get; set; }
         public virtual DbSet<view_valores_fiscal_year> view_valores_fiscal_year { get; set; }
+        public virtual DbSet<budget_departamentos> budget_departamentos { get; set; }
+        public virtual DbSet<budget_plantas> budget_plantas { get; set; }
+        public virtual DbSet<budget_responsables> budget_responsables { get; set; }
+        public virtual DbSet<budget_centro_costo> budget_centro_costo { get; set; }
     }
 }
