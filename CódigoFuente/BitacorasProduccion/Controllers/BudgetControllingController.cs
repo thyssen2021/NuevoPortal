@@ -32,9 +32,10 @@ namespace Portal_2_0.Controllers
 
                 var cantidadRegistrosPorPagina = 20; // parámetro
 
+
                 var listado = db.budget_centro_costo
-                        .Where(x => (x.Area.plantaClave == planta || planta == null)
-                            && (x.id_responsable == responsable || responsable == null)
+                        .Where(x => (x.budget_departamentos.budget_plantas.id == planta || planta == null)
+                            && (x.budget_responsables.Any(x2=>x2.id_responsable==responsable) || responsable == null)
                             && (x.num_centro_costo.Contains(centro_costo) ||String.IsNullOrEmpty(centro_costo))
                         )
                         .OrderByDescending(x => x.id)
@@ -43,8 +44,8 @@ namespace Portal_2_0.Controllers
 
 
                 var totalDeRegistros = db.budget_centro_costo
-                        .Where(x => (x.Area.plantaClave == planta || planta == null)
-                            && (x.id_responsable == responsable || responsable == null)
+                         .Where(x => (x.budget_departamentos.budget_plantas.id == planta || planta == null)
+                            && (x.budget_responsables.Any(x2 => x2.id_responsable == responsable) || responsable == null)
                             && (x.num_centro_costo.Contains(centro_costo) || String.IsNullOrEmpty(centro_costo))
                         )
                         .Count();
@@ -63,14 +64,14 @@ namespace Portal_2_0.Controllers
                     ValoresQueryString = routeValues
                 };
 
-                var centros = db.budget_centro_costo.ToList();
+                var responsables = db.budget_responsables.ToList();
                 var empleados = db.empleados.ToList();
 
                 //obtiene el listado de empleados que son responsables de algún área
-                List<empleados> listadoResponsables = empleados.Where(x => centros.Any(y => y.id_responsable == x.id)).ToList();
+                List<empleados> listadoResponsables = empleados.Where(x => responsables.Any(y => y.id_responsable == x.id)).ToList();
 
 
-                ViewBag.planta = AddFirstItem(new SelectList(db.plantas.Where(x => x.activo == true), "clave", "descripcion"), textoPorDefecto: "-- Todos --");
+                ViewBag.planta = AddFirstItem(new SelectList(db.budget_plantas.Where(x => x.activo == true), "id", "descripcion"), textoPorDefecto: "-- Todos --");
                 ViewBag.responsable = AddFirstItem(new SelectList(listadoResponsables, "id", "ConcatNombre"), textoPorDefecto: "-- Todos --");
                 ViewBag.Paginacion = paginacion;
                 //Viewbags para los botones               
@@ -505,6 +506,72 @@ namespace Portal_2_0.Controllers
             ViewBag.ValoresBudget = valoresListAnioProximo;
 
             return View(centroCosto);
+        }
+
+        public ActionResult Reportes(int? planta, int? responsable, string centro_costo, int pagina = 1)
+        {
+
+            if (TieneRol(TipoRoles.BG_REPORTES))
+            {
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
+                var cantidadRegistrosPorPagina = 20; // parámetro
+
+
+                var listado = db.budget_centro_costo
+                        .Where(x => (x.budget_departamentos.budget_plantas.id == planta || planta == null)
+                            && (x.budget_responsables.Any(x2 => x2.id_responsable == responsable) || responsable == null)
+                            && (x.num_centro_costo.Contains(centro_costo) || String.IsNullOrEmpty(centro_costo))
+                        )
+                        .OrderByDescending(x => x.id)
+                        .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                        .Take(cantidadRegistrosPorPagina).ToList();
+
+
+                var totalDeRegistros = db.budget_centro_costo
+                         .Where(x => (x.budget_departamentos.budget_plantas.id == planta || planta == null)
+                            && (x.budget_responsables.Any(x2 => x2.id_responsable == responsable) || responsable == null)
+                            && (x.num_centro_costo.Contains(centro_costo) || String.IsNullOrEmpty(centro_costo))
+                        )
+                        .Count();
+
+                //para paginación
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                routeValues["planta"] = planta;
+                routeValues["responsable"] = responsable;
+                routeValues["centro_costo"] = centro_costo;
+
+                Paginacion paginacion = new Paginacion
+                {
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                var responsables = db.budget_responsables.ToList();
+                var empleados = db.empleados.ToList();
+
+                //obtiene el listado de empleados que son responsables de algún área
+                List<empleados> listadoResponsables = empleados.Where(x => responsables.Any(y => y.id_responsable == x.id)).ToList();
+
+
+                ViewBag.planta = AddFirstItem(new SelectList(db.budget_plantas.Where(x => x.activo == true), "id", "descripcion"), textoPorDefecto: "-- Todos --");
+                ViewBag.responsable = AddFirstItem(new SelectList(listadoResponsables, "id", "ConcatNombre"), textoPorDefecto: "-- Todos --");
+                ViewBag.Paginacion = paginacion;
+                
+                // ViewBag.Create = true;
+
+                return View(listado);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
         }
 
         //// GET: BudgetControlling/Details/5

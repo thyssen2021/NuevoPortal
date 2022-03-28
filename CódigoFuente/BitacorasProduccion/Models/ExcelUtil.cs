@@ -522,8 +522,11 @@ namespace Portal_2_0.Models
             oSLDocument.SetCellValue("B3", "Deparment");
             oSLDocument.SetCellValue("B4", "Responsable");
             oSLDocument.SetCellValue("C2", centro.num_centro_costo);
-            oSLDocument.SetCellValue("C3", centro.Area.descripcion);
-            oSLDocument.SetCellValue("C4", centro.empleados.ConcatNombre);
+            oSLDocument.SetCellValue("C3", centro.budget_departamentos.descripcion);
+
+            String responsables = (string.Join("/", centro.budget_responsables.Select(x => x.empleados.ConcatNombre).ToArray()));
+
+            oSLDocument.SetCellValue("C4", responsables);
 
             System.Data.DataTable dt = new System.Data.DataTable();
 

@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="3d6b38e8516649fd9491aed00dbc6337" Name="Diagram1" ZoomLevel="80">
+      <Diagram DiagramId="3d6b38e8516649fd9491aed00dbc6337" Name="Diagram1" ZoomLevel="106">
         <EntityTypeShape EntityType="Portal_2_0Model.Area" Width="1.5" PointX="3" PointY="5.5" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.bom_en_sap" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.class_v3" Width="1.5" PointX="2.75" PointY="0.75" IsExpanded="true" />
@@ -116,16 +116,7 @@
         <EntityTypeShape EntityType="Portal_2_0Model.budget_mapping_bridge" Width="1.5" PointX="19.5" PointY="39.5" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_cuenta_sap_id_mapping" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_mapping_id_mapping_bridge" />
-        <EntityTypeShape EntityType="Portal_2_0Model.budget_valores" Width="1.5" PointX="26.25" PointY="20" />
-        <AssociationConnector Association="Portal_2_0Model.FK_budget_valores_id_cuenta_sap" />
-        <AssociationConnector Association="Portal_2_0Model.FK_budget_valores_currency_iso" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_anio_fiscal" Width="1.5" PointX="19.75" PointY="35.125" />
-        <EntityTypeShape EntityType="Portal_2_0Model.budget_comentarios_rel_anio_cuenta" Width="1.5" PointX="26.25" PointY="23.625" />
-        <EntityTypeShape EntityType="Portal_2_0Model.budget_rel_anio_fiscal_centro" Width="1.5" PointX="22" PointY="1.125" />
-        <AssociationConnector Association="Portal_2_0Model.FK_budget_comentarios_anio_fiscal" />
-        <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_anio_fiscal_centro_id_anio_fiscal" />
-        <AssociationConnector Association="Portal_2_0Model.FK_budget_comentarios_rel_anio_cuenta_id_cuenta_sap" />
-        <AssociationConnector Association="Portal_2_0Model.FK_budget_valores_id_rel_anio_centro" />
         <EntityTypeShape EntityType="Portal_2_0Model.view_valores_anio_fiscal" Width="1.5" PointX="12.375" PointY="15.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_cantidad" Width="1.5" PointX="29.25" PointY="30.25" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_rel_comentarios" Width="1.5" PointX="26.25" PointY="30.5" />

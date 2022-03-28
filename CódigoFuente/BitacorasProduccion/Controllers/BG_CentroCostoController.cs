@@ -26,7 +26,7 @@ namespace Portal_2_0.Controllers
                 if (TempData["Mensaje"] != null)
                     ViewBag.MensajeAlert = TempData["Mensaje"];
 
-                var budget_centro_costo = db.budget_centro_costo.Include(b => b.Area).Include(b => b.empleados);
+                var budget_centro_costo = db.budget_centro_costo;
                 return View(budget_centro_costo.ToList());
             }
             else
@@ -88,7 +88,7 @@ namespace Portal_2_0.Controllers
             if (ModelState.IsValid)
             {
                 //busca si tipo poliza con la misma descripcion
-                budget_centro_costo item_busca = db.budget_centro_costo.Where(s => s.id_area == item.id_area )
+                budget_centro_costo item_busca = db.budget_centro_costo.Where(s => s.budget_departamentos.id == item.budget_departamentos.id )
                                         .FirstOrDefault();
 
                 //busca si tipo poliza con la misma descripcion
@@ -112,11 +112,11 @@ namespace Portal_2_0.Controllers
                 }
             }
 
-            item.Area = db.Area.Find(item.id_area);
+            item.budget_departamentos = db.budget_departamentos.Find(item.budget_departamentos.id);
 
-            ViewBag.plantaClave = AddFirstItem(new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
-            ViewBag.id_area = AddFirstItem(new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
-            ViewBag.id_responsable = AddFirstItem(new SelectList(db.empleados.Where(p => p.activo == true), "id", "ConcatNumEmpleadoNombre"), textoPorDefecto: "-- Seleccionar --",selected:item.id_responsable.ToString());
+            ViewBag.id_planta = AddFirstItem(new SelectList(db.budget_plantas.Where(p => p.activo == true), "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
+            ViewBag.id_budget_departamento = AddFirstItem(new SelectList(db.budget_departamentos.Where(p => p.activo == true), "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
+           
             return View(item);
         }
 
@@ -137,7 +137,6 @@ namespace Portal_2_0.Controllers
                 }
                 ViewBag.plantaClave = AddFirstItem(new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
                 ViewBag.id_area = AddFirstItem(new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
-                ViewBag.id_responsable = AddFirstItem(new SelectList(db.empleados.Where(p => p.activo == true), "id", "ConcatNumEmpleadoNombre"), textoPorDefecto: "-- Seleccionar --", selected: item.id_responsable.ToString());
                 return View(item);
             }
             else
@@ -158,7 +157,7 @@ namespace Portal_2_0.Controllers
             if (ModelState.IsValid)
             {
                 //busca si tipo poliza con la misma descripcion
-                budget_centro_costo item_busca = db.budget_centro_costo.Where(s => s.id_area == item.id_area && s.id != item.id)
+                budget_centro_costo item_busca = db.budget_centro_costo.Where(s => s.budget_departamentos.id == item.budget_departamentos.id)
                                         .FirstOrDefault();
 
                 //busca si tipo poliza con la misma descripcion
@@ -178,11 +177,11 @@ namespace Portal_2_0.Controllers
                     return RedirectToAction("Index");
                 }
             }
-            item.Area = db.Area.Find(item.id_area);
+            item.budget_departamentos = db.budget_departamentos.Find(item.budget_departamentos.id);
 
-            ViewBag.plantaClave = AddFirstItem(new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
-            ViewBag.id_area = AddFirstItem(new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
-            ViewBag.id_responsable = AddFirstItem(new SelectList(db.empleados.Where(p => p.activo == true), "id", "ConcatNumEmpleadoNombre"), textoPorDefecto: "-- Seleccionar --", selected: item.id_responsable.ToString());
+            ViewBag.id_planta = AddFirstItem(new SelectList(db.budget_plantas.Where(p => p.activo == true), "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
+            ViewBag.id_budget_departamento = AddFirstItem(new SelectList(db.budget_departamentos.Where(p => p.activo == true), "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
+
             return View(item);
         }
 

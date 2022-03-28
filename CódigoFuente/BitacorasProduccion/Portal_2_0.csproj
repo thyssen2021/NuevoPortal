@@ -281,10 +281,10 @@
     <Compile Include="Models\budget_centro_costo.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\budget_comentarios_rel_anio_cuenta.cs">
+    <Compile Include="Models\budget_cuenta_sap.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\budget_cuenta_sap.cs">
+    <Compile Include="Models\budget_departamentos.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\budget_mapping.cs">
@@ -293,7 +293,7 @@
     <Compile Include="Models\budget_mapping_bridge.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\budget_rel_anio_fiscal_centro.cs">
+    <Compile Include="Models\budget_plantas.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\budget_rel_comentarios.cs">
@@ -302,7 +302,7 @@
     <Compile Include="Models\budget_rel_fy_centro.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\budget_valores.cs">
+    <Compile Include="Models\budget_responsables.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\class_v3.cs">
@@ -371,6 +371,11 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Models\NuevoPortalModel1.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\orden_trabajo.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
@@ -3975,7 +3980,7 @@
     <Content Include="Models\NuevoPortalModel.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
-      <LastGenOutput>NuevoPortalModel.cs</LastGenOutput>
+      <LastGenOutput>NuevoPortalModel1.cs</LastGenOutput>
     </Content>
     <Content Include="Scripts\AlertasSweetAlert.js" />
     <Content Include="Scripts\bootstrap.bundle.js" />
@@ -5267,6 +5272,7 @@
     <Content Include="Views\ResponsableBudget\DetailsCentro.cshtml" />
     <Content Include="Views\ResponsableBudget\EditCentroPresente.cshtml" />
     <Content Include="Views\ResponsableBudget\EditCentroProximo.cshtml" />
+    <Content Include="Views\BudgetControlling\Reportes.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

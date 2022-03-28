@@ -92,9 +92,9 @@
                                 <div class="card-box">
                                     <div class="form-group">
                                         @*<a href="@Url.Action("Create", ViewBag.ControllerName)" class="btn btn-success">
-                                                <i class="fa fa-plus-square"></i>
-                                                Crear nuevo
-                                            </a>*@
+                <i class="fa fa-plus-square"></i>
+                Crear nuevo
+            </a>*@
                                     </div>
                                     @if (!rel_presente.estatus)
                                     {
@@ -111,12 +111,12 @@
                                         <!--Planta-->
                                         <label class="control-label col-md-1 text_derecha">Plant</label>
                                         <div class="col-md-2">
-                                            <input type="text" class="form-control" value="@Model.Area.plantas.descripcion" readonly>
+                                            <input type="text" class="form-control" value="@Model.budget_departamentos.budget_plantas.descripcion" readonly>
                                         </div>
                                         <!--Deparment-->
                                         <label class="control-label col-md-1 text_derecha">Department</label>
                                         <div class="col-md-4">
-                                            <input type="text" class="form-control" value="@Model.Area.descripcion" readonly>
+                                            <input type="text" class="form-control" value="@Model.budget_departamentos.descripcion" readonly>
                                         </div>
                                         <!--Cost center-->
                                         <label class="control-label col-md-1 text_derecha">Cost Center</label>
@@ -124,12 +124,14 @@
                                             <input type="text" class="form-control" value="@Model.num_centro_costo" readonly>
                                         </div>
                                     </div>
-
+                                    @{
+                                        String responsables = (string.Join("/", Model.budget_responsables.Select(x => x.empleados.ConcatNombre).ToArray()));
+                                    }
                                     <div class="form-group row">
                                         <!--responsable-->
                                         <label class="control-label col-md-1 text_derecha">Responsable</label>
-                                        <div class="col-md-4">
-                                            <input type="text" class="form-control" value="@Model.empleados.ConcatNombre" readonly>
+                                        <div class="col-md-8">
+                                            <input type="text" class="form-control" value="@responsables" readonly>
                                         </div>
                                     </div>
                                     <div class="ln_solid"></div>
@@ -148,7 +150,7 @@
                                                     <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false" onclick="ReiniciaTablaTimer()">BG FY @rel_proximo.budget_anio_fiscal.descripcion</a>
                                                 </li>
                                             </ul>
-                                            @using (Html.BeginForm("EditCentro", "ResponsableBudget", FormMethod.Post, new { @class = "form-horizontal form-label-left", @id="myForm"}))
+                                            @using (Html.BeginForm("EditCentro", "ResponsableBudget", FormMethod.Post, new { @class = "form-horizontal form-label-left", @id = "myForm" }))
                                             {
 
 
@@ -892,7 +894,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                               
+
                                             }
                                         </div>
                                     </div>

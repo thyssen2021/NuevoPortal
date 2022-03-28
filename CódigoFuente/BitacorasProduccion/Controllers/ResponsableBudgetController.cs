@@ -18,575 +18,575 @@ namespace Portal_2_0.Controllers
     {
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
-        // GET: ResponsableBudget/Actual
-        public ActionResult Actual()
-        {
-            if (TieneRol(TipoRoles.BG_RESPONSABLE))
-            {
-                //obtiene el usuario logeado
-                empleados empleado = obtieneEmpleadoLogeado();
-
-                var centros = db.budget_centro_costo.Where(x => x.id_responsable == empleado.id);
-                return View(centros.ToList());
-            }
-            else
-            {
-                return View("../Home/ErrorPermisos");
-            }
-
-        }
-        // GET: ResponsableBudget/DetailsActual
-        public ActionResult DetailsActual(int? id)
-        {
-
-            if (TieneRol(TipoRoles.BG_RESPONSABLE))
-            {
-                if (id == null)
-                {
-                    return View("../Error/BadRequest");
-                }
-
-                //obtiene centro de costo
-                budget_centro_costo centroCosto = db.budget_centro_costo.Find(id);
-                if (centroCosto == null)
-                    return View("../Error/NotFound");
-
-                //obtiene el año fiscal anterior
-                budget_anio_fiscal anio_Fiscal_anterior = GetAnioFiscal(DateTime.Now.AddYears(-1));
-                if (anio_Fiscal_anterior == null)
-                    return View("../Error/NotFound");
-
-                //mezcla la lista de actual con forecast y el listado de cuentas
-                var valoresListAnioAnterior = db.view_valores_anio_fiscal.Where(x => x.id_anio_fiscal == anio_Fiscal_anterior.id && x.id_centro_costo == centroCosto.id).ToList();
-
-                valoresListAnioAnterior = AgregaCuentasSAP(valoresListAnioAnterior, anio_Fiscal_anterior.id, centroCosto.id);
-
-                ViewBag.centroCosto = centroCosto;
-                ViewBag.anio_Fiscal_anterior = anio_Fiscal_anterior;
-                return View(valoresListAnioAnterior);
-
-            }
-            else
-            {
-                return View("../Home/ErrorPermisos");
-            }
-
-        }
-
-        // GET: ResponsableBudget/Forecast
-        public ActionResult Forecast()
-        {
-            if (TieneRol(TipoRoles.BG_RESPONSABLE))
-            {
-                //mensaje en caso de crear, editar, etc
-                if (TempData["Mensaje"] != null)
-                {
-                    ViewBag.MensajeAlert = TempData["Mensaje"];
-                }
-
-                //obtiene el usuario logeado
-                empleados empleado = obtieneEmpleadoLogeado();
-
-                var centros = db.budget_centro_costo.Where(x => x.id_responsable == empleado.id);
-                return View(centros.ToList());
-            }
-            else
-            {
-                return View("../Home/ErrorPermisos");
-            }
-
-        }
-
-        // GET: ResponsableBudget/EditForecast
-        public ActionResult EditForecast(int? id)
-        {
-
-            if (TieneRol(TipoRoles.BG_RESPONSABLE))
-            {
-                if (id == null)
-                {
-                    return View("../Error/BadRequest");
-                }
-
-                //obtiene centro de costo
-                budget_centro_costo centroCosto = db.budget_centro_costo.Find(id);
-                if (centroCosto == null)
-                    return View("../Error/NotFound");
-
-                //obtiene el año fiscal anterior (actual)
-                budget_anio_fiscal anio_Fiscal_anterior = GetAnioFiscal(DateTime.Now.AddYears(-1));
-                if (anio_Fiscal_anterior == null)
-                    return View("../Error/NotFound");
-
-                //obtiene el año fiscal actual (forecast)
-                budget_anio_fiscal anio_Fiscal_actual = GetAnioFiscal(DateTime.Now);
-                if (anio_Fiscal_actual == null)
-                    return View("../Error/NotFound");
-
-                //obtiene el año fiscal proximo (budget)
-                budget_anio_fiscal anio_Fiscal_proximo = GetAnioFiscal(DateTime.Now.AddYears(1));
-                if (anio_Fiscal_proximo == null)
-                    return View("../Error/NotFound");
-
-                //obtiene el id_rel_centro_costo del forecast
-                budget_rel_anio_fiscal_centro rel_centro_forecast = db.budget_rel_anio_fiscal_centro.Where(x => x.id_centro_costo == centroCosto.id && x.id_anio_fiscal == anio_Fiscal_actual.id && x.tipo == BG_Status.FORECAST).FirstOrDefault();
-                if (rel_centro_forecast == null)
-                {
-                    //si no existe crea el rel anio forecast
-                    rel_centro_forecast = new budget_rel_anio_fiscal_centro
-                    {
-                        id_anio_fiscal = anio_Fiscal_actual.id,
-                        id_centro_costo = centroCosto.id,
-                        tipo = BG_Status.FORECAST,
-                        estatus = true //activado por defecto
-                    };
-
-                    db.budget_rel_anio_fiscal_centro.Add(rel_centro_forecast);
-                    //guarda en base de datos el centro creado
-                    db.SaveChanges();
-                }
-
-
-                //obtiene los valores para cada cuenta sap
-                var valoresListAnioAnterior = db.view_valores_anio_fiscal.Where(x => x.id_anio_fiscal == anio_Fiscal_anterior.id && x.id_centro_costo == centroCosto.id).ToList();
-                var valoresListAnioActual = db.view_valores_anio_fiscal.Where(x => x.id_anio_fiscal == anio_Fiscal_actual.id && x.id_centro_costo == centroCosto.id).ToList();
-                var valoresListAnioProximo = db.view_valores_anio_fiscal.Where(x => x.id_anio_fiscal == anio_Fiscal_proximo.id && x.id_centro_costo == centroCosto.id).ToList();
-
-                valoresListAnioAnterior = AgregaCuentasSAP(valoresListAnioAnterior, anio_Fiscal_anterior.id, centroCosto.id);
-                valoresListAnioActual = AgregaCuentasSAP(valoresListAnioActual, anio_Fiscal_actual.id, centroCosto.id).OrderBy(x => x.id_cuenta_sap).ToList();
-                valoresListAnioProximo = AgregaCuentasSAP(valoresListAnioProximo, anio_Fiscal_proximo.id, centroCosto.id);
-
-
-                ViewBag.centroCosto = centroCosto;
-                ViewBag.anio_Fiscal_anterior = anio_Fiscal_anterior;
-                ViewBag.anio_Fiscal_actual = anio_Fiscal_actual;
-                ViewBag.anio_Fiscal_proximo = anio_Fiscal_proximo;
-                ViewBag.ValoresActual = valoresListAnioAnterior;
-                ViewBag.ValoresActualForecast = valoresListAnioActual;
-                ViewBag.ValoresBudget = valoresListAnioProximo;
-
-                return View(rel_centro_forecast);
-
-            }
-            else
-            {
-                return View("../Home/ErrorPermisos");
-            }
-
-        }
-
-        // POST: ResponsableBudget/EditForecast
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult EditForecast(budget_rel_anio_fiscal_centro model, FormCollection form)
-        {
-            //crea objetos apartir del form collection
-
-            //1.-Obtiene los keys de tipo cantidad
-            List<string> keysCantidades = form.AllKeys.Where(x => x.ToUpper().Contains("CANTIDAD") == true).ToList();
-
-            //2.- Recorre y crea un objeto de tipo budget_valores
-            List<budget_valores> valores = new List<budget_valores>();
-
-            foreach (var keyC in keysCantidades)
-            {
-                Match m = Regex.Match(keyC, "(\\d+)");
-                string num = string.Empty;
-
-                //extrae el numero de key
-                if (m.Success)
-                {
-                    num = m.Value;
-
-
-                    int id_cuenta_sap = 0;
-                    int mes = 0;
-                    decimal cantidad = 0;
-
-                    //obtiene el valor de la cuenta sap
-                    bool success_id_cuenta_sap = int.TryParse(form["budget_valores[" + num + "].id_cuenta_sap"], out id_cuenta_sap);
-                    bool success_mes = int.TryParse(form["budget_valores[" + num + "].mes"], out mes);
-                    bool succes_cantidad = decimal.TryParse(form["budget_valores[" + num + "].cantidad"], out cantidad);
-                    string currency = "USD";  //currency por defecto
-
-                    //verifica que no hubo errores al covertir los datos
-                    if (success_id_cuenta_sap && success_mes)
-                    {
-                        valores.Add(new budget_valores
-                        {
-                            id_rel_anio_centro = model.id,
-                            id_cuenta_sap = id_cuenta_sap,
-                            mes = mes,
-                            currency_iso = currency,
-                            cantidad = cantidad,
-                        });
-                    }
-                    //else {
-                    //    int i = 0;
-                    //}
-
-                }
-            }
-
-            //lista para valores de meses segun la fecha actual
-            List<int> mesesPendientes = new List<int>();
-            DateTime fecha = DateTime.Now;
-
-            for (int i = fecha.Month; i >= 10 && i <= 12; i++)
-                mesesPendientes.Add(i);
-
-            if (fecha.Month >= 10)
-            {
-                mesesPendientes.AddRange(new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
-            }
-
-            for (int i = fecha.Month; i <= 9; i++)
-                mesesPendientes.Add(i);
-
-            //3.- identificar cuales son update, create, delete y sin cambios
-
-            //obtiene los valores actuales en BD
-            List<budget_valores> valoresEnBD = db.budget_valores.Where(x => x.id_rel_anio_centro == model.id && mesesPendientes.Contains(x.mes)).ToList();
-
-            //obtiene valores sin cambios
-            List<budget_valores> valoresSinCambio = valores.Where(x => valoresEnBD.Any(y => y.id_rel_anio_centro == x.id_rel_anio_centro && y.id_cuenta_sap == x.id_cuenta_sap && y.mes == x.mes && y.cantidad == x.cantidad)).ToList();
-
-            //obtiene valores con cambios o nuevos
-            List<budget_valores> valoresDiferentes = valores.Except(valoresSinCambio).ToList();
-
-            //DE valores Diferentes identificar cuales son create, update y delete
-            List<budget_valores> valoresCreate = valoresDiferentes.Where(a => !valoresEnBD.Any(a1 => a1.id_rel_anio_centro == a.id_rel_anio_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a1.mes == a.mes) && a.cantidad != 0).ToList();
-
-            //DE valores Diferentes identificar cuales son create, update y delete
-            List<budget_valores> valoresUpdate = valoresDiferentes.Where(a => valoresEnBD.Any(a1 => a1.id_rel_anio_centro == a.id_rel_anio_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a1.mes == a.mes && a.cantidad != 0)).ToList();
-            //agrega el id correspondiente
-            valoresUpdate = valoresUpdate.Select(x =>
-            {
-                x.id = (from v in valoresEnBD
-                        where v.id_rel_anio_centro == x.id_rel_anio_centro && v.id_cuenta_sap == x.id_cuenta_sap && v.mes == x.mes
-                        select v.id).FirstOrDefault(); return x;
-            }).ToList();
-
-            //DE valores Diferentes identificar cuales son create, update y delete
-            List<budget_valores> valoresDelete = valoresDiferentes.Where(a => valoresEnBD.Any(a1 => a1.id_rel_anio_centro == a.id_rel_anio_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a1.mes == a.mes && a.cantidad == 0)).ToList();
-            //agrega el id  correspondiente
-            valoresDelete = valoresDelete.Select(x =>
-            {
-                x.id = (from v in valoresEnBD
-                        where v.id_rel_anio_centro == x.id_rel_anio_centro && v.id_cuenta_sap == x.id_cuenta_sap && v.mes == x.mes
-                        select v.id).FirstOrDefault(); return x;
-            }).ToList();
-
-            //crea los nuevos registros
-            try
-            {
-                db.budget_valores.AddRange(valoresCreate);
-                db.SaveChanges();
-            }
-            catch (Exception e)
-            {
-                TempData["Mensaje"] = new MensajesSweetAlert("Error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
-            }
-
-            //modifica los registros actuales
-            try
-            {
-                foreach (budget_valores item in valoresUpdate)
-                {
-                    //obtiene el elemento de BD
-                    budget_valores objeto = valoresEnBD.FirstOrDefault(x => x.id == item.id);
-
-                    if (objeto != null)
-                    {
-                        db.Entry(objeto).CurrentValues.SetValues(item);
-
-                    }
-
-                }
-                db.SaveChanges();
-            }
-            catch (Exception e)
-            {
-                TempData["Mensaje"] = new MensajesSweetAlert("Error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
-            }
-
-            //Elimina los elemntos necesarios 
-            try
-            {
-                foreach (budget_valores item in valoresDelete)
-                {
-                    //obtiene el elemento de BD
-                    budget_valores objeto = valoresEnBD.FirstOrDefault(x => x.id == item.id);
-
-                    if (objeto != null)
-                    {
-                        db.budget_valores.Remove(objeto);
-                    }
-
-                }
-                db.SaveChanges();
-            }
-            catch (Exception e)
-            {
-                TempData["Mensaje"] = new MensajesSweetAlert("Error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
-            }
-
-            TempData["Mensaje"] = new MensajesSweetAlert("Se ha modificado correctamente", TipoMensajesSweetAlerts.SUCCESS);
-
-            return RedirectToAction("Forecast");
-        }
-
-        // GET: ResponsableBudget/Budget
-        public ActionResult Budget()
-        {
-            if (TieneRol(TipoRoles.BG_RESPONSABLE))
-            {
-                //mensaje en caso de crear, editar, etc
-                if (TempData["Mensaje"] != null)
-                {
-                    ViewBag.MensajeAlert = TempData["Mensaje"];
-                }
-
-                //obtiene el usuario logeado
-                empleados empleado = obtieneEmpleadoLogeado();
-
-                var centros = db.budget_centro_costo.Where(x => x.id_responsable == empleado.id);
-                return View(centros.ToList());
-            }
-            else
-            {
-                return View("../Home/ErrorPermisos");
-            }
-
-        }
-
-        // GET: ResponsableBudget/EditBudget
-        public ActionResult EditBudget(int? id)
-        {
-
-            if (TieneRol(TipoRoles.BG_RESPONSABLE))
-            {
-                if (id == null)
-                {
-                    return View("../Error/BadRequest");
-                }
-
-                //obtiene centro de costo
-                budget_centro_costo centroCosto = db.budget_centro_costo.Find(id);
-                if (centroCosto == null)
-                    return View("../Error/NotFound");
-
-                //obtiene el año fiscal anterior (actual)
-                budget_anio_fiscal anio_Fiscal_anterior = GetAnioFiscal(DateTime.Now.AddYears(-1));
-                if (anio_Fiscal_anterior == null)
-                    return View("../Error/NotFound");
-
-                //obtiene el año fiscal actual (forecast)
-                budget_anio_fiscal anio_Fiscal_actual = GetAnioFiscal(DateTime.Now);
-                if (anio_Fiscal_actual == null)
-                    return View("../Error/NotFound");
-
-                //obtiene el año fiscal proximo (budget)
-                budget_anio_fiscal anio_Fiscal_proximo = GetAnioFiscal(DateTime.Now.AddYears(1));
-                if (anio_Fiscal_proximo == null)
-                    return View("../Error/NotFound");
-
-                //obtiene el id_rel_centro_costo del budget
-                budget_rel_anio_fiscal_centro rel_centro_budget = db.budget_rel_anio_fiscal_centro.Where(x => x.id_centro_costo == centroCosto.id && x.id_anio_fiscal == anio_Fiscal_proximo.id && x.tipo == BG_Status.BUDGET).FirstOrDefault();
-                if (rel_centro_budget == null)
-                {
-                    //si no existe crea el rel anio forecast
-                    rel_centro_budget = new budget_rel_anio_fiscal_centro
-                    {
-                        id_anio_fiscal = anio_Fiscal_proximo.id,
-                        id_centro_costo = centroCosto.id,
-                        tipo = BG_Status.BUDGET,
-                        estatus = true //activado por defecto
-                    };
-
-                    db.budget_rel_anio_fiscal_centro.Add(rel_centro_budget);
-                    //guarda en base de datos el centro creado
-                    db.SaveChanges();
-                }
-
-
-                //obtiene los valores para cada cuenta sap
-                var valoresListAnioAnterior = db.view_valores_anio_fiscal.Where(x => x.id_anio_fiscal == anio_Fiscal_anterior.id && x.id_centro_costo == centroCosto.id).ToList();
-                var valoresListAnioActual = db.view_valores_anio_fiscal.Where(x => x.id_anio_fiscal == anio_Fiscal_actual.id && x.id_centro_costo == centroCosto.id).ToList();
-                var valoresListAnioProximo = db.view_valores_anio_fiscal.Where(x => x.id_anio_fiscal == anio_Fiscal_proximo.id && x.id_centro_costo == centroCosto.id).ToList();
-
-                valoresListAnioAnterior = AgregaCuentasSAP(valoresListAnioAnterior, anio_Fiscal_anterior.id, centroCosto.id);
-                valoresListAnioActual = AgregaCuentasSAP(valoresListAnioActual, anio_Fiscal_actual.id, centroCosto.id).OrderBy(x => x.id_cuenta_sap).ToList();
-                valoresListAnioProximo = AgregaCuentasSAP(valoresListAnioProximo, anio_Fiscal_proximo.id, centroCosto.id);
-
-                ViewBag.centroCosto = centroCosto;
-                ViewBag.anio_Fiscal_anterior = anio_Fiscal_anterior;
-                ViewBag.anio_Fiscal_actual = anio_Fiscal_actual;
-                ViewBag.anio_Fiscal_proximo = anio_Fiscal_proximo;
-                ViewBag.ValoresActual = valoresListAnioAnterior;
-                ViewBag.ValoresActualForecast = valoresListAnioActual;
-                ViewBag.ValoresBudget = valoresListAnioProximo;
-
-                return View(rel_centro_budget);
-
-            }
-            else
-            {
-                return View("../Home/ErrorPermisos");
-            }
-
-        }
-
-
-        // POST: ResponsableBudget/EditBudget
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult EditBudget(budget_rel_anio_fiscal_centro model, FormCollection form)
-        {
-            //crea objetos apartir del form collection
-
-            //1.-Obtiene los keys de tipo cantidad
-            List<string> keysCantidades = form.AllKeys.Where(x => x.ToUpper().Contains("CANTIDAD") == true).ToList();
-
-            //2.- Recorre y crea un objeto de tipo budget_valores
-            List<budget_valores> valores = new List<budget_valores>();
-
-            foreach (var keyC in keysCantidades)
-            {
-                Match m = Regex.Match(keyC, "(\\d+)");
-                string num = string.Empty;
-
-                //extrae el numero de key
-                if (m.Success)
-                {
-                    num = m.Value;
-
-                    int id_cuenta_sap = 0;
-                    int mes = 0;
-                    decimal cantidad = 0;
-
-                    //obtiene el valor de la cuenta sap
-                    bool success_id_cuenta_sap = int.TryParse(form["budget_valores[" + num + "].id_cuenta_sap"], out id_cuenta_sap);
-                    bool success_mes = int.TryParse(form["budget_valores[" + num + "].mes"], out mes);
-                    bool succes_cantidad = decimal.TryParse(form["budget_valores[" + num + "].cantidad"], out cantidad);
-                    string currency = "USD";  //currency por defecto
-
-                    //verifica que no hubo errores al covertir los datos
-                    if (success_id_cuenta_sap && success_mes)
-                    {
-                        //crea y agrega un objeto de tipo budget_valores con la información leida
-                        valores.Add(new budget_valores
-                        {
-                            id_rel_anio_centro = model.id,
-                            id_cuenta_sap = id_cuenta_sap,
-                            mes = mes,
-                            currency_iso = currency,
-                            cantidad = cantidad,
-                        });
-                    }
+        //// GET: ResponsableBudget/Actual
+        //public ActionResult Actual()
+        //{
+        //    if (TieneRol(TipoRoles.BG_RESPONSABLE))
+        //    {
+        //        //obtiene el usuario logeado
+        //        empleados empleado = obtieneEmpleadoLogeado();
+
+        //        var centros = db.budget_centro_costo.Where(x => x.id_responsable == empleado.id);
+        //        return View(centros.ToList());
+        //    }
+        //    else
+        //    {
+        //        return View("../Home/ErrorPermisos");
+        //    }
+
+        //}
+        //// GET: ResponsableBudget/DetailsActual
+        //public ActionResult DetailsActual(int? id)
+        //{
+
+        //    if (TieneRol(TipoRoles.BG_RESPONSABLE))
+        //    {
+        //        if (id == null)
+        //        {
+        //            return View("../Error/BadRequest");
+        //        }
+
+        //        //obtiene centro de costo
+        //        budget_centro_costo centroCosto = db.budget_centro_costo.Find(id);
+        //        if (centroCosto == null)
+        //            return View("../Error/NotFound");
+
+        //        //obtiene el año fiscal anterior
+        //        budget_anio_fiscal anio_Fiscal_anterior = GetAnioFiscal(DateTime.Now.AddYears(-1));
+        //        if (anio_Fiscal_anterior == null)
+        //            return View("../Error/NotFound");
+
+        //        //mezcla la lista de actual con forecast y el listado de cuentas
+        //        var valoresListAnioAnterior = db.view_valores_anio_fiscal.Where(x => x.id_anio_fiscal == anio_Fiscal_anterior.id && x.id_centro_costo == centroCosto.id).ToList();
+
+        //        valoresListAnioAnterior = AgregaCuentasSAP(valoresListAnioAnterior, anio_Fiscal_anterior.id, centroCosto.id);
+
+        //        ViewBag.centroCosto = centroCosto;
+        //        ViewBag.anio_Fiscal_anterior = anio_Fiscal_anterior;
+        //        return View(valoresListAnioAnterior);
+
+        //    }
+        //    else
+        //    {
+        //        return View("../Home/ErrorPermisos");
+        //    }
+
+        //}
+
+        //// GET: ResponsableBudget/Forecast
+        //public ActionResult Forecast()
+        //{
+        //    if (TieneRol(TipoRoles.BG_RESPONSABLE))
+        //    {
+        //        //mensaje en caso de crear, editar, etc
+        //        if (TempData["Mensaje"] != null)
+        //        {
+        //            ViewBag.MensajeAlert = TempData["Mensaje"];
+        //        }
+
+        //        //obtiene el usuario logeado
+        //        empleados empleado = obtieneEmpleadoLogeado();
+
+        //        var centros = db.budget_centro_costo.Where(x => x.id_responsable == empleado.id);
+        //        return View(centros.ToList());
+        //    }
+        //    else
+        //    {
+        //        return View("../Home/ErrorPermisos");
+        //    }
+
+        //}
+
+        //// GET: ResponsableBudget/EditForecast
+        //public ActionResult EditForecast(int? id)
+        //{
+
+        //    if (TieneRol(TipoRoles.BG_RESPONSABLE))
+        //    {
+        //        if (id == null)
+        //        {
+        //            return View("../Error/BadRequest");
+        //        }
+
+        //        //obtiene centro de costo
+        //        budget_centro_costo centroCosto = db.budget_centro_costo.Find(id);
+        //        if (centroCosto == null)
+        //            return View("../Error/NotFound");
+
+        //        //obtiene el año fiscal anterior (actual)
+        //        budget_anio_fiscal anio_Fiscal_anterior = GetAnioFiscal(DateTime.Now.AddYears(-1));
+        //        if (anio_Fiscal_anterior == null)
+        //            return View("../Error/NotFound");
+
+        //        //obtiene el año fiscal actual (forecast)
+        //        budget_anio_fiscal anio_Fiscal_actual = GetAnioFiscal(DateTime.Now);
+        //        if (anio_Fiscal_actual == null)
+        //            return View("../Error/NotFound");
+
+        //        //obtiene el año fiscal proximo (budget)
+        //        budget_anio_fiscal anio_Fiscal_proximo = GetAnioFiscal(DateTime.Now.AddYears(1));
+        //        if (anio_Fiscal_proximo == null)
+        //            return View("../Error/NotFound");
+
+        //        //obtiene el id_rel_centro_costo del forecast
+        //        budget_rel_anio_fiscal_centro rel_centro_forecast = db.budget_rel_anio_fiscal_centro.Where(x => x.id_centro_costo == centroCosto.id && x.id_anio_fiscal == anio_Fiscal_actual.id && x.tipo == BG_Status.FORECAST).FirstOrDefault();
+        //        if (rel_centro_forecast == null)
+        //        {
+        //            //si no existe crea el rel anio forecast
+        //            rel_centro_forecast = new budget_rel_anio_fiscal_centro
+        //            {
+        //                id_anio_fiscal = anio_Fiscal_actual.id,
+        //                id_centro_costo = centroCosto.id,
+        //                tipo = BG_Status.FORECAST,
+        //                estatus = true //activado por defecto
+        //            };
+
+        //            db.budget_rel_anio_fiscal_centro.Add(rel_centro_forecast);
+        //            //guarda en base de datos el centro creado
+        //            db.SaveChanges();
+        //        }
+
+
+        //        //obtiene los valores para cada cuenta sap
+        //        var valoresListAnioAnterior = db.view_valores_anio_fiscal.Where(x => x.id_anio_fiscal == anio_Fiscal_anterior.id && x.id_centro_costo == centroCosto.id).ToList();
+        //        var valoresListAnioActual = db.view_valores_anio_fiscal.Where(x => x.id_anio_fiscal == anio_Fiscal_actual.id && x.id_centro_costo == centroCosto.id).ToList();
+        //        var valoresListAnioProximo = db.view_valores_anio_fiscal.Where(x => x.id_anio_fiscal == anio_Fiscal_proximo.id && x.id_centro_costo == centroCosto.id).ToList();
+
+        //        valoresListAnioAnterior = AgregaCuentasSAP(valoresListAnioAnterior, anio_Fiscal_anterior.id, centroCosto.id);
+        //        valoresListAnioActual = AgregaCuentasSAP(valoresListAnioActual, anio_Fiscal_actual.id, centroCosto.id).OrderBy(x => x.id_cuenta_sap).ToList();
+        //        valoresListAnioProximo = AgregaCuentasSAP(valoresListAnioProximo, anio_Fiscal_proximo.id, centroCosto.id);
+
+
+        //        ViewBag.centroCosto = centroCosto;
+        //        ViewBag.anio_Fiscal_anterior = anio_Fiscal_anterior;
+        //        ViewBag.anio_Fiscal_actual = anio_Fiscal_actual;
+        //        ViewBag.anio_Fiscal_proximo = anio_Fiscal_proximo;
+        //        ViewBag.ValoresActual = valoresListAnioAnterior;
+        //        ViewBag.ValoresActualForecast = valoresListAnioActual;
+        //        ViewBag.ValoresBudget = valoresListAnioProximo;
+
+        //        return View(rel_centro_forecast);
+
+        //    }
+        //    else
+        //    {
+        //        return View("../Home/ErrorPermisos");
+        //    }
+
+        //}
+
+        //// POST: ResponsableBudget/EditForecast
+        //// To protect from overposting attacks, enable the specific properties you want to bind to, for 
+        //// more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public ActionResult EditForecast(budget_rel_anio_fiscal_centro model, FormCollection form)
+        //{
+        //    //crea objetos apartir del form collection
+
+        //    //1.-Obtiene los keys de tipo cantidad
+        //    List<string> keysCantidades = form.AllKeys.Where(x => x.ToUpper().Contains("CANTIDAD") == true).ToList();
+
+        //    //2.- Recorre y crea un objeto de tipo budget_valores
+        //    List<budget_valores> valores = new List<budget_valores>();
+
+        //    foreach (var keyC in keysCantidades)
+        //    {
+        //        Match m = Regex.Match(keyC, "(\\d+)");
+        //        string num = string.Empty;
+
+        //        //extrae el numero de key
+        //        if (m.Success)
+        //        {
+        //            num = m.Value;
+
+
+        //            int id_cuenta_sap = 0;
+        //            int mes = 0;
+        //            decimal cantidad = 0;
+
+        //            //obtiene el valor de la cuenta sap
+        //            bool success_id_cuenta_sap = int.TryParse(form["budget_valores[" + num + "].id_cuenta_sap"], out id_cuenta_sap);
+        //            bool success_mes = int.TryParse(form["budget_valores[" + num + "].mes"], out mes);
+        //            bool succes_cantidad = decimal.TryParse(form["budget_valores[" + num + "].cantidad"], out cantidad);
+        //            string currency = "USD";  //currency por defecto
+
+        //            //verifica que no hubo errores al covertir los datos
+        //            if (success_id_cuenta_sap && success_mes)
+        //            {
+        //                valores.Add(new budget_valores
+        //                {
+        //                    id_rel_anio_centro = model.id,
+        //                    id_cuenta_sap = id_cuenta_sap,
+        //                    mes = mes,
+        //                    currency_iso = currency,
+        //                    cantidad = cantidad,
+        //                });
+        //            }
+        //            //else {
+        //            //    int i = 0;
+        //            //}
+
+        //        }
+        //    }
+
+        //    //lista para valores de meses segun la fecha actual
+        //    List<int> mesesPendientes = new List<int>();
+        //    DateTime fecha = DateTime.Now;
+
+        //    for (int i = fecha.Month; i >= 10 && i <= 12; i++)
+        //        mesesPendientes.Add(i);
+
+        //    if (fecha.Month >= 10)
+        //    {
+        //        mesesPendientes.AddRange(new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
+        //    }
+
+        //    for (int i = fecha.Month; i <= 9; i++)
+        //        mesesPendientes.Add(i);
+
+        //    //3.- identificar cuales son update, create, delete y sin cambios
+
+        //    //obtiene los valores actuales en BD
+        //    List<budget_valores> valoresEnBD = db.budget_valores.Where(x => x.id_rel_anio_centro == model.id && mesesPendientes.Contains(x.mes)).ToList();
+
+        //    //obtiene valores sin cambios
+        //    List<budget_valores> valoresSinCambio = valores.Where(x => valoresEnBD.Any(y => y.id_rel_anio_centro == x.id_rel_anio_centro && y.id_cuenta_sap == x.id_cuenta_sap && y.mes == x.mes && y.cantidad == x.cantidad)).ToList();
+
+        //    //obtiene valores con cambios o nuevos
+        //    List<budget_valores> valoresDiferentes = valores.Except(valoresSinCambio).ToList();
+
+        //    //DE valores Diferentes identificar cuales son create, update y delete
+        //    List<budget_valores> valoresCreate = valoresDiferentes.Where(a => !valoresEnBD.Any(a1 => a1.id_rel_anio_centro == a.id_rel_anio_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a1.mes == a.mes) && a.cantidad != 0).ToList();
+
+        //    //DE valores Diferentes identificar cuales son create, update y delete
+        //    List<budget_valores> valoresUpdate = valoresDiferentes.Where(a => valoresEnBD.Any(a1 => a1.id_rel_anio_centro == a.id_rel_anio_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a1.mes == a.mes && a.cantidad != 0)).ToList();
+        //    //agrega el id correspondiente
+        //    valoresUpdate = valoresUpdate.Select(x =>
+        //    {
+        //        x.id = (from v in valoresEnBD
+        //                where v.id_rel_anio_centro == x.id_rel_anio_centro && v.id_cuenta_sap == x.id_cuenta_sap && v.mes == x.mes
+        //                select v.id).FirstOrDefault(); return x;
+        //    }).ToList();
+
+        //    //DE valores Diferentes identificar cuales son create, update y delete
+        //    List<budget_valores> valoresDelete = valoresDiferentes.Where(a => valoresEnBD.Any(a1 => a1.id_rel_anio_centro == a.id_rel_anio_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a1.mes == a.mes && a.cantidad == 0)).ToList();
+        //    //agrega el id  correspondiente
+        //    valoresDelete = valoresDelete.Select(x =>
+        //    {
+        //        x.id = (from v in valoresEnBD
+        //                where v.id_rel_anio_centro == x.id_rel_anio_centro && v.id_cuenta_sap == x.id_cuenta_sap && v.mes == x.mes
+        //                select v.id).FirstOrDefault(); return x;
+        //    }).ToList();
+
+        //    //crea los nuevos registros
+        //    try
+        //    {
+        //        db.budget_valores.AddRange(valoresCreate);
+        //        db.SaveChanges();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        TempData["Mensaje"] = new MensajesSweetAlert("Error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
+        //    }
+
+        //    //modifica los registros actuales
+        //    try
+        //    {
+        //        foreach (budget_valores item in valoresUpdate)
+        //        {
+        //            //obtiene el elemento de BD
+        //            budget_valores objeto = valoresEnBD.FirstOrDefault(x => x.id == item.id);
+
+        //            if (objeto != null)
+        //            {
+        //                db.Entry(objeto).CurrentValues.SetValues(item);
+
+        //            }
+
+        //        }
+        //        db.SaveChanges();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        TempData["Mensaje"] = new MensajesSweetAlert("Error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
+        //    }
+
+        //    //Elimina los elemntos necesarios 
+        //    try
+        //    {
+        //        foreach (budget_valores item in valoresDelete)
+        //        {
+        //            //obtiene el elemento de BD
+        //            budget_valores objeto = valoresEnBD.FirstOrDefault(x => x.id == item.id);
+
+        //            if (objeto != null)
+        //            {
+        //                db.budget_valores.Remove(objeto);
+        //            }
+
+        //        }
+        //        db.SaveChanges();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        TempData["Mensaje"] = new MensajesSweetAlert("Error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
+        //    }
+
+        //    TempData["Mensaje"] = new MensajesSweetAlert("Se ha modificado correctamente", TipoMensajesSweetAlerts.SUCCESS);
+
+        //    return RedirectToAction("Forecast");
+        //}
+
+        //// GET: ResponsableBudget/Budget
+        //public ActionResult Budget()
+        //{
+        //    if (TieneRol(TipoRoles.BG_RESPONSABLE))
+        //    {
+        //        //mensaje en caso de crear, editar, etc
+        //        if (TempData["Mensaje"] != null)
+        //        {
+        //            ViewBag.MensajeAlert = TempData["Mensaje"];
+        //        }
+
+        //        //obtiene el usuario logeado
+        //        empleados empleado = obtieneEmpleadoLogeado();
+
+        //        var centros = db.budget_centro_costo.Where(x => x.id_responsable == empleado.id);
+        //        return View(centros.ToList());
+        //    }
+        //    else
+        //    {
+        //        return View("../Home/ErrorPermisos");
+        //    }
+
+        //}
+
+        //// GET: ResponsableBudget/EditBudget
+        //public ActionResult EditBudget(int? id)
+        //{
+
+        //    if (TieneRol(TipoRoles.BG_RESPONSABLE))
+        //    {
+        //        if (id == null)
+        //        {
+        //            return View("../Error/BadRequest");
+        //        }
+
+        //        //obtiene centro de costo
+        //        budget_centro_costo centroCosto = db.budget_centro_costo.Find(id);
+        //        if (centroCosto == null)
+        //            return View("../Error/NotFound");
+
+        //        //obtiene el año fiscal anterior (actual)
+        //        budget_anio_fiscal anio_Fiscal_anterior = GetAnioFiscal(DateTime.Now.AddYears(-1));
+        //        if (anio_Fiscal_anterior == null)
+        //            return View("../Error/NotFound");
+
+        //        //obtiene el año fiscal actual (forecast)
+        //        budget_anio_fiscal anio_Fiscal_actual = GetAnioFiscal(DateTime.Now);
+        //        if (anio_Fiscal_actual == null)
+        //            return View("../Error/NotFound");
+
+        //        //obtiene el año fiscal proximo (budget)
+        //        budget_anio_fiscal anio_Fiscal_proximo = GetAnioFiscal(DateTime.Now.AddYears(1));
+        //        if (anio_Fiscal_proximo == null)
+        //            return View("../Error/NotFound");
+
+        //        //obtiene el id_rel_centro_costo del budget
+        //        budget_rel_anio_fiscal_centro rel_centro_budget = db.budget_rel_anio_fiscal_centro.Where(x => x.id_centro_costo == centroCosto.id && x.id_anio_fiscal == anio_Fiscal_proximo.id && x.tipo == BG_Status.BUDGET).FirstOrDefault();
+        //        if (rel_centro_budget == null)
+        //        {
+        //            //si no existe crea el rel anio forecast
+        //            rel_centro_budget = new budget_rel_anio_fiscal_centro
+        //            {
+        //                id_anio_fiscal = anio_Fiscal_proximo.id,
+        //                id_centro_costo = centroCosto.id,
+        //                tipo = BG_Status.BUDGET,
+        //                estatus = true //activado por defecto
+        //            };
+
+        //            db.budget_rel_anio_fiscal_centro.Add(rel_centro_budget);
+        //            //guarda en base de datos el centro creado
+        //            db.SaveChanges();
+        //        }
+
+
+        //        //obtiene los valores para cada cuenta sap
+        //        var valoresListAnioAnterior = db.view_valores_anio_fiscal.Where(x => x.id_anio_fiscal == anio_Fiscal_anterior.id && x.id_centro_costo == centroCosto.id).ToList();
+        //        var valoresListAnioActual = db.view_valores_anio_fiscal.Where(x => x.id_anio_fiscal == anio_Fiscal_actual.id && x.id_centro_costo == centroCosto.id).ToList();
+        //        var valoresListAnioProximo = db.view_valores_anio_fiscal.Where(x => x.id_anio_fiscal == anio_Fiscal_proximo.id && x.id_centro_costo == centroCosto.id).ToList();
+
+        //        valoresListAnioAnterior = AgregaCuentasSAP(valoresListAnioAnterior, anio_Fiscal_anterior.id, centroCosto.id);
+        //        valoresListAnioActual = AgregaCuentasSAP(valoresListAnioActual, anio_Fiscal_actual.id, centroCosto.id).OrderBy(x => x.id_cuenta_sap).ToList();
+        //        valoresListAnioProximo = AgregaCuentasSAP(valoresListAnioProximo, anio_Fiscal_proximo.id, centroCosto.id);
+
+        //        ViewBag.centroCosto = centroCosto;
+        //        ViewBag.anio_Fiscal_anterior = anio_Fiscal_anterior;
+        //        ViewBag.anio_Fiscal_actual = anio_Fiscal_actual;
+        //        ViewBag.anio_Fiscal_proximo = anio_Fiscal_proximo;
+        //        ViewBag.ValoresActual = valoresListAnioAnterior;
+        //        ViewBag.ValoresActualForecast = valoresListAnioActual;
+        //        ViewBag.ValoresBudget = valoresListAnioProximo;
+
+        //        return View(rel_centro_budget);
+
+        //    }
+        //    else
+        //    {
+        //        return View("../Home/ErrorPermisos");
+        //    }
+
+        //}
+
+
+        //// POST: ResponsableBudget/EditBudget
+        //// To protect from overposting attacks, enable the specific properties you want to bind to, for 
+        //// more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public ActionResult EditBudget(budget_rel_anio_fiscal_centro model, FormCollection form)
+        //{
+        //    //crea objetos apartir del form collection
+
+        //    //1.-Obtiene los keys de tipo cantidad
+        //    List<string> keysCantidades = form.AllKeys.Where(x => x.ToUpper().Contains("CANTIDAD") == true).ToList();
+
+        //    //2.- Recorre y crea un objeto de tipo budget_valores
+        //    List<budget_valores> valores = new List<budget_valores>();
+
+        //    foreach (var keyC in keysCantidades)
+        //    {
+        //        Match m = Regex.Match(keyC, "(\\d+)");
+        //        string num = string.Empty;
+
+        //        //extrae el numero de key
+        //        if (m.Success)
+        //        {
+        //            num = m.Value;
+
+        //            int id_cuenta_sap = 0;
+        //            int mes = 0;
+        //            decimal cantidad = 0;
+
+        //            //obtiene el valor de la cuenta sap
+        //            bool success_id_cuenta_sap = int.TryParse(form["budget_valores[" + num + "].id_cuenta_sap"], out id_cuenta_sap);
+        //            bool success_mes = int.TryParse(form["budget_valores[" + num + "].mes"], out mes);
+        //            bool succes_cantidad = decimal.TryParse(form["budget_valores[" + num + "].cantidad"], out cantidad);
+        //            string currency = "USD";  //currency por defecto
+
+        //            //verifica que no hubo errores al covertir los datos
+        //            if (success_id_cuenta_sap && success_mes)
+        //            {
+        //                //crea y agrega un objeto de tipo budget_valores con la información leida
+        //                valores.Add(new budget_valores
+        //                {
+        //                    id_rel_anio_centro = model.id,
+        //                    id_cuenta_sap = id_cuenta_sap,
+        //                    mes = mes,
+        //                    currency_iso = currency,
+        //                    cantidad = cantidad,
+        //                });
+        //            }
                     
-                }
-            }
+        //        }
+        //    }
 
-            //lista para valores de meses segun la fecha actual
-            List<int> mesesPendientes = new List<int>();                     
+        //    //lista para valores de meses segun la fecha actual
+        //    List<int> mesesPendientes = new List<int>();                     
 
-            //3.- identificar cuales son update, create, delete y sin cambios
+        //    //3.- identificar cuales son update, create, delete y sin cambios
 
-            //obtiene los valores actuales en BD
-            List<budget_valores> valoresEnBD = db.budget_valores.Where(x => x.id_rel_anio_centro == model.id ).ToList();
+        //    //obtiene los valores actuales en BD
+        //    List<budget_valores> valoresEnBD = db.budget_valores.Where(x => x.id_rel_anio_centro == model.id ).ToList();
 
-            //obtiene valores sin cambios
-            List<budget_valores> valoresSinCambio = valores.Where(x => valoresEnBD.Any(y => y.id_rel_anio_centro == x.id_rel_anio_centro && y.id_cuenta_sap == x.id_cuenta_sap && y.mes == x.mes && y.cantidad == x.cantidad)).ToList();
+        //    //obtiene valores sin cambios
+        //    List<budget_valores> valoresSinCambio = valores.Where(x => valoresEnBD.Any(y => y.id_rel_anio_centro == x.id_rel_anio_centro && y.id_cuenta_sap == x.id_cuenta_sap && y.mes == x.mes && y.cantidad == x.cantidad)).ToList();
 
-            //obtiene valores con cambios o nuevos
-            List<budget_valores> valoresDiferentes = valores.Except(valoresSinCambio).ToList();
+        //    //obtiene valores con cambios o nuevos
+        //    List<budget_valores> valoresDiferentes = valores.Except(valoresSinCambio).ToList();
 
-            //DE valores Diferentes identificar cuales son create, update y delete
-            List<budget_valores> valoresCreate = valoresDiferentes.Where(a => !valoresEnBD.Any(a1 => a1.id_rel_anio_centro == a.id_rel_anio_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a1.mes == a.mes) && a.cantidad != 0).ToList();
+        //    //DE valores Diferentes identificar cuales son create, update y delete
+        //    List<budget_valores> valoresCreate = valoresDiferentes.Where(a => !valoresEnBD.Any(a1 => a1.id_rel_anio_centro == a.id_rel_anio_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a1.mes == a.mes) && a.cantidad != 0).ToList();
 
-            //DE valores Diferentes identificar cuales son create, update y delete
-            List<budget_valores> valoresUpdate = valoresDiferentes.Where(a => valoresEnBD.Any(a1 => a1.id_rel_anio_centro == a.id_rel_anio_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a1.mes == a.mes && a.cantidad != 0)).ToList();
-            //agrega el id correspondiente
-            valoresUpdate = valoresUpdate.Select(x =>
-            {
-                x.id = (from v in valoresEnBD
-                        where v.id_rel_anio_centro == x.id_rel_anio_centro && v.id_cuenta_sap == x.id_cuenta_sap && v.mes == x.mes
-                        select v.id).FirstOrDefault(); return x;
-            }).ToList();
+        //    //DE valores Diferentes identificar cuales son create, update y delete
+        //    List<budget_valores> valoresUpdate = valoresDiferentes.Where(a => valoresEnBD.Any(a1 => a1.id_rel_anio_centro == a.id_rel_anio_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a1.mes == a.mes && a.cantidad != 0)).ToList();
+        //    //agrega el id correspondiente
+        //    valoresUpdate = valoresUpdate.Select(x =>
+        //    {
+        //        x.id = (from v in valoresEnBD
+        //                where v.id_rel_anio_centro == x.id_rel_anio_centro && v.id_cuenta_sap == x.id_cuenta_sap && v.mes == x.mes
+        //                select v.id).FirstOrDefault(); return x;
+        //    }).ToList();
 
-            //DE valores Diferentes identificar cuales son create, update y delete
-            List<budget_valores> valoresDelete = valoresDiferentes.Where(a => valoresEnBD.Any(a1 => a1.id_rel_anio_centro == a.id_rel_anio_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a1.mes == a.mes && a.cantidad == 0)).ToList();
-            //agrega el id  correspondiente
-            valoresDelete = valoresDelete.Select(x =>
-            {
-                x.id = (from v in valoresEnBD
-                        where v.id_rel_anio_centro == x.id_rel_anio_centro && v.id_cuenta_sap == x.id_cuenta_sap && v.mes == x.mes
-                        select v.id).FirstOrDefault(); return x;
-            }).ToList();
+        //    //DE valores Diferentes identificar cuales son create, update y delete
+        //    List<budget_valores> valoresDelete = valoresDiferentes.Where(a => valoresEnBD.Any(a1 => a1.id_rel_anio_centro == a.id_rel_anio_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a1.mes == a.mes && a.cantidad == 0)).ToList();
+        //    //agrega el id  correspondiente
+        //    valoresDelete = valoresDelete.Select(x =>
+        //    {
+        //        x.id = (from v in valoresEnBD
+        //                where v.id_rel_anio_centro == x.id_rel_anio_centro && v.id_cuenta_sap == x.id_cuenta_sap && v.mes == x.mes
+        //                select v.id).FirstOrDefault(); return x;
+        //    }).ToList();
 
-            //crea los nuevos registros
-            try
-            {
-                db.budget_valores.AddRange(valoresCreate);
-                db.SaveChanges();
-            }
-            catch (Exception e)
-            {
-                TempData["Mensaje"] = new MensajesSweetAlert("Error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
-            }
+        //    //crea los nuevos registros
+        //    try
+        //    {
+        //        db.budget_valores.AddRange(valoresCreate);
+        //        db.SaveChanges();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        TempData["Mensaje"] = new MensajesSweetAlert("Error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
+        //    }
 
-            //modifica los registros actuales
-            try
-            {
-                foreach (budget_valores item in valoresUpdate)
-                {
-                    //obtiene el elemento de BD
-                    budget_valores objeto = valoresEnBD.FirstOrDefault(x => x.id == item.id);
+        //    //modifica los registros actuales
+        //    try
+        //    {
+        //        foreach (budget_valores item in valoresUpdate)
+        //        {
+        //            //obtiene el elemento de BD
+        //            budget_valores objeto = valoresEnBD.FirstOrDefault(x => x.id == item.id);
 
-                    if (objeto != null)
-                    {
-                        db.Entry(objeto).CurrentValues.SetValues(item);
+        //            if (objeto != null)
+        //            {
+        //                db.Entry(objeto).CurrentValues.SetValues(item);
 
-                    }
+        //            }
 
-                }
-                db.SaveChanges();
-            }
-            catch (Exception e)
-            {
-                TempData["Mensaje"] = new MensajesSweetAlert("Error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
-            }
+        //        }
+        //        db.SaveChanges();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        TempData["Mensaje"] = new MensajesSweetAlert("Error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
+        //    }
 
-            //Elimina los elemntos necesarios 
-            try
-            {
-                foreach (budget_valores item in valoresDelete)
-                {
-                    //obtiene el elemento de BD
-                    budget_valores objeto = valoresEnBD.FirstOrDefault(x => x.id == item.id);
+        //    //Elimina los elemntos necesarios 
+        //    try
+        //    {
+        //        foreach (budget_valores item in valoresDelete)
+        //        {
+        //            //obtiene el elemento de BD
+        //            budget_valores objeto = valoresEnBD.FirstOrDefault(x => x.id == item.id);
 
-                    if (objeto != null)
-                    {
-                        db.budget_valores.Remove(objeto);
-                    }
+        //            if (objeto != null)
+        //            {
+        //                db.budget_valores.Remove(objeto);
+        //            }
 
-                }
-                db.SaveChanges();
-            }
-            catch (Exception e)
-            {
-                TempData["Mensaje"] = new MensajesSweetAlert("Error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
-            }
+        //        }
+        //        db.SaveChanges();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        TempData["Mensaje"] = new MensajesSweetAlert("Error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
+        //    }
 
-            TempData["Mensaje"] = new MensajesSweetAlert("Se ha modificado correctamente. ", TipoMensajesSweetAlerts.SUCCESS);
+        //    TempData["Mensaje"] = new MensajesSweetAlert("Se ha modificado correctamente. ", TipoMensajesSweetAlerts.SUCCESS);
 
-            return RedirectToAction("Budget");
-        }
+        //    return RedirectToAction("Budget");
+        //}
 
         // GET: ResponsableBudget/Actual
         public ActionResult Centros()
@@ -602,8 +602,8 @@ namespace Portal_2_0.Controllers
                     ViewBag.MensajeAlert = TempData["Mensaje"];
                 }
 
-
-                var centros = db.budget_centro_costo.Where(x => x.id_responsable == empleado.id);
+               
+                var centros = db.budget_centro_costo.Where(x => x.budget_responsables.Any(y => y.id_responsable == empleado.id));
                 return View(centros.ToList());
             }
             else

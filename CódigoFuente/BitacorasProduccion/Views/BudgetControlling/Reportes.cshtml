@@ -1,8 +1,9 @@
 ﻿@model IEnumerable<Portal_2_0.Models.budget_centro_costo>
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Concentrado de información";
     ViewBag.PrimerNivel = "plantilla_budget";
-    ViewBag.SegundoNivel = "centro_costos";
+    ViewBag.SegundoNivel = "reportes";
     ViewBag.ControllerName = "BudgetControlling";
 
     Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
@@ -246,6 +247,7 @@
         $(document).ready(function () {
 
             //inicializa los data table
+            //inicializa los data table
             var tabla = $('#datatable_1').DataTable({
                 "paging": false,
                 "ordering": true,
@@ -256,7 +258,6 @@
                 "info": true,
 
             });
-
             // Initialize Select2 Elements (debe ir después de asignar el valor)
             $('.select2bs4').select2({
                 theme: 'bootstrap4'

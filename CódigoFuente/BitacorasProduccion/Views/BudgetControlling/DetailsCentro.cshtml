@@ -95,12 +95,12 @@
                                         <!--Planta-->
                                         <label class="control-label col-md-1 text_derecha">Plant</label>
                                         <div class="col-md-2">
-                                            <input type="text" class="form-control" value="@centro_costo.Area.plantas.descripcion" readonly>
+                                            <input type="text" class="form-control" value="@centro_costo.budget_departamentos.budget_plantas.descripcion" readonly>
                                         </div>
                                         <!--Deparment-->
                                         <label class="control-label col-md-1 text_derecha">Department</label>
                                         <div class="col-md-4">
-                                            <input type="text" class="form-control" value="@centro_costo.Area.descripcion" readonly>
+                                            <input type="text" class="form-control" value="@centro_costo.budget_departamentos.descripcion" readonly>
                                         </div>
                                         <!--Cost center-->
                                         <label class="control-label col-md-1 text_derecha">Cost Center</label>
@@ -108,15 +108,19 @@
                                             <input type="text" class="form-control" value="@centro_costo.num_centro_costo" readonly>
                                         </div>
                                     </div>
+                                    @{
+                                        String responsables = (string.Join("/", Model.budget_responsables.Select(x => x.empleados.ConcatNombre).ToArray()));
+                                    }
 
                                     <div class="form-group row">
                                         <!--responsable-->
                                         <label class="control-label col-md-1 text_derecha">Responsable</label>
-                                        <div class="col-md-4">
-                                            <input type="text" class="form-control" value="@centro_costo.empleados.ConcatNombre" readonly>
+                                        <div class="col-md-8">
+                                            <input type="text" class="form-control" value="@responsables" readonly>
                                         </div>
-
                                     </div>
+
+
                                     <div class="ln_solid"></div>
 
                                     <div class="col-md-12 col-sm-12  ">
@@ -786,7 +790,7 @@
     @Scripts.Render(Url.Content("~/Scripts/MvcFoolproofJQueryValidation.js"))
     @Scripts.Render("~/bundles/dataTables_js")
 
-<script>
+    <script>
         $(document).ready(function () {
 
             jQuery.extend(jQuery.validator.messages, {
@@ -845,7 +849,7 @@
         }
 
         //muestra el modal para bloquear
-    function showLockDialog(idRelFYCentro) {
+        function showLockDialog(idRelFYCentro) {
             Swal.fire({
                 title: 'Confirmation',
                 text: "Are you sure you want to lock this cost center?",
@@ -912,8 +916,8 @@
         }
 
         //muestra el modal para desbloquear
-    function showUnlockDialog(idRelFYCentro) {
-             Swal.fire({
+        function showUnlockDialog(idRelFYCentro) {
+            Swal.fire({
                 title: 'Confirmation',
                 text: "Are you sure you want to unlock this cost center?",
                 icon: 'warning',
@@ -983,7 +987,7 @@
             clicMenu(1);
         }
 
-</script>
+    </script>
 
 }
 

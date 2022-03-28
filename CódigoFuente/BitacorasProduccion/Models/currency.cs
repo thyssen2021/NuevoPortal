@@ -18,7 +18,6 @@ namespace Portal_2_0.Models
         public currency()
         {
             this.poliza_manual = new HashSet<poliza_manual>();
-            this.budget_valores = new HashSet<budget_valores>();
             this.budget_cantidad = new HashSet<budget_cantidad>();
         }
     
@@ -40,8 +39,7 @@ namespace Portal_2_0.Models
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<poliza_manual> poliza_manual { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<budget_valores> budget_valores { get; set; }
+       
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_cantidad> budget_cantidad { get; set; }
     }

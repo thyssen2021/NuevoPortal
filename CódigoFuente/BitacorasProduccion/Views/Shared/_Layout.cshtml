@@ -388,7 +388,7 @@
                                                 @if (User.IsInRole(TipoRoles.BG_REPORTES))
                                                 {
                                                     <h3>Reportes</h3>
-                                                    <li class="@(ViewBag.SegundoNivel == "reportes" ? "current-page" : null )"><a href="@Url.Action("Index", "ReportesBudget")">Reportes</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "reportes" ? "current-page" : null )"><a href="@Url.Action("reportes", "BudgetControlling")">Reportes</a></li>
                                                 }
 
                                             </ul>
