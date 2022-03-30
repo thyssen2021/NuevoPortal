@@ -24,7 +24,7 @@ namespace Portal_2_0.Models
             this.budget_responsables = new HashSet<budget_responsables>();
         }
 
-        [Display(Name = "Número de Parte")]
+        [Display(Name = "Id")]
         public int id { get; set; }
 
         [Display(Name = "Departamento")]
@@ -37,8 +37,18 @@ namespace Portal_2_0.Models
 
         [Required(AllowEmptyStrings = false)]
         [StringLength(6, MinimumLength = 2)]
-        [Display(Name = "Descripción")]
+        [Display(Name = "Cost Center Number")]
         public string num_centro_costo { get; set; }
+
+        //concatena
+        public string ConcatCentro
+        {
+            get
+            {
+                return string.Format("({0}) {1} - {2}",num_centro_costo, budget_departamentos.budget_plantas.descripcion, descripcion).ToUpper();
+            }
+        }
+
 
 
         //para el archivo de importación 
@@ -47,6 +57,8 @@ namespace Portal_2_0.Models
 
         [Display(Name = "Fiscal Year")]
         public int id_anio_fiscal { get; set; }
+
+
 
         //DEfine variables para rel anio centro
         public budget_rel_fy_centro REL_ANIO_CENTRO_ACTUAL_FORECAST = null;

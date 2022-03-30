@@ -16,7 +16,6 @@ namespace Portal_2_0.Models
     {
 
         private Portal_2_0Entities db = new Portal_2_0Entities();
-
         public long id { get; set; }
         public int id_budget_rel_fy_centro { get; set; }
         public int id_anio_fiscal { get; set; }
@@ -24,6 +23,11 @@ namespace Portal_2_0.Models
         public int id_cuenta_sap { get; set; }
         public string sap_account { get; set; }
         public string name { get; set; }
+        public string cost_center { get; set; }
+        public string department { get; set; }
+        public string responsable { get; set; }
+        public string codigo_sap { get; set; }
+        public int id_budget_plant { get; set; }
         public string mapping { get; set; }
         public string mapping_bridge { get; set; }
         public string currency_iso { get; set; }

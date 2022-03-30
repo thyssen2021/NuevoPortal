@@ -595,6 +595,7 @@
                                                                         </th>
                                                                         <th>
                                                                             Comentarios
+                                                                            <span>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</span>
                                                                         </th>
                                                                     </tr>
                                                                 </thead>
@@ -731,7 +732,9 @@
                                                                                 <span id="total_fila_@fila" name="total_fila_@fila">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.TotalMeses().Value)</span>
                                                                             </td>
                                                                             <td>
-                                                                                @item.Comentario
+                                                                                <input type="hidden" id="budget_rel_comentarios[@(fila)].id_cuenta_sap" name="budget_rel_comentarios[@(fila)].id_cuenta_sap" value="@item.id_cuenta_sap" />
+                                                                                <textarea style="font-size: 12px;" type="text" name="budget_rel_comentarios[@fila].comentario" id="budget_rel_comentarios[@fila].comentario" class="form-control col-md-12" autocomplete="off" maxlength="100">@item.Comentario</textarea>
+                                                                                <span class="field-validation-valid text-danger" data-valmsg-for="budget_rel_comentarios[@fila].comentario" data-valmsg-replace="true"></span>
                                                                             </td>
 
                                                                         </tr>

@@ -516,7 +516,7 @@ namespace Portal_2_0.Models
             //crea los datos principales del centro de costo
 
             oSLDocument.SetCellValue("B1", "thyssenkrupp Materials de México");
-            oSLDocument.MergeWorksheetCells(1,2, 1, 4);
+            oSLDocument.MergeWorksheetCells(1, 2, 1, 4);
 
             oSLDocument.SetCellValue("B2", "Cost Center");
             oSLDocument.SetCellValue("B3", "Deparment");
@@ -549,6 +549,7 @@ namespace Portal_2_0.Models
             string titulo_anterior_agosto = "ACT " + MesesUtil.AGOSTO.Abreviation + "-" + anio_Fiscal_anterior.anio_fin.ToString().Substring(2, 2);
             string titulo_anterior_septiembre = "ACT " + MesesUtil.SEPTIEMBRE.Abreviation + "-" + anio_Fiscal_anterior.anio_fin.ToString().Substring(2, 2);
             string titulo_anterior_total = "Totals FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)));
+            string comentarios_anterior = "Comentarios " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)));
 
             dt.Columns.Add(titulo_anterior_octubre, typeof(decimal));
             dt.Columns.Add(titulo_anterior_noviembre, typeof(decimal));
@@ -557,13 +558,13 @@ namespace Portal_2_0.Models
             dt.Columns.Add(titulo_anterior_febrero, typeof(decimal));
             dt.Columns.Add(titulo_anterior_marzo, typeof(decimal));
             dt.Columns.Add(titulo_anterior_abril, typeof(decimal));
-            dt.Columns.Add(titulo_anterior_mayo, typeof(decimal)); 
+            dt.Columns.Add(titulo_anterior_mayo, typeof(decimal));
             dt.Columns.Add(titulo_anterior_junio, typeof(decimal));
             dt.Columns.Add(titulo_anterior_julio, typeof(decimal));
             dt.Columns.Add(titulo_anterior_agosto, typeof(decimal));
             dt.Columns.Add(titulo_anterior_septiembre, typeof(decimal));
             dt.Columns.Add(titulo_anterior_total, typeof(decimal));
-            //dt.Columns.Add("Comentarios");
+            dt.Columns.Add(comentarios_anterior);
 
             //meses para actual/forecast
             string titulo_actual_octubre = (isActualOctubre ? "ACT" : "FC") + " " + MesesUtil.OCTUBRE.Abreviation + "-" + anio_Fiscal_actual.anio_inicio.ToString().Substring(2, 2);
@@ -579,6 +580,7 @@ namespace Portal_2_0.Models
             string titulo_actual_agosto = (isActualAgosto ? "ACT" : "FC") + " " + MesesUtil.AGOSTO.Abreviation + "-" + anio_Fiscal_actual.anio_fin.ToString().Substring(2, 2);
             string titulo_actual_septiembre = (isActualSeptiembre ? "ACT" : "FC") + " " + MesesUtil.SEPTIEMBRE.Abreviation + "-" + anio_Fiscal_actual.anio_fin.ToString().Substring(2, 2);
             string titulo_actual_total = "Totals FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual));
+            string comentarios_presente = "Comentarios " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual));
 
             dt.Columns.Add(titulo_actual_octubre, typeof(decimal));
             dt.Columns.Add(titulo_actual_noviembre, typeof(decimal));
@@ -593,7 +595,7 @@ namespace Portal_2_0.Models
             dt.Columns.Add(titulo_actual_agosto, typeof(decimal));
             dt.Columns.Add(titulo_actual_septiembre, typeof(decimal));
             dt.Columns.Add(titulo_actual_total, typeof(decimal));
-            //dt.Columns.Add("Comentarios");
+            dt.Columns.Add(comentarios_presente);
 
             //meses para budget
             string titulo_proximo_octubre = "BG " + MesesUtil.OCTUBRE.Abreviation + "-" + anio_Fiscal_proximo.anio_inicio.ToString().Substring(2, 2);
@@ -609,6 +611,7 @@ namespace Portal_2_0.Models
             string titulo_proximo_agosto = "BG " + MesesUtil.AGOSTO.Abreviation + "-" + anio_Fiscal_proximo.anio_fin.ToString().Substring(2, 2);
             string titulo_proximo_septiembre = "BG " + MesesUtil.SEPTIEMBRE.Abreviation + "-" + anio_Fiscal_proximo.anio_fin.ToString().Substring(2, 2);
             string titulo_proximo_total = "Totals FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)));
+            string comentarios_proximo = "Comentarios " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)));
 
             dt.Columns.Add(titulo_proximo_octubre, typeof(decimal));
             dt.Columns.Add(titulo_proximo_noviembre, typeof(decimal));
@@ -623,7 +626,7 @@ namespace Portal_2_0.Models
             dt.Columns.Add(titulo_proximo_agosto, typeof(decimal));
             dt.Columns.Add(titulo_proximo_septiembre, typeof(decimal));
             dt.Columns.Add(titulo_proximo_total, typeof(decimal));
-            //dt.Columns.Add("Comentarios");
+            dt.Columns.Add(comentarios_proximo);
 
 
             for (int i = 0; i < valoresListAnioAnterior.Count; i++)
@@ -632,7 +635,7 @@ namespace Portal_2_0.Models
 
                 //Inserta los datos de la cienta
 
-                row["Item"] = i+1; 
+                row["Item"] = i + 1;
                 row["Sap Account"] = valoresListAnioAnterior[i].sap_account;
                 row["Name"] = valoresListAnioAnterior[i].name;
                 row["Mapping Bridge"] = valoresListAnioAnterior[i].mapping_bridge;
@@ -698,8 +701,10 @@ namespace Portal_2_0.Models
                     row[titulo_anterior_septiembre] = valoresListAnioAnterior[i].Septiembre;
                 else
                     row[titulo_anterior_septiembre] = DBNull.Value;
-               
-              row[titulo_anterior_total] = valoresListAnioAnterior[i].TotalMeses();
+
+                row[titulo_anterior_total] = valoresListAnioAnterior[i].TotalMeses();
+
+                row[comentarios_anterior] = valoresListAnioAnterior[i].Comentario;
                 #endregion
 
                 //completa valores para el año actual
@@ -765,6 +770,8 @@ namespace Portal_2_0.Models
                     row[titulo_actual_septiembre] = DBNull.Value;
 
                 row[titulo_actual_total] = valoresListAnioActual[i].TotalMeses();
+
+                row[comentarios_presente] = valoresListAnioActual[i].Comentario;
                 #endregion
 
                 //completa valores para el año 
@@ -830,6 +837,7 @@ namespace Portal_2_0.Models
                     row[titulo_proximo_septiembre] = DBNull.Value;
 
                 row[titulo_proximo_total] = valoresListAnioProximo[i].TotalMeses();
+                row[comentarios_proximo] = valoresListAnioProximo[i].Comentario;
 
                 #endregion
 
@@ -885,20 +893,20 @@ namespace Portal_2_0.Models
 
 
             //define y combina las celdas de los encabezados 
-            oSLDocument.SetCellValue(4, 5, "FY " +(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1))));
+            oSLDocument.SetCellValue(4, 5, "FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1))));
             oSLDocument.SetCellValue(5, 5, "ACTUAL");
             oSLDocument.MergeWorksheetCells(5, 5, 5, 16);
             oSLDocument.MergeWorksheetCells(4, 5, 4, 16);
 
-            oSLDocument.SetCellValue(4, 18, "FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual)));
-            oSLDocument.SetCellValue(5, 18, "ACTUAL/FORECAST");
-            oSLDocument.MergeWorksheetCells(5, 18, 5, 29);
-            oSLDocument.MergeWorksheetCells(4, 18, 4, 29);
+            oSLDocument.SetCellValue(4, 19, "FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual)));
+            oSLDocument.SetCellValue(5, 19, "ACTUAL/FORECAST");
+            oSLDocument.MergeWorksheetCells(5, 19, 5, 30);
+            oSLDocument.MergeWorksheetCells(4, 19, 4, 30);
 
-            oSLDocument.SetCellValue(4, 31, "FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1))));
-            oSLDocument.SetCellValue(5, 31, "BUDGET");
-            oSLDocument.MergeWorksheetCells(5, 31, 5, 42);
-            oSLDocument.MergeWorksheetCells(4, 31, 4, 42);
+            oSLDocument.SetCellValue(4, 33, "FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1))));
+            oSLDocument.SetCellValue(5, 33, "BUDGET");
+            oSLDocument.MergeWorksheetCells(5, 33, 5, 44);
+            oSLDocument.MergeWorksheetCells(4, 33, 4, 44);
 
             int filaInicial = 6;
 
@@ -935,7 +943,7 @@ namespace Portal_2_0.Models
             styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
 
             //estilo para el encabezado
-            SLStyle styleTotales= oSLDocument.CreateStyle();
+            SLStyle styleTotales = oSLDocument.CreateStyle();
             styleTotales.Font.Bold = true;
             styleTotales.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#c6efce"), System.Drawing.ColorTranslator.FromHtml("#c6efce"));
             styleTotales.Font.FontColor = System.Drawing.ColorTranslator.FromHtml("#005000");
@@ -952,7 +960,7 @@ namespace Portal_2_0.Models
             styleCentrarTexto.SetHorizontalAlignment(HorizontalAlignmentValues.Center);
 
             SLStyle styleBoldTexto = oSLDocument.CreateStyle();
-            styleBoldTexto.Font.Bold=true;
+            styleBoldTexto.Font.Bold = true;
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
             styleHeaderFont.Font.FontName = "Calibri";
@@ -964,10 +972,10 @@ namespace Portal_2_0.Models
             SLStyle styleNumber = oSLDocument.CreateStyle();
             styleNumber.FormatCode = "$  #,##0.00";
 
-           
+
             //da estilo a los numero
             //camniar cuando se agregen los comentarios
-            oSLDocument.SetColumnStyle(5, 43, styleNumber);
+            oSLDocument.SetColumnStyle(5, 45, styleNumber);
 
             //da estilo a la hoja de excel
             //inmoviliza el encabezado
@@ -987,8 +995,8 @@ namespace Portal_2_0.Models
 
             //aplica estilo a los encabazado de totales
             oSLDocument.SetCellStyle(filaInicial, 17, styleTotalsColor);
-            oSLDocument.SetCellStyle(filaInicial, 30, styleTotalsColor);
-            oSLDocument.SetCellStyle(filaInicial, 42, styleTotalsColor);
+            oSLDocument.SetCellStyle(filaInicial, 31, styleTotalsColor);
+            oSLDocument.SetCellStyle(filaInicial, 45, styleTotalsColor);
 
             //aplica estilo a las cabeceras de tipo año
             oSLDocument.SetCellStyle(4, 5, styleHeader);
@@ -997,26 +1005,187 @@ namespace Portal_2_0.Models
             oSLDocument.SetCellStyle(5, 5, styleTotalsColor);
             oSLDocument.SetCellStyle(5, 5, styleCentrarTexto);
 
-            oSLDocument.SetCellStyle(4, 18, styleHeader);
-            oSLDocument.SetCellStyle(4, 18, styleHeaderFont);
-            oSLDocument.SetCellStyle(4, 18, styleCentrarTexto);
-            oSLDocument.SetCellStyle(5, 18, styleTotalsColor);
-            oSLDocument.SetCellStyle(5, 18, styleCentrarTexto);
+            oSLDocument.SetCellStyle(4, 19, styleHeader);
+            oSLDocument.SetCellStyle(4, 19, styleHeaderFont);
+            oSLDocument.SetCellStyle(4, 19, styleCentrarTexto);
+            oSLDocument.SetCellStyle(5, 19, styleTotalsColor);
+            oSLDocument.SetCellStyle(5, 19, styleCentrarTexto);
 
-            oSLDocument.SetCellStyle(4, 31, styleHeader);
-            oSLDocument.SetCellStyle(4, 31, styleHeaderFont);
-            oSLDocument.SetCellStyle(4, 31, styleCentrarTexto);
-            oSLDocument.SetCellStyle(5, 31, styleTotalsColor);
-            oSLDocument.SetCellStyle(5, 31, styleCentrarTexto);
+            oSLDocument.SetCellStyle(4, 33, styleHeader);
+            oSLDocument.SetCellStyle(4, 33, styleHeaderFont);
+            oSLDocument.SetCellStyle(4, 33, styleCentrarTexto);
+            oSLDocument.SetCellStyle(5, 33, styleTotalsColor);
+            oSLDocument.SetCellStyle(5, 33, styleCentrarTexto);
 
             //estilo para titulo thyssen
             oSLDocument.SetRowHeight(1, 40.0);
             oSLDocument.SetCellStyle("B1", styleThyssen);
 
             //estilo para totales
-            oSLDocument.SetCellStyle(valoresListAnioAnterior.Count + filaInicial + 1, 4, valoresListAnioAnterior.Count + filaInicial + 1, 43, styleTotales);
+            oSLDocument.SetCellStyle(valoresListAnioAnterior.Count + filaInicial + 1, 4, valoresListAnioAnterior.Count + filaInicial + 1, 45, styleTotales);
 
-            oSLDocument.SetRowHeight(2, valoresListAnioAnterior.Count + filaInicial+ 1, 15.0);
+            oSLDocument.SetRowHeight(2, valoresListAnioAnterior.Count + filaInicial + 1, 15.0);
+
+            System.IO.Stream stream = new System.IO.MemoryStream();
+
+            oSLDocument.SaveAs(stream);
+
+            byte[] array = Bitacoras.Util.StreamUtil.ToByteArray(stream);
+
+            return (array);
+        }
+
+        /// <summary>
+        /// Crea archivo en excel para el concentrado por planta
+        /// </summary>
+        /// <param name="valoresListAnioAnterior"></param>
+        /// <param name="valoresListAnioActual"></param>
+        /// <param name="valoresListAnioProximo"></param>
+        /// <param name="anio_Fiscal_anterior"></param>
+        /// <param name="anio_Fiscal_actual"></param>
+        /// <param name="anio_Fiscal_proximo"></param>
+        /// <returns></returns>
+        public static byte[] GeneraReporteBudgetPorPlanta(List<view_valores_fiscal_year> valoresListAnioAnterior, List<view_valores_fiscal_year> valoresListAnioActual,
+            List<view_valores_fiscal_year> valoresListAnioProximo, budget_anio_fiscal anio_Fiscal_anterior, budget_anio_fiscal anio_Fiscal_actual, budget_anio_fiscal anio_Fiscal_proximo)
+        {
+
+            DateTime fechaActual = DateTime.Now;
+
+            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte.xlsx"), "Sheet1");
+            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Concentrado");
+
+            System.Data.DataTable dt = new System.Data.DataTable();
+
+            //columnas          
+            dt.Columns.Add("Item", typeof(string));
+            dt.Columns.Add("Sap Account", typeof(string));
+            dt.Columns.Add("Name", typeof(string));
+            dt.Columns.Add("Cost Center", typeof(string));
+            dt.Columns.Add("Department", typeof(string));
+            dt.Columns.Add("Responsable", typeof(string));
+            dt.Columns.Add("Plant", typeof(string));
+            dt.Columns.Add("Class 1", typeof(string));
+            dt.Columns.Add("Class 2", typeof(string));
+            dt.Columns.Add("Mapping", typeof(string));
+            dt.Columns.Add("Mapping Bridge", typeof(string));
+
+            dt.Columns.Add(MesesUtil.OCTUBRE.Abreviation + "-" + anio_Fiscal_anterior.anio_inicio.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.NOVIEMBRE.Abreviation + "-" + anio_Fiscal_anterior.anio_inicio.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.DICIEMBRE.Abreviation + "-" + anio_Fiscal_anterior.anio_inicio.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.ENERO.Abreviation + "-" + anio_Fiscal_anterior.anio_fin.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.FEBRERO.Abreviation + "-" + anio_Fiscal_anterior.anio_fin.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.MARZO.Abreviation + "-" + anio_Fiscal_anterior.anio_fin.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.ABRIL.Abreviation + "-" + anio_Fiscal_anterior.anio_fin.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.MAYO.Abreviation + "-" + anio_Fiscal_anterior.anio_fin.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.JUNIO.Abreviation + "-" + anio_Fiscal_anterior.anio_fin.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.JULIO.Abreviation + "-" + anio_Fiscal_anterior.anio_fin.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.AGOSTO.Abreviation + "-" + anio_Fiscal_anterior.anio_fin.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.SEPTIEMBRE.Abreviation + "-" + anio_Fiscal_anterior.anio_fin.ToString(), typeof(decimal));
+            dt.Columns.Add("Totals FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1))), typeof(decimal));
+            dt.Columns.Add("Comentarios FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1))), typeof(string));
+
+            dt.Columns.Add(MesesUtil.OCTUBRE.Abreviation + "-" + anio_Fiscal_actual.anio_inicio.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.NOVIEMBRE.Abreviation + "-" + anio_Fiscal_actual.anio_inicio.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.DICIEMBRE.Abreviation + "-" + anio_Fiscal_actual.anio_inicio.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.ENERO.Abreviation + "-" + anio_Fiscal_actual.anio_fin.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.FEBRERO.Abreviation + "-" + anio_Fiscal_actual.anio_fin.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.MARZO.Abreviation + "-" + anio_Fiscal_actual.anio_fin.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.ABRIL.Abreviation + "-" + anio_Fiscal_actual.anio_fin.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.MAYO.Abreviation + "-" + anio_Fiscal_actual.anio_fin.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.JUNIO.Abreviation + "-" + anio_Fiscal_actual.anio_fin.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.JULIO.Abreviation + "-" + anio_Fiscal_actual.anio_fin.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.AGOSTO.Abreviation + "-" + anio_Fiscal_actual.anio_fin.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.SEPTIEMBRE.Abreviation + "-" + anio_Fiscal_actual.anio_fin.ToString(), typeof(decimal));
+            dt.Columns.Add("Totals FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual)), typeof(decimal));
+            dt.Columns.Add("Comentarios FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual)), typeof(string));
+
+            dt.Columns.Add(MesesUtil.OCTUBRE.Abreviation + "-" + anio_Fiscal_proximo.anio_inicio.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.NOVIEMBRE.Abreviation + "-" + anio_Fiscal_proximo.anio_inicio.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.DICIEMBRE.Abreviation + "-" + anio_Fiscal_proximo.anio_inicio.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.ENERO.Abreviation + "-" + anio_Fiscal_proximo.anio_fin.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.FEBRERO.Abreviation + "-" + anio_Fiscal_proximo.anio_fin.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.MARZO.Abreviation + "-" + anio_Fiscal_proximo.anio_fin.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.ABRIL.Abreviation + "-" + anio_Fiscal_proximo.anio_fin.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.MAYO.Abreviation + "-" + anio_Fiscal_proximo.anio_fin.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.JUNIO.Abreviation + "-" + anio_Fiscal_proximo.anio_fin.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.JULIO.Abreviation + "-" + anio_Fiscal_proximo.anio_fin.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.AGOSTO.Abreviation + "-" + anio_Fiscal_proximo.anio_fin.ToString(), typeof(decimal));
+            dt.Columns.Add(MesesUtil.SEPTIEMBRE.Abreviation + "-" + anio_Fiscal_proximo.anio_fin.ToString(), typeof(decimal));
+            dt.Columns.Add("Totals FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1))), typeof(decimal));
+            dt.Columns.Add("Comentarios FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1))), typeof(string));
+
+
+            //ingresa los datos del concentrado
+            for (int i = 0; i < valoresListAnioActual.Count; i++)
+            {
+                dt.Rows.Add(valoresListAnioAnterior[i].id_cuenta_sap, valoresListAnioAnterior[i].sap_account, valoresListAnioAnterior[i].name, valoresListAnioAnterior[i].cost_center, valoresListAnioAnterior[i].department, valoresListAnioAnterior[i].responsable, valoresListAnioAnterior[i].codigo_sap, null, null, valoresListAnioAnterior[i].mapping, valoresListAnioAnterior[i].mapping_bridge,
+                   valoresListAnioAnterior[i].Octubre, valoresListAnioAnterior[i].Noviembre, valoresListAnioAnterior[i].Diciembre, valoresListAnioAnterior[i].Enero, valoresListAnioAnterior[i].Febrero, valoresListAnioAnterior[i].Marzo, valoresListAnioAnterior[i].Abril, valoresListAnioAnterior[i].Mayo, valoresListAnioAnterior[i].Junio, valoresListAnioAnterior[i].Julio, valoresListAnioAnterior[i].Agosto, valoresListAnioAnterior[i].Septiembre, valoresListAnioAnterior[i].TotalMeses(), valoresListAnioAnterior[i].Comentario,
+                   valoresListAnioActual[i].Octubre, valoresListAnioActual[i].Noviembre, valoresListAnioActual[i].Diciembre, valoresListAnioActual[i].Enero, valoresListAnioActual[i].Febrero, valoresListAnioActual[i].Marzo, valoresListAnioActual[i].Abril, valoresListAnioActual[i].Mayo, valoresListAnioActual[i].Junio, valoresListAnioActual[i].Julio, valoresListAnioActual[i].Agosto, valoresListAnioActual[i].Septiembre, valoresListAnioActual[i].TotalMeses(), valoresListAnioActual[i].Comentario,
+                   valoresListAnioProximo[i].Octubre, valoresListAnioProximo[i].Noviembre, valoresListAnioProximo[i].Diciembre, valoresListAnioProximo[i].Enero, valoresListAnioProximo[i].Febrero, valoresListAnioProximo[i].Marzo, valoresListAnioProximo[i].Abril, valoresListAnioProximo[i].Mayo, valoresListAnioProximo[i].Junio, valoresListAnioProximo[i].Julio, valoresListAnioProximo[i].Agosto, valoresListAnioProximo[i].Septiembre, valoresListAnioProximo[i].TotalMeses(), valoresListAnioProximo[i].Comentario
+                   );
+            }
+
+            //agrega los totales
+            dt.Rows.Add(null, null, null, null, null, null, null, null, null, null, "Totals",
+                 valoresListAnioAnterior.Sum(item => item.Octubre), valoresListAnioAnterior.Sum(item => item.Noviembre), valoresListAnioAnterior.Sum(item => item.Diciembre), valoresListAnioAnterior.Sum(item => item.Enero), valoresListAnioAnterior.Sum(item => item.Febrero), valoresListAnioAnterior.Sum(item => item.Marzo), valoresListAnioAnterior.Sum(item => item.Abril), valoresListAnioAnterior.Sum(item => item.Mayo), valoresListAnioAnterior.Sum(item => item.Junio), valoresListAnioAnterior.Sum(item => item.Julio), valoresListAnioAnterior.Sum(item => item.Agosto), valoresListAnioAnterior.Sum(item => item.Septiembre), valoresListAnioAnterior.Sum(item => item.TotalMeses()), null,
+                  valoresListAnioActual.Sum(item => item.Octubre), valoresListAnioActual.Sum(item => item.Noviembre), valoresListAnioActual.Sum(item => item.Diciembre), valoresListAnioActual.Sum(item => item.Enero), valoresListAnioActual.Sum(item => item.Febrero), valoresListAnioActual.Sum(item => item.Marzo), valoresListAnioActual.Sum(item => item.Abril), valoresListAnioActual.Sum(item => item.Mayo), valoresListAnioActual.Sum(item => item.Junio), valoresListAnioActual.Sum(item => item.Julio), valoresListAnioActual.Sum(item => item.Agosto), valoresListAnioActual.Sum(item => item.Septiembre), valoresListAnioActual.Sum(item => item.TotalMeses()), null,
+                  valoresListAnioProximo.Sum(item => item.Octubre), valoresListAnioProximo.Sum(item => item.Noviembre), valoresListAnioProximo.Sum(item => item.Diciembre), valoresListAnioProximo.Sum(item => item.Enero), valoresListAnioProximo.Sum(item => item.Febrero), valoresListAnioProximo.Sum(item => item.Marzo), valoresListAnioProximo.Sum(item => item.Abril), valoresListAnioProximo.Sum(item => item.Mayo), valoresListAnioProximo.Sum(item => item.Junio), valoresListAnioProximo.Sum(item => item.Julio), valoresListAnioProximo.Sum(item => item.Agosto), valoresListAnioProximo.Sum(item => item.Septiembre), valoresListAnioProximo.Sum(item => item.TotalMeses()), null
+                  );
+
+
+            oSLDocument.ImportDataTable(1, 1, dt, true);
+
+
+            //estilo para el encabezado
+            SLStyle styleTotales = oSLDocument.CreateStyle();
+            styleTotales.Font.Bold = true;
+            styleTotales.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#c6efce"), System.Drawing.ColorTranslator.FromHtml("#c6efce"));
+            styleTotales.Font.FontColor = System.Drawing.ColorTranslator.FromHtml("#005000");
+
+
+            //estilo para ajustar al texto
+            SLStyle styleWrap = oSLDocument.CreateStyle();
+            styleWrap.SetWrapText(true);
+
+            //estilo para el encabezado
+            SLStyle styleHeader = oSLDocument.CreateStyle();
+            styleHeader.Font.Bold = true;
+            styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
+
+            SLStyle styleHeaderFont = oSLDocument.CreateStyle();
+            styleHeaderFont.Font.FontName = "Calibri";
+            styleHeaderFont.Font.FontSize = 11;
+            styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
+            styleHeaderFont.Font.Bold = true;
+
+            //estilo para numeros
+            SLStyle styleNumber = oSLDocument.CreateStyle();
+            styleNumber.FormatCode = "$  #,##0.00";
+
+            //da estilo a la hoja de excel
+            //inmoviliza el encabezado
+            oSLDocument.FreezePanes(1, 4);
+
+            oSLDocument.Filter("A1", "BA1");
+            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+
+            oSLDocument.SetRowHeight(1, dt.Rows.Count + 1, 15.0);
+
+            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
+            oSLDocument.SetRowStyle(1, styleHeader);
+            oSLDocument.SetRowStyle(1, styleHeaderFont);
+
+            //camniar cuando se agregen los comentarios
+            oSLDocument.SetColumnStyle(12, 24, styleNumber);
+            oSLDocument.SetColumnStyle(26, 38, styleNumber);
+            oSLDocument.SetColumnStyle(40, 52, styleNumber);
+
+            //estilo para totales
+            oSLDocument.SetCellStyle(2, 24, dt.Rows.Count + 1, 24, styleTotales);
+            oSLDocument.SetCellStyle(2, 38, dt.Rows.Count + 1, 38, styleTotales);
+            oSLDocument.SetCellStyle(2, 52, dt.Rows.Count + 1, 52, styleTotales);
+            oSLDocument.SetCellStyle(dt.Rows.Count + 1, 11, dt.Rows.Count + 1, 53, styleTotales);
+
 
             System.IO.Stream stream = new System.IO.MemoryStream();
 

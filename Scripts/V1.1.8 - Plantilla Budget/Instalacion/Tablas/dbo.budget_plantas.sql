@@ -21,6 +21,7 @@ GO
 CREATE TABLE [budget_plantas](
 	[id] [int] IDENTITY(1,1) NOT NULL,
 	[descripcion] [varchar](40) NOT NULL,
+	[codigo_sap][varchar](6) NULL,
 	[activo] [bit] NOT NULL	
  CONSTRAINT [PK_budget_plantas] PRIMARY KEY CLUSTERED 
 (
@@ -36,12 +37,12 @@ GO
 
 SET IDENTITY_INSERT [budget_plantas] ON 
 
-INSERT [budget_plantas] ([id], [descripcion], [activo]) VALUES (1, N'Shared Services',1)
-INSERT [budget_plantas] ([id], [descripcion], [activo]) VALUES (2, N'Puebla',1)
-INSERT [budget_plantas] ([id], [descripcion], [activo]) VALUES (3, N'Silao',1)
-INSERT [budget_plantas] ([id], [descripcion], [activo]) VALUES (4, N'Saltillo',1)
-INSERT [budget_plantas] ([id], [descripcion], [activo]) VALUES (5, N'SLP',1)
-INSERT [budget_plantas] ([id], [descripcion], [activo]) VALUES (6, N'C&B',1)
+INSERT [budget_plantas] ([id], [descripcion],[codigo_sap], [activo]) VALUES (1, N'Shared Services',N'0000',1)
+INSERT [budget_plantas] ([id], [descripcion],[codigo_sap], [activo]) VALUES (2, N'Puebla',N'5190',1)
+INSERT [budget_plantas] ([id], [descripcion],[codigo_sap], [activo]) VALUES (3, N'Silao',N'5390',1)
+INSERT [budget_plantas] ([id], [descripcion],[codigo_sap], [activo]) VALUES (4, N'Saltillo',N'5490',1)
+INSERT [budget_plantas] ([id], [descripcion],[codigo_sap], [activo]) VALUES (5, N'SLP',N'0000',1)
+INSERT [budget_plantas] ([id], [descripcion],[codigo_sap], [activo]) VALUES (6, N'C&B',N'0000',1)
 
 SET IDENTITY_INSERT [budget_plantas] OFF
 GO

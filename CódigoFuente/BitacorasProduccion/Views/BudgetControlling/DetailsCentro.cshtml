@@ -197,9 +197,9 @@
                                                                     <th>
                                                                         Totals
                                                                     </th>
-                                                                    @*<th>
+                                                                    <th>
                                                                             Comentarios
-                                                                        </th>*@
+                                                                        </th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
@@ -281,9 +281,9 @@
                                                                         <td class="text_derecha" style="background-color:#d4f2fc; font-weight: bold;">
                                                                             $ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.TotalMeses().Value)
                                                                         </td>
-                                                                        @*<td>
+                                                                        <td>
                                                                                 @item.Comentario
-                                                                            </td>*@
+                                                                            </td>
                                                                     </tr>
 
                                                                     fila++;
@@ -306,7 +306,7 @@
                                                                     <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual.Sum(item => item.Agosto))</td>
                                                                     <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual.Sum(item => item.Septiembre))</td>
                                                                     <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual.Sum(item => item.TotalMeses()))</td>
-                                                                    @*<td></td>*@
+                                                                    <td></td>
                                                                 </tr>
                                                             </tbody>
 
@@ -588,9 +588,9 @@
                                                                     <th>
                                                                         Totals
                                                                     </th>
-                                                                    @*<th>
+                                                                    <th>
                                                                             Comentarios
-                                                                        </th>*@
+                                                                        </th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
@@ -672,9 +672,9 @@
                                                                         <td class="text_derecha" style="background-color:#d4f2fc; font-weight: bold;">
                                                                             $ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.TotalMeses().Value)
                                                                         </td>
-                                                                        @*<td>
+                                                                        <td>
                                                                                 @item.Comentario
-                                                                            </td>*@
+                                                                            </td>
                                                                     </tr>
 
                                                                     fila++;
@@ -697,7 +697,7 @@
                                                                     <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_budget.Sum(item => item.Agosto))</td>
                                                                     <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_budget.Sum(item => item.Septiembre))</td>
                                                                     <td style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_budget.Sum(item => item.TotalMeses()))</td>
-                                                                    @*<td></td>*@
+                                                                    <td></td>
                                                                 </tr>
                                                             </tbody>
 
@@ -766,8 +766,8 @@
 
                                     </div>
                                     <div class="form-group">
-                                        <a onclick="javascript: volverAtras()" class="btn btn-round btn-info btm-sm" style="color:white" title="Go back">
-                                            <i class="fa fa-arrow-circle-left"></i> Go Back
+                                        <a href="@Url.Action("Centros", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" style="color:white" title="Volver">
+                                            <i class="fa fa-arrow-circle-left"></i> Volver al listado
                                         </a>
                                     </div>
                                 </div>

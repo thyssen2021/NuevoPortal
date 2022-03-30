@@ -106,6 +106,13 @@
                                             </div>
 
                                         }
+                                        <div class="form-group">
+
+                                            <a onclick="mostrarModalDemo()" class="btn btn-success" style="color:white">
+                                                <i class="fa fa-pencil-square-o"></i>
+                                                Editar Centro de Costo
+                                            </a>
+                                        </div>
                                         <hr />
                                         @*@if (ViewBag.Create != null && ViewBag.Create)
                                             {
@@ -152,66 +159,66 @@
 
                                                 String responsables = (string.Join("/", item.budget_responsables.Select(x => x.empleados.ConcatNombre).ToArray()));
 
-                                            <tr>
-                                                <td>
-                                                    <a href="@Url.Action("DetailsCentro", ViewBag.ControllerName, new { id = item.id})" class="btn btn-info btm-sm" title="Detalles">
-                                                        <i class="fa fa-info-circle"></i>
-                                                    </a>
-                                                    <a href="@Url.Action("ImportActual", ViewBag.ControllerName, new
+                                                <tr>
+                                                    <td>
+                                                        <a href="@Url.Action("DetailsCentro", ViewBag.ControllerName, new { id = item.id})" class="btn btn-info btm-sm" title="Detalles">
+                                                            <i class="fa fa-info-circle"></i>
+                                                        </a>
+                                                        <a href="@Url.Action("ImportActual", ViewBag.ControllerName, new
                                                 {
                                                     id = item.id
 
                                                 })" class="btn btn-success btm-sm" title="Import Actual">
-                                                        <i class="fa fa-cloud-upload"></i> Import
-                                                    </a>
-                                                </td>
-                                                <td>
-                                                    @fila
-                                                </td>
+                                                            <i class="fa fa-cloud-upload"></i> Import
+                                                        </a>
+                                                    </td>
+                                                    <td>
+                                                        @fila
+                                                    </td>
 
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.num_centro_costo)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.budget_departamentos.budget_plantas.descripcion)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.budget_departamentos.descripcion)
-                                                </td>
-                                                <td>
-                                                    <span>@responsables</span>
-                                                </td>
-                                                <td>
-                                                    @if (item.RelAnioCentroActual_Forecast() == null)
-                                                    {
-                                                        <span>No disponible</span>
-                                                    }
-                                                    else if (item.RelAnioCentroActual_Forecast().estatus)
-                                                    {
-                                                        <span>Abierto</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span>Cerrado</span>
-                                                    }
-                                                </td>
-                                                <td>
-                                                    @if (item.RelAnioCentroProximo_Budget() == null)
-                                                    {
-                                                        <span>No disponible</span>
-                                                    }
-                                                    else if (item.RelAnioCentroProximo_Budget().estatus)
-                                                    {
-                                                        <span>Abierto</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span>Cerrado</span>
-                                                    }
-                                                </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.num_centro_costo)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.budget_departamentos.budget_plantas.descripcion)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.budget_departamentos.descripcion)
+                                                    </td>
+                                                    <td>
+                                                        <span>@responsables</span>
+                                                    </td>
+                                                    <td>
+                                                        @if (item.RelAnioCentroActual_Forecast() == null)
+                                                        {
+                                                            <span>No disponible</span>
+                                                        }
+                                                        else if (item.RelAnioCentroActual_Forecast().estatus)
+                                                        {
+                                                            <span>Abierto</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>Cerrado</span>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        @if (item.RelAnioCentroProximo_Budget() == null)
+                                                        {
+                                                            <span>No disponible</span>
+                                                        }
+                                                        else if (item.RelAnioCentroProximo_Budget().estatus)
+                                                        {
+                                                            <span>Abierto</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>Cerrado</span>
+                                                        }
+                                                    </td>
 
 
-                                            </tr>
+                                                </tr>
 
                                                 fila++;
                                             }
@@ -233,9 +240,54 @@
         </div>
     </div>
 </div>
+
+<!-- Modal DEMO Modelo -->
+<div class="modal fade" id="modalModelo" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title" id="exampleModalLongTitle">Editar Centro de Costo</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("Edit", null, FormMethod.Get))
+            {
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <h6>Seleccione Centro de Costo y Año:</h6>
+                    </div>
+                    @if (ViewBag.id_centro_costo != null)
+                    {
+                        <div class="form-group row">
+                            <div class="col-md-12">
+                                @Html.DropDownList("id_centro_costo", null, htmlAttributes: new { @class = "select2bs4 col-md-12", @style = "width:100%", @required = "required" })
+                                <span class="field-validation-valid text-danger" data-valmsg-for="id_centro_costo" data-valmsg-replace="true"></span>
+                            </div>
+                        </div>
+                    }
+                    @if (ViewBag.id_fiscal_year != null)
+                    {
+                        <div class="form-group row">
+                            <div class="col-md-12">
+                                @Html.DropDownList("id_fiscal_year", null, htmlAttributes: new { @class = "select2bs4 col-md-12", @style = "width:100%", @required = "required" })
+                                <span class="field-validation-valid text-danger" data-valmsg-for="id_fiscal_year" data-valmsg-replace="true"></span>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Continuar</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
 @section scripts
 {
     <!-- SweetAlert2 -->
+    @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
     @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
@@ -263,6 +315,12 @@
             })
 
         });
+
+        //muestra el modal de autorizar
+        function mostrarModalDemo() {
+            $('#modalModelo').modal('show')
+
+        }
 
         //agranda el tamaño de la barra
         window.onload = function () {

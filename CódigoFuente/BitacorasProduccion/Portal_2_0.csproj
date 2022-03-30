@@ -4925,6 +4925,7 @@
     </Content>
     <Content Include="Content\plantillas_excel\plantilla_reporte_produccion.xlsx" />
     <Content Include="Content\manuales\Manual_Usuario_PM.pdf" />
+    <Content Include="Content\plantillas_excel\plantilla_reporte.xlsx" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
     <Content Include="Scripts\jquery-3.4.1.min.js" />
@@ -5233,18 +5234,9 @@
     <Content Include="Views\OrdenesTrabajo\Create.cshtml" />
     <Content Include="Views\OrdenesTrabajo\Details.cshtml" />
     <Content Include="Views\OrdenesTrabajo\ListadoUsuario.cshtml" />
-    <Content Include="Views\ResponsableBudget\Actual.cshtml" />
-    <Content Include="Views\ResponsableBudget\DetailsActual.cshtml" />
-    <Content Include="Views\ResponsableBudget\Forecast.cshtml" />
-    <Content Include="Views\ResponsableBudget\EditForecast.cshtml" />
-    <Content Include="Views\BudgetControlling\Create.cshtml" />
-    <Content Include="Views\BudgetControlling\Delete.cshtml" />
-    <Content Include="Views\BudgetControlling\Details.cshtml" />
     <Content Include="Views\BudgetControlling\Edit.cshtml" />
     <Content Include="Views\BudgetControlling\Centros.cshtml" />
     <Content Include="Views\BudgetControlling\DetailsCentro.cshtml" />
-    <Content Include="Views\ResponsableBudget\Budget.cshtml" />
-    <Content Include="Views\ResponsableBudget\EditBudget.cshtml" />
     <Content Include="Views\BudgetControlling\ImportActual.cshtml" />
     <Content Include="Views\BG_CentroCosto\Create.cshtml" />
     <Content Include="Views\BG_CentroCosto\Details.cshtml" />

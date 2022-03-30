@@ -65,9 +65,7 @@
     <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
     <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
 
-
 }
-
 
 
 <div class="right_col" role="main">
@@ -131,17 +129,19 @@
                                     <div class="ln_solid"></div>
 
                                     <div class="form-group row">
-                                        <span style="color:black"><b>UPLOAD ACTUAL DATA</b></span>
+                                        <span style="color:black"><b>UPLOAD DATA</b></span>
                                     </div>
 
-                                    @using (Html.BeginForm("ImportActual", "BudgetControlling", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+                                    @using (Html.BeginForm("ImportActual", "BudgetControlling", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", @id = "myForm" }))
                                     {
                                         @Html.AntiForgeryToken()
 
                                         @Html.HiddenFor(model => model.id)
                                         @Html.HiddenFor(model => model.num_centro_costo)
+
                                         @* input para saber si está o no activo el campo de soporte *@
                                         <input type="hidden" name="cambio_documento" id="cambio_documento" value="0" />
+                                        <input type="hidden" name="descripcion" id="descripcion" value="demo" />
 
                                         if (!Html.ViewData.ModelState.IsValid)
                                         {
@@ -165,7 +165,7 @@
 
                                             <div class="col-md-2">
                                                 <div>
-                                                    <input type="submit" value="Load File" class="btn btn-success float-right" />
+                                                    <input type="button" value="Load File" class="btn btn-success float-right" onclick="showDialog()" />
                                                 </div>
 
                                             </div>
@@ -910,7 +910,7 @@
 
                                     </div>
 
-                                    <a onclick="javascript: volverAtras()" class="btn btn-round btn-info btm-sm" style="color:white" title="Volver">
+                                    <a href="@Url.Action("Centros", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" style="color:white" title="Volver">
                                         <i class="fa fa-arrow-circle-left"></i> Volver al listado
                                     </a>
                                 </div>
@@ -993,6 +993,24 @@
             })
 
         });
+
+        //muestra el modal para bloquear
+        function showDialog() {
+            Swal.fire({
+                title: 'Mensaje',
+                text: "Advertencia: los datos capturados se sobreescribirán, ¿Desea Continuar? ",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Continuar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#myForm').submit();
+                }
+            })
+
+        }
 
         //variable para saber si ha cambiado el formulario y asi no se detenga por doble submit
         var documento_soporte_cambios = 1;

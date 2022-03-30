@@ -1,4 +1,5 @@
 ﻿using Bitacoras.Util;
+using Clases.Util;
 using ExcelDataReader;
 using System;
 using System.Collections.Generic;
@@ -882,15 +883,15 @@ namespace Portal_2_0.Models
             return lista;
         }
 
-       /// <summary>
-       /// Lee un archivo y obtiene un List de budget_cantidad con los valores leidos
-       /// </summary>
-       /// <param name="centro"></param>
-       /// <param name="valido"></param>
-       /// <param name="msjError"></param>
-       /// <param name="noEncontrados"></param>
-       /// <returns></returns>
-        public static List<budget_cantidad> LeeActual(budget_centro_costo centro, ref bool valido, ref string msjError, ref int noEncontrados)
+        /// <summary>
+        /// Lee un archivo y obtiene un List de budget_cantidad con los valores leidos
+        /// </summary>
+        /// <param name="centro"></param>
+        /// <param name="valido"></param>
+        /// <param name="msjError"></param>
+        /// <param name="noEncontrados"></param>
+        /// <returns></returns>
+        public static List<budget_cantidad> LeeActual(budget_centro_costo centro, ref bool valido, ref string msjError, ref int noEncontrados, ref List<budget_rel_comentarios> listComentarios)
         {
 
             //obtiene todas las cuentas
@@ -994,12 +995,12 @@ namespace Portal_2_0.Models
 
                                 });
                             }
-                           
+
 
                         }
 
                         //verifica que la estrura del archivo sea válida
-                        if (ListObjectEncabezados.Count!=36)
+                        if (ListObjectEncabezados.Count != 36)
                         {
                             msjError = "La plantilla no cuenta con todos los meses.";
                             valido = false;
@@ -1017,16 +1018,16 @@ namespace Portal_2_0.Models
                             try
                             {
                                 //variables
-                                string sap_account = table.Rows[i][1].ToString();
+                                string sap_account = table.Rows[i][1].ToString();                               
 
                                 //obtiene la cuenta
                                 budget_cuenta_sap cuenta = listCuentas.Where(x => x.sap_account == sap_account).FirstOrDefault();
 
                                 //recorre todas los encabezados
                                 for (int j = 0; j < encabezados.Count; j++)
-                                {                                  
+                                {
 
-                                    if (ListObjectEncabezados.Any(x=>x.texto == encabezados[j]))
+                                    if (ListObjectEncabezados.Any(x => x.texto == encabezados[j]))
                                     {
                                         decimal cantidad = 0;
                                         Decimal.TryParse(table.Rows[i][j].ToString(), out cantidad);
@@ -1050,8 +1051,43 @@ namespace Portal_2_0.Models
                                         {
                                             noEncontrados++;
                                         }
-                                       
-                                    }                                   
+
+                                    }
+                                    //busca por un comentario
+                                    else if (encabezados[j].ToUpper().Contains("COMENTARIO") && cuenta != null)
+                                    {
+                                        string comentarios = UsoStrings.RecortaString(table.Rows[i][j].ToString(),100);
+
+                                        if(!String.IsNullOrEmpty(comentarios))
+                                        switch (j)
+                                        {
+                                            case int k when k > 22 && k <= 27:
+                                                    listComentarios.Add(new budget_rel_comentarios
+                                                    {
+                                                        id_budget_rel_fy_centro = ListObjectEncabezados[0].rel_fy.id, //id correspondiente al primer año de la plantilla
+                                                        id_cuenta_sap = cuenta.id,
+                                                        comentarios = comentarios
+                                                    });
+                                                break;
+                                            case int k when k > 35 && k <= 40:                                                
+                                                    listComentarios.Add(new budget_rel_comentarios
+                                                    {
+                                                        id_budget_rel_fy_centro = ListObjectEncabezados[12].rel_fy.id, //id correspondiente al segundo año de la plantilla
+                                                        id_cuenta_sap = cuenta.id,
+                                                        comentarios = comentarios
+                                                    }) ;
+                                                break;
+                                            case int k when k > 50 && k <= 55:
+                                                    listComentarios.Add(new budget_rel_comentarios
+                                                    {
+                                                        id_budget_rel_fy_centro = ListObjectEncabezados[24].rel_fy.id, //id correspondiente al terver año de la plantilla
+                                                        id_cuenta_sap = cuenta.id,
+                                                        comentarios = comentarios
+                                                    });
+                                                break;
+                                        }
+
+                                    }
 
                                 }
 

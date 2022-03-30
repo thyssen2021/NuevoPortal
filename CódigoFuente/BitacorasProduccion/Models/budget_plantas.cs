@@ -22,6 +22,7 @@ namespace Portal_2_0.Models
     
         public int id { get; set; }
         public string descripcion { get; set; }
+        public string codigo_sap { get; set; }
         public bool activo { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

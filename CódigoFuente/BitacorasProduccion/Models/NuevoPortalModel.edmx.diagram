@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="3d6b38e8516649fd9491aed00dbc6337" Name="Diagram1" ZoomLevel="106">
+      <Diagram DiagramId="3d6b38e8516649fd9491aed00dbc6337" Name="Diagram1" ZoomLevel="80">
         <EntityTypeShape EntityType="Portal_2_0Model.Area" Width="1.5" PointX="3" PointY="5.5" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.bom_en_sap" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.class_v3" Width="1.5" PointX="2.75" PointY="0.75" IsExpanded="true" />
@@ -127,16 +127,16 @@
         <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_id_rel_fy_centro" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_comentarios_id_cuenta_sap" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_comentarios_id_rel_fy_centro" />
-        <EntityTypeShape EntityType="Portal_2_0Model.view_valores_fiscal_year" Width="1.5" PointX="4.375" PointY="20.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_departamentos" Width="1.5" PointX="12.5" PointY="25.125" />
-        <EntityTypeShape EntityType="Portal_2_0Model.budget_plantas" Width="1.5" PointX="10.25" PointY="25.375" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_responsables" Width="1.5" PointX="17" PointY="0.75" />
-        <AssociationConnector Association="Portal_2_0Model.FK_budget_departamentos_id_planta" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_responsables_id_centro_costo" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_centro_costo" Width="1.5" PointX="14.75" PointY="45" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_centro_costo_id_departamento" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_fy_centro_id_centro_costo" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_responsables_id_budget_centro_costo" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_plantas" Width="1.5" PointX="10.25" PointY="25.625" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_departamentos_id_planta" />
+        <EntityTypeShape EntityType="Portal_2_0Model.view_valores_fiscal_year" Width="1.5" PointX="4.375" PointY="20.75" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
