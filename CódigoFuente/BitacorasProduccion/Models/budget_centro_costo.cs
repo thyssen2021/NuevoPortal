@@ -40,16 +40,24 @@ namespace Portal_2_0.Models
         [Display(Name = "Cost Center Number")]
         public string num_centro_costo { get; set; }
 
+        [StringLength(30, MinimumLength = 2)]
+        [Display(Name = "Class 1")]
+        public string class_1 { get; set; }
+
+        [StringLength(30, MinimumLength = 2)]
+        [Display(Name = "Class 2")]
+        public string class_2 { get; set; }
+
+        [Display(Name = "Status")]
+        public bool activo { get; set; }
         //concatena
         public string ConcatCentro
         {
             get
             {
-                return string.Format("({0}) {1} - {2}",num_centro_costo, budget_departamentos.budget_plantas.descripcion, descripcion).ToUpper();
+                return string.Format("({0}) {1} - {2}", num_centro_costo, budget_departamentos.budget_plantas.descripcion, descripcion).ToUpper();
             }
         }
-
-
 
         //para el archivo de importación 
         [Display(Name = "Document")]
@@ -57,7 +65,6 @@ namespace Portal_2_0.Models
 
         [Display(Name = "Fiscal Year")]
         public int id_anio_fiscal { get; set; }
-
 
 
         //DEfine variables para rel anio centro
@@ -125,7 +132,6 @@ namespace Portal_2_0.Models
             return null;
 
         }
-
 
         public virtual budget_departamentos budget_departamentos { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

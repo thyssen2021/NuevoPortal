@@ -139,6 +139,7 @@ namespace Portal_2_0.Controllers
                 { //Si no existe
 
                     item.budget_responsables = listaResponsables;
+                    item.activo = true;
 
                     db.budget_centro_costo.Add(item);
                     db.SaveChanges();
@@ -328,29 +329,125 @@ namespace Portal_2_0.Controllers
             return View(item);
         }
 
-        // GET: BG_CentroCosto/Delete/5
-        public ActionResult Delete(int? id)
+        // GET: budget_departamentos/Disable/5
+        public ActionResult Disable(int? id)
         {
-            if (id == null)
+            if (TieneRol(TipoRoles.BG_CONTROLLING))
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                if (id == null)
+                {
+                    return View("../Error/BadRequest");
+                }
+                budget_centro_costo item = db.budget_centro_costo.Find(id);
+                if (item == null)
+                {
+                    return View("../Error/NotFound");
+                }
+                return View(item);
             }
-            budget_centro_costo budget_centro_costo = db.budget_centro_costo.Find(id);
-            if (budget_centro_costo == null)
+            else
             {
-                return HttpNotFound();
+                return View("../Home/ErrorPermisos");
             }
-            return View(budget_centro_costo);
         }
 
-        // POST: BG_CentroCosto/Delete/5
-        [HttpPost, ActionName("Delete")]
+        // POST: budget_departamentos/Disable/5
+        [HttpPost, ActionName("Disable")]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
+        public ActionResult DisableConfirmed(int id)
         {
-            budget_centro_costo budget_centro_costo = db.budget_centro_costo.Find(id);
-            db.budget_centro_costo.Remove(budget_centro_costo);
-            db.SaveChanges();
+            budget_centro_costo item = db.budget_centro_costo.Find(id);
+            item.activo = false;
+
+            db.Entry(item).State = EntityState.Modified;
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+            {
+                // Retrieve the error messages as a list of strings.
+                var errorMessages = ex.EntityValidationErrors
+                        .SelectMany(x => x.ValidationErrors)
+                        .Select(x => x.ErrorMessage);
+
+                // Join the list to a single string.
+                var fullErrorMessage = string.Join("; ", errorMessages);
+
+                // Combine the original exception message with the new one.
+                var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
+
+                TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
+                return RedirectToAction("Index");
+
+            }
+            catch (Exception e)
+            {
+                TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
+                return RedirectToAction("Index");
+            }
+            TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.DISABLED, TipoMensajesSweetAlerts.SUCCESS);
+            return RedirectToAction("Index");
+        }
+
+        // GET: budget_departamentos/Enable/5
+        public ActionResult Enable(int? id)
+        {
+            if (TieneRol(TipoRoles.BG_CONTROLLING))
+            {
+                if (id == null)
+                {
+                    return View("../Error/BadRequest");
+                }
+                budget_centro_costo item = db.budget_centro_costo.Find(id);
+                if (item == null)
+                {
+                    return View("../Error/NotFound");
+                }
+                return View(item);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+        }
+
+        // POST: budget_departamentos/Enable/5
+        [HttpPost, ActionName("Enable")]
+        [ValidateAntiForgeryToken]
+        public ActionResult EnableConfirmed(int id)
+        {
+            budget_centro_costo item = db.budget_centro_costo.Find(id);
+            item.activo = true;
+
+            db.Entry(item).State = EntityState.Modified;
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+            {
+                // Retrieve the error messages as a list of strings.
+                var errorMessages = ex.EntityValidationErrors
+                        .SelectMany(x => x.ValidationErrors)
+                        .Select(x => x.ErrorMessage);
+
+                // Join the list to a single string.
+                var fullErrorMessage = string.Join("; ", errorMessages);
+
+                // Combine the original exception message with the new one.
+                var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
+
+                TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
+                return RedirectToAction("Index");
+
+            }
+            catch (Exception e)
+            {
+                TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
+                return RedirectToAction("Index");
+            }
+            TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.ENABLED, TipoMensajesSweetAlerts.SUCCESS);
             return RedirectToAction("Index");
         }
 

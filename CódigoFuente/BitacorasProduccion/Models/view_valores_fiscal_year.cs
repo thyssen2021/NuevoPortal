@@ -14,7 +14,6 @@ namespace Portal_2_0.Models
     
     public partial class view_valores_fiscal_year : IEquatable<view_valores_fiscal_year>
     {
-
         private Portal_2_0Entities db = new Portal_2_0Entities();
         public long id { get; set; }
         public int id_budget_rel_fy_centro { get; set; }
@@ -25,6 +24,8 @@ namespace Portal_2_0.Models
         public string name { get; set; }
         public string cost_center { get; set; }
         public string department { get; set; }
+        public string class_1 { get; set; }
+        public string class_2 { get; set; }
         public string responsable { get; set; }
         public string codigo_sap { get; set; }
         public int id_budget_plant { get; set; }

@@ -50,6 +50,7 @@
                                 </div>
                             }
                             @Html.HiddenFor(model => model.id)
+                            @Html.HiddenFor(model => model.activo)
 
                             <div class="item form-group">
 
@@ -80,6 +81,20 @@
                                 <div class="col-md-6 col-sm-6 ">
                                     @Html.EditorFor(model => model.num_centro_costo, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
                                     @Html.ValidationMessageFor(model => model.num_centro_costo, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.class_1, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.EditorFor(model => model.class_1, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.class_1, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.class_2, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.EditorFor(model => model.class_2, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.class_2, "", new { @class = "text-danger" })
                                 </div>
                             </div>
                             <div class="ln_solid"></div>

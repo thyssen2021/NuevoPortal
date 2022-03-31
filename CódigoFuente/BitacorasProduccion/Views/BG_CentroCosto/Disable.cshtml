@@ -1,15 +1,15 @@
 ﻿@model Portal_2_0.Models.budget_centro_costo
 
 @{
-    ViewBag.Title = "Details Cost Center";
+    ViewBag.Title = "Disable Cost Center";
     ViewBag.PrimerNivel = "plantilla_budget";
     ViewBag.SegundoNivel = "BG_catalogos";
     ViewBag.TercelNivel = "BG_CentroCosto";
     ViewBag.ControllerName = "BG_CentroCosto";
 
     String responsables = (string.Join("/", Model.budget_responsables.Select(x => x.empleados.ConcatNombre).ToArray()));
-}
 
+}
 <div class="right_col" role="main">
     <div class="">
 
@@ -18,14 +18,12 @@
         <div class="row">
             <div class="col-md-12 col-sm-12  ">
                 <div class="x_panel">
-                    <div class="x_title">
-                        <h2>@ViewBag.Title</h2>
-                        <div class="clearfix"></div>
-                    </div>
+
 
                     <!-- /.col -->
-                    <div class="col-md-10">
+                    <div class="col-md-8">
                         <div class="table-responsive">
+                            <h3>¿Realmente desea deshabilitar este registro?</h3>
                             <table class="table">
                                 <tbody>
                                     <tr>
@@ -65,18 +63,25 @@
                                             }
                                         </td>
                                     </tr>
-
-
-
                                 </tbody>
                             </table>
                         </div>
                     </div>
                     <div class="col-md-12">
-                        <p class="float-md-right">
+                        <p class="float-md-left">
                             <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = Model.id})" class="btn btn-success btm-sm" title="Editar">
                                 <i class="fa fa-pencil-square-o"></i> Editar
                             </a>
+                        </p>
+                        <p class="float-md-right">
+                            @using (Html.BeginForm())
+                            {
+                                @Html.AntiForgeryToken()
+
+                                <div class="form-actions no-color float-md-right">
+                                    <input type="submit" value="Deshabilitar" class="btn btn-danger btm-sm" />
+                                </div>
+                            }
                         </p>
                     </div>
                 </div>
@@ -92,7 +97,7 @@
 </div>
 
 <script>
-    window.onload = function () {
-        clicMenu(2);
-    }
+        window.onload = function () {
+            clicMenu(2);
+        }
 </script>

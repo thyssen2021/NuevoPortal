@@ -117,6 +117,18 @@
                                                         <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.id})" class="btn btn-info " title="Detalles">
                                                             <i class="fa fa-info-circle"></i>
                                                         </a>
+                                                        @if (!item.activo)
+                                                        {
+                                                            <a href="@Url.Action("Enable", ViewBag.ControllerName, new { id = item.id })" class="btn btn-warning" s title="Habilitar">
+                                                                <i class="fa fa-check"></i>
+                                                            </a>
+                                                        }
+                                                        else
+                                                        {
+                                                            <a href="@Url.Action("Disable", ViewBag.ControllerName, new { id = item.id })" class="btn btn-danger" title="Deshabilitar">
+                                                                <i class="fa fa-remove"></i>
+                                                            </a>
+                                                        }
                                                     </td>
                                                 </tr>
                                                 fila++;

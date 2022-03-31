@@ -96,6 +96,9 @@
           <Property Name="id_budget_departamento" Type="int" Nullable="false" />
           <Property Name="descripcion" Type="varchar" MaxLength="40" Nullable="false" />
           <Property Name="num_centro_costo" Type="varchar" MaxLength="6" Nullable="false" />
+          <Property Name="class_1" Type="varchar" MaxLength="30" />
+          <Property Name="class_2" Type="varchar" MaxLength="30" />
+          <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="budget_cuenta_sap">
           <Key>
@@ -751,8 +754,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <Property Name="Balance_de_Scrap_Real" Type="float" />
         </EntityType>
         <!--Errors Found During Generation:
-warning 6002: The table/view 'Portal_2_0.dbo.view_valores_anio_fiscal' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
-        <!--Errors Found During Generation:
 warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="view_valores_fiscal_year">
           <Key>
@@ -768,7 +769,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             <PropertyRef Name="id_budget_plant" />
             <PropertyRef Name="mapping" />
             <PropertyRef Name="mapping_bridge" />
-            <PropertyRef Name="currency_iso" />
           </Key>
           <Property Name="id" Type="bigint" Nullable="false" />
           <Property Name="id_budget_rel_fy_centro" Type="int" Nullable="false" />
@@ -777,14 +777,16 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <Property Name="id_cuenta_sap" Type="int" Nullable="false" />
           <Property Name="sap_account" Type="varchar" MaxLength="8" Nullable="false" />
           <Property Name="name" Type="varchar" MaxLength="40" Nullable="false" />
-          <Property Name="cost_center" Type="varchar" MaxLength="40" Nullable="false" />
+          <Property Name="cost_center" Type="varchar" MaxLength="6" Nullable="false" />
           <Property Name="department" Type="varchar" MaxLength="40" Nullable="false" />
+          <Property Name="class_1" Type="varchar" MaxLength="30" />
+          <Property Name="class_2" Type="varchar" MaxLength="30" />
           <Property Name="responsable" Type="nvarchar(max)" />
           <Property Name="codigo_sap" Type="varchar" MaxLength="6" />
           <Property Name="id_budget_plant" Type="int" Nullable="false" />
           <Property Name="mapping" Type="varchar" MaxLength="40" Nullable="false" />
           <Property Name="mapping_bridge" Type="varchar" MaxLength="40" Nullable="false" />
-          <Property Name="currency_iso" Type="varchar" MaxLength="3" Nullable="false" />
+          <Property Name="currency_iso" Type="varchar" MaxLength="3" />
           <Property Name="Enero" Type="decimal" Precision="38" Scale="2" />
           <Property Name="Febrero" Type="decimal" Precision="38" Scale="2" />
           <Property Name="Marzo" Type="decimal" Precision="38" Scale="2" />
@@ -1817,6 +1819,8 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
     [view_valores_fiscal_year].[name] AS [name], 
     [view_valores_fiscal_year].[cost_center] AS [cost_center], 
     [view_valores_fiscal_year].[department] AS [department], 
+    [view_valores_fiscal_year].[class_1] AS [class_1], 
+    [view_valores_fiscal_year].[class_2] AS [class_2], 
     [view_valores_fiscal_year].[responsable] AS [responsable], 
     [view_valores_fiscal_year].[codigo_sap] AS [codigo_sap], 
     [view_valores_fiscal_year].[id_budget_plant] AS [id_budget_plant], 
@@ -2861,6 +2865,11 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             <End Role="empleados" EntitySet="empleados" />
             <End Role="budget_responsables" EntitySet="budget_responsables" />
           </AssociationSet>
+          <EntitySet Name="budget_plantas" EntityType="Portal_2_0Model.budget_plantas" />
+          <AssociationSet Name="FK_budget_departamentos_id_planta" Association="Portal_2_0Model.FK_budget_departamentos_id_planta">
+            <End Role="budget_plantas" EntitySet="budget_plantas" />
+            <End Role="budget_departamentos" EntitySet="budget_departamentos" />
+          </AssociationSet>
           <EntitySet Name="budget_centro_costo" EntityType="Portal_2_0Model.budget_centro_costo" />
           <AssociationSet Name="FK_budget_centro_costo_id_departamento" Association="Portal_2_0Model.FK_budget_centro_costo_id_departamento">
             <End Role="budget_departamentos" EntitySet="budget_departamentos" />
@@ -2873,11 +2882,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <AssociationSet Name="FK_budget_responsables_id_budget_centro_costo" Association="Portal_2_0Model.FK_budget_responsables_id_budget_centro_costo">
             <End Role="budget_centro_costo" EntitySet="budget_centro_costo" />
             <End Role="budget_responsables" EntitySet="budget_responsables" />
-          </AssociationSet>
-          <EntitySet Name="budget_plantas" EntityType="Portal_2_0Model.budget_plantas" />
-          <AssociationSet Name="FK_budget_departamentos_id_planta" Association="Portal_2_0Model.FK_budget_departamentos_id_planta">
-            <End Role="budget_plantas" EntitySet="budget_plantas" />
-            <End Role="budget_departamentos" EntitySet="budget_departamentos" />
           </AssociationSet>
           <EntitySet Name="view_valores_fiscal_year" EntityType="Portal_2_0Model.view_valores_fiscal_year" />
           </EntityContainer>
@@ -4198,8 +4202,8 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <Property Name="id_budget_planta" Type="Int32" Nullable="false" />
           <Property Name="descripcion" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
           <Property Name="activo" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="budget_centro_costo" Relationship="Portal_2_0Model.FK_budget_centro_costo_id_departamento" FromRole="budget_departamentos" ToRole="budget_centro_costo" />
           <NavigationProperty Name="budget_plantas" Relationship="Portal_2_0Model.FK_budget_departamentos_id_planta" FromRole="budget_departamentos" ToRole="budget_plantas" />
+          <NavigationProperty Name="budget_centro_costo" Relationship="Portal_2_0Model.FK_budget_centro_costo_id_departamento" FromRole="budget_departamentos" ToRole="budget_centro_costo" />
         </EntityType>
         <EntityType Name="budget_responsables">
           <Key>
@@ -4224,6 +4228,28 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="budget_plantas">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="codigo_sap" Type="String" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="budget_departamentos" Relationship="Portal_2_0Model.FK_budget_departamentos_id_planta" FromRole="budget_plantas" ToRole="budget_departamentos" />
+        </EntityType>
+        <Association Name="FK_budget_departamentos_id_planta">
+          <End Type="Portal_2_0Model.budget_plantas" Role="budget_plantas" Multiplicity="1" />
+          <End Type="Portal_2_0Model.budget_departamentos" Role="budget_departamentos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="budget_plantas">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="budget_departamentos">
+              <PropertyRef Name="id_budget_planta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityType Name="budget_centro_costo">
           <Key>
             <PropertyRef Name="id" />
@@ -4232,6 +4258,9 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <Property Name="id_budget_departamento" Type="Int32" Nullable="false" />
           <Property Name="descripcion" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
           <Property Name="num_centro_costo" Type="String" Nullable="false" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="class_1" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="class_2" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="budget_departamentos" Relationship="Portal_2_0Model.FK_budget_centro_costo_id_departamento" FromRole="budget_centro_costo" ToRole="budget_departamentos" />
           <NavigationProperty Name="budget_rel_fy_centro" Relationship="Portal_2_0Model.FK_budget_rel_fy_centro_id_centro_costo" FromRole="budget_centro_costo" ToRole="budget_rel_fy_centro" />
           <NavigationProperty Name="budget_responsables" Relationship="Portal_2_0Model.FK_budget_responsables_id_budget_centro_costo" FromRole="budget_centro_costo" ToRole="budget_responsables" />
@@ -4272,28 +4301,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityType Name="budget_plantas">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
-          <Property Name="codigo_sap" Type="String" MaxLength="6" FixedLength="false" Unicode="false" />
-          <Property Name="activo" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="budget_departamentos" Relationship="Portal_2_0Model.FK_budget_departamentos_id_planta" FromRole="budget_plantas" ToRole="budget_departamentos" />
-        </EntityType>
-        <Association Name="FK_budget_departamentos_id_planta">
-          <End Type="Portal_2_0Model.budget_plantas" Role="budget_plantas" Multiplicity="1" />
-          <End Type="Portal_2_0Model.budget_departamentos" Role="budget_departamentos" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="budget_plantas">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="budget_departamentos">
-              <PropertyRef Name="id_budget_planta" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityType Name="view_valores_fiscal_year">
           <Key>
             <PropertyRef Name="id" />
@@ -4308,7 +4315,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             <PropertyRef Name="id_budget_plant" />
             <PropertyRef Name="mapping" />
             <PropertyRef Name="mapping_bridge" />
-            <PropertyRef Name="currency_iso" />
           </Key>
           <Property Name="id" Type="Int64" Nullable="false" />
           <Property Name="id_budget_rel_fy_centro" Type="Int32" Nullable="false" />
@@ -4317,14 +4323,16 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <Property Name="id_cuenta_sap" Type="Int32" Nullable="false" />
           <Property Name="sap_account" Type="String" Nullable="false" MaxLength="8" FixedLength="false" Unicode="false" />
           <Property Name="name" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
-          <Property Name="cost_center" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="cost_center" Type="String" Nullable="false" MaxLength="6" FixedLength="false" Unicode="false" />
           <Property Name="department" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="class_1" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="class_2" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="responsable" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="codigo_sap" Type="String" MaxLength="6" FixedLength="false" Unicode="false" />
           <Property Name="id_budget_plant" Type="Int32" Nullable="false" />
           <Property Name="mapping" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
           <Property Name="mapping_bridge" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
-          <Property Name="currency_iso" Type="String" Nullable="false" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="currency_iso" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
           <Property Name="Enero" Type="Decimal" Precision="38" Scale="2" />
           <Property Name="Febrero" Type="Decimal" Precision="38" Scale="2" />
           <Property Name="Marzo" Type="Decimal" Precision="38" Scale="2" />
@@ -5117,22 +5125,25 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="budget_centro_costo">
-            <EntityTypeMapping TypeName="Portal_2_0Model.budget_centro_costo">
-              <MappingFragment StoreEntitySet="budget_centro_costo">
-                <ScalarProperty Name="num_centro_costo" ColumnName="num_centro_costo" />
-                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
-                <ScalarProperty Name="id_budget_departamento" ColumnName="id_budget_departamento" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="budget_plantas">
             <EntityTypeMapping TypeName="Portal_2_0Model.budget_plantas">
               <MappingFragment StoreEntitySet="budget_plantas">
                 <ScalarProperty Name="activo" ColumnName="activo" />
                 <ScalarProperty Name="codigo_sap" ColumnName="codigo_sap" />
                 <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="budget_centro_costo">
+            <EntityTypeMapping TypeName="Portal_2_0Model.budget_centro_costo">
+              <MappingFragment StoreEntitySet="budget_centro_costo">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="class_2" ColumnName="class_2" />
+                <ScalarProperty Name="class_1" ColumnName="class_1" />
+                <ScalarProperty Name="num_centro_costo" ColumnName="num_centro_costo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="id_budget_departamento" ColumnName="id_budget_departamento" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
@@ -5159,6 +5170,8 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
                 <ScalarProperty Name="id_budget_plant" ColumnName="id_budget_plant" />
                 <ScalarProperty Name="codigo_sap" ColumnName="codigo_sap" />
                 <ScalarProperty Name="responsable" ColumnName="responsable" />
+                <ScalarProperty Name="class_2" ColumnName="class_2" />
+                <ScalarProperty Name="class_1" ColumnName="class_1" />
                 <ScalarProperty Name="department" ColumnName="department" />
                 <ScalarProperty Name="cost_center" ColumnName="cost_center" />
                 <ScalarProperty Name="name" ColumnName="name" />

@@ -61,6 +61,17 @@ namespace Portal_2_0.Controllers
                 if (centroCosto == null)
                     return View("../Error/NotFound");
 
+                //obtiene el usuario logeado
+                empleados empleado = obtieneEmpleadoLogeado();
+                //verifica que el usuario este registrado como capturista
+                if (!db.budget_responsables.Any(x=>x.id_responsable == empleado.id && centroCosto.id == x.id_budget_centro_costo))
+                {
+                    ViewBag.Titulo = "¡Lo sentimos!¡No se puede acceder a esta Sección!";
+                    ViewBag.Descripcion = "Este usuario no se encuentra asociado a este centro de costo.";
+
+                    return View("../Home/ErrorGenerico");
+                }
+
                 //obtiene el año fiscal anterior (actual)
                 budget_anio_fiscal anio_Fiscal_anterior = GetAnioFiscal(DateTime.Now.AddYears(-1));
                 if (anio_Fiscal_anterior == null)
@@ -93,6 +104,44 @@ namespace Portal_2_0.Controllers
                     db.SaveChanges();
                 }
 
+                //obtiene el id_rel_centro_costo del pasado
+                budget_rel_fy_centro rel_fy_centro_pasado = db.budget_rel_fy_centro.Where(x => x.id_centro_costo == centroCosto.id && x.id_anio_fiscal == anio_Fiscal_anterior.id).FirstOrDefault();
+                if (rel_fy_centro_pasado == null)
+                {
+                    //si no existe crea el rel anio forecast
+                    rel_fy_centro_pasado = new budget_rel_fy_centro
+                    {
+                        id_anio_fiscal = anio_Fiscal_anterior.id,
+                        id_centro_costo = centroCosto.id,
+                        estatus = true //activado por defecto
+                    };
+
+                    db.budget_rel_fy_centro.Add(rel_fy_centro_pasado);
+                    //guarda en base de datos el centro creado
+                    db.SaveChanges();
+                }
+
+                //obtiene el id_rel_centro_costo del proximo
+                budget_rel_fy_centro rel_fy_centro_proximo = db.budget_rel_fy_centro.Where(x => x.id_centro_costo == centroCosto.id && x.id_anio_fiscal == anio_Fiscal_proximo.id).FirstOrDefault();
+                if (rel_fy_centro_proximo == null)
+                {
+                    //si no existe crea el rel anio forecast
+                    rel_fy_centro_proximo = new budget_rel_fy_centro
+                    {
+                        id_anio_fiscal = anio_Fiscal_proximo.id,
+                        id_centro_costo = centroCosto.id,
+                        estatus = true //activado por defecto
+                    };
+
+                    db.budget_rel_fy_centro.Add(rel_fy_centro_proximo);
+                    //guarda en base de datos el centro creado
+                    db.SaveChanges();
+                }
+
+                //agrega el objeto de fiscal year
+                rel_fy_centro_proximo.budget_anio_fiscal = anio_Fiscal_proximo;
+                rel_fy_centro_presente.budget_anio_fiscal = anio_Fiscal_actual;
+                rel_fy_centro_pasado.budget_anio_fiscal = anio_Fiscal_anterior;
 
                 //obtiene los valores para cada cuenta sap
                 var valoresListAnioAnterior = db.view_valores_fiscal_year.Where(x => x.id_anio_fiscal == anio_Fiscal_anterior.id && x.id_centro_costo == centroCosto.id).ToList();
@@ -138,6 +187,17 @@ namespace Portal_2_0.Controllers
                 if (centroCosto == null)
                     return View("../Error/NotFound");
 
+                //obtiene el usuario logeado
+                empleados empleado = obtieneEmpleadoLogeado();
+                //verifica que el usuario este registrado como capturista
+                if (!db.budget_responsables.Any(x => x.id_responsable == empleado.id && centroCosto.id == x.id_budget_centro_costo))
+                {
+                    ViewBag.Titulo = "¡Lo sentimos!¡No se puede acceder a esta Sección!";
+                    ViewBag.Descripcion = "Este usuario no se encuentra asociado a este centro de costo.";
+
+                    return View("../Home/ErrorGenerico");
+                }
+
                 //obtiene el año fiscal anterior (actual)
                 budget_anio_fiscal anio_Fiscal_anterior = GetAnioFiscal(DateTime.Now.AddYears(-1));
                 if (anio_Fiscal_anterior == null)
@@ -204,6 +264,10 @@ namespace Portal_2_0.Controllers
                     db.SaveChanges();
                 }
 
+                //agrega el objeto de fiscal year
+                rel_fy_centro_proximo.budget_anio_fiscal = anio_Fiscal_proximo;
+                rel_fy_centro_presente.budget_anio_fiscal = anio_Fiscal_actual;
+                rel_fy_centro_anterior.budget_anio_fiscal = anio_Fiscal_anterior;
 
                 //obtiene los valores para cada cuenta sap
                 var valoresListAnioAnterior = db.view_valores_fiscal_year.Where(x => x.id_anio_fiscal == anio_Fiscal_anterior.id && x.id_centro_costo == centroCosto.id).ToList();
@@ -249,6 +313,17 @@ namespace Portal_2_0.Controllers
                 if (centroCosto == null)
                     return View("../Error/NotFound");
 
+                //obtiene el usuario logeado
+                empleados empleado = obtieneEmpleadoLogeado();
+                //verifica que el usuario este registrado como capturista
+                if (!db.budget_responsables.Any(x => x.id_responsable == empleado.id && centroCosto.id == x.id_budget_centro_costo))
+                {
+                    ViewBag.Titulo = "¡Lo sentimos!¡No se puede acceder a esta Sección!";
+                    ViewBag.Descripcion = "Este usuario no se encuentra asociado a este centro de costo.";
+
+                    return View("../Home/ErrorGenerico");
+                }
+
                 //obtiene el año fiscal anterior (actual)
                 budget_anio_fiscal anio_Fiscal_anterior = GetAnioFiscal(DateTime.Now.AddYears(-1));
                 if (anio_Fiscal_anterior == null)
@@ -314,6 +389,11 @@ namespace Portal_2_0.Controllers
                     //guarda en base de datos el centro creado
                     db.SaveChanges();
                 }
+
+                //agrega el objeto de fiscal year
+                rel_fy_centro_proximo.budget_anio_fiscal = anio_Fiscal_proximo;
+                rel_fy_centro_presente.budget_anio_fiscal = anio_Fiscal_actual;
+                rel_fy_centro_anterior.budget_anio_fiscal = anio_Fiscal_anterior;
 
 
                 //obtiene los valores para cada cuenta sap
@@ -645,50 +725,7 @@ namespace Portal_2_0.Controllers
             return null;
         }
 
-        //eliminar erte método
-
-        //[NonAction]
-        //public static List<view_valores_anio_fiscal> AgregaCuentasSAP(List<view_valores_anio_fiscal> listValores, int id_anio_fiscal, int id_centro_costo, bool soloCuentasActivas = false)
-        //{
-        //    Portal_2_0Entities db = new Portal_2_0Entities();
-
-        //    List<budget_cuenta_sap> listCuentas = new List<budget_cuenta_sap>();
-
-        //    if (soloCuentasActivas) //carga sólo las cuentas activas
-        //        listCuentas = db.budget_cuenta_sap.Where(x => x.activo == true).ToList();
-        //    else //carga todas las cuentas
-        //        listCuentas = db.budget_cuenta_sap.ToList();
-
-        //    //Agrega cuentas vacias
-
-        //    List<view_valores_anio_fiscal> listViewCuentas = new List<view_valores_anio_fiscal>();
-
-        //    foreach (budget_cuenta_sap cuenta in listCuentas)
-        //    {
-        //        //agragega un objeto de tipo view_valores_anio_fiscal por cada cuenta existente
-        //        listViewCuentas.Add(new view_valores_anio_fiscal
-        //        {
-        //            id_anio_fiscal = id_anio_fiscal,
-        //            id_centro_costo = id_centro_costo,
-        //            id_cuenta_sap = cuenta.id,
-        //            sap_account = cuenta.sap_account,
-        //            name = cuenta.name,
-        //            descripcion = cuenta.budget_mapping.budget_mapping_bridge.descripcion,
-        //            currency_iso = "USD",
-        //        });
-        //    }
-
-        //    //obtiene las cuentas que no se encuentran en el listado original
-        //    List<view_valores_anio_fiscal> listDiferencias = listViewCuentas.Except(listValores).ToList();
-
-        //    //suba la lista original con la lista de excepciones
-        //    listValores.AddRange(listDiferencias);
-
-        //    //ordena la lista
-        //    listValores.OrderBy(x => x.id_cuenta_sap);
-
-        //    return listValores;
-        //}
+        
 
         [NonAction]
         public static List<view_valores_fiscal_year> AgregaCuentasSAPFaltantes(List<view_valores_fiscal_year> listValores, int id_anio_fiscal, int id_centro_costo, bool soloCuentasActivas = false)
@@ -696,6 +733,8 @@ namespace Portal_2_0.Controllers
             Portal_2_0Entities db = new Portal_2_0Entities();
 
             List<budget_cuenta_sap> listCuentas = new List<budget_cuenta_sap>();
+
+            budget_centro_costo centro = db.budget_centro_costo.Find(id_centro_costo);
 
             if (soloCuentasActivas) //carga sólo las cuentas activas
                 listCuentas = db.budget_cuenta_sap.Where(x => x.activo == true).ToList();
@@ -719,6 +758,8 @@ namespace Portal_2_0.Controllers
                     mapping = cuenta.budget_mapping.descripcion,
                     mapping_bridge = cuenta.budget_mapping.budget_mapping_bridge.descripcion,
                     currency_iso = "USD",
+                    class_1 = centro.class_1,
+                    class_2 = centro.class_2,
                 });
             }
 

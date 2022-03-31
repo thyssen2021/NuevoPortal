@@ -25,6 +25,8 @@ SELECT
 		cs.name,
 		cc.num_centro_costo as cost_center,
 		cc.descripcion as department,
+		cc.class_1,
+		cc.class_2,
 		(Select SUBSTRING( 
 		( 
 			 SELECT '/' + e.nombre+' '+ e.apellido1 +' '+ e.apellido2  'data()'
@@ -68,6 +70,8 @@ GROUP BY
 		cs.name,
 		cc.num_centro_costo,
 		cc.descripcion,
+		cc.class_1,
+		cc.class_2,
 		bp.codigo_sap,
 		bp.id,
 		bm.descripcion,
@@ -85,6 +89,8 @@ GROUP BY
 		cs.name,
 		cc.num_centro_costo as cost_center,
 		cc.descripcion as department,
+		cc.class_1,
+		cc.class_2,
 		(Select SUBSTRING( 
 		( 
 			 SELECT '/' + e.nombre+' '+ e.apellido1 +' '+ e.apellido2  'data()'

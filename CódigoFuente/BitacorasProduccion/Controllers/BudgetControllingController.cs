@@ -142,6 +142,8 @@ namespace Portal_2_0.Controllers
                     db.budget_rel_fy_centro.Add(rel_fy_centro_anterior);
                     //guarda en base de datos el centro creado
                     db.SaveChanges();
+
+                                      
                 }
 
                 //obtiene el id_rel_centro_costo del forecast
@@ -159,6 +161,8 @@ namespace Portal_2_0.Controllers
                     db.budget_rel_fy_centro.Add(rel_fy_centro_presente);
                     //guarda en base de datos el centro creado
                     db.SaveChanges();
+
+                  
                 }
 
                 //obtiene el id_rel_centro_costo del proximo
@@ -176,8 +180,14 @@ namespace Portal_2_0.Controllers
                     db.budget_rel_fy_centro.Add(rel_fy_centro_proximo);
                     //guarda en base de datos el centro creado
                     db.SaveChanges();
+
+                    
                 }
 
+                //agrega el objeto de fiscal year
+                rel_fy_centro_proximo.budget_anio_fiscal = anio_Fiscal_proximo;
+                rel_fy_centro_presente.budget_anio_fiscal = anio_Fiscal_actual;
+                rel_fy_centro_anterior.budget_anio_fiscal = anio_Fiscal_anterior;
 
                 //obtiene los valores para cada cuenta sap
                 var valoresListAnioAnterior = db.view_valores_fiscal_year.Where(x => x.id_anio_fiscal == anio_Fiscal_anterior.id && x.id_centro_costo == centroCosto.id).ToList();
@@ -295,6 +305,11 @@ namespace Portal_2_0.Controllers
                     //guarda en base de datos el centro creado
                     db.SaveChanges();
                 }
+
+                //agrega el objeto de fiscal year
+                rel_fy_centro_proximo.budget_anio_fiscal = anio_Fiscal_proximo;
+                rel_fy_centro_presente.budget_anio_fiscal = anio_Fiscal_actual;
+                rel_fy_centro_anterior.budget_anio_fiscal = anio_Fiscal_anterior;
 
                 //obtiene los valores para cada cuenta sap
                 var valoresListAnioAnterior = db.view_valores_fiscal_year.Where(x => x.id_anio_fiscal == anio_Fiscal_anterior.id && x.id_centro_costo == centroCosto.id).ToList();
@@ -692,6 +707,10 @@ namespace Portal_2_0.Controllers
                     db.SaveChanges();
                 }
 
+                //agrega el objeto de fiscal year
+                rel_fy_centro_proximo.budget_anio_fiscal = anio_Fiscal_proximo;
+                rel_fy_centro_presente.budget_anio_fiscal = anio_Fiscal_actual;
+                rel_fy_centro_anterior.budget_anio_fiscal = anio_Fiscal_anterior;
 
                 //obtiene los valores para cada cuenta sap
                 var valoresListAnioAnterior = db.view_valores_fiscal_year.Where(x => x.id_anio_fiscal == anio_Fiscal_anterior.id && x.id_centro_costo == centroCosto.id).ToList();
@@ -1281,7 +1300,9 @@ namespace Portal_2_0.Controllers
                         currency_iso = "USD",
                         responsable = resp,
                         codigo_sap = c.budget_departamentos.budget_plantas.codigo_sap,
-                        department = c.descripcion
+                        department = c.descripcion,
+                        class_1 = c.class_1,
+                        class_2 = c.class_2,
                     });
 
                 }

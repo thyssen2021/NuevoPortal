@@ -78,8 +78,8 @@ namespace Portal_2_0.Models
         public virtual DbSet<budget_rel_fy_centro> budget_rel_fy_centro { get; set; }
         public virtual DbSet<budget_departamentos> budget_departamentos { get; set; }
         public virtual DbSet<budget_responsables> budget_responsables { get; set; }
-        public virtual DbSet<budget_centro_costo> budget_centro_costo { get; set; }
         public virtual DbSet<budget_plantas> budget_plantas { get; set; }
+        public virtual DbSet<budget_centro_costo> budget_centro_costo { get; set; }
         public virtual DbSet<view_valores_fiscal_year> view_valores_fiscal_year { get; set; }
     }
 }

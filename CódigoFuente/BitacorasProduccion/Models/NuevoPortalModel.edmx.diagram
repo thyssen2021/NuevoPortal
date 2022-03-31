@@ -129,13 +129,13 @@
         <EntityTypeShape EntityType="Portal_2_0Model.budget_departamentos" Width="1.5" PointX="12.5" PointY="25.125" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_responsables" Width="1.5" PointX="17" PointY="0.75" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_responsables_id_centro_costo" />
-        <EntityTypeShape EntityType="Portal_2_0Model.budget_centro_costo" Width="1.5" PointX="14.75" PointY="45" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_plantas" Width="1.5" PointX="10.25" PointY="25.625" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_departamentos_id_planta" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_centro_costo" Width="1.5" PointX="14.75" PointY="44.75" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_centro_costo_id_departamento" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_fy_centro_id_centro_costo" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_responsables_id_budget_centro_costo" />
-        <EntityTypeShape EntityType="Portal_2_0Model.budget_plantas" Width="1.5" PointX="10.25" PointY="25.625" />
-        <AssociationConnector Association="Portal_2_0Model.FK_budget_departamentos_id_planta" />
-        <EntityTypeShape EntityType="Portal_2_0Model.view_valores_fiscal_year" Width="1.5" PointX="4.375" PointY="20.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.view_valores_fiscal_year" Width="1.5" PointX="12.375" PointY="15.75" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

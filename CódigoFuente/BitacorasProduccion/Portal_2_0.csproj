@@ -5276,6 +5276,8 @@
     <Content Include="Views\budget_departamentos\Edit.cshtml" />
     <Content Include="Views\budget_departamentos\Enable.cshtml" />
     <Content Include="Views\budget_departamentos\Index.cshtml" />
+    <Content Include="Views\BG_CentroCosto\Disable.cshtml" />
+    <Content Include="Views\BG_CentroCosto\Enable.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
