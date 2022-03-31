@@ -1,13 +1,11 @@
-﻿@model Portal_2_0.Models.budget_centro_costo
+﻿@model Portal_2_0.Models.budget_plantas
 
 @{
-    ViewBag.Title = "Details Cost Center";
+    ViewBag.Title = "Enable Plant";
     ViewBag.PrimerNivel = "plantilla_budget";
     ViewBag.SegundoNivel = "BG_catalogos";
-    ViewBag.TercelNivel = "BG_CentroCosto";
-    ViewBag.ControllerName = "BG_CentroCosto";
-
-    String responsables = (string.Join("/", Model.budget_responsables.Select(x => x.empleados.ConcatNombre).ToArray()));
+    ViewBag.TercelNivel = "BG_MappingBridge";
+    ViewBag.ControllerName = "BG_MappingBridge";
 }
 
 <div class="right_col" role="main">
@@ -24,38 +22,53 @@
                     </div>
 
                     <!-- /.col -->
-                    <div class="col-md-10">
+                    <div class="col-md-8">
                         <div class="table-responsive">
+                            <h3>¿Realmente desea habilitar este registro?</h3>
                             <table class="table">
                                 <tbody>
                                     <tr>
-                                        <th>@Html.DisplayNameFor(model => model.num_centro_costo)</th>
-                                        <td>@Html.DisplayFor(model => model.num_centro_costo)</td>
+                                        <th>@Html.DisplayNameFor(model => model.descripcion)</th>
+                                        <td>@Html.DisplayFor(model => model.descripcion)</td>
                                     </tr>
                                     <tr>
-                                        <th>Plant</th>
-                                        <td>@Html.DisplayFor(model => model.budget_departamentos.budget_plantas.descripcion)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.id_budget_departamento)</th>
-                                        <td>@Html.DisplayFor(model => model.budget_departamentos.descripcion)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Responsable</th>
-                                        <td>@responsables</td>
+                                        <th>@Html.DisplayNameFor(model => model.codigo_sap)</th>
+                                        <td>@Html.DisplayFor(model => model.codigo_sap)</td>
                                     </tr>
 
-                                   
+                                    <tr>
+                                        <th style="width:50%"> @Html.DisplayNameFor(model => model.activo)</th>
+                                        <td>
+                                            @if (Model.activo)
+                                            {
+                                                <span>Activo</span>
+                                            }
+                                            else
+                                            {
+                                                <span>Inactivo</span>
+                                            }
+                                        </td>
+                                    </tr>
 
                                 </tbody>
                             </table>
                         </div>
                     </div>
                     <div class="col-md-12">
-                        <p class="float-md-right">
+                        <p class="float-md-left">
                             <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = Model.id})" class="btn btn-success btm-sm" title="Editar">
                                 <i class="fa fa-pencil-square-o"></i> Editar
                             </a>
+                        </p>
+                        <p class="float-md-right">
+                            @using (Html.BeginForm())
+                            {
+                                @Html.AntiForgeryToken()
+
+                                <div class="form-actions no-color float-md-right">
+                                    <input type="submit" value="Habilitar" class="btn btn-warning btm-sm" />
+                                </div>
+                            }
                         </p>
                     </div>
                 </div>
@@ -69,7 +82,6 @@
         </div>
     </div>
 </div>
-
 <script>
     window.onload = function () {
         clicMenu(2);

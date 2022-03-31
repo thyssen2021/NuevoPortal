@@ -73,7 +73,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<budget_mapping> budget_mapping { get; set; }
         public virtual DbSet<budget_mapping_bridge> budget_mapping_bridge { get; set; }
         public virtual DbSet<budget_anio_fiscal> budget_anio_fiscal { get; set; }
-        public virtual DbSet<view_valores_anio_fiscal> view_valores_anio_fiscal { get; set; }
         public virtual DbSet<budget_cantidad> budget_cantidad { get; set; }
         public virtual DbSet<budget_rel_comentarios> budget_rel_comentarios { get; set; }
         public virtual DbSet<budget_rel_fy_centro> budget_rel_fy_centro { get; set; }

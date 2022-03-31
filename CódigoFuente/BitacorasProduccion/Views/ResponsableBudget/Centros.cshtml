@@ -72,10 +72,13 @@
                                                     @Html.DisplayNameFor(model => model.num_centro_costo)
                                                 </th>
                                                 <th>
-                                                    Plant
+                                                    @Html.DisplayNameFor(model => model.descripcion)
                                                 </th>
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.id_budget_departamento)
+                                                </th>
+                                                <th>
+                                                    Plant
                                                 </th>
                                                 <th>
                                                     Responsable
@@ -95,10 +98,14 @@
                                                     @Html.DisplayFor(modelItem => item.num_centro_costo)
                                                 </td>
                                                 <td>
-                                                    @Html.DisplayFor(modelItem => item.budget_departamentos.budget_plantas.descripcion)
+                                                    @Html.DisplayFor(modelItem => item.descripcion)
                                                 </td>
                                                 <td>
                                                     @Html.DisplayFor(modelItem => item.budget_departamentos.descripcion)
+                                                </td>
+
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.budget_departamentos.budget_plantas.descripcion)
                                                 </td>
                                                 <td>
                                                     @{
@@ -118,7 +125,7 @@
                                                         <i class="fa fa-pencil-square-o"></i> FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))
                                                     </a>
                                                 </td>
-                                               
+
                                             </tr>
 
                                                 fila++;

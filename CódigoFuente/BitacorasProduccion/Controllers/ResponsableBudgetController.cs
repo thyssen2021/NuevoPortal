@@ -647,48 +647,48 @@ namespace Portal_2_0.Controllers
 
         //eliminar erte método
 
-        [NonAction]
-        public static List<view_valores_anio_fiscal> AgregaCuentasSAP(List<view_valores_anio_fiscal> listValores, int id_anio_fiscal, int id_centro_costo, bool soloCuentasActivas = false)
-        {
-            Portal_2_0Entities db = new Portal_2_0Entities();
+        //[NonAction]
+        //public static List<view_valores_anio_fiscal> AgregaCuentasSAP(List<view_valores_anio_fiscal> listValores, int id_anio_fiscal, int id_centro_costo, bool soloCuentasActivas = false)
+        //{
+        //    Portal_2_0Entities db = new Portal_2_0Entities();
 
-            List<budget_cuenta_sap> listCuentas = new List<budget_cuenta_sap>();
+        //    List<budget_cuenta_sap> listCuentas = new List<budget_cuenta_sap>();
 
-            if (soloCuentasActivas) //carga sólo las cuentas activas
-                listCuentas = db.budget_cuenta_sap.Where(x => x.activo == true).ToList();
-            else //carga todas las cuentas
-                listCuentas = db.budget_cuenta_sap.ToList();
+        //    if (soloCuentasActivas) //carga sólo las cuentas activas
+        //        listCuentas = db.budget_cuenta_sap.Where(x => x.activo == true).ToList();
+        //    else //carga todas las cuentas
+        //        listCuentas = db.budget_cuenta_sap.ToList();
 
-            //Agrega cuentas vacias
+        //    //Agrega cuentas vacias
 
-            List<view_valores_anio_fiscal> listViewCuentas = new List<view_valores_anio_fiscal>();
+        //    List<view_valores_anio_fiscal> listViewCuentas = new List<view_valores_anio_fiscal>();
 
-            foreach (budget_cuenta_sap cuenta in listCuentas)
-            {
-                //agragega un objeto de tipo view_valores_anio_fiscal por cada cuenta existente
-                listViewCuentas.Add(new view_valores_anio_fiscal
-                {
-                    id_anio_fiscal = id_anio_fiscal,
-                    id_centro_costo = id_centro_costo,
-                    id_cuenta_sap = cuenta.id,
-                    sap_account = cuenta.sap_account,
-                    name = cuenta.name,
-                    descripcion = cuenta.budget_mapping.budget_mapping_bridge.descripcion,
-                    currency_iso = "USD",
-                });
-            }
+        //    foreach (budget_cuenta_sap cuenta in listCuentas)
+        //    {
+        //        //agragega un objeto de tipo view_valores_anio_fiscal por cada cuenta existente
+        //        listViewCuentas.Add(new view_valores_anio_fiscal
+        //        {
+        //            id_anio_fiscal = id_anio_fiscal,
+        //            id_centro_costo = id_centro_costo,
+        //            id_cuenta_sap = cuenta.id,
+        //            sap_account = cuenta.sap_account,
+        //            name = cuenta.name,
+        //            descripcion = cuenta.budget_mapping.budget_mapping_bridge.descripcion,
+        //            currency_iso = "USD",
+        //        });
+        //    }
 
-            //obtiene las cuentas que no se encuentran en el listado original
-            List<view_valores_anio_fiscal> listDiferencias = listViewCuentas.Except(listValores).ToList();
+        //    //obtiene las cuentas que no se encuentran en el listado original
+        //    List<view_valores_anio_fiscal> listDiferencias = listViewCuentas.Except(listValores).ToList();
 
-            //suba la lista original con la lista de excepciones
-            listValores.AddRange(listDiferencias);
+        //    //suba la lista original con la lista de excepciones
+        //    listValores.AddRange(listDiferencias);
 
-            //ordena la lista
-            listValores.OrderBy(x => x.id_cuenta_sap);
+        //    //ordena la lista
+        //    listValores.OrderBy(x => x.id_cuenta_sap);
 
-            return listValores;
-        }
+        //    return listValores;
+        //}
 
         [NonAction]
         public static List<view_valores_fiscal_year> AgregaCuentasSAPFaltantes(List<view_valores_fiscal_year> listValores, int id_anio_fiscal, int id_centro_costo, bool soloCuentasActivas = false)

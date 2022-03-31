@@ -752,39 +752,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
         </EntityType>
         <!--Errors Found During Generation:
 warning 6002: The table/view 'Portal_2_0.dbo.view_valores_anio_fiscal' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
-        <EntityType Name="view_valores_anio_fiscal">
-          <Key>
-            <PropertyRef Name="id" />
-            <PropertyRef Name="id_anio_fiscal" />
-            <PropertyRef Name="id_centro_costo" />
-            <PropertyRef Name="id_cuenta_sap" />
-            <PropertyRef Name="sap_account" />
-            <PropertyRef Name="name" />
-            <PropertyRef Name="descripcion" />
-            <PropertyRef Name="currency_iso" />
-          </Key>
-          <Property Name="id" Type="bigint" Nullable="false" />
-          <Property Name="id_anio_fiscal" Type="int" Nullable="false" />
-          <Property Name="id_centro_costo" Type="int" Nullable="false" />
-          <Property Name="id_cuenta_sap" Type="int" Nullable="false" />
-          <Property Name="sap_account" Type="varchar" MaxLength="8" Nullable="false" />
-          <Property Name="name" Type="varchar" MaxLength="40" Nullable="false" />
-          <Property Name="descripcion" Type="varchar" MaxLength="40" Nullable="false" />
-          <Property Name="currency_iso" Type="varchar" MaxLength="3" Nullable="false" />
-          <Property Name="Enero" Type="decimal" Precision="38" Scale="2" />
-          <Property Name="Febrero" Type="decimal" Precision="38" Scale="2" />
-          <Property Name="Marzo" Type="decimal" Precision="38" Scale="2" />
-          <Property Name="Abril" Type="decimal" Precision="38" Scale="2" />
-          <Property Name="Mayo" Type="decimal" Precision="38" Scale="2" />
-          <Property Name="Junio" Type="decimal" Precision="38" Scale="2" />
-          <Property Name="Julio" Type="decimal" Precision="38" Scale="2" />
-          <Property Name="Agosto" Type="decimal" Precision="38" Scale="2" />
-          <Property Name="Septiembre" Type="decimal" Precision="38" Scale="2" />
-          <Property Name="Octubre" Type="decimal" Precision="38" Scale="2" />
-          <Property Name="Noviembre" Type="decimal" Precision="38" Scale="2" />
-          <Property Name="Diciembre" Type="decimal" Precision="38" Scale="2" />
-          <Property Name="Comentario" Type="varchar" MaxLength="150" />
-        </EntityType>
         <!--Errors Found During Generation:
 warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="view_valores_fiscal_year">
@@ -1839,31 +1806,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
     [view_historico_resultado].[Balance_de_Scrap_Real] AS [Balance_de_Scrap_Real]
     FROM [dbo].[view_historico_resultado] AS [view_historico_resultado]</DefiningQuery>
           </EntitySet>
-          <EntitySet Name="view_valores_anio_fiscal" EntityType="Self.view_valores_anio_fiscal" store:Type="Views" store:Schema="dbo">
-            <DefiningQuery>SELECT 
-    [view_valores_anio_fiscal].[id] AS [id], 
-    [view_valores_anio_fiscal].[id_anio_fiscal] AS [id_anio_fiscal], 
-    [view_valores_anio_fiscal].[id_centro_costo] AS [id_centro_costo], 
-    [view_valores_anio_fiscal].[id_cuenta_sap] AS [id_cuenta_sap], 
-    [view_valores_anio_fiscal].[sap_account] AS [sap_account], 
-    [view_valores_anio_fiscal].[name] AS [name], 
-    [view_valores_anio_fiscal].[descripcion] AS [descripcion], 
-    [view_valores_anio_fiscal].[currency_iso] AS [currency_iso], 
-    [view_valores_anio_fiscal].[Enero] AS [Enero], 
-    [view_valores_anio_fiscal].[Febrero] AS [Febrero], 
-    [view_valores_anio_fiscal].[Marzo] AS [Marzo], 
-    [view_valores_anio_fiscal].[Abril] AS [Abril], 
-    [view_valores_anio_fiscal].[Mayo] AS [Mayo], 
-    [view_valores_anio_fiscal].[Junio] AS [Junio], 
-    [view_valores_anio_fiscal].[Julio] AS [Julio], 
-    [view_valores_anio_fiscal].[Agosto] AS [Agosto], 
-    [view_valores_anio_fiscal].[Septiembre] AS [Septiembre], 
-    [view_valores_anio_fiscal].[Octubre] AS [Octubre], 
-    [view_valores_anio_fiscal].[Noviembre] AS [Noviembre], 
-    [view_valores_anio_fiscal].[Diciembre] AS [Diciembre], 
-    [view_valores_anio_fiscal].[Comentario] AS [Comentario]
-    FROM [dbo].[view_valores_anio_fiscal] AS [view_valores_anio_fiscal]</DefiningQuery>
-          </EntitySet>
           <EntitySet Name="view_valores_fiscal_year" EntityType="Self.view_valores_fiscal_year" store:Type="Views" store:Schema="dbo">
             <DefiningQuery>SELECT 
     [view_valores_fiscal_year].[id] AS [id], 
@@ -2886,7 +2828,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             <End Role="budget_mapping" EntitySet="budget_mapping" />
           </AssociationSet>
           <EntitySet Name="budget_anio_fiscal" EntityType="Portal_2_0Model.budget_anio_fiscal" />
-          <EntitySet Name="view_valores_anio_fiscal" EntityType="Portal_2_0Model.view_valores_anio_fiscal" />
           <EntitySet Name="budget_cantidad" EntityType="Portal_2_0Model.budget_cantidad" />
           <EntitySet Name="budget_rel_comentarios" EntityType="Portal_2_0Model.budget_rel_comentarios" />
           <EntitySet Name="budget_rel_fy_centro" EntityType="Portal_2_0Model.budget_rel_fy_centro" />
@@ -4139,39 +4080,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <Property Name="mes_fin" Type="Int32" Nullable="false" />
           <NavigationProperty Name="budget_rel_fy_centro" Relationship="Portal_2_0Model.FK_budget_rel_fy_centro_id_anio_fiscal" FromRole="budget_anio_fiscal" ToRole="budget_rel_fy_centro" />
         </EntityType>
-        <EntityType Name="view_valores_anio_fiscal">
-          <Key>
-            <PropertyRef Name="id" />
-            <PropertyRef Name="id_anio_fiscal" />
-            <PropertyRef Name="id_centro_costo" />
-            <PropertyRef Name="id_cuenta_sap" />
-            <PropertyRef Name="sap_account" />
-            <PropertyRef Name="name" />
-            <PropertyRef Name="descripcion" />
-            <PropertyRef Name="currency_iso" />
-          </Key>
-          <Property Name="id" Type="Int64" Nullable="false" />
-          <Property Name="id_anio_fiscal" Type="Int32" Nullable="false" />
-          <Property Name="id_centro_costo" Type="Int32" Nullable="false" />
-          <Property Name="id_cuenta_sap" Type="Int32" Nullable="false" />
-          <Property Name="sap_account" Type="String" Nullable="false" MaxLength="8" FixedLength="false" Unicode="false" />
-          <Property Name="name" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
-          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
-          <Property Name="currency_iso" Type="String" Nullable="false" MaxLength="3" FixedLength="false" Unicode="false" />
-          <Property Name="Enero" Type="Decimal" Precision="38" Scale="2" />
-          <Property Name="Febrero" Type="Decimal" Precision="38" Scale="2" />
-          <Property Name="Marzo" Type="Decimal" Precision="38" Scale="2" />
-          <Property Name="Abril" Type="Decimal" Precision="38" Scale="2" />
-          <Property Name="Mayo" Type="Decimal" Precision="38" Scale="2" />
-          <Property Name="Junio" Type="Decimal" Precision="38" Scale="2" />
-          <Property Name="Julio" Type="Decimal" Precision="38" Scale="2" />
-          <Property Name="Agosto" Type="Decimal" Precision="38" Scale="2" />
-          <Property Name="Septiembre" Type="Decimal" Precision="38" Scale="2" />
-          <Property Name="Octubre" Type="Decimal" Precision="38" Scale="2" />
-          <Property Name="Noviembre" Type="Decimal" Precision="38" Scale="2" />
-          <Property Name="Diciembre" Type="Decimal" Precision="38" Scale="2" />
-          <Property Name="Comentario" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-        </EntityType>
         <EntityType Name="budget_cantidad">
           <Key>
             <PropertyRef Name="id" />
@@ -5153,33 +5061,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
                 <ScalarProperty Name="mes_inicio" ColumnName="mes_inicio" />
                 <ScalarProperty Name="anio_inicio" ColumnName="anio_inicio" />
                 <ScalarProperty Name="descripcion" ColumnName="descripcion" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="view_valores_anio_fiscal">
-            <EntityTypeMapping TypeName="Portal_2_0Model.view_valores_anio_fiscal">
-              <MappingFragment StoreEntitySet="view_valores_anio_fiscal">
-                <ScalarProperty Name="Comentario" ColumnName="Comentario" />
-                <ScalarProperty Name="Diciembre" ColumnName="Diciembre" />
-                <ScalarProperty Name="Noviembre" ColumnName="Noviembre" />
-                <ScalarProperty Name="Octubre" ColumnName="Octubre" />
-                <ScalarProperty Name="Septiembre" ColumnName="Septiembre" />
-                <ScalarProperty Name="Agosto" ColumnName="Agosto" />
-                <ScalarProperty Name="Julio" ColumnName="Julio" />
-                <ScalarProperty Name="Junio" ColumnName="Junio" />
-                <ScalarProperty Name="Mayo" ColumnName="Mayo" />
-                <ScalarProperty Name="Abril" ColumnName="Abril" />
-                <ScalarProperty Name="Marzo" ColumnName="Marzo" />
-                <ScalarProperty Name="Febrero" ColumnName="Febrero" />
-                <ScalarProperty Name="Enero" ColumnName="Enero" />
-                <ScalarProperty Name="currency_iso" ColumnName="currency_iso" />
-                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
-                <ScalarProperty Name="name" ColumnName="name" />
-                <ScalarProperty Name="sap_account" ColumnName="sap_account" />
-                <ScalarProperty Name="id_cuenta_sap" ColumnName="id_cuenta_sap" />
-                <ScalarProperty Name="id_centro_costo" ColumnName="id_centro_costo" />
-                <ScalarProperty Name="id_anio_fiscal" ColumnName="id_anio_fiscal" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

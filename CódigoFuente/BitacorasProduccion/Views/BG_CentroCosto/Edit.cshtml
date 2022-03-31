@@ -7,16 +7,20 @@
     ViewBag.SegundoNivel = "BG_catalogos";
     ViewBag.TercelNivel = "BG_CentroCosto";
     ViewBag.ControllerName = "BG_CentroCosto";
+
+    int contador = 100;
+
+    List<Portal_2_0.Models.empleados> listadoEmpleados = (List<Portal_2_0.Models.empleados>)ViewBag.ListadoEmpleados;
 }
 
 <!-- Select2 -->
 <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
 <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
 
-@if (Model != null && Model.Area != null)
+@if (Model != null && Model.budget_departamentos != null)
 {
-    <input type="hidden" value="@Model.id_area" id="cArea" />
-    <input type="hidden" value="@Model.Area.plantaClave" id="cPlanta" />
+    <input type="hidden" value="@Model.id_budget_departamento" id="cArea" />
+    <input type="hidden" value="@Model.budget_departamentos.id_budget_planta" id="cPlanta" />
 }
 
 
@@ -31,6 +35,10 @@
 
                     <div class="x_content">
                         <br />
+                        <div class="form-group row">
+                            <span style="color:black"><b>DATOS GENERALES</b></span>
+                        </div>
+                        <hr />
                         @using (Html.BeginForm("Edit", "BG_CentroCosto", FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
                         {
                             @Html.AntiForgeryToken()
@@ -47,28 +55,26 @@
 
                                 <label class="col-form-label col-md-3 col-sm-3 label-align"> Plant </label>
                                 <div class="col-md-6 col-sm-6">
-                                    @Html.DropDownList("plantaClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
-                                    <span class="field-validation-valid text-danger" data-valmsg-for="plantaClave" data-valmsg-replace="true"></span>
+                                    @Html.DropDownList("id_planta", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                    <span class="field-validation-valid text-danger" data-valmsg-for="id_planta" data-valmsg-replace="true"></span>
                                 </div>
                             </div>
                             <div class="item form-group">
 
-                                @Html.LabelFor(model => model.id_area, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                @Html.LabelFor(model => model.id_budget_departamento, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                 <div class="col-md-6 col-sm-6">
-                                    @Html.DropDownList("id_area", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
-                                    @Html.ValidationMessageFor(model => model.id_area, "", new { @class = "text-danger" })
+                                    @Html.DropDownList("id_budget_departamento", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                    @Html.ValidationMessageFor(model => model.id_budget_departamento, "", new { @class = "text-danger" })
                                 </div>
                             </div>
 
                             <div class="item form-group">
-
-                                @Html.LabelFor(model => model.id_responsable, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
-                                <div class="col-md-6 col-sm-6">
-                                    @Html.DropDownList("id_responsable", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
-                                    @Html.ValidationMessageFor(model => model.id_responsable, "", new { @class = "text-danger" })
+                                @Html.LabelFor(model => model.descripcion, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.EditorFor(model => model.descripcion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.descripcion, "", new { @class = "text-danger" })
                                 </div>
                             </div>
-
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.num_centro_costo, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                 <div class="col-md-6 col-sm-6 ">
@@ -76,7 +82,53 @@
                                     @Html.ValidationMessageFor(model => model.num_centro_costo, "", new { @class = "text-danger" })
                                 </div>
                             </div>
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>RESPONSABLES</b></span>
+                            </div>
+                            <div id="div_responsables">
+                                @foreach (Portal_2_0.Models.budget_responsables res in Model.budget_responsables)
+                                {
+                                    <div class="form-group row" id="div_responsables_@contador">
 
+                                        <input type="hidden" name="budget_responsables[@contador].id_budget_centro_costo" id="budget_responsables.id_budget_centro_costo" value="@Model.id" />
+                                        <input type="hidden" name="budget_responsables[@contador].estatus" id="budget_responsables.estatus" value="true" />
+
+                                        <label class="col-form-label col-md-3 col-sm-3 label-align" for="budget_responsables[@contador].id_responsable">
+                                            <span class="float-right">Empleado</span>
+                                        </label>
+                                        <div class="col-md-6">
+                                            <select name="budget_responsables[@contador].id_responsable" id="budget_responsables[@contador].id_responsable" class="empleado form-control select2bs4" style="width:100%" required>
+                                                <option value=''>-- Seleccione un valor --</option>
+                                                @foreach (Portal_2_0.Models.empleados item in listadoEmpleados)
+                                                {
+                                                    if (item.activo.HasValue && item.activo.Value)
+                                                    {
+                                                        <option value="@item.id" @(res.id_responsable == item.id ? "selected" : null )>@item.ConcatNumEmpleadoNombre</option>
+                                                    }
+
+                                                }
+                                            </select>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="budget_responsables[@contador].id_responsable" data-valmsg-replace="true"></span>
+                                        </div>
+
+
+                                        <div class="col-md-1">
+                                            <input type="button" value="Delete" class="btn btn-danger" onclick="borrarResponsable(@contador); return false;">
+                                        </div>
+                                    </div>
+
+                                    contador++;
+                                }
+                            </div>
+                            <div class="form-group row">
+
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-11">
+                                    <input type="button" value="Add" class="btn btn-round btn-warning float-right" onclick="AgregarResponsable(); return false;">
+                                </div>
+                            </div>
                             <div class="ln_solid"></div>
                             <div class="item form-group">
                                 <div class="col-md-6 col-sm-6 offset-md-3">
@@ -100,6 +152,183 @@
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
-    @Scripts.Render(Url.Content("~/Scripts/Forms/BG_CentroCosto.js"))
+    @*@Scripts.Render(Url.Content("~/Scripts/Forms/BG_CentroCosto.js"))*@
+<script>
+        $(document).ready(function () {
+    $("#id_planta").change(function () {
+
+        $.ajax({
+            type: 'POST',
+            url: '/Combos/obtieneBudgetAreas',
+            data: { id_planta: $(this).val() },
+            success: function (data) {
+                populateDropdown($("#id_budget_departamento"), data);
+
+            },
+            async: true
+        });
+
+        verificaEstadoCombos();
+    });
+
+    seleccionaValoresDefault();
+
+    // Initialize Select2 Elements (debe ir después de asignar el valor)
+    $('.select2bs4').select2({
+        theme: 'bootstrap4'
+    })
+
+});
+
+//activa y desactiva los combos
+function verificaEstadoCombos() {
+
+    var planta = $("#id_planta option:selected").val();
+
+    if (planta == "") {
+        $("#id_budget_departamento").prop("disabled", true);
+    }
+    else {
+        $("#id_budget_departamento").prop("disabled", false);
+    }
+}
+
+//selecciona los valores que carga por defecto
+function seleccionaValoresDefault() {
+
+    var cPlanta = document.getElementById("cPlanta");
+    var cArea = document.getElementById("cArea");
+
+    //Si hay valores previos (EDIT)
+    if (cPlanta != null && cArea != null) {
+
+        //estable el valor del primer combo
+        if ($("#id_planta option[value='" + cPlanta.value + "']").length > 0) {
+            $("#id_planta").val(cPlanta.value);
+        } else {
+            $("#id_planta").val("");
+        }
+
+        //realiza una llamada asincorna del contenido del combo
+
+        $.ajax({
+            type: 'POST',
+            url: '/Combos/obtieneBudgetAreas',
+            data: { id_planta: cPlanta.value },
+            success: function (data) {
+                populateDropdown($("#id_budget_departamento"), data);
+            },
+            async: false
+        });
+
+        //establece el valor del segundo select una vez termina la llamada ajax
+        if ($("#id_budget_departamento option[value='" + cArea.value + "']").length > 0) {
+            $("#id_budget_departamento").val(cArea.value);
+        } else {
+            $("#id_budget_departamento").val("");
+        }
+
+    } else { //en caso de que no haya valores previos (CREATE)
+        verificaEstadoCombos();
+    }
+}
+
+//completa el select con los datos recibidos
+function populateDropdown(select, data) {
+    select.html('');
+    $.each(data, function (id, option) {
+        select.append($('<option></option>').val(option.value).html(option.name));
+    });
+}
+
+//variable global para el id
+var num = 0;
+//variable global de los select
+var textoSelect = obtieneSelect();
+
+//agreaga una fila para lotes
+function AgregarResponsable() {
+    //obtine los valores de lotes
+
+
+    $("#div_responsables").append(
+
+        `
+
+                                <div class="form-group row" id="div_responsables_`+ num + `">
+
+                                            <input type="hidden" name="budget_responsables[`+ num + `].id_budget_centro_costo" id="budget_responsables[` + num + `].id_budget_centro_costo" value="` + @Model.id + `" />
+                                        <input type="hidden" name="budget_responsables[`+ num + `].estatus" id="budget_responsables[` + num + `].estatus" value="true" />
+
+                                        <label class="col-form-label col-md-3 col-sm-3 label-align" for="budget_responsables[`+ num + `].id_responsable">
+                                            <span class="float-right">Empleado</span>
+                                        </label>
+                                        <div class="col-md-6">
+                                            <select name="budget_responsables[`+ num + `].id_responsable" id="budget_responsables[` + num + `].id_responsable" class="empleado form-control select2bs4" style="width:100%" required>
+                                               `+ textoSelect + `
+                                            </select>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="budget_responsables[`+ num + `].id_responsable" data-valmsg-replace="true"></span>
+                                        </div>
+
+
+                                        <div class="col-md-1">
+                                            <input type="button" value="Delete" class="btn btn-danger" onclick="borrarResponsable(`+ num + `); return false;">
+                                        </div>
+                                    </div>
+                                                                                                        `
+    );
+    $("#div_responsables_" + num).hide().fadeIn(500);
+
+
+
+    // Initialize Select2 Elements (debe ir después de asignar el valor)
+    $('.select2bs4').select2({
+        theme: 'bootstrap4'
+    })
+
+    //vuelve a asigar el evento on a cada input de los lotes
+    //$('.total_piezas').each(function () {
+    //    $(this).on('input', function (e) {
+    //        calculaDatos();
+    //    });
+    //});
+
+    //aumenta el contador
+    num++;
+}
+
+//borra un responsable
+function borrarResponsable(id) {
+
+    $("#div_responsables_" + id).fadeOut(0, function () {
+        $(this).remove();
+    });
+}
+
+//obtiene los select de las categorias
+function obtieneSelect() {
+    let stringSelects = '';
+
+    //realiza llamada ajax para completar el string
+    $.ajax({
+        type: 'POST',
+        url: '/Combos/obtieneEmpleadosSelect',
+        data: {}, //sin parametros
+        success: function (data) {
+            //crea el string a partir del resultado
+            console.log(data);
+            stringSelects = data[0].text;
+
+        },
+        async: false
+    });
+
+    return stringSelects;
+}
+
+window.onload = function () {
+    clicMenu(2);
+}
+</script>
 
 }

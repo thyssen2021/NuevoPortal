@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
 using Clases.Util;
@@ -34,7 +35,7 @@ namespace Portal_2_0.Controllers
                 return View("../Home/ErrorPermisos");
             }
 
-          
+
         }
 
         // GET: BG_CentroCosto/Details/5
@@ -65,16 +66,15 @@ namespace Portal_2_0.Controllers
         {
             if (TieneRol(TipoRoles.BG_CONTROLLING))
             {
-                ViewBag.plantaClave = AddFirstItem(new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
-                ViewBag.id_area = AddFirstItem(new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
-                ViewBag.id_responsable = AddFirstItem(new SelectList(db.empleados.Where(p => p.activo == true), "id", "ConcatNumEmpleadoNombre"), textoPorDefecto: "-- Seleccionar --");
-                return View();
+                ViewBag.id_planta = AddFirstItem(new SelectList(db.budget_plantas.Where(p => p.activo == true), "id", "descripcion"), textoPorDefecto: "-- Seleccionar --");
+                ViewBag.id_budget_departamento = AddFirstItem(new SelectList(db.budget_departamentos.Where(p => p.activo == true), "id", "descripcion"), textoPorDefecto: "-- Seleccionar --");
+                return View(new budget_centro_costo());
             }
             else
             {
                 return View("../Home/ErrorPermisos");
             }
-           
+
         }
 
         // POST: BG_CentroCosto/Create
@@ -82,20 +82,54 @@ namespace Portal_2_0.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "id,id_area,id_responsable,num_centro_costo")] budget_centro_costo item)
+        public ActionResult Create(budget_centro_costo item, FormCollection collection)
         {
-           
+
+            //obtiene el listado de piezas de descarte desde el formcollection
+            List<budget_responsables> listaResponsables = new List<budget_responsables>();
+
+            foreach (string key in collection.AllKeys.Where(x => x.ToUpper().Contains(".ID_RESPONSABLE") == true).ToList())
+            {
+                int index = -1;
+
+                int id_responsable = 0;
+                Match m = Regex.Match(key, @"\d+");
+
+                if (m.Success) //si tiene un numero
+                {
+                    int.TryParse(m.Value, out index);
+                    int.TryParse(collection["budget_responsables[" + index + "].id_responsable"], out id_responsable);
+
+                    listaResponsables.Add(
+                        new budget_responsables
+                        {
+                            id_budget_centro_costo = item.id,
+                            id_responsable = id_responsable,
+                            estatus = true
+                        }
+                    );
+                }
+            }
+
+            if (listaResponsables.Count == 0)
+                ModelState.AddModelError("", "No se han seleccionado responsables para el centro de costo.");
+
+            //verifica si hay valores disponibles
+            var anyDuplicate = listaResponsables.GroupBy(x => x.id_responsable).Any(g => g.Count() > 1);
+            if (anyDuplicate)
+                ModelState.AddModelError("", "Verifique que cada responsables este definido una sóla vez.");
+
             if (ModelState.IsValid)
             {
                 //busca si tipo poliza con la misma descripcion
-                budget_centro_costo item_busca = db.budget_centro_costo.Where(s => s.budget_departamentos.id == item.budget_departamentos.id )
+                budget_centro_costo item_busca = db.budget_centro_costo.Where(s => s.budget_departamentos.id == item.id_budget_departamento)
                                         .FirstOrDefault();
 
                 //busca si tipo poliza con la misma descripcion
                 budget_centro_costo item_busca_num = db.budget_centro_costo.Where(s => s.num_centro_costo == item.num_centro_costo)
                                         .FirstOrDefault();
 
-                if (item_busca!=null)
+                if (item_busca != null)
                     ModelState.AddModelError("", "Ya existe un centro de costo asociado a este departamento.");
 
                 if (item_busca_num != null)
@@ -103,20 +137,53 @@ namespace Portal_2_0.Controllers
 
                 if (item_busca == null && item_busca_num == null)
                 { //Si no existe
-                  
+
+                    item.budget_responsables = listaResponsables;
+
                     db.budget_centro_costo.Add(item);
                     db.SaveChanges();
+
+                    //asiga el id del centro de costo creado a la lista de responsables
+                    //listaResponsables.ForEach(i => { i.id_budget_centro_costo = item.id;  });
+
+                    ////agrega las pza descarte nuevas
+                    //foreach (budget_responsables br_item in listaResponsables)
+                    //{
+                    //    db.budget_responsables.Add(br_item);
+                    //    db.SaveChanges();
+                    //}
 
                     TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);
                     return RedirectToAction("Index");
                 }
             }
 
-            item.budget_departamentos = db.budget_departamentos.Find(item.budget_departamentos.id);
+            //obtiene los ids de rel_fy_centro
+            var idRels = listaResponsables.Select(x => x.id_responsable).Distinct();
+            List<budget_responsables> lisResp = new List<budget_responsables>();
 
-            ViewBag.id_planta = AddFirstItem(new SelectList(db.budget_plantas.Where(p => p.activo == true), "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
-            ViewBag.id_budget_departamento = AddFirstItem(new SelectList(db.budget_departamentos.Where(p => p.activo == true), "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
-           
+            item.budget_departamentos = db.budget_departamentos.Find(item.id_budget_departamento);
+
+            var emps = db.empleados
+                           .Where(s => s.activo == true && idRels.Contains(s.id)) //obtiene unicamente los sectores activos
+                           .ToList();
+
+            //CREA UN RESPONSABLE POR CADA EMPLEADO ENVIADO
+            foreach (empleados e in emps)
+                lisResp.Add(
+                     new budget_responsables()
+                     {
+                         id_budget_centro_costo = item.id,
+                         id_responsable = e.id
+                     }
+                    );
+
+            item.budget_responsables = lisResp;
+
+            ViewBag.id_planta = AddFirstItem(new SelectList(db.budget_plantas.Where(p => p.activo == true), "id", "descripcion"), textoPorDefecto: "-- Seleccionar --");
+            ViewBag.id_budget_departamento = AddFirstItem(new SelectList(db.budget_departamentos.Where(p => p.activo == true), "id", "descripcion"), textoPorDefecto: "-- Seleccionar --");
+            ViewBag.ListadoEmpleados = db.empleados.Where(x => x.activo == true).ToList();
+
             return View(item);
         }
 
@@ -135,8 +202,9 @@ namespace Portal_2_0.Controllers
                 {
                     return View("../Error/NotFound");
                 }
-                ViewBag.plantaClave = AddFirstItem(new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
-                ViewBag.id_area = AddFirstItem(new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
+                ViewBag.id_planta = AddFirstItem(new SelectList(db.budget_plantas.Where(p => p.activo == true), "id", "descripcion"), textoPorDefecto: "-- Seleccionar --");
+                ViewBag.id_budget_departamento = AddFirstItem(new SelectList(db.budget_departamentos.Where(p => p.activo == true), "id", "descripcion"), textoPorDefecto: "-- Seleccionar --");
+                ViewBag.ListadoEmpleados = db.empleados.Where(x => x.activo == true).ToList();
                 return View(item);
             }
             else
@@ -144,7 +212,7 @@ namespace Portal_2_0.Controllers
                 return View("../Home/ErrorPermisos");
             }
 
-           
+
         }
 
         // POST: BG_CentroCosto/Edit/5
@@ -152,15 +220,50 @@ namespace Portal_2_0.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "id,id_area,id_responsable,num_centro_costo")] budget_centro_costo item)
+        public ActionResult Edit(budget_centro_costo item, FormCollection collection)
         {
+            //obtiene el listado de piezas de descarte desde el formcollection
+            List<budget_responsables> listaResponsables = new List<budget_responsables>();
+
+            foreach (string key in collection.AllKeys.Where(x => x.ToUpper().Contains(".ID_RESPONSABLE") == true).ToList())
+            {
+                int index = -1;
+
+                int id_responsable = 0;
+                Match m = Regex.Match(key, @"\d+");
+
+                if (m.Success) //si tiene un numero
+                {
+                    int.TryParse(m.Value, out index);
+                    int.TryParse(collection["budget_responsables[" + index + "].id_responsable"], out id_responsable);
+
+                    listaResponsables.Add(
+                        new budget_responsables
+                        {
+                            id_budget_centro_costo = item.id,
+                            id_responsable = id_responsable,
+                            estatus = true
+                        }
+                    );
+                }
+            }
+
+            if (listaResponsables.Count == 0)
+                ModelState.AddModelError("", "No se han seleccionado responsables para el centro de costo.");
+
+            //verifica si hay valores disponibles
+            var anyDuplicate = listaResponsables.GroupBy(x => x.id_responsable).Any(g => g.Count() > 1);
+            if (anyDuplicate)
+                ModelState.AddModelError("", "Verifique que cada responsables este definido una sóla vez.");
+
             if (ModelState.IsValid)
             {
-                //busca si tipo poliza con la misma descripcion
-                budget_centro_costo item_busca = db.budget_centro_costo.Where(s => s.budget_departamentos.id == item.budget_departamentos.id)
+
+                //busca si tipo poliza con la mismo departamento
+                budget_centro_costo item_busca = db.budget_centro_costo.Where(s => s.budget_departamentos.id == item.id_budget_departamento && s.id != item.id)
                                         .FirstOrDefault();
 
-                //busca si tipo poliza con la misma descripcion
+                //busca si tipo poliza con la mismom centro costo
                 budget_centro_costo item_busca_num = db.budget_centro_costo.Where(s => s.num_centro_costo == item.num_centro_costo && s.id != item.id)
                                         .FirstOrDefault();
 
@@ -172,16 +275,56 @@ namespace Portal_2_0.Controllers
 
                 if (item_busca == null && item_busca_num == null)
                 {
+
                     db.Entry(item).State = EntityState.Modified;
                     db.SaveChanges();
+
+                    //borra los ids responsables anteriores
+                    var listResponsablesBD = db.budget_responsables.Where(x => x.id_budget_centro_costo == item.id);
+                    foreach (budget_responsables br in listResponsablesBD)
+                        db.budget_responsables.Remove(br);
+
+                    db.SaveChanges();
+
+                    //agrega las pza descarte nuevas
+                    foreach (budget_responsables br_item in listaResponsables)
+                    {
+                        db.budget_responsables.Add(br_item);
+                        db.SaveChanges();
+                    }
+
+                    //en caso de exito
+                    TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
+
                     return RedirectToAction("Index");
                 }
             }
-            item.budget_departamentos = db.budget_departamentos.Find(item.budget_departamentos.id);
 
-            ViewBag.id_planta = AddFirstItem(new SelectList(db.budget_plantas.Where(p => p.activo == true), "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
-            ViewBag.id_budget_departamento = AddFirstItem(new SelectList(db.budget_departamentos.Where(p => p.activo == true), "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
+            //obtiene los ids de rel_fy_centro
+            var idRels = listaResponsables.Select(x => x.id_responsable).Distinct();
+            List<budget_responsables> lisResp = new List<budget_responsables>();
 
+            item.budget_departamentos = db.budget_departamentos.Find(item.id_budget_departamento);
+
+            var emps = db.empleados
+                           .Where(s => s.activo == true && idRels.Contains(s.id)) //obtiene unicamente los sectores activos
+                           .ToList();
+
+            //CREA UN RESPONSABLE POR CADA EMPLEADO ENVIADO
+            foreach (empleados e in emps)
+                lisResp.Add(
+                     new budget_responsables()
+                     {
+                         id_budget_centro_costo = item.id,
+                         id_responsable = e.id
+                     }
+                    );
+
+            item.budget_responsables = lisResp;
+
+            ViewBag.id_planta = AddFirstItem(new SelectList(db.budget_plantas.Where(p => p.activo == true), "id", "descripcion"), textoPorDefecto: "-- Seleccionar --");
+            ViewBag.id_budget_departamento = AddFirstItem(new SelectList(db.budget_departamentos.Where(p => p.activo == true), "id", "descripcion"), textoPorDefecto: "-- Seleccionar --");
+            ViewBag.ListadoEmpleados = db.empleados.Where(x => x.activo == true).ToList();
             return View(item);
         }
 

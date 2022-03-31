@@ -27,12 +27,12 @@ namespace Portal_2_0.Models
         [Display(Name = "Id")]
         public int id { get; set; }
 
-        [Display(Name = "Departamento")]
+        [Display(Name = "Departament")]
         public int id_budget_departamento { get; set; }
 
         [Required(AllowEmptyStrings = false)]
         [StringLength(40, MinimumLength = 2)]
-        [Display(Name = "Descripción")]
+        [Display(Name = "Name")]
         public string descripcion { get; set; }
 
         [Required(AllowEmptyStrings = false)]

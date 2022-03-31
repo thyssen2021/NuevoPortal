@@ -94,7 +94,7 @@
                 Crear nuevo
             </a>*@
                                     </div>
-                                   
+
 
 
                                     <div class="form-group row">
@@ -112,6 +112,13 @@
                                         <label class="control-label col-md-1 text_derecha">Cost Center</label>
                                         <div class="col-md-2">
                                             <input type="text" class="form-control" value="@Model.num_centro_costo" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <!--Description Name-->
+                                        <label class="control-label col-md-1 text_derecha">Name</label>
+                                        <div class="col-md-8">
+                                            <input type="text" class="form-control" value="@Model.descripcion" readonly>
                                         </div>
                                     </div>
                                     @{
@@ -456,7 +463,7 @@
                                                                                 <input type="hidden" id="budget_valores[@((fila * 12) + 12)].id_cuenta_sap" name="budget_valores[@((fila * 12) + 12)].id_cuenta_sap" value="@item.id_cuenta_sap" />
                                                                                 <input type="hidden" id="budget_valores[@((fila * 12) + 12)].mes" name="budget_valores[@((fila * 12) + 12)].mes" value="12" />
                                                                                 <input type="hidden" id="budget_valores[@((fila * 12) + 12)].currency_iso" name="budget_valores[@((fila * 12) + 12)].currency_iso" value="USD" />
-                                                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + 12)].cantidad" id="budget_valores[@((fila * 12) + 12)].cantidad" class="form-control col-md-12 cantidad " data-fila="@fila" data-columna="12" value="@item.Diciembre" autocomplete="off")>
+                                                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + 12)].cantidad" id="budget_valores[@((fila * 12) + 12)].cantidad" class="form-control col-md-12 cantidad " data-fila="@fila" data-columna="12" value="@item.Diciembre" autocomplete="off" )>
                                                                                 <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + 12)].cantidad" data-valmsg-replace="true"></span>
 
                                                                             </td>
@@ -464,35 +471,35 @@
                                                                                 <input type="hidden" id="budget_valores[@((fila * 12) + 1)].id_cuenta_sap" name="budget_valores[@((fila * 12) + 1)].id_cuenta_sap" value="@item.id_cuenta_sap" />
                                                                                 <input type="hidden" id="budget_valores[@((fila * 12) + 1)].mes" name="budget_valores[@((fila * 12) + 1)].mes" value="1" />
                                                                                 <input type="hidden" id="budget_valores[@((fila * 12) + 1)].currency_iso" name="budget_valores[@((fila * 12) + 1)].currency_iso" value="USD" />
-                                                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + 1)].cantidad" id="budget_valores[@((fila * 12) + 1)].cantidad" class="form-control col-md-12 cantidad" data-fila="@fila" data-columna="1" value="@item.Enero" autocomplete="off")>
+                                                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + 1)].cantidad" id="budget_valores[@((fila * 12) + 1)].cantidad" class="form-control col-md-12 cantidad" data-fila="@fila" data-columna="1" value="@item.Enero" autocomplete="off" )>
                                                                                 <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + 1)].cantidad" data-valmsg-replace="true"></span>
                                                                             </td>
                                                                             <td class="text_derecha">
                                                                                 <input type="hidden" id="budget_valores[@((fila * 12) + 2)].id_cuenta_sap" name="budget_valores[@((fila * 12) + 2)].id_cuenta_sap" value="@item.id_cuenta_sap" />
                                                                                 <input type="hidden" id="budget_valores[@((fila * 12) + 2)].mes" name="budget_valores[@((fila * 12) + 2)].mes" value="2" />
                                                                                 <input type="hidden" id="budget_valores[@((fila * 12) + 2)].currency_iso" name="budget_valores[@((fila * 12) + 2)].currency_iso" value="USD" />
-                                                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + 2)].cantidad" id="budget_valores[@((fila * 12) + 2)].cantidad" class="form-control col-md-12 cantidad" data-fila="@fila" data-columna="2" value="@item.Febrero" autocomplete="off" >
+                                                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + 2)].cantidad" id="budget_valores[@((fila * 12) + 2)].cantidad" class="form-control col-md-12 cantidad" data-fila="@fila" data-columna="2" value="@item.Febrero" autocomplete="off">
                                                                                 <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + 2)].cantidad" data-valmsg-replace="true"></span>
                                                                             </td>
                                                                             <td class="text_derecha">
                                                                                 <input type="hidden" id="budget_valores[@((fila * 12) + 3)].id_cuenta_sap" name="budget_valores[@((fila * 12) + 3)].id_cuenta_sap" value="@item.id_cuenta_sap" />
                                                                                 <input type="hidden" id="budget_valores[@((fila * 12) + 3)].mes" name="budget_valores[@((fila * 12) + 3)].mes" value="3" />
                                                                                 <input type="hidden" id="budget_valores[@((fila * 12) + 3)].currency_iso" name="budget_valores[@((fila * 12) + 3)].currency_iso" value="USD" />
-                                                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + 3)].cantidad" id="budget_valores[@((fila * 12) + 3)].cantidad" class="form-control col-md-12 cantidad " data-fila="@fila" data-columna="3" value="@item.Marzo" autocomplete="off"  >
+                                                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + 3)].cantidad" id="budget_valores[@((fila * 12) + 3)].cantidad" class="form-control col-md-12 cantidad " data-fila="@fila" data-columna="3" value="@item.Marzo" autocomplete="off">
                                                                                 <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + 3)].cantidad" data-valmsg-replace="true"></span>
                                                                             </td>
                                                                             <td class="text_derecha">
                                                                                 <input type="hidden" id="budget_valores[@((fila * 12) + 4)].id_cuenta_sap" name="budget_valores[@((fila * 12) + 4)].id_cuenta_sap" value="@item.id_cuenta_sap" />
                                                                                 <input type="hidden" id="budget_valores[@((fila * 12) + 4)].mes" name="budget_valores[@((fila * 12) + 4)].mes" value="4" />
                                                                                 <input type="hidden" id="budget_valores[@((fila * 12) + 4)].currency_iso" name="budget_valores[@((fila * 12) + 4)].currency_iso" value="USD" />
-                                                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + 4)].cantidad" id="budget_valores[@((fila * 12) + 4)].cantidad" class="form-control col-md-12 cantidad" data-fila="@fila" data-columna="4" value="@item.Abril" autocomplete="off"  >
+                                                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + 4)].cantidad" id="budget_valores[@((fila * 12) + 4)].cantidad" class="form-control col-md-12 cantidad" data-fila="@fila" data-columna="4" value="@item.Abril" autocomplete="off">
                                                                                 <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + 4)].cantidad" data-valmsg-replace="true"></span>
                                                                             </td>
                                                                             <td class="text_derecha">
                                                                                 <input type="hidden" id="budget_valores[@((fila * 12) + 5)].id_cuenta_sap" name="budget_valores[@((fila * 12) + 5)].id_cuenta_sap" value="@item.id_cuenta_sap" />
                                                                                 <input type="hidden" id="budget_valores[@((fila * 12) + 5)].mes" name="budget_valores[@((fila * 12) + 5)].mes" value="5" />
                                                                                 <input type="hidden" id="budget_valores[@((fila * 12) + 5)].currency_iso" name="budget_valores[@((fila * 12) + 5)].currency_iso" value="USD" />
-                                                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + 5)].cantidad" id="budget_valores[@((fila * 12) + 5)].cantidad" class="form-control col-md-12 cantidad " data-fila="@fila" data-columna="5" value="@item.Mayo" autocomplete="off" >
+                                                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + 5)].cantidad" id="budget_valores[@((fila * 12) + 5)].cantidad" class="form-control col-md-12 cantidad " data-fila="@fila" data-columna="5" value="@item.Mayo" autocomplete="off">
                                                                                 <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + 5)].cantidad" data-valmsg-replace="true"></span>
                                                                             </td>
                                                                             <td class="text_derecha">
@@ -506,14 +513,14 @@
                                                                                 <input type="hidden" id="budget_valores[@((fila * 12) + 7)].id_cuenta_sap" name="budget_valores[@((fila * 12) + 7)].id_cuenta_sap" value="@item.id_cuenta_sap" />
                                                                                 <input type="hidden" id="budget_valores[@((fila * 12) + 7)].mes" name="budget_valores[@((fila * 12) + 7)].mes" value="7" />
                                                                                 <input type="hidden" id="budget_valores[@((fila * 12) + 7)].currency_iso" name="budget_valores[@((fila * 12) + 7)].currency_iso" value="USD" />
-                                                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + 7)].cantidad" id="budget_valores[@((fila * 12) + 7)].cantidad" class="form-control col-md-12 cantidad " data-fila="@fila" data-columna="7" value="@item.Julio" autocomplete="off" >
+                                                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + 7)].cantidad" id="budget_valores[@((fila * 12) + 7)].cantidad" class="form-control col-md-12 cantidad " data-fila="@fila" data-columna="7" value="@item.Julio" autocomplete="off">
                                                                                 <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + 7)].cantidad" data-valmsg-replace="true"></span>
                                                                             </td>
                                                                             <td class="text_derecha">
                                                                                 <input type="hidden" id="budget_valores[@((fila * 12) + 8)].id_cuenta_sap" name="budget_valores[@((fila * 12) + 8)].id_cuenta_sap" value="@item.id_cuenta_sap" />
                                                                                 <input type="hidden" id="budget_valores[@((fila * 12) + 8)].mes" name="budget_valores[@((fila * 12) + 8)].mes" value="8" />
                                                                                 <input type="hidden" id="budget_valores[@((fila * 12) + 8)].currency_iso" name="budget_valores[@((fila * 12) + 8)].currency_iso" value="USD" />
-                                                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + 8)].cantidad" id="budget_valores[@((fila * 12) + 8)].cantidad" class="form-control col-md-12 cantidad " data-fila="@fila" data-columna="8" value="@item.Agosto" autocomplete="off" >
+                                                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + 8)].cantidad" id="budget_valores[@((fila * 12) + 8)].cantidad" class="form-control col-md-12 cantidad " data-fila="@fila" data-columna="8" value="@item.Agosto" autocomplete="off">
                                                                                 <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + 8)].cantidad" data-valmsg-replace="true"></span>
                                                                             </td>
                                                                             <td class="text_derecha">
@@ -532,9 +539,9 @@
                                                                                 <input type="hidden" id="total_inicial_fila_@fila" name="total_inicial_fila_@fila" value="@sumafila" />
                                                                                 <span id="total_fila_@fila" name="total_fila_@fila">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.TotalMeses().Value)</span>
                                                                             </td>
-                                                                           <td>
+                                                                            <td>
                                                                                 <input type="hidden" id="budget_rel_comentarios[@(fila)].id_cuenta_sap" name="budget_rel_comentarios[@(fila)].id_cuenta_sap" value="@item.id_cuenta_sap" />
-                                                                                <textarea style="font-size: 12px;" type="text" name="budget_rel_comentarios[@fila].comentario" id="budget_rel_comentarios[@fila].comentario" class="form-control col-md-12" autocomplete="off" maxlength="100" >@item.Comentario</textarea>
+                                                                                <textarea style="font-size: 12px;" type="text" name="budget_rel_comentarios[@fila].comentario" id="budget_rel_comentarios[@fila].comentario" class="form-control col-md-12" autocomplete="off" maxlength="100">@item.Comentario</textarea>
                                                                                 <span class="field-validation-valid text-danger" data-valmsg-for="budget_rel_comentarios[@fila].comentario" data-valmsg-replace="true"></span>
                                                                             </td>
                                                                         </tr>
@@ -572,11 +579,11 @@
                                                         </div>
 
                                                         <div class="item form-group">
-                                                           
-                                                                <div class="col-md-12 col-sm-12 offset-md-12">
-                                                                    <button type="submit" class="btn btn-success btn-lg float-lg-right"> <i class="fa fa-save"></i>&nbsp;Guardar</button>
-                                                                </div>
-                                                            
+
+                                                            <div class="col-md-12 col-sm-12 offset-md-12">
+                                                                <button type="submit" class="btn btn-success btn-lg float-lg-right"> <i class="fa fa-save"></i>&nbsp;Guardar</button>
+                                                            </div>
+
                                                         </div>
 
                                                     </div>
@@ -765,7 +772,7 @@
                                     <a href="@Url.Action("Centros", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" style="color:white" title="Volver">
                                         <i class="fa fa-arrow-circle-left"></i> Volver al listado
                                     </a>
-                                    
+
                                 </div>
                             </div>
                         </div>

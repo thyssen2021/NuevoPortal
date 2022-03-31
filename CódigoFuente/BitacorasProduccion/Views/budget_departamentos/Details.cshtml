@@ -1,13 +1,12 @@
-﻿@model Portal_2_0.Models.budget_centro_costo
+﻿@model Portal_2_0.Models.budget_departamentos
 
 @{
-    ViewBag.Title = "Details Cost Center";
+    ViewBag.Title = "Department Details";
     ViewBag.PrimerNivel = "plantilla_budget";
     ViewBag.SegundoNivel = "BG_catalogos";
-    ViewBag.TercelNivel = "BG_CentroCosto";
-    ViewBag.ControllerName = "BG_CentroCosto";
+    ViewBag.TercelNivel = "budget_departamentos";
+    ViewBag.ControllerName = "budget_departamentos";
 
-    String responsables = (string.Join("/", Model.budget_responsables.Select(x => x.empleados.ConcatNombre).ToArray()));
 }
 
 <div class="right_col" role="main">
@@ -24,28 +23,32 @@
                     </div>
 
                     <!-- /.col -->
-                    <div class="col-md-10">
+                    <div class="col-md-8">
                         <div class="table-responsive">
                             <table class="table">
                                 <tbody>
                                     <tr>
-                                        <th>@Html.DisplayNameFor(model => model.num_centro_costo)</th>
-                                        <td>@Html.DisplayFor(model => model.num_centro_costo)</td>
+                                        <th>@Html.DisplayNameFor(model => model.id_budget_planta)</th>
+                                        <td>@Html.DisplayFor(model => model.budget_plantas.descripcion)</td>
                                     </tr>
                                     <tr>
-                                        <th>Plant</th>
-                                        <td>@Html.DisplayFor(model => model.budget_departamentos.budget_plantas.descripcion)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.id_budget_departamento)</th>
-                                        <td>@Html.DisplayFor(model => model.budget_departamentos.descripcion)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Responsable</th>
-                                        <td>@responsables</td>
+                                        <th>@Html.DisplayNameFor(model => model.descripcion)</th>
+                                        <td>@Html.DisplayFor(model => model.descripcion)</td>
                                     </tr>
 
-                                   
+                                    <tr>
+                                        <th style="width:50%"> @Html.DisplayNameFor(model => model.activo)</th>
+                                        <td>
+                                            @if (Model.activo)
+                                            {
+                                                <span>Activo</span>
+                                            }
+                                            else
+                                            {
+                                                <span>Inactivo</span>
+                                            }
+                                        </td>
+                                    </tr>
 
                                 </tbody>
                             </table>

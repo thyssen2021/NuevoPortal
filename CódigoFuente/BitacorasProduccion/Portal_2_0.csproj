@@ -198,8 +198,10 @@
     <Compile Include="Controllers\BG_CuentasSAPController.cs" />
     <Compile Include="Controllers\BG_MappingBridgeController.cs" />
     <Compile Include="Controllers\BG_MappingController.cs" />
+    <Compile Include="Controllers\BG_PlantsController.cs" />
     <Compile Include="Controllers\BomController.cs" />
     <Compile Include="Controllers\BudgetControllingController.cs" />
+    <Compile Include="Controllers\budget_departamentosController.cs" />
     <Compile Include="Controllers\class_v3Controller.cs" />
     <Compile Include="Controllers\CombosController.cs" />
     <Compile Include="Controllers\empleadosController.cs" />
@@ -468,9 +470,6 @@
     </Compile>
     <Compile Include="Models\UtilExcel.cs" />
     <Compile Include="Models\view_historico_resultado.cs">
-      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\view_valores_anio_fiscal.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\view_valores_fiscal_year.cs">
@@ -5265,6 +5264,18 @@
     <Content Include="Views\ResponsableBudget\EditCentroPresente.cshtml" />
     <Content Include="Views\ResponsableBudget\EditCentroProximo.cshtml" />
     <Content Include="Views\BudgetControlling\Reportes.cshtml" />
+    <Content Include="Views\BG_Plants\Create.cshtml" />
+    <Content Include="Views\BG_Plants\Details.cshtml" />
+    <Content Include="Views\BG_Plants\Disable.cshtml" />
+    <Content Include="Views\BG_Plants\Edit.cshtml" />
+    <Content Include="Views\BG_Plants\Enable.cshtml" />
+    <Content Include="Views\BG_Plants\Index.cshtml" />
+    <Content Include="Views\budget_departamentos\Create.cshtml" />
+    <Content Include="Views\budget_departamentos\Details.cshtml" />
+    <Content Include="Views\budget_departamentos\Disable.cshtml" />
+    <Content Include="Views\budget_departamentos\Edit.cshtml" />
+    <Content Include="Views\budget_departamentos\Enable.cshtml" />
+    <Content Include="Views\budget_departamentos\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

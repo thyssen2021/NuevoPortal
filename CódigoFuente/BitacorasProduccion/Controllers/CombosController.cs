@@ -46,6 +46,38 @@ namespace Portal_2_0.Controllers
             return Json(list, JsonRequestBehavior.AllowGet);
         }
 
+        ///<summary>
+        ///Obtiene las areas segun la planta recibida para budget
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult obtieneBudgetAreas(int id_planta = 0)
+        {
+            //obtiene todos los posibles valores
+            List<budget_departamentos> listado = db.budget_departamentos.Where(p => p.id_budget_planta == id_planta && p.activo == true).ToList();
+
+
+            //inserta el valor por default
+            listado.Insert(0, new budget_departamentos
+            {
+                id = 0,
+                descripcion = "-- Seleccione un valor --"
+            });
+
+            //inicializa la lista de objetos
+            var list = new object[listado.Count];
+
+            //completa la lista de objetos
+            for (int i = 0; i < listado.Count; i++)
+            {
+                if (i == 0)//en caso de item por defecto
+                    list[i] = new { value = "", name = listado[i].descripcion };
+                else
+                    list[i] = new { value = listado[i].id, name = listado[i].descripcion };
+            }
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
 
         ///<summary>
         ///Obtiene las mapping según la mapping bridge recibida
@@ -255,7 +287,7 @@ namespace Portal_2_0.Controllers
 
                 foreach (inspeccion_fallas falla in item.inspeccion_fallas)
                 {
-                    if(falla.activo)
+                    if (falla.activo)
                         textoSelects += "<option value='" + falla.id + "'>" + falla.descripcion + "</option>";
                 }
 
@@ -270,7 +302,31 @@ namespace Portal_2_0.Controllers
             return Json(list, JsonRequestBehavior.AllowGet);
         }
 
+        ///<summary>
+        ///Obtiene todas los empleados
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles que esten activas
+        public JsonResult obtieneEmpleadosSelect()
+        {
+            //obtiene todos los posibles valores
+            List<empleados> listado = db.empleados.Where(p => p.activo == true).ToList();
 
+            String textoSelects = "<option value=''>-- Seleccione un valor --</option>";
+
+
+            foreach (empleados item in listado)
+            {
+                textoSelects += "<option value='" + item.id + "'>" + item.ConcatNumEmpleadoNombre + "</option>";
+            }
+
+            //inicializa la lista de objetos
+            var list = new object[1];
+
+            list[0] = new { text = textoSelects };
+
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
 
         public ActionResult DownloadFile(int? idDocumento, bool inline = false)
         {

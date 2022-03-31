@@ -375,6 +375,8 @@
                                                     <li class="@(ViewBag.SegundoNivel == "catalogos" ? "active" : "" )">
                                                         <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
                                                         <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "BG_catalogos" ? "display:block" : null )">
+                                                            <li class="@(ViewBag.TercelNivel == "BG_Plants" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_Plants")">Plantas</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "budget_departamentos" ? "current-page" : null )"><a href="@Url.Action( "Index", "budget_departamentos")">Departamentos</a></li>
                                                             <li class="@(ViewBag.TercelNivel == "BG_CentroCosto" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_CentroCosto")">Centros</a></li>
                                                             <li class="@(ViewBag.TercelNivel == "BG_MappingBridge" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_MappingBridge")">Mapping Bridge</a></li>
                                                             <li class="@(ViewBag.TercelNivel == "BG_Mapping" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_Mapping")">Mapping</a></li>

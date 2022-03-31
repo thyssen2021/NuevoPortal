@@ -22,6 +22,7 @@ namespace Portal_2_0.Models
         }
     
         public int id { get; set; }
+
         [Required(AllowEmptyStrings = false)]
         [StringLength(40, MinimumLength = 2)]
         [Display(Name = "Description")]

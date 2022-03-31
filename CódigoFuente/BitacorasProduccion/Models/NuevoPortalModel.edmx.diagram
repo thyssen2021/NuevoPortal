@@ -117,7 +117,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_budget_cuenta_sap_id_mapping" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_mapping_id_mapping_bridge" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_anio_fiscal" Width="1.5" PointX="19.75" PointY="35.125" />
-        <EntityTypeShape EntityType="Portal_2_0Model.view_valores_anio_fiscal" Width="1.5" PointX="12.375" PointY="15.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_cantidad" Width="1.5" PointX="29.25" PointY="30.25" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_rel_comentarios" Width="1.5" PointX="26.25" PointY="30.5" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_rel_fy_centro" Width="1.5" PointX="24" PointY="21" />

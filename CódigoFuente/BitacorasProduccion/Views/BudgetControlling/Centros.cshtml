@@ -135,10 +135,13 @@
                                                     @Html.DisplayNameFor(model => model.num_centro_costo)
                                                 </th>
                                                 <th>
-                                                    Plant
+                                                    @Html.DisplayNameFor(model => model.descripcion)
                                                 </th>
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.id_budget_departamento)
+                                                </th>
+                                                <th>
+                                                    Plant
                                                 </th>
                                                 <th>
                                                     Responsable
@@ -159,66 +162,69 @@
 
                                                 String responsables = (string.Join("/", item.budget_responsables.Select(x => x.empleados.ConcatNombre).ToArray()));
 
-                                                <tr>
-                                                    <td>
-                                                        <a href="@Url.Action("DetailsCentro", ViewBag.ControllerName, new { id = item.id})" class="btn btn-info btm-sm" title="Detalles">
-                                                            <i class="fa fa-info-circle"></i>
-                                                        </a>
-                                                        <a href="@Url.Action("ImportActual", ViewBag.ControllerName, new
+                                            <tr>
+                                                <td>
+                                                    <a href="@Url.Action("DetailsCentro", ViewBag.ControllerName, new { id = item.id})" class="btn btn-info btm-sm" title="Detalles">
+                                                        <i class="fa fa-info-circle"></i>
+                                                    </a>
+                                                    <a href="@Url.Action("ImportActual", ViewBag.ControllerName, new
                                                 {
                                                     id = item.id
 
                                                 })" class="btn btn-success btm-sm" title="Import Actual">
-                                                            <i class="fa fa-cloud-upload"></i> Import
-                                                        </a>
-                                                    </td>
-                                                    <td>
-                                                        @fila
-                                                    </td>
+                                                        <i class="fa fa-cloud-upload"></i> Import
+                                                    </a>
+                                                </td>
+                                                <td>
+                                                    @fila
+                                                </td>
 
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.num_centro_costo)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.budget_departamentos.budget_plantas.descripcion)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.budget_departamentos.descripcion)
-                                                    </td>
-                                                    <td>
-                                                        <span>@responsables</span>
-                                                    </td>
-                                                    <td>
-                                                        @if (item.RelAnioCentroActual_Forecast() == null)
-                                                        {
-                                                            <span>No disponible</span>
-                                                        }
-                                                        else if (item.RelAnioCentroActual_Forecast().estatus)
-                                                        {
-                                                            <span>Abierto</span>
-                                                        }
-                                                        else
-                                                        {
-                                                            <span>Cerrado</span>
-                                                        }
-                                                    </td>
-                                                    <td>
-                                                        @if (item.RelAnioCentroProximo_Budget() == null)
-                                                        {
-                                                            <span>No disponible</span>
-                                                        }
-                                                        else if (item.RelAnioCentroProximo_Budget().estatus)
-                                                        {
-                                                            <span>Abierto</span>
-                                                        }
-                                                        else
-                                                        {
-                                                            <span>Cerrado</span>
-                                                        }
-                                                    </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.num_centro_costo)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.descripcion)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.budget_departamentos.descripcion)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.budget_departamentos.budget_plantas.descripcion)
+                                                </td>
+                                                <td>
+                                                    <span>@responsables</span>
+                                                </td>
+                                                <td>
+                                                    @if (item.RelAnioCentroActual_Forecast() == null)
+                                                    {
+                                                        <span>No disponible</span>
+                                                    }
+                                                    else if (item.RelAnioCentroActual_Forecast().estatus)
+                                                    {
+                                                        <span>Abierto</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span>Cerrado</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (item.RelAnioCentroProximo_Budget() == null)
+                                                    {
+                                                        <span>No disponible</span>
+                                                    }
+                                                    else if (item.RelAnioCentroProximo_Budget().estatus)
+                                                    {
+                                                        <span>Abierto</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span>Cerrado</span>
+                                                    }
+                                                </td>
 
 
-                                                </tr>
+                                            </tr>
 
                                                 fila++;
                                             }
