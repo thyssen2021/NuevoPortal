@@ -17,14 +17,16 @@ namespace Portal_2_0.Models
         {
 
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion_historial_cambios.xlsx"), "Sheet1");
             Portal_2_0Entities db = new Portal_2_0Entities();
 
             System.Data.DataTable dt = new System.Data.DataTable();
 
             //para llevar el control de si es encabezado o no
             List<bool> filasEncabezados = new List<bool>();
+            List<bool> filasTemporales = new List<bool>();
             filasEncabezados.Add(false); //es el encabezado principal
+            filasTemporales.Add(false);
 
             //columnas
             dt.Columns.Add("Planta", typeof(string));
@@ -87,6 +89,12 @@ namespace Portal_2_0.Models
 
                 filasEncabezados.Add(true);
 
+                //verifica es una fila temporal
+                if(item.SAP_Platina.ToUpper().Contains("TEMPORAL")||item.SAP_Rollo.ToUpper().Contains("TEMPORAL"))
+                    filasTemporales.Add(true);
+                else
+                    filasTemporales.Add(false);
+
                 produccion_registros p = null;
                 //busca si tiene registro en el nuevo sistema
                 if (item.IdRegistro.HasValue)
@@ -107,6 +115,7 @@ namespace Portal_2_0.Models
                        , null, null, null, null, null, null, null
                        , null, null, null, null);
                         filasEncabezados.Add(false);
+                        filasTemporales.Add(false);
                     }
                 }
 
@@ -152,6 +161,10 @@ namespace Portal_2_0.Models
             //estilo para el encabezado de cada fila
             SLStyle styleHeaderRow = oSLDocument.CreateStyle();
             styleHeaderRow.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#daeef3"), System.Drawing.ColorTranslator.FromHtml("#daeef3"));
+
+            //estilo para el encabezado de cada fila
+            SLStyle styleHeaderRowTemporal = oSLDocument.CreateStyle();
+            styleHeaderRowTemporal.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffa0a2"), System.Drawing.ColorTranslator.FromHtml("#ffa0a2"));
 
             //estilo para cada lote
             SLStyle styleLoteInfo = oSLDocument.CreateStyle();
@@ -213,6 +226,16 @@ namespace Portal_2_0.Models
                 }
                 //colapsa todas las filas
                 oSLDocument.CollapseRows(i + 1);
+            }
+
+            //Aplica formato a los temporales
+            for (int i = 0; i < filasTemporales.Count; i++)
+            {
+                if (filasTemporales[i])
+                {
+                    oSLDocument.SetRowStyle(i + 1, styleHeaderRowTemporal);
+                }
+                
             }
 
             //da estilo a los numero

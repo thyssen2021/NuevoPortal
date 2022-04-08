@@ -130,8 +130,8 @@ namespace Portal_2_0.Controllers
                         x.Planta.ToUpper().Contains(planta.descripcion.ToUpper())
                         && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
                         && x.Fecha >= dateInicial && x.Fecha <= dateFinal
-                        && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
-                        && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
+                       // && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
+                       // && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
                         )
                         .OrderBy(x => x.id)
                         .Skip((pagina - 1) * cantidadRegistrosPorPagina)
@@ -142,8 +142,8 @@ namespace Portal_2_0.Controllers
                         x.Planta.ToUpper().Contains(planta.descripcion.ToUpper())
                         && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
                         && x.Fecha >= dateInicial && x.Fecha <= dateFinal
-                        && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
-                        && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
+                        // && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
+                        // && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
                         ).Count();
                 } else if (tipoR.Contains("turno")) { //BUSCA POR TURNO
                     //determina la hora inicial y final del turno                   
@@ -163,8 +163,8 @@ namespace Portal_2_0.Controllers
                        && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
                        && (x.Turno.ToUpper().Contains(turno1.descripcion.ToUpper()) || x.Turno.ToUpper().Contains(turno1.valor.ToString()) || id_turno == 0)
                        && x.Fecha >= dateTurno && x.Fecha <= fecha_fin_turno 
-                       && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
-                       && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
+                      // && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
+                      // && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
                        )
                        .OrderBy(x => x.id)
                        .Skip((pagina - 1) * cantidadRegistrosPorPagina)
@@ -176,8 +176,8 @@ namespace Portal_2_0.Controllers
                        && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
                        && (x.Turno.ToUpper().Contains(turno1.descripcion.ToUpper()) || x.Turno.ToUpper().Contains(turno1.valor.ToString()) || id_turno == 0)
                        && x.Fecha >= dateTurno && x.Fecha <= fecha_fin_turno
-                       && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
-                       && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
+                       // && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
+                       // && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
                         ).Count();
 
                 }
@@ -309,8 +309,8 @@ namespace Portal_2_0.Controllers
                         x.Planta.ToUpper().Contains(planta.descripcion.ToUpper())
                         && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
                         && x.Fecha >= dateInicial && x.Fecha <= dateFinal
-                        && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
-                        && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
+                        //&& !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
+                        //&& !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
                         )
                         .OrderBy(x => x.id)
                        .ToList();
@@ -337,8 +337,8 @@ namespace Portal_2_0.Controllers
                        && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
                        && (x.Turno.ToUpper().Contains(turno1.descripcion.ToUpper()) || x.Turno.ToUpper().Contains(turno1.valor.ToString()) || id_turno == 0)
                        && x.Fecha >= dateTurno && x.Fecha <= fecha_fin_turno
-                       && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
-                       && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
+                     //  && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
+                     //  && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
                        )
                        .OrderBy(x => x.id)
                        .ToList();
@@ -352,7 +352,8 @@ namespace Portal_2_0.Controllers
                 var cd = new System.Net.Mime.ContentDisposition
                 {
                     // for example foo.bak
-                    FileName = planta.descripcion + "_" + produccion_Lineas.linea + "_" + fecha_inicial + "_" + dateFinal.ToString("yyyy-MM-dd") + ".xlsx",
+                    //FileName = planta.descripcion + "_" + produccion_Lineas.linea + "_" + fecha_inicial + "_" + dateFinal.ToString("yyyy-MM-dd") + ".xlsx",
+                    FileName = Server.UrlEncode ("PRF005-04 Sábana de Producción "+ planta.descripcion +".xlsx"),
 
                     // always prompt the user for downloading, set to true if you want 
                     // the browser to try to show the file inline

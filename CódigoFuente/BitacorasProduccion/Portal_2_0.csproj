@@ -4925,6 +4925,7 @@
     <Content Include="Content\plantillas_excel\plantilla_reporte_produccion.xlsx" />
     <Content Include="Content\manuales\Manual_Usuario_PM.pdf" />
     <Content Include="Content\plantillas_excel\plantilla_reporte.xlsx" />
+    <Content Include="Content\plantillas_excel\plantilla_reporte_produccion_historial_cambios.xlsx" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
     <Content Include="Scripts\jquery-3.4.1.min.js" />
