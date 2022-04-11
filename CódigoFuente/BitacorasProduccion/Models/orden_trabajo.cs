@@ -88,11 +88,11 @@ namespace Portal_2_0.Models
         public virtual Area Area { get; set; }
         public virtual biblioteca_digital biblioteca_digital { get; set; }
         public virtual biblioteca_digital biblioteca_digital1 { get; set; }
-        public virtual empleados empleados { get; set; }
-        public virtual empleados empleados1 { get; set; }
-        public virtual empleados empleados2 { get; set; }
         public virtual produccion_lineas produccion_lineas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<OT_refacciones> OT_refacciones { get; set; }
+        public virtual empleados empleados { get; set; }
+        public virtual empleados empleados1 { get; set; }
+        public virtual empleados empleados2 { get; set; }
     }
 }

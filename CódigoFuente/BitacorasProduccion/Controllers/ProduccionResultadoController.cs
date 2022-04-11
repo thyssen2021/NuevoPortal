@@ -342,9 +342,7 @@ namespace Portal_2_0.Controllers
                        )
                        .OrderBy(x => x.id)
                        .ToList();
-
-                }
-                
+                }                
 
                 byte[] stream = ExcelUtil.GeneraReporteBitacorasExcel(listado, porturno);
 
@@ -353,7 +351,7 @@ namespace Portal_2_0.Controllers
                 {
                     // for example foo.bak
                     //FileName = planta.descripcion + "_" + produccion_Lineas.linea + "_" + fecha_inicial + "_" + dateFinal.ToString("yyyy-MM-dd") + ".xlsx",
-                    FileName = Server.UrlEncode ("PRF005-04 Sábana de Producción "+ planta.descripcion +".xlsx"),
+                    FileName = Server.UrlEncode ("PRF005-04_Sábana_de_Producción "+ planta.descripcion +".xlsx"),
 
                     // always prompt the user for downloading, set to true if you want 
                     // the browser to try to show the file inline

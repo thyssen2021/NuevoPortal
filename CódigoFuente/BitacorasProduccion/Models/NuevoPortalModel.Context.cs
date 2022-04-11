@@ -65,7 +65,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<PM_poliza_manual_modelo> PM_poliza_manual_modelo { get; set; }
         public virtual DbSet<PM_usuarios_capturistas> PM_usuarios_capturistas { get; set; }
         public virtual DbSet<currency> currency { get; set; }
-        public virtual DbSet<empleados> empleados { get; set; }
         public virtual DbSet<poliza_manual> poliza_manual { get; set; }
         public virtual DbSet<OT_refacciones> OT_refacciones { get; set; }
         public virtual DbSet<orden_trabajo> orden_trabajo { get; set; }
@@ -81,5 +80,7 @@ namespace Portal_2_0.Models
         public virtual DbSet<budget_plantas> budget_plantas { get; set; }
         public virtual DbSet<budget_centro_costo> budget_centro_costo { get; set; }
         public virtual DbSet<view_valores_fiscal_year> view_valores_fiscal_year { get; set; }
+        public virtual DbSet<OT_personal_mantenimiento> OT_personal_mantenimiento { get; set; }
+        public virtual DbSet<empleados> empleados { get; set; }
     }
 }

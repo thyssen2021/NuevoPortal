@@ -382,6 +382,9 @@
     <Compile Include="Models\orden_trabajo.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\OT_personal_mantenimiento.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\OT_refacciones.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -5279,6 +5282,9 @@
     <Content Include="Views\budget_departamentos\Index.cshtml" />
     <Content Include="Views\BG_CentroCosto\Disable.cshtml" />
     <Content Include="Views\BG_CentroCosto\Enable.cshtml" />
+    <Content Include="Views\OrdenesTrabajo\ListadoAginacionPendientes.cshtml" />
+    <Content Include="Views\OrdenesTrabajo\Asignar.cshtml" />
+    <Content Include="Views\OrdenesTrabajo\ListadoAsignacionAsignadas.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

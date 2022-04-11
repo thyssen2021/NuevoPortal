@@ -36,6 +36,11 @@
         .page-link {
             color: black !important;
         }
+
+        .boton-verde {
+            background-color: forestgreen;
+        }
+
     </style>
 
     @RenderSection("estilos", required: false)
@@ -329,7 +334,6 @@
 
 
                                     @*MENÚ ORDENES DE TRABAJO*@
-
                                     @if (User.IsInRole(TipoRoles.OT_ASIGNACION) || User.IsInRole(TipoRoles.OT_REPORTE) || User.IsInRole(TipoRoles.OT_RESPONSABLE) || User.IsInRole(TipoRoles.OT_SOLICITUD))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "orden_trabajo" ? "active" : null )">
@@ -343,15 +347,18 @@
                                                     <li class="@(ViewBag.SegundoNivel == "mis_solicitudes" ? "current-page" : null )"><a href="@Url.Action("ListadoUsuario", "OrdenesTrabajo")">Mis Solicitudes</a></li>
                                                 }
 
-
+                                                @if (User.IsInRole(TipoRoles.OT_ASIGNACION))
+                                                {
+                                                    <h3>Asignaci&oacute;n</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "ListadoAginacionPendientes" ? "current-page" : null )"><a href="@Url.Action("ListadoAginacionPendientes", "OrdenesTrabajo")">Pendientes</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "ListadoAsignacionAsignadas" ? "current-page" : null )"><a href="@Url.Action("ListadoAsignacionAsignadas", "OrdenesTrabajo")">Asignadas</a></li>
+                                                }
                                             </ul>
-
                                         </li>
 
                                     }
 
                                     @*MENÚ PLANTILLA BUDGET*@
-
                                     @if (User.IsInRole(TipoRoles.BG_RESPONSABLE) || User.IsInRole(TipoRoles.BG_CONTROLLING) || User.IsInRole(TipoRoles.BG_REPORTES))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "plantilla_budget" ? "active" : null )">
