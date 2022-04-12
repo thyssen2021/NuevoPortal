@@ -705,6 +705,71 @@
           <Property Name="descripcion" Type="varchar" MaxLength="80" Nullable="false" />
           <Property Name="areaClave" Type="int" />
         </EntityType>
+        <EntityType Name="upgrade_check_item">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="80" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="upgrade_departamentos">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_upgrade_planta" Type="int" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="40" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="upgrade_plantas">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="40" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="upgrade_revision">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_upgrade_usuario" Type="int" Nullable="false" />
+          <Property Name="id_upgrade_departamento" Type="int" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="upgrade_usuarios">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_empleado" Type="int" Nullable="false" />
+          <Property Name="key_user" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="upgrade_values_checklist">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_revision" Type="int" Nullable="false" />
+          <Property Name="id_checklist_item" Type="int" Nullable="false" />
+          <Property Name="estatus" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="nota" Type="varchar" MaxLength="250" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="upgrade_values_transaccion">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_revision" Type="int" Nullable="false" />
+          <Property Name="transaccion" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="estatus" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="nota" Type="varchar" MaxLength="250" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
         <!--Errors Found During Generation:
 warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="view_historico_resultado">
@@ -1721,6 +1786,90 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_upgrade_departamentos_id_planta">
+          <End Role="upgrade_plantas" Type="Self.upgrade_plantas" Multiplicity="1" />
+          <End Role="upgrade_departamentos" Type="Self.upgrade_departamentos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="upgrade_plantas">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="upgrade_departamentos">
+              <PropertyRef Name="id_upgrade_planta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_upgrade_revision_departamento">
+          <End Role="upgrade_departamentos" Type="Self.upgrade_departamentos" Multiplicity="1" />
+          <End Role="upgrade_revision" Type="Self.upgrade_revision" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="upgrade_departamentos">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="upgrade_revision">
+              <PropertyRef Name="id_upgrade_departamento" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_upgrade_revision_usuario">
+          <End Role="upgrade_usuarios" Type="Self.upgrade_usuarios" Multiplicity="1" />
+          <End Role="upgrade_revision" Type="Self.upgrade_revision" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="upgrade_usuarios">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="upgrade_revision">
+              <PropertyRef Name="id_upgrade_usuario" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_upgrade_usuarios_empleado">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="1" />
+          <End Role="upgrade_usuarios" Type="Self.upgrade_usuarios" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="upgrade_usuarios">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_upgrade_values_checklist_check_item">
+          <End Role="upgrade_check_item" Type="Self.upgrade_check_item" Multiplicity="1" />
+          <End Role="upgrade_values_checklist" Type="Self.upgrade_values_checklist" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="upgrade_check_item">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="upgrade_values_checklist">
+              <PropertyRef Name="id_checklist_item" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_upgrade_values_checklist_revision">
+          <End Role="upgrade_revision" Type="Self.upgrade_revision" Multiplicity="1" />
+          <End Role="upgrade_values_checklist" Type="Self.upgrade_values_checklist" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="upgrade_revision">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="upgrade_values_checklist">
+              <PropertyRef Name="id_revision" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_upgrade_values_transaccion_revision">
+          <End Role="upgrade_revision" Type="Self.upgrade_revision" Multiplicity="1" />
+          <End Role="upgrade_values_transaccion" Type="Self.upgrade_values_transaccion" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="upgrade_revision">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="upgrade_values_transaccion">
+              <PropertyRef Name="id_revision" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityContainer Name="Portal_2_0ModelStoreContainer">
           <EntitySet Name="Area" EntityType="Self.Area" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="AspNetUsers" EntityType="Self.AspNetUsers" Schema="dbo" store:Type="Tables" />
@@ -1777,6 +1926,13 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <EntitySet Name="produccion_supervisores" EntityType="Self.produccion_supervisores" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="produccion_turnos" EntityType="Self.produccion_turnos" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="puesto" EntityType="Self.puesto" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="upgrade_check_item" EntityType="Self.upgrade_check_item" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="upgrade_departamentos" EntityType="Self.upgrade_departamentos" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="upgrade_plantas" EntityType="Self.upgrade_plantas" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="upgrade_revision" EntityType="Self.upgrade_revision" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="upgrade_usuarios" EntityType="Self.upgrade_usuarios" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="upgrade_values_checklist" EntityType="Self.upgrade_values_checklist" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="upgrade_values_transaccion" EntityType="Self.upgrade_values_transaccion" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="view_historico_resultado" EntityType="Self.view_historico_resultado" store:Type="Views" store:Schema="dbo">
             <DefiningQuery>SELECT 
     [view_historico_resultado].[id] AS [id], 
@@ -2166,6 +2322,34 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <AssociationSet Name="FK_puestos_area_clave" Association="Self.FK_puestos_area_clave">
             <End Role="Area" EntitySet="Area" />
             <End Role="puesto" EntitySet="puesto" />
+          </AssociationSet>
+          <AssociationSet Name="FK_upgrade_departamentos_id_planta" Association="Self.FK_upgrade_departamentos_id_planta">
+            <End Role="upgrade_plantas" EntitySet="upgrade_plantas" />
+            <End Role="upgrade_departamentos" EntitySet="upgrade_departamentos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_upgrade_revision_departamento" Association="Self.FK_upgrade_revision_departamento">
+            <End Role="upgrade_departamentos" EntitySet="upgrade_departamentos" />
+            <End Role="upgrade_revision" EntitySet="upgrade_revision" />
+          </AssociationSet>
+          <AssociationSet Name="FK_upgrade_revision_usuario" Association="Self.FK_upgrade_revision_usuario">
+            <End Role="upgrade_usuarios" EntitySet="upgrade_usuarios" />
+            <End Role="upgrade_revision" EntitySet="upgrade_revision" />
+          </AssociationSet>
+          <AssociationSet Name="FK_upgrade_usuarios_empleado" Association="Self.FK_upgrade_usuarios_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="upgrade_usuarios" EntitySet="upgrade_usuarios" />
+          </AssociationSet>
+          <AssociationSet Name="FK_upgrade_values_checklist_check_item" Association="Self.FK_upgrade_values_checklist_check_item">
+            <End Role="upgrade_check_item" EntitySet="upgrade_check_item" />
+            <End Role="upgrade_values_checklist" EntitySet="upgrade_values_checklist" />
+          </AssociationSet>
+          <AssociationSet Name="FK_upgrade_values_checklist_revision" Association="Self.FK_upgrade_values_checklist_revision">
+            <End Role="upgrade_revision" EntitySet="upgrade_revision" />
+            <End Role="upgrade_values_checklist" EntitySet="upgrade_values_checklist" />
+          </AssociationSet>
+          <AssociationSet Name="FK_upgrade_values_transaccion_revision" Association="Self.FK_upgrade_values_transaccion_revision">
+            <End Role="upgrade_revision" EntitySet="upgrade_revision" />
+            <End Role="upgrade_values_transaccion" EntitySet="upgrade_values_transaccion" />
           </AssociationSet>
         </EntityContainer>
       </Schema></edmx:StorageModels>
@@ -2913,6 +3097,41 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <AssociationSet Name="FK_produccion_supervisores_id_empleado" Association="Portal_2_0Model.FK_produccion_supervisores_id_empleado">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="produccion_supervisores" EntitySet="produccion_supervisores" />
+          </AssociationSet>
+          <EntitySet Name="upgrade_check_item" EntityType="Portal_2_0Model.upgrade_check_item" />
+          <EntitySet Name="upgrade_departamentos" EntityType="Portal_2_0Model.upgrade_departamentos" />
+          <EntitySet Name="upgrade_plantas" EntityType="Portal_2_0Model.upgrade_plantas" />
+          <EntitySet Name="upgrade_revision" EntityType="Portal_2_0Model.upgrade_revision" />
+          <EntitySet Name="upgrade_usuarios" EntityType="Portal_2_0Model.upgrade_usuarios" />
+          <AssociationSet Name="FK_upgrade_usuarios_empleado" Association="Portal_2_0Model.FK_upgrade_usuarios_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="upgrade_usuarios" EntitySet="upgrade_usuarios" />
+          </AssociationSet>
+          <AssociationSet Name="FK_upgrade_departamentos_id_planta" Association="Portal_2_0Model.FK_upgrade_departamentos_id_planta">
+            <End Role="upgrade_plantas" EntitySet="upgrade_plantas" />
+            <End Role="upgrade_departamentos" EntitySet="upgrade_departamentos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_upgrade_revision_departamento" Association="Portal_2_0Model.FK_upgrade_revision_departamento">
+            <End Role="upgrade_departamentos" EntitySet="upgrade_departamentos" />
+            <End Role="upgrade_revision" EntitySet="upgrade_revision" />
+          </AssociationSet>
+          <AssociationSet Name="FK_upgrade_revision_usuario" Association="Portal_2_0Model.FK_upgrade_revision_usuario">
+            <End Role="upgrade_usuarios" EntitySet="upgrade_usuarios" />
+            <End Role="upgrade_revision" EntitySet="upgrade_revision" />
+          </AssociationSet>
+          <EntitySet Name="upgrade_values_checklist" EntityType="Portal_2_0Model.upgrade_values_checklist" />
+          <AssociationSet Name="FK_upgrade_values_checklist_check_item" Association="Portal_2_0Model.FK_upgrade_values_checklist_check_item">
+            <End Role="upgrade_check_item" EntitySet="upgrade_check_item" />
+            <End Role="upgrade_values_checklist" EntitySet="upgrade_values_checklist" />
+          </AssociationSet>
+          <AssociationSet Name="FK_upgrade_values_checklist_revision" Association="Portal_2_0Model.FK_upgrade_values_checklist_revision">
+            <End Role="upgrade_revision" EntitySet="upgrade_revision" />
+            <End Role="upgrade_values_checklist" EntitySet="upgrade_values_checklist" />
+          </AssociationSet>
+          <EntitySet Name="upgrade_values_transaccion" EntityType="Portal_2_0Model.upgrade_values_transaccion" />
+          <AssociationSet Name="FK_upgrade_values_transaccion_revision" Association="Portal_2_0Model.FK_upgrade_values_transaccion_revision">
+            <End Role="upgrade_revision" EntitySet="upgrade_revision" />
+            <End Role="upgrade_values_transaccion" EntitySet="upgrade_values_transaccion" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="notificaciones_correo">
@@ -4122,6 +4341,7 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <NavigationProperty Name="produccion_operadores" Relationship="Portal_2_0Model.FK_produccion_operadores_id_empleado" FromRole="empleados" ToRole="produccion_operadores" />
           <NavigationProperty Name="produccion_respaldo" Relationship="Portal_2_0Model.FK_produccion_respaldo_id_empleado" FromRole="empleados" ToRole="produccion_respaldo" />
           <NavigationProperty Name="produccion_supervisores" Relationship="Portal_2_0Model.FK_produccion_supervisores_id_empleado" FromRole="empleados" ToRole="produccion_supervisores" />
+          <NavigationProperty Name="upgrade_usuarios" Relationship="Portal_2_0Model.FK_upgrade_usuarios_empleado" FromRole="empleados" ToRole="upgrade_usuarios" />
         </EntityType>
         <Association Name="FK_empleados_area">
           <End Type="Portal_2_0Model.Area" Role="Area" Multiplicity="0..1" />
@@ -4396,6 +4616,168 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             </Principal>
             <Dependent Role="produccion_supervisores">
               <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="upgrade_check_item">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="80" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="upgrade_values_checklist" Relationship="Portal_2_0Model.FK_upgrade_values_checklist_check_item" FromRole="upgrade_check_item" ToRole="upgrade_values_checklist" />
+        </EntityType>
+        <EntityType Name="upgrade_departamentos">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_upgrade_planta" Type="Int32" Nullable="false" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="upgrade_plantas" Relationship="Portal_2_0Model.FK_upgrade_departamentos_id_planta" FromRole="upgrade_departamentos" ToRole="upgrade_plantas" />
+          <NavigationProperty Name="upgrade_revision" Relationship="Portal_2_0Model.FK_upgrade_revision_departamento" FromRole="upgrade_departamentos" ToRole="upgrade_revision" />
+        </EntityType>
+        <EntityType Name="upgrade_plantas">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="upgrade_departamentos" Relationship="Portal_2_0Model.FK_upgrade_departamentos_id_planta" FromRole="upgrade_plantas" ToRole="upgrade_departamentos" />
+        </EntityType>
+        <EntityType Name="upgrade_revision">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_upgrade_usuario" Type="Int32" Nullable="false" />
+          <Property Name="id_upgrade_departamento" Type="Int32" Nullable="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="upgrade_departamentos" Relationship="Portal_2_0Model.FK_upgrade_revision_departamento" FromRole="upgrade_revision" ToRole="upgrade_departamentos" />
+          <NavigationProperty Name="upgrade_usuarios" Relationship="Portal_2_0Model.FK_upgrade_revision_usuario" FromRole="upgrade_revision" ToRole="upgrade_usuarios" />
+          <NavigationProperty Name="upgrade_values_checklist" Relationship="Portal_2_0Model.FK_upgrade_values_checklist_revision" FromRole="upgrade_revision" ToRole="upgrade_values_checklist" />
+          <NavigationProperty Name="upgrade_values_transaccion" Relationship="Portal_2_0Model.FK_upgrade_values_transaccion_revision" FromRole="upgrade_revision" ToRole="upgrade_values_transaccion" />
+        </EntityType>
+        <EntityType Name="upgrade_usuarios">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_empleado" Type="Int32" Nullable="false" />
+          <Property Name="key_user" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_upgrade_usuarios_empleado" FromRole="upgrade_usuarios" ToRole="empleados" />
+          <NavigationProperty Name="upgrade_revision" Relationship="Portal_2_0Model.FK_upgrade_revision_usuario" FromRole="upgrade_usuarios" ToRole="upgrade_revision" />
+        </EntityType>
+        <Association Name="FK_upgrade_usuarios_empleado">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.upgrade_usuarios" Role="upgrade_usuarios" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="upgrade_usuarios">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_upgrade_departamentos_id_planta">
+          <End Type="Portal_2_0Model.upgrade_plantas" Role="upgrade_plantas" Multiplicity="1" />
+          <End Type="Portal_2_0Model.upgrade_departamentos" Role="upgrade_departamentos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="upgrade_plantas">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="upgrade_departamentos">
+              <PropertyRef Name="id_upgrade_planta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_upgrade_revision_departamento">
+          <End Type="Portal_2_0Model.upgrade_departamentos" Role="upgrade_departamentos" Multiplicity="1" />
+          <End Type="Portal_2_0Model.upgrade_revision" Role="upgrade_revision" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="upgrade_departamentos">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="upgrade_revision">
+              <PropertyRef Name="id_upgrade_departamento" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_upgrade_revision_usuario">
+          <End Type="Portal_2_0Model.upgrade_usuarios" Role="upgrade_usuarios" Multiplicity="1" />
+          <End Type="Portal_2_0Model.upgrade_revision" Role="upgrade_revision" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="upgrade_usuarios">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="upgrade_revision">
+              <PropertyRef Name="id_upgrade_usuario" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="upgrade_values_checklist">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_revision" Type="Int32" Nullable="false" />
+          <Property Name="id_checklist_item" Type="Int32" Nullable="false" />
+          <Property Name="estatus" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="nota" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="upgrade_check_item" Relationship="Portal_2_0Model.FK_upgrade_values_checklist_check_item" FromRole="upgrade_values_checklist" ToRole="upgrade_check_item" />
+          <NavigationProperty Name="upgrade_revision" Relationship="Portal_2_0Model.FK_upgrade_values_checklist_revision" FromRole="upgrade_values_checklist" ToRole="upgrade_revision" />
+        </EntityType>
+        <Association Name="FK_upgrade_values_checklist_check_item">
+          <End Type="Portal_2_0Model.upgrade_check_item" Role="upgrade_check_item" Multiplicity="1" />
+          <End Type="Portal_2_0Model.upgrade_values_checklist" Role="upgrade_values_checklist" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="upgrade_check_item">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="upgrade_values_checklist">
+              <PropertyRef Name="id_checklist_item" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_upgrade_values_checklist_revision">
+          <End Type="Portal_2_0Model.upgrade_revision" Role="upgrade_revision" Multiplicity="1" />
+          <End Type="Portal_2_0Model.upgrade_values_checklist" Role="upgrade_values_checklist" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="upgrade_revision">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="upgrade_values_checklist">
+              <PropertyRef Name="id_revision" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="upgrade_values_transaccion">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_revision" Type="Int32" Nullable="false" />
+          <Property Name="transaccion" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="estatus" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="nota" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="upgrade_revision" Relationship="Portal_2_0Model.FK_upgrade_values_transaccion_revision" FromRole="upgrade_values_transaccion" ToRole="upgrade_revision" />
+        </EntityType>
+        <Association Name="FK_upgrade_values_transaccion_revision">
+          <End Type="Portal_2_0Model.upgrade_revision" Role="upgrade_revision" Multiplicity="1" />
+          <End Type="Portal_2_0Model.upgrade_values_transaccion" Role="upgrade_values_transaccion" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="upgrade_revision">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="upgrade_values_transaccion">
+              <PropertyRef Name="id_revision" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -5241,6 +5623,78 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
                 <ScalarProperty Name="clave" ColumnName="clave" />
                 <ScalarProperty Name="planta_clave" ColumnName="planta_clave" />
                 <ScalarProperty Name="nueva_fecha_nacimiento" ColumnName="nueva_fecha_nacimiento" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="upgrade_check_item">
+            <EntityTypeMapping TypeName="Portal_2_0Model.upgrade_check_item">
+              <MappingFragment StoreEntitySet="upgrade_check_item">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="upgrade_departamentos">
+            <EntityTypeMapping TypeName="Portal_2_0Model.upgrade_departamentos">
+              <MappingFragment StoreEntitySet="upgrade_departamentos">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="id_upgrade_planta" ColumnName="id_upgrade_planta" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="upgrade_plantas">
+            <EntityTypeMapping TypeName="Portal_2_0Model.upgrade_plantas">
+              <MappingFragment StoreEntitySet="upgrade_plantas">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="upgrade_revision">
+            <EntityTypeMapping TypeName="Portal_2_0Model.upgrade_revision">
+              <MappingFragment StoreEntitySet="upgrade_revision">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="id_upgrade_departamento" ColumnName="id_upgrade_departamento" />
+                <ScalarProperty Name="id_upgrade_usuario" ColumnName="id_upgrade_usuario" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="upgrade_usuarios">
+            <EntityTypeMapping TypeName="Portal_2_0Model.upgrade_usuarios">
+              <MappingFragment StoreEntitySet="upgrade_usuarios">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="key_user" ColumnName="key_user" />
+                <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="upgrade_values_checklist">
+            <EntityTypeMapping TypeName="Portal_2_0Model.upgrade_values_checklist">
+              <MappingFragment StoreEntitySet="upgrade_values_checklist">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="nota" ColumnName="nota" />
+                <ScalarProperty Name="estatus" ColumnName="estatus" />
+                <ScalarProperty Name="id_checklist_item" ColumnName="id_checklist_item" />
+                <ScalarProperty Name="id_revision" ColumnName="id_revision" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="upgrade_values_transaccion">
+            <EntityTypeMapping TypeName="Portal_2_0Model.upgrade_values_transaccion">
+              <MappingFragment StoreEntitySet="upgrade_values_transaccion">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="nota" ColumnName="nota" />
+                <ScalarProperty Name="estatus" ColumnName="estatus" />
+                <ScalarProperty Name="transaccion" ColumnName="transaccion" />
+                <ScalarProperty Name="id_revision" ColumnName="id_revision" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

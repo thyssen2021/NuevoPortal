@@ -238,6 +238,7 @@
     <Compile Include="Controllers\ReportePesadasController.cs" />
     <Compile Include="Controllers\ResponsableBudgetController.cs" />
     <Compile Include="Controllers\RolesAdminController.cs" />
+    <Compile Include="Controllers\upgrade_revisionController.cs" />
     <Compile Include="Controllers\UserAdminController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -469,6 +470,27 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\puesto.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\upgrade_check_item.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\upgrade_departamentos.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\upgrade_plantas.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\upgrade_revision.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\upgrade_usuarios.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\upgrade_values_checklist.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\upgrade_values_transaccion.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\UtilExcel.cs" />
@@ -5285,6 +5307,10 @@
     <Content Include="Views\OrdenesTrabajo\ListadoAginacionPendientes.cshtml" />
     <Content Include="Views\OrdenesTrabajo\Asignar.cshtml" />
     <Content Include="Views\OrdenesTrabajo\ListadoAsignacionAsignadas.cshtml" />
+    <Content Include="Views\upgrade_revision\Details.cshtml" />
+    <Content Include="Views\upgrade_revision\Edit.cshtml" />
+    <Content Include="Views\upgrade_revision\Index.cshtml" />
+    <Content Include="Views\upgrade_revision\Info.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

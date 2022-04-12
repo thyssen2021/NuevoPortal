@@ -138,6 +138,20 @@
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_operadores_id_empleado" />
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_respaldo_id_empleado" />
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_supervisores_id_empleado" />
+        <EntityTypeShape EntityType="Portal_2_0Model.upgrade_check_item" Width="1.5" PointX="20" PointY="30.625" />
+        <EntityTypeShape EntityType="Portal_2_0Model.upgrade_departamentos" Width="1.5" PointX="17.75" PointY="51.875" />
+        <EntityTypeShape EntityType="Portal_2_0Model.upgrade_plantas" Width="1.5" PointX="15.5" PointY="52" />
+        <EntityTypeShape EntityType="Portal_2_0Model.upgrade_revision" Width="1.5" PointX="20" PointY="0.875" />
+        <EntityTypeShape EntityType="Portal_2_0Model.upgrade_usuarios" Width="1.5" PointX="14.75" PointY="4" />
+        <AssociationConnector Association="Portal_2_0Model.FK_upgrade_usuarios_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_upgrade_departamentos_id_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_upgrade_revision_departamento" />
+        <AssociationConnector Association="Portal_2_0Model.FK_upgrade_revision_usuario" />
+        <EntityTypeShape EntityType="Portal_2_0Model.upgrade_values_checklist" Width="1.5" PointX="26.25" PointY="15.375" />
+        <AssociationConnector Association="Portal_2_0Model.FK_upgrade_values_checklist_check_item" />
+        <AssociationConnector Association="Portal_2_0Model.FK_upgrade_values_checklist_revision" />
+        <EntityTypeShape EntityType="Portal_2_0Model.upgrade_values_transaccion" Width="1.5" PointX="22.25" PointY="1.5" />
+        <AssociationConnector Association="Portal_2_0Model.FK_upgrade_values_transaccion_revision" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

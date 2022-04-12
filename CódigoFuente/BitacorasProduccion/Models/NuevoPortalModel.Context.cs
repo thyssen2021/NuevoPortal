@@ -82,5 +82,12 @@ namespace Portal_2_0.Models
         public virtual DbSet<view_valores_fiscal_year> view_valores_fiscal_year { get; set; }
         public virtual DbSet<OT_personal_mantenimiento> OT_personal_mantenimiento { get; set; }
         public virtual DbSet<empleados> empleados { get; set; }
+        public virtual DbSet<upgrade_check_item> upgrade_check_item { get; set; }
+        public virtual DbSet<upgrade_departamentos> upgrade_departamentos { get; set; }
+        public virtual DbSet<upgrade_plantas> upgrade_plantas { get; set; }
+        public virtual DbSet<upgrade_revision> upgrade_revision { get; set; }
+        public virtual DbSet<upgrade_usuarios> upgrade_usuarios { get; set; }
+        public virtual DbSet<upgrade_values_checklist> upgrade_values_checklist { get; set; }
+        public virtual DbSet<upgrade_values_transaccion> upgrade_values_transaccion { get; set; }
     }
 }
