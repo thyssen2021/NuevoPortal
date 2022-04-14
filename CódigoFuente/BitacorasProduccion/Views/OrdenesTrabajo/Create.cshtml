@@ -66,6 +66,8 @@
                             //Valores ocultos
                             <input type="hidden" id="id_solicitante" name="id_solicitante" value="@solicitante.id">
                             <input type="hidden" id="estatus" name="estatus" value="@Bitacoras.Util.OT_Status.ABIERTO">
+                            @* input para saber si está o no activo el campo de soporte *@
+                            <input type="hidden" name="cambio_documento_soporte" id="cambio_documento_soporte" value="0" />
 
                             if (solicitante.Area != null)
                             {
@@ -204,8 +206,15 @@
                 theme: 'bootstrap4'
             })
 
+            //aumenta en uso cada vez que se hace un cambio en el archivo de soporte
+            $("#PostedFileSolicitud").on("change", function () {
+                document.getElementById('cambio_documento_soporte').value = ++documento_soporte_cambios;
+            });
+
         });
 
+        //variable para saber si ha cambiado el formulario y asi no se detenga por doble submit
+        var documento_soporte_cambios = 1;
 
         window.onload = function () {
             clicMenu(1);

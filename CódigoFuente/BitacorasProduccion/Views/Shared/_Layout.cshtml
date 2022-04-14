@@ -350,8 +350,16 @@
                                                 @if (User.IsInRole(TipoRoles.OT_ASIGNACION))
                                                 {
                                                     <h3>Asignaci&oacute;n</h3>
-                                                    <li class="@(ViewBag.SegundoNivel == "ListadoAginacionPendientes" ? "current-page" : null )"><a href="@Url.Action("ListadoAginacionPendientes", "OrdenesTrabajo")">Pendientes</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "ListadoAsignacionAsignadas" ? "current-page" : null )"><a href="@Url.Action("ListadoAsignacionAsignadas", "OrdenesTrabajo")">Asignadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "ListadoAsignacionPendientes" ? "current-page" : null )"><a href="@Url.Action("ListadoAsignacionPendientes", "OrdenesTrabajo")">Pendientes por asignar</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "ListadoAsignacionAsignadas" ? "current-page" : null )"><a href="@Url.Action("ListadoAsignacionAsignadas", "OrdenesTrabajo")">Solicitudes Asignadas</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.OT_RESPONSABLE))
+                                                {
+                                                    <h3>Responsable</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "ListadoResponsablePendientes" ? "current-page" : null )"><a href="@Url.Action("ListadoResponsablePendientes", "OrdenesTrabajo")">Responsable - Pendientes</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "ListadoResponsableEnProceso" ? "current-page" : null )"><a href="@Url.Action("ListadoResponsableEnProceso", "OrdenesTrabajo")">Responsable - En proceso</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "ListadoResponsableTerminadas" ? "current-page" : null )"><a href="@Url.Action("ListadoResponsableTerminadas", "OrdenesTrabajo")">Responsable - Terminadas</a></li>
+
                                                 }
                                             </ul>
                                         </li>

@@ -64,6 +64,7 @@
     <Compile Include="Util\NotificacionesCorreo.cs" />
     <Compile Include="Util\OT_nivel_urgencia.cs" />
     <Compile Include="Util\OT_Status.cs" />
+    <Compile Include="Util\OT_tipo_refaccion.cs" />
     <Compile Include="Util\PFA_Status.cs" />
     <Compile Include="Util\PM_Status.cs" />
     <Compile Include="Util\StreamUtil.cs" />

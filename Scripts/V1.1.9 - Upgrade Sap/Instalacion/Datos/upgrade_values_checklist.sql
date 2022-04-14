@@ -642,5 +642,65 @@ INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item
 GO
 INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (320, 33, 10, N'PENDIENTE', NULL, 1)
 GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (321, 34, 1, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (322, 34, 2, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (323, 34, 3, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (324, 34, 4, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (325, 34, 5, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (326, 34, 6, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (327, 34, 7, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (328, 34, 8, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (329, 34, 9, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (330, 34, 10, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (331, 35, 1, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (332, 35, 2, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (333, 35, 3, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (334, 35, 4, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (335, 35, 5, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (336, 35, 6, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (337, 35, 7, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (338, 35, 8, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (339, 35, 9, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (340, 35, 10, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (341, 36, 1, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (342, 36, 2, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (343, 36, 3, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (344, 36, 4, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (345, 36, 5, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (346, 36, 6, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (347, 36, 7, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (348, 36, 8, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (349, 36, 9, N'PENDIENTE', NULL, 1)
+GO
+INSERT [dbo].[upgrade_values_checklist] ([id], [id_revision], [id_checklist_item], [estatus], [nota], [activo]) VALUES (350, 36, 10, N'PENDIENTE', NULL, 1)
+GO
 SET IDENTITY_INSERT [dbo].[upgrade_values_checklist] OFF
 GO

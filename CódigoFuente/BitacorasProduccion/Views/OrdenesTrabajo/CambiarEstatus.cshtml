@@ -8,13 +8,17 @@
     ViewBag.SegundoNivel = "mis_solicitudes";
     ViewBag.ControllerName = "OrdenesTrabajo";
 
-    int contador = 1;
+
 }
 
 
 @section estilos
 {
-
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
 
     <style>
         .text_derecha {
@@ -180,6 +184,7 @@
 
                         <div class="ln_solid"></div>
 
+
                         <div class="form-group row">
                             <span style="color:black"><b>DOCUMENTOS SOPORTE</b></span>
                         </div>
@@ -214,6 +219,7 @@
                         }
                         <div class="ln_solid"></div>
 
+
                         <div class="form-group row">
                             <span style="color:black"><b>ASIGNACI&Oacute;N</b></span>
                         </div>
@@ -230,180 +236,33 @@
                             {
                                 <input type="text" class="form-control col-md-5" value="PENDIENTE" readonly>
                             }
+
+
                             <!-- Fecha asignación -->
                             @Html.LabelFor(model => model.fecha_asignacion, new { @class = "control-label col-md-2 text_derecha" })
 
-                            <div class="col-md-4">
-                                @if (Model.fecha_asignacion.HasValue)
-                                {
-                                    <input type="text" class="form-control col-md-12" value="@Model.fecha_asignacion.Value" readonly>
-                                }
-                                else
-                                {
-                                    <input type="text" class="form-control col-md-12" value="PENDIENTE" readonly>
-                                }
+                            <div class="col-md-3">
+
+                                <input type="text" class="form-control col-md-12" value="@DateTime.Now.ToString("yyyy-MM-dd")" readonly>
+
                             </div>
                         </div>
 
-                        @*Solo lo muestra si es difente de ot_solicitante*@
-                        @if (Model.estatus == Bitacoras.Util.OT_Status.CERRADO && (User.IsInRole(Clases.Util.TipoRoles.OT_RESPONSABLE) || User.IsInRole(Clases.Util.TipoRoles.OT_ASIGNACION) || User.IsInRole(Clases.Util.TipoRoles.OT_REPORTE)))
-                        {
-                            <div class="ln_solid"></div>
-                            <div class="form-group row">
-                                <span style="color:black"><b>LISTADO DE REFACCIONES</b></span>
+
+                        <div class="ln_solid"></div>
+                        <br />
+
+                        <div class="item form-group">
+                            <div class="col-md-12 col-sm-12 offset-md-12">
+                                <button type="submit" class="btn btn-warning btn-lg float-lg-right" onclick="mostrarModal(@Model.id)"><i class="fa fa-check-square-o"></i>  Aceptar Solicitud</button>
                             </div>
-                            <div class="form-group row">
-                                <div class="col-md-6 ">
-                                    <b>REFACCIONES NECESARIAS</b>
-                                </div>
-                                <div class="col-md-6 ">
-                                    <b>REFACCIONES FALTANTES</b>
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <div class="col-md-6 table-responsive">
-                                    <table id="datatable_1" class="table table-striped table-bordered" cellspacing="0" width="100%">
-                                        <thead>
-                                            <tr style=" background-color: #0094ff; color: azure;">
-                                                <th width="1%">
-                                                    #
-                                                </th>
-                                                <th width="20%">
-                                                    Cantidad
-                                                </th>
-                                                <th width="60%">
-                                                    Descripci&oacute;n
-                                                </th>
-
-                                            </tr>
-                                        </thead>
-                                        <tbody id="body_necesarias">
-
-                                            @foreach (Portal_2_0.Models.OT_refacciones item in Model.OT_refacciones.Where(x => x.tipo == Bitacoras.Util.OT_tipo_refaccion.NECESARIA))
-                                            {
-                                                <tr>
-
-                                                    <td class="input-contador-conceptos">@contador</td>
-                                                    <td>
-                                                        <input style="text-align:right; font-size: 12px;" class="form-control col-md-12 debe" value="@item.cantidad" readonly>
-                                                    </td>
-                                                    <td>
-                                                        <textarea style="font-size: 12px;" type="text" class="form-control col-md-12" autocomplete="off" maxlength="155" readonly>@item.descripcion</textarea>
-
-                                                    </td>
-
-                                                </tr>
-
-                                                contador++;
-                                            }
-
-
-                                        </tbody>
-
-                                    </table>
-                                </div>
-
-                                @{ contador = 1;}
-
-                                @* REFACCIONES FALTANTES*@
-                                <div class="col-md-6 table-responsive">
-                                    <table id="datatable_1" class="table table-striped table-bordered" cellspacing="0" width="100%">
-                                        <thead>
-                                            <tr style=" background-color: #0094ff; color: azure;">
-                                                <th width="1%">
-                                                    #
-                                                </th>
-                                                <th width="20%">
-                                                    Cantidad
-                                                </th>
-                                                <th width="60%">
-                                                    Descripci&oacute;n
-                                                </th>
-
-                                            </tr>
-                                        </thead>
-                                        <tbody id="body_faltantes">
-
-                                            @foreach (Portal_2_0.Models.OT_refacciones item in Model.OT_refacciones.Where(x => x.tipo == Bitacoras.Util.OT_tipo_refaccion.FALTANTE))
-                                            {
-                                                <tr>
-
-                                                    <td class="input-contador-conceptos">@contador</td>
-                                                    <td>
-                                                        <input style="text-align:right; font-size: 12px;" class="form-control col-md-12 debe" value="@item.cantidad" readonly>
-                                                    </td>
-                                                    <td>
-                                                        <textarea style="font-size: 12px;" type="text" class="form-control col-md-12" autocomplete="off" maxlength="155" readonly>@item.descripcion</textarea>
-
-                                                    </td>
-
-                                                </tr>
-
-                                                contador++;
-                                            }
-
-
-                                        </tbody>
-
-                                    </table>
-                                </div>
-                            </div>
-
-                            <div class="ln_solid"></div>
-                            <div class="form-group row">
-                                <span style="color:black"><b>COMENTARIO</b></span>
-                            </div>
-
-
-                            <div class="item form-group">
-                                <div class="col-md-12">
-                                    @Html.TextAreaFor(model => model.comentario, new { @class = "form-control", @rows = "4", @autocomplete = "off", @readonly = "readonly" })
-                                    @Html.ValidationMessageFor(model => model.comentario, "", new { @class = "text-danger" })
-                                </div>
-                            </div>
-
-                            <div class="ln_solid"></div>
-
-
-                            <div class="form-group row">
-                                <span style="color:black"><b>DOCUMENTOS SOPORTE</b></span>
-                            </div>
-                            if (Model != null && Model.id_documento_cierre.HasValue)
-                            {
-
-                                <div class="form-group row" id="div_document_support_info">
-                                    @Html.LabelFor(model => model.id_documento_cierre, new { @class = "control-label col-md-2" })
-                                    <div class="col-md-7">
-                                        <input type="text" class="form-control col-md-12" style="text-align: right;" value="@Model.biblioteca_digital.Nombre" readonly>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <a href="@Url.Action("DownloadFile", "Combos", new { idDocumento = Model.id_documento_cierre })" class="btn btn-success btm-sm" title="Download">
-                                            <i class="fa fa-download"></i>
-                                        </a>
-                                        <a href="@Url.Action("DownloadFile", "Combos", new { idDocumento = Model.id_documento_cierre, inline = true })" class="btn btn-info btm-sm" target="_blank" title="Inline">
-                                            <i class="fa fa-eye"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="form-group row" id="div_document_support_info">
-                                    @Html.LabelFor(model => model.id_documento_cierre, new { @class = "control-label col-md-2" })
-                                    <div class="col-md-7">
-                                        <input type="text" class="form-control col-md-12" style="text-align: right;" value="NO DISPONIBLE" readonly>
-                                    </div>
-                                </div>
-                            }
-
-                        }
+                        </div>
 
                     </div>
                 </div>
                 <div>
                     <br />
-                    <a onclick="volverAtras()" class="btn btn-round btn-info btm-sm float-right" title="Volver" style="color:white">
+                    <a onclick="volverAtras()" class="btn btn-round btn-info btm-sm float-left" title="Volver" style="color:white">
                         <i class="fa fa-arrow-circle-left"></i> Volver
                     </a>
                 </div>
@@ -411,16 +270,50 @@
         </div>
     </div>
 </div>
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "form_cambio" }))
+{
+    @Html.AntiForgeryToken()
 
+    <input type="hidden" value="id" id="@Model.id" />
+}
 
 @section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
 
     <script>
         $(document).ready(function () {
 
-
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
 
         });
+
+        //muestra el modal para bloquear
+        function mostrarModal(id) {
+            Swal.fire({
+                title: 'Confirmación',
+                text: "¿Realmente desea cambiar el estatus de esta solicitud a EN PROCESO?",
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Continuar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+                  /*  Swal.fire('Saved!', '', 'success')*/
+                    $('#form_cambio').submit();
+                } else if (result.isDismissed) {
+                    Swal.fire('Los cambios no han sido guardados.', '', 'info')
+                }
+            });
+
+        }
 
 
         window.onload = function () {

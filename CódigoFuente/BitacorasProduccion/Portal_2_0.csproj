@@ -5304,13 +5304,16 @@
     <Content Include="Views\budget_departamentos\Index.cshtml" />
     <Content Include="Views\BG_CentroCosto\Disable.cshtml" />
     <Content Include="Views\BG_CentroCosto\Enable.cshtml" />
-    <Content Include="Views\OrdenesTrabajo\ListadoAginacionPendientes.cshtml" />
+    <Content Include="Views\OrdenesTrabajo\ListadoAsignacionPendientes.cshtml" />
     <Content Include="Views\OrdenesTrabajo\Asignar.cshtml" />
     <Content Include="Views\OrdenesTrabajo\ListadoAsignacionAsignadas.cshtml" />
     <Content Include="Views\upgrade_revision\Details.cshtml" />
     <Content Include="Views\upgrade_revision\Edit.cshtml" />
     <Content Include="Views\upgrade_revision\Index.cshtml" />
     <Content Include="Views\upgrade_revision\Info.cshtml" />
+    <Content Include="Views\OrdenesTrabajo\ListadoResponsable.cshtml" />
+    <Content Include="Views\OrdenesTrabajo\CambiarEstatus.cshtml" />
+    <Content Include="Views\OrdenesTrabajo\CerrarOrden.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

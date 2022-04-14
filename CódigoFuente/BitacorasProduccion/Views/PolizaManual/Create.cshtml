@@ -260,6 +260,9 @@
                                 </div>
                             </div>
 
+                            @* input para saber si está o no activo el campo de soporte *@
+                            <input type="hidden" name="cambio_documento_soporte" id="cambio_documento_soporte" value="0" />
+
                             <div class="ln_solid"></div>
                             <div class="form-group row">
                                 <span style="color:black"><b>DOCUMENTOS SOPORTE</b></span>
@@ -387,12 +390,20 @@
                 step: jQuery.validator.format("Ingrese únicamente dos decimales")
             });
 
+            //aumenta en uso cada vez que se hace un cambio en el archivo de soporte
+            $("#PostedFileSoporte").on("change", function () {
+                document.getElementById('cambio_documento_soporte').value = ++documento_soporte_cambios;
+            });
+
             asignaEventosInput();
 
             //llama el evento para calcular el valor de las sumtorias cada vez que cambia un valor
             calculaDatos();
             AsignaNumeroConcepto()
         });
+
+        //variable para saber si ha cambiado el formulario y asi no se detenga por doble submit
+        var documento_soporte_cambios = 1;
 
         //variable global para el id
         var num = 0;

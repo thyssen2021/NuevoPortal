@@ -65,7 +65,10 @@
                                         <span class="step_no">1</span>
                                         <span class="step_descr" style="@(Model.estatus == OT_Status.ABIERTO ? "font-weight: bold" : "" )">
                                             @OT_Status.DescripcionStatus(OT_Status.ABIERTO)
+                                            <br />
+                                            <span>@Model.fecha_solicitud.ToString("yyyy-MM-dd")</span>
                                         </span>
+
                                     </a>
                                 </li>
                                 <li>
@@ -73,6 +76,11 @@
                                         <span class="step_no">2</span>
                                         <span class="step_descr" style="@(Model.estatus == OT_Status.ASIGNADO ? "font-weight: bold" : "" )">
                                             @OT_Status.DescripcionStatus(OT_Status.ASIGNADO)
+                                            <br />
+                                            @if (Model.fecha_asignacion.HasValue)
+                                            {
+                                                <span>@Model.fecha_asignacion.Value.ToString("yyyy-MM-dd")</span>
+                                            }
                                         </span>
                                     </a>
                                 </li>
@@ -81,7 +89,13 @@
                                         <span class="step_no">3</span>
                                         <span class="step_descr" style="@(Model.estatus == OT_Status.EN_PROCESO ? "font-weight: bold" : "" )">
                                             @OT_Status.DescripcionStatus(OT_Status.EN_PROCESO)
+                                            <br />
+                                            @if (Model.fecha_en_proceso.HasValue)
+                                            {
+                                                <span>@Model.fecha_en_proceso.Value.ToString("yyyy-MM-dd")</span>
+                                            }
                                         </span>
+
                                     </a>
                                 </li>
                                 <li>
@@ -89,6 +103,11 @@
                                         <span class="step_no">4</span>
                                         <span class="step_descr" style="@(Model.estatus == OT_Status.CERRADO ? "font-weight: bold" : "" )">
                                             @OT_Status.DescripcionStatus(OT_Status.CERRADO)
+                                            <br />
+                                            @if (Model.fecha_cierre.HasValue)
+                                            {
+                                                <span>@Model.fecha_cierre.Value.ToString("yyyy-MM-dd")</span>
+                                            }
                                         </span>
                                     </a>
                                 </li>
@@ -164,11 +183,12 @@
                         <div class="ln_solid"></div>
 
 
+                        <div class="form-group row">
+                            <span style="color:black"><b>DOCUMENTOS SOPORTE</b></span>
+                        </div>
                         @if (Model != null && Model.id_documento_solicitud.HasValue)
                         {
-                            <div class="form-group row">
-                                <span style="color:black"><b>DOCUMENTOS SOPORTE</b></span>
-                            </div>
+
                             <div class="form-group row" id="div_document_support_info">
                                 @Html.LabelFor(model => model.id_documento_solicitud, new { @class = "control-label col-md-2" })
                                 <div class="col-md-7">
@@ -184,8 +204,18 @@
                                 </div>
 
                             </div>
-                            <div class="ln_solid"></div>
+
                         }
+                        else
+                        {
+                            <div class="form-group row" id="div_document_support_info">
+                                @Html.LabelFor(model => model.id_documento_solicitud, new { @class = "control-label col-md-2" })
+                                <div class="col-md-7">
+                                    <input type="text" class="form-control col-md-12" style="text-align: right;" value="NO DISPONIBLE" readonly>
+                                </div>
+                            </div>
+                        }
+                        <div class="ln_solid"></div>
 
 
                         <div class="form-group row">

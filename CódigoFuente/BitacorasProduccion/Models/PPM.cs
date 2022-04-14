@@ -116,6 +116,7 @@ namespace Portal_2_0.Models
                 {
                     if (prod.produccion_datos_entrada != null && prod.produccion_datos_entrada.peso_real_pieza_neto.HasValue)
                     {
+                        System.Diagnostics.Debug.Print(prod.fecha.ToString()+" ---> "+prod.produccion_datos_entrada.peso_real_pieza_neto.Value +"  ----> "+prod.NumPiezasDescarteDanoInterno());
                         ppm.PiezasDescarteKG_internos += prod.produccion_datos_entrada.peso_real_pieza_neto.Value * prod.NumPiezasDescarteDanoInterno();
                         ppm.PiezasDescarteKG_externos += prod.produccion_datos_entrada.peso_real_pieza_neto.Value * prod.NumPiezasDescarteDanoExterno();
                         ppm.PiezasCortadasTon += prod.produccion_datos_entrada.PesoRegresoRolloUsado;                    

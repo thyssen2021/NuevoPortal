@@ -84,6 +84,7 @@ namespace Portal_2_0.Models
         public string comentario { get; set; }
 
         public HttpPostedFileBase PostedFileSolicitud { get; set; }
+        public HttpPostedFileBase PostedFileCierre { get; set; }
 
         public virtual Area Area { get; set; }
         public virtual biblioteca_digital biblioteca_digital { get; set; }

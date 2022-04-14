@@ -84,18 +84,23 @@ namespace Portal_2_0.Models
         //obtiene el numero de piezas donde aplica calculo
         public int TotalPiezasProduccion()
         {
-            
-                int cantidad = this.inspeccion_pieza_descarte_produccion.Where(x => x.inspeccion_fallas.aplica_en_calculo == true).ToList().Count;
+            int cantidad = 0;
 
-                return cantidad;
+            var list = this.inspeccion_pieza_descarte_produccion.Where(x => x.inspeccion_fallas.aplica_en_calculo == true).ToList();
+            cantidad = list.Sum(x => x.cantidad);
+
+            return cantidad;
             
         }
 
         //obtiene el numero de pezas de descarte con daño interno
         public int NumPiezasDescarteDanoInterno()
         {
-            
-                int cantidad = this.inspeccion_pieza_descarte_produccion.Where(x => x.inspeccion_fallas.dano_interno == true && x.inspeccion_fallas.aplica_en_calculo==true).ToList().Count;
+                int cantidad = 0;
+
+                var list = this.inspeccion_pieza_descarte_produccion.Where(x => x.inspeccion_fallas.dano_interno == true && x.inspeccion_fallas.aplica_en_calculo==true).ToList();
+
+                cantidad = list.Sum(x=>x.cantidad);
 
                 return cantidad;
         }
@@ -103,11 +108,14 @@ namespace Portal_2_0.Models
         //obtiene el numero de pezas de descarte con daño interno
         public int NumPiezasDescarteDanoExterno()
         {
-            
-                int cantidad = this.inspeccion_pieza_descarte_produccion.Where(x => x.inspeccion_fallas.dano_externo == true && x.inspeccion_fallas.aplica_en_calculo == true).ToList().Count;
+            int cantidad = 0;
 
-                return cantidad;
-            
+            var list = this.inspeccion_pieza_descarte_produccion.Where(x => x.inspeccion_fallas.dano_externo == true && x.inspeccion_fallas.aplica_en_calculo == true).ToList();
+
+            cantidad = list.Sum(x => x.cantidad);
+
+            return cantidad;
+
         }
 
 

@@ -82,6 +82,21 @@ INSERT INTO [dbo].[upgrade_revision]([id_upgrade_usuario],[id_upgrade_departamen
 INSERT INTO [dbo].[upgrade_revision]([id_upgrade_usuario],[id_upgrade_departamento],[activo])VALUES(30 ,21,1)
 INSERT INTO [dbo].[upgrade_revision]([id_upgrade_usuario],[id_upgrade_departamento],[activo])VALUES(31 ,22,1)
 INSERT INTO [dbo].[upgrade_revision]([id_upgrade_usuario],[id_upgrade_departamento],[activo])VALUES(32 ,22,1)
+--se agregan usuarios de puebla
+INSERT INTO [dbo].[upgrade_revision]([id_upgrade_usuario],[id_upgrade_departamento],[activo])VALUES(33 ,24,1)
+INSERT INTO [dbo].[upgrade_revision]([id_upgrade_usuario],[id_upgrade_departamento],[activo])VALUES(34 ,24,1)
+INSERT INTO [dbo].[upgrade_revision]([id_upgrade_usuario],[id_upgrade_departamento],[activo])VALUES(35 ,23,1)
+--
+INSERT INTO [dbo].[upgrade_revision]([id_upgrade_usuario],[id_upgrade_departamento],[activo])VALUES(36 ,14,1)
+INSERT INTO [dbo].[upgrade_revision]([id_upgrade_usuario],[id_upgrade_departamento],[activo])VALUES(37 ,21,1)
+INSERT INTO [dbo].[upgrade_revision]([id_upgrade_usuario],[id_upgrade_departamento],[activo])VALUES(38 ,21,1)
+INSERT INTO [dbo].[upgrade_revision]([id_upgrade_usuario],[id_upgrade_departamento],[activo])VALUES(39 ,21,1)
+INSERT INTO [dbo].[upgrade_revision]([id_upgrade_usuario],[id_upgrade_departamento],[activo])VALUES(40 ,25,1)
+INSERT INTO [dbo].[upgrade_revision]([id_upgrade_usuario],[id_upgrade_departamento],[activo])VALUES(41 ,25,1)
+INSERT INTO [dbo].[upgrade_revision]([id_upgrade_usuario],[id_upgrade_departamento],[activo])VALUES(42 ,25,1)
+INSERT INTO [dbo].[upgrade_revision]([id_upgrade_usuario],[id_upgrade_departamento],[activo])VALUES(43 ,10,1)
+
+
 
 delete from [dbo].[upgrade_revision] where id_upgrade_departamento=12
 

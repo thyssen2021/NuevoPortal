@@ -73,6 +73,22 @@ INSERT INTO [dbo].[upgrade_usuarios]([id_empleado],[key_user],[activo]) VALUES(3
 INSERT INTO [dbo].[upgrade_usuarios]([id_empleado],[key_user],[activo]) VALUES(393, N'TOLEDOS',1)
 INSERT INTO [dbo].[upgrade_usuarios]([id_empleado],[key_user],[activo]) VALUES(310, N'SANCHEZL',1)
 INSERT INTO [dbo].[upgrade_usuarios]([id_empleado],[key_user],[activo]) VALUES(308, N'MANRIQUEZSA',1)
+--Se agregan usuarios de IT
+INSERT INTO [dbo].[upgrade_usuarios]([id_empleado],[key_user],[activo]) VALUES(183, N'EDGAR',1)
+INSERT INTO [dbo].[upgrade_usuarios]([id_empleado],[key_user],[activo]) VALUES(448, N'RAUL',1)
+INSERT INTO [dbo].[upgrade_usuarios]([id_empleado],[key_user],[activo]) VALUES(363, N'JANETH',1)
+--
+INSERT INTO [dbo].[upgrade_usuarios]([id_empleado],[key_user],[activo]) VALUES(82, N'IGNACIO',1)
+INSERT INTO [dbo].[upgrade_usuarios]([id_empleado],[key_user],[activo]) VALUES(239, N'ARENAS',1)
+INSERT INTO [dbo].[upgrade_usuarios]([id_empleado],[key_user],[activo]) VALUES(216, N'MARTINEZF',1)
+INSERT INTO [dbo].[upgrade_usuarios]([id_empleado],[key_user],[activo]) VALUES(387, N'MONTOYA',1)
+INSERT INTO [dbo].[upgrade_usuarios]([id_empleado],[key_user],[activo]) VALUES(309, N'CHAGOYA',1)
+INSERT INTO [dbo].[upgrade_usuarios]([id_empleado],[key_user],[activo]) VALUES(377, N'ALCANTAR',1)
+INSERT INTO [dbo].[upgrade_usuarios]([id_empleado],[key_user],[activo]) VALUES(306, N'MUNIZ',1)
+INSERT INTO [dbo].[upgrade_usuarios]([id_empleado],[key_user],[activo]) VALUES(113, N'GOMEZ',1)
+
+
+
  	  
 IF object_id(N'upgrade_usuarios',N'U') IS NOT NULL
 	BEGIN

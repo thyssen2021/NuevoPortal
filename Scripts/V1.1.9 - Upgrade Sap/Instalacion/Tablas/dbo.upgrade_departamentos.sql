@@ -68,6 +68,12 @@ INSERT INTO [dbo].[upgrade_departamentos] ([id_upgrade_planta],[descripcion],[ac
 INSERT INTO [dbo].[upgrade_departamentos] ([id_upgrade_planta],[descripcion],[activo]) VALUES (2,N'Ingenieria',1)
 INSERT INTO [dbo].[upgrade_departamentos] ([id_upgrade_planta],[descripcion],[activo]) VALUES (2,N'Producción',1)
 INSERT INTO [dbo].[upgrade_departamentos] ([id_upgrade_planta],[descripcion],[activo]) VALUES (2,N'Programacion Y Control De Produccion',1)
+-- Se agregan deptos de IT
+INSERT INTO [dbo].[upgrade_departamentos] ([id_upgrade_planta],[descripcion],[activo]) VALUES (2,N'IT',1)
+INSERT INTO [dbo].[upgrade_departamentos] ([id_upgrade_planta],[descripcion],[activo]) VALUES (1,N'IT',1)
+INSERT INTO [dbo].[upgrade_departamentos] ([id_upgrade_planta],[descripcion],[activo]) VALUES (2,N'W&S',1)
+
+
 
 GO
 
