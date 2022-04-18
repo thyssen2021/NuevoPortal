@@ -26,12 +26,15 @@ CREATE TABLE [orden_trabajo](
 	[id_responsable][int] NULL,
 	[id_area][int] NOT NULL,
 	[id_linea][int] NULL,
+	[id_grupo_trabajo][int]NULL, 
 	[id_documento_solicitud][int] NULL,
 	[id_documento_cierre][int] NULL,
 	[fecha_solicitud][datetime] NOT NULL,
 	[nivel_urgencia][varchar](15) NOT NULL,
 	[titulo][varchar](80) NOT NULL,
 	[descripcion][varchar](300) NOT NULL,
+	[tpm][bit] NOT NULL,
+	[numero_tarjeta][varchar](25) NULL,
 	[fecha_asignacion][datetime] NULL,
 	[fecha_en_proceso][datetime] NULL,
 	[fecha_cierre][datetime] NULL,
@@ -88,6 +91,12 @@ alter table [orden_trabajo]
   foreign key (id_documento_cierre)
   references biblioteca_digital(id);
 
+     -- restriccion de clave foranea
+alter table [orden_trabajo]
+ add constraint FK_orden_trabajo_id_grupo_trabajo
+  foreign key (id_grupo_trabajo)
+  references OT_grupo_trabajo(id);
+
 -- restricción default
 ALTER TABLE [orden_trabajo] ADD  CONSTRAINT [DF_orden_trabajo_fecha_solicitud]  DEFAULT (GETDATE()) FOR [fecha_solicitud]
 
@@ -101,6 +110,11 @@ ALTER TABLE [orden_trabajo] ADD CONSTRAINT CK_orden_trabajo_Nivel_Urgencia CHECK
 ('ALTA','MEDIA','BAJA')
 )
 GO
+
+-- restricción default
+ALTER TABLE [orden_trabajo] ADD CONSTRAINT [DF_OT_grupo_trabajo_tpm]  DEFAULT (0) FOR [tpm]
+GO
+
 
  	  
 IF object_id(N'orden_trabajo',N'U') IS NOT NULL

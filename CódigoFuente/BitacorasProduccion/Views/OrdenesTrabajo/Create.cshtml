@@ -17,6 +17,8 @@
     <!-- Select2 -->
     <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/flat/green.css")" rel="stylesheet">
 
     <style>
         .text_derecha {
@@ -136,7 +138,28 @@
                                 </div>
                             </div>
 
-
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <!--TPM-->
+                                @Html.LabelFor(model => model.tpm, new { @class = "control-label col-md-1 text_derecha" })
+                                <div class="col-md-1 checkbox">
+                                    @Html.EditorFor(m => m.tpm, new { htmlAttributes = new { @class = "flat", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.tpm, "", new { @class = "text-danger" })
+                                </div>
+                                <div id="tpm_values">
+                                    @Html.LabelFor(model => model.numero_tarjeta, new { @class = "control-label col-md-2 text_derecha" })
+                                    <div class="col-md-4">
+                                        @Html.EditorFor(m => m.numero_tarjeta, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.numero_tarjeta, "", new { @class = "text-danger" })
+                                    </div>
+                                    <!--Grupo de trabajo-->
+                                    @Html.LabelFor(model => model.id_grupo_trabajo, new { @class = "control-label col-md-2 text_derecha" })
+                                    <div class="col-md-4">
+                                        @Html.DropDownList("id_grupo_trabajo", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                        @Html.ValidationMessageFor(model => model.id_grupo_trabajo, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
 
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.descripcion, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align:left" })
@@ -194,6 +217,9 @@
     @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
     @Scripts.Render("~/bundles/dataTables_js")
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/MvcFoolproofJQueryValidation.js"))
     <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
     <script>
         $(document).ready(function () {
@@ -211,7 +237,28 @@
                 document.getElementById('cambio_documento_soporte').value = ++documento_soporte_cambios;
             });
 
+            $('input').on('ifChecked', function (event) {
+                verificaTPM(500);
+            });
+
+            $('input').on('ifUnchecked', function (event) {
+                verificaTPM(500);
+            });
+
+            //una vez cargada la página verifica si mostrar o no TPM
+            verificaTPM(0);
+
         });
+
+        function verificaTPM(tiempo) {
+            var isChecked = $("#tpm").prop("checked");
+
+            if (isChecked) {
+                $('#tpm_values').show(tiempo);
+            } else {
+                $('#tpm_values').hide(tiempo);
+            }
+        }
 
         //variable para saber si ha cambiado el formulario y asi no se detenga por doble submit
         var documento_soporte_cambios = 1;

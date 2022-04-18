@@ -383,6 +383,9 @@
     <Compile Include="Models\orden_trabajo.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\OT_grupo_trabajo.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\OT_personal_mantenimiento.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -528,6 +531,9 @@
     <Content Include="Content\build\images\loading.gif" />
     <Content Include="Content\build\js\custom.js" />
     <Content Include="Content\build\js\custom.min.js" />
+    <Content Include="Content\emails_plantillas\OT_finalizado.html" />
+    <Content Include="Content\emails_plantillas\OT_en_proceso.html" />
+    <Content Include="Content\emails_plantillas\OT_asignacion.html" />
     <Content Include="Content\emails_plantillas\PFA_solicitud_autorizada_info.html" />
     <Content Include="Content\emails_plantillas\PFA_solicitud_autorizada.html" />
     <Content Include="Content\emails_plantillas\PFA_solicitud_rechazada_info.html" />
@@ -538,6 +544,7 @@
     <Content Include="Content\emails_plantillas\PM_envio_a_direccion.html" />
     <Content Include="Content\emails_plantillas\PM_envio_a_contabilidad.html" />
     <Content Include="Content\emails_plantillas\PM_envio_a_autorizador.html" />
+    <Content Include="Content\emails_plantillas\OT_creacion.html" />
     <Content Include="Content\emails_plantillas\PM_rechazo.html" />
     <Content Include="Content\emails_plantillas\PM_envio_a_validador.html" />
     <Content Include="Content\emails_plantillas\PFA_solicitud_recibida.html" />

@@ -40,7 +40,6 @@
         .boton-verde {
             background-color: forestgreen;
         }
-
     </style>
 
     @RenderSection("estilos", required: false)
@@ -361,6 +360,11 @@
                                                     <li class="@(ViewBag.SegundoNivel == "ListadoResponsableTerminadas" ? "current-page" : null )"><a href="@Url.Action("ListadoResponsableTerminadas", "OrdenesTrabajo")">Responsable - Terminadas</a></li>
 
                                                 }
+                                                @if (User.IsInRole(TipoRoles.OT_REPORTE))
+                                                {
+                                                    <h3>Reportes</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "Reportes" ? "current-page" : null )"><a href="@Url.Action("Reportes", "OrdenesTrabajo")">Reporte 1</a></li>
+                                                }
                                             </ul>
                                         </li>
 
@@ -378,8 +382,8 @@
                                                 {
                                                     <h3>Centros de Costo</h3>
                                                     @*<li class="@(ViewBag.SegundoNivel == "actual" ? "current-page" : null )"><a href="@Url.Action("Actual", "ResponsableBudget")">ACT FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)))</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
+                                                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
+                                                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
                                                     <li class="@(ViewBag.SegundoNivel == "centros" ? "current-page" : null )"><a href="@Url.Action("Centros", "ResponsableBudget")">Mis Centros</a></li>
                                                 }
 
@@ -409,7 +413,8 @@
                                                 }
 
                                             </ul>
-                                        </li>   
+                                        </li>
+
                                     }
 
                                     @*MENÚ DE USUARIOS*@

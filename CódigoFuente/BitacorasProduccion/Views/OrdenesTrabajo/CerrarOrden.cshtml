@@ -20,6 +20,8 @@
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
     <!-- SweetAlert2 -->
     <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/flat/green.css")" rel="stylesheet">
 
     <style>
         .text_derecha {
@@ -178,6 +180,39 @@
                             <div class="col-md-2">
                                 <input type="text" class="form-control " value="@Bitacoras.Util.OT_nivel_urgencia.DescripcionStatus(Model.nivel_urgencia)" readonly>
                             </div>
+                        </div>
+
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            @if (Model.tpm)
+                            {
+                                <!--TPM-->
+                                @Html.LabelFor(model => model.tpm, new { @class = "control-label col-md-1 text_derecha" })
+                                <div class="col-md-1 checkbox">
+                                    @Html.EditorFor(m => m.tpm, new { htmlAttributes = new { @class = "flat", @autocomplete = "off", @disabled = "disabled" } })
+                                </div>
+                            }
+                            else
+                            {
+                                @Html.LabelFor(model => model.tpm, new { @class = "control-label col-md-1 text_derecha" })
+                                <div class="col-md-1">
+                                    NO APLICA
+                                </div>
+                            }
+                            @if (Model.tpm && Model.OT_grupo_trabajo != null)
+                            {
+                                <div id="tpm_values">
+                                    @Html.LabelFor(model => model.numero_tarjeta, new { @class = "control-label col-md-2 text_derecha" })
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control " value="@Model.numero_tarjeta" readonly>
+                                    </div>
+                                    <!--Grupo de trabajo-->
+                                    @Html.LabelFor(model => model.id_grupo_trabajo, new { @class = "control-label col-md-2 text_derecha" })
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control " value="@Model.OT_grupo_trabajo.descripcion" readonly>
+                                    </div>
+                                </div>
+                            }
                         </div>
 
                         <div class="item form-group">
@@ -400,7 +435,7 @@
 
                             <div class="item form-group">
                                 <div class="col-md-12">
-                                    @Html.TextAreaFor(model => model.comentario, new { @class = "form-control", @rows = "4", @autocomplete = "off", @required="required" })
+                                    @Html.TextAreaFor(model => model.comentario, new { @class = "form-control", @rows = "4", @autocomplete = "off", @required = "required" })
                                     @Html.ValidationMessageFor(model => model.comentario, "", new { @class = "text-danger" })
                                 </div>
                             </div>
@@ -460,6 +495,9 @@
     @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
     <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+
 
     <script>
         $(document).ready(function () {
@@ -604,7 +642,7 @@
         }
 
         function showDialog() {
-           
+
                 Swal.fire({
                     title: 'Confirmación',
                     text: "¿Realmente desea cerrar esta solicitud?",
@@ -623,7 +661,7 @@
                         /*Swal.fire('Los cambios no han sido guardados.', '', 'info')*/
                     }
                 });
-            
+
         }
 
     function borrarConcepto(id) {
@@ -633,7 +671,7 @@
         });
 
         setTimeout(AsignaNumeroConcepto, 550);
-       
+
     }
 
 

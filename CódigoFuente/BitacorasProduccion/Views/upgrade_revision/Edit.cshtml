@@ -109,7 +109,7 @@
                         </div>
                         @using (Html.BeginForm("Edit", "upgrade_revision", FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
                         {
-                            @Html.AntiForgeryToken()
+                           
 
                             if (!Html.ViewData.ModelState.IsValid)
                             {

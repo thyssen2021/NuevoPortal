@@ -67,7 +67,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<currency> currency { get; set; }
         public virtual DbSet<poliza_manual> poliza_manual { get; set; }
         public virtual DbSet<OT_refacciones> OT_refacciones { get; set; }
-        public virtual DbSet<orden_trabajo> orden_trabajo { get; set; }
         public virtual DbSet<budget_cuenta_sap> budget_cuenta_sap { get; set; }
         public virtual DbSet<budget_mapping> budget_mapping { get; set; }
         public virtual DbSet<budget_mapping_bridge> budget_mapping_bridge { get; set; }
@@ -89,5 +88,7 @@ namespace Portal_2_0.Models
         public virtual DbSet<upgrade_usuarios> upgrade_usuarios { get; set; }
         public virtual DbSet<upgrade_values_checklist> upgrade_values_checklist { get; set; }
         public virtual DbSet<upgrade_values_transaccion> upgrade_values_transaccion { get; set; }
+        public virtual DbSet<OT_grupo_trabajo> OT_grupo_trabajo { get; set; }
+        public virtual DbSet<orden_trabajo> orden_trabajo { get; set; }
     }
 }

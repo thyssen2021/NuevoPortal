@@ -13,6 +13,7 @@ namespace Portal_2_0.Models
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.Web;
+    using Foolproof;
 
     public partial class orden_trabajo
     {
@@ -65,7 +66,6 @@ namespace Portal_2_0.Models
         [StringLength(300, MinimumLength = 5)]
         [Required(AllowEmptyStrings = false)]
         public string descripcion { get; set; }
-
         [Display(Name = "Fecha Asignación")]
         public Nullable<System.DateTime> fecha_asignacion { get; set; }
 
@@ -83,17 +83,32 @@ namespace Portal_2_0.Models
         [StringLength(300, MinimumLength = 3)]
         public string comentario { get; set; }
 
+        [Display(Name = "Grupo de Trabajo")]
+        [RequiredIf("tpm", true, ErrorMessage = "El grupo de trabajo es requerido")]
+        public Nullable<int> id_grupo_trabajo { get; set; }
+
+        [Display(Name = "TPM")]
+        [Required]
+        public bool tpm { get; set; }
+
+        [Display(Name = "Número de tarjeta")]
+        [StringLength(25, MinimumLength = 1)]
+        [RequiredIf("tpm", true, ErrorMessage = "El número de tarjeta es requerido")]
+        public string numero_tarjeta { get; set; }
+
+
         public HttpPostedFileBase PostedFileSolicitud { get; set; }
         public HttpPostedFileBase PostedFileCierre { get; set; }
 
         public virtual Area Area { get; set; }
         public virtual biblioteca_digital biblioteca_digital { get; set; }
         public virtual biblioteca_digital biblioteca_digital1 { get; set; }
-        public virtual produccion_lineas produccion_lineas { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<OT_refacciones> OT_refacciones { get; set; }
         public virtual empleados empleados { get; set; }
         public virtual empleados empleados1 { get; set; }
         public virtual empleados empleados2 { get; set; }
+        public virtual produccion_lineas produccion_lineas { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<OT_refacciones> OT_refacciones { get; set; }
+        public virtual OT_grupo_trabajo OT_grupo_trabajo { get; set; }
     }
 }

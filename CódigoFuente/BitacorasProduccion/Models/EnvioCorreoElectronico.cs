@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bitacoras.Util;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
@@ -434,6 +435,138 @@ namespace Portal_2_0.Models
 
             return body;
         }
+
+        #endregion
+
+        #region Ordenes Trabajo
+               
+        /// <summary>
+        /// metodo para obtener el body de email al crear OT
+        /// </summary>
+        /// <param name="orden"></param>
+        /// <returns></returns>
+        public string getBodyCreacionOT(orden_trabajo orden)
+        {
+            //obtiene la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+
+            string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/OT_creacion.html"));
+
+            string tpm = "NO";
+
+            if (orden.tpm)
+                tpm = "SÍ";
+
+            //body = body.Replace("#VALIDADOR", poliza.PM_validadores.empleados.ConcatNombre);
+            body = body.Replace("#SOLICITANTE", orden.empleados2.ConcatNombre); //elaborador
+            body = body.Replace("#NUM_OT", orden.id.ToString()); //elaborador
+            body = body.Replace("#NIVEL_URGENCIA", OT_nivel_urgencia.DescripcionStatus(orden.nivel_urgencia));
+            body = body.Replace("#TITULO", orden.titulo);
+            body = body.Replace("#DESCRIPCION", orden.descripcion);
+            body = body.Replace("#DEPARTAMENTO", orden.empleados2.Area.descripcion);
+            body = body.Replace("#TPM", tpm);
+            body = body.Replace("#FECHA_SOLICITUD", orden.fecha_solicitud.ToString("dd/MM/yyyy"));           
+            body = body.Replace("#ENLACE", domainName + "/OrdenesTrabajo/Asignar/" + orden.id);
+
+            return body;
+        }
+
+        /// <summary>
+        /// metodo para obtener el body de email al asignar OT
+        /// </summary>
+        /// <param name="orden"></param>
+        /// <returns></returns>
+        public string getBodyAsignacionOT(orden_trabajo orden)
+        {
+            //obtiene la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+
+            string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/OT_asignacion.html"));
+
+            string tpm = "NO";
+
+            if (orden.tpm)
+                tpm = "SÍ";
+
+            //body = body.Replace("#VALIDADOR", poliza.PM_validadores.empleados.ConcatNombre);
+            body = body.Replace("#SOLICITANTE", orden.empleados2.ConcatNombre); //elaborador
+            body = body.Replace("#RESPONSABLE", orden.empleados1.ConcatNombre); //elaborador
+            body = body.Replace("#NUM_OT", orden.id.ToString()); //elaborador
+            body = body.Replace("#NIVEL_URGENCIA", OT_nivel_urgencia.DescripcionStatus(orden.nivel_urgencia));
+            body = body.Replace("#TITULO", orden.titulo);
+            body = body.Replace("#DESCRIPCION", orden.descripcion);
+            body = body.Replace("#DEPARTAMENTO", orden.empleados2.Area.descripcion);
+            body = body.Replace("#TPM", tpm);
+            body = body.Replace("#FECHA_SOLICITUD", orden.fecha_solicitud.ToString("dd/MM/yyyy"));
+            body = body.Replace("#ENLACE", domainName + "/OrdenesTrabajo/CambiarEstatus/" + orden.id);
+
+            return body;
+        }
+
+        /// <summary>
+        /// metodo para obtener el body de email al marcar como en proceso OT
+        /// </summary>
+        /// <param name="orden"></param>
+        /// <returns></returns>
+        public string getBodyEnProcesoOT(orden_trabajo orden)
+        {
+            //obtiene la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+
+            string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/OT_en_proceso.html"));
+
+            string tpm = "NO";
+
+            if (orden.tpm)
+                tpm = "SÍ";
+
+            //body = body.Replace("#VALIDADOR", poliza.PM_validadores.empleados.ConcatNombre);
+            body = body.Replace("#SOLICITANTE", orden.empleados2.ConcatNombre); //elaborador
+            body = body.Replace("#RESPONSABLE", orden.empleados1.ConcatNombre); //elaborador
+            body = body.Replace("#NUM_OT", orden.id.ToString()); //elaborador
+            body = body.Replace("#NIVEL_URGENCIA", OT_nivel_urgencia.DescripcionStatus(orden.nivel_urgencia));
+            body = body.Replace("#TITULO", orden.titulo);
+            body = body.Replace("#DESCRIPCION", orden.descripcion);
+            body = body.Replace("#DEPARTAMENTO", orden.empleados2.Area.descripcion);
+            body = body.Replace("#TPM", tpm);
+            body = body.Replace("#FECHA_SOLICITUD", orden.fecha_solicitud.ToString("dd/MM/yyyy"));
+            body = body.Replace("#ENLACE", domainName + "/OrdenesTrabajo/Details/" + orden.id);
+
+            return body;
+        }
+
+        /// <summary>
+        /// metodo para obtener el body de email al cerrar una OT
+        /// </summary>
+        /// <param name="orden"></param>
+        /// <returns></returns>
+        public string getBodyCerrarOT(orden_trabajo orden)
+        {
+            //obtiene la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+
+            string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/OT_finalizado.html"));
+
+            string tpm = "NO";
+
+            if (orden.tpm)
+                tpm = "SÍ";
+
+            //body = body.Replace("#VALIDADOR", poliza.PM_validadores.empleados.ConcatNombre);
+            body = body.Replace("#SOLICITANTE", orden.empleados2.ConcatNombre); //elaborador
+            body = body.Replace("#RESPONSABLE", orden.empleados1.ConcatNombre); //elaborador
+            body = body.Replace("#NUM_OT", orden.id.ToString()); //elaborador
+            body = body.Replace("#NIVEL_URGENCIA", OT_nivel_urgencia.DescripcionStatus(orden.nivel_urgencia));
+            body = body.Replace("#TITULO", orden.titulo);
+            body = body.Replace("#DESCRIPCION", orden.descripcion);
+            body = body.Replace("#DEPARTAMENTO", orden.empleados2.Area.descripcion);
+            body = body.Replace("#TPM", tpm);
+            body = body.Replace("#FECHA_SOLICITUD", orden.fecha_solicitud.ToString("dd/MM/yyyy"));
+            body = body.Replace("#ENLACE", domainName + "/OrdenesTrabajo/Details/" + orden.id);
+
+            return body;
+        }
+
 
         #endregion
 

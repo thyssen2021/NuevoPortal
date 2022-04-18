@@ -14,7 +14,8 @@
 
 @section estilos
 {
-
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/flat/green.css")" rel="stylesheet">
 
     <style>
         .text_derecha {
@@ -167,6 +168,39 @@
                             <div class="col-md-2">
                                 <input type="text" class="form-control " value="@Bitacoras.Util.OT_nivel_urgencia.DescripcionStatus(Model.nivel_urgencia)" readonly>
                             </div>
+                        </div>
+
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            @if (Model.tpm)
+                            {
+                                <!--TPM-->
+                                @Html.LabelFor(model => model.tpm, new { @class = "control-label col-md-1 text_derecha" })
+                                <div class="col-md-1 checkbox">
+                                    @Html.EditorFor(m => m.tpm, new { htmlAttributes = new { @class = "flat", @autocomplete = "off", @disabled = "disabled" } })
+                                </div>
+                            }
+                            else
+                            {
+                                @Html.LabelFor(model => model.tpm, new { @class = "control-label col-md-1 text_derecha" })
+                                <div class="col-md-1">
+                                    NO APLICA
+                                </div>
+                            }
+                            @if (Model.tpm && Model.OT_grupo_trabajo != null)
+                            {
+                                <div id="tpm_values">
+                                    @Html.LabelFor(model => model.numero_tarjeta, new { @class = "control-label col-md-2 text_derecha" })
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control " value="@Model.numero_tarjeta" readonly>
+                                    </div>
+                                    <!--Grupo de trabajo-->
+                                    @Html.LabelFor(model => model.id_grupo_trabajo, new { @class = "control-label col-md-2 text_derecha" })
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control " value="@Model.OT_grupo_trabajo.descripcion" readonly>
+                                    </div>
+                                </div>
+                            }
                         </div>
 
                         <div class="item form-group">
@@ -349,55 +383,55 @@
                                     </table>
                                 </div>
                             </div>
-
-                            <div class="ln_solid"></div>
-                            <div class="form-group row">
-                                <span style="color:black"><b>COMENTARIO</b></span>
-                            </div>
-
-
-                            <div class="item form-group">
-                                <div class="col-md-12">
-                                    @Html.TextAreaFor(model => model.comentario, new { @class = "form-control", @rows = "4", @autocomplete = "off", @readonly = "readonly" })
-                                    @Html.ValidationMessageFor(model => model.comentario, "", new { @class = "text-danger" })
-                                </div>
-                            </div>
-
-                            <div class="ln_solid"></div>
-
-
-                            <div class="form-group row">
-                                <span style="color:black"><b>DOCUMENTOS SOPORTE</b></span>
-                            </div>
-                            if (Model != null && Model.id_documento_cierre.HasValue)
-                            {
-
-                                <div class="form-group row" id="div_document_support_info">
-                                    @Html.LabelFor(model => model.id_documento_cierre, new { @class = "control-label col-md-2" })
-                                    <div class="col-md-7">
-                                        <input type="text" class="form-control col-md-12" style="text-align: right;" value="@Model.biblioteca_digital.Nombre" readonly>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <a href="@Url.Action("DownloadFile", "Combos", new { idDocumento = Model.id_documento_cierre })" class="btn btn-success btm-sm" title="Download">
-                                            <i class="fa fa-download"></i>
-                                        </a>
-                                        <a href="@Url.Action("DownloadFile", "Combos", new { idDocumento = Model.id_documento_cierre, inline = true })" class="btn btn-info btm-sm" target="_blank" title="Inline">
-                                            <i class="fa fa-eye"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="form-group row" id="div_document_support_info">
-                                    @Html.LabelFor(model => model.id_documento_cierre, new { @class = "control-label col-md-2" })
-                                    <div class="col-md-7">
-                                        <input type="text" class="form-control col-md-12" style="text-align: right;" value="NO DISPONIBLE" readonly>
-                                    </div>
-                                </div>
-                            }
-
                         }
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>COMENTARIO</b></span>
+                        </div>
+
+
+                        <div class="item form-group">
+                            <div class="col-md-12">
+                                @Html.TextAreaFor(model => model.comentario, new { @class = "form-control", @rows = "4", @autocomplete = "off", @readonly = "readonly" })
+                                @Html.ValidationMessageFor(model => model.comentario, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="ln_solid"></div>
+
+
+                        <div class="form-group row">
+                            <span style="color:black"><b>DOCUMENTOS SOPORTE</b></span>
+                        </div>
+                        @if (Model != null && Model.id_documento_cierre.HasValue)
+                        {
+
+                            <div class="form-group row" id="div_document_support_info">
+                                @Html.LabelFor(model => model.id_documento_cierre, new { @class = "control-label col-md-2" })
+                                <div class="col-md-7">
+                                    <input type="text" class="form-control col-md-12" style="text-align: right;" value="@Model.biblioteca_digital.Nombre" readonly>
+                                </div>
+                                <div class="col-md-3">
+                                    <a href="@Url.Action("DownloadFile", "Combos", new { idDocumento = Model.id_documento_cierre })" class="btn btn-success btm-sm" title="Download">
+                                        <i class="fa fa-download"></i>
+                                    </a>
+                                    <a href="@Url.Action("DownloadFile", "Combos", new { idDocumento = Model.id_documento_cierre, inline = true })" class="btn btn-info btm-sm" target="_blank" title="Inline">
+                                        <i class="fa fa-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="form-group row" id="div_document_support_info">
+                                @Html.LabelFor(model => model.id_documento_cierre, new { @class = "control-label col-md-2" })
+                                <div class="col-md-7">
+                                    <input type="text" class="form-control col-md-12" style="text-align: right;" value="NO DISPONIBLE" readonly>
+                                </div>
+                            </div>
+                        }
+
+
 
                     </div>
                 </div>
@@ -414,7 +448,8 @@
 
 
 @section Scripts {
-
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
     <script>
         $(document).ready(function () {
 

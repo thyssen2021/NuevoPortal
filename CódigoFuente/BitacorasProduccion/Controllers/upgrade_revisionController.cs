@@ -185,7 +185,6 @@ namespace Portal_2_0.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public ActionResult Edit(upgrade_revision upgrade_revision, FormCollection collection)
         {
 

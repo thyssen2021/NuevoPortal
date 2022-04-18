@@ -138,6 +138,7 @@ namespace Portal_2_0.Controllers
                 ViewBag.nivel_urgencia = AddFirstItem(selectListItemsUrgencia, textoPorDefecto: "-- Seleccionar --");
                 ViewBag.Solicitante = empleado;
                 ViewBag.id_linea = AddFirstItem(new SelectList(db.produccion_lineas.Where(x => x.clave_planta == empleado.planta_clave && x.activo == true), "id", "linea"));
+                ViewBag.id_grupo_trabajo = AddFirstItem(new SelectList(db.OT_grupo_trabajo.Where(x => x.activo == true), "id", "descripcion"));
                 return View();
 
             }
@@ -216,11 +217,30 @@ namespace Portal_2_0.Controllers
                 orden_trabajo.fecha_solicitud = DateTime.Now;
                 orden_trabajo.estatus = OT_Status.ABIERTO;
 
+                if (!orden_trabajo.tpm)
+                {
+                    orden_trabajo.numero_tarjeta = null;
+                    orden_trabajo.id_grupo_trabajo = null;
+                }
                 db.orden_trabajo.Add(orden_trabajo);
                 try
                 {
                     db.SaveChanges();
                     TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);
+
+                    //envia correo electronico
+                    EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+                    List<String> correos = new List<string>(); //correos TO
+
+                    //recorre los responsables (que tengan el premiso de asignar o que se incluyan en la tabla de notificaciones)
+                    //separar por planta
+
+                    //recorre cada nombre y realiza agrega al listado de correos
+                    //if (responsable != null && !String.IsNullOrEmpty(responsable.correo))
+                    correos.Add("alfredo.xochitemol@lagermex.com.mx"); //agrega correo de elabora
+                    orden_trabajo.empleados2 = db.empleados.Find(orden_trabajo.id_solicitante);
+                    envioCorreo.SendEmailAsync(correos, "Se ha creado la orden de trabajo #" + orden_trabajo.id + " y se encuentra en espera de asignación.", envioCorreo.getBodyCreacionOT(orden_trabajo));
+
                     return RedirectToAction("ListadoUsuario");
                 }
                 catch (Exception e)
@@ -243,7 +263,7 @@ namespace Portal_2_0.Controllers
             ViewBag.nivel_urgencia = AddFirstItem(selectListItemsUrgencia, textoPorDefecto: "-- Seleccionar --", selected: orden_trabajo.estatus);
             ViewBag.Solicitante = empleado;
             ViewBag.id_linea = AddFirstItem(new SelectList(db.produccion_lineas.Where(x => x.clave_planta == empleado.planta_clave && x.activo == true), "id", "linea"), selected: orden_trabajo.estatus);
-
+            ViewBag.id_grupo_trabajo = AddFirstItem(new SelectList(db.OT_grupo_trabajo.Where(x => x.activo == true), "id", "descripcion"));
             return View(orden_trabajo);
         }
 
@@ -609,7 +629,7 @@ namespace Portal_2_0.Controllers
                     if (responsable != null && !String.IsNullOrEmpty(responsable.correo))
                         correos.Add(responsable.correo); //agrega correo de elaborador
 
-                    envioCorreo.SendEmailAsync(correos, "Se le ha asignado la poliza orden de trabajo #" + orden_trabajo.id + ".", "Correo de asignación...");
+                    envioCorreo.SendEmailAsync(correos, "Se le ha asignado la Orden de Trabajo #" + orden_trabajo.id + ".", envioCorreo.getBodyAsignacionOT(ordenOld));
 
 
                     return RedirectToAction("ListadoAsignacionPendientes");
@@ -617,7 +637,7 @@ namespace Portal_2_0.Controllers
                 catch (Exception e)
                 {
                     TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
-                    return RedirectToAction("ListadoAginacionPendientes");
+                    return RedirectToAction("ListadoAsignacionPendientes");
                 }
             }
 
@@ -671,7 +691,7 @@ namespace Portal_2_0.Controllers
                     return View("../Home/ErrorGenerico");
                 }
 
-                
+
 
                 return View(orden_trabajo);
             }
@@ -725,9 +745,9 @@ namespace Portal_2_0.Controllers
                 if (emp != null && !String.IsNullOrEmpty(emp.correo))
                     correos.Add(emp.correo); //agrega correo de elaborador
 
-                envioCorreo.SendEmailAsync(correos, "Su solicicitud de Orden de trabajo ha cambiado de estatus #" + orden_trabajo.id + ".", "Su orden de solicitud ha sido marcada como EN PROCESO.");
+                  envioCorreo.SendEmailAsync(correos, "Su solicitud de Orden de Trabajo #" + orden_trabajo.id + " se encuentra en proceso.", envioCorreo.getBodyEnProcesoOT(ordenOld));
 
-                
+
             }
             catch (Exception e)
             {
@@ -910,7 +930,7 @@ namespace Portal_2_0.Controllers
 
                 //obtiene el usuario logeado
                 empleados empleado = obtieneEmpleadoLogeado();
-                                
+
                 ordenOld.fecha_cierre = DateTime.Now;
                 ordenOld.estatus = OT_Status.CERRADO;
                 ordenOld.comentario = orden.comentario;
@@ -932,8 +952,8 @@ namespace Portal_2_0.Controllers
 
                     if (emp != null && !String.IsNullOrEmpty(emp.correo))
                         correos.Add(emp.correo); //agrega correo de elaborador
-
-                    envioCorreo.SendEmailAsync(correos, "Su solicicitud de Orden de trabajo ha cambiado de estatus #" + orden.id + ".", "Su orden de solicitud ha sido marcada como FINALIZADA.");
+                    
+                    envioCorreo.SendEmailAsync(correos, "Su solicitud de Orden de Trabajo #" + ordenOld.id + " ha sido cerrada.", envioCorreo.getBodyCerrarOT(ordenOld));
 
                 }
                 catch (Exception e)
