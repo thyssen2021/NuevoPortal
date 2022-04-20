@@ -15,6 +15,21 @@
           <Property Name="listaCorreoElectronico" Type="varchar" MaxLength="100" />
           <Property Name="plantaClave" Type="int" />
         </EntityType>
+        <EntityType Name="AspNetRoles">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="256" Nullable="false" />
+        </EntityType>
+        <EntityType Name="AspNetUserRoles">
+          <Key>
+            <PropertyRef Name="UserId" />
+            <PropertyRef Name="RoleId" />
+          </Key>
+          <Property Name="UserId" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="RoleId" Type="nvarchar" MaxLength="128" Nullable="false" />
+        </EntityType>
         <EntityType Name="AspNetUsers">
           <Key>
             <PropertyRef Name="Id" />
@@ -315,6 +330,8 @@
           <Property Name="id_empleado" Type="int" />
           <Property Name="descripcion" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="activo" Type="bit" Nullable="false" />
+          <Property Name="correo" Type="varchar" MaxLength="70" />
+          <Property Name="clave_planta" Type="int" />
         </EntityType>
         <EntityType Name="orden_trabajo">
           <Key>
@@ -1053,6 +1070,34 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_dbo_AspNetUserRoles_dbo_AspNetRoles_RoleId">
+          <End Role="AspNetRoles" Type="Self.AspNetRoles" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="AspNetUserRoles" Type="Self.AspNetUserRoles" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetRoles">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="AspNetUserRoles">
+              <PropertyRef Name="RoleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_dbo_AspNetUserRoles_dbo_AspNetUsers_UserId">
+          <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="AspNetUserRoles" Type="Self.AspNetUserRoles" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="AspNetUsers">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="AspNetUserRoles">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_empleados_area">
           <End Role="Area" Type="Self.Area" Multiplicity="0..1" />
           <End Role="empleados" Type="Self.empleados" Multiplicity="*" />
@@ -1182,6 +1227,18 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             </Principal>
             <Dependent Role="notificaciones_correo">
               <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_notificaciones_correo_planta">
+          <End Role="plantas" Type="Self.plantas" Multiplicity="0..1" />
+          <End Role="notificaciones_correo" Type="Self.notificaciones_correo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="notificaciones_correo">
+              <PropertyRef Name="clave_planta" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1895,6 +1952,8 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
         </Association>
         <EntityContainer Name="Portal_2_0ModelStoreContainer">
           <EntitySet Name="Area" EntityType="Self.Area" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="AspNetRoles" EntityType="Self.AspNetRoles" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="AspNetUserRoles" EntityType="Self.AspNetUserRoles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="AspNetUsers" EntityType="Self.AspNetUsers" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="biblioteca_digital" EntityType="Self.biblioteca_digital" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="bom_en_sap" EntityType="Self.bom_en_sap" Schema="dbo" store:Type="Tables" />
@@ -2099,6 +2158,14 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             <End Role="empleados" EntitySet="empleados" />
             <End Role="budget_responsables" EntitySet="budget_responsables" />
           </AssociationSet>
+          <AssociationSet Name="FK_dbo_AspNetUserRoles_dbo_AspNetRoles_RoleId" Association="Self.FK_dbo_AspNetUserRoles_dbo_AspNetRoles_RoleId">
+            <End Role="AspNetRoles" EntitySet="AspNetRoles" />
+            <End Role="AspNetUserRoles" EntitySet="AspNetUserRoles" />
+          </AssociationSet>
+          <AssociationSet Name="FK_dbo_AspNetUserRoles_dbo_AspNetUsers_UserId" Association="Self.FK_dbo_AspNetUserRoles_dbo_AspNetUsers_UserId">
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+            <End Role="AspNetUserRoles" EntitySet="AspNetUserRoles" />
+          </AssociationSet>
           <AssociationSet Name="FK_empleados_area" Association="Self.FK_empleados_area">
             <End Role="Area" EntitySet="Area" />
             <End Role="empleados" EntitySet="empleados" />
@@ -2141,6 +2208,10 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           </AssociationSet>
           <AssociationSet Name="FK_notificaciones_correo_empleado" Association="Self.FK_notificaciones_correo_empleado">
             <End Role="empleados" EntitySet="empleados" />
+            <End Role="notificaciones_correo" EntitySet="notificaciones_correo" />
+          </AssociationSet>
+          <AssociationSet Name="FK_notificaciones_correo_planta" Association="Self.FK_notificaciones_correo_planta">
+            <End Role="plantas" EntitySet="plantas" />
             <End Role="notificaciones_correo" EntitySet="notificaciones_correo" />
           </AssociationSet>
           <AssociationSet Name="FK_orden_trabajo_id_area" Association="Self.FK_orden_trabajo_id_area">
@@ -2488,6 +2559,7 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <NavigationProperty Name="produccion_turnos" Relationship="Self.FK_produccion_turnos_planta_clave" FromRole="plantas" ToRole="produccion_turnos" />
           <NavigationProperty Name="poliza_manual" Relationship="Portal_2_0Model.FK_poliza_manual_planta" FromRole="plantas" ToRole="poliza_manual" />
           <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_empleados_planta_clave" FromRole="plantas" ToRole="empleados" />
+          <NavigationProperty Name="notificaciones_correo" Relationship="Portal_2_0Model.FK_notificaciones_correo_planta" FromRole="plantas" ToRole="notificaciones_correo" />
         </EntityType>
         <EntityType Name="produccion_datos_entrada">
           <Key>
@@ -2830,7 +2902,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             <End Role="produccion_turnos" EntitySet="produccion_turnos" />
             <End Role="produccion_registros" EntitySet="produccion_registros" />
           </AssociationSet>
-          <EntitySet Name="notificaciones_correo" EntityType="Portal_2_0Model.notificaciones_correo" />
           <EntitySet Name="PFA_Border_port" EntityType="Portal_2_0Model.PFA_Border_port" />
           <EntitySet Name="PFA_Department" EntityType="Portal_2_0Model.PFA_Department" />
           <EntitySet Name="PFA_Destination_plant" EntityType="Portal_2_0Model.PFA_Destination_plant" />
@@ -3033,10 +3104,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             <End Role="empleados" EntitySet="empleados" />
             <End Role="inspeccion_datos_generales" EntitySet="inspeccion_datos_generales" />
           </AssociationSet>
-          <AssociationSet Name="FK_notificaciones_correo_empleado" Association="Portal_2_0Model.FK_notificaciones_correo_empleado">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="notificaciones_correo" EntitySet="notificaciones_correo" />
-          </AssociationSet>
           <AssociationSet Name="FK_OT_personal_mantenimiento_id_empleado" Association="Portal_2_0Model.FK_OT_personal_mantenimiento_id_empleado">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="OT_personal_mantenimiento" EntitySet="OT_personal_mantenimiento" />
@@ -3166,17 +3233,21 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             <End Role="OT_grupo_trabajo" EntitySet="OT_grupo_trabajo" />
             <End Role="orden_trabajo" EntitySet="orden_trabajo" />
           </AssociationSet>
+          <EntitySet Name="AspNetRoles" EntityType="Portal_2_0Model.AspNetRoles" />
+          <AssociationSet Name="AspNetUserRoles" Association="Portal_2_0Model.AspNetUserRoles">
+            <End Role="AspNetRoles" EntitySet="AspNetRoles" />
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+          </AssociationSet>
+          <EntitySet Name="notificaciones_correo" EntityType="Portal_2_0Model.notificaciones_correo" />
+          <AssociationSet Name="FK_notificaciones_correo_empleado" Association="Portal_2_0Model.FK_notificaciones_correo_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="notificaciones_correo" EntitySet="notificaciones_correo" />
+          </AssociationSet>
+          <AssociationSet Name="FK_notificaciones_correo_planta" Association="Portal_2_0Model.FK_notificaciones_correo_planta">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="notificaciones_correo" EntitySet="notificaciones_correo" />
+          </AssociationSet>
           </EntityContainer>
-        <EntityType Name="notificaciones_correo">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_empleado" Type="Int32" />
-          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="activo" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_notificaciones_correo_empleado" FromRole="notificaciones_correo" ToRole="empleados" />
-        </EntityType>
         <EntityType Name="PFA_Border_port">
           <Key>
             <PropertyRef Name="id" />
@@ -3668,6 +3739,7 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <Property Name="FechaCreacion" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="IdEmpleado" Type="Int32" Nullable="false" />
           <NavigationProperty Name="log_inicio_sesion" Relationship="Portal_2_0Model.FK_log_inicio_sesion_id_usuario" FromRole="AspNetUsers" ToRole="log_inicio_sesion" />
+          <NavigationProperty Name="AspNetRoles" Relationship="Portal_2_0Model.AspNetUserRoles" FromRole="AspNetUsers" ToRole="AspNetRoles" />
         </EntityType>
         <EntityType Name="log_inicio_sesion">
           <Key>
@@ -4266,7 +4338,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_empleados_planta_clave" FromRole="empleados" ToRole="plantas" />
           <NavigationProperty Name="puesto1" Relationship="Portal_2_0Model.FK_empleados_puesto" FromRole="empleados" ToRole="puesto" />
           <NavigationProperty Name="inspeccion_datos_generales" Relationship="Portal_2_0Model.FK_inspeccion_datos_generales_id_empleado_inspector" FromRole="empleados" ToRole="inspeccion_datos_generales" />
-          <NavigationProperty Name="notificaciones_correo" Relationship="Portal_2_0Model.FK_notificaciones_correo_empleado" FromRole="empleados" ToRole="notificaciones_correo" />
           <NavigationProperty Name="OT_personal_mantenimiento" Relationship="Portal_2_0Model.FK_OT_personal_mantenimiento_id_empleado" FromRole="empleados" ToRole="OT_personal_mantenimiento" />
           <NavigationProperty Name="PFA" Relationship="Portal_2_0Model.FK_PFA_autorizador" FromRole="empleados" ToRole="PFA" />
           <NavigationProperty Name="PFA_Autorizador" Relationship="Portal_2_0Model.FK_PFA_Autorizador_empleado" FromRole="empleados" ToRole="PFA_Autorizador" />
@@ -4285,6 +4356,7 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <NavigationProperty Name="orden_trabajo" Relationship="Portal_2_0Model.FK_orden_trabajo_id_asignacion" FromRole="empleados" ToRole="orden_trabajo" />
           <NavigationProperty Name="orden_trabajo1" Relationship="Portal_2_0Model.FK_orden_trabajo_id_responsable" FromRole="empleados" ToRole="orden_trabajo" />
           <NavigationProperty Name="orden_trabajo2" Relationship="Portal_2_0Model.FK_orden_trabajo_id_solicitante" FromRole="empleados" ToRole="orden_trabajo" />
+          <NavigationProperty Name="notificaciones_correo" Relationship="Portal_2_0Model.FK_notificaciones_correo_empleado" FromRole="empleados" ToRole="notificaciones_correo" />
         </EntityType>
         <Association Name="FK_empleados_area">
           <End Type="Portal_2_0Model.Area" Role="Area" Multiplicity="0..1" />
@@ -4343,18 +4415,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             </Principal>
             <Dependent Role="inspeccion_datos_generales">
               <PropertyRef Name="id_empleado_inspector" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_notificaciones_correo_empleado">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.notificaciones_correo" Role="notificaciones_correo" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="notificaciones_correo">
-              <PropertyRef Name="id_empleado" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -4839,6 +4899,55 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="AspNetRoles">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="256" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="AspNetUsers" Relationship="Portal_2_0Model.AspNetUserRoles" FromRole="AspNetRoles" ToRole="AspNetUsers" />
+        </EntityType>
+        <Association Name="AspNetUserRoles">
+          <End Type="Portal_2_0Model.AspNetRoles" Role="AspNetRoles" Multiplicity="*" />
+          <End Type="Portal_2_0Model.AspNetUsers" Role="AspNetUsers" Multiplicity="*" />
+        </Association>
+        <EntityType Name="notificaciones_correo">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_empleado" Type="Int32" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <Property Name="correo" Type="String" MaxLength="70" FixedLength="false" Unicode="false" />
+          <Property Name="clave_planta" Type="Int32" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_notificaciones_correo_empleado" FromRole="notificaciones_correo" ToRole="empleados" />
+          <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_notificaciones_correo_planta" FromRole="notificaciones_correo" ToRole="plantas" />
+        </EntityType>
+        <Association Name="FK_notificaciones_correo_empleado">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.notificaciones_correo" Role="notificaciones_correo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="notificaciones_correo">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_notificaciones_correo_planta">
+          <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.notificaciones_correo" Role="notificaciones_correo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="notificaciones_correo">
+              <PropertyRef Name="clave_planta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -5038,16 +5147,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
                 <ScalarProperty Name="activo" ColumnName="activo" />
                 <ScalarProperty Name="descripcion" ColumnName="descripcion" />
                 <ScalarProperty Name="areaClave" ColumnName="areaClave" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="notificaciones_correo">
-            <EntityTypeMapping TypeName="Portal_2_0Model.notificaciones_correo">
-              <MappingFragment StoreEntitySet="notificaciones_correo">
-                <ScalarProperty Name="activo" ColumnName="activo" />
-                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
-                <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
-                <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -5765,6 +5864,34 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
                 <ScalarProperty Name="id_responsable" ColumnName="id_responsable" />
                 <ScalarProperty Name="id_asignacion" ColumnName="id_asignacion" />
                 <ScalarProperty Name="id_solicitante" ColumnName="id_solicitante" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AspNetRoles">
+            <EntityTypeMapping TypeName="Portal_2_0Model.AspNetRoles">
+              <MappingFragment StoreEntitySet="AspNetRoles">
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <AssociationSetMapping Name="AspNetUserRoles" TypeName="Portal_2_0Model.AspNetUserRoles" StoreEntitySet="AspNetUserRoles">
+            <EndProperty Name="AspNetUsers">
+              <ScalarProperty Name="Id" ColumnName="UserId" />
+            </EndProperty>
+            <EndProperty Name="AspNetRoles">
+              <ScalarProperty Name="Id" ColumnName="RoleId" />
+            </EndProperty>
+          </AssociationSetMapping>
+          <EntitySetMapping Name="notificaciones_correo">
+            <EntityTypeMapping TypeName="Portal_2_0Model.notificaciones_correo">
+              <MappingFragment StoreEntitySet="notificaciones_correo">
+                <ScalarProperty Name="clave_planta" ColumnName="clave_planta" />
+                <ScalarProperty Name="correo" ColumnName="correo" />
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

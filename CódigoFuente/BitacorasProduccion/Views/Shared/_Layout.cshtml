@@ -363,7 +363,8 @@
                                                 @if (User.IsInRole(TipoRoles.OT_REPORTE))
                                                 {
                                                     <h3>Reportes</h3>
-                                                    <li class="@(ViewBag.SegundoNivel == "Reportes" ? "current-page" : null )"><a href="@Url.Action("Reportes", "OrdenesTrabajo")">Reporte 1</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "ReporteGeneral" ? "current-page" : null )"><a href="@Url.Action("ReporteGeneral", "OrdenesTrabajo")">Reporte Excel</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "ReporteGrafica1" ? "current-page" : null )"><a href="@Url.Action("ReporteGrafica1", "OrdenesTrabajo")">Gr&aacute;fica 1</a></li>
                                                 }
                                             </ul>
                                         </li>

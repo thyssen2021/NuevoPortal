@@ -19,10 +19,6 @@ namespace Portal_2_0.Models
         {
             this.budget_responsables = new HashSet<budget_responsables>();
             this.inspeccion_datos_generales = new HashSet<inspeccion_datos_generales>();
-            this.notificaciones_correo = new HashSet<notificaciones_correo>();
-            this.orden_trabajo = new HashSet<orden_trabajo>();
-            this.orden_trabajo1 = new HashSet<orden_trabajo>();
-            this.orden_trabajo2 = new HashSet<orden_trabajo>();
             this.OT_personal_mantenimiento = new HashSet<OT_personal_mantenimiento>();
             this.PFA = new HashSet<PFA>();
             this.PFA_Autorizador = new HashSet<PFA_Autorizador>();
@@ -38,6 +34,10 @@ namespace Portal_2_0.Models
             this.produccion_respaldo = new HashSet<produccion_respaldo>();
             this.produccion_supervisores = new HashSet<produccion_supervisores>();
             this.upgrade_usuarios = new HashSet<upgrade_usuarios>();
+            this.orden_trabajo = new HashSet<orden_trabajo>();
+            this.orden_trabajo1 = new HashSet<orden_trabajo>();
+            this.orden_trabajo2 = new HashSet<orden_trabajo>();
+            this.notificaciones_correo = new HashSet<notificaciones_correo>();
         }
 
         public int id { get; set; }
@@ -143,14 +143,6 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<inspeccion_datos_generales> inspeccion_datos_generales { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<notificaciones_correo> notificaciones_correo { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<orden_trabajo> orden_trabajo { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<orden_trabajo> orden_trabajo1 { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<orden_trabajo> orden_trabajo2 { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<OT_personal_mantenimiento> OT_personal_mantenimiento { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PFA> PFA { get; set; }
@@ -180,5 +172,13 @@ namespace Portal_2_0.Models
         public virtual ICollection<produccion_supervisores> produccion_supervisores { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<upgrade_usuarios> upgrade_usuarios { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<orden_trabajo> orden_trabajo { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<orden_trabajo> orden_trabajo1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<orden_trabajo> orden_trabajo2 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<notificaciones_correo> notificaciones_correo { get; set; }
     }
 }

@@ -38,7 +38,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<produccion_supervisores> produccion_supervisores { get; set; }
         public virtual DbSet<produccion_turnos> produccion_turnos { get; set; }
         public virtual DbSet<puesto> puesto { get; set; }
-        public virtual DbSet<notificaciones_correo> notificaciones_correo { get; set; }
         public virtual DbSet<PFA_Border_port> PFA_Border_port { get; set; }
         public virtual DbSet<PFA_Department> PFA_Department { get; set; }
         public virtual DbSet<PFA_Destination_plant> PFA_Destination_plant { get; set; }
@@ -90,5 +89,7 @@ namespace Portal_2_0.Models
         public virtual DbSet<upgrade_values_transaccion> upgrade_values_transaccion { get; set; }
         public virtual DbSet<OT_grupo_trabajo> OT_grupo_trabajo { get; set; }
         public virtual DbSet<orden_trabajo> orden_trabajo { get; set; }
+        public virtual DbSet<AspNetRoles> AspNetRoles { get; set; }
+        public virtual DbSet<notificaciones_correo> notificaciones_correo { get; set; }
     }
 }

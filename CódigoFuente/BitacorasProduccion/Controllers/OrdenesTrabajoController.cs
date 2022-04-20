@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -9,6 +10,7 @@ using System.Web;
 using System.Web.Mvc;
 using Bitacoras.Util;
 using Clases.Util;
+using IdentitySample.Models;
 using Portal_2_0.Models;
 
 namespace Portal_2_0.Controllers
@@ -232,12 +234,36 @@ namespace Portal_2_0.Controllers
                     EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
                     List<String> correos = new List<string>(); //correos TO
 
-                    //recorre los responsables (que tengan el premiso de asignar o que se incluyan en la tabla de notificaciones)
-                    //separar por planta
+                    //---INICIO POR ROL                    
+                    //recorre los responsables con el permiso de asignar
+                    AspNetRoles rol = db.AspNetRoles.Where(x => x.Name == TipoRoles.OT_ASIGNACION).FirstOrDefault();
+                    List<AspNetUsers> usuariosInRole = new List<AspNetUsers>();
+                    if (rol != null)
+                        usuariosInRole = rol.AspNetUsers.ToList();
 
-                    //recorre cada nombre y realiza agrega al listado de correos
-                    //if (responsable != null && !String.IsNullOrEmpty(responsable.correo))
-                    correos.Add("alfredo.xochitemol@lagermex.com.mx"); //agrega correo de elabora
+                    List<int> idsAsignacion = usuariosInRole.Select(x => x.IdEmpleado).Distinct().ToList();
+
+                    List<empleados> listEmpleados = db.empleados.Where(x => x.activo == true && idsAsignacion.Contains(x.id) == true && x.planta_clave == empleado.planta_clave).ToList();
+
+                    foreach (var e in listEmpleados)
+                        if (!String.IsNullOrEmpty(e.correo))
+                            correos.Add(e.correo);
+
+                    //---FIN POR ROL
+
+                    //-- INICIO POR TABLA NOTIFICACION
+
+                    //List<notificaciones_correo> listadoNotificaciones = db.notificaciones_correo.Where(x => x.descripcion == NotificacionesCorreo.PO_ASIGNACION).ToList();
+                    //foreach (var n in listadoNotificaciones)
+                    //{
+                    //    //verificar si es necesario filtrar por planta
+                    //    if (!String.IsNullOrEmpty(n.correo) && !n.id_empleado.HasValue && n.clave_planta == empleado.planta_clave) //clave planta es opcional según la situación
+                    //        correos.Add(n.correo);
+                    //    else if (n.empleados != null && !String.IsNullOrEmpty(n.empleados.correo) && n.empleados.planta_clave == empleado.planta_clave)
+                    //        correos.Add(n.empleados.correo);
+                    //}
+                    //-- FIN POR TABLA NOTIFICACION
+
                     orden_trabajo.empleados2 = db.empleados.Find(orden_trabajo.id_solicitante);
                     envioCorreo.SendEmailAsync(correos, "Se ha creado la orden de trabajo #" + orden_trabajo.id + " y se encuentra en espera de asignación.", envioCorreo.getBodyCreacionOT(orden_trabajo));
 
@@ -549,6 +575,141 @@ namespace Portal_2_0.Controllers
 
         #endregion
 
+        #region reportes
+
+        // GET: ReporteGeneral
+        public ActionResult ReporteGeneral(string estatus, string nivel_urgencia, string fecha_inicial, string fecha_final, int? id,  int pagina = 1)
+        {
+            if (TieneRol(TipoRoles.OT_SOLICITUD))
+            {
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
+                //convierte las fechas recibidas
+                CultureInfo provider = CultureInfo.InvariantCulture;
+
+                DateTime dateInicial = new DateTime(2000, 1, 1);  //fecha inicial por defecto
+                DateTime dateFinal = DateTime.Now;          //fecha final por defecto
+                DateTime dateTurno = DateTime.Now;          //fecha turno por defecto
+
+                try
+                {
+                    if (!String.IsNullOrEmpty(fecha_inicial))
+                        dateInicial = Convert.ToDateTime(fecha_inicial);
+                    if (!String.IsNullOrEmpty(fecha_final))
+                    {
+                        dateFinal = Convert.ToDateTime(fecha_final);
+                        dateFinal = dateFinal.AddHours(23).AddMinutes(59).AddSeconds(59);
+                    }
+                  
+                }
+                catch (FormatException e)
+                {
+                    Console.WriteLine("Error de Formato: " + e.Message);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error al convertir: " + ex.Message);
+                }
+
+                var cantidadRegistrosPorPagina = 20; // parámetro
+
+                //obtiene el usuario logeado
+                empleados empleado = obtieneEmpleadoLogeado();
+
+               
+                var listado = db.orden_trabajo
+                    .Where(x =>
+                       (id == null || x.id == id)
+                       && (x.empleados2.planta_clave == empleado.planta_clave) //filtra por planta
+                      && (String.IsNullOrEmpty(estatus) || x.estatus.Contains(estatus))
+                      && (String.IsNullOrEmpty(nivel_urgencia) || x.nivel_urgencia.Contains(nivel_urgencia))
+                        && x.fecha_solicitud >= dateInicial && x.fecha_solicitud <= dateFinal
+                    )
+                    .OrderByDescending(x => x.fecha_solicitud)
+                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                   .Take(cantidadRegistrosPorPagina).ToList();
+
+                var totalDeRegistros = db.orden_trabajo
+                   .Where(x =>
+                       (id == null || x.id == id)
+                       && (x.empleados2.planta_clave == empleado.planta_clave) //filtra por planta
+                      && (String.IsNullOrEmpty(estatus) || x.estatus.Contains(estatus))
+                        && (String.IsNullOrEmpty(nivel_urgencia) || x.nivel_urgencia.Contains(nivel_urgencia))
+                         && x.fecha_solicitud >= dateInicial && x.fecha_solicitud <= dateFinal
+                    )
+                    .Count();
+
+                //para paginación
+
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                routeValues["id"] = id;
+                routeValues["estatus"] = estatus;
+                routeValues["nivel_urgencia"] = nivel_urgencia;
+                routeValues["fecha_inicial"] = fecha_inicial;
+                routeValues["fecha_final"] = fecha_final;
+
+
+                Paginacion paginacion = new Paginacion
+                {
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                List<string> estatusList = db.orden_trabajo.Select(x => x.estatus).Distinct().ToList();
+                //crea un Select  list para el estatus
+                List<SelectListItem> newList = new List<SelectListItem>();
+
+                foreach (string statusItem in estatusList)
+                {
+                    newList.Add(new SelectListItem()
+                    {
+                        Text = OT_Status.DescripcionStatus(statusItem),
+                        Value = statusItem
+                    });
+                }
+
+                List<string> urgenciaList = db.orden_trabajo.Select(x => x.nivel_urgencia).Distinct().ToList();
+                //crea un Select  list para el estatus
+                List<SelectListItem> newListUrgencia = new List<SelectListItem>();
+
+                foreach (string item in urgenciaList)
+                {
+                    newListUrgencia.Add(new SelectListItem()
+                    {
+                        Text = OT_nivel_urgencia.DescripcionStatus(item),
+                        Value = item
+                    });
+                }
+
+                SelectList selectListItemsStatus = new SelectList(newList, "Value", "Text", estatus);
+                SelectList selectListItemsNivelUrgencia = new SelectList(newListUrgencia, "Value", "Text", nivel_urgencia);
+
+                ViewBag.estatus = AddFirstItem(selectListItemsStatus, textoPorDefecto: "-- Todos --");
+                ViewBag.nivel_urgencia = AddFirstItem(selectListItemsNivelUrgencia, textoPorDefecto: "-- Todos --");
+                ViewBag.Paginacion = paginacion;
+                //Viewbags para los botones               
+                ViewBag.Title = "Reporte de Órdenes de Trabajo";
+                ViewBag.SegundoNivel = "ReporteGeneral";
+                ViewBag.clave_planta = new SelectList(db.plantas.Where(p => p.activo == true && p.clave == empleado.planta_clave), "clave", "descripcion");
+
+                // ViewBag.Create = true;
+
+                return View(listado);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+        }
+
+        #endregion
+
         // GET: OrdenesTrabajo/Asignar/5
         public ActionResult Asignar(int? id)
         {
@@ -745,7 +906,7 @@ namespace Portal_2_0.Controllers
                 if (emp != null && !String.IsNullOrEmpty(emp.correo))
                     correos.Add(emp.correo); //agrega correo de elaborador
 
-                  envioCorreo.SendEmailAsync(correos, "Su solicitud de Orden de Trabajo #" + orden_trabajo.id + " se encuentra en proceso.", envioCorreo.getBodyEnProcesoOT(ordenOld));
+                envioCorreo.SendEmailAsync(correos, "Su solicitud de Orden de Trabajo #" + orden_trabajo.id + " se encuentra en proceso.", envioCorreo.getBodyEnProcesoOT(ordenOld));
 
 
             }
@@ -952,7 +1113,7 @@ namespace Portal_2_0.Controllers
 
                     if (emp != null && !String.IsNullOrEmpty(emp.correo))
                         correos.Add(emp.correo); //agrega correo de elaborador
-                    
+
                     envioCorreo.SendEmailAsync(correos, "Su solicitud de Orden de Trabajo #" + ordenOld.id + " ha sido cerrada.", envioCorreo.getBodyCerrarOT(ordenOld));
 
                 }
@@ -970,6 +1131,18 @@ namespace Portal_2_0.Controllers
 
         }
 
+        public ActionResult ReporteGrafica1()
+        {
+            if (TieneRol(TipoRoles.OT_REPORTE))
+            {                             
+                return View();
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
 
         protected override void Dispose(bool disposing)
         {
@@ -1002,5 +1175,7 @@ namespace Portal_2_0.Controllers
 
             return newList;
         }
+
+       
     }
 }

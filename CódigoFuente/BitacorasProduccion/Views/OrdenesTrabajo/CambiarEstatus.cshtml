@@ -149,17 +149,29 @@
                             </div>
                         </div>
 
-                        @if (Model.produccion_lineas != null)
-                        {
+                        <div class="form-group row">
+                            <!--Correo-->
+                            @Html.LabelFor(model => model.empleados2.correo, new { @class = "control-label col-md-1 text_derecha" })
+                            <div class="col-md-4">
+                                @if (Model.empleados2 != null && !String.IsNullOrEmpty(Model.empleados2.correo))
+                                {
+                                    <input type="text" class="form-control " value="@Model.empleados2.correo" readonly>
+                                }
+                                else
+                                {
+                                    <input type="text" class="form-control " value="NO DISPONIBLE" readonly>
+                                }
 
-                            <div class="form-group row">
+                            </div>
+                            @if (Model.produccion_lineas != null)
+                            {
                                 <!--id linea-->
                                 @Html.LabelFor(model => model.id_linea, new { @class = "control-label col-md-1 text_derecha" })
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <input type="text" class="form-control " value="@Model.produccion_lineas.linea" readonly>
                                 </div>
-                            </div>
-                        }
+                            }
+                        </div>
 
 
                         <div class="form-group row">

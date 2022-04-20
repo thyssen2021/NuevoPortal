@@ -18,6 +18,7 @@ namespace Portal_2_0.Models
         public AspNetUsers()
         {
             this.log_inicio_sesion = new HashSet<log_inicio_sesion>();
+            this.AspNetRoles = new HashSet<AspNetRoles>();
         }
     
         public string Id { get; set; }
@@ -38,5 +39,7 @@ namespace Portal_2_0.Models
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<log_inicio_sesion> log_inicio_sesion { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<AspNetRoles> AspNetRoles { get; set; }
     }
 }

@@ -1,5 +1,5 @@
-﻿$(document).ready(function () {   
-    
+﻿$(document).ready(function () {
+
     $(document).on({
 
 
@@ -31,7 +31,7 @@
     var submittedFormContent = null;
     $('form:not(.js-allow-double-submission)').submit(function (e) {
         var newFormContent = $(this).serialize();
-       
+
         if (submittedFormContent === newFormContent) {
             console.log('ya se envio el formulario')
             e.preventDefault(true);
@@ -47,7 +47,7 @@
 
 //hace clic el nunmero de veces indicado en el menu (utilizado para desplegar el menu)
 function clicMenu(num) {
-   
+
     for (var i = 1; i <= num; i++) {
         document.getElementById('menu_toggle').click();
     }
@@ -106,7 +106,7 @@ jQuery.fn.preventDoubleSubmission = function () {
             // Previously submitted - don't submit again
             console.log('Ya se envio el formulario')
             e.preventDefault();
-        } else {           
+        } else {
             // Mark it so that the next submit can be ignored
             $form.data('submitted', true);
         }
@@ -115,3 +115,4 @@ jQuery.fn.preventDoubleSubmission = function () {
     // Keep chainability
     return this;
 };
+

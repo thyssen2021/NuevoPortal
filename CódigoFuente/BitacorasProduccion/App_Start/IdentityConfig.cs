@@ -66,6 +66,11 @@ namespace IdentitySample.Models
             }
             return manager;
         }
+
+        internal bool IsInRoleAsync(string oT_ASIGNACION)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     // Configure the RoleManager used in the application. RoleManager is defined in the ASP.NET Identity core assembly

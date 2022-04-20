@@ -467,6 +467,7 @@ namespace Portal_2_0.Models
             body = body.Replace("#TPM", tpm);
             body = body.Replace("#FECHA_SOLICITUD", orden.fecha_solicitud.ToString("dd/MM/yyyy"));           
             body = body.Replace("#ENLACE", domainName + "/OrdenesTrabajo/Asignar/" + orden.id);
+            body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
 
             return body;
         }
@@ -499,6 +500,7 @@ namespace Portal_2_0.Models
             body = body.Replace("#TPM", tpm);
             body = body.Replace("#FECHA_SOLICITUD", orden.fecha_solicitud.ToString("dd/MM/yyyy"));
             body = body.Replace("#ENLACE", domainName + "/OrdenesTrabajo/CambiarEstatus/" + orden.id);
+            body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
 
             return body;
         }
@@ -531,6 +533,7 @@ namespace Portal_2_0.Models
             body = body.Replace("#TPM", tpm);
             body = body.Replace("#FECHA_SOLICITUD", orden.fecha_solicitud.ToString("dd/MM/yyyy"));
             body = body.Replace("#ENLACE", domainName + "/OrdenesTrabajo/Details/" + orden.id);
+            body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
 
             return body;
         }
@@ -563,6 +566,7 @@ namespace Portal_2_0.Models
             body = body.Replace("#TPM", tpm);
             body = body.Replace("#FECHA_SOLICITUD", orden.fecha_solicitud.ToString("dd/MM/yyyy"));
             body = body.Replace("#ENLACE", domainName + "/OrdenesTrabajo/Details/" + orden.id);
+            body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
 
             return body;
         }
