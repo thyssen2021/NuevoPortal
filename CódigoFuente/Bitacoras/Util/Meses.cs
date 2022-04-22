@@ -26,11 +26,7 @@ namespace Bitacoras.Util
 
     public static class MesesUtil
     {
-        public static List<Meses> ListadoMeses = new List<Meses> { 
-            ENERO, FEBRERO,MARZO,ABRIL,MAYO,JUNIO, JULIO, AGOSTO,SEPTIEMBRE,OCTUBRE, NOVIEMBRE, DICIEMBRE
-
-        };
-
+        
         public static Meses ENERO = new Meses { Numero = 1, Nombre = "Enero", Name = "January" };
         public static Meses FEBRERO = new Meses { Numero = 2, Nombre = "Febrero", Name = "February" };
         public static Meses MARZO = new Meses { Numero = 3, Nombre = "Marzo", Name = "March" };
@@ -44,6 +40,42 @@ namespace Bitacoras.Util
         public static Meses NOVIEMBRE = new Meses { Numero = 11, Nombre = "Noviembre", Name = "November" };
         public static Meses DICIEMBRE = new Meses { Numero = 12, Nombre = "Diciembre", Name = "December" };
 
+        public static List<Meses> ListadoMeses = new List<Meses> {
+            ENERO, FEBRERO,MARZO,ABRIL,MAYO,JUNIO, JULIO, AGOSTO,SEPTIEMBRE,OCTUBRE, NOVIEMBRE, DICIEMBRE
+        };
 
+        public static Meses getMes(int mes) {
+
+            switch (mes)
+            {
+                case 1:
+                    return ENERO;
+                case 2:
+                    return FEBRERO;
+                case 3:
+                    return MARZO;
+                case 4:
+                    return ABRIL;
+                case 5:
+                    return MAYO;
+                case 6:
+                    return JUNIO;
+                case 7:
+                    return JULIO;
+                case 8:
+                    return AGOSTO;
+                case 9:
+                    return SEPTIEMBRE;
+                case 10:
+                    return OCTUBRE;
+                case 11:
+                    return NOVIEMBRE;
+                case 12:
+                    return DICIEMBRE;
+                default:
+                    return null;
+            }
+
+        }
     }
 }

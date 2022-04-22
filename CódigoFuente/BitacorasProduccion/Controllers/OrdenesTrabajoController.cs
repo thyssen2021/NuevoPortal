@@ -580,7 +580,7 @@ namespace Portal_2_0.Controllers
         // GET: ReporteGeneral
         public ActionResult ReporteGeneral(string estatus, string nivel_urgencia, string fecha_inicial, string fecha_final, int? id,  int pagina = 1)
         {
-            if (TieneRol(TipoRoles.OT_SOLICITUD))
+            if (TieneRol(TipoRoles.OT_REPORTE))
             {
                 //mensaje en caso de crear, editar, etc
                 if (TempData["Mensaje"] != null)
@@ -708,6 +708,74 @@ namespace Portal_2_0.Controllers
             }
         }
 
+
+        public ActionResult Exportar(string estatus, string nivel_urgencia, string fecha_inicial, string fecha_final, int? id, int pagina = 1)
+        {
+            if (TieneRol(TipoRoles.OT_REPORTE))
+            {
+                //convierte las fechas recibidas
+                CultureInfo provider = CultureInfo.InvariantCulture;
+
+                DateTime dateInicial = new DateTime(2000, 1, 1);  //fecha inicial por defecto
+                DateTime dateFinal = DateTime.Now;          //fecha final por defecto
+                DateTime dateTurno = DateTime.Now;          //fecha turno por defecto
+
+                try
+                {
+                    if (!String.IsNullOrEmpty(fecha_inicial))
+                        dateInicial = Convert.ToDateTime(fecha_inicial);
+                    if (!String.IsNullOrEmpty(fecha_final))
+                    {
+                        dateFinal = Convert.ToDateTime(fecha_final);
+                        dateFinal = dateFinal.AddHours(23).AddMinutes(59).AddSeconds(59);
+                    }
+
+                }
+                catch (FormatException e)
+                {
+                    Console.WriteLine("Error de Formato: " + e.Message);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error al convertir: " + ex.Message);
+                }
+
+                //obtiene el usuario logeado
+                empleados empleado = obtieneEmpleadoLogeado();
+
+                var listado = db.orden_trabajo
+                   .Where(x =>
+                      (id == null || x.id == id)
+                      && (x.empleados2.planta_clave == empleado.planta_clave) //filtra por planta
+                     && (String.IsNullOrEmpty(estatus) || x.estatus.Contains(estatus))
+                     && (String.IsNullOrEmpty(nivel_urgencia) || x.nivel_urgencia.Contains(nivel_urgencia))
+                       && x.fecha_solicitud >= dateInicial && x.fecha_solicitud <= dateFinal
+                   )
+                   .ToList();
+
+                byte[] stream = ExcelUtil.GeneraReporteOrdenesTrabajo(listado);
+
+
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+                    // for example foo.bak
+                    FileName = "Reporte_Ordenes_Trabajo_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+                    // always prompt the user for downloading, set to true if you want 
+                    // the browser to try to show the file inline
+                    Inline = false,
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                return File(stream, "application/vnd.ms-excel");
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
         #endregion
 
         // GET: OrdenesTrabajo/Asignar/5
@@ -1131,10 +1199,49 @@ namespace Portal_2_0.Controllers
 
         }
 
-        public ActionResult ReporteGrafica1()
+        public ActionResult GraficaGeneral()
         {
             if (TieneRol(TipoRoles.OT_REPORTE))
-            {                             
+            {
+                //obtiene la fecha actual
+                DateTime fechaActual = DateTime.Now;
+
+                //crea una fecha al inicio del mes
+                DateTime fechaInicial = new DateTime(fechaActual.Year, fechaActual.Month, 1);
+
+                //Determina el último día del mes
+                DateTime fechaFinal = fechaInicial.AddMonths(1).AddDays(-1);
+
+
+                ViewBag.FechaInicial = fechaInicial;
+                ViewBag.FechaFinal = fechaFinal;
+
+                return View();
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+        public ActionResult GraficaTPM()
+        {
+            if (TieneRol(TipoRoles.OT_REPORTE))
+            {
+                //obtiene la fecha actual
+                DateTime fechaActual = DateTime.Now;
+
+                //crea una fecha al inicio del mes
+                DateTime fechaInicial = new DateTime(fechaActual.Year, fechaActual.Month, 1);
+
+                //Determina el último día del mes
+                DateTime fechaFinal = fechaInicial.AddMonths(1).AddDays(-1);
+
+
+                ViewBag.FechaInicial = fechaInicial;
+                ViewBag.FechaFinal = fechaFinal;
+
                 return View();
             }
             else

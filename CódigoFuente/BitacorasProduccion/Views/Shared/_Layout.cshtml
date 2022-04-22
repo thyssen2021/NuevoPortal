@@ -333,7 +333,7 @@
 
 
                                     @*MENÚ ORDENES DE TRABAJO*@
-                                    @if (User.IsInRole(TipoRoles.OT_ASIGNACION) || User.IsInRole(TipoRoles.OT_REPORTE) || User.IsInRole(TipoRoles.OT_RESPONSABLE) || User.IsInRole(TipoRoles.OT_SOLICITUD))
+                                    @if (User.IsInRole(TipoRoles.OT_ASIGNACION) || User.IsInRole(TipoRoles.OT_REPORTE) || User.IsInRole(TipoRoles.OT_RESPONSABLE) || User.IsInRole(TipoRoles.OT_SOLICITUD) || User.IsInRole(TipoRoles.OT_CATALOGOS))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "orden_trabajo" ? "active" : null )">
                                             <a><i class="fa fa-wrench"></i>&Oacute;rdenes de Trabajo<span class="fa fa-chevron-down"></span></a>
@@ -364,7 +364,13 @@
                                                 {
                                                     <h3>Reportes</h3>
                                                     <li class="@(ViewBag.SegundoNivel == "ReporteGeneral" ? "current-page" : null )"><a href="@Url.Action("ReporteGeneral", "OrdenesTrabajo")">Reporte Excel</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "ReporteGrafica1" ? "current-page" : null )"><a href="@Url.Action("ReporteGrafica1", "OrdenesTrabajo")">Gr&aacute;fica 1</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "GraficaGeneral" ? "current-page" : null )"><a href="@Url.Action("GraficaGeneral", "OrdenesTrabajo")">An&aacute;lisis de Informaci&oacute;n</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "GraficaTPM" ? "current-page" : null )"><a href="@Url.Action("GraficaTPM", "OrdenesTrabajo")">An&aacute;lisis de TPM</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.OT_CATALOGOS))
+                                                {
+                                                    <h3>Cat&aacute;logos</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "OT_Grupos" ? "current-page" : null )"><a href="@Url.Action("Index", "OT_Grupos")">Grupos</a></li>
                                                 }
                                             </ul>
                                         </li>

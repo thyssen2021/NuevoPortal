@@ -1,0 +1,812 @@
+﻿
+@model Portal_2_0.Models.inspeccion_categoria_fallas
+
+@{
+    ViewBag.Title = "Análisis TPM";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.PrimerNivel = "orden_trabajo";
+    ViewBag.SegundoNivel = "GraficaTPM";
+    ViewBag.ControllerName = "OrdenesTrabajo";
+
+    DateTime dateInicial = (DateTime)ViewBag.FechaInicial;
+    DateTime dateFinal = (DateTime)ViewBag.FechaFinal;
+
+    String inicial = dateInicial.ToString("yyyy-MM-dd");
+    String final = dateFinal.ToString("yyyy-MM-dd");
+}
+
+@section estilos
+{
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+                <h3><small>An&aacute;lisis de TPM</small></h3>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>B&uacute;squeda</h2>
+
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="form-group">
+
+                            <div class="form-group row ">
+
+                                <label class="control-label col-md-1 col-sm-1" for="fecha_inicial" style="text-align:right">Fecha Inicial:</label>
+                                <div class="col-md-3 col-sm-3">
+                                    <input type="date" class="form-control" name="fecha_inicial" id="fecha_inicial" value="@inicial">
+                                </div>
+                                <label class="control-label col-md-1 col-sm-1" for="fecha_final" style="text-align:right">Fecha Final:</label>
+                                <div class="col-md-3 col-sm-3">
+                                    <input type="date" class="form-control" name="fecha_final" id="fecha_final" value="@final">
+                                </div>
+                                <div class="col-md-2 col-sm-11">
+                                    <a href="@Url.Action("GraficaTPM", ViewBag.ControllerName)" class="btn btn-warning" title="Restablecer">
+                                        <i class="fa fa-refresh"></i> Restablecer
+                                    </a>
+                                </div>
+                                <div class="col-md-1 col-sm-1">
+                                    <input type="button" value="Actualizar" onclick="actualizaValores()" class="btn btn-info float-right" />
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12 col-sm-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Defectos por Departamentos</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content table-responsive">
+
+                        <div id="grafica1" style="height:480px;"></div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>¿Qui&eacute;n detecta m&aacute;s?</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content table-responsive">
+
+                        <div id="graficaDetectados" style="height:550px;"></div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>¿Qui&eacute;n corrige m&aacute;s?</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content table-responsive">
+
+                        <div id="graficaCorregidos" style="height:550px;"></div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-12 col-sm-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Encontrados vs Corregidos por &Aacute;rea</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content table-responsive">
+
+                        <div id="graficaDetectadasVSCorregidasArea" style="height:550px;"></div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12 col-sm-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Score Mensual</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content table-responsive">
+
+                        <div id="scoreMensual" style="height:550px;"></div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/echarts/echarts.js"))
+    @Scripts.Render(Url.Content("~/Scripts/Forms/ThemeEcharts.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/moment/moment.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/moment/locale/es.js"))
+
+    <script>
+
+        $(document).ready(function () {
+            
+
+        });
+
+        function actualizaValores() {
+
+            var inicial = $('#fecha_inicial').val();
+            var final = $('#fecha_final').val();
+
+            var a = moment(inicial);
+            var b = moment(final)
+
+            if (!moment(inicial).isValid()) {
+                Swal.fire({
+                    icon: 'error',
+                    text: 'Fecha Inicial Inválida.',
+                })
+            } else if (!moment(final).isValid()) {
+                Swal.fire({
+                    icon: 'error',
+                    text: 'Fecha Final Inválida.',
+                })
+            } else if (b.isBefore(a)) {
+                Swal.fire({
+                    icon: 'error',
+                    text: 'La Fecha Final no puede ser anterior a la Fecha Inicial.',
+                })
+            } else {
+                //Las fechas son validas
+                CargarGrafica();
+                CargarGraficaDetectados();
+                CargarGraficaCorregidos();
+                CargarGraficaDetectadosVsCorregidos();
+                CargarGraficaScoreMensual();
+                var chartDom = document.getElementById('graficaUrgenciaEstatus');
+            }
+        }
+
+        function CargarGrafica() {
+
+            var inicial = $('#fecha_inicial').val();
+            var final = $('#fecha_final').val();
+
+            
+            var option;
+
+            $.ajax({
+                type: "post",
+                async: true,
+                url: '/ECharts/GetChartDefectoPorDepartamento',
+                dataType: "json",
+                data: { fecha_inicial: inicial, fecha_final: final },
+                success: function (result) {
+
+                    try {
+                        console.log(result)
+                        var array = [];
+                        for (var i in result.num) {
+                            array.push([result.num[i].Departamento, result.num[i].Cantidad]);
+                        }
+
+                        //let data = result.num;
+
+                        let data = array;
+                        const sum = data.reduce(function (prev, current) {
+                            return prev + current[1]
+                        }, 0);
+
+                        var grafica1 = echarts.init(document.getElementById('grafica1'));
+
+                        option = {
+                            title: {
+                                text: 'Defectos por Departamento (Total: ' + sum + ')',
+                                subtext: 'Información del ' + inicial + ' al ' + final,
+                                left: 'center',
+                                textStyle: {
+                                    fontSize: 20,
+                                },
+                                subtextStyle: {
+                                    fontSize: 15
+                                }
+                            },
+                            tooltip: {
+                                trigger: 'item'
+                            },
+                            toolbox: {
+                                show: true,
+                                feature: {
+                                    mark: { show: true },
+                                    saveAsImage: {
+                                        show: true,
+                                        title: "Guardar"
+                                    }
+                                }
+                            },
+                            legend: {
+                                orient: 'vertical',
+                                left: 'left'
+                            },
+                            dataset: {
+                                source: data
+                            },
+                            label: {
+                                show: true,
+                                textBorderWidth: 2,
+                                position: 'outside',
+                                color: "#000055",
+                                formatter: '{c} ({d}%)'
+                            },
+                            series: [
+                                {
+                                    name: 'Departamento',
+                                    type: 'pie',
+                                    radius: '60%',
+                                    emphasis: {
+                                        itemStyle: {
+                                            shadowBlur: 10,
+                                            shadowOffsetX: 0,
+                                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                        }
+                                    }
+                                }
+                            ]
+                        };
+
+                        grafica1.on('legendselectchanged', function (params) {
+
+                            let suma = 0;
+
+                            for (var i = 0; i < data.length; i++) {
+                                let isSelected = params.selected[data[i][0]];
+
+                                if (isSelected) {
+                                    suma += data[i][1]
+                                }
+
+                            }
+
+                            option = {
+                                title: {
+                                    text: 'Defectos por Departamento (Total: ' + suma + ')',
+                                },
+                            }
+                            grafica1.setOption(option);
+
+                        });
+
+                        // Use the configuration items and data just specified to display the chart.
+                        grafica1.setOption(option, true);
+
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Ocurrió un error al obtener la información de la gráfica "Defectos por Departamento": ' + error,
+                        })
+
+                    }
+                },
+                error: function (errorMsg) {
+                    //Execute this function when the request fails
+                    Swal.fire({
+                        icon: 'error',
+                        text: 'Ocurrió un error al obtener la información.',
+                    })
+                    grafica1.hideLoading();
+                }
+
+            });
+
+
+            //option && myChart.setOption(option);
+        }
+
+        function CargarGraficaDetectados() {
+
+            var inicial = $('#fecha_inicial').val();
+            var final = $('#fecha_final').val();
+
+           
+            var option;
+
+            $.ajax({
+                type: "post",
+                async: true,
+                url: '/ECharts/GetChartDetectados',
+                dataType: "json",
+                data: { fecha_inicial: inicial, fecha_final: final },
+                success: function (result) {
+
+                    try {
+
+                        console.log(result);
+
+                        var objsx = [];
+                        var objsy = [];
+
+                        for (var i = 0; i < result.name.length; i++) {
+                            objsx[i] = JSON.stringify(result.name[i]);//Receiving strings as JSON
+                        }
+
+                        var graficaDetectados = echarts.init(document.getElementById('graficaDetectados'));
+                        option = {
+                            title: {
+                                text: '¿Quién detecta más?',
+                                subtext: 'Información del ' + inicial + ' al ' + final
+                            },
+                            tooltip: {
+                                trigger: 'axis'
+                            },
+                            toolbox: {
+                                show: true,
+                                feature: {
+                                    dataView: {
+                                        show: true,
+                                        title: "Datos",
+                                        lang: [
+                                            "Datos",
+                                            "Cerrar",
+                                            "Actualizar",
+                                        ],
+                                        readOnly: false
+                                    },
+                                    restore: {
+                                        show: true,
+                                        title: "Restablecer"
+                                    },
+                                    saveAsImage: {
+                                        show: true,
+                                        title: "Guardar"
+                                    }
+                                }
+                            },
+                            calculable: true,
+                            dataset: {
+                                dimensions: result.name,
+                                source: result.num
+                            },
+                            xAxis: {},
+                            yAxis: { type: 'category' },
+                            grid: {//Drawing grid in Cartesian coordinate system
+                                show: true,//Whether to display rectangular coordinate grid. [default: false]
+                                left: "30%",//The distance from the grid component to the left of the container.
+                                right: "5%",
+                                bottom: "5%" //
+                            },
+
+                            // Declare several bar series, each will be mapped
+                            // to a column of dataset.source by default.
+                            //una serie por cada valor en dimensions
+                            series: [{ type: 'bar' }]
+                        };
+                        // Use the configuration items and data just specified to display the chart.
+                        graficaDetectados.setOption(option, true);
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Ocurrió un error al obtener la información de la gráfica "TPM Detectados": ' + error,
+                        })
+
+                    }
+                },
+                error: function (errorMsg) {
+                    //Execute this function when the request fails
+                    Swal.fire({
+                        icon: 'error',
+                        text: 'Ocurrió un error al obtener la información.',
+                    })
+                    graficaDetectados.hideLoading();
+                }
+
+            });
+
+
+            //option && myChart.setOption(option);
+        }
+
+        function CargarGraficaCorregidos() {
+
+            var inicial = $('#fecha_inicial').val();
+            var final = $('#fecha_final').val();
+
+          
+            var option;
+
+            $.ajax({
+                type: "post",
+                async: true,
+                url: '/ECharts/GetChartCorregidos',
+                dataType: "json",
+                data: { fecha_inicial: inicial, fecha_final: final },
+                success: function (result) {
+                    try {
+                        console.log(result);
+
+                        var objsx = [];
+                        var objsy = [];
+
+                        for (var i = 0; i < result.name.length; i++) {
+                            objsx[i] = JSON.stringify(result.name[i]);//Receiving strings as JSON
+                        }
+
+                        var graficaCorregidos = echarts.init(document.getElementById('graficaCorregidos'));
+                        option = {
+                            title: {
+                                text: '¿Quién corrige más?',
+                                subtext: 'Información del ' + inicial + ' al ' + final
+                            },
+                            tooltip: {
+                                trigger: 'axis'
+                            },
+                            toolbox: {
+                                show: true,
+                                feature: {
+                                    dataView: {
+                                        show: true,
+                                        title: "Datos",
+                                        lang: [
+                                            "Datos",
+                                            "Cerrar",
+                                            "Actualizar",
+                                        ],
+                                        readOnly: false
+                                    },
+                                    restore: {
+                                        show: true,
+                                        title: "Restablecer"
+                                    },
+                                    saveAsImage: {
+                                        show: true,
+                                        title: "Guardar"
+                                    }
+                                }
+                            },
+                            calculable: true,
+                            dataset: {
+                                dimensions: result.name,
+                                source: result.num
+                            },
+                            xAxis: {},
+                            yAxis: { type: 'category' },
+                            grid: {//Drawing grid in Cartesian coordinate system
+                                show: true,//Whether to display rectangular coordinate grid. [default: false]
+                                left: "30%",//The distance from the grid component to the left of the container.
+                                right: "5%",
+                                bottom: "5%" //
+                            },
+
+                            // Declare several bar series, each will be mapped
+                            // to a column of dataset.source by default.
+                            //una serie por cada valor en dimensions
+                            series: [{ type: 'bar' }]
+                        };
+
+                        // Use the configuration items and data just specified to display the chart.
+                        graficaCorregidos.setOption(option, true);
+
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Ocurrió un error al obtener la información de la gráfica "TPM Corregidos": ' + error,
+                        })
+
+                    }
+
+                },
+                error: function (errorMsg) {
+                    //Execute this function when the request fails
+                    Swal.fire({
+                        icon: 'error',
+                        text: 'Ocurrió un error al obtener la información.',
+                    })
+                    graficaCorregidos.hideLoading();
+                }
+
+            });
+
+
+            //option && myChart.setOption(option);
+        }
+
+        function CargarGraficaDetectadosVsCorregidos() {
+
+            var inicial = $('#fecha_inicial').val();
+            var final = $('#fecha_final').val();
+           
+            var option;
+
+            $.ajax({
+                type: "post",
+                async: true,
+                url: '/ECharts/GetChartDetectadoVsCorregido',
+                dataType: "json",
+                data: { fecha_inicial: inicial, fecha_final: final },
+                success: function (result) {
+
+                    try {
+                        console.log(result);
+
+                        var objsx = [];
+                        var objsy = [];
+
+                        for (var i = 0; i < result.name.length; i++) {
+                            objsx[i] = JSON.stringify(result.name[i]);//Receiving strings as JSON
+                        }
+
+                        var graficaDetectadasVSCorregidasArea = echarts.init(document.getElementById('graficaDetectadasVSCorregidasArea'));
+                        option = {
+                            title: {
+                                text: 'Encontrados vs Corregidos por Área',
+                                subtext: 'Información del ' + inicial + ' al ' + final
+                            },
+                            tooltip: {
+                                trigger: 'axis'
+                            },
+                            legend: {
+                                orient: 'horizontal',
+                                top: 'bottom'
+                            },
+                            toolbox: {
+                                show: true,
+                                feature: {
+                                    magicType: {
+                                        show: true,
+                                        title: {
+                                            line: 'Lineas',
+                                            bar: 'Barras',
+                                            stack: 'Stack',
+                                            tiled: 'Tiled'
+                                        },
+                                        type: ['line', 'bar', 'stack', 'tiled']
+                                    },
+                                    dataView: {
+                                        show: true,
+                                        title: "Datos",
+                                        lang: [
+                                            "Datos",
+                                            "Cerrar",
+                                            "Actualizar",
+                                        ],
+                                        readOnly: false
+                                    },
+                                    restore: {
+                                        show: true,
+                                        title: "Restablecer"
+                                    },
+                                    saveAsImage: {
+                                        show: true,
+                                        title: "Guardar"
+                                    }
+                                }
+                            },
+                            calculable: true,
+                            dataset: {
+                                dimensions: result.name,
+                                source: result.num
+                            },
+                            xAxis: { type: 'category' },
+                            yAxis: {},
+                            //una serie por cada valor en dimensions
+                            series: [{ type: 'bar' }, { type: 'bar' }]
+                        };
+
+                        // Use the configuration items and data just specified to display the chart.
+                        graficaDetectadasVSCorregidasArea.setOption(option, true);
+
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Ocurrió un error al obtener la información de la gráfica "Encontrados vs Corregidos": ' + error,
+                        })
+
+                    }
+
+                },
+                error: function (errorMsg) {
+                    //Execute this function when the request fails
+                    Swal.fire({
+                        icon: 'error',
+                        text: 'Ocurrió un error al obtener la información.',
+                    })
+                    graficaDetectadasVSCorregidasArea.hideLoading();
+                }
+
+            });
+
+
+            //option && myChart.setOption(option);
+        }
+
+        function CargarGraficaScoreMensual() {
+
+            var inicial = $('#fecha_inicial').val();
+            var final = $('#fecha_final').val();
+          
+            var option;
+
+            moment.locale('es');
+            var momentInicial = moment(inicial);
+            var momentFinal = moment(final)
+
+            $.ajax({
+                type: "post",
+                async: true,
+                url: '/ECharts/GetChartScoreMensual',
+                dataType: "json",
+                data: { fecha_inicial: inicial, fecha_final: final },
+                success: function (result) {
+
+                    try {
+                        console.log(result);
+
+                        var objsx = [];
+                        var objsy = [];
+
+                        for (var i = 0; i < result.name.length; i++) {
+                            objsx[i] = JSON.stringify(result.name[i]);//Receiving strings as JSON
+                        }
+
+                        var scoreMensual = echarts.init(document.getElementById('scoreMensual'));
+                        option = {
+                            title: {
+                                text: 'ScoreMensual',
+                                subtext: 'Información de ' + moment(momentInicial).format('MMMM YYYY') + ' a ' + moment(momentFinal).format('MMMM YYYY')
+                            },
+                            tooltip: {
+                                trigger: 'axis'
+                            },
+                            legend: {
+                                orient: 'horizontal',
+                                top: 'bottom'
+                            },
+                            toolbox: {
+                                show: true,
+                                feature: {
+                                    magicType: {
+                                        show: true,
+                                        title: {
+                                            line: 'Lineas',
+                                            bar: 'Barras',
+                                            stack: 'Stack',
+                                            tiled: 'Tiled'
+                                        },
+                                        type: ['line', 'bar', 'stack', 'tiled']
+                                    },
+                                    dataView: {
+                                        show: true,
+                                        title: "Datos",
+                                        lang: [
+                                            "Datos",
+                                            "Cerrar",
+                                            "Actualizar",
+                                        ],
+                                        readOnly: false
+                                    },
+                                    restore: {
+                                        show: true,
+                                        title: "Restablecer"
+                                    },
+                                    saveAsImage: {
+                                        show: true,
+                                        title: "Guardar"
+                                    }
+                                }
+                            },
+                            calculable: true,
+                            dataset: {
+                                dimensions: result.name,
+                                source: result.num
+                            },
+                            xAxis: { type: 'category' },
+                            yAxis: {},
+                            //una serie por cada valor en dimensions
+                            series: [{ type: 'bar' }]
+                        };
+
+                        // Use the configuration items and data just specified to display the chart.
+                        scoreMensual.setOption(option, true);
+
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Ocurrió un error al obtener la información de la gráfica "Score Mensual": ' + error,
+                        })
+
+                    }
+
+
+                },
+                error: function (errorMsg) {
+                    //Execute this function when the request fails
+                    Swal.fire({
+                        icon: 'error',
+                        text: 'Ocurrió un error al obtener la información.',
+                    })
+                    scoreMensual.hideLoading();
+                }
+
+            });
+
+
+            //option && myChart.setOption(option);
+        }
+
+
+        window.onload = function () {
+            clicMenu(1);
+            actualizaValores();
+        }
+
+        //declara los charts
+        var grafica1 = echarts.init(document.getElementById('grafica1'));
+        var graficaDetectados = echarts.init(document.getElementById('graficaDetectados'));
+        var graficaCorregidos = echarts.init(document.getElementById('graficaCorregidos'));
+        var graficaDetectadasVSCorregidasArea = echarts.init(document.getElementById('graficaDetectadasVSCorregidasArea'));
+        var scoreMensual = echarts.init(document.getElementById('scoreMensual'));
+
+        window.onresize = function () {
+            grafica1.resize();
+            graficaDetectados.resize();
+            graficaCorregidos.resize();
+            graficaDetectadasVSCorregidasArea.resize();
+            scoreMensual.resize();
+        };
+
+    </script>
+}

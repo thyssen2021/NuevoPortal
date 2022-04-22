@@ -382,7 +382,6 @@ namespace Portal_2_0.Models
                 //detalle
                 foreach (PM_conceptos c in item.PM_conceptos)
                 {
-
                     row = dt.NewRow();
 
                     row["Cuenta"] = c.cuenta;
@@ -1209,6 +1208,218 @@ namespace Portal_2_0.Models
             oSLDocument.SetCellStyle(2, 52, dt.Rows.Count + 1, 52, styleTotales);
             oSLDocument.SetCellStyle(dt.Rows.Count + 1, 11, dt.Rows.Count + 1, 53, styleTotales);
 
+
+            System.IO.Stream stream = new System.IO.MemoryStream();
+
+            oSLDocument.SaveAs(stream);
+
+            byte[] array = Bitacoras.Util.StreamUtil.ToByteArray(stream);
+
+            return (array);
+        }
+
+        public static byte[] GeneraReporteOrdenesTrabajo(List<orden_trabajo> listado)
+        {
+
+            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+
+
+            System.Data.DataTable dt = new System.Data.DataTable();
+
+            //para llevar el control de si es encabezado o no
+            List<bool> filasEncabezados = new List<bool>();
+            filasEncabezados.Add(false); //es el encabezado principal
+
+            //columnas          
+            dt.Columns.Add("Folio", typeof(string));
+            dt.Columns.Add("Solicitante", typeof(string));
+            dt.Columns.Add("Fecha", typeof(DateTime));
+            dt.Columns.Add("Estatus", typeof(string));
+            dt.Columns.Add("Departamento", typeof(string));
+            dt.Columns.Add("Nivel de Urgencia", typeof(string));
+            dt.Columns.Add("Línea Producción", typeof(string));
+            dt.Columns.Add("TPM", typeof(string));
+            dt.Columns.Add("No. Tarjeta", typeof(string));
+            dt.Columns.Add("Grupo de Trabajo", typeof(string));
+            dt.Columns.Add("Título", typeof(string));
+            dt.Columns.Add("Descripción", typeof(string));
+            dt.Columns.Add("Responsable", typeof(string));
+            dt.Columns.Add("Fecha Asignación", typeof(DateTime));
+            dt.Columns.Add("Fecha En Proceso", typeof(DateTime));
+            dt.Columns.Add("Fecha Cierre", typeof(DateTime));
+            dt.Columns.Add("R.N. Cantidad", typeof(decimal));
+            dt.Columns.Add("R.N. Descripción", typeof(string));
+            dt.Columns.Add("R.F. Cantidad", typeof(decimal));
+            dt.Columns.Add("R.F. Descripción", typeof(string));
+            dt.Columns.Add("Comentarios", typeof(string));
+
+            ////registros , rows
+            foreach (orden_trabajo item in listado)
+            {
+                
+                string tPM = "NO";
+                string noTarjeta = string.Empty;
+                string grupoTrabajo = string.Empty;
+                string linea = string.Empty;
+                string responsable = string.Empty;
+                object fecha_asignacion, fecha_en_proceso, fecha_cierre;
+
+                if (item.tpm) {
+                    tPM = "SÍ";
+                    noTarjeta = item.numero_tarjeta;
+                    grupoTrabajo = item.OT_grupo_trabajo.descripcion;
+                }
+
+                if (item.produccion_lineas != null)
+                    linea = item.produccion_lineas.linea;
+
+                if (item.empleados1 != null)
+                    responsable = item.empleados1.ConcatNombre;
+
+                if (item.fecha_asignacion.HasValue)
+                    fecha_asignacion = item.fecha_asignacion.Value;
+                else
+                    fecha_asignacion = DBNull.Value;
+
+                if (item.fecha_en_proceso.HasValue)
+                    fecha_en_proceso = item.fecha_en_proceso.Value;
+                else
+                    fecha_en_proceso = DBNull.Value;
+
+                if (item.fecha_cierre.HasValue)
+                    fecha_cierre = item.fecha_cierre.Value;
+                else
+                    fecha_cierre = DBNull.Value;
+
+                dt.Rows.Add(item.id, item.empleados2.ConcatNombre, item.fecha_solicitud, OT_Status.DescripcionStatus(item.estatus), item.Area.descripcion, OT_nivel_urgencia.DescripcionStatus(item.nivel_urgencia),
+                    linea, tPM, noTarjeta, grupoTrabajo, item.titulo, item.descripcion, responsable, fecha_asignacion, fecha_en_proceso, fecha_cierre,null,null,null,null, item.comentario
+                    );
+
+                filasEncabezados.Add(true);
+                //obtiene la cantidad de fila actual
+                int fila_inicial = filasEncabezados.Count + 1;
+
+                List<OT_refacciones> RNList = item.OT_refacciones.Where(x => x.tipo == OT_tipo_refaccion.NECESARIA).ToList();
+                List<OT_refacciones> RFList = item.OT_refacciones.Where(x => x.tipo == OT_tipo_refaccion.FALTANTE).ToList();
+
+                int mayor = RNList.Count;
+                if (RFList.Count > mayor)
+                    mayor = RFList.Count;
+
+                for (int i = 0; i < mayor; i++)
+                {
+                    System.Data.DataRow row = dt.NewRow();
+
+                    if (RNList.Count > i) {
+                        row["R.N. Cantidad"] = RNList[i].cantidad;
+                        row["R.N. Descripción"] = RNList[i].descripcion;
+                    }
+                    if (RFList.Count > i)
+                    {
+                        row["R.F. Cantidad"] = RFList[i].cantidad;
+                        row["R.F. Descripción"] = RFList[i].descripcion;
+                    }
+
+                    dt.Rows.Add(row);
+                    filasEncabezados.Add(false);
+                }
+
+                //obtiene la fila final
+                int fila_final = filasEncabezados.Count + 1;
+
+                //verifica si hubo cambios
+                if (fila_inicial != fila_final)
+                    oSLDocument.GroupRows(fila_inicial, fila_final - 1);
+
+            }
+
+            //crea la hoja de FACTURAS y la selecciona
+            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Reporte Órdenes de Trabajo");
+            oSLDocument.ImportDataTable(1, 1, dt, true);
+
+            //estilo para ajustar al texto
+            SLStyle styleWrap = oSLDocument.CreateStyle();
+            styleWrap.SetWrapText(true);
+
+            //estilo para el encabezado
+            SLStyle styleHeader = oSLDocument.CreateStyle();
+            styleHeader.Font.Bold = true;
+            styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
+
+            //estilo para el encabezado de cada fila
+            SLStyle styleHeaderRow = oSLDocument.CreateStyle();
+            styleHeaderRow.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#daeef3"), System.Drawing.ColorTranslator.FromHtml("#daeef3"));
+            styleHeaderRow.Border.BottomBorder.BorderStyle = BorderStyleValues.Thin;
+            styleHeaderRow.Border.BottomBorder.Color = System.Drawing.Color.LightGray;
+            styleHeaderRow.Border.TopBorder.BorderStyle = BorderStyleValues.Thin;
+            styleHeaderRow.Border.TopBorder.Color = System.Drawing.Color.LightGray;
+            styleHeaderRow.Border.LeftBorder.BorderStyle = BorderStyleValues.Thin;
+            styleHeaderRow.Border.LeftBorder.Color = System.Drawing.Color.LightGray;
+            styleHeaderRow.Border.RightBorder.BorderStyle = BorderStyleValues.Thin;
+            styleHeaderRow.Border.RightBorder.Color = System.Drawing.Color.LightGray;
+
+            //estilo para cada lote
+            SLStyle styleLoteInfo = oSLDocument.CreateStyle();
+            styleLoteInfo.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffffcc"), System.Drawing.ColorTranslator.FromHtml("#ffffcc"));
+            styleLoteInfo.Border.BottomBorder.BorderStyle = BorderStyleValues.Thin;
+            styleLoteInfo.Border.BottomBorder.Color = System.Drawing.Color.LightGray;
+            styleLoteInfo.Border.TopBorder.BorderStyle = BorderStyleValues.Thin;
+            styleLoteInfo.Border.TopBorder.Color = System.Drawing.Color.LightGray;
+            styleLoteInfo.Border.LeftBorder.BorderStyle = BorderStyleValues.Thin;
+            styleLoteInfo.Border.LeftBorder.Color = System.Drawing.Color.LightGray;
+            styleLoteInfo.Border.RightBorder.BorderStyle = BorderStyleValues.Thin;
+            styleLoteInfo.Border.RightBorder.Color = System.Drawing.Color.LightGray;
+
+            //estilo para numeros
+            SLStyle styleNumber = oSLDocument.CreateStyle();
+            styleNumber.FormatCode = "#,##0.00";
+
+            //da estilo a los numero
+            oSLDocument.SetColumnStyle(17, styleNumber);
+            oSLDocument.SetColumnStyle(19, styleNumber);
+
+            ////estilo para fecha
+            SLStyle styleShortDate = oSLDocument.CreateStyle();
+            styleShortDate.FormatCode = "yyyy/MM/dd";
+            oSLDocument.SetColumnStyle(3, styleShortDate);
+            oSLDocument.SetColumnStyle(14, styleShortDate);
+            oSLDocument.SetColumnStyle(15, styleShortDate);
+            oSLDocument.SetColumnStyle(16, styleShortDate);
+
+
+            SLStyle styleHeaderFont = oSLDocument.CreateStyle();
+            styleHeaderFont.Font.FontName = "Calibri";
+            styleHeaderFont.Font.FontSize = 11;
+            styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
+            styleHeaderFont.Font.Bold = true;
+
+            //da estilo a la hoja de excel
+            //inmoviliza el encabezado
+            oSLDocument.FreezePanes(1, 0);
+
+            //aplica formato a las filas de encabezado
+            for (int i = 0; i < filasEncabezados.Count; i++)
+            {
+                if (filasEncabezados[i])
+                {
+                    oSLDocument.SetCellStyle(i + 1, 1, i + 1, dt.Columns.Count, styleHeaderRow);
+                }
+                else
+                {
+                    oSLDocument.SetCellStyle(i + 1, 17, i + 1, 20, styleLoteInfo);
+                }
+                //colapsa todas las filas
+                oSLDocument.CollapseRows(i + 2);
+            }
+
+            oSLDocument.Filter("A1", "U1");
+            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+
+            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
+            oSLDocument.SetRowStyle(1, styleHeader);
+            oSLDocument.SetRowStyle(1, styleHeaderFont);
+
+            oSLDocument.SetRowHeight(1, filasEncabezados.Count + 1, 15.0);
 
             System.IO.Stream stream = new System.IO.MemoryStream();
 

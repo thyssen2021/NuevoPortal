@@ -165,6 +165,9 @@
                                                     @Html.DisplayNameFor(model => model.nivel_urgencia)
                                                 </th>
                                                 <th>
+                                                    @Html.DisplayNameFor(model => model.tpm)
+                                                </th>
+                                                <th>
                                                     @Html.DisplayNameFor(model => model.estatus)
                                                 </th>
                                             </tr>
@@ -172,31 +175,39 @@
                                         <tbody>
                                             @foreach (var item in Model)
                                             {
-                                                <tr>
-                                                    <td>
-                                                        <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.id })" class="btn btn-secondary " title="Detalles">
-                                                            <i class="fa fa-info-circle"></i>
-                                                        </a>
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.id)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.titulo)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.descripcion)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.fecha_solicitud)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.nivel_urgencia)
-                                                    </td>
-                                                    <td>
-                                                        @Bitacoras.Util.OT_Status.DescripcionStatus(item.estatus)
-                                                    </td>
-                                                </tr>
+                                            <tr>
+                                                <td>
+                                                    <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.id })" class="btn btn-secondary " title="Detalles">
+                                                        <i class="fa fa-info-circle"></i>
+                                                    </a>
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.id)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.titulo)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.descripcion)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.fecha_solicitud)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.nivel_urgencia)
+                                                </td>
+                                                <td>
+                                                    @if (item.tpm) { 
+                                                    <span>S&Iacute;</span>
+                                                    } 
+                                                    else { 
+                                                    <span>NO</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @Bitacoras.Util.OT_Status.DescripcionStatus(item.estatus)
+                                                </td>
+                                            </tr>
                                             }
 
                                         </tbody>

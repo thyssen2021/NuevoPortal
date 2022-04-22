@@ -214,6 +214,7 @@
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\mm_v3Controller.cs" />
     <Compile Include="Controllers\OrdenesTrabajoController.cs" />
+    <Compile Include="Controllers\OT_GruposController.cs" />
     <Compile Include="Controllers\PFA_Border_portController.cs" />
     <Compile Include="Controllers\PFA_DepartmentController.cs" />
     <Compile Include="Controllers\PFA_Destination_plantController.cs" />
@@ -4738,7 +4739,14 @@
     <Content Include="Views\OrdenesTrabajo\CambiarEstatus.cshtml" />
     <Content Include="Views\OrdenesTrabajo\CerrarOrden.cshtml" />
     <Content Include="Views\OrdenesTrabajo\ReporteGeneral.cshtml" />
-    <Content Include="Views\OrdenesTrabajo\ReporteGrafica1.cshtml" />
+    <Content Include="Views\OrdenesTrabajo\GraficaGeneral.cshtml" />
+    <Content Include="Views\OrdenesTrabajo\GraficaTPM.cshtml" />
+    <Content Include="Views\OT_Grupos\Create.cshtml" />
+    <Content Include="Views\OT_Grupos\Details.cshtml" />
+    <Content Include="Views\OT_Grupos\Disable.cshtml" />
+    <Content Include="Views\OT_Grupos\Edit.cshtml" />
+    <Content Include="Views\OT_Grupos\Enable.cshtml" />
+    <Content Include="Views\OT_Grupos\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
