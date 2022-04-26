@@ -26,7 +26,6 @@ namespace Portal_2_0.Models
         }
     
         public virtual DbSet<Area> Area { get; set; }
-        public virtual DbSet<bom_en_sap> bom_en_sap { get; set; }
         public virtual DbSet<class_v3> class_v3 { get; set; }
         public virtual DbSet<mm_v3> mm_v3 { get; set; }
         public virtual DbSet<plantas> plantas { get; set; }
@@ -91,5 +90,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<orden_trabajo> orden_trabajo { get; set; }
         public virtual DbSet<AspNetRoles> AspNetRoles { get; set; }
         public virtual DbSet<notificaciones_correo> notificaciones_correo { get; set; }
+        public virtual DbSet<bom_en_sap> bom_en_sap { get; set; }
     }
 }

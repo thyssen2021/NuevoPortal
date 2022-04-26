@@ -24,15 +24,15 @@ CREATE TABLE [dbo].[bom_en_sap](
 	[BOM] [nvarchar](30) NOT NULL,
 	[AltBOM] [nvarchar](10) NOT NULL,
 	[Item] [nvarchar](10) NOT NULL,
-	[Component] [nvarchar](30) NULL,
+	[Component] [nvarchar](30) NOT NULL,
 	[Created by] [nvarchar](50) NULL,
 	[BOM1] [nvarchar](30) NULL,
-	[Node] [nvarchar](30) NULL,
+	[Node] [nvarchar](30)NOT NULL,
 	[Quantity] [float] NULL,
 	[Un] [nvarchar](20) NULL,
 	[Created] [datetime] NULL,
 	[activo][bit] NOT NULL,
-	primary key(Material, Plnt, BOM, AltBOM,item)
+	primary key(Material, Plnt, BOM, AltBOM,item, Component, Node)
 ) ON [PRIMARY]
 
 GO

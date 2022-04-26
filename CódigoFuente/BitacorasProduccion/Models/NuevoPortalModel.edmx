@@ -66,16 +66,18 @@
             <PropertyRef Name="BOM" />
             <PropertyRef Name="AltBOM" />
             <PropertyRef Name="Item" />
+            <PropertyRef Name="Component" />
+            <PropertyRef Name="Node" />
           </Key>
           <Property Name="Material" Type="nvarchar" MaxLength="30" Nullable="false" />
           <Property Name="Plnt" Type="nvarchar" MaxLength="20" Nullable="false" />
           <Property Name="BOM" Type="nvarchar" MaxLength="30" Nullable="false" />
           <Property Name="AltBOM" Type="nvarchar" MaxLength="10" Nullable="false" />
           <Property Name="Item" Type="nvarchar" MaxLength="10" Nullable="false" />
-          <Property Name="Component" Type="nvarchar" MaxLength="30" />
+          <Property Name="Component" Type="nvarchar" MaxLength="30" Nullable="false" />
           <Property Name="Created by" Type="nvarchar" MaxLength="50" />
           <Property Name="BOM1" Type="nvarchar" MaxLength="30" />
-          <Property Name="Node" Type="nvarchar" MaxLength="30" />
+          <Property Name="Node" Type="nvarchar" MaxLength="30" Nullable="false" />
           <Property Name="Quantity" Type="float" />
           <Property Name="Un" Type="nvarchar" MaxLength="20" />
           <Property Name="Created" Type="datetime" />
@@ -2469,28 +2471,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_empleados_area" FromRole="Area" ToRole="empleados" />
           <NavigationProperty Name="orden_trabajo" Relationship="Portal_2_0Model.FK_orden_trabajo_id_area" FromRole="Area" ToRole="orden_trabajo" />
         </EntityType>
-        <EntityType Name="bom_en_sap">
-          <Key>
-            <PropertyRef Name="Material" />
-            <PropertyRef Name="Plnt" />
-            <PropertyRef Name="BOM" />
-            <PropertyRef Name="AltBOM" />
-            <PropertyRef Name="Item" />
-          </Key>
-          <Property Name="Material" Type="String" MaxLength="30" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Plnt" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="BOM" Type="String" MaxLength="30" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="AltBOM" Type="String" MaxLength="10" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Item" Type="String" MaxLength="10" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Component" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
-          <Property Name="Created_by" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="BOM1" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
-          <Property Name="Node" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
-          <Property Name="Quantity" Type="Double" />
-          <Property Name="Un" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
-          <Property Name="Created" Type="DateTime" Precision="3" />
-          <Property Name="activo" Type="Boolean" Nullable="false" />
-        </EntityType>
         <EntityType Name="class_v3">
           <Key>
             <PropertyRef Name="Object" />
@@ -2838,7 +2818,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
         </Association>
         <EntityContainer Name="Portal_2_0Entities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="Area" EntityType="Self.Area" />
-          <EntitySet Name="bom_en_sap" EntityType="Self.bom_en_sap" />
           <EntitySet Name="class_v3" EntityType="Self.class_v3" />
           <EntitySet Name="mm_v3" EntityType="Self.mm_v3" />
           <EntitySet Name="plantas" EntityType="Self.plantas" />
@@ -3247,6 +3226,7 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             <End Role="plantas" EntitySet="plantas" />
             <End Role="notificaciones_correo" EntitySet="notificaciones_correo" />
           </AssociationSet>
+          <EntitySet Name="bom_en_sap" EntityType="Portal_2_0Model.bom_en_sap" />
           </EntityContainer>
         <EntityType Name="PFA_Border_port">
           <Key>
@@ -4948,6 +4928,30 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="bom_en_sap">
+          <Key>
+            <PropertyRef Name="Material" />
+            <PropertyRef Name="Plnt" />
+            <PropertyRef Name="BOM" />
+            <PropertyRef Name="AltBOM" />
+            <PropertyRef Name="Item" />
+            <PropertyRef Name="Component" />
+            <PropertyRef Name="Node" />
+          </Key>
+          <Property Name="Material" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="Plnt" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="BOM" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="AltBOM" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="Item" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="Component" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="Created_by" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="BOM1" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="Node" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="Quantity" Type="Double" />
+          <Property Name="Un" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="Created" Type="DateTime" Precision="3" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -4962,25 +4966,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
                 <ScalarProperty Name="descripcion" ColumnName="descripcion" />
                 <ScalarProperty Name="listaCorreoElectronico" ColumnName="listaCorreoElectronico" />
                 <ScalarProperty Name="plantaClave" ColumnName="plantaClave" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="bom_en_sap">
-            <EntityTypeMapping TypeName="Portal_2_0Model.bom_en_sap">
-              <MappingFragment StoreEntitySet="bom_en_sap">
-                <ScalarProperty Name="Material" ColumnName="Material" />
-                <ScalarProperty Name="Plnt" ColumnName="Plnt" />
-                <ScalarProperty Name="BOM" ColumnName="BOM" />
-                <ScalarProperty Name="AltBOM" ColumnName="AltBOM" />
-                <ScalarProperty Name="Item" ColumnName="Item" />
-                <ScalarProperty Name="Component" ColumnName="Component" />
-                <ScalarProperty Name="Created_by" ColumnName="Created by" />
-                <ScalarProperty Name="BOM1" ColumnName="BOM1" />
-                <ScalarProperty Name="Node" ColumnName="Node" />
-                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
-                <ScalarProperty Name="Un" ColumnName="Un" />
-                <ScalarProperty Name="Created" ColumnName="Created" />
-                <ScalarProperty Name="activo" ColumnName="activo" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -5893,6 +5878,25 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
                 <ScalarProperty Name="descripcion" ColumnName="descripcion" />
                 <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
                 <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="bom_en_sap">
+            <EntityTypeMapping TypeName="Portal_2_0Model.bom_en_sap">
+              <MappingFragment StoreEntitySet="bom_en_sap">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="Created" ColumnName="Created" />
+                <ScalarProperty Name="Un" ColumnName="Un" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="Node" ColumnName="Node" />
+                <ScalarProperty Name="BOM1" ColumnName="BOM1" />
+                <ScalarProperty Name="Created_by" ColumnName="Created by" />
+                <ScalarProperty Name="Component" ColumnName="Component" />
+                <ScalarProperty Name="Item" ColumnName="Item" />
+                <ScalarProperty Name="AltBOM" ColumnName="AltBOM" />
+                <ScalarProperty Name="BOM" ColumnName="BOM" />
+                <ScalarProperty Name="Plnt" ColumnName="Plnt" />
+                <ScalarProperty Name="Material" ColumnName="Material" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

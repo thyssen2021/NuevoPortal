@@ -130,7 +130,7 @@ namespace Portal_2_0.Controllers
                 empleados empleado = obtieneEmpleadoLogeado();
 
                 //verifica si es necesario mostrar el combo de lineas
-                if (empleado.Area != null && (empleado.Area.descripcion.ToUpper().Contains("PRODUCCION") || empleado.Area.descripcion.ToUpper().Contains("PRODUCCIÓN")))
+                if (empleado.Area != null && (empleado.Area.descripcion.ToUpper().Contains("PRODUCTION"))|| (empleado.Area.descripcion.ToUpper().Contains("MAINTENANCE")))
                     ViewBag.MuestraLineas = true;
 
                 //crea el select list para status
@@ -279,7 +279,7 @@ namespace Portal_2_0.Controllers
             //En caso de que el modelo no sea válido
 
             //verifica si es necesario mostrar el combo de lineas
-            if (empleado.Area != null && (empleado.Area.descripcion.ToUpper().Contains("PRODUCCION") || empleado.Area.descripcion.ToUpper().Contains("PRODUCCIÓN")))
+            if (empleado.Area != null && (empleado.Area.descripcion.ToUpper().Contains("PRODUCTION")) || (empleado.Area.descripcion.ToUpper().Contains("MAINTENANCE")))
                 ViewBag.MuestraLineas = true;
 
             //crea el select list para status

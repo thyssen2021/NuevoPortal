@@ -131,7 +131,9 @@ namespace Portal_2_0.Controllers
                             try
                             {
                                 //obtiene el elemento de BD
-                                bom_en_sap item = db.bom_en_sap.FirstOrDefault(x => x.Material == bom.Material && x.Plnt == bom.Plnt && x.BOM == bom.BOM && x.AltBOM == bom.AltBOM && x.Item == bom.Item);
+                                bom_en_sap item = listAnterior.FirstOrDefault(x => x.Material == bom.Material && x.Plnt == bom.Plnt && x.BOM == bom.BOM && x.AltBOM == bom.AltBOM && x.Item == bom.Item
+                                 && x.Component == bom.Component && x.Node == bom.Node
+                                );
 
                                 //si existe actualiza
                                 if (item != null)
@@ -165,7 +167,9 @@ namespace Portal_2_0.Controllers
                             try
                             {
                                 //obtiene el elemento de BD
-                                bom_en_sap item = db.bom_en_sap.FirstOrDefault(x => x.Material == bom.Material && x.Plnt == bom.Plnt && x.BOM == bom.BOM && x.AltBOM == bom.AltBOM && x.Item == bom.Item);
+                                bom_en_sap item = listAnterior.FirstOrDefault(x => x.Material == bom.Material && x.Plnt == bom.Plnt && x.BOM == bom.BOM && x.AltBOM == bom.AltBOM && x.Item == bom.Item
+                                && x.Component == bom.Component && x.Node == bom.Node
+                                );
 
                                 //si existe elimina
                                 if (item != null)

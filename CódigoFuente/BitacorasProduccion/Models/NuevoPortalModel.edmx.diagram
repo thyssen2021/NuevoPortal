@@ -6,7 +6,6 @@
     <edmx:Diagrams>
       <Diagram DiagramId="3d6b38e8516649fd9491aed00dbc6337" Name="Diagram1" ZoomLevel="80">
         <EntityTypeShape EntityType="Portal_2_0Model.Area" Width="1.5" PointX="3" PointY="5.5" IsExpanded="true" />
-        <EntityTypeShape EntityType="Portal_2_0Model.bom_en_sap" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.class_v3" Width="1.5" PointX="2.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.mm_v3" Width="1.5" PointX="5.75" PointY="12.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.plantas" Width="1.5" PointX="0.75" PointY="8.5" IsExpanded="true" />
@@ -157,6 +156,7 @@
         <EntityTypeShape EntityType="Portal_2_0Model.notificaciones_correo" Width="1.5" PointX="14.75" PointY="0.75" />
         <AssociationConnector Association="Portal_2_0Model.FK_notificaciones_correo_empleado" />
         <AssociationConnector Association="Portal_2_0Model.FK_notificaciones_correo_planta" />
+        <EntityTypeShape EntityType="Portal_2_0Model.bom_en_sap" Width="1.5" PointX="8.375" PointY="13.75" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
