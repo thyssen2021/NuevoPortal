@@ -99,7 +99,7 @@ namespace Portal_2_0.Controllers
         public ActionResult Details(int? id)
         {
             if (TieneRol(TipoRoles.OT_SOLICITUD) || TieneRol(TipoRoles.OT_ASIGNACION) || TieneRol(TipoRoles.OT_RESPONSABLE)
-            || TieneRol(TipoRoles.OT_REPORTE))
+            || TieneRol(TipoRoles.OT_REPORTE) || TieneRol (TipoRoles.OT_CATALOGOS))
             {
 
                 if (id == null)
@@ -130,7 +130,7 @@ namespace Portal_2_0.Controllers
                 empleados empleado = obtieneEmpleadoLogeado();
 
                 //verifica si es necesario mostrar el combo de lineas
-                if (empleado.Area != null && (empleado.Area.descripcion.ToUpper().Contains("PRODUCTION"))|| (empleado.Area.descripcion.ToUpper().Contains("MAINTENANCE")))
+                if (empleado.Area != null && (empleado.Area.descripcion.ToUpper().Contains("PRODUCTION")) || (empleado.Area.descripcion.ToUpper().Contains("MAINTENANCE")))
                     ViewBag.MuestraLineas = true;
 
                 //crea el select list para status
@@ -578,7 +578,7 @@ namespace Portal_2_0.Controllers
         #region reportes
 
         // GET: ReporteGeneral
-        public ActionResult ReporteGeneral(string estatus, string nivel_urgencia, string fecha_inicial, string fecha_final, int? id,  int pagina = 1)
+        public ActionResult ReporteGeneral(string estatus, string nivel_urgencia, string fecha_inicial, string fecha_final, bool? tpm, int? id, int pagina = 1)
         {
             if (TieneRol(TipoRoles.OT_REPORTE))
             {
@@ -604,7 +604,7 @@ namespace Portal_2_0.Controllers
                         dateFinal = Convert.ToDateTime(fecha_final);
                         dateFinal = dateFinal.AddHours(23).AddMinutes(59).AddSeconds(59);
                     }
-                  
+
                 }
                 catch (FormatException e)
                 {
@@ -620,12 +620,13 @@ namespace Portal_2_0.Controllers
                 //obtiene el usuario logeado
                 empleados empleado = obtieneEmpleadoLogeado();
 
-               
+
                 var listado = db.orden_trabajo
                     .Where(x =>
                        (id == null || x.id == id)
                        && (x.empleados2.planta_clave == empleado.planta_clave) //filtra por planta
                       && (String.IsNullOrEmpty(estatus) || x.estatus.Contains(estatus))
+                      && (x.tpm == tpm || tpm.HasValue == false)
                       && (String.IsNullOrEmpty(nivel_urgencia) || x.nivel_urgencia.Contains(nivel_urgencia))
                         && x.fecha_solicitud >= dateInicial && x.fecha_solicitud <= dateFinal
                     )
@@ -638,6 +639,7 @@ namespace Portal_2_0.Controllers
                        (id == null || x.id == id)
                        && (x.empleados2.planta_clave == empleado.planta_clave) //filtra por planta
                       && (String.IsNullOrEmpty(estatus) || x.estatus.Contains(estatus))
+                      && (x.tpm == tpm || tpm.HasValue == false)
                         && (String.IsNullOrEmpty(nivel_urgencia) || x.nivel_urgencia.Contains(nivel_urgencia))
                          && x.fecha_solicitud >= dateInicial && x.fecha_solicitud <= dateFinal
                     )
@@ -647,6 +649,7 @@ namespace Portal_2_0.Controllers
 
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
                 routeValues["id"] = id;
+                routeValues["tpm"] = tpm;
                 routeValues["estatus"] = estatus;
                 routeValues["nivel_urgencia"] = nivel_urgencia;
                 routeValues["fecha_inicial"] = fecha_inicial;
@@ -687,11 +690,27 @@ namespace Portal_2_0.Controllers
                     });
                 }
 
+                //crea un select List para tpm
+                List<SelectListItem> newListTpm = new List<SelectListItem>();
+
+                newListTpm.Add(new SelectListItem()
+                {
+                    Text = "Sí",
+                    Value = "true"
+                });
+                newListTpm.Add(new SelectListItem()
+                {
+                    Text = "No",
+                    Value = "false"
+                });
+
                 SelectList selectListItemsStatus = new SelectList(newList, "Value", "Text", estatus);
                 SelectList selectListItemsNivelUrgencia = new SelectList(newListUrgencia, "Value", "Text", nivel_urgencia);
+                SelectList selectListItemsTPM = new SelectList(newListTpm, "Value", "Text", tpm);
 
                 ViewBag.estatus = AddFirstItem(selectListItemsStatus, textoPorDefecto: "-- Todos --");
                 ViewBag.nivel_urgencia = AddFirstItem(selectListItemsNivelUrgencia, textoPorDefecto: "-- Todos --");
+                ViewBag.tpm = AddFirstItem(selectListItemsTPM, textoPorDefecto: "-- Todos --");
                 ViewBag.Paginacion = paginacion;
                 //Viewbags para los botones               
                 ViewBag.Title = "Reporte de Órdenes de Trabajo";
@@ -709,7 +728,7 @@ namespace Portal_2_0.Controllers
         }
 
 
-        public ActionResult Exportar(string estatus, string nivel_urgencia, string fecha_inicial, string fecha_final, int? id, int pagina = 1)
+        public ActionResult Exportar(string estatus, string nivel_urgencia, string fecha_inicial, string fecha_final, bool? tpm, int? id, int pagina = 1)
         {
             if (TieneRol(TipoRoles.OT_REPORTE))
             {
@@ -748,6 +767,7 @@ namespace Portal_2_0.Controllers
                       (id == null || x.id == id)
                       && (x.empleados2.planta_clave == empleado.planta_clave) //filtra por planta
                      && (String.IsNullOrEmpty(estatus) || x.estatus.Contains(estatus))
+                     && (x.tpm == tpm || tpm.HasValue == false)
                      && (String.IsNullOrEmpty(nivel_urgencia) || x.nivel_urgencia.Contains(nivel_urgencia))
                        && x.fecha_solicitud >= dateInicial && x.fecha_solicitud <= dateFinal
                    )
@@ -785,12 +805,21 @@ namespace Portal_2_0.Controllers
             {
                 if (id == null)
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                    return View("../Error/BadRequest");
                 }
                 orden_trabajo orden_trabajo = db.orden_trabajo.Find(id);
                 if (orden_trabajo == null)
                 {
-                    return HttpNotFound();
+                    return View("../Error/NotFound");
+                }
+
+                //verifica si se puede asignar
+                if (orden_trabajo.estatus == OT_Status.CERRADO)
+                {
+                    ViewBag.Titulo = "¡Lo sentimos!¡No se puede asignar o reasignar esta solicitud!";
+                    ViewBag.Descripcion = "No se puede asignar o reasignar una solicitud con estatus CERRADO.";
+
+                    return View("../Home/ErrorGenerico");
                 }
 
                 //obtiene el usuario logeado
@@ -828,12 +857,13 @@ namespace Portal_2_0.Controllers
             //verifica que existan objetos asociados
             orden_trabajo ordenOld = db.orden_trabajo.Find(orden_trabajo.id);
 
+            bool reasignacion = ordenOld.id_responsable.HasValue;
+
             if (ordenOld == null)
                 ModelState.AddModelError("", "No se encontró el orden del trabajo asociada.");
 
-            if (ordenOld.estatus != OT_Status.ABIERTO)
-                ModelState.AddModelError("", "Sólo se pueden asignar órdenes con estatus ABIERTO.");
-
+            if (ordenOld.id_responsable.HasValue && ordenOld.id_responsable.Value == orden_trabajo.id_responsable)
+                ModelState.AddModelError("", "No se puede reasignar una solicitud al mismo responsable. Seleccione un responsable diferente.");
 
             if (ModelState.IsValid)
             {
@@ -841,6 +871,7 @@ namespace Portal_2_0.Controllers
                 ordenOld.id_responsable = orden_trabajo.id_responsable;
                 ordenOld.fecha_asignacion = DateTime.Now;
                 ordenOld.estatus = OT_Status.ASIGNADO;
+                ordenOld.fecha_en_proceso = null;
 
                 db.Entry(ordenOld).State = EntityState.Modified;
 
@@ -860,13 +891,18 @@ namespace Portal_2_0.Controllers
 
                     envioCorreo.SendEmailAsync(correos, "Se le ha asignado la Orden de Trabajo #" + orden_trabajo.id + ".", envioCorreo.getBodyAsignacionOT(ordenOld));
 
-
-                    return RedirectToAction("ListadoAsignacionPendientes");
+                    if (reasignacion) 
+                        return RedirectToAction("ListadoAsignacionAsignadas");
+                    else
+                        return RedirectToAction("ListadoAsignacionPendientes");
                 }
                 catch (Exception e)
                 {
                     TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
-                    return RedirectToAction("ListadoAsignacionPendientes");
+                    if (reasignacion)
+                        return RedirectToAction("ListadoAsignacionAsignadas");
+                    else
+                        return RedirectToAction("ListadoAsignacionPendientes");
                 }
             }
 
@@ -882,7 +918,7 @@ namespace Portal_2_0.Controllers
 
             ), "id", "ConcatNumEmpleadoNombre"), selected: orden_trabajo.id_responsable.ToString());
 
-            return View(orden_trabajo);
+            return View(ordenOld);
         }
 
         // GET: OrdenesTrabajo/CambiarEstatus/5
@@ -1283,6 +1319,6 @@ namespace Portal_2_0.Controllers
             return newList;
         }
 
-       
+
     }
 }

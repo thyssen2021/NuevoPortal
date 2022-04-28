@@ -60,8 +60,8 @@
                             <div class="col-sm-12">
                                 <div class="card-box">
                                     <div class="form-group">
-                                       
-                                        
+
+
                                         @*@if (ViewBag.Create != null && ViewBag.Create)
                                             {
                                                 <a href="@Url.Action( "Create", ViewBag.ControllerName)" class="btn btn-success">
@@ -79,10 +79,7 @@
                                                     @Html.DisplayNameFor(model => model.id)
                                                 </th>
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.titulo)
-                                                </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.descripcion)
+                                                    @Html.DisplayNameFor(model => model.estatus)
                                                 </th>
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.fecha_solicitud)
@@ -91,41 +88,51 @@
                                                     @Html.DisplayNameFor(model => model.nivel_urgencia)
                                                 </th>
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.estatus)
+                                                    @Html.DisplayNameFor(model => model.titulo)
                                                 </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.descripcion)
+                                                </th>
+
+
                                             </tr>
                                         </thead>
                                         <tbody>
                                             @foreach (var item in Model)
                                             {
-                                            <tr>
-                                                <td>
-                                                    @*<a href="@Url.Action("Asignar", ViewBag.ControllerName, new { id = item.id })" class="btn btn-success boton-verde" title="Asignar">
-                                                        <i class="fa fa-tag"></i>
-                                                    </a>*@
-                                                    <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.id })" class="btn btn-secondary " title="Detalles">
-                                                        <i class="fa fa-info-circle"></i>
-                                                    </a>
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.id)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.titulo)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.descripcion)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.fecha_solicitud)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.nivel_urgencia)
-                                                </td>                                              
-                                                <td>
-                                                    @Bitacoras.Util.OT_Status.DescripcionStatus(item.estatus)
-                                                </td>                                                
-                                            </tr>
+                                                <tr>
+                                                    <td>
+                                                        <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.id })" class="btn btn-secondary " title="Detalles">
+                                                            <i class="fa fa-info-circle"></i>
+                                                        </a>
+                                                        @if (item.estatus != Bitacoras.Util.OT_Status.CERRADO)
+                                                        {
+                                                            <a href="@Url.Action("Asignar", ViewBag.ControllerName, new { id = item.id })" class="btn btn-warning" title="Reasignar">
+                                                                <i class="fa fa-exchange"></i>
+                                                            </a>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.id)
+                                                    </td>
+                                                    <td>
+                                                        @Bitacoras.Util.OT_Status.DescripcionStatus(item.estatus)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.fecha_solicitud)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.nivel_urgencia)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.titulo)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.descripcion)
+                                                    </td>
+
+
+                                                </tr>
                                             }
 
                                         </tbody>

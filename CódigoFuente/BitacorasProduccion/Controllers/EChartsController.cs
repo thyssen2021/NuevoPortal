@@ -236,6 +236,62 @@ namespace Portal_2_0.Controllers
             return Json(result);//Return JSON data
         }
 
+        public JsonResult GetChartCantidadPorGrupo(string fecha_inicial, string fecha_final)
+        {
+            ArrayList titulos = new ArrayList();
+            ArrayList valores = new ArrayList();
+
+            //convierte las fechas recibidas
+            CultureInfo provider = CultureInfo.InvariantCulture;
+
+            DateTime dateInicial = new DateTime(2000, 1, 1);  //fecha inicial por defecto
+            DateTime dateFinal = DateTime.Now;          //fecha final por defecto          
+
+            if (!String.IsNullOrEmpty(fecha_inicial))
+                dateInicial = Convert.ToDateTime(fecha_inicial);
+            if (!String.IsNullOrEmpty(fecha_final))
+            {
+                dateFinal = Convert.ToDateTime(fecha_final);
+                dateFinal = dateFinal.AddHours(23).AddMinutes(59).AddSeconds(59);
+            }
+
+            //dimension
+            titulos.Add("Grupo");
+            titulos.Add("Abierto");
+            titulos.Add("Asignado");
+            titulos.Add("Proceso");
+            titulos.Add("Cerradas");
+
+            //obtiene el usuario logeado
+            empleados empleado = obtieneEmpleadoLogeado();
+
+            //AGREGAR FILTRO PARA FECHAS y ESTATUS y Planta
+            var listaOT = db.orden_trabajo.Where(x => x.empleados2.planta_clave == empleado.planta_clave
+            && x.fecha_solicitud >= dateInicial && x.fecha_solicitud <= dateFinal
+            ).ToList();
+
+            //obtiene todos los grupos
+            List<OT_grupo_trabajo> listGrupoTrabajo = listaOT.Where(x => x.id_grupo_trabajo > 0).Select(x => x.OT_grupo_trabajo).Distinct().ToList();
+
+            //inicializa la lista de objetos
+            var list = new object[listGrupoTrabajo.Count];
+
+            for (int i = 0; i < listGrupoTrabajo.Count; i++)
+            {
+                int abiertas = listaOT.Where(x => x.id_grupo_trabajo == listGrupoTrabajo[i].id && x.estatus == OT_Status.ABIERTO).Count();
+                int asignadas = listaOT.Where(x => x.id_grupo_trabajo == listGrupoTrabajo[i].id && x.estatus == OT_Status.ASIGNADO).Count();
+                int proceso = listaOT.Where(x => x.id_grupo_trabajo == listGrupoTrabajo[i].id && x.estatus == OT_Status.EN_PROCESO).Count();
+                int cerradas = listaOT.Where(x => x.id_grupo_trabajo == listGrupoTrabajo[i].id && x.estatus == OT_Status.CERRADO).Count();
+
+                int cantidad = listaOT.Where(x => x.id_grupo_trabajo == listGrupoTrabajo[i].id).Count();
+
+                list[i] = new { Grupo = listGrupoTrabajo[i].descripcion, Abierto = abiertas, Asignado = asignadas, Proceso = proceso, Cerradas = cerradas };
+            }
+
+            var result = new { name = titulos, num = list };//Design JSON format
+            return Json(result);//Return JSON data
+        }
+
         public JsonResult GetChartDefectoPorDepartamento(string fecha_inicial, string fecha_final)
         {
             ArrayList titulos = new ArrayList();

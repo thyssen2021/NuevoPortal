@@ -39,6 +39,12 @@
         nivel_urgencia = paginacionFiltros.ValoresQueryString["nivel_urgencia"].ToString();
     }
 
+    string tpm = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["tpm"] != null)
+    {
+        tpm = paginacionFiltros.ValoresQueryString["tpm"].ToString();
+    }
+
 
 }
 
@@ -124,8 +130,14 @@
 
                                             </div>
                                             <div class="form-group row ">
+                                                <label class="control-label col-md-1 col-sm-1" for="planta" style="text-align:right">TPM:</label>
+                                                <div class="col-md-3 col-sm-3">
+                                                    @Html.DropDownList("tpm", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group row ">
                                                 <div class="col-md-11 col-sm-11">
-                                                    <a href="@Url.Action("ReporteGeneral", ViewBag.ControllerName)" class="btn btn-warning"  title="Restablecer">
+                                                    <a href="@Url.Action("ReporteGeneral", ViewBag.ControllerName)" class="btn btn-warning" title="Restablecer">
                                                         <i class="fa fa-refresh"></i> Restablecer
                                                     </a>
                                                 </div>
@@ -137,12 +149,12 @@
                                         }
                                         <hr />
                                         @*@if (ViewBag.Create != null && ViewBag.Create)
-                {
-                    <a href="@Url.Action( "Create", ViewBag.ControllerName)" class="btn btn-success">
-                        <i class="fa fa-plus-square"></i>
-                        Crear nuevo
-                    </a>
-                }*@
+        {
+            <a href="@Url.Action( "Create", ViewBag.ControllerName)" class="btn btn-success">
+                <i class="fa fa-plus-square"></i>
+                Crear nuevo
+            </a>
+        }*@
 
                                     </div>
                                     <table id="datatable_1" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
@@ -228,7 +240,8 @@
                                                     nivel_urgencia = nivel_urgencia,
                                                     fecha_inicial = filtroFechaInicio,
                                                     fecha_final = filtroFechaFinal,
-                                                    id = id
+                                                    id = id, 
+                                                    tpm = tpm
 
                                                 })" class="btn btn-success btm-sm" target="_blank" title="Reporte">
                                             <i class="fa fa-file-excel-o"></i> Exportar Excel

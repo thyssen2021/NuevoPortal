@@ -19,7 +19,8 @@
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
     <!-- iCheck -->
     <link href="@Url.Content("~/Content/vendors/iCheck/skins/flat/green.css")" rel="stylesheet">
-
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
     <style>
         .text_derecha {
             text-align: right;
@@ -55,6 +56,12 @@
                             </div>
                         </div>
                         <div class="ln_solid"></div>
+                        @if (!Html.ViewData.ModelState.IsValid)
+                        {
+                        <div class="alert alert-danger" role="alert">
+                            @Html.ValidationSummary("", "Advertencia:")
+                        </div>
+                        }
 
                         <div class="form-group row">
                             <span style="color:black"><b>ESTATUS</b></span>
@@ -269,15 +276,10 @@
                             <span style="color:black"><b>ASIGNACI&Oacute;N</b></span>
                         </div>
 
-                        @using (Html.BeginForm("Asignar", "OrdenesTrabajo", FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                        @using (Html.BeginForm("Asignar", "OrdenesTrabajo", FormMethod.Post, new { @class = "form-horizontal form-label-left", @id = "formulario" }))
                         {
                             @Html.AntiForgeryToken()
-                            if (!Html.ViewData.ModelState.IsValid)
-                            {
-                                <div class="alert alert-danger" role="alert">
-                                    @Html.ValidationSummary("", "Advertencia:")
-                                </div>
-                            }
+
 
                             <!-- campos oculto obligatorios-->
                             @Html.HiddenFor(model => model.id)
@@ -305,13 +307,16 @@
                                     <input type="text" class="form-control col-md-12" value="@DateTime.Now.ToString("yyyy-MM-dd")" readonly>
 
                                 </div>
-                            </div>
-
-                            <br />
-
-                            <div class="item form-group">
+                            </div><br /><div class="item form-group">
                                 <div class="col-md-12 col-sm-12 offset-md-12">
-                                    <button type="submit" class="btn btn-success float-right">Guardar</button>
+                                    @if (Model.id_responsable.HasValue)
+                                    {
+                                        <button type="button" class="btn btn-warning float-right" onclick="showDialog('reasignar')"> <i class="fa fa-exchange"></i> Reasignar</button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-success float-right" onclick="showDialog('asignar')"><i class="fa fa-save"></i> Guardar</button>
+                                    }
                                 </div>
                             </div>
                         }
@@ -332,6 +337,7 @@
 @section Scripts {
 
     @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
     <!-- iCheck -->
     @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
@@ -345,6 +351,29 @@
             })
 
         });
+
+        function showDialog(text) {
+
+            Swal.fire({
+                title: 'Confirmación',
+                text: "¿Realmente desea "+text+" esta solicitud?",
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Continuar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+
+                if (result.isConfirmed) {
+                    /*  Swal.fire('Saved!', '', 'success')*/
+                    $('#formulario').submit();
+                } else if (result.isDismissed) {
+                    /*Swal.fire('Los cambios no han sido guardados.', '', 'info')*/
+                }
+            });
+
+        }
 
 
         window.onload = function () {
