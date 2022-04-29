@@ -101,7 +101,7 @@ namespace Portal_2_0.Controllers
             if (TieneRol(TipoRoles.OT_SOLICITUD) || TieneRol(TipoRoles.OT_ASIGNACION) || TieneRol(TipoRoles.OT_RESPONSABLE)
             || TieneRol(TipoRoles.OT_REPORTE) || TieneRol (TipoRoles.OT_CATALOGOS))
             {
-
+               
                 if (id == null)
                 {
                     return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -111,6 +111,19 @@ namespace Portal_2_0.Controllers
                 {
                     return HttpNotFound();
                 }
+
+                //obtiene el usuario logeado
+                empleados empleado = obtieneEmpleadoLogeado();
+
+                //verifica si se puede asignar
+                if (orden_trabajo.empleados2.planta_clave != empleado.planta_clave)
+                {
+                    ViewBag.Titulo = "¡Lo sentimos!¡No se puede visualizar esta solicitud!";
+                    ViewBag.Descripcion = "No se puede visualizar una orden de trabajo de otra planta.";
+
+                    return View("../Home/ErrorGenerico");
+                }
+
                 return View(orden_trabajo);
             }
             else
@@ -129,8 +142,10 @@ namespace Portal_2_0.Controllers
                 //obtiene el usuario logeado
                 empleados empleado = obtieneEmpleadoLogeado();
 
-                //verifica si es necesario mostrar el combo de lineas
-                if (empleado.Area != null && (empleado.Area.descripcion.ToUpper().Contains("PRODUCTION")) || (empleado.Area.descripcion.ToUpper().Contains("MAINTENANCE")))
+                //obtiene los departamentos donde aplica linea de producción
+                List<Area> listAreas = db.OT_rel_depto_aplica_linea.Where(x => x.id_area > 0).Select(x => x.Area).Distinct().ToList();
+
+                if(empleado.Area !=null && listAreas.Contains(empleado.Area))
                     ViewBag.MuestraLineas = true;
 
                 //crea el select list para status
@@ -306,9 +321,12 @@ namespace Portal_2_0.Controllers
 
                 var cantidadRegistrosPorPagina = 20; // parámetro
 
+                //obtiene el usuario logeado
+                empleados empleado = obtieneEmpleadoLogeado();
 
                 var listado = db.orden_trabajo
                     .Where(x => x.estatus == OT_Status.ABIERTO
+                    && x.empleados2.planta_clave == empleado.planta_clave
                     )
                     .OrderByDescending(x => x.fecha_solicitud)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
@@ -316,6 +334,7 @@ namespace Portal_2_0.Controllers
 
                 var totalDeRegistros = db.orden_trabajo
                      .Where(x => x.estatus == OT_Status.ABIERTO
+                     && x.empleados2.planta_clave == empleado.planta_clave
                     )
                     .Count();
 
@@ -363,7 +382,7 @@ namespace Portal_2_0.Controllers
 
                 var listado = db.orden_trabajo
                     .Where(x => x.estatus != OT_Status.ABIERTO
-                    && x.id_asignacion == empleado.id
+                    && x.empleados2.planta_clave == empleado.planta_clave
                     )
                     .OrderByDescending(x => x.fecha_solicitud)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
@@ -371,7 +390,7 @@ namespace Portal_2_0.Controllers
 
                 var totalDeRegistros = db.orden_trabajo
                      .Where(x => x.estatus != OT_Status.ABIERTO
-                    && x.id_asignacion == empleado.id
+                     && x.empleados2.planta_clave == empleado.planta_clave
                     )
                     .Count();
 
@@ -825,14 +844,28 @@ namespace Portal_2_0.Controllers
                 //obtiene el usuario logeado
                 empleados empleado = obtieneEmpleadoLogeado();
 
-                //obtiene el listado de capturistas de contabilidad
-                List<int> idsPersonalMantenimiento = db.OT_personal_mantenimiento
-                    .Where(x => x.empleados.planta_clave == empleado.planta_clave && x.activo == true)
-                    .Select(x => x.empleados.id).Distinct().ToList();
+                //verifica si se puede asignar
+                if (orden_trabajo.empleados2.planta_clave != empleado.planta_clave)
+                {
+                    ViewBag.Titulo = "¡Lo sentimos!¡No se puede asignar o reasignar esta solicitud!";
+                    ViewBag.Descripcion = "No se puede asignar una orden de trabajo de otra planta.";
 
+                    return View("../Home/ErrorGenerico");
+                }
+
+            
+
+                //---INICIO POR ROL                    
+                //recorre los responsables con el permiso de asignar
+                AspNetRoles rol = db.AspNetRoles.Where(x => x.Name == TipoRoles.OT_RESPONSABLE).FirstOrDefault();
+                List<AspNetUsers> usuariosInRole = new List<AspNetUsers>();
+                if (rol != null)
+                    usuariosInRole = rol.AspNetUsers.ToList();
+
+                List<int> idsResponsables = usuariosInRole.Select(x => x.IdEmpleado).Distinct().ToList();
+                              
                 ViewBag.id_responsable = AddFirstItem(new SelectList(db.empleados.Where(x =>
-                idsPersonalMantenimiento.Contains(x.id)
-
+                idsResponsables.Contains(x.id) && x.planta_clave == empleado.planta_clave
                 ), "id", "ConcatNumEmpleadoNombre"), selected: orden_trabajo.id_responsable.ToString());
 
                 return View(orden_trabajo);

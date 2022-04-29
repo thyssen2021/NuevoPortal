@@ -157,6 +157,8 @@
         <AssociationConnector Association="Portal_2_0Model.FK_notificaciones_correo_empleado" />
         <AssociationConnector Association="Portal_2_0Model.FK_notificaciones_correo_planta" />
         <EntityTypeShape EntityType="Portal_2_0Model.bom_en_sap" Width="1.5" PointX="8.375" PointY="13.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.OT_rel_depto_aplica_linea" Width="1.5" PointX="5.25" PointY="3.125" />
+        <AssociationConnector Association="Portal_2_0Model.FK_OT_rel_depto_aplica_linea_id_area" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

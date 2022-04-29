@@ -215,6 +215,7 @@
     <Compile Include="Controllers\mm_v3Controller.cs" />
     <Compile Include="Controllers\OrdenesTrabajoController.cs" />
     <Compile Include="Controllers\OT_GruposController.cs" />
+    <Compile Include="Controllers\OT_rel_depto_aplica_lineaController.cs" />
     <Compile Include="Controllers\PFA_Border_portController.cs" />
     <Compile Include="Controllers\PFA_DepartmentController.cs" />
     <Compile Include="Controllers\PFA_Destination_plantController.cs" />
@@ -395,6 +396,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\OT_refacciones.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\OT_rel_depto_aplica_linea.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Paginacion.cs" />
@@ -4747,6 +4751,9 @@
     <Content Include="Views\OT_Grupos\Edit.cshtml" />
     <Content Include="Views\OT_Grupos\Enable.cshtml" />
     <Content Include="Views\OT_Grupos\Index.cshtml" />
+    <Content Include="Views\OT_rel_depto_aplica_linea\Create.cshtml" />
+    <Content Include="Views\OT_rel_depto_aplica_linea\Delete.cshtml" />
+    <Content Include="Views\OT_rel_depto_aplica_linea\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

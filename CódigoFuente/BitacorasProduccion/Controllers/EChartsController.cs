@@ -416,7 +416,7 @@ namespace Portal_2_0.Controllers
             ).ToList();
 
             //obtiene todos los responsables de las OT
-            List<empleados> listResponsables = listaOT.Where(x => x.id_solicitante > 0).Select(x => x.empleados2).Distinct().ToList();
+            List<empleados> listResponsables = listaOT.Where(x => x.id_responsable > 0).Select(x => x.empleados1).Distinct().ToList();
 
             //inicializa la lista de objetos
             var list = new object[listResponsables.Count];

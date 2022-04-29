@@ -91,5 +91,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<AspNetRoles> AspNetRoles { get; set; }
         public virtual DbSet<notificaciones_correo> notificaciones_correo { get; set; }
         public virtual DbSet<bom_en_sap> bom_en_sap { get; set; }
+        public virtual DbSet<OT_rel_depto_aplica_linea> OT_rel_depto_aplica_linea { get; set; }
     }
 }

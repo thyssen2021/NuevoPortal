@@ -21,6 +21,7 @@ namespace Portal_2_0.Models
             this.puesto = new HashSet<puesto>();
             this.empleados = new HashSet<empleados>();
             this.orden_trabajo = new HashSet<orden_trabajo>();
+            this.OT_rel_depto_aplica_linea = new HashSet<OT_rel_depto_aplica_linea>();
         }
 
         [Display(Name = "Clave")]
@@ -44,6 +45,21 @@ namespace Portal_2_0.Models
         [Display(Name = "Planta")]
         public Nullable<int> plantaClave { get; set; }
 
+        //concatena el nombre
+        public string ConcatDeptoPlanta
+        {
+            get
+            {
+                string pt = String.Empty;
+
+                if (this.plantas != null)
+                    pt = plantas.descripcion;
+
+
+                return string.Format("({0}) {1}", pt, descripcion).ToUpper();
+            }
+        }
+
         public virtual plantas plantas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<puesto> puesto { get; set; }
@@ -51,5 +67,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<empleados> empleados { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<orden_trabajo> orden_trabajo { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<OT_rel_depto_aplica_linea> OT_rel_depto_aplica_linea { get; set; }
     }
 }

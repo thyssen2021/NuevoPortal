@@ -386,6 +386,13 @@
           <Property Name="descripcion" Type="varchar" MaxLength="155" Nullable="false" />
           <Property Name="tipo" Type="varchar" MaxLength="15" Nullable="false" />
         </EntityType>
+        <EntityType Name="OT_rel_depto_aplica_linea">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_area" Type="int" Nullable="false" />
+        </EntityType>
         <EntityType Name="PFA">
           <Key>
             <PropertyRef Name="id" />
@@ -1364,6 +1371,18 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_OT_rel_depto_aplica_linea_id_area">
+          <End Role="Area" Type="Self.Area" Multiplicity="1" />
+          <End Role="OT_rel_depto_aplica_linea" Type="Self.OT_rel_depto_aplica_linea" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Area">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="OT_rel_depto_aplica_linea">
+              <PropertyRef Name="id_area" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_PFA_autorizador">
           <End Role="empleados" Type="Self.empleados" Multiplicity="1" />
           <End Role="PFA" Type="Self.PFA" Multiplicity="*" />
@@ -1984,6 +2003,7 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <EntitySet Name="OT_grupo_trabajo" EntityType="Self.OT_grupo_trabajo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="OT_personal_mantenimiento" EntityType="Self.OT_personal_mantenimiento" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="OT_refacciones" EntityType="Self.OT_refacciones" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OT_rel_depto_aplica_linea" EntityType="Self.OT_rel_depto_aplica_linea" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PFA" EntityType="Self.PFA" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PFA_Autorizador" EntityType="Self.PFA_Autorizador" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PFA_Border_port" EntityType="Self.PFA_Border_port" Schema="dbo" store:Type="Tables" />
@@ -2256,6 +2276,10 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             <End Role="orden_trabajo" EntitySet="orden_trabajo" />
             <End Role="OT_refacciones" EntitySet="OT_refacciones" />
           </AssociationSet>
+          <AssociationSet Name="FK_OT_rel_depto_aplica_linea_id_area" Association="Self.FK_OT_rel_depto_aplica_linea_id_area">
+            <End Role="Area" EntitySet="Area" />
+            <End Role="OT_rel_depto_aplica_linea" EntitySet="OT_rel_depto_aplica_linea" />
+          </AssociationSet>
           <AssociationSet Name="FK_PFA_autorizador" Association="Self.FK_PFA_autorizador">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="PFA" EntitySet="PFA" />
@@ -2470,6 +2494,7 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <NavigationProperty Name="puesto" Relationship="Self.FK_puestos_area_clave" FromRole="Area" ToRole="puesto" />
           <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_empleados_area" FromRole="Area" ToRole="empleados" />
           <NavigationProperty Name="orden_trabajo" Relationship="Portal_2_0Model.FK_orden_trabajo_id_area" FromRole="Area" ToRole="orden_trabajo" />
+          <NavigationProperty Name="OT_rel_depto_aplica_linea" Relationship="Portal_2_0Model.FK_OT_rel_depto_aplica_linea_id_area" FromRole="Area" ToRole="OT_rel_depto_aplica_linea" />
         </EntityType>
         <EntityType Name="class_v3">
           <Key>
@@ -3227,6 +3252,11 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             <End Role="notificaciones_correo" EntitySet="notificaciones_correo" />
           </AssociationSet>
           <EntitySet Name="bom_en_sap" EntityType="Portal_2_0Model.bom_en_sap" />
+          <EntitySet Name="OT_rel_depto_aplica_linea" EntityType="Portal_2_0Model.OT_rel_depto_aplica_linea" />
+          <AssociationSet Name="FK_OT_rel_depto_aplica_linea_id_area" Association="Portal_2_0Model.FK_OT_rel_depto_aplica_linea_id_area">
+            <End Role="Area" EntitySet="Area" />
+            <End Role="OT_rel_depto_aplica_linea" EntitySet="OT_rel_depto_aplica_linea" />
+          </AssociationSet>
           </EntityContainer>
         <EntityType Name="PFA_Border_port">
           <Key>
@@ -4952,6 +4982,26 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <Property Name="Created" Type="DateTime" Precision="3" />
           <Property Name="activo" Type="Boolean" Nullable="false" />
         </EntityType>
+        <EntityType Name="OT_rel_depto_aplica_linea">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_area" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Area" Relationship="Portal_2_0Model.FK_OT_rel_depto_aplica_linea_id_area" FromRole="OT_rel_depto_aplica_linea" ToRole="Area" />
+        </EntityType>
+        <Association Name="FK_OT_rel_depto_aplica_linea_id_area">
+          <End Type="Portal_2_0Model.Area" Role="Area" Multiplicity="1" />
+          <End Type="Portal_2_0Model.OT_rel_depto_aplica_linea" Role="OT_rel_depto_aplica_linea" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Area">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="OT_rel_depto_aplica_linea">
+              <PropertyRef Name="id_area" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -5897,6 +5947,14 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
                 <ScalarProperty Name="BOM" ColumnName="BOM" />
                 <ScalarProperty Name="Plnt" ColumnName="Plnt" />
                 <ScalarProperty Name="Material" ColumnName="Material" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OT_rel_depto_aplica_linea">
+            <EntityTypeMapping TypeName="Portal_2_0Model.OT_rel_depto_aplica_linea">
+              <MappingFragment StoreEntitySet="OT_rel_depto_aplica_linea">
+                <ScalarProperty Name="id_area" ColumnName="id_area" />
+                <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
