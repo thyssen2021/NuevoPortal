@@ -12,6 +12,7 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
+
     public partial class empleados
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -19,7 +20,6 @@ namespace Portal_2_0.Models
         {
             this.budget_responsables = new HashSet<budget_responsables>();
             this.inspeccion_datos_generales = new HashSet<inspeccion_datos_generales>();
-            this.OT_personal_mantenimiento = new HashSet<OT_personal_mantenimiento>();
             this.PFA = new HashSet<PFA>();
             this.PFA_Autorizador = new HashSet<PFA_Autorizador>();
             this.PFA1 = new HashSet<PFA>();
@@ -142,8 +142,6 @@ namespace Portal_2_0.Models
         public virtual puesto puesto1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<inspeccion_datos_generales> inspeccion_datos_generales { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<OT_personal_mantenimiento> OT_personal_mantenimiento { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PFA> PFA { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

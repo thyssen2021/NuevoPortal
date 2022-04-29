@@ -143,9 +143,9 @@ namespace Portal_2_0.Controllers
                 empleados empleado = obtieneEmpleadoLogeado();
 
                 //obtiene los departamentos donde aplica linea de producción
-                List<Area> listAreas = db.OT_rel_depto_aplica_linea.Where(x => x.id_area > 0).Select(x => x.Area).Distinct().ToList();
+                List<int> listAreasIds = db.OT_rel_depto_aplica_linea.Where(x => x.id_area > 0).Select(x => x.id_area).Distinct().ToList();
 
-                if(empleado.Area !=null && listAreas.Contains(empleado.Area))
+                if(empleado.id_area.HasValue && listAreasIds.Contains(empleado.id_area.Value))
                     ViewBag.MuestraLineas = true;
 
                 //crea el select list para status
@@ -293,8 +293,10 @@ namespace Portal_2_0.Controllers
 
             //En caso de que el modelo no sea válido
 
-            //verifica si es necesario mostrar el combo de lineas
-            if (empleado.Area != null && (empleado.Area.descripcion.ToUpper().Contains("PRODUCTION")) || (empleado.Area.descripcion.ToUpper().Contains("MAINTENANCE")))
+            //obtiene los departamentos donde aplica linea de producción
+            List<int> listAreasIds = db.OT_rel_depto_aplica_linea.Where(x => x.id_area > 0).Select(x => x.id_area).Distinct().ToList();
+
+            if (empleado.id_area.HasValue && listAreasIds.Contains(empleado.id_area.Value))
                 ViewBag.MuestraLineas = true;
 
             //crea el select list para status
@@ -303,7 +305,7 @@ namespace Portal_2_0.Controllers
             SelectList selectListItemsUrgencia = new SelectList(selectListUrgencia, "Value", "Text");
             ViewBag.nivel_urgencia = AddFirstItem(selectListItemsUrgencia, textoPorDefecto: "-- Seleccionar --", selected: orden_trabajo.estatus);
             ViewBag.Solicitante = empleado;
-            ViewBag.id_linea = AddFirstItem(new SelectList(db.produccion_lineas.Where(x => x.clave_planta == empleado.planta_clave && x.activo == true), "id", "linea"), selected: orden_trabajo.estatus);
+            ViewBag.id_linea = AddFirstItem(new SelectList(db.produccion_lineas.Where(x => x.clave_planta == empleado.planta_clave && x.activo == true), "id", "linea"), selected: orden_trabajo.id_linea.ToString());
             ViewBag.id_grupo_trabajo = AddFirstItem(new SelectList(db.OT_grupo_trabajo.Where(x => x.activo == true), "id", "descripcion"));
             return View(orden_trabajo);
         }
@@ -867,6 +869,7 @@ namespace Portal_2_0.Controllers
                 ViewBag.id_responsable = AddFirstItem(new SelectList(db.empleados.Where(x =>
                 idsResponsables.Contains(x.id) && x.planta_clave == empleado.planta_clave
                 ), "id", "ConcatNumEmpleadoNombre"), selected: orden_trabajo.id_responsable.ToString());
+                //--fin por rol
 
                 return View(orden_trabajo);
             }
@@ -941,15 +944,19 @@ namespace Portal_2_0.Controllers
 
             //En caso de que el modelo no sea válido
 
-            //obtiene el listado de capturistas de contabilidad
-            List<int> idsPersonalMantenimiento = db.OT_personal_mantenimiento
-                .Where(x => x.empleados.planta_clave == empleado.planta_clave && x.activo == true)
-                .Select(x => x.empleados.id).Distinct().ToList();
+            //---INICIO POR ROL                    
+            //recorre los responsables con el permiso de asignar
+            AspNetRoles rol = db.AspNetRoles.Where(x => x.Name == TipoRoles.OT_RESPONSABLE).FirstOrDefault();
+            List<AspNetUsers> usuariosInRole = new List<AspNetUsers>();
+            if (rol != null)
+                usuariosInRole = rol.AspNetUsers.ToList();
+
+            List<int> idsResponsables = usuariosInRole.Select(x => x.IdEmpleado).Distinct().ToList();
 
             ViewBag.id_responsable = AddFirstItem(new SelectList(db.empleados.Where(x =>
-            idsPersonalMantenimiento.Contains(x.id)
-
+            idsResponsables.Contains(x.id) && x.planta_clave == empleado.planta_clave
             ), "id", "ConcatNumEmpleadoNombre"), selected: orden_trabajo.id_responsable.ToString());
+            //--fin por rol
 
             return View(ordenOld);
         }

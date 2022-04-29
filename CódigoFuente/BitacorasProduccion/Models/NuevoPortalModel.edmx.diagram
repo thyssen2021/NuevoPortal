@@ -105,14 +105,12 @@
         <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_fy_centro_id_centro_costo" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_responsables_id_budget_centro_costo" />
         <EntityTypeShape EntityType="Portal_2_0Model.view_valores_fiscal_year" Width="1.5" PointX="12.375" PointY="15.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.OT_personal_mantenimiento" Width="1.5" PointX="14.75" PointY="4.625" />
-        <EntityTypeShape EntityType="Portal_2_0Model.empleados" Width="1.5" PointX="12.375" PointY="0.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.empleados" Width="1.5" PointX="12.375" PointY="0.75" IsExpanded="true" />
         <AssociationConnector Association="Portal_2_0Model.FK_empleados_area" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_responsables_id_centro_costo" />
         <AssociationConnector Association="Portal_2_0Model.FK_empleados_planta_clave" />
         <AssociationConnector Association="Portal_2_0Model.FK_empleados_puesto" />
         <AssociationConnector Association="Portal_2_0Model.FK_inspeccion_datos_generales_id_empleado_inspector" />
-        <AssociationConnector Association="Portal_2_0Model.FK_OT_personal_mantenimiento_id_empleado" />
         <AssociationConnector Association="Portal_2_0Model.FK_PFA_autorizador" />
         <AssociationConnector Association="Portal_2_0Model.FK_PFA_Autorizador_empleado" />
         <AssociationConnector Association="Portal_2_0Model.FK_PFA_solicitante" />
@@ -129,8 +127,8 @@
         <EntityTypeShape EntityType="Portal_2_0Model.upgrade_check_item" Width="1.5" PointX="20" PointY="30.625" />
         <EntityTypeShape EntityType="Portal_2_0Model.upgrade_departamentos" Width="1.5" PointX="17.75" PointY="51.875" />
         <EntityTypeShape EntityType="Portal_2_0Model.upgrade_plantas" Width="1.5" PointX="15.5" PointY="52" />
-        <EntityTypeShape EntityType="Portal_2_0Model.upgrade_revision" Width="1.5" PointX="20" PointY="0.875" />
-        <EntityTypeShape EntityType="Portal_2_0Model.upgrade_usuarios" Width="1.5" PointX="14.75" PointY="4" />
+        <EntityTypeShape EntityType="Portal_2_0Model.upgrade_revision" Width="1.5" PointX="20" PointY="0.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="Portal_2_0Model.upgrade_usuarios" Width="1.5" PointX="15" PointY="4" IsExpanded="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_upgrade_usuarios_empleado" />
         <AssociationConnector Association="Portal_2_0Model.FK_upgrade_departamentos_id_planta" />
         <AssociationConnector Association="Portal_2_0Model.FK_upgrade_revision_departamento" />

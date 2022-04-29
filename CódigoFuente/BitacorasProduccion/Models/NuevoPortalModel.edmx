@@ -368,14 +368,6 @@
           <Property Name="descripcion" Type="varchar" MaxLength="40" Nullable="false" />
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
-        <EntityType Name="OT_personal_mantenimiento">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="id_empleado" Type="int" Nullable="false" />
-          <Property Name="activo" Type="bit" Nullable="false" />
-        </EntityType>
         <EntityType Name="OT_refacciones">
           <Key>
             <PropertyRef Name="id" />
@@ -1347,18 +1339,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_OT_personal_mantenimiento_id_empleado">
-          <End Role="empleados" Type="Self.empleados" Multiplicity="1" />
-          <End Role="OT_personal_mantenimiento" Type="Self.OT_personal_mantenimiento" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="OT_personal_mantenimiento">
-              <PropertyRef Name="id_empleado" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_OT_refacciones_id_orden_trabajo">
           <End Role="orden_trabajo" Type="Self.orden_trabajo" Multiplicity="1" />
           <End Role="OT_refacciones" Type="Self.OT_refacciones" Multiplicity="*" />
@@ -2001,7 +1981,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <EntitySet Name="notificaciones_correo" EntityType="Self.notificaciones_correo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="orden_trabajo" EntityType="Self.orden_trabajo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="OT_grupo_trabajo" EntityType="Self.OT_grupo_trabajo" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="OT_personal_mantenimiento" EntityType="Self.OT_personal_mantenimiento" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="OT_refacciones" EntityType="Self.OT_refacciones" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="OT_rel_depto_aplica_linea" EntityType="Self.OT_rel_depto_aplica_linea" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PFA" EntityType="Self.PFA" Schema="dbo" store:Type="Tables" />
@@ -2267,10 +2246,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <AssociationSet Name="FK_orden_trabajo_id_solicitante" Association="Self.FK_orden_trabajo_id_solicitante">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="orden_trabajo" EntitySet="orden_trabajo" />
-          </AssociationSet>
-          <AssociationSet Name="FK_OT_personal_mantenimiento_id_empleado" Association="Self.FK_OT_personal_mantenimiento_id_empleado">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="OT_personal_mantenimiento" EntitySet="OT_personal_mantenimiento" />
           </AssociationSet>
           <AssociationSet Name="FK_OT_refacciones_id_orden_trabajo" Association="Self.FK_OT_refacciones_id_orden_trabajo">
             <End Role="orden_trabajo" EntitySet="orden_trabajo" />
@@ -3086,7 +3061,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             <End Role="budget_responsables" EntitySet="budget_responsables" />
           </AssociationSet>
           <EntitySet Name="view_valores_fiscal_year" EntityType="Portal_2_0Model.view_valores_fiscal_year" />
-          <EntitySet Name="OT_personal_mantenimiento" EntityType="Portal_2_0Model.OT_personal_mantenimiento" />
           <EntitySet Name="empleados" EntityType="Portal_2_0Model.empleados" />
           <AssociationSet Name="FK_empleados_area" Association="Portal_2_0Model.FK_empleados_area">
             <End Role="Area" EntitySet="Area" />
@@ -3107,10 +3081,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <AssociationSet Name="FK_inspeccion_datos_generales_id_empleado_inspector" Association="Portal_2_0Model.FK_inspeccion_datos_generales_id_empleado_inspector">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="inspeccion_datos_generales" EntitySet="inspeccion_datos_generales" />
-          </AssociationSet>
-          <AssociationSet Name="FK_OT_personal_mantenimiento_id_empleado" Association="Portal_2_0Model.FK_OT_personal_mantenimiento_id_empleado">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="OT_personal_mantenimiento" EntitySet="OT_personal_mantenimiento" />
           </AssociationSet>
           <AssociationSet Name="FK_PFA_autorizador" Association="Portal_2_0Model.FK_PFA_autorizador">
             <End Role="empleados" EntitySet="empleados" />
@@ -4309,15 +4279,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <Property Name="Diciembre" Type="Decimal" Precision="38" Scale="2" />
           <Property Name="Comentario" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
         </EntityType>
-        <EntityType Name="OT_personal_mantenimiento">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_empleado" Type="Int32" Nullable="false" />
-          <Property Name="activo" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_OT_personal_mantenimiento_id_empleado" FromRole="OT_personal_mantenimiento" ToRole="empleados" />
-        </EntityType>
         <EntityType Name="empleados">
           <Key>
             <PropertyRef Name="id" />
@@ -4348,7 +4309,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_empleados_planta_clave" FromRole="empleados" ToRole="plantas" />
           <NavigationProperty Name="puesto1" Relationship="Portal_2_0Model.FK_empleados_puesto" FromRole="empleados" ToRole="puesto" />
           <NavigationProperty Name="inspeccion_datos_generales" Relationship="Portal_2_0Model.FK_inspeccion_datos_generales_id_empleado_inspector" FromRole="empleados" ToRole="inspeccion_datos_generales" />
-          <NavigationProperty Name="OT_personal_mantenimiento" Relationship="Portal_2_0Model.FK_OT_personal_mantenimiento_id_empleado" FromRole="empleados" ToRole="OT_personal_mantenimiento" />
           <NavigationProperty Name="PFA" Relationship="Portal_2_0Model.FK_PFA_autorizador" FromRole="empleados" ToRole="PFA" />
           <NavigationProperty Name="PFA_Autorizador" Relationship="Portal_2_0Model.FK_PFA_Autorizador_empleado" FromRole="empleados" ToRole="PFA_Autorizador" />
           <NavigationProperty Name="PFA1" Relationship="Portal_2_0Model.FK_PFA_solicitante" FromRole="empleados" ToRole="PFA" />
@@ -4425,18 +4385,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             </Principal>
             <Dependent Role="inspeccion_datos_generales">
               <PropertyRef Name="id_empleado_inspector" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_OT_personal_mantenimiento_id_empleado">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
-          <End Type="Portal_2_0Model.OT_personal_mantenimiento" Role="OT_personal_mantenimiento" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="OT_personal_mantenimiento">
-              <PropertyRef Name="id_empleado" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -5756,15 +5704,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
                 <ScalarProperty Name="id_centro_costo" ColumnName="id_centro_costo" />
                 <ScalarProperty Name="id_anio_fiscal" ColumnName="id_anio_fiscal" />
                 <ScalarProperty Name="id_budget_rel_fy_centro" ColumnName="id_budget_rel_fy_centro" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="OT_personal_mantenimiento">
-            <EntityTypeMapping TypeName="Portal_2_0Model.OT_personal_mantenimiento">
-              <MappingFragment StoreEntitySet="OT_personal_mantenimiento">
-                <ScalarProperty Name="activo" ColumnName="activo" />
-                <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
