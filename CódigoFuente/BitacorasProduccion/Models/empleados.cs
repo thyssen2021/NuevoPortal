@@ -72,7 +72,6 @@ namespace Portal_2_0.Models
         public string apellido1 { get; set; }
 
         [StringLength(50, MinimumLength = 3)]
-        [Required(AllowEmptyStrings = false)]
         [Display(Name = "Apellido materno")]
         public string apellido2 { get; set; }
         public string nacimientoFecha { get; set; }
@@ -93,6 +92,7 @@ namespace Portal_2_0.Models
         public string nivel { get; set; }
 
         [Display(Name = "Puesto")]
+        [Required]
         public Nullable<int> puesto { get; set; }
 
         [Display(Name = "Compañia")]
@@ -115,6 +115,7 @@ namespace Portal_2_0.Models
         public string C8ID { get; set; }
 
         [Display(Name = "Área")]
+        [Required]
         public Nullable<int> id_area { get; set; }
 
         //concatena el nombre

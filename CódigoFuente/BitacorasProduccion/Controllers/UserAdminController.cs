@@ -56,7 +56,7 @@ namespace IdentitySample.Controllers
                 if (user == null)
                     return RedirectToAction("NotFound", "Error");
 
-                empleados empleados = db.empleados.FirstOrDefault(e => e.numeroEmpleado == user.IdEmpleado.ToString());
+                empleados empleados = db.empleados.FirstOrDefault(e => e.id == user.IdEmpleado);
 
                 if (empleados != null) {
                     ViewBag.Empleado = empleados;
@@ -340,7 +340,7 @@ namespace IdentitySample.Controllers
                 {
                     return RedirectToAction("NotFound", "Error");
                 }
-                empleados empleados = db.empleados.FirstOrDefault(e => e.numeroEmpleado == user.IdEmpleado.ToString());
+                empleados empleados = db.empleados.FirstOrDefault(e => e.id == user.IdEmpleado);
 
                 if (empleados != null)
                 {
@@ -416,7 +416,7 @@ namespace IdentitySample.Controllers
                 {
                     return RedirectToAction("NotFound", "Error");
                 }
-                empleados empleados = db.empleados.FirstOrDefault(e => e.numeroEmpleado == user.IdEmpleado.ToString());
+                empleados empleados = db.empleados.FirstOrDefault(e => e.id == user.IdEmpleado);
 
                 if (empleados != null)
                 {

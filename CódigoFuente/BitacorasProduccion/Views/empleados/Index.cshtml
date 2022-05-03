@@ -16,7 +16,8 @@
 
     <!-- SweetAlert2 -->
     <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
-}
+        
+    }
 
 @*Para SweetAlert*@
 @if (mensajeAlerta != null)
@@ -107,6 +108,9 @@
                                                     Planta
                                                 </th>
                                                 <th>
+                                                    Departamento
+                                                </th>
+                                                <th>
                                                     Puesto
                                                 </th>
                                                 <th>
@@ -118,7 +122,7 @@
                                         <tbody>
                                             @foreach (var item in Model)
                                             {
-                                            <tr>
+                                            <tr style="@(item.activo == false ? "color:red" :"" )">
                                                 <th>
                                                     @Html.DisplayFor(modelItem => item.numeroEmpleado)
                                                 </th>
@@ -160,6 +164,9 @@
                                                     @Html.DisplayFor(modelItem => item.plantas.descripcion)
                                                 </th>
                                                 <th>
+                                                    @Html.DisplayFor(modelItem => item.Area.descripcion)
+                                                </th>
+                                                <th>
                                                     @Html.DisplayFor(modelItem => item.puesto1.descripcion)
                                                 </th>
                                                 <th>
@@ -185,20 +192,20 @@
                                                         if (!item.activo.Value)
                                                         {
                                                             <a href="@Url.Action("Enable", ViewBag.ControllerName, new { id = item.id })" class="btn btn-warning" s title="Habilitar">
-                                                                <i class="fa fa-unlock"></i>
+                                                                <i class="fa fa-check"></i>
                                                             </a>
                                                         }
                                                         else
                                                         {
-                                                            <a href="@Url.Action("Disable", ViewBag.ControllerName, new { id = item.id })" class="btn btn-danger" title="Deshabilitar">
-                                                                <i class="fa fa-lock"></i>
+                                                            <a href="@Url.Action("Disable", ViewBag.ControllerName, new { id = item.id })" class="btn btn-danger" title="Dar de Baja">
+                                                                <i class="fa fa-times"></i>
                                                             </a>
                                                         }
                                                     }
                                                     else
                                                     {
                                                         <a href="@Url.Action("Enable", ViewBag.ControllerName, new { id = item.id })" class="btn btn-warning" s title="Habilitar">
-                                                            <i class="fa fa-unlock"></i>
+                                                            <i class="fa fa-check"></i>
                                                         </a>
                                                     }
 

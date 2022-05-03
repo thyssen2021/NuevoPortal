@@ -8,7 +8,7 @@
             url: '/Combos/obtieneAreas',
             data: { clavePlanta: $(this).val() },
             success: function (data) {
-                populateDropdown($("#areaClave"), data);
+                populateDropdown($("#id_area"), data);
             },
             async: true
         });
@@ -28,7 +28,7 @@
     });
 
     //carga los valores cuando se cambia el área
-    $("#areaClave").change(function () {
+    $("#id_area").change(function () {
 
         //obtiene los puestos
         $.ajax({
@@ -60,17 +60,17 @@ function populateDropdown(select, data) {
 function verificaEstadoCombos() {
 
     var planta = $("#planta_clave option:selected").val();
-    var area = $("#areaClave option:selected").val();
+    var area = $("#id_area option:selected").val();
 
 
     if (planta == "") {
         //si no hay planta desactiva area y puesto
-        $("#areaClave").prop("disabled", true);
+        $("#id_area").prop("disabled", true);
         $("#puesto").prop("disabled", true);
     }
     else {
         //si hay planta activa área
-        $("#areaClave").prop("disabled", false);
+        $("#id_area").prop("disabled", false);
 
         //verifica el estado del area
         if (area == "") {
@@ -109,7 +109,7 @@ function seleccionaValoresDefault() {
             url: '/Combos/obtieneAreas',
             data: { clavePlanta: c_planta.value },
             success: function (data) {
-                populateDropdown($("#areaClave"), data);
+                populateDropdown($("#id_area"), data);
             },
             async: false
         });
@@ -119,10 +119,10 @@ function seleccionaValoresDefault() {
         if (c_area != null) {
 
             //estable el valor del segundo combo
-            if ($("#areaClave option[value='" + c_area.value + "']").length > 0) {
-                $("#areaClave").val(c_area.value);
+            if ($("#id_area option[value='" + c_area.value + "']").length > 0) {
+                $("#id_area").val(c_area.value);
             } else {
-                $("#areaClave").val("");
+                $("#id_area").val("");
             }
 
             //realiza una llamada sincorna del contenido del tercer combo

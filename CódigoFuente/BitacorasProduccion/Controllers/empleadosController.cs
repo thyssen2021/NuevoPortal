@@ -37,7 +37,7 @@ namespace Portal_2_0.Controllers
             }
 
 
-          
+
         }
 
         // GET: empleados/Details/5
@@ -61,7 +61,7 @@ namespace Portal_2_0.Controllers
             {
                 return View("../Home/ErrorPermisos");
             }
-            
+
         }
 
         // GET: empleados/Create
@@ -70,7 +70,7 @@ namespace Portal_2_0.Controllers
             if (TieneRol(TipoRoles.RH))
             {
                 ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
-                ViewBag.areaClave = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");                
+                ViewBag.id_area = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
                 ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion");
                 return View();
             }
@@ -78,7 +78,7 @@ namespace Portal_2_0.Controllers
             {
                 return View("../Home/ErrorPermisos");
             }
-          
+
         }
 
         // POST: empleados/Create
@@ -88,14 +88,14 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(empleados empleados, FormCollection collection)
         {
-           
+
             //valores enviados previamente
             int c_planta = 0;
-            if(!String.IsNullOrEmpty(collection["planta_clave"])) 
+            if (!String.IsNullOrEmpty(collection["planta_clave"]))
                 Int32.TryParse(collection["planta_clave"], out c_planta);
             int c_area = 0;
-            if (!String.IsNullOrEmpty(collection["areaClave"]))
-                Int32.TryParse(collection["areaClave"].ToString(), out c_area);
+            if (!String.IsNullOrEmpty(collection["id_area"]))
+                Int32.TryParse(collection["id_area"].ToString(), out c_area);
             int c_puesto = 0;
             if (!String.IsNullOrEmpty(collection["puesto"]))
                 Int32.TryParse(collection["puesto"].ToString(), out c_puesto);
@@ -112,13 +112,16 @@ namespace Portal_2_0.Controllers
                     empleadoBusca = db.empleados.Where(s => s.C8ID == empleados.C8ID && !String.IsNullOrEmpty(empleados.C8ID))
                                         .FirstOrDefault();
 
-                    if (empleadoBusca == null)  {
+                    if (empleadoBusca == null)
+                    {
 
                         empleados.activo = true;
                         //convierte a mayúsculas
                         empleados.nombre = empleados.nombre.ToUpper();
                         empleados.apellido1 = empleados.apellido1.ToUpper();
-                        empleados.apellido2 = empleados.apellido2.ToUpper();
+
+                        if (!String.IsNullOrEmpty(empleados.apellido2))
+                            empleados.apellido2 = empleados.apellido2.ToUpper();
                         //agrega el id_area
                         if (c_area > 0)
                             empleados.id_area = c_area;
@@ -128,10 +131,11 @@ namespace Portal_2_0.Controllers
                         TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);
                         return RedirectToAction("Index");
                     }
-                    else {
+                    else
+                    {
                         ModelState.AddModelError("", "Ya existe un registro con el mismo 8ID.");
                         ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
-                        ViewBag.areaClave = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
+                        ViewBag.id_area = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
                         ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion");
                         //claves seleccionadas
                         ViewBag.c_planta = c_planta;
@@ -140,10 +144,11 @@ namespace Portal_2_0.Controllers
                         return View(empleados);
                     }
                 }
-                else {
+                else
+                {
                     ModelState.AddModelError("", "Ya existe un registro con el mismo número de empleado. ");
                     ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
-                    ViewBag.areaClave = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
+                    ViewBag.id_area = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
                     ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion");
                     //claves seleccionadas
                     ViewBag.c_planta = c_planta;
@@ -154,7 +159,7 @@ namespace Portal_2_0.Controllers
             }
 
             ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
-            ViewBag.areaClave = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
+            ViewBag.id_area = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
             ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion");
             //claves seleccionadas
             ViewBag.c_planta = c_planta;
@@ -180,7 +185,7 @@ namespace Portal_2_0.Controllers
                 }
 
                 ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
-                ViewBag.areaClave = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
+                ViewBag.id_area = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
                 ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion");
                 //claves seleccionadas
                 ViewBag.c_planta = empleados.planta_clave;
@@ -193,7 +198,7 @@ namespace Portal_2_0.Controllers
                 return View("../Home/ErrorPermisos");
             }
 
-            
+
         }
 
         // POST: empleados/Edit/5
@@ -208,8 +213,8 @@ namespace Portal_2_0.Controllers
             if (!String.IsNullOrEmpty(collection["planta_clave"]))
                 Int32.TryParse(collection["planta_clave"], out c_planta);
             int c_area = 0;
-            if (!String.IsNullOrEmpty(collection["areaClave"]))
-                Int32.TryParse(collection["areaClave"].ToString(), out c_area);
+            if (!String.IsNullOrEmpty(collection["id_area"]))
+                Int32.TryParse(collection["id_area"].ToString(), out c_area);
             int c_puesto = 0;
             if (!String.IsNullOrEmpty(collection["puesto"]))
                 Int32.TryParse(collection["puesto"].ToString(), out c_puesto);
@@ -232,21 +237,21 @@ namespace Portal_2_0.Controllers
                     {
 
                         //actualiza el correo electronico en la tabla de usuarios
-                        var user =  _userManager.Users.Where(u => u.IdEmpleado == empleados.id).FirstOrDefault();
+                        var user = _userManager.Users.Where(u => u.IdEmpleado == empleados.id).FirstOrDefault();
                         if (user != null)
                         {
                             //actualiza el usuario  
                             user.Email = empleados.correo;
                             //guarda el usuario en BD
                             var result = await _userManager.UpdateAsync(user);
-                        }                                      
+                        }
 
                         empleados.nombre = empleados.nombre.ToUpper();
                         empleados.apellido1 = empleados.apellido1.ToUpper();
                         empleados.apellido2 = empleados.apellido2.ToUpper();
-                        
+
                         //agrega el id_area
-                        if(c_area>0)
+                        if (c_area > 0)
                             empleados.id_area = c_area;
 
                         db.Entry(empleados).State = EntityState.Modified;
@@ -255,10 +260,11 @@ namespace Portal_2_0.Controllers
                         TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
                         return RedirectToAction("Index");
                     }
-                    else {
+                    else
+                    {
                         ModelState.AddModelError("", "Ya existe un registro con el mismo 8ID. ");
                         ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
-                        ViewBag.areaClave = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
+                        ViewBag.id_area = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
                         ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion");
                         //claves seleccionadas
                         ViewBag.c_planta = c_planta;
@@ -271,7 +277,7 @@ namespace Portal_2_0.Controllers
                 {
                     ModelState.AddModelError("", "Ya existe un registro con el mismo número de empleado. ");
                     ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
-                    ViewBag.areaClave = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
+                    ViewBag.id_area = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
                     ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion");
                     //claves seleccionadas
                     ViewBag.c_planta = c_planta;
@@ -280,10 +286,10 @@ namespace Portal_2_0.Controllers
                     return View(empleados);
                 }
 
-                
+
             }
             ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
-            ViewBag.areaClave = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
+            ViewBag.id_area = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
             ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion");
             //claves seleccionadas
             ViewBag.c_planta = c_planta;
@@ -296,7 +302,7 @@ namespace Portal_2_0.Controllers
         public ActionResult Disable(int? id)
         {
             if (TieneRol(TipoRoles.RH))
-            {               
+            {
                 if (id == null)
                 {
                     return View("../Error/BadRequest");
@@ -307,7 +313,7 @@ namespace Portal_2_0.Controllers
                     return View("../Error/NotFound");
                 }
                 return View(empleado);
-               
+
             }
             else
             {
@@ -318,10 +324,31 @@ namespace Portal_2_0.Controllers
         // POST: Empleados/Disable/5
         [HttpPost, ActionName("Disable")]
         [ValidateAntiForgeryToken]
-        public ActionResult DisableConfirmed(int id)
+        public ActionResult DisableConfirmed(int id, FormCollection collection)
         {
             empleados empleado = db.empleados.Find(id);
             empleado.activo = false;
+
+            DateTime bajaFecha = DateTime.Now;
+            string stringFecha = collection["bajaFecha"];
+
+            try
+            {
+                if (!String.IsNullOrEmpty(stringFecha))
+                {
+                    bajaFecha = Convert.ToDateTime(stringFecha);
+                    empleado.bajaFecha = bajaFecha;
+                }
+            }
+            catch (FormatException e)
+            {
+                ModelState.AddModelError("", "Error de formato de fecha: " + e.Message);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Error al convertir: " + ex.Message);
+            }
+
 
             db.Entry(empleado).State = EntityState.Modified;
             try
@@ -384,6 +411,7 @@ namespace Portal_2_0.Controllers
         {
             empleados empleado = db.empleados.Find(id);
             empleado.activo = true;
+            empleado.bajaFecha = null;
 
             db.Entry(empleado).State = EntityState.Modified;
             try
