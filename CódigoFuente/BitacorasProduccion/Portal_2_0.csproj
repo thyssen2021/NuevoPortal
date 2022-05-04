@@ -185,6 +185,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App_GlobalResources\Mensajes.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Mensajes.resx</DependentUpon>
+    </Compile>
     <Compile Include="App_Start\ActionFilterSession.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
@@ -363,6 +368,7 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\ModelViews.cs" />
+    <Compile Include="Models\MyRequiredAttributeAdapter.cs" />
     <Compile Include="Models\notificaciones_correo.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -4765,6 +4771,10 @@
     <Content Include="Scripts\jquery-3.4.1.min.map" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_GlobalResources\Mensajes.resx">
+      <Generator>GlobalResourceProxyGenerator</Generator>
+      <LastGenOutput>Mensajes.Designer.cs</LastGenOutput>
+    </Content>
     <EmbeddedResource Include="Migrations\202109072018357_MigracionInicial.resx">
       <DependentUpon>202109072018357_MigracionInicial.cs</DependentUpon>
     </EmbeddedResource>
