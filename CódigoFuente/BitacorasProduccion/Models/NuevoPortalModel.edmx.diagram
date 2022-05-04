@@ -39,7 +39,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.PFA_Type_shipment" Width="1.5" PointX="7.5" PointY="35.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.PFA_Volume" Width="1.5" PointX="7.5" PointY="33.25" />
         <EntityTypeShape EntityType="Portal_2_0Model.PFA_Autorizador" Width="1.5" PointX="9.75" PointY="4.125" />
-        <EntityTypeShape EntityType="Portal_2_0Model.view_historico_resultado" Width="1.5" PointX="2.375" PointY="15.25" />
         <EntityTypeShape EntityType="Portal_2_0Model.produccion_respaldo" Width="1.5" PointX="15.125" PointY="15.625" />
         <EntityTypeShape EntityType="Portal_2_0Model.biblioteca_digital" Width="1.5" PointX="15.875" PointY="27.125" />
         <EntityTypeShape EntityType="Portal_2_0Model.PFA" Width="1.5" PointX="18.125" PointY="15.75" />
@@ -157,6 +156,7 @@
         <EntityTypeShape EntityType="Portal_2_0Model.bom_en_sap" Width="1.5" PointX="8.375" PointY="13.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.OT_rel_depto_aplica_linea" Width="1.5" PointX="5.25" PointY="3.125" />
         <AssociationConnector Association="Portal_2_0Model.FK_OT_rel_depto_aplica_linea_id_area" />
+        <EntityTypeShape EntityType="Portal_2_0Model.view_historico_resultado" Width="1.5" PointX="0.75" PointY="15.75" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

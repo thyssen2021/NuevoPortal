@@ -16,7 +16,9 @@ CREATE VIEW [dbo].view_historico_resultado AS
 
 SELECT
 	ISNULL(ROW_NUMBER() OVER (ORDER BY v3.fecha), 0) as id,
-	v3.* FROM (
+	v3.*,
+	(SELECT comentarios from dbo.produccion_datos_entrada where v3.Column40>0 AND id_produccion_registro =v3.Column40) as comentario
+	FROM (
 SELECT       
       [operador] AS [Operador]
       ,[supervisor] as [Supervisor]

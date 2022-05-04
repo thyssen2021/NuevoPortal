@@ -46,7 +46,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<PFA_Type_shipment> PFA_Type_shipment { get; set; }
         public virtual DbSet<PFA_Volume> PFA_Volume { get; set; }
         public virtual DbSet<PFA_Autorizador> PFA_Autorizador { get; set; }
-        public virtual DbSet<view_historico_resultado> view_historico_resultado { get; set; }
         public virtual DbSet<produccion_respaldo> produccion_respaldo { get; set; }
         public virtual DbSet<biblioteca_digital> biblioteca_digital { get; set; }
         public virtual DbSet<PFA> PFA { get; set; }
@@ -91,5 +90,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<notificaciones_correo> notificaciones_correo { get; set; }
         public virtual DbSet<bom_en_sap> bom_en_sap { get; set; }
         public virtual DbSet<OT_rel_depto_aplica_linea> OT_rel_depto_aplica_linea { get; set; }
+        public virtual DbSet<view_historico_resultado> view_historico_resultado { get; set; }
     }
 }

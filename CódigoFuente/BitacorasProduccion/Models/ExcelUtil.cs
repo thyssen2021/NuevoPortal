@@ -76,6 +76,7 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Peso Neto Total Piezas de Ajuste Kgs", typeof(double));
             dt.Columns.Add("Peso Punta y Colas Reales kgs", typeof(double));
             dt.Columns.Add("Balance de Scrap Real", typeof(double));
+            dt.Columns.Add("comentario", typeof(string));
 
             //registros , rows
             foreach (view_historico_resultado item in listado)
@@ -85,7 +86,7 @@ namespace Portal_2_0.Models
                     , item.Peso_de_rollo_usado, item.Peso_Báscula_Kgs, null, null, null, item.Total_de_piezas, item.Peso_de_rollo_consumido, item.Numero_de_golpes, item.Kg_restante_de_rollo, item.Peso_despunte_kgs_,
                      item.Peso_cola_Kgs_, item.Porcentaje_de_puntas_y_colas, item.Total_de_piezas_de_Ajustes, item.Peso_Bruto_Kgs, item.Peso_Real_Pieza_Bruto, item.Peso_Real_Pieza_Neto, item.Scrap_Natural
                      , item.Peso_neto_SAP, item.Peso_Bruto_SAP, item.Balance_de_Scrap, item.Ordenes_por_pieza, item.Peso_de_rollo_usado_real__Kg, item.Peso_bruto_Total_piezas_Kg, item.Peso_NetoTotal_piezas_Kg
-                     , item.Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg, item.Peso_Neto_total_piezas_de_ajuste_Kgs, item.Peso_puntas_y_colas_reales_Kg, item.Balance_de_Scrap_Real);
+                     , item.Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg, item.Peso_Neto_total_piezas_de_ajuste_Kgs, item.Peso_puntas_y_colas_reales_Kg, item.Balance_de_Scrap_Real, item.comentario);
 
                 filasEncabezados.Add(true);
 
@@ -113,7 +114,7 @@ namespace Portal_2_0.Models
                       , null, null, lote.numero_lote_izquierdo, lote.numero_lote_derecho, lote.piezas_paquete.Value, null, null, null, null, null,
                        null, null, null, null, null, null, null
                        , null, null, null, null, null, null, null
-                       , null, null, null, null);
+                       , null, null, null, null, null);
                         filasEncabezados.Add(false);
                         filasTemporales.Add(false);
                     }
@@ -142,7 +143,7 @@ namespace Portal_2_0.Models
                         , sumaRolloUsado, null, null, null, null, null, null, sumaNumGolpes, null, null,
                          null, null, null, null, null, null, null
                          , null, null, promedioBalanceScrap, null, null, null, null
-                         , null, null, null, promedioBalanceScrapReal);
+                         , null, null, null, promedioBalanceScrapReal, null);
 
 
             //crea la hoja de FACTURAS y la selecciona
@@ -152,6 +153,7 @@ namespace Portal_2_0.Models
             //estilo para ajustar al texto
             SLStyle styleWrap = oSLDocument.CreateStyle();
             styleWrap.SetWrapText(true);
+            styleWrap.Alignment.Vertical = VerticalAlignmentValues.Top;
 
             //estilo para el encabezado
             SLStyle styleHeader = oSLDocument.CreateStyle();
@@ -161,7 +163,7 @@ namespace Portal_2_0.Models
             //estilo para el encabezado de cada fila
             SLStyle styleHeaderRow = oSLDocument.CreateStyle();
             styleHeaderRow.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#daeef3"), System.Drawing.ColorTranslator.FromHtml("#daeef3"));
-
+           
             //estilo para el encabezado de cada fila
             SLStyle styleHeaderRowTemporal = oSLDocument.CreateStyle();
             styleHeaderRowTemporal.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffa0a2"), System.Drawing.ColorTranslator.FromHtml("#ffa0a2"));
@@ -218,7 +220,7 @@ namespace Portal_2_0.Models
             {
                 if (filasEncabezados[i])
                 {
-                    oSLDocument.SetRowStyle(i + 1, styleHeaderRow);
+                    oSLDocument.SetCellStyle(i + 1, 1,i+1,dt.Columns.Count, styleHeaderRow);
                 }
                 else
                 {
@@ -233,7 +235,7 @@ namespace Portal_2_0.Models
             {
                 if (filasTemporales[i])
                 {
-                    oSLDocument.SetRowStyle(i + 1, styleHeaderRowTemporal);
+                    oSLDocument.SetCellStyle(i + 1, 1, i + 1, dt.Columns.Count, styleHeaderRowTemporal);
                 }
                 
             }
@@ -245,7 +247,7 @@ namespace Portal_2_0.Models
             //inmoviliza el encabezado
             oSLDocument.FreezePanes(1, 0);
 
-            oSLDocument.Filter("A1", "AU1");
+            oSLDocument.Filter("A1", "AV1");
             oSLDocument.AutoFitColumn(1, dt.Columns.Count);
 
             oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);

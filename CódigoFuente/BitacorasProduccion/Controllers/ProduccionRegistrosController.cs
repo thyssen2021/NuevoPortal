@@ -26,7 +26,7 @@ namespace Portal_2_0.Controllers
         // GET: ProduccionRegistros
         public ActionResult Index(string planta, string linea, int pagina = 1)
         {
-            if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REGISTRO))
+            if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REGISTRO) || TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE))
             {
                 //mensaje en caso de crear, editar, etc
                 if (TempData["Mensaje"] != null)
@@ -46,13 +46,13 @@ namespace Portal_2_0.Controllers
                 //bool esOperador = db.produccion_supervisores.Where(x => x.id_empleado == emp.id).Select(x => x.id).ToList().Count > 0 ? true: false;
 
                 var cantidadRegistrosPorPagina = 20; // parámetro
-          
+
                 //muestra unicamente lso registros que el usuario edite
                 var produccion_registros = db.produccion_registros.Include(p => p.plantas).Include(p => p.produccion_lineas).Include(p => p.produccion_lotes).Include(p => p.produccion_operadores).Include(p => p.produccion_supervisores).Include(p => p.produccion_turnos).Where(x =>
                           //x.activo == true && 
                           (!String.IsNullOrEmpty(linea) && x.id_linea.ToString().Contains(linea))
                         && (!String.IsNullOrEmpty(planta) && x.clave_planta.ToString().Contains(planta))
-                   //     && (idOperador.Contains(x.id_operador.Value) || esOperador)
+                        //     && (idOperador.Contains(x.id_operador.Value) || esOperador)
                         )
                     .OrderByDescending(x => x.fecha)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
@@ -62,7 +62,7 @@ namespace Portal_2_0.Controllers
                          // x.activo==true &&
                          (!String.IsNullOrEmpty(linea) && x.id_linea.ToString().Contains(linea))
                         && (!String.IsNullOrEmpty(planta) && x.clave_planta.ToString().Contains(planta))
-                 //       && (idOperador.Contains(x.id_operador.Value) || esOperador)
+                       //       && (idOperador.Contains(x.id_operador.Value) || esOperador)
                        ).Count();
 
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
@@ -76,12 +76,19 @@ namespace Portal_2_0.Controllers
                     RegistrosPorPagina = cantidadRegistrosPorPagina,
                     ValoresQueryString = routeValues
                 };
-            
 
-              
-                //obtiene unicamente las lineas a las que está asignado y a la planta correspondiente
-                ViewBag.linea = new SelectList(db.produccion_lineas.Where(p => p.activo == true && idLineas.Contains(p.id) && p.clave_planta == emp.planta_clave), "id", "linea");
-                ViewBag.planta = new SelectList(db.plantas.Where(p => p.activo == true && emp.planta_clave==p.clave), "clave", "descripcion");
+
+
+                //si no tiene el rol de produccion muestra todas las lineas
+                if (!TieneRol(TipoRoles.BITACORAS_PRODUCCION_REGISTRO))
+                    ViewBag.linea = new SelectList(db.produccion_lineas.Where(p => p.activo == true && p.clave_planta == emp.planta_clave), "id", "linea");
+                else
+                    //obtiene unicamente las lineas a las que está asignado y a la planta correspondiente
+                    ViewBag.linea = new SelectList(db.produccion_lineas.Where(p => p.activo == true && idLineas.Contains(p.id) && p.clave_planta == emp.planta_clave), "id", "linea");
+
+
+
+                ViewBag.planta = new SelectList(db.plantas.Where(p => p.activo == true && emp.planta_clave == p.clave), "clave", "descripcion");
                 ViewBag.Paginacion = paginacion;
 
                 return View(produccion_registros);
@@ -89,10 +96,10 @@ namespace Portal_2_0.Controllers
             else
             {
                 return View("../Home/ErrorPermisos");
-            }            
+            }
         }
 
-      
+
 
         // GET: ProduccionRegistros/Create
         public ActionResult Create(int? planta, int? linea)
@@ -101,14 +108,16 @@ namespace Portal_2_0.Controllers
             if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REGISTRO))
             {
                 //si no hay parámetros retorna al inxdex
-                if (planta==null || linea==null) {
+                if (planta == null || linea == null)
+                {
                     TempData["Mensaje"] = new MensajesSweetAlert("Verifique los valores de planta y línea.", TipoMensajesSweetAlerts.WARNING);
                     return RedirectToAction("Index");
                 }
 
                 //verifica si hay planta
                 plantas plantas = db.plantas.Find(planta);
-                if (plantas == null) {
+                if (plantas == null)
+                {
                     TempData["Mensaje"] = new MensajesSweetAlert("No existe la planta.", TipoMensajesSweetAlerts.ERROR);
                     return RedirectToAction("Index");
                 }
@@ -124,19 +133,22 @@ namespace Portal_2_0.Controllers
                 //obtiene el listado de turnos de la planata
                 var turnos = db.produccion_turnos.Where(x => x.clave_planta == planta);
 
-                
+
                 //recorre los turnos para identificar que turno es
-                produccion_turnos turno=null;
-                foreach (produccion_turnos t in turnos){
-                    if (TimeSpanUtil.CalculateDalUren(DateTime.Now,t.hora_inicio, t.hora_fin)){
+                produccion_turnos turno = null;
+                foreach (produccion_turnos t in turnos)
+                {
+                    if (TimeSpanUtil.CalculateDalUren(DateTime.Now, t.hora_inicio, t.hora_fin))
+                    {
                         turno = t;
-                    }                    
+                    }
                 }
 
                 //verifica si hay turno o si no manda mensaje de advertencia
                 if (turno != null)
                     ViewBag.Turno = turno;
-                else {
+                else
+                {
                     TempData["Mensaje"] = new MensajesSweetAlert("No hay un horario asignado para la hora actual.", TipoMensajesSweetAlerts.WARNING);
                     return RedirectToAction("Index");
                 }
@@ -149,8 +161,8 @@ namespace Portal_2_0.Controllers
                 ViewBag.sap_platina = ComboSelect.obtieneMaterial_BOM();
                 ViewBag.sap_rollo = ComboSelect.obtieneRollo_BOM();
                 ViewBag.id_supervisor = ComboSelect.obtieneSupervisoresPlanta(planta.Value);
-                ViewBag.id_operador = ComboSelect.obtieneOperadorPorLinea(emp,linea.Value);
-                
+                ViewBag.id_operador = ComboSelect.obtieneOperadorPorLinea(emp, linea.Value);
+
                 return View();
             }
             else
@@ -195,11 +207,11 @@ namespace Portal_2_0.Controllers
                 db.produccion_registros.Add(produccion_registros);
                 db.SaveChanges();
                 TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);
-                
+
                 //retorna la vista de datos de entrada
                 return RedirectToAction("DatosEntradas", new
                 {
-                   id = produccion_registros.id
+                    id = produccion_registros.id
                 });
             }
 
@@ -241,7 +253,7 @@ namespace Portal_2_0.Controllers
             ViewBag.c_id_supervisor = c_id_supervisor;
             ViewBag.c_id_operador = c_id_operador;
 
-           
+
             return View(produccion_registros);
         }
 
@@ -252,7 +264,7 @@ namespace Portal_2_0.Controllers
             if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REGISTRO))
             {
                 //si no hay parámetros retorna al inxdex
-                if (id==null)
+                if (id == null)
                 {
                     TempData["Mensaje"] = new MensajesSweetAlert("Verifique los valores de planta y línea.", TipoMensajesSweetAlerts.WARNING);
                     return RedirectToAction("Index");
@@ -266,7 +278,7 @@ namespace Portal_2_0.Controllers
                 }
 
                 empleados emp = obtieneEmpleadoLogeado();
-                            
+
                 ViewBag.sap_platina = ComboSelect.obtieneMaterial_BOM();
                 ViewBag.sap_rollo = ComboSelect.obtieneRollo_BOM();
                 ViewBag.id_supervisor = ComboSelect.obtieneSupervisoresPlanta(produccion.clave_planta.Value);
@@ -362,23 +374,24 @@ namespace Portal_2_0.Controllers
 
                 //busca si existe el registro de produccion
                 produccion_registros produccion = db.produccion_registros.Find(id);
-                
-                if(produccion==null){
+
+                if (produccion == null)
+                {
                     TempData["Mensaje"] = new MensajesSweetAlert("No existe el registro de producción.", TipoMensajesSweetAlerts.ERROR);
                     return RedirectToAction("Index");
                 }
 
                 //busca si hay datos de entrada para el registro de producción
-                produccion_datos_entrada produccion_datos_entrada = db.produccion_datos_entrada.FirstOrDefault(x=> x.id_produccion_registro == id.Value);
-                
+                produccion_datos_entrada produccion_datos_entrada = db.produccion_datos_entrada.FirstOrDefault(x => x.id_produccion_registro == id.Value);
+
                 if (produccion_datos_entrada == null)
                 {
                     //si no hay registro de entrada de datos crea uno nuevo con el id de registro de produccion
                     produccion_datos_entrada = new produccion_datos_entrada
                     {
-                        id_produccion_registro =  id.Value,
+                        id_produccion_registro = id.Value,
                         produccion_registros = produccion
-                    };    
+                    };
                 }
 
                 //agrega datos entrada a la produccion
@@ -387,11 +400,11 @@ namespace Portal_2_0.Controllers
 
                 //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina
                 mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == produccion.sap_platina);
-                if (mm == null)            
+                if (mm == null)
                     mm = new mm_v3 { };
 
                 //ENVIAR cLASS SEGUN EL MATERIAL
-              class_v3 class_ = db.class_v3.FirstOrDefault(x => x.Object == produccion.sap_platina);
+                class_v3 class_ = db.class_v3.FirstOrDefault(x => x.Object == produccion.sap_platina);
                 if (class_ == null)
                     class_ = new class_v3 { };
 
@@ -403,10 +416,10 @@ namespace Portal_2_0.Controllers
             {
                 return View("../Home/ErrorPermisos");
             }
-           
+
         }
 
-       
+
         // POST: ProduccionRegistros/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
@@ -414,8 +427,8 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DatosEntradas(produccion_registros produccion_registros)
         {
-           
-            bool error=false;
+
+            bool error = false;
 
             foreach (produccion_lotes lote in produccion_registros.produccion_lotes)
             {
@@ -423,9 +436,11 @@ namespace Portal_2_0.Controllers
                     error = true;
             }
 
-            if (error) {
+            if (error)
+            {
                 ModelState.AddModelError("", "Verifique que se haya especificado al menos un lote izquierdo o derecho para cada lote.");
-            }else if (ModelState.IsValid)
+            }
+            else if (ModelState.IsValid)
             {
                 //verifica que si existe en un registro en datos entrada            
 
@@ -436,11 +451,13 @@ namespace Portal_2_0.Controllers
                     {
                         db.SaveChanges();
                     }
-                    catch {
-                        EscribeExcepcion(new Exception ("Trato de registrarse datos duplicados: "+produccion_registros.id), Clases.Models.EntradaRegistroEvento.TipoEntradaRegistroEvento.Error);
+                    catch
+                    {
+                        EscribeExcepcion(new Exception("Trato de registrarse datos duplicados: " + produccion_registros.id), Clases.Models.EntradaRegistroEvento.TipoEntradaRegistroEvento.Error);
                     }
                 }
-                else {
+                else
+                {
                     //si existe lo modifica
                     produccion_datos_entrada datos_Entrada = db.produccion_datos_entrada.Find(produccion_registros.id);
                     // Activity already exist in database and modify it
@@ -453,13 +470,13 @@ namespace Portal_2_0.Controllers
                 var listLotesAnteriores = db.produccion_lotes.Where(x => x.id_produccion_registro == produccion_registros.id);
                 foreach (produccion_lotes lote in listLotesAnteriores)
                     db.produccion_lotes.Remove(lote);
-                
+
                 db.SaveChanges();
-               
+
 
                 //agrega los lotes nuevos
                 foreach (produccion_lotes lote in produccion_registros.produccion_lotes)
-                {                   
+                {
                     lote.id_produccion_registro = produccion_registros.id;
                     db.produccion_lotes.Add(lote);
                     db.SaveChanges();
@@ -515,7 +532,7 @@ namespace Portal_2_0.Controllers
         public ActionResult DatosEntradasDetails(int? id)
         {
             //verifica los permisos del usuario
-            if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REGISTRO))
+            if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REGISTRO) || TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE))
             {
                 //verifica si se envio un id
                 if (id == null)
@@ -817,7 +834,7 @@ namespace Portal_2_0.Controllers
 
                 //obtiene el empleado que inicio sesión
                 empleados emp = obtieneEmpleadoLogeado();
-            
+
 
                 var cantidadRegistrosPorPagina = 20; // parámetro
 
@@ -830,10 +847,10 @@ namespace Portal_2_0.Controllers
                     .Take(cantidadRegistrosPorPagina).ToList();
 
                 var totalDeRegistros = db.produccion_respaldo.Include(p => p.empleados).Where(
-                         x => x.empleado_id == emp.id                        
+                         x => x.empleado_id == emp.id
                        ).Count();
 
-                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();             
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
 
                 Paginacion paginacion = new Paginacion
                 {
@@ -940,7 +957,7 @@ namespace Portal_2_0.Controllers
                                     respaldo_item.empleado_id = emp.id;
 
                                 //obtiene el elemento de BD
-                                produccion_respaldo item = db.produccion_respaldo.FirstOrDefault(x => x.planta == respaldo_item.planta && x.linea == respaldo_item.linea && x.fecha==respaldo_item.fecha);
+                                produccion_respaldo item = db.produccion_respaldo.FirstOrDefault(x => x.planta == respaldo_item.planta && x.linea == respaldo_item.linea && x.fecha == respaldo_item.fecha);
 
                                 //si existe actualiza
                                 if (item != null)
@@ -965,7 +982,7 @@ namespace Portal_2_0.Controllers
                             }
 
                         }
-                        
+
                         ////obtiene nuevamente la lista de BD
                         //listAnterior = db.bom_en_sap.ToList();
                         ////determina que elementos de la listAnterior no se encuentran en la lista Excel
@@ -995,7 +1012,7 @@ namespace Portal_2_0.Controllers
                         //}
 
 
-                        TempData["Mensaje"] = new MensajesSweetAlert("Creados: " + creados + " -> Actualizados: " + actualizados + " -> Existentes: "+exitentes+"-> Errores: " + error , TipoMensajesSweetAlerts.INFO);
+                        TempData["Mensaje"] = new MensajesSweetAlert("Creados: " + creados + " -> Actualizados: " + actualizados + " -> Existentes: " + exitentes + "-> Errores: " + error, TipoMensajesSweetAlerts.INFO);
                         return RedirectToAction("Respaldo");
                     }
 
@@ -1027,7 +1044,7 @@ namespace Portal_2_0.Controllers
             //conecta con la báscula
             try
             {
-                Socket miPrimerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);         
+                Socket miPrimerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 IPEndPoint direccion = new IPEndPoint(IPAddress.Parse(ip), 1702);
 
                 try
@@ -1037,7 +1054,7 @@ namespace Portal_2_0.Controllers
 
                     // Blocks until send returns.
                     int byteCount = miPrimerSocket.Send(msg, 0, msg.Length, SocketFlags.None);
-                   
+
                     byteCount = miPrimerSocket.Receive(bytes, 0, 20,
                                                SocketFlags.None);
 
@@ -1049,10 +1066,10 @@ namespace Portal_2_0.Controllers
 
                         foreach (Match m in regex.Matches(respuesta))
                         {
-                             list[0] = new { Message = "OK", Peso = m.Value };
+                            list[0] = new { Message = "OK", Peso = m.Value };
                         }
-                       
-                    }              
+
+                    }
 
                     miPrimerSocket.Close();
 
@@ -1073,9 +1090,9 @@ namespace Portal_2_0.Controllers
             }
             catch (Exception e)
             {
-                list[0] = new { Message = "Error: "+e.Message };
+                list[0] = new { Message = "Error: " + e.Message };
             }
-           
+
             return Json(list, JsonRequestBehavior.AllowGet);
         }
 
@@ -1090,12 +1107,13 @@ namespace Portal_2_0.Controllers
         {
             var list = new object[1];
 
-            if (idSupervisor == null) {
-                list[0] = new {Status="Error", Message = "No se envíó el id de Supervisor." };
+            if (idSupervisor == null)
+            {
+                list[0] = new { Status = "Error", Message = "No se envíó el id de Supervisor." };
                 return Json(list, JsonRequestBehavior.AllowGet);
             }
 
-            ApplicationUser userSupervisor =  _userManager.Users.FirstOrDefault(x => x.IdEmpleado == idSupervisor);
+            ApplicationUser userSupervisor = _userManager.Users.FirstOrDefault(x => x.IdEmpleado == idSupervisor);
 
             if (userSupervisor == null)
             {
@@ -1111,16 +1129,17 @@ namespace Portal_2_0.Controllers
                 list[0] = new { Status = "OK", Message = "Contraseña Correcta" };
 
                 //guarda en variable de sesión el tiempo permitido
-                if(tiempo!=null && tiempo.HasValue)
-                Session["TiempoAutorizado"] = DateTime.Now.AddMinutes(tiempo.Value);
+                if (tiempo != null && tiempo.HasValue)
+                    Session["TiempoAutorizado"] = DateTime.Now.AddMinutes(tiempo.Value);
 
                 return Json(list, JsonRequestBehavior.AllowGet);
             }
-            else {
+            else
+            {
                 list[0] = new { Status = "FALSE", Message = "Contraseña incorrecta" };
                 return Json(list, JsonRequestBehavior.AllowGet);
-            }           
-           
+            }
+
         }
 
         ///<summary>
@@ -1140,7 +1159,7 @@ namespace Portal_2_0.Controllers
             int estado = DateTime.Compare(autorizacion, DateTime.Now);
 
             //si el tiempo de autorizacion es mayor al tiempo actual
-            if (estado>=1)
+            if (estado >= 1)
             {
                 list[0] = new { Status = "OK", Message = "Está autorizado" };
 

@@ -18,7 +18,7 @@ namespace Portal_2_0.Models
         public long id { get; set; }
         [Display(Name = "Operador")]
         public string Operador { get; set; }
-        
+
         [Display(Name = "Supervisor")]
         public string Supervisor { get; set; }
 
@@ -99,7 +99,7 @@ namespace Portal_2_0.Models
 
         [Display(Name = "Total Piezas Ajuste")]
         public Nullable<double> Total_de_piezas_de_Ajustes { get; set; }
-        
+
         [Display(Name = "Peso Bruto kgs")]
         public Nullable<double> Peso_Bruto_Kgs { get; set; }
 
@@ -156,6 +156,7 @@ namespace Portal_2_0.Models
 
         [Display(Name = "Balance de Scrap Real")]
         public Nullable<double> Balance_de_Scrap_Real { get; set; }
+        public string comentario { get; set; }
 
         //retorna el IdRegistro
         public int? IdRegistro
@@ -172,8 +173,5 @@ namespace Portal_2_0.Models
                 }
             }
         }
-
-      
-
     }
 }
