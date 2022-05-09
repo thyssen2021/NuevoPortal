@@ -157,6 +157,7 @@
         <EntityTypeShape EntityType="Portal_2_0Model.OT_rel_depto_aplica_linea" Width="1.5" PointX="5.25" PointY="3.125" />
         <AssociationConnector Association="Portal_2_0Model.FK_OT_rel_depto_aplica_linea_id_area" />
         <EntityTypeShape EntityType="Portal_2_0Model.view_historico_resultado" Width="1.5" PointX="0.75" PointY="15.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.log_acceso_email" Width="1.5" PointX="8.375" PointY="18.75" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

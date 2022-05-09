@@ -91,5 +91,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<bom_en_sap> bom_en_sap { get; set; }
         public virtual DbSet<OT_rel_depto_aplica_linea> OT_rel_depto_aplica_linea { get; set; }
         public virtual DbSet<view_historico_resultado> view_historico_resultado { get; set; }
+        public virtual DbSet<log_acceso_email> log_acceso_email { get; set; }
     }
 }

@@ -279,6 +279,15 @@
           <Property Name="id_falla" Type="int" Nullable="false" />
           <Property Name="cantidad" Type="int" Nullable="false" />
         </EntityType>
+        <EntityType Name="log_acceso_email">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="fecha" Type="datetime" Nullable="false" />
+          <Property Name="nombre_equipo" Type="varchar" MaxLength="50" />
+          <Property Name="usuario" Type="varchar" MaxLength="100" />
+        </EntityType>
         <EntityType Name="log_inicio_sesion">
           <Key>
             <PropertyRef Name="id" />
@@ -1976,6 +1985,7 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <EntitySet Name="inspeccion_datos_generales" EntityType="Self.inspeccion_datos_generales" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="inspeccion_fallas" EntityType="Self.inspeccion_fallas" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="inspeccion_pieza_descarte_produccion" EntityType="Self.inspeccion_pieza_descarte_produccion" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="log_acceso_email" EntityType="Self.log_acceso_email" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="log_inicio_sesion" EntityType="Self.log_inicio_sesion" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="mm_v3" EntityType="Self.mm_v3" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="notificaciones_correo" EntityType="Self.notificaciones_correo" Schema="dbo" store:Type="Tables" />
@@ -3228,6 +3238,7 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             <End Role="OT_rel_depto_aplica_linea" EntitySet="OT_rel_depto_aplica_linea" />
           </AssociationSet>
           <EntitySet Name="view_historico_resultado" EntityType="Portal_2_0Model.view_historico_resultado" />
+          <EntitySet Name="log_acceso_email" EntityType="Portal_2_0Model.log_acceso_email" />
           </EntityContainer>
         <EntityType Name="PFA_Border_port">
           <Key>
@@ -4951,6 +4962,15 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <Property Name="Balance_de_Scrap_Real" Type="Double" />
           <Property Name="comentario" Type="String" MaxLength="600" FixedLength="false" Unicode="false" />
         </EntityType>
+        <EntityType Name="log_acceso_email">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="fecha" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="nombre_equipo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="usuario" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -5895,6 +5915,16 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
                 <ScalarProperty Name="SAP_Platina" ColumnName="SAP Platina" />
                 <ScalarProperty Name="Supervisor" ColumnName="Supervisor" />
                 <ScalarProperty Name="Operador" ColumnName="Operador" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="log_acceso_email">
+            <EntityTypeMapping TypeName="Portal_2_0Model.log_acceso_email">
+              <MappingFragment StoreEntitySet="log_acceso_email">
+                <ScalarProperty Name="usuario" ColumnName="usuario" />
+                <ScalarProperty Name="nombre_equipo" ColumnName="nombre_equipo" />
+                <ScalarProperty Name="fecha" ColumnName="fecha" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
