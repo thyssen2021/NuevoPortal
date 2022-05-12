@@ -12,7 +12,6 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
-
     public partial class empleados
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -38,6 +37,8 @@ namespace Portal_2_0.Models
             this.orden_trabajo1 = new HashSet<orden_trabajo>();
             this.orden_trabajo2 = new HashSet<orden_trabajo>();
             this.notificaciones_correo = new HashSet<notificaciones_correo>();
+            this.IT_matriz_requerimientos = new HashSet<IT_matriz_requerimientos>();
+            this.IT_matriz_requerimientos1 = new HashSet<IT_matriz_requerimientos>();
         }
 
         public int id { get; set; }
@@ -135,7 +136,6 @@ namespace Portal_2_0.Models
                 return string.Format("({0}) {1} {2} {3}", numeroEmpleado, nombre, apellido1, apellido2).ToUpper();
             }
         }
-
         public virtual Area Area { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_responsables> budget_responsables { get; set; }
@@ -179,5 +179,9 @@ namespace Portal_2_0.Models
         public virtual ICollection<orden_trabajo> orden_trabajo2 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<notificaciones_correo> notificaciones_correo { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_matriz_requerimientos> IT_matriz_requerimientos { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_matriz_requerimientos> IT_matriz_requerimientos1 { get; set; }
     }
 }

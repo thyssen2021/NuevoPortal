@@ -233,6 +233,43 @@ namespace Portal_2_0.Controllers
         }
 
         ///<summary>
+        ///Obtiene el puesto de un empleado
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult obtienePuestoEmpleado(int id_empleado = 0)
+        {
+
+            //obtiene todos los posibles valores
+            empleados emp = db.empleados.Find(id_empleado);
+
+            if (emp == null) //crea un empleado por defecto
+                emp = new empleados
+                {
+                    id = id_empleado,
+                    Area = new Area { descripcion = "NO DISPONIBLE" },
+                    plantas = new plantas { descripcion = "NO DISPONIBLE" },
+                    puesto1 = new puesto { descripcion = "NO DISPONIBLE" }
+                };
+
+            //inicializa la lista de objetos
+            var empleado = new object[1];
+
+            bool existe = db.AspNetUsers.Any(x => x.IdEmpleado == emp.id);
+
+
+            empleado[0] = new { 
+                area = emp.Area == null ? "NO DISPONIBLE": emp.Area.descripcion,
+                plantas = emp.plantas == null ? "NO DISPONIBLE" : emp.plantas.descripcion,
+                puesto = emp.puesto1 == null ? "NO DISPONIBLE" : emp.puesto1.descripcion,
+                existe = existe
+            
+            };
+
+            return Json(empleado, JsonRequestBehavior.AllowGet);
+        }
+
+        ///<summary>
         ///Obtiene el rollo de bom según el material enviado
         ///</summary>
         ///<return>

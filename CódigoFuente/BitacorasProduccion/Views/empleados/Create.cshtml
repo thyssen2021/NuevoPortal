@@ -63,14 +63,14 @@
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.numeroEmpleado, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                 <div class="col-md-6 col-sm-6 ">
-                                    @Html.EditorFor(model => model.numeroEmpleado, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.EditorFor(model => model.numeroEmpleado, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off"} })
                                     @Html.ValidationMessageFor(model => model.numeroEmpleado, "", new { @class = "text-danger" })
                                 </div>
                             </div>
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.C8ID, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                 <div class="col-md-6 col-sm-6 ">
-                                    @Html.EditorFor(model => model.C8ID, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.EditorFor(model => model.C8ID, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
                                     @Html.ValidationMessageFor(model => model.C8ID, "", new { @class = "text-danger" })
                                 </div>
                             </div>
@@ -98,7 +98,7 @@
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.correo, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                 <div class="col-md-6 col-sm-6 ">
-                                    @Html.EditorFor(model => model.correo, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.EditorFor(model => model.correo, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
                                     @Html.ValidationMessageFor(model => model.correo, "", new { @class = "text-danger" })
                                 </div>
                             </div>

@@ -17,8 +17,28 @@ namespace Portal_2_0.Controllers
     {
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
+        //// GET: empleados
+        //public ActionResult Index()
+        //{
+        //    if (TieneRol(TipoRoles.RH))
+        //    {
+        //        //mensaje en caso de crear, editar, etc
+        //        if (TempData["Mensaje"] != null)
+        //        {
+        //            ViewBag.MensajeAlert = TempData["Mensaje"];
+        //        }
+
+        //        var empleados = db.empleados.Include(e => e.plantas).Include(e => e.puesto1);
+        //        return View(empleados.ToList());
+        //    }
+        //    else
+        //    {
+        //        return View("../Home/ErrorPermisos");
+        //    }
+        //}
+
         // GET: empleados
-        public ActionResult Index()
+        public ActionResult Index(string nombre, string num_empleado, int planta_clave = 0, int pagina = 1)
         {
             if (TieneRol(TipoRoles.RH))
             {
@@ -28,16 +48,50 @@ namespace Portal_2_0.Controllers
                     ViewBag.MensajeAlert = TempData["Mensaje"];
                 }
 
-                var empleados = db.empleados.Include(e => e.plantas).Include(e => e.puesto1);
-                return View(empleados.ToList());
+                var cantidadRegistrosPorPagina = 20; // parámetro
+
+                var listado = db.empleados
+                       .Where(x =>
+                       ((x.nombre + " " + x.apellido1 + " " + x.apellido2).Contains(nombre) || String.IsNullOrEmpty(nombre))
+                       && (x.numeroEmpleado.Contains(num_empleado) || String.IsNullOrEmpty(num_empleado))
+                       && (x.planta_clave == planta_clave || planta_clave == 0)
+                       )
+                       .OrderBy(x => x.id)
+                       .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                      .Take(cantidadRegistrosPorPagina).ToList();
+
+                var totalDeRegistros = db.empleados
+                      .Where(x =>
+                        ((x.nombre + " " + x.apellido1 + " " + x.apellido2).Contains(nombre) || String.IsNullOrEmpty(nombre))
+                          && (x.numeroEmpleado.Contains(num_empleado) || String.IsNullOrEmpty(num_empleado))
+                       && (x.planta_clave == planta_clave || planta_clave == 0)
+                       )
+                    .Count();
+
+                //para paginación
+
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                routeValues["nombre"] = nombre;
+                routeValues["planta_clave"] = planta_clave;
+                routeValues["num_empleado"] = num_empleado;
+
+                Paginacion paginacion = new Paginacion
+                {
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                ViewBag.planta_clave = AddFirstItem(new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion", planta_clave.ToString()), textoPorDefecto: "-- Todas --");
+                ViewBag.Paginacion = paginacion;
+
+                return View(listado);
             }
             else
             {
                 return View("../Home/ErrorPermisos");
             }
-
-
-
         }
 
         // GET: empleados/Details/5
@@ -297,6 +351,8 @@ namespace Portal_2_0.Controllers
             ViewBag.c_puesto = c_puesto;
             return View(empleados);
         }
+
+        
 
         // GET: Empleados/Disable/5
         public ActionResult Disable(int? id)

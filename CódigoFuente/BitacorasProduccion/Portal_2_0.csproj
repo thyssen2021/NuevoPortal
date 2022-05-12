@@ -218,6 +218,7 @@
     <Compile Include="Controllers\inspeccionCategoriaFallasController.cs" />
     <Compile Include="Controllers\InspeccionRegistrosController.cs" />
     <Compile Include="Controllers\inspeccion_fallasController.cs" />
+    <Compile Include="Controllers\IT_matriz_requerimientosController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\mm_v3Controller.cs" />
     <Compile Include="Controllers\OrdenesTrabajoController.cs" />
@@ -360,6 +361,36 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\inspeccion_pieza_descarte_produccion.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_carpetas_red.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_comunicaciones_tipo.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_hardware_tipo.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_internet_tipo.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_matriz_carpetas.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_matriz_comunicaciones.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_matriz_hardware.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_matriz_requerimientos.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_matriz_software.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_software_tipo.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\log_acceso_email.cs">
@@ -2347,6 +2378,7 @@
     <Content Include="Content\vendors\ion.rangeSlider\js\ion.rangeSlider.js" />
     <Content Include="Content\vendors\ion.rangeSlider\js\ion.rangeSlider.min.js" />
     <Content Include="Content\vendors\ion.rangeSlider\_tmp\logo-ion-range-slider.png" />
+    <Content Include="Content\vendors\jquery-iu\jquery-ui.min.js" />
     <Content Include="Content\vendors\jquery-knob\.gitignore" />
     <Content Include="Content\vendors\jquery-knob\dist\jquery.knob.min.js" />
     <Content Include="Content\vendors\jquery-knob\excanvas.js" />
@@ -4767,6 +4799,7 @@
     <Content Include="Views\OT_rel_depto_aplica_linea\Index.cshtml" />
     <Content Include="Views\Information\BonoTPU.cshtml" />
     <Content Include="Views\Information\Log.cshtml" />
+    <Content Include="Views\IT_matriz_requerimientos\CrearMatriz.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
