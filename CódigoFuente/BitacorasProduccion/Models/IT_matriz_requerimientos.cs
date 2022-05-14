@@ -23,16 +23,20 @@ namespace Portal_2_0.Models
             this.IT_matriz_hardware = new HashSet<IT_matriz_hardware>();
             this.IT_matriz_software = new HashSet<IT_matriz_software>();
         }
-
         [Display(Name = "Folio")]
         public int id { get; set; }
-
         [Display(Name = "Empleado")]
         public int id_empleado { get; set; }
+
+        [Display(Name = "Solicitante")]
+        public int id_solicitante { get; set; }
 
         [Required]
         [Display(Name = "Jefe Directo")]
         public int id_jefe_directo { get; set; }
+
+        [Display(Name = "Sistemas")]
+        public Nullable<int> id_sistemas { get; set; }
         [Required]
         [Display(Name = "Acceso a Internet")]
         public int id_internet_tipo { get; set; }
@@ -62,9 +66,12 @@ namespace Portal_2_0.Models
         [StringLength(350, MinimumLength = 5)]
         [Display(Name = "Razón Rechazo")]
         public string comentario_rechazo { get; set; }
-    
+
         public virtual empleados empleados { get; set; }
         public virtual empleados empleados1 { get; set; }
+        public virtual empleados empleados2 { get; set; }
+        public virtual empleados empleados3 { get; set; }
+        public virtual IT_internet_tipo IT_internet_tipo { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_matriz_carpetas> IT_matriz_carpetas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

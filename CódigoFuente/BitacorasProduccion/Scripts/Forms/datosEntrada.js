@@ -111,6 +111,8 @@ function mostrarModalPass() {
 function mostrarModal() {
 
     try {
+        document.getElementById("peso_manual").focus();
+
         $('#myModal').modal('show')
         $('#peso_manual').val('');
         let peso_manual = $('#peso_manual').val();

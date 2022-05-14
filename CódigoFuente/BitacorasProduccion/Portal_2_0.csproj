@@ -4800,6 +4800,9 @@
     <Content Include="Views\Information\BonoTPU.cshtml" />
     <Content Include="Views\Information\Log.cshtml" />
     <Content Include="Views\IT_matriz_requerimientos\CrearMatriz.cshtml" />
+    <Content Include="Views\IT_matriz_requerimientos\ListadoUsuarios.cshtml" />
+    <Content Include="Views\IT_matriz_requerimientos\ListadoSolicitudes.cshtml" />
+    <Content Include="Views\IT_matriz_requerimientos\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

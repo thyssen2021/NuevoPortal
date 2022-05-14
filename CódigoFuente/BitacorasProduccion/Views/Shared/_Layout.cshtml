@@ -78,14 +78,26 @@
                                             <li class="@(ViewBag.SegundoNivel == "home" ? "current-page" : null )"><a href="@Url.Action("Index", "Home")">Inicio</a></li>
                                         </ul>
                                     </li>
-                                    @if (User.IsInRole(TipoRoles.RH))
+                                    @if (User.IsInRole(TipoRoles.RH) || User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CREAR))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "recursos_humanos" ? "active" : null )">
                                             <a><i class="fa fa-child"></i>Recursos Humanos<span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "recursos_humanos" ? "display:block" : null )">
-                                                <li class="@(ViewBag.SegundoNivel == "areas" ? "current-page" : null )"><a href="@Url.Action( "Index", "Areas")">Areas</a></li>
-                                                <li class="@(ViewBag.SegundoNivel == "puestos" ? "current-page" : null )"><a href="@Url.Action( "Index", "Puestos")">Puestos</a></li>
-                                                <li class="@(ViewBag.SegundoNivel == "empleados" ? "current-page" : null )"><a href="@Url.Action( "Index", "Empleados")">Empleados</a></li>
+                                                @if (User.IsInRole(TipoRoles.RH))
+                                                {
+                                                    <h3>Empleados</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "areas" ? "current-page" : null )"><a href="@Url.Action("Index", "Areas")">Areas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "puestos" ? "current-page" : null )"><a href="@Url.Action("Index", "Puestos")">Puestos</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "empleados" ? "current-page" : null )"><a href="@Url.Action("Index", "Empleados")">Empleados</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.RH))
+                                                {
+                                                    <h3>Requerimiento Usuarios</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "ListadoUsuarios" ? "current-page" : null )"><a href="@Url.Action("ListadoUsuarios", "IT_matriz_requerimientos")">Crear Solicitud</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "SolicitudesEnProceso" ? "current-page" : null )"><a href="@Url.Action("SolicitudesEnProceso", "IT_matriz_requerimientos")">Solicitudes en Proceso</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "SolicitudesRechazadas" ? "current-page" : null )"><a href="@Url.Action("SolicitudesRechazadas", "IT_matriz_requerimientos")">Solicitudes Rechazadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "SolicitudesFinalizadas" ? "current-page" : null )"><a href="@Url.Action("SolicitudesFinalizadas", "IT_matriz_requerimientos")">Solicitudes Finalizadas</a></li>
+                                                }
                                             </ul>
                                         </li>
                                     }
@@ -117,11 +129,12 @@
                                             <ul class="nav child_menu">
                                                 @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REGISTRO) || User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REPORTE))
                                                 {
-                                                    <li class="@(ViewBag.SegundoNivel == "produccion_registros" ? "current-page" : null )"><a href="@Url.Action("Index", "ProduccionRegistros")">Bit&aacute;cora</a></li>                                                 
+                                                    <li class="@(ViewBag.SegundoNivel == "produccion_registros" ? "current-page" : null )"><a href="@Url.Action("Index", "ProduccionRegistros")">Bit&aacute;cora</a></li>
+
                                                 }
                                                 @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REGISTRO))
                                                 {
-                                                     <li class="@(ViewBag.SegundoNivel == "produccion_respaldo" ? "current-page" : null )"><a href="@Url.Action("Respaldo", "ProduccionRegistros")">Cargar Respaldo</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "produccion_respaldo" ? "current-page" : null )"><a href="@Url.Action("Respaldo", "ProduccionRegistros")">Cargar Respaldo</a></li>
 
                                                 }
                                                 @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REPORTE))

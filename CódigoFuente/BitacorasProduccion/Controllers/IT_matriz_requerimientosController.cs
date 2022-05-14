@@ -15,10 +15,123 @@ namespace Portal_2_0.Controllers
     {
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
+        // GET: IT_matriz_requerimientos/ListadoUsuarios
+        public ActionResult ListadoUsuarios(string nombre, string num_empleado, int planta_clave = 0, int pagina = 1)
+        {
+            if (TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CREAR))
+            {
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
+                var cantidadRegistrosPorPagina = 20; // parámetro
+
+                var listado = db.empleados
+                       .Where(x =>
+                       ((x.nombre + " " + x.apellido1 + " " + x.apellido2).Contains(nombre) || String.IsNullOrEmpty(nombre))
+                       && (x.numeroEmpleado.Contains(num_empleado) || String.IsNullOrEmpty(num_empleado))
+                       && (x.planta_clave == planta_clave || planta_clave == 0)
+                       )
+                       .OrderBy(x => x.id)
+                       .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                      .Take(cantidadRegistrosPorPagina).ToList();
+
+                var totalDeRegistros = db.empleados
+                      .Where(x =>
+                        ((x.nombre + " " + x.apellido1 + " " + x.apellido2).Contains(nombre) || String.IsNullOrEmpty(nombre))
+                          && (x.numeroEmpleado.Contains(num_empleado) || String.IsNullOrEmpty(num_empleado))
+                       && (x.planta_clave == planta_clave || planta_clave == 0)
+                       )
+                    .Count();
+
+                //para paginación
+
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                routeValues["nombre"] = nombre;
+                routeValues["planta_clave"] = planta_clave;
+                routeValues["num_empleado"] = num_empleado;
+
+                Paginacion paginacion = new Paginacion
+                {
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                ViewBag.planta_clave = AddFirstItem(new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion", planta_clave.ToString()), textoPorDefecto: "-- Todas --");
+                ViewBag.Paginacion = paginacion;
+
+                return View(listado);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+        }
+
+        // GET: IT_matriz_requerimientos/SolicitudesEnProceso
+        public ActionResult SolicitudesEnProceso(int pagina = 1)
+        {
+
+            if (TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CREAR))
+            {
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
+                var cantidadRegistrosPorPagina = 20; // parámetro
+
+              
+                var listado = db.IT_matriz_requerimientos
+                    .Where(x => (x.estatus == IT_MR_Status.ENVIADO_A_JEFE  || x.estatus == IT_MR_Status.ENVIADO_A_IT || x.estatus == IT_MR_Status.CREADO))
+                    .OrderByDescending(x => x.fecha_solicitud)
+                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                   .Take(cantidadRegistrosPorPagina).ToList();
+
+                var totalDeRegistros = db.poliza_manual
+                     .Where(x => (x.estatus == IT_MR_Status.ENVIADO_A_JEFE || x.estatus == IT_MR_Status.ENVIADO_A_IT || x.estatus == IT_MR_Status.CREADO))
+                   .Count();
+
+                //para paginación
+
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                //routeValues["material"] = material;
+
+                Paginacion paginacion = new Paginacion
+                {
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                ViewBag.Paginacion = paginacion;
+                //Viewbags para los botones
+                ViewBag.Details = true;
+                ViewBag.Title = "Listado de Solicitudes en Proceso";
+                ViewBag.SegundoNivel = "SolicitudesEnProceso";
+                ViewBag.Create = true;
+
+             
+
+                return View("ListadoSolicitudes", listado);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
         // GET: IT_matriz_requerimientos/CrearMatriz
         public ActionResult CrearMatriz(int? id)
         {
-            if (TieneRol(TipoRoles.RH))
+            if (TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CREAR))
             {
                 if (id == null)
                 {
@@ -38,7 +151,9 @@ namespace Portal_2_0.Controllers
                     matriz = new IT_matriz_requerimientos
                     {
                         id_empleado = empleados.id,
-                        empleados = empleados
+                        empleados = empleados,
+                        id_jefe_directo = 0, //sin jefe directo
+                        id_sistemas = 0, //sin jefe directo
                     };
 
                 }
@@ -47,9 +162,38 @@ namespace Portal_2_0.Controllers
                 ViewBag.listHardware = db.IT_hardware_tipo.Where(x => x.activo == true).ToList();
                 ViewBag.listSoftware = db.IT_software_tipo.Where(x => x.activo == true).ToList();
                 ViewBag.id_internet_tipo = AddFirstItem(new SelectList(db.IT_internet_tipo.Where(p => p.activo == true), "id", "descripcion"));
-                ViewBag.listComunicaciones = db.IT_comunicaciones_tipo.Where(x => x.activo == true).ToList();
                 ViewBag.listCarpetas = db.IT_carpetas_red.Where(x => x.activo == true).ToList();
                 ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(p => p.activo == true), "id", "ConcatNumEmpleadoNombre"));
+                return View(matriz);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+        // GET: IT_matriz_requerimientos/Details
+        public ActionResult Details(int? id)
+        {
+            if (TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CREAR)|| TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_DETALLES))
+            {
+                if (id == null)
+                {
+                    return View("../Error/BadRequest");
+                }
+                IT_matriz_requerimientos matriz = db.IT_matriz_requerimientos.Find(id);
+                if (matriz == null)
+                {
+                    return View("../Error/NotFound");
+
+                }
+
+                ViewBag.listHardware = db.IT_hardware_tipo.Where(x => x.activo == true).ToList();
+                ViewBag.listSoftware = db.IT_software_tipo.Where(x => x.activo == true).ToList();
+                ViewBag.listComunicaciones = db.IT_comunicaciones_tipo.Where(x => x.activo == true).ToList();
+                ViewBag.listCarpetas = db.IT_carpetas_red.Where(x => x.activo == true).ToList();
+       
                 return View(matriz);
             }
             else
@@ -156,9 +300,12 @@ namespace Portal_2_0.Controllers
 
             if (ModelState.IsValid)
             {
+                empleados solicitante = obtieneEmpleadoLogeado();
+
                 //campos obligatorios 
                 matriz.fecha_solicitud = DateTime.Now;
-                matriz.estatus = IT_MR_Status.CREADO;
+                matriz.estatus = IT_MR_Status.ENVIADO_A_JEFE;
+                matriz.id_solicitante = solicitante.id;
 
                 db.IT_matriz_requerimientos.Add(matriz);
                 db.SaveChanges();

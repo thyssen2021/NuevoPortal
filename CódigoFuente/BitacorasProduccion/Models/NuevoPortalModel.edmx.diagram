@@ -171,9 +171,12 @@
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_comunicaciones_id_it_comunicaciones" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_hardware_id_it_hardware" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_software_id_it_software" />
-        <EntityTypeShape EntityType="Portal_2_0Model.IT_matriz_requerimientos" Width="1.5" PointX="14.625" PointY="54.625" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_matriz_requerimientos" Width="1.5" PointX="24.625" PointY="0.75" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_empleado" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_jefe" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_sistemas" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_solicitante" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_internet_tipo" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_carpetas_id_matriz_requerimientos" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_comunicaciones_id_matriz_requerimientos" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_hardware_id_matriz_requerimientos" />

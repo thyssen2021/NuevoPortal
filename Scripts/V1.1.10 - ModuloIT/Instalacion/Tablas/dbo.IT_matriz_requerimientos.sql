@@ -22,7 +22,9 @@ GO
 CREATE TABLE [IT_matriz_requerimientos](
 	[id] [int] IDENTITY(1,1) NOT NULL,
 	[id_empleado] [int] NOT NULL,
+	[id_solicitante][int] NOT NULL,
 	[id_jefe_directo] [int] NOT NULL,
+	[id_sistemas] [int]  NULL,
 	[id_internet_tipo] [int] NOT NULL,
 	[fecha_solicitud] [datetime] NOT NULL,
 	[fecha_aprobacion_jefe] [datetime] NULL,
@@ -49,9 +51,28 @@ alter table [IT_matriz_requerimientos]
 
   -- restriccion de clave foranea
 alter table [IT_matriz_requerimientos]
+ add constraint FK_IT_mIT_matriz_requerimientos_id_solicitante
+  foreign key (id_solicitante)
+  references empleados(id);
+
+    -- restriccion de clave foranea
+alter table [IT_matriz_requerimientos]
+ add constraint FK_IT_mIT_matriz_requerimientos_id_sistemas
+  foreign key (id_sistemas)
+  references empleados(id);
+
+
+  -- restriccion de clave foranea
+alter table [IT_matriz_requerimientos]
  add constraint FK_IT_mIT_matriz_requerimientos_id_jefe
   foreign key (id_jefe_directo)
   references empleados(id);
+
+    -- restriccion de clave foranea
+alter table [IT_matriz_requerimientos]
+ add constraint FK_IT_mIT_matriz_requerimientos_id_internet_tipo
+  foreign key (id_internet_tipo)
+  references IT_internet_tipo(id);
 
 
 -- restricion check

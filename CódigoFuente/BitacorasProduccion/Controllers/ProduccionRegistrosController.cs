@@ -1152,14 +1152,10 @@ namespace Portal_2_0.Controllers
         {
             var list = new object[1];
 
-            DateTime autorizacion = DateTime.Now.AddDays(-1);
-            if (Session["TiempoAutorizado"] != null)
-                autorizacion = Convert.ToDateTime(Session["TiempoAutorizado"]);
+            empleados e = obtieneEmpleadoLogeado();
 
-            int estado = DateTime.Compare(autorizacion, DateTime.Now);
-
-            //si el tiempo de autorizacion es mayor al tiempo actual
-            if (estado >= 1)
+            //si el usuario esta registrado como operador de blk 2 -silao, omite la verificacion temporalmente 
+            if (db.produccion_operadores.Any(x => x.id_empleado == e.id && x.id_linea == 8))
             {
                 list[0] = new { Status = "OK", Message = "Está autorizado" };
 
@@ -1167,10 +1163,26 @@ namespace Portal_2_0.Controllers
             }
             else
             {
-                list[0] = new { Status = "FALSE", Message = "No está autorizado" };
-                return Json(list, JsonRequestBehavior.AllowGet);
-            }
 
+                DateTime autorizacion = DateTime.Now.AddDays(-1);
+                if (Session["TiempoAutorizado"] != null)
+                    autorizacion = Convert.ToDateTime(Session["TiempoAutorizado"]);
+
+                int estado = DateTime.Compare(autorizacion, DateTime.Now);
+
+                //si el tiempo de autorizacion es mayor al tiempo actual
+                if (estado >= 1)
+                {
+                    list[0] = new { Status = "OK", Message = "Está autorizado" };
+
+                    return Json(list, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    list[0] = new { Status = "FALSE", Message = "No está autorizado" };
+                    return Json(list, JsonRequestBehavior.AllowGet);
+                }
+            }
         }
     }
 }

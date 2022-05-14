@@ -14,8 +14,17 @@ namespace Portal_2_0.Models
     
     public partial class IT_internet_tipo
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public IT_internet_tipo()
+        {
+            this.IT_matriz_requerimientos = new HashSet<IT_matriz_requerimientos>();
+        }
+    
         public int id { get; set; }
         public string descripcion { get; set; }
         public bool activo { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_matriz_requerimientos> IT_matriz_requerimientos { get; set; }
     }
 }
