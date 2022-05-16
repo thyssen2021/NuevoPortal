@@ -151,9 +151,7 @@ namespace Portal_2_0.Controllers
                     matriz = new IT_matriz_requerimientos
                     {
                         id_empleado = empleados.id,
-                        empleados = empleados,
-                        id_jefe_directo = 0, //sin jefe directo
-                        id_sistemas = 0, //sin jefe directo
+                        empleados = empleados,                     
                     };
 
                 }
@@ -161,9 +159,10 @@ namespace Portal_2_0.Controllers
                 //obtiene la lista de hardware
                 ViewBag.listHardware = db.IT_hardware_tipo.Where(x => x.activo == true).ToList();
                 ViewBag.listSoftware = db.IT_software_tipo.Where(x => x.activo == true).ToList();
-                ViewBag.id_internet_tipo = AddFirstItem(new SelectList(db.IT_internet_tipo.Where(p => p.activo == true), "id", "descripcion"));
+                ViewBag.id_internet_tipo = AddFirstItem(new SelectList(db.IT_internet_tipo.Where(p => p.activo == true), "id", "descripcion"),selected:matriz.id_internet_tipo.ToString());
                 ViewBag.listCarpetas = db.IT_carpetas_red.Where(x => x.activo == true).ToList();
-                ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(p => p.activo == true), "id", "ConcatNumEmpleadoNombre"));
+                ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(p => p.activo == true), "id", "ConcatNumEmpleadoNombre"), selected : matriz.id_jefe_directo.ToString());
+                ViewBag.listComunicaciones = db.IT_comunicaciones_tipo.Where(x => x.activo == true).ToList();
                 return View(matriz);
             }
             else
@@ -305,14 +304,41 @@ namespace Portal_2_0.Controllers
                 //campos obligatorios 
                 matriz.fecha_solicitud = DateTime.Now;
                 matriz.estatus = IT_MR_Status.ENVIADO_A_JEFE;
-                matriz.id_solicitante = solicitante.id;
+                matriz.id_solicitante = solicitante.id;              
 
                 db.IT_matriz_requerimientos.Add(matriz);
                 db.SaveChanges();
 
-                TempData["Mensaje"] = new MensajesSweetAlert("Se ha enviado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
+                string mensaje = "Se ha enviado la solicitud correctamente.";
+                TipoMensajesSweetAlerts tipoMensaje = TipoMensajesSweetAlerts.SUCCESS;
 
-                return RedirectToAction("Index", "empleados");
+                try {
+                    //envia correo electronico
+                    EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();                    
+
+                    List<String> correos = new List<string>(); //correos TO
+
+                    //obtiene el empleado asociado
+                    empleados emp = db.empleados.Find(matriz.id_jefe_directo);
+
+                    if (emp!= null && !String.IsNullOrEmpty(emp.correo))
+                        correos.Add(emp.correo); //agrega correo de validador
+
+                    //agrega las referencias al empleados y empleados2
+                    matriz.empleados = db.empleados.Find(matriz.id_empleado);
+                    matriz.empleados3 = solicitante;
+
+                    envioCorreo.SendEmailAsync(correos, "Ha recibido una Solicitud de Requerimiento de Usuario para su aprobación.", envioCorreo.getBody_IT_MR_Notificacion_Jefe_Directo(matriz));
+                } 
+                catch(Exception e) {
+                    mensaje = "Se ha enviado correctamente la solicitud, pero ha surgido un error al mandar el correo electrónico.";
+                    tipoMensaje = TipoMensajesSweetAlerts.WARNING;
+                    EscribeExcepcion(e, Clases.Models.EntradaRegistroEvento.TipoEntradaRegistroEvento.Error);
+                }
+
+                TempData["Mensaje"] = new MensajesSweetAlert(mensaje, tipoMensaje);
+
+                return RedirectToAction("ListadoUsuarios");
             }
 
             empleados empleados = db.empleados.Find(matriz.id_empleado);

@@ -203,12 +203,12 @@
                                                                         <i class="fa fa-gears"></i>
                                                                     </a>
                                                                     <a href="@Url.Action("DatosEntradas", ViewBag.ControllerName, new { id = item.id})" class="btn btn-success btm-sm" title="Editar">
-                                                                        <i class="fa fa-pencil-square-o"></i>
+                                                                        <i class="fa-regular fa-pen-to-square"></i>
                                                                     </a>
                                                                 }
 
                                                                 <a href="@Url.Action("DatosEntradasDetails", ViewBag.ControllerName, new { id = item.id})" class="btn btn-info btm-sm" title="Detalles">
-                                                                    <i class="fa fa-eye"></i>
+                                                                    <i class="fa-regular fa-eye"></i>
                                                                 </a>
                                                                 @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REGISTRO))
                                                                 {
@@ -221,7 +221,7 @@
                                                                     else
                                                                     {
                                                                         <a href="@Url.Action("Disable", ViewBag.ControllerName, new { id = item.id })" class="btn btn-danger" title="Cancelar">
-                                                                            <i class="fa fa-trash-o"></i>
+                                                                            <i class="fa fa-trash-can"></i>
                                                                         </a>
                                                                     }
                                                                 }

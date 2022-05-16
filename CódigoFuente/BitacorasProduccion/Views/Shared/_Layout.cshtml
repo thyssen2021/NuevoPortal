@@ -13,11 +13,12 @@
     <!-- Bootstrap -->
     <link href="@Url.Content("~/Content/vendors/bootstrap/dist/css/bootstrap.min.css")" rel="stylesheet">
     <!-- Font Awesome -->
-    <link href="@Url.Content("~/Content/vendors/font-awesome/css/font-awesome.min.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/fontawesome-free-6.1.1-web/css/all.css")" rel="stylesheet">
     <!-- NProgress -->
     <link href="@Url.Content("~/Content/vendors/nprogress/nprogress.css")" rel="stylesheet">
     <!-- jQuery custom content scroller -->
     <link href="@Url.Content("~/Content/vendors/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.min.css")" rel="stylesheet">
+
 
     <!-- Custom Theme Style -->
     <link href="@Url.Content("~/Content/build/css/custom.css")" rel="stylesheet">
@@ -81,7 +82,7 @@
                                     @if (User.IsInRole(TipoRoles.RH) || User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CREAR))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "recursos_humanos" ? "active" : null )">
-                                            <a><i class="fa fa-child"></i>Recursos Humanos<span class="fa fa-chevron-down"></span></a>
+                                            <a><i class="fa fa-users-rectangle"></i>Recursos Humanos<span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "recursos_humanos" ? "display:block" : null )">
                                                 @if (User.IsInRole(TipoRoles.RH))
                                                 {
@@ -101,6 +102,19 @@
                                             </ul>
                                         </li>
                                     }
+
+                                    @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_AUTORIZAR))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "autorizar_matriz" ? "active" : null )">
+                                            <a><i class="fa fa-clipboard-user"></i>Requerimiento Usuarios<span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "autorizar_matriz" ? "display:block" : null )">
+                                                    <h3>Solicitudes de Requerimientos</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_pendientes_autorizador" ? "current-page" : null )"><a href="@Url.Action("solicitudes_pendientes_autorizador", "IT_matriz_requerimientos")">Solicitudes Pendientes</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_rechazadas_autorizador" ? "current-page" : null )"><a href="@Url.Action("solicitudes_rechazadas_autorizador", "IT_matriz_requerimientos")">Solicitudes Rechazadas</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_autorizadas" ? "current-page" : null )"><a href="@Url.Action("solicitudes_autorizadas", "IT_matriz_requerimientos")">Solicitudes Autorizadas</a></li>
+                                            </ul>
+                                        </li>
+                                    }
                                     @if (User.IsInRole(TipoRoles.ADMIN))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "catalogos_admin" ? "active" : null )">
@@ -114,7 +128,7 @@
                                     @if (User.IsInRole(TipoRoles.REPORTES_PESADAS))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "reporte_pesos" ? "active" : null )">
-                                            <a><i class="fa fa-file-excel-o"></i>Reporte Pesadas <span class="fa fa-chevron-down"></span></a>
+                                            <a><i class="fa fa-file-excel"></i>Reporte Pesadas <span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "reporte_pesos" ? "display:block" : null )">
                                                 <li class="@(ViewBag.SegundoNivel == "reporte_pesos_silao" ? "current-page" : null )"><a href="@Url.Action( "Silao", "ReportePesadas")">Silao</a></li>
                                                 <li class="@(ViewBag.SegundoNivel == "reporte_pesos_puebla" ? "current-page" : null )"><a href="@Url.Action( "Puebla", "ReportePesadas")">Puebla</a></li>
@@ -125,7 +139,7 @@
                                     @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS) || User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REGISTRO) || User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REPORTE))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "bitacoras_produccion" ? "active" : null )">
-                                            <a><i class="fa fa-tasks"></i> Producci&oacute;n<span class="fa fa-chevron-down"></span></a>
+                                            <a><i class="fa fa-industry"></i> Producci&oacute;n<span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu">
                                                 @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REGISTRO) || User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REPORTE))
                                                 {
@@ -170,7 +184,7 @@
                                     @if (User.IsInRole(TipoRoles.PFA_REGISTRO) || User.IsInRole(TipoRoles.PFA_AUTORIZACION) || User.IsInRole(TipoRoles.PFA_VISUALIZACION))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "PFA" ? "active" : null )">
-                                            <a><i class="fa fa-clipboard"></i> Formato PFA<span class="fa fa-chevron-down"></span></a>
+                                            <a><i class="fa fa-truck-fast"></i> Formato PFA<span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu">
 
                                                 @if (User.IsInRole(TipoRoles.PFA_REGISTRO))
@@ -224,7 +238,7 @@
                                         || User.IsInRole(TipoRoles.PM_REPORTES))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "polizas_manuales" ? "active" : null )">
-                                            <a><i class="fa fa-table"></i> P&oacute;lizas Manuales<span class="fa fa-chevron-down"></span></a>
+                                            <a><i class="fa fa-file-invoice-dollar"></i> P&oacute;lizas Manuales<span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu">
 
                                                 @if (User.IsInRole(TipoRoles.PM_REGISTRO))
@@ -417,8 +431,8 @@
                                                 {
                                                     <h3>Centros de Costo</h3>
                                                     @*<li class="@(ViewBag.SegundoNivel == "actual" ? "current-page" : null )"><a href="@Url.Action("Actual", "ResponsableBudget")">ACT FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)))</a></li>
-                                                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
-                                                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
+                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
+                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
                                                     <li class="@(ViewBag.SegundoNivel == "centros" ? "current-page" : null )"><a href="@Url.Action("Centros", "ResponsableBudget")">Mis Centros</a></li>
                                                 }
 

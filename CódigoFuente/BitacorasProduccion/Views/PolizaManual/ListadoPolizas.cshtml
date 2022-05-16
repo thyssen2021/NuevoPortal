@@ -113,44 +113,44 @@
                                                         @if (ViewBag.Autorizar != null && ViewBag.Autorizar)
                                                         {
                                                             <a href="@Url.Action("AutorizarControlling", ViewBag.ControllerName, new { id = item.id })" class="btn btn-info " title="Autorizar/Rechazar">
-                                                                <i class="fa fa-check-circle-o"></i>
+                                                                <i class="fa-duotone fa-circle-info"></i>
                                                             </a>
                                                         }
                                                         @if (ViewBag.AutorizarDireccion != null && ViewBag.AutorizarDireccion)
                                                         {
                                                             <a href="@Url.Action("AutorizarDireccion", ViewBag.ControllerName, new { id = item.id })" class="btn btn-info " title="Autorizar/Rechazar">
-                                                                <i class="fa fa-check-circle-o"></i>
+                                                                <i class="fa-duotone fa-circle-info"></i>
                                                             </a>
                                                         }
                                                         @if (ViewBag.Validar != null && ViewBag.Validar)
                                                         {
                                                             <a href="@Url.Action("ValidarArea", ViewBag.ControllerName, new { id = item.id })" class="btn btn-success " title="Validar">
-                                                                <i class="fa fa-check-circle-o"></i>
+                                                                <i class="fa-duotone fa-circle-info"></i>
                                                             </a>
                                                         }
                                                         @if (ViewBag.Finalizar != null && ViewBag.Finalizar)
                                                         {
                                                             <a href="@Url.Action("EditarContabilidad", ViewBag.ControllerName, new { id = item.id })" class="btn btn-success " title="Finalizar">
-                                                                <i class="fa fa-list-alt"></i>
+                                                                <i class="fa-regular fa-rectangle-list"></i>
                                                             </a>
                                                         }
                                                         @if (ViewBag.EditContabilidad != null && ViewBag.EditContabilidad)
                                                         {
                                                             <a href="@Url.Action("EditarContabilidad", ViewBag.ControllerName, new { id = item.id })" class="btn btn-success" title="Editar">
-                                                                <i class="fa fa-list-alt"></i>
+                                                                <i class="fa-regular fa-rectangle-list"></i>
                                                             </a>
                                                         }
                                                         @if (ViewBag.Edit != null && ViewBag.Edit)
                                                         {
                                                             <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = item.id})" class="btn btn-success " title="Editar">
-                                                                <i class="fa fa-pencil-square-o"></i>
+                                                                <i class="fa-regular fa-pen-to-square"></i>
                                                             </a>
                                                         }
 
                                                         @if (ViewBag.EnviarValidacion != null && ViewBag.EnviarValidacion)
                                                         {
                                                             <a href="@Url.Action("EnviarParaValidacion", ViewBag.ControllerName, new { id = item.id })" class="btn btn-info " title="Enviar">
-                                                                <i class="fa fa-send"></i>
+                                                                <i class="fa-regular fa-paper-plane"></i>
                                                             </a>
                                                         }
 

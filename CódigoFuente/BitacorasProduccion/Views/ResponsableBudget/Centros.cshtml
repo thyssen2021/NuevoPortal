@@ -119,10 +119,10 @@
                                                         <i class="fa fa-info-circle"></i> INFO
                                                     </a>
                                                     <a href="@Url.Action("EditCentroPresente", ViewBag.ControllerName, new { id = item.id})" class="btn btn-success " title="Edit">
-                                                        <i class="fa fa-pencil-square-o"></i> FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))
+                                                        <i class="fa-regular fa-pen-to-square"></i> FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))
                                                     </a>
                                                     <a href="@Url.Action("EditCentroProximo", ViewBag.ControllerName, new { id = item.id})" class="btn btn-success " style="background-color: #4d2bcc" title="Edit">
-                                                        <i class="fa fa-pencil-square-o"></i> FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))
+                                                        <i class="fa-regular fa-pen-to-square"></i> FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))
                                                     </a>
                                                 </td>
 

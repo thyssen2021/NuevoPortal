@@ -23,6 +23,7 @@ namespace Portal_2_0.Models
             this.IT_matriz_hardware = new HashSet<IT_matriz_hardware>();
             this.IT_matriz_software = new HashSet<IT_matriz_software>();
         }
+
         [Display(Name = "Folio")]
         public int id { get; set; }
         [Display(Name = "Empleado")]
@@ -30,43 +31,35 @@ namespace Portal_2_0.Models
 
         [Display(Name = "Solicitante")]
         public int id_solicitante { get; set; }
-
         [Required]
         [Display(Name = "Jefe Directo")]
         public int id_jefe_directo { get; set; }
-
         [Display(Name = "Sistemas")]
         public Nullable<int> id_sistemas { get; set; }
         [Required]
         [Display(Name = "Acceso a Internet")]
         public int id_internet_tipo { get; set; }
-
         [DataType(DataType.Date)]
         [Display(Name = "Fecha de Solicitud")]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public System.DateTime fecha_solicitud { get; set; }
-
         [DataType(DataType.Date)]
         [Display(Name = "Fecha Aprobación")]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public Nullable<System.DateTime> fecha_aprobacion_jefe { get; set; }
-
         [DataType(DataType.Date)]
         [Display(Name = "Fecha de Cierre")]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public Nullable<System.DateTime> fecha_cierre { get; set; }
-
         [Display(Name = "Estado")]
         public string estatus { get; set; }
-
         [StringLength(350, MinimumLength = 5)]
         [Display(Name = "Comentarios Adicionales")]
         public string comentario { get; set; }
-
         [StringLength(350, MinimumLength = 5)]
         [Display(Name = "Razón Rechazo")]
         public string comentario_rechazo { get; set; }
-
+    
         public virtual empleados empleados { get; set; }
         public virtual empleados empleados1 { get; set; }
         public virtual empleados empleados2 { get; set; }

@@ -21,12 +21,12 @@ namespace Portal_2_0.Models
         {
             try
             {
-              
+
                 DelegateEmail sd = DelegateEmailMethod;
 
-                IAsyncResult asyncResult = sd.BeginInvoke(emailsTo,subject,message,null,null);
+                IAsyncResult asyncResult = sd.BeginInvoke(emailsTo, subject, message, null, null);
             }
-          
+
             catch (Exception ex)
             {
                 // TODO: handle exception
@@ -85,8 +85,8 @@ namespace Portal_2_0.Models
 
                 // Send it...
                 //client.SendMailAsync(mail);
-                if(mail.To.Count>0)
-                client.Send(mail);
+                if (mail.To.Count > 0)
+                    client.Send(mail);
             }
             catch (System.Net.Mail.SmtpException emailExeption)
             {
@@ -113,19 +113,19 @@ namespace Portal_2_0.Models
 
             string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/PFA_solicitud_recibida.html"));
 
-            body = body.Replace("#USUARIO",pFA.empleados1.ConcatNombre);
+            body = body.Replace("#USUARIO", pFA.empleados1.ConcatNombre);
             body = body.Replace("#NUM_PFA", pFA.id.ToString());
             body = body.Replace("#REASON_PFA", pFA.PFA_Reason.descripcion);
             body = body.Replace("#TYPE_SHIPMENT", pFA.PFA_Type_shipment.descripcion);
             body = body.Replace("#RESPONSIBLE_PFA", pFA.PFA_Responsible_cost.descripcion);
             body = body.Replace("#SAP_PART_NUMBER", pFA.sap_part_number);
             body = body.Replace("#CUSTOMER_PART_NUMBER", pFA.customer_part_number);
-            body = body.Replace("#TOTAL_PF_COST", "$ "+ pFA.total_pf_cost.ToString());
+            body = body.Replace("#TOTAL_PF_COST", "$ " + pFA.total_pf_cost.ToString());
             body = body.Replace("#TOTAL_ORIGINAL_COST", "$ " + pFA.total_cost.ToString());
             body = body.Replace("#TOTAL_COST_TO_RECOVER", "$ " + pFA.TotalCostToRecover.ToString());
             body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
 
-            body = body.Replace("#ENLACE", domainName+ "/PremiumFreightApproval/AutorizarRechazar/"+pFA.id);
+            body = body.Replace("#ENLACE", domainName + "/PremiumFreightApproval/AutorizarRechazar/" + pFA.id);
 
             return body;
         }
@@ -149,7 +149,7 @@ namespace Portal_2_0.Models
             body = body.Replace("#TOTAL_PF_COST", "$ " + pFA.total_pf_cost.ToString());
             body = body.Replace("#TOTAL_ORIGINAL_COST", "$ " + pFA.total_cost.ToString());
             body = body.Replace("#TOTAL_COST_TO_RECOVER", "$ " + pFA.TotalCostToRecover.ToString());
-            body = body.Replace("#ANIO",  DateTime.Now.Year.ToString());
+            body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
 
             body = body.Replace("#ENLACE", domainName + "/PremiumFreightApproval/RechazadasCapturista/" + pFA.id);
 
@@ -249,7 +249,7 @@ namespace Portal_2_0.Models
             //body = body.Replace("#VALIDADOR", poliza.PM_validadores.empleados.ConcatNombre);
             body = body.Replace("#USUARIO", poliza.empleados3.ConcatNombre); //elaborador
             body = body.Replace("#ELABORA", poliza.empleados3.ConcatNombre); //elaborador
-            body = body.Replace("#NUM_PM", poliza.id.ToString());           
+            body = body.Replace("#NUM_PM", poliza.id.ToString());
             body = body.Replace("#TIPO_PM", poliza.PM_tipo_poliza.descripcion);
             body = body.Replace("#PLANTA", poliza.plantas.descripcion);
             body = body.Replace("#MONEDA", poliza.currency.CocatCurrency);
@@ -276,7 +276,7 @@ namespace Portal_2_0.Models
             //body = body.Replace("#VALIDADOR", poliza.PM_validadores.empleados.ConcatNombre);
             body = body.Replace("#USUARIO", poliza.empleados4.ConcatNombre); //validador
             body = body.Replace("#ELABORA", poliza.empleados3.ConcatNombre); //elaborador
-            body = body.Replace("#NUM_PM", poliza.id.ToString());           
+            body = body.Replace("#NUM_PM", poliza.id.ToString());
             body = body.Replace("#TIPO_PM", poliza.PM_tipo_poliza.descripcion);
             body = body.Replace("#PLANTA", poliza.plantas.descripcion);
             body = body.Replace("#MONEDA", poliza.currency.CocatCurrency);
@@ -352,7 +352,7 @@ namespace Portal_2_0.Models
             //body = body.Replace("#VALIDADOR", poliza.PM_validadores.empleados.ConcatNombre);
             body = body.Replace("#VALIDADOR", poliza.empleados4.ConcatNombre);
             body = body.Replace("#ELABORA", poliza.empleados3.ConcatNombre); //elaborador
-            body = body.Replace("#NUM_PM", poliza.id.ToString());           
+            body = body.Replace("#NUM_PM", poliza.id.ToString());
             body = body.Replace("#TIPO_PM", poliza.PM_tipo_poliza.descripcion);
             body = body.Replace("#PLANTA", poliza.plantas.descripcion);
             body = body.Replace("#MONEDA", poliza.currency.CocatCurrency);
@@ -376,14 +376,14 @@ namespace Portal_2_0.Models
             //body = body.Replace("#VALIDADOR", poliza.PM_validadores.empleados.ConcatNombre);
             body = body.Replace("#RECHAZANTE", nombreRechazante);
             body = body.Replace("#ELABORA", poliza.empleados3.ConcatNombre); //elaborador
-            body = body.Replace("#NUM_PM", poliza.id.ToString());           
+            body = body.Replace("#NUM_PM", poliza.id.ToString());
             body = body.Replace("#TIPO_PM", poliza.PM_tipo_poliza.descripcion);
             body = body.Replace("#PLANTA", poliza.plantas.descripcion);
             body = body.Replace("#MONEDA", poliza.currency.CocatCurrency);
             body = body.Replace("#FECHA_DOCUMENTO", poliza.fecha_documento.ToString("dd/MM/yyyy"));
             body = body.Replace("#DESCRIPCION_PM", poliza.descripcion_poliza);
             body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
-            body = body.Replace("#RECHAZO", String.IsNullOrEmpty(poliza.comentario_rechazo)?String.Empty:poliza.comentario_rechazo);
+            body = body.Replace("#RECHAZO", String.IsNullOrEmpty(poliza.comentario_rechazo) ? String.Empty : poliza.comentario_rechazo);
             body = body.Replace("#ENLACE", domainName + "/PolizaManual/Edit/" + poliza.id);
 
             return body;
@@ -400,7 +400,7 @@ namespace Portal_2_0.Models
             //body = body.Replace("#VALIDADOR", poliza.PM_validadores.empleados.ConcatNombre);
             body = body.Replace("#AUTORIZADOR", poliza.empleados.ConcatNombre);
             body = body.Replace("#ELABORA", poliza.empleados3.ConcatNombre); //elaborador
-            body = body.Replace("#NUM_PM", poliza.id.ToString());           
+            body = body.Replace("#NUM_PM", poliza.id.ToString());
             body = body.Replace("#TIPO_PM", poliza.PM_tipo_poliza.descripcion);
             body = body.Replace("#PLANTA", poliza.plantas.descripcion);
             body = body.Replace("#MONEDA", poliza.currency.CocatCurrency);
@@ -439,13 +439,13 @@ namespace Portal_2_0.Models
         #endregion
 
         #region Ordenes Trabajo
-               
+
         /// <summary>
         /// metodo para obtener el body de email al crear OT
         /// </summary>
-        /// <param name="orden"></param>
+        /// <param name="item"></param>
         /// <returns></returns>
-        public string getBodyCreacionOT(orden_trabajo orden)
+        public string getBodyCreacionOT(orden_trabajo item)
         {
             //obtiene la direccion del dominio
             string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
@@ -454,19 +454,19 @@ namespace Portal_2_0.Models
 
             string tpm = "NO";
 
-            if (orden.tpm)
+            if (item.tpm)
                 tpm = "SÍ";
 
             //body = body.Replace("#VALIDADOR", poliza.PM_validadores.empleados.ConcatNombre);
-            body = body.Replace("#SOLICITANTE", orden.empleados2.ConcatNombre); //elaborador
-            body = body.Replace("#NUM_OT", orden.id.ToString()); //elaborador
-            body = body.Replace("#NIVEL_URGENCIA", OT_nivel_urgencia.DescripcionStatus(orden.nivel_urgencia));
-            body = body.Replace("#TITULO", orden.titulo);
-            body = body.Replace("#DESCRIPCION", orden.descripcion);
-            body = body.Replace("#DEPARTAMENTO", orden.empleados2.Area.descripcion);
+            body = body.Replace("#SOLICITANTE", item.empleados2.ConcatNombre); //elaborador
+            body = body.Replace("#NUM_OT", item.id.ToString()); //elaborador
+            body = body.Replace("#NIVEL_URGENCIA", OT_nivel_urgencia.DescripcionStatus(item.nivel_urgencia));
+            body = body.Replace("#TITULO", item.titulo);
+            body = body.Replace("#DESCRIPCION", item.descripcion);
+            body = body.Replace("#DEPARTAMENTO", item.empleados2.Area.descripcion);
             body = body.Replace("#TPM", tpm);
-            body = body.Replace("#FECHA_SOLICITUD", orden.fecha_solicitud.ToString("dd/MM/yyyy"));           
-            body = body.Replace("#ENLACE", domainName + "/OrdenesTrabajo/Asignar/" + orden.id);
+            body = body.Replace("#FECHA_SOLICITUD", item.fecha_solicitud.ToString("dd/MM/yyyy"));
+            body = body.Replace("#ENLACE", domainName + "/OrdenesTrabajo/Asignar/" + item.id);
             body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
 
             return body;
@@ -574,6 +574,35 @@ namespace Portal_2_0.Models
 
         #endregion
 
+        #region Matriz de Requerimientos
 
+
+        /// <summary>
+        /// metodo para obtener el body de email para el jefe directo
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public string getBody_IT_MR_Notificacion_Jefe_Directo(IT_matriz_requerimientos item)
+        {
+            //obtiene la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+
+            string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/IT_MR_notificacion_jefe.html"));
+
+
+
+            //body = body.Replace("#VALIDADOR", poliza.PM_validadores.empleados.ConcatNombre);
+            body = body.Replace("#SOLICITANTE", item.empleados3.ConcatNombre); //elaborador
+            body = body.Replace("#ID", item.id.ToString()); //elaborador
+            body = body.Replace("#EMPLEADO", item.empleados.ConcatNombre);
+            body = body.Replace("#PUESTO", item.empleados.puesto1.descripcion);
+            body = body.Replace("#COMENTARIO", item.comentario);
+            body = body.Replace("#FECHA_SOLICITUD", item.fecha_solicitud.ToString("dd/MM/yyyy"));
+            body = body.Replace("#ENLACE", domainName + "/IT_matriz_requerimientos/Autorizar/" + item.id);
+            body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
+
+            return body;
+            #endregion
+        }
     }
 }

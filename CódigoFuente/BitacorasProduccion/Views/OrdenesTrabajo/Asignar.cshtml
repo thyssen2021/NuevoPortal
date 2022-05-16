@@ -253,7 +253,7 @@
                                         <i class="fa fa-download"></i>
                                     </a>
                                     <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = Model.id_documento_solicitud, inline=true})" class="btn btn-info btm-sm" target="_blank" title="Inline">
-                                        <i class="fa fa-eye"></i>
+                                        <i class="fa-regular fa-eye"></i>
                                     </a>
                                 </div>
 
@@ -311,11 +311,11 @@
                                 <div class="col-md-12 col-sm-12 offset-md-12">
                                     @if (Model.id_responsable.HasValue)
                                     {
-                                        <button type="button" class="btn btn-warning float-right" onclick="showDialog('reasignar')"> <i class="fa fa-exchange"></i> Reasignar</button>
+                                        <button type="button" class="btn btn-warning float-right" onclick="showDialog('reasignar')"> <i class="fa-regular fa-arrow-right-arrow-left"></i> Reasignar</button>
                                     }
                                     else
                                     {
-                                        <button type="button" class="btn btn-success float-right" onclick="showDialog('asignar')"><i class="fa fa-save"></i> Guardar</button>
+                                        <button type="button" class="btn btn-success float-right" onclick="showDialog('asignar')"><i class="fa-regular fa-floppy-disk"></i> Guardar</button>
                                     }
                                 </div>
                             </div>

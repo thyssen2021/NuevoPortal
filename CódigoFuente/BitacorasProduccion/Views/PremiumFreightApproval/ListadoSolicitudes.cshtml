@@ -118,7 +118,7 @@
                                                         @if (ViewBag.Edit != null && ViewBag.Edit)
                                                         {
                                                             <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = item.id})" class="btn btn-success btm-sm" title="Editar">
-                                                                <i class="fa fa-pencil-square-o"></i>
+                                                                <i class="fa-regular fa-pen-to-square"></i>
                                                             </a>
                                                         }
                                                         @if (ViewBag.Details != null && ViewBag.Details)
@@ -130,7 +130,7 @@
                                                         @if (ViewBag.SendToAuthorizer != null && ViewBag.SendToAuthorizer)
                                                         {
                                                             <a href="@Url.Action("Send", ViewBag.ControllerName, new { id = item.id })" class="btn btn-info btm-sm" title="Enviar">
-                                                                <i class="fa fa-send"></i>
+                                                                <i class="fa-regular fa-paper-plane"></i>
                                                             </a>
                                                         }
                                                         @if (ViewBag.AuthorizarRechazar != null && ViewBag.AuthorizarRechazar)

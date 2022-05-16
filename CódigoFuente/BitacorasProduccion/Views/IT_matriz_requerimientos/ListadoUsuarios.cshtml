@@ -123,15 +123,7 @@
                                                 </th>
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.correo)
-                                                </th>
-
-
-                                                @*<th>
-            Departamento
-        </th>
-        <th>
-            Puesto
-        </th>*@
+                                                </th>                                                
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.activo)
                                                 </th>
@@ -146,7 +138,7 @@
                                                     <a href="@Url.Action("Details", "empleados", new { id = item.id})" class="btn btn-info btn-sm" title="Detalles de empleado">
                                                         <i class="fa fa-info-circle"></i>
                                                     </a>
-                                                    <a href="@Url.Action("CrearMatriz",ViewBag.ControllerName, new { id = item.id})" class="btn btn-primary btn-sm" title="Solicitud de Usuarios">
+                                                    <a href="@Url.Action("CrearMatriz",ViewBag.ControllerName, new { id = item.id})" class="btn @(item.IT_matriz_requerimientos.Count == 0? "btn-primary":"btn-warning") btn-sm" title="@(item.IT_matriz_requerimientos.Count == 0? "Crear solicitud":"Modificación de Usuario")">
                                                         <i class="fa fa-users"></i>
                                                     </a>
                                                 </td>
