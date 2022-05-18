@@ -82,10 +82,30 @@
             <div class="col-md-12 col-sm-12  ">
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2>@ViewBag.Title</h2>
+                        @if (Model.estatus == Bitacoras.Util.IT_MR_Status.FINALIZADO)
+                        {
+                        <h2>Solicitud de Modificaci&oacute;n de Usuario  <i class="fa-regular fa-pen-to-square"  style="color:green"></i></h2>
+                        }
+                        else
+                        {
+                            <h2>Solicitud de Creaci&oacute;n de Usuario <i class="fa-regular fa-plus-square" style="color:green"></i></h2>
+                        }
+
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
+
+                        @if ((Model.estatus == Bitacoras.Util.IT_MR_Status.RECHAZADO) && !String.IsNullOrEmpty(Model.comentario_rechazo))
+                        {
+                            <div class="form-group row">
+                                <span style="color:black"><b> RAZ&Oacute;N DE RECHAZO</b></span>
+
+                                <div class="alert alert-danger col-md-12" role="alert">
+                                    <i class="fa fa-exclamation-triangle" style="color:yellow"></i> @Model.comentario_rechazo
+                                </div>
+                            </div>
+                        }
+
                         <div class="row">
                             <div class="col-sm-12">
                                 <div class="card-box ">
@@ -113,8 +133,7 @@
                             </div>
                         </div>
                         <div class="ln_solid"></div>
-                        @using (Html.BeginForm("CrearMatriz", "IT_matriz_requerimientos", FormMethod.Post, new { @class = "form-horizontal form-label-left", @id = "my_form" }))
-                        { }
+
 
                         @using (Html.BeginForm("CrearMatriz", "IT_matriz_requerimientos", FormMethod.Post, new { @class = "form-horizontal form-label-left", @id = "my_form" }))
                         {
@@ -123,7 +142,10 @@
 
                             @Html.HiddenFor(model => model.id)
                             @Html.HiddenFor(model => model.id_empleado)
+                            @Html.HiddenFor(model => model.comentario_rechazo)
+                            @Html.HiddenFor(model => model.estatus)
 
+                            <input type="hidden" id="id_matriz" name="id_matriz" value="@Model.id" />
 
                             if (!Html.ViewData.ModelState.IsValid)
                             {
@@ -416,7 +438,7 @@
                             <div class="ln_solid"></div>
                             <div class="item form-group">
                                 <div class="col-md-12 col-sm-12 offset-md-12">
-                                    <button type="button" id="btn-ok" class="btn btn-primary btn-lg float-lg-right"><i class="fa fa-paper-plane"></i> Guardar y Enviar</button>
+                                    <button type="button" id="btn-ok" class="btn btn-primary btn-lg float-lg-right"><i class="fa fa-envelopes-bulk"></i> Enviar</button>
                                 </div>
                             </div>
                         }

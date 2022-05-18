@@ -113,19 +113,19 @@
                                                         @if (ViewBag.Autorizar != null && ViewBag.Autorizar)
                                                         {
                                                             <a href="@Url.Action("AutorizarControlling", ViewBag.ControllerName, new { id = item.id })" class="btn btn-info " title="Autorizar/Rechazar">
-                                                                <i class="fa-duotone fa-circle-info"></i>
+                                                                <i class="fa-regular fa-circle-check"></i>
                                                             </a>
                                                         }
                                                         @if (ViewBag.AutorizarDireccion != null && ViewBag.AutorizarDireccion)
                                                         {
                                                             <a href="@Url.Action("AutorizarDireccion", ViewBag.ControllerName, new { id = item.id })" class="btn btn-info " title="Autorizar/Rechazar">
-                                                                <i class="fa-duotone fa-circle-info"></i>
+                                                                <i class="fa-regular fa-circle-check"></i>
                                                             </a>
                                                         }
                                                         @if (ViewBag.Validar != null && ViewBag.Validar)
                                                         {
                                                             <a href="@Url.Action("ValidarArea", ViewBag.ControllerName, new { id = item.id })" class="btn btn-success " title="Validar">
-                                                                <i class="fa-duotone fa-circle-info"></i>
+                                                                <i class="fa-regular fa-circle-check"></i>
                                                             </a>
                                                         }
                                                         @if (ViewBag.Finalizar != null && ViewBag.Finalizar)

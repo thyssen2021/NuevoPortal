@@ -1,10 +1,10 @@
 ﻿@model Portal_2_0.Models.IT_matriz_requerimientos
 
 @{
-    ViewBag.Title = "Requerimientos de Usuario";
-    ViewBag.PrimerNivel = "recursos_humanos";
-    //ViewBag.SegundoNivel = "empleados";
-    ViewBag.ControllerName = "Empleados";
+    ViewBag.Title = "Autorizar Solicitud de Requerimientos de Usuario";
+    ViewBag.PrimerNivel = "autorizar_matriz";
+    ViewBag.SegundoNivel = "solicitudes_pendientes_autorizador";
+    ViewBag.ControllerName = "IT_matriz_requerimientos";
 
     List<Portal_2_0.Models.IT_hardware_tipo> listHardware = (List<Portal_2_0.Models.IT_hardware_tipo>)ViewBag.listHardware;
     List<Portal_2_0.Models.IT_software_tipo> listSoftware = (List<Portal_2_0.Models.IT_software_tipo>)ViewBag.listSoftware;
@@ -93,7 +93,7 @@
                                 <input type="text" class="form-control col-md-12" style="text-align: right; font-weight: bold" value="@Bitacoras.Util.IT_MR_Status.DescripcionStatus(Model.estatus).ToUpper()" readonly>
                             </div>
                         </div>
-                       
+
                         <div class="row">
                             <div class="col-sm-12">
                                 <div class="card-box ">
@@ -198,7 +198,7 @@
                                         </div>
                                         <div class="col-md-8 col-sm-8" id="hardware_@(item.id)_div" style="margin-bottom: 5px; @(Model.IT_matriz_hardware.Any(x => x.id_it_hardware == item.id) == true ? null : "display:none" ) ">
 
-                                            <input type="text" name="hardware_@(item.id)_descripcion" id="hardware_@(item.id)_descripcion" class="form-control col-md-12" value="@Model.IT_matriz_hardware.Where(x=>x.id_it_hardware==item.id).Select(x=>x.descripcion).FirstOrDefault()" rel="tooltip" data-title="@Model.IT_matriz_hardware.Where(x=>x.id_it_hardware==item.id).Select(x=>x.descripcion).FirstOrDefault()" readonly="readonly">
+                                            <input type="text" name="hardware_@(item.id)_descripcion" id="hardware_@(item.id)_descripcion" class="form-control col-md-12" value="@Model.IT_matriz_hardware.Where(x=>x.id_it_hardware==item.id).Select(x=>x.descripcion).FirstOrDefault()" title="@Model.IT_matriz_hardware.Where(x=>x.id_it_hardware==item.id).Select(x=>x.descripcion).FirstOrDefault()" readonly="readonly">
                                             <span class="field-validation-valid text-danger" data-valmsg-for="hardware_@(item.id)_descripcion" data-valmsg-replace="true"></span>
                                         </div>
                                     </div>
@@ -260,7 +260,7 @@
                                             </div>
                                         </div>
                                         <div class="col-md-8 col-sm-8" id="software_@(item.id)_div" style="margin-bottom: 5px; @(Model.IT_matriz_software.Any(x => x.id_it_software == item.id) == true ? null : "display:none" )">
-                                            <input type="text" name="software_@(item.id)_descripcion" id="software_@(item.id)_descripcion" class="form-control col-md-12" value="@Model.IT_matriz_software.Where(x=>x.id_it_software==item.id).Select(x=>x.descripcion).FirstOrDefault()" readonly="readonly" rel="tooltip" data-title="@Model.IT_matriz_software.Where(x=>x.id_it_software==item.id).Select(x=>x.descripcion).FirstOrDefault()">
+                                            <input type="text" name="software_@(item.id)_descripcion" id="software_@(item.id)_descripcion" class="form-control col-md-12" value="@Model.IT_matriz_software.Where(x=>x.id_it_software==item.id).Select(x=>x.descripcion).FirstOrDefault()" readonly="readonly" title="@Model.IT_matriz_software.Where(x=>x.id_it_software==item.id).Select(x=>x.descripcion).FirstOrDefault()">
                                             <span class="field-validation-valid text-danger" data-valmsg-for="software_@(item.id)_descripcion" data-valmsg-replace="true"></span>
                                         </div>
                                     </div>
@@ -319,7 +319,7 @@
                                         </div>
                                         <div class="col-md-8 col-sm-8" id="comunicaciones_@(item.id)_div" style="margin-bottom: 5px; @(Model.IT_matriz_comunicaciones.Any(x => x.id_it_comunicaciones == item.id) == true ? null : "display:none" )">
 
-                                            <input type="text" name="comunicaciones_@(item.id)_descripcion" id="comunicaciones_@(item.id)_descripcion" class="form-control col-md-12" value="@Model.IT_matriz_comunicaciones.Where(x=>x.id_it_comunicaciones==item.id).Select(x=>x.descripcion).FirstOrDefault()" rel="tooltip" data-title="@Model.IT_matriz_comunicaciones.Where(x=>x.id_it_comunicaciones==item.id).Select(x=>x.descripcion).FirstOrDefault()" readonly="readonly">
+                                            <input type="text" name="comunicaciones_@(item.id)_descripcion" id="comunicaciones_@(item.id)_descripcion" class="form-control col-md-12" value="@Model.IT_matriz_comunicaciones.Where(x=>x.id_it_comunicaciones==item.id).Select(x=>x.descripcion).FirstOrDefault()" title="@Model.IT_matriz_comunicaciones.Where(x=>x.id_it_comunicaciones==item.id).Select(x=>x.descripcion).FirstOrDefault()" readonly="readonly">
                                             <span class="field-validation-valid text-danger" data-valmsg-for="comunicaciones_@(item.id)_descripcion" data-valmsg-replace="true"></span>
                                         </div>
                                     </div>
@@ -364,7 +364,7 @@
                                             </div>
                                         </div>
                                         <div class="col-md-8 col-sm-8" id="carpetas_@(item.id)_div" style="margin-bottom: 5px; @(Model.IT_matriz_carpetas.Any(x => x.id_it_carpeta_red == item.id) == true ? null : "display:none" )">
-                                            <input type="text" name="carpetas_@(item.id)_descripcion" id="carpetas_@(item.id)_descripcion" class="form-control col-md-12" value="@Model.IT_matriz_carpetas.Where(x=>x.id_it_carpeta_red==item.id).Select(x=>x.descripcion).FirstOrDefault()" rel="tooltip" data-title="@Model.IT_matriz_carpetas.Where(x=>x.id_it_carpeta_red==item.id).Select(x=>x.descripcion).FirstOrDefault()" readonly="readonly">
+                                            <input type="text" name="carpetas_@(item.id)_descripcion" id="carpetas_@(item.id)_descripcion" class="form-control col-md-12" value="@Model.IT_matriz_carpetas.Where(x=>x.id_it_carpeta_red==item.id).Select(x=>x.descripcion).FirstOrDefault()" title="@Model.IT_matriz_carpetas.Where(x=>x.id_it_carpeta_red==item.id).Select(x=>x.descripcion).FirstOrDefault()" readonly="readonly">
                                             <span class="field-validation-valid text-danger" data-valmsg-for="carpetas_@(item.id)_descripcion" data-valmsg-replace="true"></span>
                                         </div>
                                     </div>
@@ -436,7 +436,7 @@
                                 {
                                     <input type="text" class="form-control col-md-12" value="@Model.fecha_aprobacion_jefe.Value" readonly>
                                 }
-                                else if (!Model.fecha_aprobacion_jefe.HasValue && Model.estatus == Bitacoras.Util.IT_MR_Status.RECHAZADO)
+                                else if (Model.fecha_aprobacion_jefe.HasValue && Model.estatus == Bitacoras.Util.IT_MR_Status.RECHAZADO)
                                 {
                                     <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
                                 }
@@ -467,7 +467,7 @@
                                 {
                                     <input type="text" class="form-control col-md-12" value="@Model.fecha_cierre.Value" readonly>
                                 }
-                                else if (Model.fecha_cierre.HasValue && Model.estatus == Bitacoras.Util.IT_MR_Status.RECHAZADO)
+                                else if (!Model.fecha_cierre.HasValue && Model.estatus == Bitacoras.Util.IT_MR_Status.RECHAZADO)
                                 {
                                     <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
                                 }
@@ -477,7 +477,29 @@
                                 }
                             </div>
                         </div>
+                        @if (Model.estatus == Bitacoras.Util.IT_MR_Status.ENVIADO_A_JEFE && !String.IsNullOrEmpty(Model.comentario_rechazo))
+                        {
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>RAZ&Oacute;N ANTERIOR DE RECHAZO</b></span>
+                            </div>
 
+                            <div class="item form-group">
+                                <div class="col-md-12">
+                                    @Html.TextAreaFor(model => model.comentario_rechazo, new { @class = "form-control", @rows = "5", @autocomplete = "off", @readonly = "readonly" })
+                                </div>
+
+                            </div>
+                        }
+                        <div class="ln_solid"></div>
+                        <div class="item form-group">
+                            <div class="col-md-6 col-sm-6 ">
+                                <button type="submit" class="btn btn-danger btn-lg" onclick="mostrarModalRechazar()">Rechazar</button>
+                            </div>
+                            <div class="col-md-6 col-sm-6 ">
+                                <button type="submit" class="btn btn-success btn-lg float-lg-right" onclick="mostrarModalAutorizar()">Autorizar</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div>
@@ -491,6 +513,76 @@
     </div>
 </div>
 
+
+
+<!-- Modal Autorizar -->
+<div class="modal fade" id="modalAutorizar" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Autorizar</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("Autorizar", null, FormMethod.Post, new { }))
+            {
+                <div class="modal-body">
+                    <div class="form-group row">                     
+                            <h6>¿Desea autorizar esta solicitud y enviarla al Departamento de Sistemas para su procesamiento?</h6>                      
+                    </div>
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(model => model.id)
+
+                    <div class="col-md-12">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Autorizar</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal Rechazar -->
+<div class="modal fade" id="modalRechazar" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Rechazar</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("Rechazar", null, FormMethod.Post, new { }))
+            {
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <h6>¿Realmente desea rechazar esta solicitud?</h6>
+                        <br />
+                        <div class="col-md-12">
+                            <h6>Razón de Rechazo:</h6>
+                        </div>
+                        <div class="col-md-12">
+
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(model => model.id)
+                            @Html.TextAreaFor(model => model.comentario_rechazo, new { @class = "form-control", @rows = "4", @autocomplete = "off", @required = "required" })
+                            @Html.ValidationMessageFor(model => model.comentario_rechazo, "", new { @class = "text-danger" })
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning">Rechazar</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
 
 @section Scripts {
 
@@ -525,6 +617,17 @@
         //agranda el tamaño de la barra
         window.onload = function () {
             clicMenu(1);
+        }
+
+        //muestra el modal de autorizar
+        function mostrarModalAutorizar() {
+            $('#modalAutorizar').modal('show')
+
+        }
+
+        //muestra el modal de rechazar
+        function mostrarModalRechazar() {
+            $('#modalRechazar').modal('show')
         }
 
 

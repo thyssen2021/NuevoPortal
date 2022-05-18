@@ -2,13 +2,21 @@
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewBag.PrimerNivel = "recursos_humanos";
+
     ViewBag.ControllerName = "IT_matriz_requerimientos";
 
     Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
 
     //obtiene los filtros
     Portal_2_0.Models.Paginacion paginacionFiltros = (Portal_2_0.Models.Paginacion)ViewBag.Paginacion;
+
+    string nombre = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["nombre"] != null)
+    {
+        nombre = paginacionFiltros.ValoresQueryString["nombre"].ToString();
+    }
+
+
 }
 
 @section estilos
@@ -59,9 +67,40 @@
                         <div class="row">
                             <div class="col-sm-12">
                                 <div class="card-box">
+                                    @if (ViewBag.estatus != null)
+                                    {
+                                        <div class="form-group">
+                                            @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
+                                            {
+                                            <div class="form-group row ">
+                                                <label class="control-label col-md-1 col-sm-1" for="estatus" style="text-align:right">Estatus:</label>
+                                                <div class="col-md-3 col-sm-3 ">
+                                                    @Html.DropDownList("estatus", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                </div>
+                                                <label class="control-label col-md-1 col-sm-1" for="nombre" style="text-align:right">Empleado:</label>
+                                                <div class="col-md-3 col-sm-3 ">
+                                                    <input type="text" id="nombre" name="nombre" class="form-control" value="@nombre" autocomplete="off" />
+                                                </div>
+                                                <div class="col-md-1 col-sm-1">
+
+                                                    <a href="@Url.Action("solicitudes_sistemas", ViewBag.ControllerName)" class="btn btn-warning" title="Restablecer">
+                                                        <i class="fa fa-refresh"></i> 
+                                                    </a>
+                                                </div>
+                                                <div class="col-md-1 col-sm-1">
+                                                    <input type="submit" value="Filtrar" class="btn btn-info float-right" />
+                                                </div>
+                                            </div>
+
+                                            }
+                                            <hr />
+
+                                        </div>
+                                    }
+
                                     <div class="form-group">
                                         @if (ViewBag.Create != null && ViewBag.Create)
-                                        {                                          
+                                        {
                                             <a href="@Url.Action("ListadoUsuarios", ViewBag.ControllerName)" class="btn btn-success" style="color:white" title="Crear nueva solicitud">
                                                 <i class="fa fa-plus-square"></i> Crear Nueva Solicitud
                                             </a>
@@ -95,36 +134,55 @@
                                         <tbody>
                                             @foreach (var item in Model)
                                             {
-                                            <tr>
-                                                <td>
+                                                <tr>
+                                                    <td>
 
-                                                    @if (ViewBag.Details != null && ViewBag.Details)
-                                                    {
-                                                        <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.id })" class="btn btn-secondary " title="Detalles">
-                                                            <i class="fa fa-info-circle"></i>
-                                                        </a>
-                                                    }
-                                                </td>
-                                                <td style="text-align:center">
-                                                    @Html.DisplayFor(modelItem => item.id)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.empleados.numeroEmpleado)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.empleados.ConcatNombre)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.empleados3.ConcatNombre)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.fecha_solicitud)
-                                                </td>
-                                                <td>
-                                                    @Bitacoras.Util.IT_MR_Status.DescripcionStatus(item.estatus)
-                                                </td>
+                                                        @if (ViewBag.Autorizar != null && ViewBag.Autorizar)
+                                                        {
+                                                            <a href="@Url.Action("Autorizar", ViewBag.ControllerName, new { id = item.id })" class="btn btn-primary " rel="tooltip" data-title="Autorizar">
+                                                                <i class="fa fa-file-circle-check"></i>
+                                                            </a>
+                                                        }
+                                                        @if (ViewBag.Edit != null && ViewBag.Edit)
+                                                        {
+                                                            <a href="@Url.Action("CrearMatriz", ViewBag.ControllerName, new { id = item.id_empleado })" class="btn btn-success" rel="tooltip" data-title="Editar Solicitud">
+                                                                <i class="fa fa-file-pen"></i>
+                                                            </a>
+                                                        }
+                                                        @if (ViewBag.Sistemas != null && ViewBag.Sistemas && item.estatus == Bitacoras.Util.IT_MR_Status.ENVIADO_A_IT)
+                                                        {
+                                                            <a href="@Url.Action("Cerrar", ViewBag.ControllerName, new { id = item.id })" class="btn btn-success" rel="tooltip" data-title="Cerrar Solicitud">
+                                                                <i class="fa-solid fa-list-check" ></i>
+                                                            </a>
+                                                        }
+                                                        @if (ViewBag.Details != null && ViewBag.Details)
+                                                        {
+                                                            <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.id })" class="btn btn-secondary " rel="tooltip" data-title="Detalles">
+                                                                <i class="fa fa-info-circle"></i>
+                                                            </a>
+                                                        }
 
-                                            </tr>
+                                                    </td>
+                                                    <td style="text-align:center">
+                                                        @Html.DisplayFor(modelItem => item.id)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.empleados.numeroEmpleado)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.empleados.ConcatNombre)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.empleados3.ConcatNombre)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.fecha_solicitud)
+                                                    </td>
+                                                    <td>
+                                                        @Bitacoras.Util.IT_MR_Status.DescripcionStatus(item.estatus)
+                                                    </td>
+
+                                                </tr>
                                             }
 
                                         </tbody>
@@ -160,25 +218,25 @@
             </div>
             @using (Html.BeginForm("Create", null, FormMethod.Get))
             {
-            <div class="modal-body">
-            <div class="form-group row">
-                <h6>¿Desea utilizar una p&oacute;liza modelo?</h6>
-            </div>
-                @if (ViewBag.id_poliza_modelo != null)
-                {
+                <div class="modal-body">
                     <div class="form-group row">
-                        <div class="col-md-12">
-                            @Html.DropDownList("id_poliza_modelo", null, htmlAttributes: new { @class = "select2bs4 col-md-12", @style = "width:100%" })
-                        </div>
+                        <h6>¿Desea utilizar una p&oacute;liza modelo?</h6>
                     </div>
-                }
-            </div>
+                    @if (ViewBag.id_poliza_modelo != null)
+                    {
+                        <div class="form-group row">
+                            <div class="col-md-12">
+                                @Html.DropDownList("id_poliza_modelo", null, htmlAttributes: new { @class = "select2bs4 col-md-12", @style = "width:100%" })
+                            </div>
+                        </div>
+                    }
+                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Continuar</button>
                 </div>
             }
-            </div>
+        </div>
     </div>
 </div>
 @section scripts

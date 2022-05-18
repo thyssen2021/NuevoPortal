@@ -602,7 +602,93 @@ namespace Portal_2_0.Models
             body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
 
             return body;
-            #endregion
+         
         }
+
+        /// <summary>
+        /// metodo para obtener el body de email de notificación de autorización para solicitante
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public string getBody_IT_MR_Notificacion_Autorizado_Solicitante(IT_matriz_requerimientos item)
+        {
+            //obtiene la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+
+            string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/IT_MR_notificacion_autorizacion_solicitante.html"));
+
+                     
+            body = body.Replace("#JEFE", item.empleados1.ConcatNombre); //elaborador
+            body = body.Replace("#ID", item.id.ToString()); //jefe
+            body = body.Replace("#ESTADO", IT_MR_Status.DescripcionStatus(item.estatus));
+            body = body.Replace("#EMPLEADO", item.empleados.ConcatNombre);
+            body = body.Replace("#PUESTO", item.empleados.puesto1.descripcion);
+            body = body.Replace("#COMENTARIO", item.comentario);
+            body = body.Replace("#FECHA_SOLICITUD", item.fecha_solicitud.ToString("dd/MM/yyyy"));
+            body = body.Replace("#ENLACE", domainName + "/IT_matriz_requerimientos/Details/" + item.id);
+            body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
+
+            return body;
+
+        }
+
+        /// <summary>
+        /// metodo para obtener el body de email de notificación de autorización para sistemas
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public string getBody_IT_MR_Notificacion_Autorizado_Sistemas(IT_matriz_requerimientos item)
+        {
+            //obtiene la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+
+            string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/IT_MR_notificacion_autorizacion_sistemas.html"));
+
+
+            //body = body.Replace("#VALIDADOR", poliza.PM_validadores.empleados.ConcatNombre);
+            body = body.Replace("#JEFE", item.empleados1.ConcatNombre); //jefe
+            body = body.Replace("#ESTADO", IT_MR_Status.DescripcionStatus(item.estatus));
+            body = body.Replace("#ID", item.id.ToString()); //elaborador
+            body = body.Replace("#EMPLEADO", item.empleados.ConcatNombre);
+            body = body.Replace("#PUESTO", item.empleados.puesto1.descripcion);
+            body = body.Replace("#COMENTARIO", item.comentario);
+            body = body.Replace("#FECHA_SOLICITUD", item.fecha_solicitud.ToString("dd/MM/yyyy"));
+            body = body.Replace("#ENLACE", domainName + "/IT_matriz_requerimientos/Cerrar/" + item.id);
+            body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
+
+            return body;
+
+        }
+
+        /// <summary>
+        /// metodo para obtener el body de email de notificación de rechazo para solicitante
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public string getBody_IT_MR_Notificacion_Rechazado_Solicitante(IT_matriz_requerimientos item)
+        {
+            //obtiene la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+
+            string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/IT_MR_notificacion_rechazo_solicitante.html"));
+
+
+            //body = body.Replace("#VALIDADOR", poliza.PM_validadores.empleados.ConcatNombre);
+            body = body.Replace("#JEFE", item.empleados1.ConcatNombre); //jefe
+            body = body.Replace("#ESTADO", IT_MR_Status.DescripcionStatus(item.estatus));
+            body = body.Replace("#ID", item.id.ToString()); //elaborador
+            body = body.Replace("#EMPLEADO", item.empleados.ConcatNombre);
+            body = body.Replace("#PUESTO", item.empleados.puesto1.descripcion);
+            body = body.Replace("#COMENTARIO", item.comentario);
+            body = body.Replace("#RECHAZO", item.comentario_rechazo);
+            body = body.Replace("#FECHA_SOLICITUD", item.fecha_solicitud.ToString("dd/MM/yyyy"));
+            body = body.Replace("#ENLACE", domainName + "/IT_matriz_requerimientos/CrearMatriz/" + item.id_empleado);
+            body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
+
+            return body;
+
+        }
+
+        #endregion
     }
 }

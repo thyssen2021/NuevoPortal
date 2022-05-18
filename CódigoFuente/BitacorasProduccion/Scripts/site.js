@@ -97,6 +97,10 @@ if (typeof this.jQuery.validator !== 'undefined' && this.jQuery.validator.messag
     });
 
 }
+
+//inicia los tooltip
+$('[rel=tooltip]').tooltip();
+
 // jQuery plugin to prevent double submission of forms
 jQuery.fn.preventDoubleSubmission = function () {
     $(this).on('submit', function (e) {

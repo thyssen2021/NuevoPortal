@@ -1,10 +1,10 @@
-﻿@model Portal_2_0.Models.IT_matriz_requerimientos
+﻿@model Portal_2_0.Models.IT_matriz_requerimientosCerrarModel
 
 @{
-    ViewBag.Title = "Requerimientos de Usuario";
-    ViewBag.PrimerNivel = "recursos_humanos";
-    //ViewBag.SegundoNivel = "empleados";
-    ViewBag.ControllerName = "Empleados";
+    ViewBag.Title = "Cerrar Solicitud de Requerimientos de Usuario";
+    ViewBag.PrimerNivel = "sistemas";
+    ViewBag.SegundoNivel = "solicitudes_usuarios_sistemas";
+    ViewBag.ControllerName = "IT_matriz_requerimientos";
 
     List<Portal_2_0.Models.IT_hardware_tipo> listHardware = (List<Portal_2_0.Models.IT_hardware_tipo>)ViewBag.listHardware;
     List<Portal_2_0.Models.IT_software_tipo> listSoftware = (List<Portal_2_0.Models.IT_software_tipo>)ViewBag.listSoftware;
@@ -90,10 +90,10 @@
                                 <b>Estado</b>
                             </label>
                             <div class="col-md-3">
-                                <input type="text" class="form-control col-md-12" style="text-align: right; font-weight: bold" value="@Bitacoras.Util.IT_MR_Status.DescripcionStatus(Model.estatus).ToUpper()" readonly>
+                                <input type="text" class="form-control col-md-12" style="text-align: right; font-weight: bold" value="@Bitacoras.Util.IT_MR_Status.DescripcionStatus(Model.matriz.estatus).ToUpper()" readonly>
                             </div>
                         </div>
-                       
+
                         <div class="row">
                             <div class="col-sm-12">
                                 <div class="card-box ">
@@ -101,20 +101,20 @@
                                         <span style="color:black"><b>1.- INFORMACI&Oacute;N DEL EMPLEADO</b></span>
                                     </div>
                                     <dl class="row">
-                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.nombre)</dt>
-                                        <dd class="col-sm-10">@Model.empleados.ConcatNombre</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.matriz.empleados.nombre)</dt>
+                                        <dd class="col-sm-10">@Model.matriz.empleados.ConcatNombre</dd>
                                         <dt class="col-sm-2">Planta</dt>
-                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.plantas.descripcion)</dd>
-                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.Area)</dt>
-                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.Area.descripcion)</dd>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.matriz.empleados.plantas.descripcion)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.matriz.empleados.Area)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.matriz.empleados.Area.descripcion)</dd>
                                         <dt class="col-sm-2">Puesto</dt>
-                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.puesto1.descripcion)</dd>
-                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.numeroEmpleado)</dt>
-                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.numeroEmpleado)</dd>
-                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.ingresoFecha)</dt>
-                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.ingresoFecha)</dd>
-                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.nueva_fecha_nacimiento)</dt>
-                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.nueva_fecha_nacimiento)</dd>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.matriz.empleados.puesto1.descripcion)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.matriz.empleados.numeroEmpleado)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.matriz.empleados.numeroEmpleado)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.matriz.empleados.ingresoFecha)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.matriz.empleados.ingresoFecha)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.matriz.empleados.nueva_fecha_nacimiento)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.matriz.empleados.nueva_fecha_nacimiento)</dd>
 
                                     </dl>
                                 </div>
@@ -133,23 +133,23 @@
                         </div>
 
                         <div class="form-group row">
-                            @Html.LabelFor(model => model.id_jefe_directo, new { @class = "control-label col-md-1" })
+                            @Html.LabelFor(model => model.matriz.id_jefe_directo, new { @class = "control-label col-md-1" })
                             <div class="col-md-6 col-sm-6 ">
-                                <input type="text" id="id_jefe_directo" class="form-control" value="@Model.empleados1.ConcatNombre" readonly="readonly" />
+                                <input type="text" id="id_jefe_directo" class="form-control" value="@Model.matriz.empleados1.ConcatNombre" readonly="readonly" />
                             </div>
                             <label class="control-label col-md-2 col-sm-2" for="planta_jefe" style="text-align:right">Planta</label>
                             <div class="col-md-3 col-sm-3">
-                                <input type="text" id="planta_jefe" class="form-control" value="@( Model.empleados1!=null && Model.empleados1.plantas!=null ? Model.empleados1.plantas.descripcion : "NO DISPONIBLE" )" readonly="readonly" />
+                                <input type="text" id="planta_jefe" class="form-control" value="@( Model.matriz.empleados1!=null && Model.matriz.empleados1.plantas!=null ? Model.matriz.empleados1.plantas.descripcion : "NO DISPONIBLE" )" readonly="readonly" />
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="control-label col-md-1 col-sm-1" for="area_jefe">Area</label>
                             <div class="col-md-5 col-sm-5 ">
-                                <input type="text" id="area_jefe" class="form-control" value="@( Model.empleados1!=null && Model.empleados1.Area!=null ? Model.empleados1.Area.descripcion : "NO DISPONIBLE" )" readonly="readonly" />
+                                <input type="text" id="area_jefe" class="form-control" value="@( Model.matriz.empleados1!=null && Model.matriz.empleados1.Area!=null ? Model.matriz.empleados1.Area.descripcion : "NO DISPONIBLE" )" readonly="readonly" />
                             </div>
                             <label class="control-label col-md-1 col-sm-1" for="puesto_jefe" style="text-align:right">Puesto</label>
                             <div class="col-md-5 col-sm-5 ">
-                                <input type="text" id="puesto_jefe" class="form-control" value="@( Model.empleados1!=null && Model.empleados1.puesto1!=null ? Model.empleados1.puesto1.descripcion : "NO DISPONIBLE" )" readonly="readonly" />
+                                <input type="text" id="puesto_jefe" class="form-control" value="@( Model.matriz.empleados1!=null && Model.matriz.empleados1.puesto1!=null ? Model.matriz.empleados1.puesto1.descripcion : "NO DISPONIBLE" )" readonly="readonly" />
                             </div>
                         </div>
 
@@ -179,7 +179,7 @@
                                         <div class="col-md-12 col-sm-12">
                                             <div class="checkbox">
                                                 <label>
-                                                    <input type="checkbox" name="SelectedHardware" value="hardware_@item.id" @(Model.IT_matriz_hardware.Any(x => x.id_it_hardware == item.id) == true ? "checked" : null ) disabled> @item.descripcion
+                                                    <input type="checkbox" name="SelectedHardware" value="hardware_@item.id" @(Model.matriz.IT_matriz_hardware.Any(x => x.id_it_hardware == item.id) == true ? "checked" : null ) disabled> @item.descripcion
                                                 </label>
                                             </div>
                                         </div>
@@ -192,13 +192,13 @@
                                         <div class="col-md-4 col-sm-4">
                                             <div class="checkbox">
                                                 <label>
-                                                    <input type="checkbox" name="SelectedHardware" value="hardware_@item.id" @(Model.IT_matriz_hardware.Any(x => x.id_it_hardware == item.id) == true ? "checked" : null ) disabled> @item.descripcion
+                                                    <input type="checkbox" name="SelectedHardware" value="hardware_@item.id" @(Model.matriz.IT_matriz_hardware.Any(x => x.id_it_hardware == item.id) == true ? "checked" : null ) disabled> @item.descripcion
                                                 </label>
                                             </div>
                                         </div>
-                                        <div class="col-md-8 col-sm-8" id="hardware_@(item.id)_div" style="margin-bottom: 5px; @(Model.IT_matriz_hardware.Any(x => x.id_it_hardware == item.id) == true ? null : "display:none" ) ">
+                                        <div class="col-md-8 col-sm-8" id="hardware_@(item.id)_div" style="margin-bottom: 5px; @(Model.matriz.IT_matriz_hardware.Any(x => x.id_it_hardware == item.id) == true ? null : "display:none" ) ">
 
-                                            <input type="text" name="hardware_@(item.id)_descripcion" id="hardware_@(item.id)_descripcion" class="form-control col-md-12" value="@Model.IT_matriz_hardware.Where(x=>x.id_it_hardware==item.id).Select(x=>x.descripcion).FirstOrDefault()" rel="tooltip" data-title="@Model.IT_matriz_hardware.Where(x=>x.id_it_hardware==item.id).Select(x=>x.descripcion).FirstOrDefault()" readonly="readonly">
+                                            <input type="text" name="hardware_@(item.id)_descripcion" id="hardware_@(item.id)_descripcion" class="form-control col-md-12" value="@Model.matriz.IT_matriz_hardware.Where(x=>x.id_it_hardware==item.id).Select(x=>x.descripcion).FirstOrDefault()" rel="tooltip" data-title="@Model.matriz.IT_matriz_hardware.Where(x=>x.id_it_hardware==item.id).Select(x=>x.descripcion).FirstOrDefault()" readonly="readonly">
                                             <span class="field-validation-valid text-danger" data-valmsg-for="hardware_@(item.id)_descripcion" data-valmsg-replace="true"></span>
                                         </div>
                                     </div>
@@ -242,7 +242,7 @@
                                         <div class="col-md-12 col-sm-12">
                                             <div class="checkbox">
                                                 <label>
-                                                    <input type="checkbox" name="SelectedSoftware" value="software_@item.id" @(Model.IT_matriz_software.Any(x => x.id_it_software == item.id) == true ? "checked" : null ) disabled> @item.descripcion
+                                                    <input type="checkbox" name="SelectedSoftware" value="software_@item.id" @(Model.matriz.IT_matriz_software.Any(x => x.id_it_software == item.id) == true ? "checked" : null ) disabled> @item.descripcion
                                                 </label>
                                             </div>
                                         </div>
@@ -255,12 +255,12 @@
                                         <div class="col-md-4 col-sm-4">
                                             <div class="checkbox">
                                                 <label>
-                                                    <input type="checkbox" name="SelectedSoftware" value="software_@item.id" @(Model.IT_matriz_software.Any(x => x.id_it_software == item.id) == true ? "checked" : null ) disabled> @item.descripcion
+                                                    <input type="checkbox" name="SelectedSoftware" value="software_@item.id" @(Model.matriz.IT_matriz_software.Any(x => x.id_it_software == item.id) == true ? "checked" : null ) disabled> @item.descripcion
                                                 </label>
                                             </div>
                                         </div>
-                                        <div class="col-md-8 col-sm-8" id="software_@(item.id)_div" style="margin-bottom: 5px; @(Model.IT_matriz_software.Any(x => x.id_it_software == item.id) == true ? null : "display:none" )">
-                                            <input type="text" name="software_@(item.id)_descripcion" id="software_@(item.id)_descripcion" class="form-control col-md-12" value="@Model.IT_matriz_software.Where(x=>x.id_it_software==item.id).Select(x=>x.descripcion).FirstOrDefault()" readonly="readonly" rel="tooltip" data-title="@Model.IT_matriz_software.Where(x=>x.id_it_software==item.id).Select(x=>x.descripcion).FirstOrDefault()">
+                                        <div class="col-md-8 col-sm-8" id="software_@(item.id)_div" style="margin-bottom: 5px; @(Model.matriz.IT_matriz_software.Any(x => x.id_it_software == item.id) == true ? null : "display:none" )">
+                                            <input type="text" name="software_@(item.id)_descripcion" id="software_@(item.id)_descripcion" class="form-control col-md-12" value="@Model.matriz.IT_matriz_software.Where(x=>x.id_it_software==item.id).Select(x=>x.descripcion).FirstOrDefault()" readonly="readonly" rel="tooltip" data-title="@Model.matriz.IT_matriz_software.Where(x=>x.id_it_software==item.id).Select(x=>x.descripcion).FirstOrDefault()">
                                             <span class="field-validation-valid text-danger" data-valmsg-for="software_@(item.id)_descripcion" data-valmsg-replace="true"></span>
                                         </div>
                                     </div>
@@ -277,9 +277,9 @@
                         </div>
 
                         <div class="form-group row">
-                            @Html.LabelFor(model => model.id_internet_tipo, new { @class = "control-label col-md-2" })
+                            @Html.LabelFor(model => model.matriz.id_internet_tipo, new { @class = "control-label col-md-2" })
                             <div class="col-md-4 col-sm-4 ">
-                                <input type="text" id="id_internet_tipo" class="form-control" value="@(Model.IT_internet_tipo!=null ? Model.IT_internet_tipo.descripcion : "NO DISPONIBLE" )" readonly="readonly" />
+                                <input type="text" id="id_internet_tipo" class="form-control" value="@(Model.matriz.IT_internet_tipo!=null ? Model.matriz.IT_internet_tipo.descripcion : "NO DISPONIBLE" )" readonly="readonly" />
                             </div>
                         </div>
 
@@ -300,7 +300,7 @@
                                         <div class="col-md-12 col-sm-12">
                                             <div class="checkbox">
                                                 <label>
-                                                    <input type="checkbox" name="SelectedComunicaciones" value="comunicaciones_@item.id" @(Model.IT_matriz_comunicaciones.Any(x => x.id_it_comunicaciones == item.id) == true ? "checked" : null ) disabled> @item.descripcion
+                                                    <input type="checkbox" name="SelectedComunicaciones" value="comunicaciones_@item.id" @(Model.matriz.IT_matriz_comunicaciones.Any(x => x.id_it_comunicaciones == item.id) == true ? "checked" : null ) disabled> @item.descripcion
                                                 </label>
                                             </div>
                                         </div>
@@ -313,13 +313,13 @@
                                         <div class="col-md-4 col-sm-4">
                                             <div class="checkbox">
                                                 <label>
-                                                    <input type="checkbox" name="SelectedComunicaciones" value="comunicaciones_@item.id" @(Model.IT_matriz_comunicaciones.Any(x => x.id_it_comunicaciones == item.id) == true ? "checked" : null ) disabled> @item.descripcion
+                                                    <input type="checkbox" name="SelectedComunicaciones" value="comunicaciones_@item.id" @(Model.matriz.IT_matriz_comunicaciones.Any(x => x.id_it_comunicaciones == item.id) == true ? "checked" : null ) disabled> @item.descripcion
                                                 </label>
                                             </div>
                                         </div>
-                                        <div class="col-md-8 col-sm-8" id="comunicaciones_@(item.id)_div" style="margin-bottom: 5px; @(Model.IT_matriz_comunicaciones.Any(x => x.id_it_comunicaciones == item.id) == true ? null : "display:none" )">
+                                        <div class="col-md-8 col-sm-8" id="comunicaciones_@(item.id)_div" style="margin-bottom: 5px; @(Model.matriz.IT_matriz_comunicaciones.Any(x => x.id_it_comunicaciones == item.id) == true ? null : "display:none" )">
 
-                                            <input type="text" name="comunicaciones_@(item.id)_descripcion" id="comunicaciones_@(item.id)_descripcion" class="form-control col-md-12" value="@Model.IT_matriz_comunicaciones.Where(x=>x.id_it_comunicaciones==item.id).Select(x=>x.descripcion).FirstOrDefault()" rel="tooltip" data-title="@Model.IT_matriz_comunicaciones.Where(x=>x.id_it_comunicaciones==item.id).Select(x=>x.descripcion).FirstOrDefault()" readonly="readonly">
+                                            <input type="text" name="comunicaciones_@(item.id)_descripcion" id="comunicaciones_@(item.id)_descripcion" class="form-control col-md-12" value="@Model.matriz.IT_matriz_comunicaciones.Where(x=>x.id_it_comunicaciones==item.id).Select(x=>x.descripcion).FirstOrDefault()" rel="tooltip" data-title="@Model.matriz.IT_matriz_comunicaciones.Where(x=>x.id_it_comunicaciones==item.id).Select(x=>x.descripcion).FirstOrDefault()" readonly="readonly">
                                             <span class="field-validation-valid text-danger" data-valmsg-for="comunicaciones_@(item.id)_descripcion" data-valmsg-replace="true"></span>
                                         </div>
                                     </div>
@@ -346,7 +346,7 @@
                                         <div class="col-md-12 col-sm-12">
                                             <div class="checkbox">
                                                 <label>
-                                                    <input type="checkbox" name="SelectedCarpetas" value="carpetas_@item.id" @(Model.IT_matriz_carpetas.Any(x => x.id_it_carpeta_red == item.id) == true ? "checked" : null ) disabled> @item.descripcion
+                                                    <input type="checkbox" name="SelectedCarpetas" value="carpetas_@item.id" @(Model.matriz.IT_matriz_carpetas.Any(x => x.id_it_carpeta_red == item.id) == true ? "checked" : null ) disabled> @item.descripcion
                                                 </label>
                                             </div>
                                         </div>
@@ -359,12 +359,12 @@
                                         <div class="col-md-4 col-sm-4">
                                             <div class="checkbox">
                                                 <label>
-                                                    <input type="checkbox" name="SelectedCarpetas" value="carpetas_@item.id" @(Model.IT_matriz_carpetas.Any(x => x.id_it_carpeta_red == item.id) == true ? "checked" : null ) disabled> @item.descripcion
+                                                    <input type="checkbox" name="SelectedCarpetas" value="carpetas_@item.id" @(Model.matriz.IT_matriz_carpetas.Any(x => x.id_it_carpeta_red == item.id) == true ? "checked" : null ) disabled> @item.descripcion
                                                 </label>
                                             </div>
                                         </div>
-                                        <div class="col-md-8 col-sm-8" id="carpetas_@(item.id)_div" style="margin-bottom: 5px; @(Model.IT_matriz_carpetas.Any(x => x.id_it_carpeta_red == item.id) == true ? null : "display:none" )">
-                                            <input type="text" name="carpetas_@(item.id)_descripcion" id="carpetas_@(item.id)_descripcion" class="form-control col-md-12" value="@Model.IT_matriz_carpetas.Where(x=>x.id_it_carpeta_red==item.id).Select(x=>x.descripcion).FirstOrDefault()" rel="tooltip" data-title="@Model.IT_matriz_carpetas.Where(x=>x.id_it_carpeta_red==item.id).Select(x=>x.descripcion).FirstOrDefault()" readonly="readonly">
+                                        <div class="col-md-8 col-sm-8" id="carpetas_@(item.id)_div" style="margin-bottom: 5px; @(Model.matriz.IT_matriz_carpetas.Any(x => x.id_it_carpeta_red == item.id) == true ? null : "display:none" )">
+                                            <input type="text" name="carpetas_@(item.id)_descripcion" id="carpetas_@(item.id)_descripcion" class="form-control col-md-12" value="@Model.matriz.IT_matriz_carpetas.Where(x=>x.id_it_carpeta_red==item.id).Select(x=>x.descripcion).FirstOrDefault()" rel="tooltip" data-title="@Model.matriz.IT_matriz_carpetas.Where(x=>x.id_it_carpeta_red==item.id).Select(x=>x.descripcion).FirstOrDefault()" readonly="readonly">
                                             <span class="field-validation-valid text-danger" data-valmsg-for="carpetas_@(item.id)_descripcion" data-valmsg-replace="true"></span>
                                         </div>
                                     </div>
@@ -381,8 +381,8 @@
                         </div>
                         <div class="item form-group">
                             <div class="col-md-12">
-                                @Html.TextAreaFor(model => model.comentario, new { @class = "form-control", @rows = "5", @autocomplete = "off", @readonly = "readonly" })
-                                @Html.ValidationMessageFor(model => model.comentario, "", new { @class = "text-danger" })
+                                @Html.TextAreaFor(model => model.matriz.comentario, new { @class = "form-control", @rows = "5", @autocomplete = "off", @readonly = "readonly" })
+                                @Html.ValidationMessageFor(model => model.matriz.comentario, "", new { @class = "text-danger" })
                             </div>
                         </div>
                         <div class="ln_solid"></div>
@@ -408,35 +408,35 @@
 
                         <div class="form-group row">
                             <!-- Solicitantes -->
-                            @Html.LabelFor(model => model.id_solicitante, new { @class = "control-label col-md-1" })
-                            <input type="text" class="form-control col-md-5" value="@Model.empleados3.ConcatNombre" readonly>
+                            @Html.LabelFor(model => model.matriz.id_solicitante, new { @class = "control-label col-md-1" })
+                            <input type="text" class="form-control col-md-5" value="@Model.matriz.empleados3.ConcatNombre" readonly>
                             <!-- Fecha validadcion -->
-                            @Html.LabelFor(model => model.fecha_solicitud, new { @class = "control-label col-md-2 float-right", @style = "text-align:right" })
+                            @Html.LabelFor(model => model.matriz.fecha_solicitud, new { @class = "control-label col-md-2 float-right", @style = "text-align:right" })
                             <div class="col-md-4">
-                                <input type="text" class="form-control col-md-12" value="@(Model.fecha_solicitud.Year > 2000 ? Model.fecha_solicitud.ToString() : "NO DISPONIBLE" )" readonly>
+                                <input type="text" class="form-control col-md-12" value="@(Model.matriz.fecha_solicitud.Year > 2000 ? Model.matriz.fecha_solicitud.ToString() : "NO DISPONIBLE" )" readonly>
                             </div>
                         </div>
                         <div class="form-group row">
                             <!-- Autorizador -->
-                            @Html.LabelFor(model => model.id_jefe_directo, new { @class = "control-label col-md-1" })
+                            @Html.LabelFor(model => model.matriz.id_jefe_directo, new { @class = "control-label col-md-1" })
 
-                            @if (Model.empleados1 != null)
+                            @if (Model.matriz.empleados1 != null)
                             {
-                                <input type="text" class="form-control col-md-5" value="@Model.empleados1.ConcatNombre" readonly>
+                                <input type="text" class="form-control col-md-5" value="@Model.matriz.empleados1.ConcatNombre" readonly>
                             }
                             else
                             {
                                 <input type="text" class="form-control col-md-5" value="NO DISPONIBLE" readonly>
                             }
                             <!-- Fecha validacion jefe-->
-                            @Html.LabelFor(model => model.fecha_aprobacion_jefe, new { @class = "control-label col-md-2 float-right", @style = "text-align:right" })
+                            @Html.LabelFor(model => model.matriz.fecha_aprobacion_jefe, new { @class = "control-label col-md-2 float-right", @style = "text-align:right" })
 
                             <div class="col-md-4">
-                                @if (Model.fecha_aprobacion_jefe.HasValue)
+                                @if (Model.matriz.fecha_aprobacion_jefe.HasValue)
                                 {
-                                    <input type="text" class="form-control col-md-12" value="@Model.fecha_aprobacion_jefe.Value" readonly>
+                                    <input type="text" class="form-control col-md-12" value="@Model.matriz.fecha_aprobacion_jefe.Value" readonly>
                                 }
-                                else if (!Model.fecha_aprobacion_jefe.HasValue && Model.estatus == Bitacoras.Util.IT_MR_Status.RECHAZADO)
+                                else if (Model.matriz.fecha_aprobacion_jefe.HasValue && Model.matriz.estatus == Bitacoras.Util.IT_MR_Status.RECHAZADO)
                                 {
                                     <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
                                 }
@@ -449,25 +449,25 @@
 
                         <div class="form-group row">
                             <!-- Sistemas -->
-                            @Html.LabelFor(model => model.id_sistemas, new { @class = "control-label col-md-1" })
+                            @Html.LabelFor(model => model.matriz.id_sistemas, new { @class = "control-label col-md-1" })
 
-                            @if (Model.empleados2 != null)
+                            @if (Model.matriz.empleados2 != null)
                             {
-                                <input type="text" class="form-control col-md-5" value="@Model.empleados2.ConcatNombre" readonly>
+                                <input type="text" class="form-control col-md-5" value="@Model.matriz.empleados2.ConcatNombre" readonly>
                             }
                             else
                             {
                                 <input type="text" class="form-control col-md-5" value="NO DISPONIBLE" readonly>
                             }
                             <!-- Fecha validacion jefe-->
-                            @Html.LabelFor(model => model.fecha_cierre, new { @class = "control-label col-md-2 float-right", @style = "text-align:right" })
+                            @Html.LabelFor(model => model.matriz.fecha_cierre, new { @class = "control-label col-md-2 float-right", @style = "text-align:right" })
 
                             <div class="col-md-4">
-                                @if (Model.fecha_cierre.HasValue)
+                                @if (Model.matriz.fecha_cierre.HasValue)
                                 {
-                                    <input type="text" class="form-control col-md-12" value="@Model.fecha_cierre.Value" readonly>
+                                    <input type="text" class="form-control col-md-12" value="@Model.matriz.fecha_cierre.Value" readonly>
                                 }
-                                else if (Model.fecha_cierre.HasValue && Model.estatus == Bitacoras.Util.IT_MR_Status.RECHAZADO)
+                                else if (!Model.matriz.fecha_cierre.HasValue && Model.matriz.estatus == Bitacoras.Util.IT_MR_Status.RECHAZADO)
                                 {
                                     <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
                                 }
@@ -477,12 +477,66 @@
                                 }
                             </div>
                         </div>
+                        @if (Model.matriz.estatus == Bitacoras.Util.IT_MR_Status.ENVIADO_A_JEFE && !String.IsNullOrEmpty(Model.matriz.comentario_rechazo))
+                        {
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>RAZ&Oacute;N ANTERIOR DE RECHAZO</b></span>
+                            </div>
+
+                            <div class="item form-group">
+                                <div class="col-md-12">
+                                    @Html.TextAreaFor(model => model.matriz.comentario_rechazo, new { @class = "form-control", @rows = "5", @autocomplete = "off", @readonly = "readonly" })
+                                </div>
+
+                            </div>
+                        }
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>DATOS DE CIERRE</b></span>
+                        </div>
+                        @using (Html.BeginForm("Rechazar", null, FormMethod.Post, new { }))
+                        {
+                            <div class="form-group row">
+                                <!--Correo-->
+                                @Html.LabelFor(model => model.correo, new { @class = "control-label col-md-1 text_derecha" })
+                                <div class="col-md-4">
+                                    @Html.EditorFor(m => m.correo, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.correo, "", new { @class = "text-danger" })
+                                </div>
+                                <!--Correo-->
+                                @Html.LabelFor(model => model.C8ID, new { @class = "control-label col-md-1 text_derecha" })
+                                <div class="col-md-4">
+                                    @Html.EditorFor(m => m.C8ID, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.C8ID, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>COMENTARIO CIERRE</b></span>
+                            </div>
+
+                            <div class="item form-group">
+                                <div class="col-md-12">
+                                    @Html.TextAreaFor(model => model.comentario_cierre, new { @class = "form-control", @rows = "5", @autocomplete = "off" })
+                                    @Html.ValidationMessageFor(model => model.comentario_cierre, "", new { @class = "text-danger" })
+                                </div>
+
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="item form-group">
+                                <div class="col-md-12 col-sm-12 offset-md-12">
+                                    <button type="button" id="btn-ok" class="btn btn-success btn-lg float-lg-right"><i class="fa fa-floppy-disk"></i> Guardar</button>
+                                </div>
+                            </div>
+                        }
 
                     </div>
                 </div>
                 <div>
                     <br />
-                    <a onclick="volverAtras()" style="color:white" class="btn btn-round btn-info btm-sm" title="Volver">
+                    <a onclick="volverAtras()" style="color:white" class="btn btn-round btn-info btm-sm" rel="tooltip" data-title="Volver">
                         <i class="fa fa-arrow-circle-left"></i> Volver al listado
                     </a>
                 </div>
@@ -490,6 +544,7 @@
         </div>
     </div>
 </div>
+
 
 
 @section Scripts {
@@ -519,6 +574,42 @@
                 });
             });
 
+            $('form #btn-ok').click(function (e) {
+                let $form = $(this).closest('form');
+
+                const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: 'btn btn-success',
+                        cancelButton: 'btn btn-danger'
+                    },
+                    buttonsStyling: false,
+                })
+
+
+                swalWithBootstrapButtons.fire({
+                    title: '¿Desea Continuar?',
+                    html: "Se cerrará la solicitud y se enviará notificación a RH.",
+                    showCancelButton: true,
+                    confirmButtonText: 'Aceptar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.value) {
+                        //espera a que se cierre el modal para enviar el formulario
+                        setTimeout(function () {
+                            $form.submit();
+                        }, 900);
+
+                    } else if (
+                        result.dismiss === Swal.DismissReason.cancel
+                    ) {
+                        swalWithBootstrapButtons.fire(
+                            'Advertencia', 'Los cambios no han sido guardados.', 'warning'
+                        );
+                    }
+                });
+
+
+            });
         });
 
 
@@ -526,6 +617,8 @@
         window.onload = function () {
             clicMenu(1);
         }
+
+
 
 
     </script>

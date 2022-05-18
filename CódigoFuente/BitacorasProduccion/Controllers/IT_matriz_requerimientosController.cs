@@ -3,6 +3,7 @@ using Clases.Util;
 using Portal_2_0.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -72,6 +73,7 @@ namespace Portal_2_0.Controllers
             }
         }
 
+        #region listado usuarios
         // GET: IT_matriz_requerimientos/SolicitudesEnProceso
         public ActionResult SolicitudesEnProceso(int pagina = 1)
         {
@@ -86,14 +88,14 @@ namespace Portal_2_0.Controllers
 
                 var cantidadRegistrosPorPagina = 20; // parámetro
 
-              
+
                 var listado = db.IT_matriz_requerimientos
-                    .Where(x => (x.estatus == IT_MR_Status.ENVIADO_A_JEFE  || x.estatus == IT_MR_Status.ENVIADO_A_IT || x.estatus == IT_MR_Status.CREADO))
+                    .Where(x => (x.estatus == IT_MR_Status.ENVIADO_A_JEFE || x.estatus == IT_MR_Status.ENVIADO_A_IT || x.estatus == IT_MR_Status.CREADO))
                     .OrderByDescending(x => x.fecha_solicitud)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
-                var totalDeRegistros = db.poliza_manual
+                var totalDeRegistros = db.IT_matriz_requerimientos
                      .Where(x => (x.estatus == IT_MR_Status.ENVIADO_A_JEFE || x.estatus == IT_MR_Status.ENVIADO_A_IT || x.estatus == IT_MR_Status.CREADO))
                    .Count();
 
@@ -114,10 +116,11 @@ namespace Portal_2_0.Controllers
                 //Viewbags para los botones
                 ViewBag.Details = true;
                 ViewBag.Title = "Listado de Solicitudes en Proceso";
+                ViewBag.PrimerNivel = "recursos_humanos";
                 ViewBag.SegundoNivel = "SolicitudesEnProceso";
                 ViewBag.Create = true;
 
-             
+
 
                 return View("ListadoSolicitudes", listado);
             }
@@ -127,6 +130,404 @@ namespace Portal_2_0.Controllers
             }
 
         }
+
+        // GET: IT_matriz_requerimientos/SolicitudesRechazadas
+        public ActionResult SolicitudesRechazadas(int pagina = 1)
+        {
+
+            if (TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CREAR))
+            {
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
+                var cantidadRegistrosPorPagina = 20; // parámetro
+
+
+                var listado = db.IT_matriz_requerimientos
+                    .Where(x => (x.estatus == IT_MR_Status.RECHAZADO))
+                    .OrderByDescending(x => x.fecha_solicitud)
+                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                   .Take(cantidadRegistrosPorPagina).ToList();
+
+                var totalDeRegistros = db.IT_matriz_requerimientos
+                   .Where(x => (x.estatus == IT_MR_Status.RECHAZADO))
+                   .Count();
+
+                //para paginación
+
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                //routeValues["material"] = material;
+
+                Paginacion paginacion = new Paginacion
+                {
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                ViewBag.Paginacion = paginacion;
+                //Viewbags para los botones
+                ViewBag.Details = true;
+                ViewBag.Edit = true;
+                ViewBag.Title = "Listado de Solicitudes Rechazadas";
+                ViewBag.PrimerNivel = "recursos_humanos";
+                ViewBag.SegundoNivel = "SolicitudesRechazadas";
+                ViewBag.Create = true;
+
+
+
+                return View("ListadoSolicitudes", listado);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+        // GET: IT_matriz_requerimientos/SolicitudesFinalizadas
+        public ActionResult SolicitudesFinalizadas(int pagina = 1)
+        {
+
+            if (TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CREAR))
+            {
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
+                var cantidadRegistrosPorPagina = 20; // parámetro
+
+
+                var listado = db.IT_matriz_requerimientos
+                    .Where(x => (x.estatus == IT_MR_Status.FINALIZADO))
+                    .OrderByDescending(x => x.fecha_solicitud)
+                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                   .Take(cantidadRegistrosPorPagina).ToList();
+
+                var totalDeRegistros = db.IT_matriz_requerimientos
+                   .Where(x => (x.estatus == IT_MR_Status.FINALIZADO))
+                   .Count();
+
+                //para paginación
+
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                //routeValues["material"] = material;
+
+                Paginacion paginacion = new Paginacion
+                {
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                ViewBag.Paginacion = paginacion;
+                //Viewbags para los botones
+                ViewBag.Details = true;
+                ViewBag.Edit = true;
+                ViewBag.Title = "Listado de Solicitudes Finalizadas";
+                ViewBag.PrimerNivel = "recursos_humanos";
+                ViewBag.SegundoNivel = "SolicitudesFinalizadas";
+                ViewBag.Create = true;
+
+
+
+                return View("ListadoSolicitudes", listado);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+        #endregion
+
+        #region listados autorizador
+        // GET: IT_matriz_requerimientos/solicitudes_pendientes_autorizador
+        public ActionResult solicitudes_pendientes_autorizador(int pagina = 1)
+        {
+
+            if (TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_AUTORIZAR))
+            {
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
+                var cantidadRegistrosPorPagina = 20; // parámetro
+
+                empleados empleado = obtieneEmpleadoLogeado();
+
+                var listado = db.IT_matriz_requerimientos
+                    .Where(x => x.estatus == IT_MR_Status.ENVIADO_A_JEFE && x.id_jefe_directo == empleado.id)
+                    .OrderByDescending(x => x.fecha_solicitud)
+                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                   .Take(cantidadRegistrosPorPagina).ToList();
+
+                var totalDeRegistros = db.IT_matriz_requerimientos
+                     .Where(x => x.estatus == IT_MR_Status.ENVIADO_A_JEFE && x.id_jefe_directo == empleado.id)
+                   .Count();
+
+                //para paginación
+
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                //routeValues["material"] = material;
+
+                Paginacion paginacion = new Paginacion
+                {
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                ViewBag.Paginacion = paginacion;
+                //Viewbags para los botones
+                ViewBag.Details = true;
+                ViewBag.Title = "Listado de Solicitudes Pendientes";
+                ViewBag.PrimerNivel = "autorizar_matriz";
+                ViewBag.SegundoNivel = "solicitudes_pendientes_autorizador";
+                ViewBag.Autorizar = true;
+
+
+
+                return View("ListadoSolicitudes", listado);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+        // GET: IT_matriz_requerimientos/solicitudes_rechazadas_autorizador
+        public ActionResult solicitudes_rechazadas_autorizador(int pagina = 1)
+        {
+
+            if (TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_AUTORIZAR))
+            {
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
+                var cantidadRegistrosPorPagina = 20; // parámetro
+
+                empleados empleado = obtieneEmpleadoLogeado();
+
+                var listado = db.IT_matriz_requerimientos
+                    .Where(x => x.estatus == IT_MR_Status.RECHAZADO && x.id_jefe_directo == empleado.id)
+                    .OrderByDescending(x => x.fecha_solicitud)
+                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                   .Take(cantidadRegistrosPorPagina).ToList();
+
+                var totalDeRegistros = db.IT_matriz_requerimientos
+                     .Where(x => x.estatus == IT_MR_Status.RECHAZADO && x.id_jefe_directo == empleado.id)
+                   .Count();
+
+                //para paginación
+
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                //routeValues["material"] = material;
+
+                Paginacion paginacion = new Paginacion
+                {
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                ViewBag.Paginacion = paginacion;
+                //Viewbags para los botones
+                ViewBag.Details = true;
+                ViewBag.Title = "Listado de Solicitudes Pendientes";
+                ViewBag.PrimerNivel = "autorizar_matriz";
+                ViewBag.SegundoNivel = "solicitudes_rechazadas_autorizador";
+
+                return View("ListadoSolicitudes", listado);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+        // GET: IT_matriz_requerimientos/solicitudes_autorizadas_autorizador
+        public ActionResult solicitudes_autorizadas_autorizador(int pagina = 1)
+        {
+
+            if (TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_AUTORIZAR))
+            {
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
+                var cantidadRegistrosPorPagina = 20; // parámetro
+
+                empleados empleado = obtieneEmpleadoLogeado();
+
+                var listado = db.IT_matriz_requerimientos
+                    .Where(x => (x.estatus == IT_MR_Status.ENVIADO_A_IT || x.estatus == IT_MR_Status.FINALIZADO) && x.id_jefe_directo == empleado.id)
+                    .OrderByDescending(x => x.fecha_solicitud)
+                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                   .Take(cantidadRegistrosPorPagina).ToList();
+
+                var totalDeRegistros = db.IT_matriz_requerimientos
+                           .Where(x => (x.estatus == IT_MR_Status.ENVIADO_A_IT || x.estatus == IT_MR_Status.FINALIZADO) && x.id_jefe_directo == empleado.id)
+                   .Count();
+
+                //para paginación
+
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                //routeValues["material"] = material;
+
+                Paginacion paginacion = new Paginacion
+                {
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                ViewBag.Paginacion = paginacion;
+                //Viewbags para los botones
+                ViewBag.Details = true;
+                ViewBag.Title = "Listado de Solicitudes Pendientes";
+                ViewBag.PrimerNivel = "autorizar_matriz";
+                ViewBag.SegundoNivel = "solicitudes_autorizadas_autorizador";
+
+                return View("ListadoSolicitudes", listado);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+        #endregion
+
+        #region listados sistemas
+
+        // GET: IT_matriz_requerimientos/solicitudes_sistemas
+        public ActionResult solicitudes_sistemas(string estatus, string nombre, int pagina = 1)
+        {
+
+            if (TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR))
+            {
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
+                var cantidadRegistrosPorPagina = 20; // parámetro
+
+                empleados empleado = obtieneEmpleadoLogeado();
+
+                var listado = db.IT_matriz_requerimientos
+                    .Where(x => (String.IsNullOrEmpty(estatus) || x.estatus.Contains(estatus)) && ((x.empleados.nombre + " " + x.empleados.apellido1 + " " + x.empleados.apellido2).Contains(nombre) || String.IsNullOrEmpty(nombre)))
+                    .OrderByDescending(x => x.fecha_solicitud)
+                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                   .Take(cantidadRegistrosPorPagina).ToList();
+
+                var totalDeRegistros = db.IT_matriz_requerimientos
+                      .Where(x => (String.IsNullOrEmpty(estatus) || x.estatus.Contains(estatus)) && ((x.empleados.nombre + " " + x.empleados.apellido1 + " " + x.empleados.apellido2).Contains(nombre) || String.IsNullOrEmpty(nombre)))
+                   .Count();
+
+                //para paginación
+
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                routeValues["estatus"] = estatus;
+                routeValues["nombre"] = nombre;
+
+                Paginacion paginacion = new Paginacion
+                {
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                List<string> estatusList = db.IT_matriz_requerimientos.Select(x => x.estatus).Distinct().ToList();
+                //crea un Select  list para el estatus
+                List<SelectListItem> newList = new List<SelectListItem>();
+
+                foreach (string statusItem in estatusList)
+                {
+                    newList.Add(new SelectListItem()
+                    {
+                        Text = IT_MR_Status.DescripcionStatus(statusItem),
+                        Value = statusItem
+                    });
+                }
+
+                SelectList selectListItemsStatus = new SelectList(newList, "Value", "Text", estatus);
+                ViewBag.estatus = AddFirstItem(selectListItemsStatus, textoPorDefecto: "-- Todos --");
+
+                ViewBag.Paginacion = paginacion;
+                //Viewbags para los botones
+                ViewBag.Details = true;
+                ViewBag.Sistemas = true;
+                ViewBag.Title = "Listado de Solicitudes Pendientes";
+                ViewBag.PrimerNivel = "sistemas";
+                ViewBag.SegundoNivel = "solicitudes_usuarios_sistemas";
+
+                return View("ListadoSolicitudes", listado);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+
+
+        #endregion
+
+        // GET: IT_matriz_requerimientos/Details
+        public ActionResult Details(int? id)
+        {
+            if (TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CREAR) || TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_DETALLES))
+            {
+                if (id == null)
+                {
+                    return View("../Error/BadRequest");
+                }
+                IT_matriz_requerimientos matriz = db.IT_matriz_requerimientos.Find(id);
+                if (matriz == null)
+                {
+                    return View("../Error/NotFound");
+
+                }
+
+                ViewBag.listHardware = db.IT_hardware_tipo.Where(x => x.activo == true).ToList();
+                ViewBag.listSoftware = db.IT_software_tipo.Where(x => x.activo == true).ToList();
+                ViewBag.listComunicaciones = db.IT_comunicaciones_tipo.Where(x => x.activo == true).ToList();
+                ViewBag.listCarpetas = db.IT_carpetas_red.Where(x => x.activo == true).ToList();
+
+                return View(matriz);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        } 
 
         // GET: IT_matriz_requerimientos/CrearMatriz
         public ActionResult CrearMatriz(int? id)
@@ -151,17 +552,30 @@ namespace Portal_2_0.Controllers
                     matriz = new IT_matriz_requerimientos
                     {
                         id_empleado = empleados.id,
-                        empleados = empleados,                     
+                        empleados = empleados,
                     };
 
                 }
+                else
+                {
+                    //verifica si una matriz puede editarse
+                    if (matriz.estatus != IT_MR_Status.RECHAZADO && matriz.estatus != IT_MR_Status.FINALIZADO)
+                    {
+                        ViewBag.Titulo = "¡Lo sentimos!¡No se puede modificar esta solicitud!";
+                        ViewBag.Descripcion = "Sólo pueden modificarse solicitudes que han sido Rechazadas o Finalizadas.";
+
+                        return View("../Home/ErrorGenerico");
+                    }
+                }
+
+
 
                 //obtiene la lista de hardware
                 ViewBag.listHardware = db.IT_hardware_tipo.Where(x => x.activo == true).ToList();
                 ViewBag.listSoftware = db.IT_software_tipo.Where(x => x.activo == true).ToList();
-                ViewBag.id_internet_tipo = AddFirstItem(new SelectList(db.IT_internet_tipo.Where(p => p.activo == true), "id", "descripcion"),selected:matriz.id_internet_tipo.ToString());
+                ViewBag.id_internet_tipo = AddFirstItem(new SelectList(db.IT_internet_tipo.Where(p => p.activo == true), "id", "descripcion"), selected: matriz.id_internet_tipo.ToString());
                 ViewBag.listCarpetas = db.IT_carpetas_red.Where(x => x.activo == true).ToList();
-                ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(p => p.activo == true), "id", "ConcatNumEmpleadoNombre"), selected : matriz.id_jefe_directo.ToString());
+                ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(p => p.activo == true), "id", "ConcatNumEmpleadoNombre"), selected: matriz.id_jefe_directo.ToString());
                 ViewBag.listComunicaciones = db.IT_comunicaciones_tipo.Where(x => x.activo == true).ToList();
                 return View(matriz);
             }
@@ -172,35 +586,7 @@ namespace Portal_2_0.Controllers
 
         }
 
-        // GET: IT_matriz_requerimientos/Details
-        public ActionResult Details(int? id)
-        {
-            if (TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CREAR)|| TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_DETALLES))
-            {
-                if (id == null)
-                {
-                    return View("../Error/BadRequest");
-                }
-                IT_matriz_requerimientos matriz = db.IT_matriz_requerimientos.Find(id);
-                if (matriz == null)
-                {
-                    return View("../Error/NotFound");
-
-                }
-
-                ViewBag.listHardware = db.IT_hardware_tipo.Where(x => x.activo == true).ToList();
-                ViewBag.listSoftware = db.IT_software_tipo.Where(x => x.activo == true).ToList();
-                ViewBag.listComunicaciones = db.IT_comunicaciones_tipo.Where(x => x.activo == true).ToList();
-                ViewBag.listCarpetas = db.IT_carpetas_red.Where(x => x.activo == true).ToList();
-       
-                return View(matriz);
-            }
-            else
-            {
-                return View("../Home/ErrorPermisos");
-            }
-
-        }
+      
 
         // POST: IT_matriz_requerimientos/CrearMatriz
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
@@ -209,6 +595,12 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult CrearMatriz(IT_matriz_requerimientos matriz, FormCollection collection, string[] SelectedHardware, string[] SelectedSoftware, string[] SelectedComunicaciones, string[] SelectedCarpetas)
         {
+
+            //obtien el id de Matriz
+            int.TryParse(collection["id_matriz"], out int id_matriz);
+            matriz.id = id_matriz;
+
+            string statusAnterior = matriz.estatus;
 
             //lista de key del collection
             List<string> keysCollection = collection.AllKeys.ToList();
@@ -233,7 +625,7 @@ namespace Portal_2_0.Controllers
                     if (keysCollection.Contains(keyDescription))
                         descripcionHardware = collection[keyDescription];
 
-                    matriz.IT_matriz_hardware.Add(new IT_matriz_hardware { id_it_hardware = id_hardware, descripcion = descripcionHardware });
+                    matriz.IT_matriz_hardware.Add(new IT_matriz_hardware { id_matriz_requerimientos= id_matriz, id_it_hardware = id_hardware, descripcion = descripcionHardware });
                 }
 
             //crea los objetos para software
@@ -253,7 +645,7 @@ namespace Portal_2_0.Controllers
                     if (keysCollection.Contains(keyDescription))
                         descripcionSoftware = collection[keyDescription];
 
-                    matriz.IT_matriz_software.Add(new IT_matriz_software { id_it_software = id_software, descripcion = descripcionSoftware });
+                    matriz.IT_matriz_software.Add(new IT_matriz_software { id_matriz_requerimientos = id_matriz, id_it_software = id_software, descripcion = descripcionSoftware });
                 }
 
             //crea los objetos para comunicaciones
@@ -273,7 +665,7 @@ namespace Portal_2_0.Controllers
                     if (keysCollection.Contains(keyDescription))
                         descripcionComunicaciones = collection[keyDescription];
 
-                    matriz.IT_matriz_comunicaciones.Add(new IT_matriz_comunicaciones { id_it_comunicaciones = id_comunicaciones, descripcion = descripcionComunicaciones });
+                    matriz.IT_matriz_comunicaciones.Add(new IT_matriz_comunicaciones { id_matriz_requerimientos = id_matriz, id_it_comunicaciones = id_comunicaciones, descripcion = descripcionComunicaciones });
                 }
 
             //crea los objetos para las carpetas
@@ -293,7 +685,7 @@ namespace Portal_2_0.Controllers
                     if (keysCollection.Contains(keyDescription))
                         descripcionCarpetas = collection[keyDescription];
 
-                    matriz.IT_matriz_carpetas.Add(new IT_matriz_carpetas { id_it_carpeta_red = id_carpetas, descripcion = descripcionCarpetas });
+                    matriz.IT_matriz_carpetas.Add(new IT_matriz_carpetas { id_matriz_requerimientos = id_matriz, id_it_carpeta_red = id_carpetas, descripcion = descripcionCarpetas });
                 }
             #endregion
 
@@ -304,24 +696,68 @@ namespace Portal_2_0.Controllers
                 //campos obligatorios 
                 matriz.fecha_solicitud = DateTime.Now;
                 matriz.estatus = IT_MR_Status.ENVIADO_A_JEFE;
-                matriz.id_solicitante = solicitante.id;              
-
-                db.IT_matriz_requerimientos.Add(matriz);
-                db.SaveChanges();
+                matriz.id_solicitante = solicitante.id;
 
                 string mensaje = "Se ha enviado la solicitud correctamente.";
                 TipoMensajesSweetAlerts tipoMensaje = TipoMensajesSweetAlerts.SUCCESS;
 
-                try {
+                //si existe un registro con el mismo id empleado 
+                if (!db.IT_matriz_requerimientos.Any(x=>x.id_empleado==matriz.id_empleado))
+                {
+                    db.IT_matriz_requerimientos.Add(matriz);
+                }
+                else
+                { //se trata de una modificación o rechazo
+                  //si existe lo modifica
+                    IT_matriz_requerimientos matrizOld = db.IT_matriz_requerimientos.Find(id_matriz);
+                    //borra valores en caso de que sea una solicitud de cambio (solicitud ya finalizada)
+                    matriz.fecha_aprobacion_jefe = null;
+                    matriz.fecha_cierre = null;
+                    if (statusAnterior == IT_MR_Status.FINALIZADO)
+                        matriz.comentario_rechazo = null;
+
+
+                    //borra los conceltos anteriornes
+                    db.IT_matriz_software.RemoveRange(matrizOld.IT_matriz_software);
+                    db.IT_matriz_hardware.RemoveRange(matrizOld.IT_matriz_hardware);
+                    db.IT_matriz_carpetas.RemoveRange(matrizOld.IT_matriz_carpetas);
+                    db.IT_matriz_comunicaciones.RemoveRange(matrizOld.IT_matriz_comunicaciones);
+
+                    //agrega los nuevos conceptos
+                    db.IT_matriz_software.AddRange(matriz.IT_matriz_software);
+                    db.IT_matriz_hardware.AddRange(matriz.IT_matriz_hardware);
+                    db.IT_matriz_carpetas.AddRange(matriz.IT_matriz_carpetas);
+                    db.IT_matriz_comunicaciones.AddRange(matriz.IT_matriz_comunicaciones);                   
+
+                    //establece los valores principales
+                    db.Entry(matrizOld).CurrentValues.SetValues(matriz);
+                  
+
+                    db.Entry(matrizOld).State = EntityState.Modified;
+                }
+
+                try
+                {
+                    db.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    mensaje = "Error al guardar en BD.";
+                    tipoMensaje = TipoMensajesSweetAlerts.ERROR;
+                    EscribeExcepcion(ex, Clases.Models.EntradaRegistroEvento.TipoEntradaRegistroEvento.Error);
+                }
+
+                try
+                {
                     //envia correo electronico
-                    EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();                    
+                    EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
 
                     List<String> correos = new List<string>(); //correos TO
 
                     //obtiene el empleado asociado
                     empleados emp = db.empleados.Find(matriz.id_jefe_directo);
 
-                    if (emp!= null && !String.IsNullOrEmpty(emp.correo))
+                    if (emp != null && !String.IsNullOrEmpty(emp.correo))
                         correos.Add(emp.correo); //agrega correo de validador
 
                     //agrega las referencias al empleados y empleados2
@@ -329,8 +765,9 @@ namespace Portal_2_0.Controllers
                     matriz.empleados3 = solicitante;
 
                     envioCorreo.SendEmailAsync(correos, "Ha recibido una Solicitud de Requerimiento de Usuario para su aprobación.", envioCorreo.getBody_IT_MR_Notificacion_Jefe_Directo(matriz));
-                } 
-                catch(Exception e) {
+                }
+                catch (Exception e)
+                {
                     mensaje = "Se ha enviado correctamente la solicitud, pero ha surgido un error al mandar el correo electrónico.";
                     tipoMensaje = TipoMensajesSweetAlerts.WARNING;
                     EscribeExcepcion(e, Clases.Models.EntradaRegistroEvento.TipoEntradaRegistroEvento.Error);
@@ -355,5 +792,230 @@ namespace Portal_2_0.Controllers
             return View(matriz);
 
         }
+
+        #region Autorizador
+
+        // GET: IT_matriz_requerimientos/Autorizar
+        public ActionResult Autorizar(int? id)
+        {
+            if (TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_AUTORIZAR))
+            {
+                if (id == null)
+                {
+                    return View("../Error/BadRequest");
+                }
+                IT_matriz_requerimientos matriz = db.IT_matriz_requerimientos.Find(id);
+                if (matriz == null)
+                {
+                    return View("../Error/NotFound");
+                }
+                //verifica si el id_jefe pertenece al usuario que inició sesión
+                empleados emp = obtieneEmpleadoLogeado();
+
+                if (emp.id != matriz.id_jefe_directo)
+                {
+                    ViewBag.Titulo = "¡Lo sentimos!¡No se puede autorizar esta solicitud!";
+                    ViewBag.Descripcion = "No se puede autorizar una solicitud a la que no se encuentra asignado.";
+
+                    return View("../Home/ErrorGenerico");
+                }
+
+
+                ViewBag.listHardware = db.IT_hardware_tipo.Where(x => x.activo == true).ToList();
+                ViewBag.listSoftware = db.IT_software_tipo.Where(x => x.activo == true).ToList();
+                ViewBag.listComunicaciones = db.IT_comunicaciones_tipo.Where(x => x.activo == true).ToList();
+                ViewBag.listCarpetas = db.IT_carpetas_red.Where(x => x.activo == true).ToList();
+
+                return View(matriz);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+        // POST: PremiumFreightAproval/ValidarAreaPM/5
+        [HttpPost, ActionName("Autorizar")]
+        [ValidateAntiForgeryToken]
+        public ActionResult AutorizarConfirmed(FormCollection collection)
+        {
+
+            int id = 0;
+            if (!String.IsNullOrEmpty(collection["id"]))
+                Int32.TryParse(collection["id"], out id);
+
+
+            IT_matriz_requerimientos matriz = db.IT_matriz_requerimientos.Find(id);
+            matriz.estatus = IT_MR_Status.ENVIADO_A_IT;
+            matriz.fecha_aprobacion_jefe = DateTime.Now;
+            // poliza.id_autorizador = Convert.ToInt32(collection["id_autorizador"]);
+
+            db.Entry(matriz).State = EntityState.Modified;
+            try
+            {
+                db.SaveChanges();
+
+                //NOTIFICACIÓN A SOLICITANTE
+                //envia correo electronico notificación solicitante
+                EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+
+                List<String> correos = new List<string>(); //correos TO
+
+                if (!String.IsNullOrEmpty(matriz.empleados3.correo))
+                    correos.Add(matriz.empleados3.correo); //agrega correo de elaborador
+
+                envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de usuarios #" + matriz.id + " ha sido válidada por el Jefe Directo.", envioCorreo.getBody_IT_MR_Notificacion_Autorizado_Solicitante(matriz));
+
+                //se restablece el listado de correos
+                correos = new List<string>();
+
+                //NOTIFICACION A SISTEMAS (Todos los que tengan el permiso de cerrar)
+
+                //---INICIO POR ROL                    
+                //recorre los usuarios con el permiso de cerrar
+                AspNetRoles rol = db.AspNetRoles.Where(x => x.Name == TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR).FirstOrDefault();
+                List<AspNetUsers> usuariosInRole = new List<AspNetUsers>();
+                if (rol != null)
+                    usuariosInRole = rol.AspNetUsers.ToList();
+
+                List<int> idsCerrar = usuariosInRole.Select(x => x.IdEmpleado).Distinct().ToList();
+
+                List<empleados> listEmpleados = db.empleados.Where(x => x.activo == true && idsCerrar.Contains(x.id) == true).ToList();
+
+                foreach (var e in listEmpleados)
+                    if (!String.IsNullOrEmpty(e.correo))
+                        correos.Add(e.correo);
+
+                //---FIN POR ROL
+
+                envioCorreo.SendEmailAsync(correos, "Se ha recibido una Solicitud de Requerimientos. Folio: " + matriz.id, envioCorreo.getBody_IT_MR_Notificacion_Autorizado_Sistemas(matriz));
+
+                TempData["Mensaje"] = new MensajesSweetAlert("Se ha autorizado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
+
+                return RedirectToAction("solicitudes_pendientes_autorizador");
+
+            }
+            catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+            {
+                // Retrieve the error messages as a list of strings.
+                var errorMessages = ex.EntityValidationErrors
+                        .SelectMany(x => x.ValidationErrors)
+                        .Select(x => x.ErrorMessage);
+
+                // Join the list to a single string.
+                var fullErrorMessage = string.Join("; ", errorMessages);
+
+                // Combine the original exception message with the new one.
+                var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
+
+                TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
+                return RedirectToAction("solicitudes_pendientes_autorizador");
+
+            }
+            catch (Exception e)
+            {
+                TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
+                return RedirectToAction("solicitudes_pendientes_autorizador");
+            }
+
+        }
+
+        // POST: PremiumFreightAproval/ValidarAreaPM/5
+        [HttpPost, ActionName("Rechazar")]
+        [ValidateAntiForgeryToken]
+        public ActionResult RechazarConfirmed(FormCollection collection)
+        {
+
+            int id = 0;
+            if (!String.IsNullOrEmpty(collection["id"]))
+                Int32.TryParse(collection["id"], out id);
+
+            String razonRechazo = collection["comentario_rechazo"];
+
+            IT_matriz_requerimientos matriz = db.IT_matriz_requerimientos.Find(id);
+            matriz.estatus = IT_MR_Status.RECHAZADO;
+            matriz.comentario_rechazo = razonRechazo;
+
+            db.Entry(matriz).State = EntityState.Modified;
+            try
+            {
+                db.SaveChanges();
+
+                //NOTIFICACIÓN A SOLICITANTE
+                //envia correo electronico notificación solicitante
+                EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+
+                List<String> correos = new List<string>(); //correos TO
+
+                if (!String.IsNullOrEmpty(matriz.empleados3.correo))
+                    correos.Add(matriz.empleados3.correo); //agrega correo de elaborador
+
+                envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de usuarios #" + matriz.id + " ha sido rechazada por el Jefe Directo.", envioCorreo.getBody_IT_MR_Notificacion_Rechazado_Solicitante(matriz));
+
+
+                TempData["Mensaje"] = new MensajesSweetAlert("Se ha rechazado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
+
+                return RedirectToAction("solicitudes_pendientes_autorizador");
+
+            }
+            catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+            {
+                // Retrieve the error messages as a list of strings.
+                var errorMessages = ex.EntityValidationErrors
+                        .SelectMany(x => x.ValidationErrors)
+                        .Select(x => x.ErrorMessage);
+
+                // Join the list to a single string.
+                var fullErrorMessage = string.Join("; ", errorMessages);
+
+                // Combine the original exception message with the new one.
+                var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
+
+                TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
+                return RedirectToAction("solicitudes_pendientes_autorizador");
+
+            }
+            catch (Exception e)
+            {
+                TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
+                return RedirectToAction("solicitudes_pendientes_autorizador");
+            }
+
+        }
+
+        #endregion
+
+        #region sistemas
+        // GET: IT_matriz_requerimientos/Cerrar
+        public ActionResult Cerrar(int? id)
+        {
+            if (TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR))
+            {
+                if (id == null)
+                {
+                    return View("../Error/BadRequest");
+                }
+                IT_matriz_requerimientos matriz = db.IT_matriz_requerimientos.Find(id);
+                if (matriz == null)
+                {
+                    return View("../Error/NotFound");
+                }
+               
+                ViewBag.listHardware = db.IT_hardware_tipo.Where(x => x.activo == true).ToList();
+                ViewBag.listSoftware = db.IT_software_tipo.Where(x => x.activo == true).ToList();
+                ViewBag.listComunicaciones = db.IT_comunicaciones_tipo.Where(x => x.activo == true).ToList();
+                ViewBag.listCarpetas = db.IT_carpetas_red.Where(x => x.activo == true).ToList();
+
+                return View(new IT_matriz_requerimientosCerrarModel {matriz = matriz });
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+        #endregion
     }
 }
