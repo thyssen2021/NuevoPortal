@@ -43,6 +43,12 @@ namespace Portal_2_0.Models
         [StringLength(350, MinimumLength = 5)]
         [Display(Name = "Razón Rechazo")]
         public string comentario_rechazo { get; set; }
+
+        [StringLength(350, MinimumLength = 5)]
+        [Display(Name = "Comentario Cierre")]
+        public string comentario_cierre { get; set; }
+
+      
     }
 
     [MetadataType(typeof(IT_matriz_requerimientosMetadata))]
@@ -56,19 +62,19 @@ namespace Portal_2_0.Models
         [Display(Name = "Folio")]
         public int id { get; set; }
 
+        //para cierre de solicitud
+ 
         [DataType(DataType.EmailAddress)]
         [EmailAddress]
         [Display(Name = "Correo")]
-        [Required]
         public string correo { get; set; }
+
 
         [Display(Name = "8ID")]
         [StringLength(8, MinimumLength = 8)]
         [RegularExpression("(^[0-9]+$)", ErrorMessage = "Sólo se permiten números.")]
-        [Required]
         public string C8ID { get; set; }
 
-        
         [StringLength(350, MinimumLength = 5)]
         [Display(Name = "Comentario Cierre")]
         public string comentario_cierre { get; set; }

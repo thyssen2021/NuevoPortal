@@ -11,8 +11,7 @@ namespace Portal_2_0.Models
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-
+    
     public partial class IT_matriz_requerimientos
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -23,29 +22,20 @@ namespace Portal_2_0.Models
             this.IT_matriz_hardware = new HashSet<IT_matriz_hardware>();
             this.IT_matriz_software = new HashSet<IT_matriz_software>();
         }
-
+    
         public int id { get; set; }
         public int id_empleado { get; set; }
-
         public int id_solicitante { get; set; }
-        
         public int id_jefe_directo { get; set; }
-        
         public Nullable<int> id_sistemas { get; set; }
-        
         public int id_internet_tipo { get; set; }
-      
         public System.DateTime fecha_solicitud { get; set; }
-      
         public Nullable<System.DateTime> fecha_aprobacion_jefe { get; set; }
-      
         public Nullable<System.DateTime> fecha_cierre { get; set; }
-       
         public string estatus { get; set; }
-      
         public string comentario { get; set; }
-       
         public string comentario_rechazo { get; set; }
+        public string comentario_cierre { get; set; }
     
         public virtual empleados empleados { get; set; }
         public virtual empleados empleados1 { get; set; }

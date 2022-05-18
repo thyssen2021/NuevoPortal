@@ -18,6 +18,8 @@ namespace Portal_2_0.Models
         public int id_matriz_requerimientos { get; set; }
         public int id_it_hardware { get; set; }
         public string descripcion { get; set; }
+        public string comentario { get; set; }
+        public Nullable<bool> completado { get; set; }
     
         public virtual IT_hardware_tipo IT_hardware_tipo { get; set; }
         public virtual IT_matriz_requerimientos IT_matriz_requerimientos { get; set; }

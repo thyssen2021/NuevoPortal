@@ -32,6 +32,7 @@ CREATE TABLE [IT_matriz_requerimientos](
 	[estatus] [varchar](20) NOT NULL,
 	[comentario] [varchar](350) NULL,
 	[comentario_rechazo] [varchar](350) NULL,
+	[comentario_cierre] [varchar](350) NULL,
  CONSTRAINT [PK_IT_matriz_requerimientos] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
@@ -77,7 +78,7 @@ alter table [IT_matriz_requerimientos]
 
 -- restricion check
 ALTER TABLE [IT_matriz_requerimientos] ADD CONSTRAINT CK_it_matriz_requerimientos_Estatus CHECK ([estatus] IN 
-('CREADO', 'ENVIADO_A_JEFE','ENVIADO_A_IT','RECHAZADO', 'FINALIZADO')
+('CREADO', 'ENVIADO_A_JEFE','ENVIADO_A_IT','RECHAZADO','EN_PROCESO', 'FINALIZADO')
 )
 GO
 

@@ -15,6 +15,8 @@
 
 @section estilos
 {
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
     <!-- Select2 -->
     <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
@@ -45,22 +47,9 @@
             content: ":";
         }
 
-        .fondo_verde > td {
-            background-color: green;
-            color: #fffdf0;
-            font-weight: bolder;
-        }
 
-        .fondo_amarillo > td {
-            background-color: orange;
-            color: #221f1f;
-            font-weight: bolder;
-        }
-
-        .fondo_rojo > td {
-            background-color: red;
-            color: #fffdf0;
-            font-weight: bolder;
+        .text_derecha {
+            text-align: right;
         }
     </style>
 }
@@ -93,7 +82,7 @@
                                 <input type="text" class="form-control col-md-12" style="text-align: right; font-weight: bold" value="@Bitacoras.Util.IT_MR_Status.DescripcionStatus(Model.estatus).ToUpper()" readonly>
                             </div>
                         </div>
-                       
+
                         <div class="row">
                             <div class="col-sm-12">
                                 <div class="card-box ">
@@ -168,43 +157,46 @@
                         @*HARDWARE*@
                         <div class="form-group row">
 
-                            @foreach (var item in listHardware)
-                            {
+                            <table id="datatable_1" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th width="2%">#</th>
+                                        <th>
+                                            Tipo Hardware
+                                        </th>
+                                        <th>
+                                            Detalles
+                                        </th>
+                                        <th width="10%">
+                                            Finalizado
+                                        </th>
+                                        <th width="35%">
+                                            Comentarios
+                                        </th>
 
-                                if (!item.aplica_descripcion)
-                                {
-
-
-                                    <div class="col-md-2 col-sm-2">
-                                        <div class="col-md-12 col-sm-12">
-                                            <div class="checkbox">
-                                                <label>
-                                                    <input type="checkbox" name="SelectedHardware" value="hardware_@item.id" @(Model.IT_matriz_hardware.Any(x => x.id_it_hardware == item.id) == true ? "checked" : null ) disabled> @item.descripcion
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                }
-                                else
-                                {
-                                    <div class="col-md-6 col-sm-6">
-                                        <div class="col-md-4 col-sm-4">
-                                            <div class="checkbox">
-                                                <label>
-                                                    <input type="checkbox" name="SelectedHardware" value="hardware_@item.id" @(Model.IT_matriz_hardware.Any(x => x.id_it_hardware == item.id) == true ? "checked" : null ) disabled> @item.descripcion
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-8 col-sm-8" id="hardware_@(item.id)_div" style="margin-bottom: 5px; @(Model.IT_matriz_hardware.Any(x => x.id_it_hardware == item.id) == true ? null : "display:none" ) ">
-
-                                            <input type="text" name="hardware_@(item.id)_descripcion" id="hardware_@(item.id)_descripcion" class="form-control col-md-12" value="@Model.IT_matriz_hardware.Where(x=>x.id_it_hardware==item.id).Select(x=>x.descripcion).FirstOrDefault()" rel="tooltip" data-title="@Model.IT_matriz_hardware.Where(x=>x.id_it_hardware==item.id).Select(x=>x.descripcion).FirstOrDefault()" readonly="readonly">
-                                            <span class="field-validation-valid text-danger" data-valmsg-for="hardware_@(item.id)_descripcion" data-valmsg-replace="true"></span>
-                                        </div>
-                                    </div>
-
-                                }
-                            }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.IT_matriz_hardware)
+                                    {
+                                        <tr>
+                                            <th>@(Model.IT_matriz_hardware.ToList().IndexOf(item)+1)</th>
+                                            <th>
+                                                @item.IT_hardware_tipo.descripcion
+                                            </th>
+                                            <th>
+                                                @item.descripcion
+                                            </th>
+                                            <th>
+                                                <span>@(!item.completado.HasValue?"PENDIENTE":item.completado.Value?"SÍ":"NO")</span>
+                                            </th>
+                                            <th>
+                                                <span>@item.comentario</span>
+                                            </th>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
 
                         </div>
                         <div class="ln_solid"></div>
@@ -214,59 +206,46 @@
                         @*SOFTWARE*@
                         <div class="form-group row">
 
-                            <div class="col-md-2 col-sm-2">
-                                <div class="col-md-12 col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" checked disabled> Correo electr&oacute;nico
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-2 col-sm-2">
-                                <div class="col-md-12 col-sm-12">
-                                    <div class="checkbox">
-                                        <label>
-                                            <input type="checkbox" checked disabled> 8ID
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
+                            <table id="datatable_2" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th width="2%">#</th>
+                                        <th>
+                                            Tipo Hardware
+                                        </th>
+                                        <th>
+                                            Detalles
+                                        </th>
+                                        <th width="10%">
+                                            Finalizado
+                                        </th>
+                                        <th width="35%">
+                                            Comentarios
+                                        </th>
 
-                            @foreach (var item in listSoftware)
-                            {
-
-                                if (!item.aplica_descripcion)
-                                {
-                                    <div class="col-md-2 col-sm-2">
-                                        <div class="col-md-12 col-sm-12">
-                                            <div class="checkbox">
-                                                <label>
-                                                    <input type="checkbox" name="SelectedSoftware" value="software_@item.id" @(Model.IT_matriz_software.Any(x => x.id_it_software == item.id) == true ? "checked" : null ) disabled> @item.descripcion
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                }
-                                else
-                                {
-                                    <div class="col-md-6 col-sm-6">
-                                        <div class="col-md-4 col-sm-4">
-                                            <div class="checkbox">
-                                                <label>
-                                                    <input type="checkbox" name="SelectedSoftware" value="software_@item.id" @(Model.IT_matriz_software.Any(x => x.id_it_software == item.id) == true ? "checked" : null ) disabled> @item.descripcion
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-8 col-sm-8" id="software_@(item.id)_div" style="margin-bottom: 5px; @(Model.IT_matriz_software.Any(x => x.id_it_software == item.id) == true ? null : "display:none" )">
-                                            <input type="text" name="software_@(item.id)_descripcion" id="software_@(item.id)_descripcion" class="form-control col-md-12" value="@Model.IT_matriz_software.Where(x=>x.id_it_software==item.id).Select(x=>x.descripcion).FirstOrDefault()" readonly="readonly" rel="tooltip" data-title="@Model.IT_matriz_software.Where(x=>x.id_it_software==item.id).Select(x=>x.descripcion).FirstOrDefault()">
-                                            <span class="field-validation-valid text-danger" data-valmsg-for="software_@(item.id)_descripcion" data-valmsg-replace="true"></span>
-                                        </div>
-                                    </div>
-
-                                }
-                            }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.IT_matriz_software)
+                                    {
+                                        <tr>
+                                            <th>@(Model.IT_matriz_software.ToList().IndexOf(item)+1)</th>
+                                            <th>
+                                                @item.IT_software_tipo.descripcion
+                                            </th>
+                                            <th>
+                                                @item.descripcion
+                                            </th>
+                                            <th>
+                                                <span>@(!item.completado.HasValue?"PENDIENTE":item.completado.Value?"SÍ":"NO")</span>
+                                            </th>
+                                            <th>
+                                                <span>@item.comentario</span>
+                                            </th>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
 
                         </div>
 
@@ -291,41 +270,46 @@
                         @*COMUNICACIONES*@
                         <div class="form-group row">
 
-                            @foreach (var item in listComunicaciones)
-                            {
+                            <table id="datatable_3" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th width="2%">#</th>
+                                        <th>
+                                            Tipo Hardware
+                                        </th>
+                                        <th>
+                                            Detalles
+                                        </th>
+                                        <th width="10%">
+                                            Finalizado
+                                        </th>
+                                        <th width="35%">
+                                            Comentarios
+                                        </th>
 
-                                if (!item.aplica_descripcion)
-                                {
-                                    <div class="col-md-2 col-sm-2">
-                                        <div class="col-md-12 col-sm-12">
-                                            <div class="checkbox">
-                                                <label>
-                                                    <input type="checkbox" name="SelectedComunicaciones" value="comunicaciones_@item.id" @(Model.IT_matriz_comunicaciones.Any(x => x.id_it_comunicaciones == item.id) == true ? "checked" : null ) disabled> @item.descripcion
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                }
-                                else
-                                {
-                                    <div class="col-md-6 col-sm-6">
-                                        <div class="col-md-4 col-sm-4">
-                                            <div class="checkbox">
-                                                <label>
-                                                    <input type="checkbox" name="SelectedComunicaciones" value="comunicaciones_@item.id" @(Model.IT_matriz_comunicaciones.Any(x => x.id_it_comunicaciones == item.id) == true ? "checked" : null ) disabled> @item.descripcion
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-8 col-sm-8" id="comunicaciones_@(item.id)_div" style="margin-bottom: 5px; @(Model.IT_matriz_comunicaciones.Any(x => x.id_it_comunicaciones == item.id) == true ? null : "display:none" )">
-
-                                            <input type="text" name="comunicaciones_@(item.id)_descripcion" id="comunicaciones_@(item.id)_descripcion" class="form-control col-md-12" value="@Model.IT_matriz_comunicaciones.Where(x=>x.id_it_comunicaciones==item.id).Select(x=>x.descripcion).FirstOrDefault()" rel="tooltip" data-title="@Model.IT_matriz_comunicaciones.Where(x=>x.id_it_comunicaciones==item.id).Select(x=>x.descripcion).FirstOrDefault()" readonly="readonly">
-                                            <span class="field-validation-valid text-danger" data-valmsg-for="comunicaciones_@(item.id)_descripcion" data-valmsg-replace="true"></span>
-                                        </div>
-                                    </div>
-
-                                }
-                            }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.IT_matriz_comunicaciones)
+                                    {
+                                        <tr>
+                                            <th>@(Model.IT_matriz_comunicaciones.ToList().IndexOf(item)+1)</th>
+                                            <th>
+                                                @item.IT_comunicaciones_tipo.descripcion
+                                            </th>
+                                            <th>
+                                                @item.descripcion
+                                            </th>
+                                            <th>
+                                                <span>@(!item.completado.HasValue?"PENDIENTE":item.completado.Value?"SÍ":"NO")</span>
+                                            </th>
+                                            <th>
+                                                <span>@item.comentario</span>
+                                            </th>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
 
                         </div>
 
@@ -336,41 +320,46 @@
 
                         @*CARPETAS EN RED*@
                         <div class="form-group row">
+                            <table id="datatable_4" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th width="2%">#</th>
+                                        <th>
+                                            Tipo Hardware
+                                        </th>
+                                        <th>
+                                            Detalles
+                                        </th>
+                                        <th width="10%">
+                                            Finalizado
+                                        </th>
+                                        <th width="35%">
+                                            Comentarios
+                                        </th>
 
-                            @foreach (var item in listCarpetas)
-                            {
-
-                                if (!item.aplica_descripcion)
-                                {
-                                    <div class="col-md-2 col-sm-2">
-                                        <div class="col-md-12 col-sm-12">
-                                            <div class="checkbox">
-                                                <label>
-                                                    <input type="checkbox" name="SelectedCarpetas" value="carpetas_@item.id" @(Model.IT_matriz_carpetas.Any(x => x.id_it_carpeta_red == item.id) == true ? "checked" : null ) disabled> @item.descripcion
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                }
-                                else
-                                {
-                                    <div class="col-md-6 col-sm-6">
-                                        <div class="col-md-4 col-sm-4">
-                                            <div class="checkbox">
-                                                <label>
-                                                    <input type="checkbox" name="SelectedCarpetas" value="carpetas_@item.id" @(Model.IT_matriz_carpetas.Any(x => x.id_it_carpeta_red == item.id) == true ? "checked" : null ) disabled> @item.descripcion
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-8 col-sm-8" id="carpetas_@(item.id)_div" style="margin-bottom: 5px; @(Model.IT_matriz_carpetas.Any(x => x.id_it_carpeta_red == item.id) == true ? null : "display:none" )">
-                                            <input type="text" name="carpetas_@(item.id)_descripcion" id="carpetas_@(item.id)_descripcion" class="form-control col-md-12" value="@Model.IT_matriz_carpetas.Where(x=>x.id_it_carpeta_red==item.id).Select(x=>x.descripcion).FirstOrDefault()" rel="tooltip" data-title="@Model.IT_matriz_carpetas.Where(x=>x.id_it_carpeta_red==item.id).Select(x=>x.descripcion).FirstOrDefault()" readonly="readonly">
-                                            <span class="field-validation-valid text-danger" data-valmsg-for="carpetas_@(item.id)_descripcion" data-valmsg-replace="true"></span>
-                                        </div>
-                                    </div>
-
-                                }
-                            }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.IT_matriz_carpetas)
+                                    {
+                                        <tr>
+                                            <th>@(Model.IT_matriz_carpetas.ToList().IndexOf(item)+1)</th>
+                                            <th>
+                                                @item.IT_carpetas_red.descripcion
+                                            </th>
+                                            <th>
+                                                @item.descripcion
+                                            </th>
+                                            <th>
+                                                <span>@(!item.completado.HasValue?"PENDIENTE":item.completado.Value?"SÍ":"NO")</span>
+                                            </th>
+                                            <th>
+                                                <span>@item.comentario</span>
+                                            </th>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
 
                         </div>
 
@@ -381,25 +370,35 @@
                         </div>
                         <div class="item form-group">
                             <div class="col-md-12">
-                                @Html.TextAreaFor(model => model.comentario, new { @class = "form-control", @rows = "5", @autocomplete = "off", @readonly = "readonly" })
-                                @Html.ValidationMessageFor(model => model.comentario, "", new { @class = "text-danger" })
+                                @Html.TextAreaFor(model => model.comentario, new { @class = "form-control", @rows = "5", @readonly = "readonly" })
                             </div>
                         </div>
                         <div class="ln_solid"></div>
-
                         <div class="form-group row">
-                            <span style="color:black"><b>¡AVISO!</b></span>
+                            <span style="color:black"><b>DATOS DE CIERRE</b></span>
                         </div>
 
                         <div class="form-group row">
-                            <div class="col-md-12 col-sm-12 ">
-                                <p class="text-muted well well-sm no-shadow" style="margin-top: 10px; font-weight:bold; text-align:justify">
-                                    <i class="fa fa-warning"></i> Las credenciales de acceso ser&aacute;n otorgadas exclusivamente para el uso de sus funciones laborales en thyssenkrupp Materials de
-                                    M&eacute;xico, por lo tanto son consideradas intransferibles y de uso individual por parte del usuario, aceptando que cualquier uso no
-                                    autorizado o malversaci&oacute;n con &eacute;sta es de su exclusiva responsabilidad.
-                                </p>
+                            <!--Correo-->
+                            @Html.LabelFor(model => model.empleados.correo, new { @class = "control-label col-md-1 " })
+                            <div class="col-md-5">
+                                @Html.EditorFor(m => m.empleados.correo, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>
+                            <!--8ID-->
+                            @Html.LabelFor(model => model.empleados.C8ID, new { @class = "control-label col-md-1 text_derecha" })
+                            <div class="col-md-2">
+                                @Html.EditorFor(m => m.empleados.C8ID, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                             </div>
                         </div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>COMENTARIOS DE CIERRE</b></span>
+                        </div>
+                        <div class="item form-group">
+                            <div class="col-md-12">
+                                @Html.TextAreaFor(model => model.comentario_cierre, new { @class = "form-control", @rows = "5", @readonly = "readonly" })
+                            </div>
+                        </div>
+
                         <div class="ln_solid"></div>
 
                         <div class="form-group row">
@@ -478,6 +477,31 @@
                             </div>
                         </div>
 
+                        <div class="ln_solid"></div>
+
+                        <div class="form-group row">
+                            <span style="color:black"><b>¡AVISO!</b></span>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-12 col-sm-12 ">
+                                <p class="text-muted well well-sm no-shadow" style="margin-top: 10px; font-weight:bold; text-align:justify">
+                                    <i class="fa fa-warning"></i> Las credenciales de acceso ser&aacute;n otorgadas exclusivamente para el uso de sus funciones laborales en thyssenkrupp Materials de
+                                    M&eacute;xico, por lo tanto son consideradas intransferibles y de uso individual por parte del usuario, aceptando que cualquier uso no
+                                    autorizado o malversaci&oacute;n con &eacute;sta es de su exclusiva responsabilidad.
+                                </p>
+                            </div>
+                        </div>
+                        @if (Model.estatus == Bitacoras.Util.IT_MR_Status.FINALIZADO) {
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <div class="col-md-12 col-sm-12">
+                                <a href="@Url.Action("GenerarPDF", ViewBag.ControllerName, new { id = Model.id })" class="btn btn-danger btn-lg float-right" rel="tooltip" data-title="Generar PDF" data-placement="right">
+                                    <i class="fa-solid fa-file-pdf"></i> Descargar Solicitud
+                                </a>
+                            </div>
+                        </div>
+                        }
                     </div>
                 </div>
                 <div>
@@ -501,6 +525,7 @@
     @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
 
+    @Scripts.Render("~/bundles/dataTables_js")
 
     <script>
 
@@ -519,6 +544,15 @@
                 });
             });
 
+        });
+
+        //inicializa los data table
+        var tabla = $('.table').DataTable({
+            "paging": false,
+            "ordering": false,
+            "searching": false,
+            "scrollX": true,
+            "info": false
         });
 
 

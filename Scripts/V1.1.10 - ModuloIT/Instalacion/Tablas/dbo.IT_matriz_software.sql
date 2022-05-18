@@ -23,7 +23,9 @@ CREATE TABLE [IT_matriz_software](
 	[id][int] IDENTITY(1,1) NOT NULL,
 	[id_matriz_requerimientos] [int] NOT NULL,
 	[id_it_software] [int] NOT NULL,
-	[descripcion] [varchar](90) NULL
+	[descripcion] [varchar](90) NULL,
+	[comentario] [varchar](90) NULL,
+	[completado][bit] NULL,
  CONSTRAINT [PK_IT_matriz_software] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC

@@ -401,7 +401,6 @@
     </Compile>
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\MetadataModels\IT_Matriz_requerimientosMetadata.cs" />
-    <Compile Include="Models\MetadataModels\PartialClasses.cs" />
     <Compile Include="Models\mm_v3.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -583,6 +582,8 @@
     <Content Include="Content\build\js\custom.js" />
     <Content Include="Content\build\js\custom.min.js" />
     <Content Include="Content\emails_plantillas\IT_MR_notificacion_autorizacion_sistemas.html" />
+    <Content Include="Content\emails_plantillas\IT_MR_notificacion_en_proceso.html" />
+    <Content Include="Content\emails_plantillas\IT_MR_notificacion_cierre.html" />
     <Content Include="Content\emails_plantillas\IT_MR_notificacion_rechazo_solicitante.html" />
     <Content Include="Content\emails_plantillas\IT_MR_notificacion_autorizacion_solicitante.html" />
     <Content Include="Content\emails_plantillas\IT_MR_notificacion_jefe.html" />

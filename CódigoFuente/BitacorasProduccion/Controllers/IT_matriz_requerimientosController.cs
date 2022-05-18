@@ -34,6 +34,7 @@ namespace Portal_2_0.Controllers
                        ((x.nombre + " " + x.apellido1 + " " + x.apellido2).Contains(nombre) || String.IsNullOrEmpty(nombre))
                        && (x.numeroEmpleado.Contains(num_empleado) || String.IsNullOrEmpty(num_empleado))
                        && (x.planta_clave == planta_clave || planta_clave == 0)
+                       && x.activo == true
                        )
                        .OrderBy(x => x.id)
                        .Skip((pagina - 1) * cantidadRegistrosPorPagina)
@@ -44,6 +45,7 @@ namespace Portal_2_0.Controllers
                         ((x.nombre + " " + x.apellido1 + " " + x.apellido2).Contains(nombre) || String.IsNullOrEmpty(nombre))
                           && (x.numeroEmpleado.Contains(num_empleado) || String.IsNullOrEmpty(num_empleado))
                        && (x.planta_clave == planta_clave || planta_clave == 0)
+                       && x.activo == true
                        )
                     .Count();
 
@@ -90,13 +92,13 @@ namespace Portal_2_0.Controllers
 
 
                 var listado = db.IT_matriz_requerimientos
-                    .Where(x => (x.estatus == IT_MR_Status.ENVIADO_A_JEFE || x.estatus == IT_MR_Status.ENVIADO_A_IT || x.estatus == IT_MR_Status.CREADO))
+                    .Where(x => (x.estatus == IT_MR_Status.ENVIADO_A_JEFE || x.estatus == IT_MR_Status.ENVIADO_A_IT || x.estatus == IT_MR_Status.CREADO || x.estatus == IT_MR_Status.EN_PROCESO))
                     .OrderByDescending(x => x.fecha_solicitud)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
                 var totalDeRegistros = db.IT_matriz_requerimientos
-                     .Where(x => (x.estatus == IT_MR_Status.ENVIADO_A_JEFE || x.estatus == IT_MR_Status.ENVIADO_A_IT || x.estatus == IT_MR_Status.CREADO))
+                    .Where(x => (x.estatus == IT_MR_Status.ENVIADO_A_JEFE || x.estatus == IT_MR_Status.ENVIADO_A_IT || x.estatus == IT_MR_Status.CREADO || x.estatus == IT_MR_Status.EN_PROCESO))
                    .Count();
 
                 //para paginación
@@ -380,13 +382,13 @@ namespace Portal_2_0.Controllers
                 empleados empleado = obtieneEmpleadoLogeado();
 
                 var listado = db.IT_matriz_requerimientos
-                    .Where(x => (x.estatus == IT_MR_Status.ENVIADO_A_IT || x.estatus == IT_MR_Status.FINALIZADO) && x.id_jefe_directo == empleado.id)
+                    .Where(x => (x.estatus == IT_MR_Status.ENVIADO_A_IT || x.estatus == IT_MR_Status.FINALIZADO || x.estatus == IT_MR_Status.EN_PROCESO) && x.id_jefe_directo == empleado.id)
                     .OrderByDescending(x => x.fecha_solicitud)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
                 var totalDeRegistros = db.IT_matriz_requerimientos
-                           .Where(x => (x.estatus == IT_MR_Status.ENVIADO_A_IT || x.estatus == IT_MR_Status.FINALIZADO) && x.id_jefe_directo == empleado.id)
+                           .Where(x => (x.estatus == IT_MR_Status.ENVIADO_A_IT || x.estatus == IT_MR_Status.FINALIZADO || x.estatus == IT_MR_Status.EN_PROCESO) && x.id_jefe_directo == empleado.id)
                    .Count();
 
                 //para paginación
@@ -482,7 +484,7 @@ namespace Portal_2_0.Controllers
                 //Viewbags para los botones
                 ViewBag.Details = true;
                 ViewBag.Sistemas = true;
-                ViewBag.Title = "Listado de Solicitudes Pendientes";
+                ViewBag.Title = "Listado de Solicitudes";
                 ViewBag.PrimerNivel = "sistemas";
                 ViewBag.SegundoNivel = "solicitudes_usuarios_sistemas";
 
@@ -527,7 +529,7 @@ namespace Portal_2_0.Controllers
                 return View("../Home/ErrorPermisos");
             }
 
-        } 
+        }
 
         // GET: IT_matriz_requerimientos/CrearMatriz
         public ActionResult CrearMatriz(int? id)
@@ -586,7 +588,7 @@ namespace Portal_2_0.Controllers
 
         }
 
-      
+
 
         // POST: IT_matriz_requerimientos/CrearMatriz
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
@@ -625,7 +627,7 @@ namespace Portal_2_0.Controllers
                     if (keysCollection.Contains(keyDescription))
                         descripcionHardware = collection[keyDescription];
 
-                    matriz.IT_matriz_hardware.Add(new IT_matriz_hardware { id_matriz_requerimientos= id_matriz, id_it_hardware = id_hardware, descripcion = descripcionHardware });
+                    matriz.IT_matriz_hardware.Add(new IT_matriz_hardware { id_matriz_requerimientos = id_matriz, id_it_hardware = id_hardware, descripcion = descripcionHardware });
                 }
 
             //crea los objetos para software
@@ -702,7 +704,7 @@ namespace Portal_2_0.Controllers
                 TipoMensajesSweetAlerts tipoMensaje = TipoMensajesSweetAlerts.SUCCESS;
 
                 //si existe un registro con el mismo id empleado 
-                if (!db.IT_matriz_requerimientos.Any(x=>x.id_empleado==matriz.id_empleado))
+                if (!db.IT_matriz_requerimientos.Any(x => x.id_empleado == matriz.id_empleado))
                 {
                     db.IT_matriz_requerimientos.Add(matriz);
                 }
@@ -727,11 +729,10 @@ namespace Portal_2_0.Controllers
                     db.IT_matriz_software.AddRange(matriz.IT_matriz_software);
                     db.IT_matriz_hardware.AddRange(matriz.IT_matriz_hardware);
                     db.IT_matriz_carpetas.AddRange(matriz.IT_matriz_carpetas);
-                    db.IT_matriz_comunicaciones.AddRange(matriz.IT_matriz_comunicaciones);                   
+                    db.IT_matriz_comunicaciones.AddRange(matriz.IT_matriz_comunicaciones);
 
                     //establece los valores principales
                     db.Entry(matrizOld).CurrentValues.SetValues(matriz);
-                  
 
                     db.Entry(matrizOld).State = EntityState.Modified;
                 }
@@ -921,7 +922,7 @@ namespace Portal_2_0.Controllers
 
         }
 
-        // POST: PremiumFreightAproval/ValidarAreaPM/5
+        // POST: IT_matriz_requerimientos/RechazarConfirmed/5
         [HttpPost, ActionName("Rechazar")]
         [ValidateAntiForgeryToken]
         public ActionResult RechazarConfirmed(FormCollection collection)
@@ -957,6 +958,7 @@ namespace Portal_2_0.Controllers
                 TempData["Mensaje"] = new MensajesSweetAlert("Se ha rechazado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
 
                 return RedirectToAction("solicitudes_pendientes_autorizador");
+
 
             }
             catch (System.Data.Entity.Validation.DbEntityValidationException ex)
@@ -1001,18 +1003,236 @@ namespace Portal_2_0.Controllers
                 {
                     return View("../Error/NotFound");
                 }
-               
-                ViewBag.listHardware = db.IT_hardware_tipo.Where(x => x.activo == true).ToList();
-                ViewBag.listSoftware = db.IT_software_tipo.Where(x => x.activo == true).ToList();
-                ViewBag.listComunicaciones = db.IT_comunicaciones_tipo.Where(x => x.activo == true).ToList();
-                ViewBag.listCarpetas = db.IT_carpetas_red.Where(x => x.activo == true).ToList();
 
-                return View(new IT_matriz_requerimientosCerrarModel {matriz = matriz });
+
+                return View(new IT_matriz_requerimientosCerrarModel { matriz = matriz, id = matriz.id, correo = matriz.empleados.correo, C8ID = matriz.empleados.C8ID, comentario_cierre = matriz.comentario_cierre });
             }
             else
             {
                 return View("../Home/ErrorPermisos");
             }
+
+        }
+
+        // POST: IT_matriz_requerimientos/Cerrar
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
+        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Cerrar(IT_matriz_requerimientosCerrarModel matrizModel, FormCollection collection)
+        {
+            IT_matriz_requerimientos matriz = db.IT_matriz_requerimientos.Find(matrizModel.id);
+
+            //lista de key del collection
+            List<string> keysCollection = collection.AllKeys.ToList();
+
+            string tipoSolicitud = collection["tipo_form"];
+
+            #region Asignación de Objetos
+          
+            //crea los objetos para hardware
+            foreach (string hardware_string in keysCollection.Where(x => x.Contains("hardware") && x.Contains("estado")))
+            {
+                //obtiene el id
+                Match m = Regex.Match(hardware_string, @"\d+");
+                int id_hardware = 0;
+
+                if (m.Success)//si tiene un numero                
+                    int.TryParse(m.Value, out id_hardware);
+
+                //obtiene el estado
+                bool completado = Convert.ToBoolean(collection["hardware_" + id_hardware + "_estado"]);
+                string comentario = null;
+
+                //comentario
+                if (keysCollection.Contains("hardware_" + id_hardware + "_comentarios") && !String.IsNullOrEmpty(collection["hardware_" + id_hardware + "_comentarios"]))
+                     comentario = collection["hardware_" + id_hardware + "_comentarios"];
+
+                //obtiene el objeto asociado
+                IT_matriz_hardware item = matriz.IT_matriz_hardware.Where(x => x.id == id_hardware).FirstOrDefault();
+
+                if (item != null)
+                {
+                    item.completado = completado;
+                    item.comentario = comentario;                        
+                }
+            }
+
+            //crea los objetos para software
+            foreach (string software_string in keysCollection.Where(x => x.Contains("software") && x.Contains("estado")))
+            {
+                //obtiene el id
+                Match m = Regex.Match(software_string, @"\d+");
+                int id_software = 0;
+
+                if (m.Success)//si tiene un numero                
+                    int.TryParse(m.Value, out id_software);
+
+                //obtiene el estado
+                bool completado = Convert.ToBoolean(collection["software_" + id_software + "_estado"]);
+                string comentario = null;
+
+                //comentario
+                if (keysCollection.Contains("software_" + id_software + "_comentarios") && !String.IsNullOrEmpty(collection["software_" + id_software + "_comentarios"]))
+                    comentario = collection["software_" + id_software + "_comentarios"];
+
+                //obtiene el objeto asociado
+                IT_matriz_software item = matriz.IT_matriz_software.Where(x => x.id == id_software).FirstOrDefault();
+
+                if (item != null)
+                {
+                    item.completado = completado;
+                    item.comentario = comentario;
+                }
+            }
+
+            //crea los objetos para comunicaciones
+            foreach (string comunicaciones_string in keysCollection.Where(x => x.Contains("comunicaciones") && x.Contains("estado")))
+            {
+                //obtiene el id
+                Match m = Regex.Match(comunicaciones_string, @"\d+");
+                int id_comunicaciones = 0;
+
+                if (m.Success)//si tiene un numero                
+                    int.TryParse(m.Value, out id_comunicaciones);
+
+                //obtiene el estado
+                bool completado = Convert.ToBoolean(collection["comunicaciones_" + id_comunicaciones + "_estado"]);
+                string comentario = null;
+
+                //comentario
+                if (keysCollection.Contains("comunicaciones_" + id_comunicaciones + "_comentarios") && !String.IsNullOrEmpty(collection["comunicaciones_" + id_comunicaciones + "_comentarios"]))
+                    comentario = collection["comunicaciones_" + id_comunicaciones + "_comentarios"];
+
+                //obtiene el objeto asociado
+                IT_matriz_comunicaciones item = matriz.IT_matriz_comunicaciones.Where(x => x.id == id_comunicaciones).FirstOrDefault();
+
+                if (item != null)
+                {
+                    item.completado = completado;
+                    item.comentario = comentario;
+                }
+            }
+
+            //crea los objetos para las carpetas
+            foreach (string carpetas_string in keysCollection.Where(x => x.Contains("carpetas") && x.Contains("estado")))
+            {
+                //obtiene el id
+                Match m = Regex.Match(carpetas_string, @"\d+");
+                int id_carpetas = 0;
+
+                if (m.Success)//si tiene un numero                
+                    int.TryParse(m.Value, out id_carpetas);
+
+                //obtiene el estado
+                bool completado = Convert.ToBoolean(collection["carpetas_" + id_carpetas + "_estado"]);
+                string comentario = null;
+
+                //comentario
+                if (keysCollection.Contains("carpetas_" + id_carpetas + "_comentarios") && !String.IsNullOrEmpty(collection["carpetas_" + id_carpetas + "_comentarios"]))
+                    comentario = collection["carpetas_" + id_carpetas + "_comentarios"];
+
+                //obtiene el objeto asociado
+                IT_matriz_carpetas item = matriz.IT_matriz_carpetas.Where(x => x.id == id_carpetas).FirstOrDefault();
+
+                if (item != null)
+                {
+                    item.completado = completado;
+                    item.comentario = comentario;
+                }
+            }
+
+
+            #endregion
+
+            //verifica 8ID y correo
+            if(db.empleados.Any(x=> x.correo == matrizModel.correo && x.id != matriz.id_empleado) && !String.IsNullOrEmpty(matrizModel.correo))
+                ModelState.AddModelError("", "Ya existe un registro con el mismo correo electrónico.");
+
+            if (db.empleados.Any(x => x.C8ID == matrizModel.C8ID && x.id != matriz.id_empleado) && !String.IsNullOrEmpty(matrizModel.C8ID))
+                ModelState.AddModelError("", "Ya existe un registro con el mismo 8ID.");
+
+
+            if (ModelState.IsValid)
+            {
+                string mensaje = "Se ha enviado la solicitud correctamente.";
+                TipoMensajesSweetAlerts tipoMensaje = TipoMensajesSweetAlerts.SUCCESS;
+
+                // 1. actualiza matriz
+                empleados sistemas = obtieneEmpleadoLogeado();
+
+                //campos obligatorios                
+                matriz.id_sistemas = sistemas.id;
+                matriz.comentario_cierre = matrizModel.comentario_cierre;
+
+                matriz.empleados.correo = matrizModel.correo;
+                matriz.empleados.C8ID = matrizModel.C8ID;
+
+                //actualiza el estado de la solicitud según el tipo de formulario enviado
+                switch (tipoSolicitud.ToUpper()) {
+                    case "CIERRE":
+                        matriz.estatus = IT_MR_Status.FINALIZADO;
+                        matriz.fecha_cierre = DateTime.Now;
+                        break;
+                    case "PROGRESO":
+                        matriz.estatus = IT_MR_Status.EN_PROCESO;
+                        break;
+                    default:
+                        matriz.estatus = IT_MR_Status.ENVIADO_A_IT;
+                        break;
+                }
+
+                AspNetUsers user = db.AspNetUsers.Where(x => x.IdEmpleado == matriz.empleados.id).FirstOrDefault();
+                if (user != null) {
+                    user.Email = matrizModel.correo;
+                    db.Entry(user).State = EntityState.Modified;
+                }
+
+                db.Entry(matriz).State = EntityState.Modified;
+
+
+                try
+                {
+                    db.SaveChanges();
+
+                    EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+
+                    List<String> correos = new List<string>(); //correos TO
+
+                    if (!String.IsNullOrEmpty(matriz.empleados1.correo)) //jefe directo
+                        correos.Add(matriz.empleados1.correo); //agrega correo de elaborador
+                    if (!String.IsNullOrEmpty(matriz.empleados3.correo)) //Solicitante
+                        correos.Add(matriz.empleados3.correo); //agrega correo de elaborador
+
+
+                    //envía notificacion de solicitud de usuario
+                    if (matriz.estatus == IT_MR_Status.EN_PROCESO)
+                    {
+                        envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de Usuarios #" + matriz.id + " ha sido actualizada.", envioCorreo.getBody_IT_MR_Notificacion_En_Proceso(matriz));
+                        TempData["Mensaje"] = new MensajesSweetAlert("Se ha actualizado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
+                    } else if (matriz.estatus == IT_MR_Status.FINALIZADO) {
+                        envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de usuarios #" + matriz.id + " ha sido cerrada.", envioCorreo.getBody_IT_MR_Notificacion_Cierre(matriz));
+                        TempData["Mensaje"] = new MensajesSweetAlert("Se ha cerrado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
+
+                    }
+                    return RedirectToAction("solicitudes_sistemas");                  
+                }
+                catch (Exception ex)
+                {
+                    mensaje = "Error al guardar en BD.";
+                    tipoMensaje = TipoMensajesSweetAlerts.ERROR;
+                    EscribeExcepcion(ex, Clases.Models.EntradaRegistroEvento.TipoEntradaRegistroEvento.Error);
+                }
+
+                TempData["Mensaje"] = new MensajesSweetAlert(mensaje, tipoMensaje);
+
+                return RedirectToAction("solicitudes_sistemas");
+
+
+            }
+
+            matrizModel.matriz = matriz;
+            return View(matrizModel);
 
         }
 

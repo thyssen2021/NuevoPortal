@@ -96,11 +96,11 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_comunicaciones_tipo> IT_comunicaciones_tipo { get; set; }
         public virtual DbSet<IT_hardware_tipo> IT_hardware_tipo { get; set; }
         public virtual DbSet<IT_internet_tipo> IT_internet_tipo { get; set; }
+        public virtual DbSet<IT_software_tipo> IT_software_tipo { get; set; }
         public virtual DbSet<IT_matriz_carpetas> IT_matriz_carpetas { get; set; }
         public virtual DbSet<IT_matriz_comunicaciones> IT_matriz_comunicaciones { get; set; }
         public virtual DbSet<IT_matriz_hardware> IT_matriz_hardware { get; set; }
-        public virtual DbSet<IT_matriz_software> IT_matriz_software { get; set; }
-        public virtual DbSet<IT_software_tipo> IT_software_tipo { get; set; }
         public virtual DbSet<IT_matriz_requerimientos> IT_matriz_requerimientos { get; set; }
+        public virtual DbSet<IT_matriz_software> IT_matriz_software { get; set; }
     }
 }

@@ -689,6 +689,65 @@ namespace Portal_2_0.Models
 
         }
 
+        /// <summary>
+        /// metodo para obtener el body de email de notificación de cierre de solicitud
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public string getBody_IT_MR_Notificacion_Cierre(IT_matriz_requerimientos item)
+        {
+            //obtiene la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+
+            string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/IT_MR_notificacion_cierre.html"));
+
+
+            body = body.Replace("#SISTEMAS", item.empleados2.ConcatNombre); //sistemas
+            body = body.Replace("#ESTADO", IT_MR_Status.DescripcionStatus(item.estatus));
+            body = body.Replace("#ID", item.id.ToString()); //elaborador
+            body = body.Replace("#EMPLEADO", item.empleados.ConcatNombre);
+            body = body.Replace("#PUESTO", item.empleados.puesto1.descripcion);
+            body = body.Replace("#COMENTARIO", item.comentario);
+            body = body.Replace("#CIERRE", item.comentario_cierre);
+            body = body.Replace("#8ID", item.empleados.C8ID);
+            body = body.Replace("#CORREO", item.empleados.correo);
+            body = body.Replace("#FECHA_SOLICITUD", item.fecha_solicitud.ToString("dd/MM/yyyy"));
+            body = body.Replace("#ENLACE", domainName + "/IT_matriz_requerimientos/Details/" + item.id);
+            body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
+
+            return body;
+
+        }
+
+        /// <summary>
+        /// metodo para obtener el body de email de notificación en proceso de solicitud
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public string getBody_IT_MR_Notificacion_En_Proceso(IT_matriz_requerimientos item)
+        {
+            //obtiene la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+
+            string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/IT_MR_notificacion_en_proceso.html"));
+
+
+            body = body.Replace("#SISTEMAS", item.empleados2.ConcatNombre); //sistemas
+            body = body.Replace("#ESTADO", IT_MR_Status.DescripcionStatus(item.estatus));
+            body = body.Replace("#ID", item.id.ToString()); //elaborador
+            body = body.Replace("#EMPLEADO", item.empleados.ConcatNombre);
+            body = body.Replace("#PUESTO", item.empleados.puesto1.descripcion);
+            body = body.Replace("#COMENTARIO", item.comentario);
+            body = body.Replace("#8ID", item.empleados.C8ID);
+            body = body.Replace("#CORREO", item.empleados.correo);
+            body = body.Replace("#FECHA_SOLICITUD", item.fecha_solicitud.ToString("dd/MM/yyyy"));
+            body = body.Replace("#ENLACE", domainName + "/IT_matriz_requerimientos/Details/" + item.id);
+            body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
+
+            return body;
+
+        }
+
         #endregion
     }
 }

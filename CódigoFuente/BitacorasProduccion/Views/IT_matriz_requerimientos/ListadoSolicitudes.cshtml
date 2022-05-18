@@ -139,26 +139,33 @@
 
                                                         @if (ViewBag.Autorizar != null && ViewBag.Autorizar)
                                                         {
-                                                            <a href="@Url.Action("Autorizar", ViewBag.ControllerName, new { id = item.id })" class="btn btn-primary " rel="tooltip" data-title="Autorizar">
+                                                            <a href="@Url.Action("Autorizar", ViewBag.ControllerName, new { id = item.id })" class="btn btn-primary" rel="tooltip" data-title="Autorizar" data-placement="right">
                                                                 <i class="fa fa-file-circle-check"></i>
                                                             </a>
                                                         }
                                                         @if (ViewBag.Edit != null && ViewBag.Edit)
                                                         {
-                                                            <a href="@Url.Action("CrearMatriz", ViewBag.ControllerName, new { id = item.id_empleado })" class="btn btn-success" rel="tooltip" data-title="Editar Solicitud">
-                                                                <i class="fa fa-file-pen"></i>
+                                                            <a href="@Url.Action("CrearMatriz", ViewBag.ControllerName, new { id = item.id_empleado })" class="btn @(item.estatus == Bitacoras.Util.IT_MR_Status.FINALIZADO? "btn-warning":"btn-success" )" rel="tooltip" data-title="@(item.estatus == Bitacoras.Util.IT_MR_Status.FINALIZADO? "Solicitar Modificación de usuario":"Editar Solicitud" )" data-placement="right">
+                                                                <i class="fa @(item.estatus == Bitacoras.Util.IT_MR_Status.FINALIZADO? "fa-users":"fa-file-pen" )"></i>
                                                             </a>
                                                         }
-                                                        @if (ViewBag.Sistemas != null && ViewBag.Sistemas && item.estatus == Bitacoras.Util.IT_MR_Status.ENVIADO_A_IT)
+                                                        @if (ViewBag.Sistemas != null && ViewBag.Sistemas && (item.estatus == Bitacoras.Util.IT_MR_Status.ENVIADO_A_IT || item.estatus == Bitacoras.Util.IT_MR_Status.EN_PROCESO))
                                                         {
-                                                            <a href="@Url.Action("Cerrar", ViewBag.ControllerName, new { id = item.id })" class="btn btn-success" rel="tooltip" data-title="Cerrar Solicitud">
-                                                                <i class="fa-solid fa-list-check" ></i>
+                                                            <a href="@Url.Action("Cerrar", ViewBag.ControllerName, new { id = item.id })" class="btn btn-success" rel="tooltip" data-title="Cerrar Solicitud" data-placement="right">
+                                                                <i class="fa-solid fa-list-check"></i>
                                                             </a>
                                                         }
+
                                                         @if (ViewBag.Details != null && ViewBag.Details)
                                                         {
-                                                            <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.id })" class="btn btn-secondary " rel="tooltip" data-title="Detalles">
+                                                            <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.id })" class="btn btn-secondary " rel="tooltip" data-title="Detalles" data-placement="right">
                                                                 <i class="fa fa-info-circle"></i>
+                                                            </a>
+                                                        }
+                                                        @if (item.estatus == Bitacoras.Util.IT_MR_Status.FINALIZADO)
+                                                        {
+                                                            <a href="@Url.Action("GenerarPDF", ViewBag.ControllerName, new { id = item.id })" class="btn btn-danger" rel="tooltip" data-title="Generar PDF" data-placement="right">
+                                                                <i class="fa-solid fa-file-pdf"></i>
                                                             </a>
                                                         }
 

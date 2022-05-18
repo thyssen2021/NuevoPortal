@@ -158,29 +158,29 @@
         <AssociationConnector Association="Portal_2_0Model.FK_OT_rel_depto_aplica_linea_id_area" />
         <EntityTypeShape EntityType="Portal_2_0Model.view_historico_resultado" Width="1.5" PointX="0.75" PointY="15.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.log_acceso_email" Width="1.5" PointX="8.375" PointY="18.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.IT_carpetas_red" Width="2.5" PointX="28.375" PointY="0.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_carpetas_red" Width="2.5" PointX="29.625" PointY="2.125" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_comunicaciones_tipo" Width="2.5" PointX="25.375" PointY="25.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_hardware_tipo" Width="2.5" PointX="25.375" PointY="2.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_internet_tipo" Width="2.5" PointX="16.375" PointY="7.625" />
-        <EntityTypeShape EntityType="Portal_2_0Model.IT_matriz_carpetas" Width="2.5" PointX="30.625" PointY="6.625" />
-        <EntityTypeShape EntityType="Portal_2_0Model.IT_matriz_comunicaciones" Width="2.5" PointX="27.625" PointY="6.625" />
-        <EntityTypeShape EntityType="Portal_2_0Model.IT_matriz_hardware" Width="2.5" PointX="27.625" PointY="3.625" />
-        <EntityTypeShape EntityType="Portal_2_0Model.IT_matriz_software" Width="2.5" PointX="27.625" PointY="9.625" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_software_tipo" Width="2.5" PointX="25.375" PointY="34.75" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_carpetas_id_it_carpetas" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_comunicaciones_id_it_comunicaciones" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_hardware_id_it_hardware" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_software_id_it_software" />
-        <EntityTypeShape EntityType="Portal_2_0Model.IT_matriz_requerimientos" Width="1.5" PointX="24.625" PointY="0.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_matriz_carpetas" Width="1.5" PointX="31.625" PointY="5.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_matriz_comunicaciones" Width="1.5" PointX="28.625" PointY="16.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_matriz_hardware" Width="1.5" PointX="28.625" PointY="6.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_matriz_requerimientos" Width="1.5" PointX="25.625" PointY="6.875" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_matriz_software" Width="1.5" PointX="28.625" PointY="20.875" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_empleado" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_jefe" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_sistemas" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_solicitante" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_carpetas_id_it_carpetas" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_comunicaciones_id_it_comunicaciones" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_hardware_id_it_hardware" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_internet_tipo" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_carpetas_id_matriz_requerimientos" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_comunicaciones_id_matriz_requerimientos" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_hardware_id_matriz_requerimientos" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_software_id_matriz_requerimientos" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_software_id_it_software" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

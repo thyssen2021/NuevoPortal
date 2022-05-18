@@ -14,8 +14,9 @@ namespace Bitacoras.Util
         public const string ENVIADO_A_IT = "ENVIADO_A_IT";
         public const string RECHAZADO = "RECHAZADO";
         public const string FINALIZADO = "FINALIZADO";
+        public const string EN_PROCESO = "EN_PROCESO";
 
-                public static string DescripcionStatus(String status)
+        public static string DescripcionStatus(String status)
         {
 
             switch (status)
@@ -30,6 +31,8 @@ namespace Bitacoras.Util
                     return "Rechazado";
                 case IT_MR_Status.FINALIZADO:
                     return "Finalizado";
+                case IT_MR_Status.EN_PROCESO:
+                    return "En proceso";
                 default:
                     return "No Disponible";
             }
