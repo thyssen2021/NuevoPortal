@@ -1,9 +1,21 @@
 ﻿using Bitacoras.Util;
 using Clases.Util;
+using iText.IO.Font.Constants;
+using iText.IO.Image;
+using iText.Kernel.Colors;
+using iText.Kernel.Events;
+using iText.Kernel.Font;
+using iText.Kernel.Geom;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Borders;
+using iText.Layout.Element;
+using iText.Layout.Properties;
 using Portal_2_0.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -15,6 +27,7 @@ namespace Portal_2_0.Controllers
     public class IT_matriz_requerimientosController : BaseController
     {
         private Portal_2_0Entities db = new Portal_2_0Entities();
+        public static String itfNumber = "ITF006-03";
 
         // GET: IT_matriz_requerimientos/ListadoUsuarios
         public ActionResult ListadoUsuarios(string nombre, string num_empleado, int planta_clave = 0, int pagina = 1)
@@ -1029,7 +1042,7 @@ namespace Portal_2_0.Controllers
             string tipoSolicitud = collection["tipo_form"];
 
             #region Asignación de Objetos
-          
+
             //crea los objetos para hardware
             foreach (string hardware_string in keysCollection.Where(x => x.Contains("hardware") && x.Contains("estado")))
             {
@@ -1046,7 +1059,7 @@ namespace Portal_2_0.Controllers
 
                 //comentario
                 if (keysCollection.Contains("hardware_" + id_hardware + "_comentarios") && !String.IsNullOrEmpty(collection["hardware_" + id_hardware + "_comentarios"]))
-                     comentario = collection["hardware_" + id_hardware + "_comentarios"];
+                    comentario = collection["hardware_" + id_hardware + "_comentarios"];
 
                 //obtiene el objeto asociado
                 IT_matriz_hardware item = matriz.IT_matriz_hardware.Where(x => x.id == id_hardware).FirstOrDefault();
@@ -1054,7 +1067,7 @@ namespace Portal_2_0.Controllers
                 if (item != null)
                 {
                     item.completado = completado;
-                    item.comentario = comentario;                        
+                    item.comentario = comentario;
                 }
             }
 
@@ -1146,7 +1159,7 @@ namespace Portal_2_0.Controllers
             #endregion
 
             //verifica 8ID y correo
-            if(db.empleados.Any(x=> x.correo == matrizModel.correo && x.id != matriz.id_empleado) && !String.IsNullOrEmpty(matrizModel.correo))
+            if (db.empleados.Any(x => x.correo == matrizModel.correo && x.id != matriz.id_empleado) && !String.IsNullOrEmpty(matrizModel.correo))
                 ModelState.AddModelError("", "Ya existe un registro con el mismo correo electrónico.");
 
             if (db.empleados.Any(x => x.C8ID == matrizModel.C8ID && x.id != matriz.id_empleado) && !String.IsNullOrEmpty(matrizModel.C8ID))
@@ -1169,7 +1182,8 @@ namespace Portal_2_0.Controllers
                 matriz.empleados.C8ID = matrizModel.C8ID;
 
                 //actualiza el estado de la solicitud según el tipo de formulario enviado
-                switch (tipoSolicitud.ToUpper()) {
+                switch (tipoSolicitud.ToUpper())
+                {
                     case "CIERRE":
                         matriz.estatus = IT_MR_Status.FINALIZADO;
                         matriz.fecha_cierre = DateTime.Now;
@@ -1183,7 +1197,8 @@ namespace Portal_2_0.Controllers
                 }
 
                 AspNetUsers user = db.AspNetUsers.Where(x => x.IdEmpleado == matriz.empleados.id).FirstOrDefault();
-                if (user != null) {
+                if (user != null)
+                {
                     user.Email = matrizModel.correo;
                     db.Entry(user).State = EntityState.Modified;
                 }
@@ -1210,12 +1225,14 @@ namespace Portal_2_0.Controllers
                     {
                         envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de Usuarios #" + matriz.id + " ha sido actualizada.", envioCorreo.getBody_IT_MR_Notificacion_En_Proceso(matriz));
                         TempData["Mensaje"] = new MensajesSweetAlert("Se ha actualizado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
-                    } else if (matriz.estatus == IT_MR_Status.FINALIZADO) {
+                    }
+                    else if (matriz.estatus == IT_MR_Status.FINALIZADO)
+                    {
                         envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de usuarios #" + matriz.id + " ha sido cerrada.", envioCorreo.getBody_IT_MR_Notificacion_Cierre(matriz));
                         TempData["Mensaje"] = new MensajesSweetAlert("Se ha cerrado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
 
                     }
-                    return RedirectToAction("solicitudes_sistemas");                  
+                    return RedirectToAction("solicitudes_sistemas");
                 }
                 catch (Exception ex)
                 {
@@ -1237,5 +1254,475 @@ namespace Portal_2_0.Controllers
         }
 
         #endregion
+
+        //genera el PDF
+        public ActionResult GenerarPDF(int? id, bool inline = true)
+        {
+
+            if (id == null)
+            {
+                return View("../Error/BadRequest");
+            }
+            IT_matriz_requerimientos matriz = db.IT_matriz_requerimientos.Find(id);
+            if (matriz == null)
+            {
+                return View("../Error/NotFound");
+            }
+
+            byte[] pdfBytes;
+            using (var stream = new MemoryStream())
+            using (var wri = new PdfWriter(stream))
+            using (var pdf = new PdfDocument(wri))
+            using (var doc = new Document(pdf, PageSize.LETTER))
+            {
+                //fuente principal
+                PdfFont font = PdfFontFactory.CreateFont(Server.MapPath("/fonts/tkmm/TKTypeMedium.ttf"));
+                var thyssenColor = new DeviceRgb(0, 159, 245);
+
+
+
+                //márgenes del documento
+                doc.SetMargins(75, 35, 75, 35);
+
+                //imagen para encabezado
+                Image img = new Image(ImageDataFactory.Create(Server.MapPath("/Content/images/logo_1.png")));
+                //maneja los eventos de encabezado y pie de página
+                pdf.AddEventHandler(PdfDocumentEvent.START_PAGE, new HeaderEventHandlerPDF(img, font));
+                pdf.AddEventHandler(PdfDocumentEvent.END_PAGE, new FooterEventHandlerPDF(font));
+
+                //Empieza contenido personalizado
+
+                //estilo fuente
+                Style styleFuenteThyssen = new Style().SetFont(font);
+
+                //estilo para encabezados
+                Style encabezado = new Style().SetFont(font).SetFontSize(10).SetFontColor(ColorConstants.WHITE).SetBorder(iText.Layout.Borders.Border.NO_BORDER).SetBackgroundColor(thyssenColor).SetBold();
+                Style encabezadoTabla = new Style().SetFontSize(10).SetFontColor(ColorConstants.BLACK).SetBorder(new SolidBorder(ColorConstants.GRAY, 1)).SetBackgroundColor(ColorConstants.LIGHT_GRAY);
+
+
+                //estilo texto
+                Style styleTextoNegroBold = new Style().SetFont(font).SetFontSize(10).SetFontColor(ColorConstants.BLACK).SetBold().SetBorder(Border.NO_BORDER);
+                Style styleTextoNegroRegular = new Style().SetFont(font).SetFontSize(10).SetFontColor(ColorConstants.BLACK).SetBorder(Border.NO_BORDER);
+                Style styleTextoNegroValor = new Style().SetFont(font).SetFontSize(10).SetFontColor(ColorConstants.BLACK).SetBorder(Border.NO_BORDER).SetBorderBottom(new SolidBorder(ColorConstants.BLACK, 1));
+                // Style styleTextoNegroValor = new Style().SetFont(font).SetFontSize(10).SetFontColor(ColorConstants.BLACK).SetBorder(Border.NO_BORDER).SetBorderBottom(new SolidBorder(ColorConstants.BLACK, 1));
+                Style styleTextoGrisValor = new Style().SetFont(font).SetFontSize(10).SetFontColor(new DeviceRgb(80, 80, 80)).SetBorder(Border.NO_BORDER);
+
+
+                //jefe directo 
+                doc.Add(new Paragraph("1.- Jefe Directo").AddStyle(encabezado));
+
+                //float[] cellWidth = { 15f, 40f, 15f, 30f };
+                //Table table = new Table(UnitValue.CreatePercentArray(cellWidth)).UseAllAvailableWidth();
+
+                Table table = new Table(20).UseAllAvailableWidth();
+
+                Cell cell = new Cell(1, 3).Add(new Paragraph("Nombre:")).AddStyle(styleTextoNegroBold);
+                table.AddCell(cell);
+                cell = new Cell(1, 8).Add(new Paragraph(matriz.empleados1.ConcatNombre)).AddStyle(styleTextoNegroValor);
+                table.AddCell(cell);
+                cell = new Cell(1, 3).Add(new Paragraph("Planta:")).AddStyle(styleTextoNegroBold).SetTextAlignment(TextAlignment.RIGHT);
+                table.AddCell(cell);
+                cell = new Cell(1, 6).Add(new Paragraph(matriz.empleados1.plantas != null ? matriz.empleados1.plantas.descripcion : String.Empty)).AddStyle(styleTextoNegroValor);
+                table.AddCell(cell);
+                cell = new Cell(1, 3).Add(new Paragraph("Area:")).AddStyle(styleTextoNegroBold);
+                table.AddCell(cell);
+                cell = new Cell(1, 7).Add(new Paragraph(matriz.empleados1.Area != null ? matriz.empleados1.Area.descripcion : String.Empty)).AddStyle(styleTextoNegroValor);
+                table.AddCell(cell);
+                cell = new Cell(1, 3).Add(new Paragraph("Puesto:")).AddStyle(styleTextoNegroBold).SetTextAlignment(TextAlignment.RIGHT);
+                table.AddCell(cell);
+                cell = new Cell(1, 7).Add(new Paragraph(matriz.empleados1.puesto1 != null ? matriz.empleados1.puesto1.descripcion : String.Empty)).AddStyle(styleTextoNegroValor);
+                table.AddCell(cell);
+
+                doc.Add(table);
+
+                doc.Add(new Paragraph("\n"));
+                doc.Add(new Paragraph("2.- Información del empleado").AddStyle(encabezado));
+
+                table = new Table(20).UseAllAvailableWidth();
+
+                cell = new Cell(1, 1).Add(new Paragraph("Nombre:")).AddStyle(styleTextoNegroBold);
+                table.AddCell(cell);
+                cell = new Cell(1, 9).Add(new Paragraph(matriz.empleados.ConcatNombre)).AddStyle(styleTextoNegroValor);
+                table.AddCell(cell);
+                cell = new Cell(1, 3).Add(new Paragraph("Planta:")).AddStyle(styleTextoNegroBold).SetTextAlignment(TextAlignment.RIGHT);
+                table.AddCell(cell);
+                cell = new Cell(1, 7).Add(new Paragraph(matriz.empleados.plantas != null ? matriz.empleados.plantas.descripcion : String.Empty)).AddStyle(styleTextoNegroValor);
+                table.AddCell(cell);
+                cell = new Cell(1, 1).Add(new Paragraph("Area:")).AddStyle(styleTextoNegroBold);
+                table.AddCell(cell);
+                cell = new Cell(1, 9).Add(new Paragraph(matriz.empleados.Area != null ? matriz.empleados.Area.descripcion : String.Empty)).AddStyle(styleTextoNegroValor);
+                table.AddCell(cell);
+                cell = new Cell(1, 3).Add(new Paragraph("Puesto:")).AddStyle(styleTextoNegroBold).SetTextAlignment(TextAlignment.RIGHT);
+                table.AddCell(cell);
+                cell = new Cell(1, 7).Add(new Paragraph(matriz.empleados.puesto1 != null ? matriz.empleados.puesto1.descripcion : String.Empty)).AddStyle(styleTextoNegroValor);
+                table.AddCell(cell);
+                cell = new Cell(1, 2).Add(new Paragraph("Núm. Empleado:")).AddStyle(styleTextoNegroBold);
+                table.AddCell(cell);
+                cell = new Cell(1, 2).Add(new Paragraph(matriz.empleados.numeroEmpleado)).AddStyle(styleTextoNegroValor);
+                table.AddCell(cell);
+                cell = new Cell(1, 3).Add(new Paragraph("Fecha Ingreso:")).AddStyle(styleTextoNegroBold).SetTextAlignment(TextAlignment.RIGHT);
+                table.AddCell(cell);
+                cell = new Cell(1, 5).Add(new Paragraph(matriz.empleados.ingresoFecha.HasValue ? matriz.empleados.ingresoFecha.Value.ToShortDateString() : String.Empty)).AddStyle(styleTextoNegroValor);
+                table.AddCell(cell);
+                cell = new Cell(1, 3).Add(new Paragraph("Fecha Nacimiento:")).AddStyle(styleTextoNegroBold).SetTextAlignment(TextAlignment.RIGHT);
+                table.AddCell(cell);
+                cell = new Cell(1, 5).Add(new Paragraph(matriz.empleados.nueva_fecha_nacimiento.HasValue ? matriz.empleados.nueva_fecha_nacimiento.Value.ToShortDateString() : String.Empty)).AddStyle(styleTextoNegroValor);
+                table.AddCell(cell);
+
+                doc.Add(table);
+
+                doc.Add(new Paragraph("\n"));
+                doc.Add(new Paragraph("3.- Sistemas solicitados").AddStyle(encabezado));
+
+                doc.Add(new Paragraph("3.1- Hardware").AddStyle(styleTextoGrisValor));
+
+                float[] cellWidth = { 5f, 20f, 30f, 15f, 30f };
+                table = new Table(UnitValue.CreatePercentArray(cellWidth)).UseAllAvailableWidth();
+                table.AddCell(new Cell().Add(new Paragraph("#")).AddStyle(encabezadoTabla));
+                table.AddCell(new Cell().Add(new Paragraph("Hardware")).AddStyle(encabezadoTabla));
+                table.AddCell(new Cell().Add(new Paragraph("Detalles")).AddStyle(encabezadoTabla));
+                table.AddCell(new Cell().Add(new Paragraph("Finalizado")).AddStyle(encabezadoTabla));
+                table.AddCell(new Cell().Add(new Paragraph("Comentarios")).AddStyle(encabezadoTabla));
+
+                foreach (var item in matriz.IT_matriz_hardware)
+                {
+                    table.AddCell(new Cell().Add(new Paragraph((matriz.IT_matriz_hardware.ToList().IndexOf(item) + 1).ToString()).AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                    table.AddCell(new Cell().Add(new Paragraph(item.IT_hardware_tipo.descripcion).AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                    table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.descripcion) ? item.descripcion : String.Empty).AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                    table.AddCell(new Cell().Add(new Paragraph(!item.completado.HasValue ? "PENDIENTE" : item.completado.Value ? "SÍ" : "NO").AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                    table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.comentario) ? item.comentario : String.Empty).AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                }
+
+                doc.Add(table.SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+
+                doc.Add(new Paragraph("3.2- Software").AddStyle(styleTextoGrisValor));
+
+                table = new Table(UnitValue.CreatePercentArray(cellWidth)).UseAllAvailableWidth();
+                table.AddCell(new Cell().Add(new Paragraph("#")).AddStyle(encabezadoTabla));
+                table.AddCell(new Cell().Add(new Paragraph("Software")).AddStyle(encabezadoTabla));
+                table.AddCell(new Cell().Add(new Paragraph("Detalles")).AddStyle(encabezadoTabla));
+                table.AddCell(new Cell().Add(new Paragraph("Finalizado")).AddStyle(encabezadoTabla));
+                table.AddCell(new Cell().Add(new Paragraph("Comentarios")).AddStyle(encabezadoTabla));
+
+                foreach (var item in matriz.IT_matriz_software)
+                {
+                    table.AddCell(new Cell().Add(new Paragraph((matriz.IT_matriz_software.ToList().IndexOf(item) + 1).ToString()).AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                    table.AddCell(new Cell().Add(new Paragraph(item.IT_software_tipo.descripcion).AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                    table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.descripcion) ? item.descripcion : String.Empty).AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                    table.AddCell(new Cell().Add(new Paragraph(!item.completado.HasValue ? "PENDIENTE" : item.completado.Value ? "SÍ" : "NO").AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                    table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.comentario) ? item.comentario : String.Empty).AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                }
+
+                doc.Add(table);
+
+                doc.Add(new Paragraph("3.3- Internet").AddStyle(styleTextoGrisValor));
+
+                float[] cellWidth2 = { 15f, 55f, 30f };
+                table = new Table(UnitValue.CreatePercentArray(cellWidth2)).UseAllAvailableWidth();
+                table.AddCell(new Cell().Add(new Paragraph("Tipo Internet:")).AddStyle(styleTextoNegroBold));
+                table.AddCell(new Cell().Add(new Paragraph(matriz.IT_internet_tipo != null ? matriz.IT_internet_tipo.descripcion : "NO DISPONIBLE")).AddStyle(styleTextoNegroValor));
+                table.AddCell(new Cell().Add(new Paragraph(String.Empty)).SetBorder(Border.NO_BORDER));
+
+                doc.Add(table);
+
+                doc.Add(new Paragraph("3.4- Comunicaciones").AddStyle(styleTextoGrisValor));
+                table = new Table(UnitValue.CreatePercentArray(cellWidth)).UseAllAvailableWidth();
+                table.AddCell(new Cell().Add(new Paragraph("#")).AddStyle(encabezadoTabla));
+                table.AddCell(new Cell().Add(new Paragraph("Software")).AddStyle(encabezadoTabla));
+                table.AddCell(new Cell().Add(new Paragraph("Detalles")).AddStyle(encabezadoTabla));
+                table.AddCell(new Cell().Add(new Paragraph("Finalizado")).AddStyle(encabezadoTabla));
+                table.AddCell(new Cell().Add(new Paragraph("Comentarios")).AddStyle(encabezadoTabla));
+
+                foreach (var item in matriz.IT_matriz_comunicaciones)
+                {
+                    table.AddCell(new Cell().Add(new Paragraph((matriz.IT_matriz_comunicaciones.ToList().IndexOf(item) + 1).ToString()).AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                    table.AddCell(new Cell().Add(new Paragraph(item.IT_comunicaciones_tipo.descripcion).AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                    table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.descripcion) ? item.descripcion : String.Empty).AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                    table.AddCell(new Cell().Add(new Paragraph(!item.completado.HasValue ? "PENDIENTE" : item.completado.Value ? "SÍ" : "NO").AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                    table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.comentario) ? item.comentario : String.Empty).AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                }
+
+                doc.Add(table);
+
+                doc.Add(new Paragraph("3.5- Carpetas en Red").AddStyle(styleTextoGrisValor));
+                table = new Table(UnitValue.CreatePercentArray(cellWidth)).UseAllAvailableWidth();
+                table.AddCell(new Cell().Add(new Paragraph("#")).AddStyle(encabezadoTabla));
+                table.AddCell(new Cell().Add(new Paragraph("Software")).AddStyle(encabezadoTabla));
+                table.AddCell(new Cell().Add(new Paragraph("Detalles")).AddStyle(encabezadoTabla));
+                table.AddCell(new Cell().Add(new Paragraph("Finalizado")).AddStyle(encabezadoTabla));
+                table.AddCell(new Cell().Add(new Paragraph("Comentarios")).AddStyle(encabezadoTabla));
+
+                foreach (var item in matriz.IT_matriz_carpetas)
+                {
+                    table.AddCell(new Cell().Add(new Paragraph((matriz.IT_matriz_carpetas.ToList().IndexOf(item) + 1).ToString()).AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                    table.AddCell(new Cell().Add(new Paragraph(item.IT_carpetas_red.descripcion).AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                    table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.descripcion) ? item.descripcion : String.Empty).AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                    table.AddCell(new Cell().Add(new Paragraph(!item.completado.HasValue ? "PENDIENTE" : item.completado.Value ? "SÍ" : "NO").AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                    table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.comentario) ? item.comentario : String.Empty).AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                }
+
+                doc.Add(table);
+
+                doc.Add(new Paragraph("3.6.- Comentarios adicionales").AddStyle(styleTextoGrisValor));
+
+                table = new Table(1).UseAllAvailableWidth();
+                table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(matriz.comentario) ? matriz.comentario : String.Empty).AddStyle(styleTextoNegroRegular)).SetTextAlignment(TextAlignment.JUSTIFIED).SetBorder(Border.NO_BORDER));
+                doc.Add(table);
+
+                doc.Add(new Paragraph("\n"));
+                doc.Add(new Paragraph("4.- Datos de cierre").AddStyle(encabezado));
+
+                table = new Table(20).UseAllAvailableWidth();
+                table.AddCell(new Cell(1, 3).Add(new Paragraph("Correo:")).AddStyle(styleTextoNegroBold));
+                table.AddCell(new Cell(1, 8).Add(new Paragraph(!String.IsNullOrEmpty(matriz.empleados.correo) ? matriz.empleados.correo : String.Empty)).AddStyle(styleTextoNegroValor));
+                table.AddCell(new Cell(1, 3).Add(new Paragraph("8ID:")).AddStyle(styleTextoNegroBold).SetTextAlignment(TextAlignment.RIGHT));
+                table.AddCell(new Cell(1, 6).Add(new Paragraph(!String.IsNullOrEmpty(matriz.empleados.C8ID) ? matriz.empleados.C8ID : String.Empty)).AddStyle(styleTextoNegroValor));
+                table.AddCell(new Cell(1, 20).Add(new Paragraph("Comentarios de cierre:")).AddStyle(styleTextoNegroBold));
+
+                doc.Add(table);
+
+                table = new Table(1).UseAllAvailableWidth();
+                table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(matriz.comentario_cierre) ? matriz.comentario_cierre : String.Empty).AddStyle(styleTextoNegroRegular)).SetTextAlignment(TextAlignment.JUSTIFIED).SetBorder(Border.NO_BORDER));
+                doc.Add(table);
+
+                doc.Add(new Paragraph("\n"));
+                doc.Add(new Paragraph("5.- Aviso").AddStyle(encabezado));
+
+                doc.Add(new Paragraph("Las credenciales de acceso serán otorgadas exclusivamente para el uso de sus funciones laborales en thyssenkrupp Materials de México, " +
+                    "por lo tanto son consideradas intransferibles y de uso individual por parte del usuario, aceptando que cualquier uso no " +
+                    "autorizado o malversación con ésta es de su exclusiva responsabilidad.\n\n\n\n").AddStyle(styleTextoNegroRegular).SetTextAlignment(TextAlignment.JUSTIFIED));
+
+                table = new Table(30).UseAllAvailableWidth();
+
+                //fechas de aprobacion
+                table.AddCell(new Cell(1, 2).SetBorder(Border.NO_BORDER));
+                table.AddCell(new Cell(1, 6).Add(new Paragraph(matriz.fecha_solicitud.ToString()).AddStyle(styleTextoNegroRegular).SetTextAlignment(TextAlignment.CENTER)).SetBorder(Border.NO_BORDER));
+                table.AddCell(new Cell(1, 4).SetBorder(Border.NO_BORDER));
+                table.AddCell(new Cell(1, 6).Add(new Paragraph(matriz.fecha_aprobacion_jefe.HasValue ? matriz.fecha_aprobacion_jefe.ToString() : String.Empty).AddStyle(styleTextoNegroRegular).SetTextAlignment(TextAlignment.CENTER)).SetBorder(Border.NO_BORDER));
+                table.AddCell(new Cell(1, 4).SetBorder(Border.NO_BORDER));
+                table.AddCell(new Cell(1, 6).Add(new Paragraph(matriz.fecha_cierre.HasValue ? matriz.fecha_cierre.ToString() : String.Empty).AddStyle(styleTextoNegroRegular).SetTextAlignment(TextAlignment.CENTER)).SetBorder(Border.NO_BORDER));
+                table.AddCell(new Cell(1, 2).SetBorder(Border.NO_BORDER));
+
+                //nombres responsables
+                table.AddCell(new Cell(1, 2).SetBorder(Border.NO_BORDER));
+                table.AddCell(new Cell(1, 6).Add(new Paragraph(matriz.empleados3.ConcatNombre).SetTextAlignment(TextAlignment.CENTER)).AddStyle(styleTextoNegroValor));
+                table.AddCell(new Cell(1, 4).SetBorder(Border.NO_BORDER));
+                table.AddCell(new Cell(1, 6).Add(new Paragraph(matriz.empleados1.ConcatNombre).AddStyle(styleTextoNegroRegular).SetTextAlignment(TextAlignment.CENTER)).AddStyle(styleTextoNegroValor));
+                table.AddCell(new Cell(1, 4).SetBorder(Border.NO_BORDER));
+                table.AddCell(new Cell(1, 6).Add(new Paragraph(matriz.empleados2.ConcatNombre).AddStyle(styleTextoNegroRegular).SetTextAlignment(TextAlignment.CENTER)).AddStyle(styleTextoNegroValor));
+                table.AddCell(new Cell(1, 2).SetBorder(Border.NO_BORDER));
+
+                //puestos
+                table.AddCell(new Cell(1, 2).SetBorder(Border.NO_BORDER));
+                table.AddCell(new Cell(1, 6).Add(new Paragraph("Recursos Humanos").AddStyle(styleTextoNegroRegular).SetTextAlignment(TextAlignment.CENTER)).SetBorder(Border.NO_BORDER));
+                table.AddCell(new Cell(1, 4).SetBorder(Border.NO_BORDER));
+                table.AddCell(new Cell(1, 6).Add(new Paragraph("Jefe Directo").AddStyle(styleTextoNegroRegular).SetTextAlignment(TextAlignment.CENTER)).SetBorder(Border.NO_BORDER));
+                table.AddCell(new Cell(1, 4).SetBorder(Border.NO_BORDER));
+                table.AddCell(new Cell(1, 6).Add(new Paragraph("Sistemas").AddStyle(styleTextoNegroRegular).SetTextAlignment(TextAlignment.CENTER)).SetBorder(Border.NO_BORDER));
+                table.AddCell(new Cell(1, 2).SetBorder(Border.NO_BORDER));
+
+
+                doc.Add(table);
+
+                //salto de página
+                doc.Add(new AreaBreak(AreaBreakType.NEXT_PAGE));
+
+                doc.Add(new Paragraph("Control de cambios").AddStyle(encabezado));
+
+                float[] cellWidth3 = { 10f, 26.6f, 26.6f, 10f, 26.6f };
+
+                table = new Table(UnitValue.CreatePercentArray(cellWidth)).UseAllAvailableWidth();
+                table.AddCell(new Cell().Add(new Paragraph("Fecha")).AddStyle(encabezadoTabla));
+                table.AddCell(new Cell().Add(new Paragraph("Autor")).AddStyle(encabezadoTabla));
+                table.AddCell(new Cell().Add(new Paragraph("Puesto")).AddStyle(encabezadoTabla));
+                table.AddCell(new Cell().Add(new Paragraph("Versión")).AddStyle(encabezadoTabla));
+                table.AddCell(new Cell().Add(new Paragraph("Cambios")).AddStyle(encabezadoTabla));
+
+                //primer cambio
+                table.AddCell(new Cell().Add(new Paragraph("2019").AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                table.AddCell(new Cell().Add(new Paragraph("Angie Alvarado").AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                table.AddCell(new Cell().Add(new Paragraph("Soporte IT").AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                table.AddCell(new Cell().Add(new Paragraph("1.0").AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                table.AddCell(new Cell().Add(new Paragraph("Creación").AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                //segundo cambio
+                table.AddCell(new Cell().Add(new Paragraph("04/06/2020").AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                table.AddCell(new Cell().Add(new Paragraph("Alba Flores").AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                table.AddCell(new Cell().Add(new Paragraph("Adminitrador de Red").AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                table.AddCell(new Cell().Add(new Paragraph("1.1").AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                table.AddCell(new Cell().Add(new Paragraph("Se agrega la opción de Acceso a Internet." +
+                    "\nSe quita la baja del usuario, ese proceso ahora es de RH." +
+                    "\nSe agrega el Aviso para el uso correcto de las cuentas.").AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                //tercer cambio
+                table.AddCell(new Cell().Add(new Paragraph("20/05/2022").AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                table.AddCell(new Cell().Add(new Paragraph("Alfredo Xochitemol").AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                table.AddCell(new Cell().Add(new Paragraph("Desarrollador de Software").AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                table.AddCell(new Cell().Add(new Paragraph("1.2").AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                table.AddCell(new Cell().Add(new Paragraph("Se genera formato a través del Portal de thyssenkrupp.").AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+
+
+                doc.Add(table);
+
+                doc.Close();
+                doc.Flush();
+                pdfBytes = stream.ToArray();
+            }
+            // return new FileContentResult(pdfBytes, "application/pdf");
+
+            string filename = IT_matriz_requerimientosController.itfNumber + "_" + matriz.empleados.ConcatNombre.Trim() + ".pdf";
+
+            var cd = new System.Net.Mime.ContentDisposition
+            {
+                // for example foo.bak
+                FileName = filename,
+
+
+                // always prompt the user for downloading, set to true if you want 
+                // the browser to try to show the file inline
+                Inline = inline,
+            };
+
+            Response.AppendHeader("Content-Disposition", cd.ToString());
+
+            return File(pdfBytes, "application/pdf");
+
+        }
+
+    }
+
+    //clase para manejar eventos de cabecera y pie de página
+    public class HeaderEventHandlerPDF : IEventHandler
+    {
+        Image img;
+        PdfFont fontThyssen;
+
+        public HeaderEventHandlerPDF(Image img, PdfFont font)
+        {
+            this.img = img;
+            this.fontThyssen = font;
+        }
+
+        public void HandleEvent(Event @event)
+        {
+            PdfDocumentEvent doctEvent = (PdfDocumentEvent)@event;
+            PdfDocument pdfDoc = doctEvent.GetDocument();
+            PdfPage page = doctEvent.GetPage();
+
+            Rectangle rootArea = new Rectangle(35, page.GetPageSize().GetTop() - 70, page.GetPageSize().GetRight() - 70, 50);
+
+            Canvas canvas = new Canvas(doctEvent.GetPage(), rootArea);
+
+            canvas.Add(GetTable(doctEvent))
+                //.ShowTextAligned("Esto es el encabezado de página", 10, 0, TextAlignment.CENTER)
+                //.ShowTextAligned("Esto es el pie de página", 10, 0, TextAlignment.CENTER)
+                //.ShowTextAligned("Texto agregado", 612, 0, TextAlignment.RIGHT)
+                .Close();
+
+        }
+
+        public Table GetTable(PdfDocumentEvent docEvent)
+        {
+            //porcentaje de ancho de columna
+            float[] cellWidth = { 25f, 50f, 25f };
+            Table tableEvent = new Table(UnitValue.CreatePercentArray(cellWidth)).UseAllAvailableWidth();
+
+            var thyssenColor = new DeviceRgb(0, 159, 245);
+            Style styleCell = new Style().SetBorder(Border.NO_BORDER).SetVerticalAlignment(VerticalAlignment.MIDDLE);
+            Style styleText = new Style().SetFontSize(12f).SetFontColor(thyssenColor);
+
+
+            //crea la primera celda
+            Cell cell = new Cell()
+                .Add(new Paragraph("thyssenkrupp Materials de México S.A. de C.V.")).SetFont(fontThyssen)
+                .AddStyle(styleText).SetTextAlignment(TextAlignment.LEFT)
+               .SetHorizontalAlignment(HorizontalAlignment.CENTER)
+               .AddStyle(styleCell);
+
+            tableEvent.AddCell(cell);
+
+            cell = new Cell()
+               .Add(new Paragraph("Requerimiento para Usuarios")).SetFont(fontThyssen)
+               .AddStyle(styleText).SetTextAlignment(TextAlignment.CENTER)
+               .SetHorizontalAlignment(HorizontalAlignment.CENTER)
+               .AddStyle(styleCell);
+            tableEvent.AddCell(cell);
+
+            //crea la celda para la imagen
+            cell = new Cell()
+                .Add(img.SetAutoScale(true).SetHorizontalAlignment(HorizontalAlignment.RIGHT))
+                .AddStyle(styleCell)
+                ;
+
+            //agrega la celda a la tabla
+            tableEvent.AddCell(cell);
+
+
+            return tableEvent;
+
+        }
+    }
+
+    public class FooterEventHandlerPDF : IEventHandler
+    {
+        PdfFont fontThyssen;
+        public static String itfNumber = IT_matriz_requerimientosController.itfNumber;
+
+        public FooterEventHandlerPDF(PdfFont font)
+        {
+            this.fontThyssen = font;
+        }
+
+        public void HandleEvent(Event @event)
+        {
+            PdfDocumentEvent doctEvent = (PdfDocumentEvent)@event;
+            PdfDocument pdfDoc = doctEvent.GetDocument();
+            PdfPage page = doctEvent.GetPage();
+
+            Rectangle rootArea = new Rectangle(35, 20, page.GetPageSize().GetWidth() - 70, 50);
+
+            Canvas canvas = new Canvas(doctEvent.GetPage(), rootArea);
+
+            canvas.Add(GetTable(doctEvent))
+
+                .Close();
+
+        }
+
+        public Table GetTable(PdfDocumentEvent docEvent)
+        {
+            //porcentaje de ancho de columna
+            float[] cellWidth = { 15f, 70f, 15f };
+            Table tableEvent = new Table(UnitValue.CreatePercentArray(cellWidth)).UseAllAvailableWidth();
+
+            int pageNum = docEvent.GetDocument().GetPageNumber(docEvent.GetPage());
+            var thyssenColor = new DeviceRgb(0, 159, 245);
+            Style styleCell = new Style().SetBorder(Border.NO_BORDER).SetVerticalAlignment(VerticalAlignment.MIDDLE);
+            Style styleText = new Style().SetFontSize(12f).SetFontColor(thyssenColor);
+
+            //crea la primera celda
+            Cell cell = new Cell()
+                .Add(new Paragraph("Pág. " + pageNum)).SetFont(fontThyssen)
+                .AddStyle(styleText).SetTextAlignment(TextAlignment.LEFT)
+               .SetHorizontalAlignment(HorizontalAlignment.CENTER)
+               .AddStyle(styleCell).SetFontColor(new DeviceRgb(70, 70, 70));
+
+            tableEvent.AddCell(cell);
+
+            cell = new Cell()
+               .Add(new Paragraph("engineering.tomorrow.together")).SetFont(fontThyssen)
+               .AddStyle(styleText).SetTextAlignment(TextAlignment.CENTER)
+               .SetHorizontalAlignment(HorizontalAlignment.CENTER)
+               .AddStyle(styleCell).SetFontSize(20f);
+            tableEvent.AddCell(cell);
+
+            cell = new Cell()
+            .Add(new Paragraph(itfNumber)).SetFont(fontThyssen)
+            .AddStyle(styleText).SetTextAlignment(TextAlignment.RIGHT)
+            .SetHorizontalAlignment(HorizontalAlignment.RIGHT)
+            .AddStyle(styleCell).SetFontColor(new DeviceRgb(70, 70, 70));
+            tableEvent.AddCell(cell);
+
+            return tableEvent;
+
+        }
     }
 }

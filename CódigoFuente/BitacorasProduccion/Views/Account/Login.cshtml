@@ -12,7 +12,12 @@
     <title>@ViewBag.Title - Portal thyssenkrup</title>
     <link href="@Url.Content("~/Content/bootstrap3_3_7.min.css")" rel="stylesheet">
     <link href="@Url.Content("~/Content/login.css")" rel="stylesheet">
-
+    <style>
+        body {
+            font-family: 'TKTypeMedium';
+            src: url('../../fonts/tkmm/TKTypeMedium.ttf') format('truetype');
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -27,7 +32,7 @@
                         <span class="text-muted pull-right today" title="Today">@(DateTime.Now.ToString())</span>
                     </div><!--.panel-heading-->
                     <div class="panel-body">
-                        <center>                           
+                        <center>
                             <h3 style="color:#0094ff"><b>Portal thyssenkrupp</b></h3>
                         </center>
 

@@ -179,32 +179,31 @@
                                             <th width="35%">
                                                 Comentarios
                                             </th>
-
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach (var item in Model.matriz.IT_matriz_hardware)
                                         {
                                         <tr>
-                                            <th>@(Model.matriz.IT_matriz_hardware.ToList().IndexOf(item)+1)</th>
-                                            <th>
+                                            <td>@(Model.matriz.IT_matriz_hardware.ToList().IndexOf(item)+1)</td>
+                                            <td>
                                                 @item.IT_hardware_tipo.descripcion
-                                            </th>
-                                            <th>
+                                            </td>
+                                            <td>
                                                 @item.descripcion
-                                            </th>
-                                            <th>
+                                            </td>
+                                            <td>
                                                 <select name="hardware_@(item.id)_estado" id="hardware_@(item.id)_estado" class="form-control select2bs4" style="width:100%" required="required">
                                                     <option value="">-- Selecionar -- </option>
                                                     <option value="false" @(item.completado.HasValue && !item.completado.Value ? "selected" : null)>No</option>
                                                     <option value="true" @(item.completado.HasValue && item.completado.Value ? "selected" : null)>Sí</option>
                                                 </select>
                                                 <span class="field-validation-valid text-danger" data-valmsg-for="hardware_@(item.id)_estado" data-valmsg-replace="true"></span>
-                                            </th>
-                                            <th>
+                                            </td>
+                                            <td>
                                                 <textarea style="font-size: 12px;" type="text" name="hardware_@(item.id)_comentarios" id="hardware_@(item.id)_comentarios" class="form-control col-md-12" autocomplete="off" maxlength="90">@item.comentario</textarea>
                                                 <span class="field-validation-valid text-danger" data-valmsg-for="hardware_@(item.id)_comentarios" data-valmsg-replace="true"></span>
-                                            <th>
+                                            </td>
                                         </tr>
                                         }
                                     </tbody>
@@ -242,26 +241,26 @@
                                         {
 
                                             <tr>
-                                                <th>@(Model.matriz.IT_matriz_software.ToList().IndexOf(item)+1)</th>
-                                                <th>
+                                                <td>@(Model.matriz.IT_matriz_software.ToList().IndexOf(item)+1)</td>
+                                                <td>
                                                     @item.IT_software_tipo.descripcion
-                                                </th>
-                                                <th>
+                                                </td>
+                                                <td>
                                                     @item.descripcion
-                                                </th>
-                                                <th>
+                                                </td>
+                                                <td>
                                                     <select name="software_@(item.id)_estado" id="software_@(item.id)_estado" class="form-control select2bs4" style="width:100%" required="required">
                                                         <option value="">-- Selecionar -- </option>
                                                         <option value="false" @(item.completado.HasValue && !item.completado.Value ? "selected" : null)>No</option>
                                                         <option value="true" @(item.completado.HasValue && item.completado.Value ? "selected" : null)>Sí</option>
                                                     </select>
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="software_@(item.id)_estado" data-valmsg-replace="true"></span>
-                                                </th>
-                                                <th>
+                                                </td>
+                                                <td>
                                                     <textarea style="font-size: 12px;" type="text" name="software_@(item.id)_comentarios" id="software_@(item.id)_comentarios" class="form-control col-md-12" autocomplete="off" maxlength="90">@item.comentario</textarea>
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="software_@(item.id)_comentarios" data-valmsg-replace="true"></span>
 
-                                                </th>
+                                                </td>
                                             </tr>
                                         }
                                     </tbody>
@@ -313,26 +312,26 @@
                                         {
 
                                             <tr>
-                                                <th>@(Model.matriz.IT_matriz_comunicaciones.ToList().IndexOf(item)+1)</th>
-                                                <th>
+                                                <td>@(Model.matriz.IT_matriz_comunicaciones.ToList().IndexOf(item)+1)</td>
+                                                <td>
                                                     @item.IT_comunicaciones_tipo.descripcion
-                                                </th>
-                                                <th>
+                                                </td>
+                                                <td>
                                                     @item.descripcion
-                                                </th>
-                                                <th>
+                                                </td>
+                                                <td>
                                                     <select name="comunicaciones_@(item.id)_estado" id="comunicaciones_@(item.id)_estado" class="form-control select2bs4" style="width:100%" required="required">
                                                         <option value="">-- Selecionar -- </option>
                                                         <option value="false" @(item.completado.HasValue && !item.completado.Value ? "selected" : null)>No</option>
                                                         <option value="true" @(item.completado.HasValue && item.completado.Value ? "selected" : null)>Sí</option>
                                                     </select>
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="comunicaciones_@(item.id)_estado" data-valmsg-replace="true"></span>
-                                                </th>
-                                                <th>
+                                                </td>
+                                                <td>
                                                     <textarea style="font-size: 12px;" type="text" name="comunicaciones_@(item.id)_comentarios" id="comunicaciones_@(item.id)_comentarios" class="form-control col-md-12" autocomplete="off" maxlength="90">@item.comentario</textarea>
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="comunicaciones_@(item.id)_comentarios" data-valmsg-replace="true"></span>
 
-                                                </th>
+                                                </td>
                                             </tr>
                                         }
                                     </tbody>
@@ -371,26 +370,25 @@
                                         {
 
                                             <tr>
-                                                <th>@(Model.matriz.IT_matriz_carpetas.ToList().IndexOf(item)+1)</th>
-                                                <th>
+                                                <td>@(Model.matriz.IT_matriz_carpetas.ToList().IndexOf(item)+1)</td>
+                                                <td>
                                                     @item.IT_carpetas_red.descripcion
-                                                </th>
-                                                <th>
+                                                </td>
+                                                <td>
                                                     @item.descripcion
-                                                </th>
-                                                <th>
+                                                </td>
+                                                <td>
                                                     <select name="carpetas_@(item.id)_estado" id="carpetas_@(item.id)_estado" class="form-control select2bs4" style="width:100%" required="required">
                                                         <option value="">-- Selecionar -- </option>
                                                         <option value="false" @(item.completado.HasValue && !item.completado.Value ? "selected" : null)>No</option>
                                                         <option value="true" @(item.completado.HasValue && item.completado.Value ? "selected" : null)>Sí</option>
                                                     </select>
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="carpetas_@(item.id)_estado" data-valmsg-replace="true"></span>
-                                                </th>
-                                                <th>
+                                                </td>
+                                                <td>
                                                     <textarea style="font-size: 12px;" type="text" name="carpetas_@(item.id)_comentarios" id="carpetas_@(item.id)_comentarios" class="form-control col-md-12" autocomplete="off" maxlength="90">@item.comentario</textarea>
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="carpetas_@(item.id)_comentarios" data-valmsg-replace="true"></span>
-
-                                                </th>
+                                                </td>
                                             </tr>
                                         }
                                     </tbody>

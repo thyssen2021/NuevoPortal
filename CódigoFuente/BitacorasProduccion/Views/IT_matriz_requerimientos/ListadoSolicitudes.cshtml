@@ -164,7 +164,7 @@
                                                         }
                                                         @if (item.estatus == Bitacoras.Util.IT_MR_Status.FINALIZADO)
                                                         {
-                                                            <a href="@Url.Action("GenerarPDF", ViewBag.ControllerName, new { id = item.id })" class="btn btn-danger" rel="tooltip" data-title="Generar PDF" data-placement="right">
+                                                            <a href="@Url.Action("GenerarPDF", ViewBag.ControllerName, new { id = item.id })" target="_blank" class="btn btn-danger" rel="tooltip" data-title="Generar PDF" data-placement="right">
                                                                 <i class="fa-solid fa-file-pdf"></i>
                                                             </a>
                                                         }
