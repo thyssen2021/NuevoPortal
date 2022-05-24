@@ -99,9 +99,9 @@ namespace Portal_2_0.Controllers
         public ActionResult Details(int? id)
         {
             if (TieneRol(TipoRoles.OT_SOLICITUD) || TieneRol(TipoRoles.OT_ASIGNACION) || TieneRol(TipoRoles.OT_RESPONSABLE)
-            || TieneRol(TipoRoles.OT_REPORTE) || TieneRol (TipoRoles.OT_CATALOGOS))
+            || TieneRol(TipoRoles.OT_REPORTE) || TieneRol(TipoRoles.OT_CATALOGOS))
             {
-               
+
                 if (id == null)
                 {
                     return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -145,7 +145,7 @@ namespace Portal_2_0.Controllers
                 //obtiene los departamentos donde aplica linea de producción
                 List<int> listAreasIds = db.OT_rel_depto_aplica_linea.Where(x => x.id_area > 0).Select(x => x.id_area).Distinct().ToList();
 
-                if(empleado.id_area.HasValue && listAreasIds.Contains(empleado.id_area.Value))
+                if (empleado.id_area.HasValue && listAreasIds.Contains(empleado.id_area.Value))
                     ViewBag.MuestraLineas = true;
 
                 //crea el select list para status
@@ -181,53 +181,69 @@ namespace Portal_2_0.Controllers
             if (!(orden_trabajo.id_area > 0))
                 ModelState.AddModelError("", "El usuario no tiene un área asignada, contacte al administrador del sitio para poder continuar.");
 
-            //verifica si el tamaño del archivo es válido
-            if (orden_trabajo.PostedFileSolicitud != null && orden_trabajo.PostedFileSolicitud.InputStream.Length > 10485760)
-                ModelState.AddModelError("", "Sólo se permiten archivos menores a 10MB.");
-            else if (orden_trabajo.PostedFileSolicitud != null)
-            { //verifica la extensión del archivo
-                string extension = Path.GetExtension(orden_trabajo.PostedFileSolicitud.FileName);
-                if (extension.ToUpper() != ".XLS"   //si no contiene una extensión válida
-                               && extension.ToUpper() != ".XLSX"
-                               && extension.ToUpper() != ".DOC"
-                               && extension.ToUpper() != ".DOCX"
-                               && extension.ToUpper() != ".PDF"
-                               && extension.ToUpper() != ".PNG"
-                               && extension.ToUpper() != ".JPG"
-                               && extension.ToUpper() != ".JPEG"
-                               && extension.ToUpper() != ".RAR"
-                               && extension.ToUpper() != ".ZIP"
-                               && extension.ToUpper() != ".EML"
-                               )
-                    ModelState.AddModelError("", "Sólo se permiten archivos con extensión .xls, .xlsx, .doc, .docx, .pdf, .png, .jpg, .jpeg, .rar, .zip., y .eml.");
-                else
-                { //si la extension y el tamaño son válidos
-                    String nombreArchivo = orden_trabajo.PostedFileSolicitud.FileName;
+            List<HttpPostedFileBase> archivosForm = new List<HttpPostedFileBase>();
+            //agrega archivos enviados
+            if (orden_trabajo.PostedFileSolicitud_1 != null)
+                archivosForm.Add(orden_trabajo.PostedFileSolicitud_1);
+            if (orden_trabajo.PostedFileSolicitud_2 != null)
+                archivosForm.Add(orden_trabajo.PostedFileSolicitud_2);
+            if (orden_trabajo.PostedFileSolicitud_3 != null)
+                archivosForm.Add(orden_trabajo.PostedFileSolicitud_3);
+            if (orden_trabajo.PostedFileSolicitud_4 != null)
+                archivosForm.Add(orden_trabajo.PostedFileSolicitud_4);
 
-                    //recorta el nombre del archivo en caso de ser necesario
-                    if (nombreArchivo.Length > 80)
-                        nombreArchivo = nombreArchivo.Substring(0, 78 - extension.Length) + extension;
+            #region lectura de archivos
 
-                    //lee el archivo en un arreglo de bytes
-                    byte[] fileData = null;
-                    using (var binaryReader = new BinaryReader(orden_trabajo.PostedFileSolicitud.InputStream))
-                    {
-                        fileData = binaryReader.ReadBytes(orden_trabajo.PostedFileSolicitud.ContentLength);
+            foreach (HttpPostedFileBase httpPostedFileBase in archivosForm)
+            {
+                //verifica si el tamaño del archivo es OT 1
+                if (httpPostedFileBase != null && httpPostedFileBase.InputStream.Length > 10485760)
+                    ModelState.AddModelError("", "Sólo se permiten archivos menores a 10MB: " + httpPostedFileBase.FileName + ".");
+                else if (httpPostedFileBase != null)
+                { //verifica la extensión del archivo
+                    string extension = Path.GetExtension(httpPostedFileBase.FileName);
+                    if (extension.ToUpper() != ".XLS"   //si no contiene una extensión válida
+                                   && extension.ToUpper() != ".XLSX"
+                                   && extension.ToUpper() != ".DOC"
+                                   && extension.ToUpper() != ".DOCX"
+                                   && extension.ToUpper() != ".PDF"
+                                   && extension.ToUpper() != ".PNG"
+                                   && extension.ToUpper() != ".JPG"
+                                   && extension.ToUpper() != ".JPEG"
+                                   && extension.ToUpper() != ".RAR"
+                                   && extension.ToUpper() != ".ZIP"
+                                   && extension.ToUpper() != ".EML"
+                                   )
+                        ModelState.AddModelError("", "Sólo se permiten archivos con extensión .xls, .xlsx, .doc, .docx, .pdf, .png, .jpg, .jpeg, .rar, .zip., y .eml.: " + httpPostedFileBase.FileName + ".");
+                    else
+                    { //si la extension y el tamaño son válidos
+                        String nombreArchivo = httpPostedFileBase.FileName;
+
+                        //recorta el nombre del archivo en caso de ser necesario
+                        if (nombreArchivo.Length > 80)
+                            nombreArchivo = nombreArchivo.Substring(0, 78 - extension.Length) + extension;
+
+                        //lee el archivo en un arreglo de bytes
+                        byte[] fileData = null;
+                        using (var binaryReader = new BinaryReader(httpPostedFileBase.InputStream))
+                        {
+                            fileData = binaryReader.ReadBytes(httpPostedFileBase.ContentLength);
+                        }
+
+                        //genera el archivo de biblioce digital
+                        biblioteca_digital archivo = new biblioteca_digital
+                        {
+                            Nombre = nombreArchivo,
+                            MimeType = UsoStrings.RecortaString(httpPostedFileBase.ContentType, 80),
+                            Datos = fileData
+                        };
+                        orden_trabajo.OT_rel_archivos.Add(new OT_rel_archivos { tipo = OT_tipo_documento.SOLICITUD, biblioteca_digital = archivo });
                     }
-
-                    //genera el archivo de biblioce digital
-                    biblioteca_digital archivo = new biblioteca_digital
-                    {
-                        Nombre = nombreArchivo,
-                        MimeType = UsoStrings.RecortaString(orden_trabajo.PostedFileSolicitud.ContentType, 80),
-                        Datos = fileData
-                    };
-
-                    //relaciona el archivo con la OT (despues se guarda en BD)
-                    orden_trabajo.biblioteca_digital1 = archivo;  //documento soporte
-
                 }
             }
+
+
+            #endregion
 
             if (ModelState.IsValid)
             {
@@ -438,16 +454,24 @@ namespace Portal_2_0.Controllers
 
                 var cantidadRegistrosPorPagina = 20; // parámetro
 
+                //obtiene el id de supervisor y tecnicos
+                var responsable = db.OT_responsables.Where(x => x.id_empleado == empleado.id).FirstOrDefault();
+
+                List<int> idsResponsables = db.OT_responsables.Where(x =>
+                    (x.id_empleado == responsable.id_empleado || (x.id_empleado == responsable.id_supervisor && responsable.id_supervisor.HasValue) ||
+                    x.id_supervisor == responsable.id_empleado || (x.id_supervisor == responsable.id_supervisor && responsable.id_supervisor.HasValue)
+                    )).Select(x => x.id_empleado).Distinct().ToList();
+
 
                 var listado = db.orden_trabajo
-                    .Where(x => x.estatus == OT_Status.ASIGNADO && x.id_responsable == empleado.id
+                    .Where(x => x.estatus == OT_Status.ASIGNADO && idsResponsables.Contains(x.id_responsable.Value)
                     )
                     .OrderByDescending(x => x.fecha_solicitud)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
                 var totalDeRegistros = db.orden_trabajo
-                     .Where(x => x.estatus == OT_Status.ASIGNADO && x.id_responsable == empleado.id
+                     .Where(x => x.estatus == OT_Status.ASIGNADO && idsResponsables.Contains(x.id_responsable.Value)
                     )
                     .Count();
 
@@ -497,16 +521,23 @@ namespace Portal_2_0.Controllers
 
                 var cantidadRegistrosPorPagina = 20; // parámetro
 
+                //obtiene el id de supervisor y tecnicos
+                var responsable = db.OT_responsables.Where(x => x.id_empleado == empleado.id).FirstOrDefault();
+
+                List<int> idsResponsables = db.OT_responsables.Where(x =>
+                    (x.id_empleado == responsable.id_empleado || (x.id_empleado == responsable.id_supervisor && responsable.id_supervisor.HasValue) ||
+                    x.id_supervisor == responsable.id_empleado || (x.id_supervisor == responsable.id_supervisor && responsable.id_supervisor.HasValue)
+                    )).Select(x => x.id_empleado).Distinct().ToList();
 
                 var listado = db.orden_trabajo
-                    .Where(x => x.estatus == OT_Status.EN_PROCESO && x.id_responsable == empleado.id
+                    .Where(x => x.estatus == OT_Status.EN_PROCESO && idsResponsables.Contains(x.id_responsable.Value)
                     )
                     .OrderByDescending(x => x.fecha_solicitud)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
                 var totalDeRegistros = db.orden_trabajo
-                     .Where(x => x.estatus == OT_Status.EN_PROCESO && x.id_responsable == empleado.id
+                     .Where(x => x.estatus == OT_Status.EN_PROCESO && idsResponsables.Contains(x.id_responsable.Value)
                     )
                     .Count();
 
@@ -554,16 +585,24 @@ namespace Portal_2_0.Controllers
 
                 var cantidadRegistrosPorPagina = 20; // parámetro
 
+                //obtiene el id de supervisor y tecnicos
+                var responsable = db.OT_responsables.Where(x => x.id_empleado == empleado.id).FirstOrDefault();
+
+                List<int> idsResponsables = db.OT_responsables.Where(x =>
+                    (x.id_empleado == responsable.id_empleado || (x.id_empleado == responsable.id_supervisor && responsable.id_supervisor.HasValue) ||
+                    x.id_supervisor == responsable.id_empleado || (x.id_supervisor == responsable.id_supervisor && responsable.id_supervisor.HasValue)
+                    )).Select(x => x.id_empleado).Distinct().ToList();
+
 
                 var listado = db.orden_trabajo
-                    .Where(x => x.estatus == OT_Status.CERRADO && x.id_responsable == empleado.id
+                    .Where(x => x.estatus == OT_Status.CERRADO && idsResponsables.Contains(x.id_responsable.Value)
                     )
                     .OrderByDescending(x => x.fecha_solicitud)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
                 var totalDeRegistros = db.orden_trabajo
-                     .Where(x => x.estatus == OT_Status.CERRADO && x.id_responsable == empleado.id
+                     .Where(x => x.estatus == OT_Status.CERRADO && idsResponsables.Contains(x.id_responsable.Value)
                     )
                     .Count();
 
@@ -855,7 +894,7 @@ namespace Portal_2_0.Controllers
                     return View("../Home/ErrorGenerico");
                 }
 
-            
+
 
                 //---INICIO POR ROL                    
                 //recorre los responsables con el permiso de asignar
@@ -865,10 +904,11 @@ namespace Portal_2_0.Controllers
                     usuariosInRole = rol.AspNetUsers.ToList();
 
                 List<int> idsResponsables = usuariosInRole.Select(x => x.IdEmpleado).Distinct().ToList();
-                              
+
                 ViewBag.id_responsable = AddFirstItem(new SelectList(db.empleados.Where(x =>
                 idsResponsables.Contains(x.id) && x.planta_clave == empleado.planta_clave
                 ), "id", "ConcatNumEmpleadoNombre"), selected: orden_trabajo.id_responsable.ToString());
+
                 //--fin por rol
 
                 return View(orden_trabajo);
@@ -927,7 +967,7 @@ namespace Portal_2_0.Controllers
 
                     envioCorreo.SendEmailAsync(correos, "Se le ha asignado la Orden de Trabajo #" + orden_trabajo.id + ".", envioCorreo.getBodyAsignacionOT(ordenOld));
 
-                    if (reasignacion) 
+                    if (reasignacion)
                         return RedirectToAction("ListadoAsignacionAsignadas");
                     else
                         return RedirectToAction("ListadoAsignacionPendientes");
@@ -988,10 +1028,18 @@ namespace Portal_2_0.Controllers
                     return View("../Home/ErrorGenerico");
                 }
 
-                if (orden_trabajo.id_responsable != empleado.id)
+                //obtiene el id de supervisor y tecnicos
+                var responsable = db.OT_responsables.Where(x => x.id_empleado == empleado.id).FirstOrDefault();
+
+                List<int> idsResponsables = db.OT_responsables.Where(x =>
+                    (x.id_empleado == responsable.id_empleado || (x.id_empleado == responsable.id_supervisor && responsable.id_supervisor.HasValue) ||
+                    x.id_supervisor == responsable.id_empleado || (x.id_supervisor == responsable.id_supervisor && responsable.id_supervisor.HasValue)
+                    )).Select(x => x.id_empleado).Distinct().ToList();
+
+                if (!idsResponsables.Contains(empleado.id))
                 {
-                    ViewBag.Titulo = "¡Lo sentimos!¡Esta solicitud se encuentra asignada a otro usuario!";
-                    ViewBag.Descripcion = "No se puede modificar una solicitud que ha sido asignada a otro usuario.";
+                    ViewBag.Titulo = "¡Lo sentimos!¡Esta solicitud se encuentra asignada a otro usuario o supervisor!";
+                    ViewBag.Descripcion = "No se puede modificar una solicitud que ha sido asignada a otro usuario o supervisor.";
 
                     return View("../Home/ErrorGenerico");
                 }
@@ -1033,6 +1081,7 @@ namespace Portal_2_0.Controllers
 
             ordenOld.fecha_en_proceso = DateTime.Now;
             ordenOld.estatus = OT_Status.EN_PROCESO;
+            ordenOld.id_responsable = empleado.id;
 
             db.Entry(ordenOld).State = EntityState.Modified;
 
@@ -1046,11 +1095,14 @@ namespace Portal_2_0.Controllers
                 List<String> correos = new List<string>(); //correos TO
 
                 empleados emp = db.empleados.Find(orden_trabajo.id_solicitante);
-
                 if (emp != null && !String.IsNullOrEmpty(emp.correo))
                     correos.Add(emp.correo); //agrega correo de elaborador
 
-                envioCorreo.SendEmailAsync(correos, "Su solicitud de Orden de Trabajo #" + orden_trabajo.id + " se encuentra en proceso.", envioCorreo.getBodyEnProcesoOT(ordenOld));
+                empleados emp2 = db.empleados.Find(orden_trabajo.id_asignacion);
+                if (emp2 != null && !String.IsNullOrEmpty(emp2.correo))
+                    correos.Add(emp2.correo); //agrega correo de elaborador
+
+                envioCorreo.SendEmailAsync(correos, "La solicitud de Orden de Trabajo #" + orden_trabajo.id + " se encuentra en proceso.", envioCorreo.getBodyEnProcesoOT(ordenOld));
 
 
             }
@@ -1091,7 +1143,15 @@ namespace Portal_2_0.Controllers
                     return View("../Home/ErrorGenerico");
                 }
 
-                if (orden_trabajo.id_responsable != empleado.id)
+                //obtiene el id de supervisor y tecnicos
+                var responsable = db.OT_responsables.Where(x => x.id_empleado == empleado.id).FirstOrDefault();
+
+                List<int> idsResponsables = db.OT_responsables.Where(x =>
+                    (x.id_empleado == responsable.id_empleado || (x.id_empleado == responsable.id_supervisor && responsable.id_supervisor.HasValue) ||
+                    x.id_supervisor == responsable.id_empleado || (x.id_supervisor == responsable.id_supervisor && responsable.id_supervisor.HasValue)
+                    )).Select(x => x.id_empleado).Distinct().ToList();
+
+                if (!idsResponsables.Contains(empleado.id))
                 {
                     ViewBag.Titulo = "¡Lo sentimos!¡Esta solicitud se encuentra asignada a otro usuario!";
                     ViewBag.Descripcion = "No se puede modificar una solicitud que ha sido asignada a otro usuario.";
@@ -1119,70 +1179,76 @@ namespace Portal_2_0.Controllers
 
             biblioteca_digital archivo = new biblioteca_digital { };
 
-            //verifica si el tamaño del archivo es válido
-            if (orden.PostedFileCierre != null && orden.PostedFileCierre.InputStream.Length > 10485760)
-                ModelState.AddModelError("", "Sólo se permiten archivos menores a 10MB.");
-            else if (orden.PostedFileCierre != null)
-            { //verifica la extensión del archivo
-                string extension = Path.GetExtension(orden.PostedFileCierre.FileName);
-                if (extension.ToUpper() != ".XLS"   //si no contiene una extensión válida
-                               && extension.ToUpper() != ".XLSX"
-                               && extension.ToUpper() != ".DOC"
-                               && extension.ToUpper() != ".DOCX"
-                               && extension.ToUpper() != ".PDF"
-                               && extension.ToUpper() != ".PNG"
-                               && extension.ToUpper() != ".JPG"
-                               && extension.ToUpper() != ".JPEG"
-                               && extension.ToUpper() != ".RAR"
-                               && extension.ToUpper() != ".ZIP"
-                               && extension.ToUpper() != ".EML"
-                               )
-                    ModelState.AddModelError("", "Sólo se permiten archivos con extensión .xls, .xlsx, .doc, .docx, .pdf, .png, .jpg, .jpeg, .rar, .zip., y .eml.");
-                else
-                { //si la extension y el tamaño son válidos
-                    String nombreArchivo = orden.PostedFileCierre.FileName;
+            List<HttpPostedFileBase> archivosForm = new List<HttpPostedFileBase>();
+            //agrega archivos enviados
+            if (orden.PostedFileCierre_1 != null)
+                archivosForm.Add(orden.PostedFileCierre_1);
+            if (orden.PostedFileCierre_2 != null)
+                archivosForm.Add(orden.PostedFileCierre_2);
+            if (orden.PostedFileCierre_3 != null)
+                archivosForm.Add(orden.PostedFileCierre_3);
+            if (orden.PostedFileCierre_4 != null)
+                archivosForm.Add(orden.PostedFileCierre_4);
 
-                    //recorta el nombre del archivo en caso de ser necesario
-                    if (nombreArchivo.Length > 80)
-                        nombreArchivo = nombreArchivo.Substring(0, 78 - extension.Length) + extension;
+            #region lectura de archivos
 
-                    //lee el archivo en un arreglo de bytes
-                    byte[] fileData = null;
-                    using (var binaryReader = new BinaryReader(orden.PostedFileCierre.InputStream))
-                    {
-                        fileData = binaryReader.ReadBytes(orden.PostedFileCierre.ContentLength);
-                    }
-
-                    //si tiene archivo hace un update sino hace un create
-                    if (ordenOld.id_documento_cierre.HasValue)//si tiene valor hace un update
-                    {
-                        archivo = db.biblioteca_digital.Find(ordenOld.id_documento_cierre.Value);
-                        archivo.Nombre = nombreArchivo;
-                        archivo.MimeType = UsoStrings.RecortaString(orden.PostedFileCierre.ContentType, 80);
-                        archivo.Datos = fileData;
-
-                        db.Entry(archivo).State = EntityState.Modified;
-                        db.SaveChanges();
-                    }
+            foreach (HttpPostedFileBase httpPostedFileBase in archivosForm)
+            {
+                //verifica si el tamaño del archivo es válido
+                if (httpPostedFileBase != null && httpPostedFileBase.InputStream.Length > 10485760)
+                    ModelState.AddModelError("", "Sólo se permiten archivos menores a 10MB.");
+                else if (httpPostedFileBase != null)
+                { //verifica la extensión del archivo
+                    string extension = Path.GetExtension(httpPostedFileBase.FileName);
+                    if (extension.ToUpper() != ".XLS"   //si no contiene una extensión válida
+                                   && extension.ToUpper() != ".XLSX"
+                                   && extension.ToUpper() != ".DOC"
+                                   && extension.ToUpper() != ".DOCX"
+                                   && extension.ToUpper() != ".PDF"
+                                   && extension.ToUpper() != ".PNG"
+                                   && extension.ToUpper() != ".JPG"
+                                   && extension.ToUpper() != ".JPEG"
+                                   && extension.ToUpper() != ".RAR"
+                                   && extension.ToUpper() != ".ZIP"
+                                   && extension.ToUpper() != ".EML"
+                                   )
+                        ModelState.AddModelError("", "Sólo se permiten archivos con extensión .xls, .xlsx, .doc, .docx, .pdf, .png, .jpg, .jpeg, .rar, .zip., y .eml.");
                     else
-                    { //si no tiene hace un create 
+                    { //si la extension y el tamaño son válidos
+                        String nombreArchivo = httpPostedFileBase.FileName;
+
+                        //recorta el nombre del archivo en caso de ser necesario
+                        if (nombreArchivo.Length > 80)
+                            nombreArchivo = nombreArchivo.Substring(0, 78 - extension.Length) + extension;
+
+                        //lee el archivo en un arreglo de bytes
+                        byte[] fileData = null;
+                        using (var binaryReader = new BinaryReader(httpPostedFileBase.InputStream))
+                        {
+                            fileData = binaryReader.ReadBytes(httpPostedFileBase.ContentLength);
+                        }
 
                         //genera el archivo de biblioteca digital
                         archivo = new biblioteca_digital
                         {
                             Nombre = nombreArchivo,
-                            MimeType = UsoStrings.RecortaString(orden.PostedFileCierre.ContentType, 80),
+                            MimeType = UsoStrings.RecortaString(httpPostedFileBase.ContentType, 80),
                             Datos = fileData
                         };
 
-                        //update en BD
-                        db.biblioteca_digital.Add(archivo);
-                        db.SaveChanges();
-                    }
-                    ordenOld.id_documento_cierre = archivo.Id;
+                        ////update en BD
+                        //db.biblioteca_digital.Add(archivo);
+                        //db.SaveChanges();
 
+                        ordenOld.OT_rel_archivos.Add(new OT_rel_archivos { tipo = OT_tipo_documento.CIERRE, biblioteca_digital = archivo });
+
+
+                    }
                 }
             }
+            #endregion
+
+
 
 
             //agrega los refacciones
@@ -1239,6 +1305,7 @@ namespace Portal_2_0.Controllers
                 ordenOld.fecha_cierre = DateTime.Now;
                 ordenOld.estatus = OT_Status.CERRADO;
                 ordenOld.comentario = orden.comentario;
+                ordenOld.id_responsable = empleado.id;
 
                 db.Entry(ordenOld).State = EntityState.Modified;
 
@@ -1253,12 +1320,16 @@ namespace Portal_2_0.Controllers
                     EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
                     List<String> correos = new List<string>(); //correos TO
 
-                    empleados emp = db.empleados.Find(orden.id_solicitante);
+                    empleados emp = db.empleados.Find(ordenOld.id_solicitante);
 
                     if (emp != null && !String.IsNullOrEmpty(emp.correo))
                         correos.Add(emp.correo); //agrega correo de elaborador
 
-                    envioCorreo.SendEmailAsync(correos, "Su solicitud de Orden de Trabajo #" + ordenOld.id + " ha sido cerrada.", envioCorreo.getBodyCerrarOT(ordenOld));
+                    empleados emp2 = db.empleados.Find(ordenOld.id_asignacion);
+                    if (emp2 != null && !String.IsNullOrEmpty(emp2.correo))
+                        correos.Add(emp2.correo); //agrega correo de elaborador
+
+                    envioCorreo.SendEmailAsync(correos, "La solicitud de Orden de Trabajo #" + ordenOld.id + " ha sido cerrada.", envioCorreo.getBodyCerrarOT(ordenOld));
 
                 }
                 catch (Exception e)
@@ -1287,7 +1358,6 @@ namespace Portal_2_0.Controllers
 
                 //Determina el último día del mes
                 DateTime fechaFinal = fechaInicial.AddMonths(1).AddDays(-1);
-
 
                 ViewBag.FechaInicial = fechaInicial;
                 ViewBag.FechaFinal = fechaFinal;

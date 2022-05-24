@@ -27,8 +27,8 @@ CREATE TABLE [orden_trabajo](
 	[id_area][int] NOT NULL,
 	[id_linea][int] NULL,
 	[id_grupo_trabajo][int]NULL, 
-	[id_documento_solicitud][int] NULL,
-	[id_documento_cierre][int] NULL,
+	--[id_documento_solicitud][int] NULL,
+	--[id_documento_cierre][int] NULL,
 	[fecha_solicitud][datetime] NOT NULL,
 	[nivel_urgencia][varchar](15) NOT NULL,
 	[titulo][varchar](80) NOT NULL,
@@ -79,17 +79,6 @@ GO
   foreign key (id_linea)
   references produccion_lineas(id);
 
-  -- restriccion de clave foranea
-alter table [orden_trabajo]
- add constraint FK_orden_trabajo_id_documento_solicitud
-  foreign key (id_documento_solicitud)
-  references biblioteca_digital(id);
-
-   -- restriccion de clave foranea
-alter table [orden_trabajo]
- add constraint FK_orden_trabajo_id_documento_cierre
-  foreign key (id_documento_cierre)
-  references biblioteca_digital(id);
 
      -- restriccion de clave foranea
 alter table [orden_trabajo]

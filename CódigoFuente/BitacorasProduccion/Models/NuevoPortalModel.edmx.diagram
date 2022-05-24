@@ -30,7 +30,7 @@
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_operador" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_supervisor" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_turnos" ManuallyRouted="false" />
-        <EntityTypeShape EntityType="Portal_2_0Model.PFA_Border_port" Width="1.5" PointX="7.5" PointY="1" />
+        <EntityTypeShape EntityType="Portal_2_0Model.PFA_Border_port" Width="1.5" PointX="7.625" PointY="1" />
         <EntityTypeShape EntityType="Portal_2_0Model.PFA_Department" Width="1.5" PointX="7.5" PointY="22.5" />
         <EntityTypeShape EntityType="Portal_2_0Model.PFA_Destination_plant" Width="1.5" PointX="7.5" PointY="30.625" />
         <EntityTypeShape EntityType="Portal_2_0Model.PFA_Reason" Width="1.5" PointX="7.5" PointY="4" />
@@ -138,16 +138,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.upgrade_values_transaccion" Width="1.5" PointX="22.25" PointY="1.5" />
         <AssociationConnector Association="Portal_2_0Model.FK_upgrade_values_transaccion_revision" />
         <EntityTypeShape EntityType="Portal_2_0Model.OT_grupo_trabajo" Width="1.5" PointX="5.375" PointY="8.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.orden_trabajo" Width="1.875" PointX="21.125" PointY="9.75" />
-        <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_area" />
-        <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_documento_cierre" />
-        <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_documento_solicitud" />
-        <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_asignacion" />
-        <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_responsable" />
-        <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_solicitante" />
-        <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_linea" />
-        <AssociationConnector Association="Portal_2_0Model.FK_OT_refacciones_id_orden_trabajo" />
-        <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_grupo_trabajo" />
         <EntityTypeShape EntityType="Portal_2_0Model.AspNetRoles" Width="1.5" PointX="15.125" PointY="49.5" />
         <AssociationConnector Association="Portal_2_0Model.AspNetUserRoles" />
         <EntityTypeShape EntityType="Portal_2_0Model.notificaciones_correo" Width="1.5" PointX="14.75" PointY="0.75" />
@@ -181,6 +171,20 @@
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_hardware_id_matriz_requerimientos" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_software_id_matriz_requerimientos" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_software_id_it_software" />
+        <EntityTypeShape EntityType="Portal_2_0Model.OT_rel_archivos" Width="1.5" PointX="28.75" PointY="24.875" />
+        <AssociationConnector Association="Portal_2_0Model.FK_OT_rel_archivos_id_archivo" />
+        <EntityTypeShape EntityType="Portal_2_0Model.orden_trabajo" Width="1.5" PointX="20.625" PointY="9.375" />
+        <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_area" />
+        <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_asignacion" />
+        <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_responsable" />
+        <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_solicitante" />
+        <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_grupo_trabajo" />
+        <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_linea" />
+        <AssociationConnector Association="Portal_2_0Model.FK_OT_refacciones_id_orden_trabajo" />
+        <AssociationConnector Association="Portal_2_0Model.FK_OT_rel_archivos_id_orden_trabajo" />
+        <EntityTypeShape EntityType="Portal_2_0Model.OT_responsables" Width="1.5" PointX="14.625" PointY="55.5" />
+        <AssociationConnector Association="Portal_2_0Model.FK_OT_responsables_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_OT_responsables_id_supervisor" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

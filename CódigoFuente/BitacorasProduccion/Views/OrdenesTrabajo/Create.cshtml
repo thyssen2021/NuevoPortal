@@ -178,16 +178,58 @@
                             </div>
 
                             <div class="form-group row">
-                                @Html.LabelFor(model => model.id_documento_solicitud, new { @class = "control-label col-md-2" })
+                                <label class="control-label col-md-2">Documento 1 (opcional) </label>
                                 <div class="col-md-6">
 
                                     <div class="input-group">
                                         <div class="custom-file">
-                                            @Html.TextBoxFor(m => m.PostedFileSolicitud, new { @class = "custom-file-input", type = "file", @accept = ".xls,.xlsx,.png, .jpeg, .jpg, .pdf, .doc, .docx, .rar, .zip, .eml" })
-                                            <label class="custom-file-label" for="PostedFileSoporte" style="text-align:left">Seleccione un archivo...</label>
+                                            @Html.TextBoxFor(m => m.PostedFileSolicitud_1, new { @class = "custom-file-input", type = "file", @accept = ".xls,.xlsx,.png, .jpeg, .jpg, .pdf, .doc, .docx, .rar, .zip, .eml" })
+                                            <label class="custom-file-label" for="PostedFileSolicitud_1" style="text-align:left">Seleccione un archivo...</label>
                                         </div>
                                     </div>
-                                    @Html.ValidationMessageFor(m => m.PostedFileSolicitud, "", new { @class = "text-danger" })
+                                    @Html.ValidationMessageFor(m => m.PostedFileSolicitud_1, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="control-label col-md-2">Documento 2 (opcional) </label>
+                                <div class="col-md-6">
+
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            @Html.TextBoxFor(m => m.PostedFileSolicitud_2, new { @class = "custom-file-input", type = "file", @accept = ".xls,.xlsx,.png, .jpeg, .jpg, .pdf, .doc, .docx, .rar, .zip, .eml" })
+                                            <label class="custom-file-label" for="PostedFileSolicitud_2" style="text-align:left">Seleccione un archivo...</label>
+                                        </div>
+                                    </div>
+                                    @Html.ValidationMessageFor(m => m.PostedFileSolicitud_2, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="control-label col-md-2">Documento 3 (opcional) </label>
+                                <div class="col-md-6">
+
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            @Html.TextBoxFor(m => m.PostedFileSolicitud_3, new { @class = "custom-file-input", type = "file", @accept = ".xls,.xlsx,.png, .jpeg, .jpg, .pdf, .doc, .docx, .rar, .zip, .eml" })
+                                            <label class="custom-file-label" for="PostedFileSolicitud_3" style="text-align:left">Seleccione un archivo...</label>
+                                        </div>
+                                    </div>
+                                    @Html.ValidationMessageFor(m => m.PostedFileSolicitud_3, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="control-label col-md-2">Documento 4 (opcional) </label>
+                                <div class="col-md-6">
+
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            @Html.TextBoxFor(m => m.PostedFileSolicitud_4, new { @class = "custom-file-input", type = "file", @accept = ".xls,.xlsx,.png, .jpeg, .jpg, .pdf, .doc, .docx, .rar, .zip, .eml" })
+                                            <label class="custom-file-label" for="PostedFileSolicitud_4" style="text-align:left">Seleccione un archivo...</label>
+                                        </div>
+                                    </div>
+                                    @Html.ValidationMessageFor(m => m.PostedFileSolicitud_4, "", new { @class = "text-danger" })
                                 </div>
                             </div>
 
@@ -195,7 +237,7 @@
 
                             <div class="item form-group">
                                 <div class="col-md-12 col-sm-12 offset-md-12">
-                                    <button type="submit" class="btn btn-success btn-lg float-lg-right"> <i class="fa-regular fa-floppy-disk"></i>&nbsp;Guardar</button>
+                                    <button type="submit" class="btn btn-success btn-lg float-lg-right"> <i class="fa-regular fa-floppy-disk"></i>&nbsp; Guardar</button>
                                 </div>
                             </div>
                         }

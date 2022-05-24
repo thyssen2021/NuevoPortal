@@ -20,8 +20,7 @@ namespace Portal_2_0.Models
             this.PFA = new HashSet<PFA>();
             this.poliza_manual = new HashSet<poliza_manual>();
             this.poliza_manual1 = new HashSet<poliza_manual>();
-            this.orden_trabajo = new HashSet<orden_trabajo>();
-            this.orden_trabajo1 = new HashSet<orden_trabajo>();
+            this.OT_rel_archivos = new HashSet<OT_rel_archivos>();
         }
     
         public int Id { get; set; }
@@ -36,8 +35,6 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<poliza_manual> poliza_manual1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<orden_trabajo> orden_trabajo { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<orden_trabajo> orden_trabajo1 { get; set; }
+        public virtual ICollection<OT_rel_archivos> OT_rel_archivos { get; set; }
     }
 }

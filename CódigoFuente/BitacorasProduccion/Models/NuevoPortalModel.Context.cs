@@ -85,7 +85,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<upgrade_values_checklist> upgrade_values_checklist { get; set; }
         public virtual DbSet<upgrade_values_transaccion> upgrade_values_transaccion { get; set; }
         public virtual DbSet<OT_grupo_trabajo> OT_grupo_trabajo { get; set; }
-        public virtual DbSet<orden_trabajo> orden_trabajo { get; set; }
         public virtual DbSet<AspNetRoles> AspNetRoles { get; set; }
         public virtual DbSet<notificaciones_correo> notificaciones_correo { get; set; }
         public virtual DbSet<bom_en_sap> bom_en_sap { get; set; }
@@ -102,5 +101,8 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_matriz_hardware> IT_matriz_hardware { get; set; }
         public virtual DbSet<IT_matriz_requerimientos> IT_matriz_requerimientos { get; set; }
         public virtual DbSet<IT_matriz_software> IT_matriz_software { get; set; }
+        public virtual DbSet<OT_rel_archivos> OT_rel_archivos { get; set; }
+        public virtual DbSet<orden_trabajo> orden_trabajo { get; set; }
+        public virtual DbSet<OT_responsables> OT_responsables { get; set; }
     }
 }

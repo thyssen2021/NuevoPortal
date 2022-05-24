@@ -12,11 +12,15 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class OT_rel_depto_aplica_linea
+    public partial class OT_responsables
     {
         public int id { get; set; }
-        public int id_area { get; set; }
+        public int id_empleado { get; set; }
+        public bool supervisor { get; set; }
+        public Nullable<int> id_supervisor { get; set; }
+        public bool activo { get; set; }
     
-        public virtual Area Area { get; set; }
+        public virtual empleados empleados { get; set; }
+        public virtual empleados empleados1 { get; set; }
     }
 }

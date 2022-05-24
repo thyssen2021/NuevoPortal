@@ -461,8 +461,6 @@
           <Property Name="id_area" Type="int" Nullable="false" />
           <Property Name="id_linea" Type="int" />
           <Property Name="id_grupo_trabajo" Type="int" />
-          <Property Name="id_documento_solicitud" Type="int" />
-          <Property Name="id_documento_cierre" Type="int" />
           <Property Name="fecha_solicitud" Type="datetime" Nullable="false" />
           <Property Name="nivel_urgencia" Type="varchar" MaxLength="15" Nullable="false" />
           <Property Name="titulo" Type="varchar" MaxLength="80" Nullable="false" />
@@ -493,12 +491,31 @@
           <Property Name="descripcion" Type="varchar" MaxLength="155" Nullable="false" />
           <Property Name="tipo" Type="varchar" MaxLength="15" Nullable="false" />
         </EntityType>
+        <EntityType Name="OT_rel_archivos">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_orden_trabajo" Type="int" Nullable="false" />
+          <Property Name="id_documento" Type="int" Nullable="false" />
+          <Property Name="tipo" Type="varchar" MaxLength="15" Nullable="false" />
+        </EntityType>
         <EntityType Name="OT_rel_depto_aplica_linea">
           <Key>
             <PropertyRef Name="id" />
           </Key>
           <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="id_area" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="OT_responsables">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_empleado" Type="int" Nullable="false" />
+          <Property Name="supervisor" Type="bit" Nullable="false" />
+          <Property Name="id_supervisor" Type="int" />
+          <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="PFA">
           <Key>
@@ -1538,30 +1555,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_orden_trabajo_id_documento_cierre">
-          <End Role="biblioteca_digital" Type="Self.biblioteca_digital" Multiplicity="0..1" />
-          <End Role="orden_trabajo" Type="Self.orden_trabajo" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="biblioteca_digital">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="orden_trabajo">
-              <PropertyRef Name="id_documento_cierre" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_orden_trabajo_id_documento_solicitud">
-          <End Role="biblioteca_digital" Type="Self.biblioteca_digital" Multiplicity="0..1" />
-          <End Role="orden_trabajo" Type="Self.orden_trabajo" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="biblioteca_digital">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="orden_trabajo">
-              <PropertyRef Name="id_documento_solicitud" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_orden_trabajo_id_grupo_trabajo">
           <End Role="OT_grupo_trabajo" Type="Self.OT_grupo_trabajo" Multiplicity="0..1" />
           <End Role="orden_trabajo" Type="Self.orden_trabajo" Multiplicity="*" />
@@ -1622,6 +1615,30 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_OT_rel_archivos_id_archivo">
+          <End Role="biblioteca_digital" Type="Self.biblioteca_digital" Multiplicity="1" />
+          <End Role="OT_rel_archivos" Type="Self.OT_rel_archivos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="biblioteca_digital">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="OT_rel_archivos">
+              <PropertyRef Name="id_documento" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OT_rel_archivos_id_orden_trabajo">
+          <End Role="orden_trabajo" Type="Self.orden_trabajo" Multiplicity="1" />
+          <End Role="OT_rel_archivos" Type="Self.OT_rel_archivos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="orden_trabajo">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="OT_rel_archivos">
+              <PropertyRef Name="id_orden_trabajo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_OT_rel_depto_aplica_linea_id_area">
           <End Role="Area" Type="Self.Area" Multiplicity="1" />
           <End Role="OT_rel_depto_aplica_linea" Type="Self.OT_rel_depto_aplica_linea" Multiplicity="*" />
@@ -1631,6 +1648,30 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             </Principal>
             <Dependent Role="OT_rel_depto_aplica_linea">
               <PropertyRef Name="id_area" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OT_responsables_id_empleado">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="1" />
+          <End Role="OT_responsables" Type="Self.OT_responsables" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="OT_responsables">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OT_responsables_id_supervisor">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="0..1" />
+          <End Role="OT_responsables" Type="Self.OT_responsables" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="OT_responsables">
+              <PropertyRef Name="id_supervisor" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -2264,7 +2305,9 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <EntitySet Name="orden_trabajo" EntityType="Self.orden_trabajo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="OT_grupo_trabajo" EntityType="Self.OT_grupo_trabajo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="OT_refacciones" EntityType="Self.OT_refacciones" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OT_rel_archivos" EntityType="Self.OT_rel_archivos" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="OT_rel_depto_aplica_linea" EntityType="Self.OT_rel_depto_aplica_linea" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OT_responsables" EntityType="Self.OT_responsables" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PFA" EntityType="Self.PFA" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PFA_Autorizador" EntityType="Self.PFA_Autorizador" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PFA_Border_port" EntityType="Self.PFA_Border_port" Schema="dbo" store:Type="Tables" />
@@ -2558,14 +2601,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             <End Role="empleados" EntitySet="empleados" />
             <End Role="orden_trabajo" EntitySet="orden_trabajo" />
           </AssociationSet>
-          <AssociationSet Name="FK_orden_trabajo_id_documento_cierre" Association="Self.FK_orden_trabajo_id_documento_cierre">
-            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
-            <End Role="orden_trabajo" EntitySet="orden_trabajo" />
-          </AssociationSet>
-          <AssociationSet Name="FK_orden_trabajo_id_documento_solicitud" Association="Self.FK_orden_trabajo_id_documento_solicitud">
-            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
-            <End Role="orden_trabajo" EntitySet="orden_trabajo" />
-          </AssociationSet>
           <AssociationSet Name="FK_orden_trabajo_id_grupo_trabajo" Association="Self.FK_orden_trabajo_id_grupo_trabajo">
             <End Role="OT_grupo_trabajo" EntitySet="OT_grupo_trabajo" />
             <End Role="orden_trabajo" EntitySet="orden_trabajo" />
@@ -2586,9 +2621,25 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             <End Role="orden_trabajo" EntitySet="orden_trabajo" />
             <End Role="OT_refacciones" EntitySet="OT_refacciones" />
           </AssociationSet>
+          <AssociationSet Name="FK_OT_rel_archivos_id_archivo" Association="Self.FK_OT_rel_archivos_id_archivo">
+            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
+            <End Role="OT_rel_archivos" EntitySet="OT_rel_archivos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OT_rel_archivos_id_orden_trabajo" Association="Self.FK_OT_rel_archivos_id_orden_trabajo">
+            <End Role="orden_trabajo" EntitySet="orden_trabajo" />
+            <End Role="OT_rel_archivos" EntitySet="OT_rel_archivos" />
+          </AssociationSet>
           <AssociationSet Name="FK_OT_rel_depto_aplica_linea_id_area" Association="Self.FK_OT_rel_depto_aplica_linea_id_area">
             <End Role="Area" EntitySet="Area" />
             <End Role="OT_rel_depto_aplica_linea" EntitySet="OT_rel_depto_aplica_linea" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OT_responsables_id_empleado" Association="Self.FK_OT_responsables_id_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="OT_responsables" EntitySet="OT_responsables" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OT_responsables_id_supervisor" Association="Self.FK_OT_responsables_id_supervisor">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="OT_responsables" EntitySet="OT_responsables" />
           </AssociationSet>
           <AssociationSet Name="FK_PFA_autorizador" Association="Self.FK_PFA_autorizador">
             <End Role="empleados" EntitySet="empleados" />
@@ -2803,8 +2854,8 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <NavigationProperty Name="plantas" Relationship="Self.FK_areas_planta_clave" FromRole="Area" ToRole="plantas" />
           <NavigationProperty Name="puesto" Relationship="Self.FK_puestos_area_clave" FromRole="Area" ToRole="puesto" />
           <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_empleados_area" FromRole="Area" ToRole="empleados" />
-          <NavigationProperty Name="orden_trabajo" Relationship="Portal_2_0Model.FK_orden_trabajo_id_area" FromRole="Area" ToRole="orden_trabajo" />
           <NavigationProperty Name="OT_rel_depto_aplica_linea" Relationship="Portal_2_0Model.FK_OT_rel_depto_aplica_linea_id_area" FromRole="Area" ToRole="OT_rel_depto_aplica_linea" />
+          <NavigationProperty Name="orden_trabajo" Relationship="Portal_2_0Model.FK_orden_trabajo_id_area" FromRole="Area" ToRole="orden_trabajo" />
         </EntityType>
         <EntityType Name="class_v3">
           <Key>
@@ -3504,43 +3555,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             <End Role="upgrade_values_transaccion" EntitySet="upgrade_values_transaccion" />
           </AssociationSet>
           <EntitySet Name="OT_grupo_trabajo" EntityType="Portal_2_0Model.OT_grupo_trabajo" />
-          <EntitySet Name="orden_trabajo" EntityType="Portal_2_0Model.orden_trabajo" />
-          <AssociationSet Name="FK_orden_trabajo_id_area" Association="Portal_2_0Model.FK_orden_trabajo_id_area">
-            <End Role="Area" EntitySet="Area" />
-            <End Role="orden_trabajo" EntitySet="orden_trabajo" />
-          </AssociationSet>
-          <AssociationSet Name="FK_orden_trabajo_id_documento_cierre" Association="Portal_2_0Model.FK_orden_trabajo_id_documento_cierre">
-            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
-            <End Role="orden_trabajo" EntitySet="orden_trabajo" />
-          </AssociationSet>
-          <AssociationSet Name="FK_orden_trabajo_id_documento_solicitud" Association="Portal_2_0Model.FK_orden_trabajo_id_documento_solicitud">
-            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
-            <End Role="orden_trabajo" EntitySet="orden_trabajo" />
-          </AssociationSet>
-          <AssociationSet Name="FK_orden_trabajo_id_asignacion" Association="Portal_2_0Model.FK_orden_trabajo_id_asignacion">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="orden_trabajo" EntitySet="orden_trabajo" />
-          </AssociationSet>
-          <AssociationSet Name="FK_orden_trabajo_id_responsable" Association="Portal_2_0Model.FK_orden_trabajo_id_responsable">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="orden_trabajo" EntitySet="orden_trabajo" />
-          </AssociationSet>
-          <AssociationSet Name="FK_orden_trabajo_id_solicitante" Association="Portal_2_0Model.FK_orden_trabajo_id_solicitante">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="orden_trabajo" EntitySet="orden_trabajo" />
-          </AssociationSet>
-          <AssociationSet Name="FK_orden_trabajo_id_linea" Association="Portal_2_0Model.FK_orden_trabajo_id_linea">
-            <End Role="produccion_lineas" EntitySet="produccion_lineas" />
-            <End Role="orden_trabajo" EntitySet="orden_trabajo" />
-          </AssociationSet>
-          <AssociationSet Name="FK_OT_refacciones_id_orden_trabajo" Association="Portal_2_0Model.FK_OT_refacciones_id_orden_trabajo">
-            <End Role="orden_trabajo" EntitySet="orden_trabajo" />
-            <End Role="OT_refacciones" EntitySet="OT_refacciones" />
-          </AssociationSet>
-          <AssociationSet Name="FK_orden_trabajo_id_grupo_trabajo" Association="Portal_2_0Model.FK_orden_trabajo_id_grupo_trabajo">
-            <End Role="OT_grupo_trabajo" EntitySet="OT_grupo_trabajo" />
-            <End Role="orden_trabajo" EntitySet="orden_trabajo" />
-          </AssociationSet>
           <EntitySet Name="AspNetRoles" EntityType="Portal_2_0Model.AspNetRoles" />
           <AssociationSet Name="AspNetUserRoles" Association="Portal_2_0Model.AspNetUserRoles">
             <End Role="AspNetRoles" EntitySet="AspNetRoles" />
@@ -3624,6 +3638,53 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <AssociationSet Name="FK_IT_matriz_software_id_it_software" Association="Portal_2_0Model.FK_IT_matriz_software_id_it_software">
             <End Role="IT_software_tipo" EntitySet="IT_software_tipo" />
             <End Role="IT_matriz_software" EntitySet="IT_matriz_software" />
+          </AssociationSet>
+          <EntitySet Name="OT_rel_archivos" EntityType="Portal_2_0Model.OT_rel_archivos" />
+          <AssociationSet Name="FK_OT_rel_archivos_id_archivo" Association="Portal_2_0Model.FK_OT_rel_archivos_id_archivo">
+            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
+            <End Role="OT_rel_archivos" EntitySet="OT_rel_archivos" />
+          </AssociationSet>
+          <EntitySet Name="orden_trabajo" EntityType="Portal_2_0Model.orden_trabajo" />
+          <AssociationSet Name="FK_orden_trabajo_id_area" Association="Portal_2_0Model.FK_orden_trabajo_id_area">
+            <End Role="Area" EntitySet="Area" />
+            <End Role="orden_trabajo" EntitySet="orden_trabajo" />
+          </AssociationSet>
+          <AssociationSet Name="FK_orden_trabajo_id_asignacion" Association="Portal_2_0Model.FK_orden_trabajo_id_asignacion">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="orden_trabajo" EntitySet="orden_trabajo" />
+          </AssociationSet>
+          <AssociationSet Name="FK_orden_trabajo_id_responsable" Association="Portal_2_0Model.FK_orden_trabajo_id_responsable">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="orden_trabajo" EntitySet="orden_trabajo" />
+          </AssociationSet>
+          <AssociationSet Name="FK_orden_trabajo_id_solicitante" Association="Portal_2_0Model.FK_orden_trabajo_id_solicitante">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="orden_trabajo" EntitySet="orden_trabajo" />
+          </AssociationSet>
+          <AssociationSet Name="FK_orden_trabajo_id_grupo_trabajo" Association="Portal_2_0Model.FK_orden_trabajo_id_grupo_trabajo">
+            <End Role="OT_grupo_trabajo" EntitySet="OT_grupo_trabajo" />
+            <End Role="orden_trabajo" EntitySet="orden_trabajo" />
+          </AssociationSet>
+          <AssociationSet Name="FK_orden_trabajo_id_linea" Association="Portal_2_0Model.FK_orden_trabajo_id_linea">
+            <End Role="produccion_lineas" EntitySet="produccion_lineas" />
+            <End Role="orden_trabajo" EntitySet="orden_trabajo" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OT_refacciones_id_orden_trabajo" Association="Portal_2_0Model.FK_OT_refacciones_id_orden_trabajo">
+            <End Role="orden_trabajo" EntitySet="orden_trabajo" />
+            <End Role="OT_refacciones" EntitySet="OT_refacciones" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OT_rel_archivos_id_orden_trabajo" Association="Portal_2_0Model.FK_OT_rel_archivos_id_orden_trabajo">
+            <End Role="orden_trabajo" EntitySet="orden_trabajo" />
+            <End Role="OT_rel_archivos" EntitySet="OT_rel_archivos" />
+          </AssociationSet>
+          <EntitySet Name="OT_responsables" EntityType="Portal_2_0Model.OT_responsables" />
+          <AssociationSet Name="FK_OT_responsables_id_empleado" Association="Portal_2_0Model.FK_OT_responsables_id_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="OT_responsables" EntitySet="OT_responsables" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OT_responsables_id_supervisor" Association="Portal_2_0Model.FK_OT_responsables_id_supervisor">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="OT_responsables" EntitySet="OT_responsables" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="PFA_Border_port">
@@ -3771,8 +3832,7 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <NavigationProperty Name="PFA" Relationship="Portal_2_0Model.FK_PFA_documento" FromRole="biblioteca_digital" ToRole="PFA" />
           <NavigationProperty Name="poliza_manual" Relationship="Portal_2_0Model.FK_poliza_manual_documento_registro" FromRole="biblioteca_digital" ToRole="poliza_manual" />
           <NavigationProperty Name="poliza_manual1" Relationship="Portal_2_0Model.FK_poliza_manual_documento_soporte" FromRole="biblioteca_digital" ToRole="poliza_manual" />
-          <NavigationProperty Name="orden_trabajo" Relationship="Portal_2_0Model.FK_orden_trabajo_id_documento_cierre" FromRole="biblioteca_digital" ToRole="orden_trabajo" />
-          <NavigationProperty Name="orden_trabajo1" Relationship="Portal_2_0Model.FK_orden_trabajo_id_documento_solicitud" FromRole="biblioteca_digital" ToRole="orden_trabajo" />
+          <NavigationProperty Name="OT_rel_archivos" Relationship="Portal_2_0Model.FK_OT_rel_archivos_id_archivo" FromRole="biblioteca_digital" ToRole="OT_rel_archivos" />
           </EntityType>
         <EntityType Name="PFA">
           <Key>
@@ -4667,14 +4727,16 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <NavigationProperty Name="produccion_respaldo" Relationship="Portal_2_0Model.FK_produccion_respaldo_id_empleado" FromRole="empleados" ToRole="produccion_respaldo" />
           <NavigationProperty Name="produccion_supervisores" Relationship="Portal_2_0Model.FK_produccion_supervisores_id_empleado" FromRole="empleados" ToRole="produccion_supervisores" />
           <NavigationProperty Name="upgrade_usuarios" Relationship="Portal_2_0Model.FK_upgrade_usuarios_empleado" FromRole="empleados" ToRole="upgrade_usuarios" />
-          <NavigationProperty Name="orden_trabajo" Relationship="Portal_2_0Model.FK_orden_trabajo_id_asignacion" FromRole="empleados" ToRole="orden_trabajo" />
-          <NavigationProperty Name="orden_trabajo1" Relationship="Portal_2_0Model.FK_orden_trabajo_id_responsable" FromRole="empleados" ToRole="orden_trabajo" />
-          <NavigationProperty Name="orden_trabajo2" Relationship="Portal_2_0Model.FK_orden_trabajo_id_solicitante" FromRole="empleados" ToRole="orden_trabajo" />
           <NavigationProperty Name="notificaciones_correo" Relationship="Portal_2_0Model.FK_notificaciones_correo_empleado" FromRole="empleados" ToRole="notificaciones_correo" />
           <NavigationProperty Name="IT_matriz_requerimientos" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_empleado" FromRole="empleados" ToRole="IT_matriz_requerimientos" />
           <NavigationProperty Name="IT_matriz_requerimientos1" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_jefe" FromRole="empleados" ToRole="IT_matriz_requerimientos" />
           <NavigationProperty Name="IT_matriz_requerimientos2" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_sistemas" FromRole="empleados" ToRole="IT_matriz_requerimientos" />
           <NavigationProperty Name="IT_matriz_requerimientos3" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_solicitante" FromRole="empleados" ToRole="IT_matriz_requerimientos" />
+          <NavigationProperty Name="orden_trabajo" Relationship="Portal_2_0Model.FK_orden_trabajo_id_asignacion" FromRole="empleados" ToRole="orden_trabajo" />
+          <NavigationProperty Name="orden_trabajo1" Relationship="Portal_2_0Model.FK_orden_trabajo_id_responsable" FromRole="empleados" ToRole="orden_trabajo" />
+          <NavigationProperty Name="orden_trabajo2" Relationship="Portal_2_0Model.FK_orden_trabajo_id_solicitante" FromRole="empleados" ToRole="orden_trabajo" />
+          <NavigationProperty Name="OT_responsables" Relationship="Portal_2_0Model.FK_OT_responsables_id_empleado" FromRole="empleados" ToRole="OT_responsables" />
+          <NavigationProperty Name="OT_responsables1" Relationship="Portal_2_0Model.FK_OT_responsables_id_supervisor" FromRole="empleados" ToRole="OT_responsables" />
           </EntityType>
         <Association Name="FK_empleados_area">
           <End Type="Portal_2_0Model.Area" Role="Area" Multiplicity="0..1" />
@@ -5063,148 +5125,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <Property Name="activo" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="orden_trabajo" Relationship="Portal_2_0Model.FK_orden_trabajo_id_grupo_trabajo" FromRole="OT_grupo_trabajo" ToRole="orden_trabajo" />
         </EntityType>
-        <EntityType Name="orden_trabajo">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_solicitante" Type="Int32" Nullable="false" />
-          <Property Name="id_asignacion" Type="Int32" />
-          <Property Name="id_responsable" Type="Int32" />
-          <Property Name="id_area" Type="Int32" Nullable="false" />
-          <Property Name="id_linea" Type="Int32" />
-          <Property Name="id_documento_solicitud" Type="Int32" />
-          <Property Name="id_documento_cierre" Type="Int32" />
-          <Property Name="fecha_solicitud" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="nivel_urgencia" Type="String" Nullable="false" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="titulo" Type="String" Nullable="false" MaxLength="80" FixedLength="false" Unicode="false" />
-          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="300" FixedLength="false" Unicode="false" />
-          <Property Name="fecha_asignacion" Type="DateTime" Precision="3" />
-          <Property Name="fecha_en_proceso" Type="DateTime" Precision="3" />
-          <Property Name="fecha_cierre" Type="DateTime" Precision="3" />
-          <Property Name="estatus" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="comentario" Type="String" MaxLength="300" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="Area" Relationship="Portal_2_0Model.FK_orden_trabajo_id_area" FromRole="orden_trabajo" ToRole="Area" />
-          <NavigationProperty Name="biblioteca_digital" Relationship="Portal_2_0Model.FK_orden_trabajo_id_documento_cierre" FromRole="orden_trabajo" ToRole="biblioteca_digital" />
-          <NavigationProperty Name="biblioteca_digital1" Relationship="Portal_2_0Model.FK_orden_trabajo_id_documento_solicitud" FromRole="orden_trabajo" ToRole="biblioteca_digital" />
-          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_orden_trabajo_id_asignacion" FromRole="orden_trabajo" ToRole="empleados" />
-          <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_orden_trabajo_id_responsable" FromRole="orden_trabajo" ToRole="empleados" />
-          <NavigationProperty Name="empleados2" Relationship="Portal_2_0Model.FK_orden_trabajo_id_solicitante" FromRole="orden_trabajo" ToRole="empleados" />
-          <NavigationProperty Name="produccion_lineas" Relationship="Portal_2_0Model.FK_orden_trabajo_id_linea" FromRole="orden_trabajo" ToRole="produccion_lineas" />
-          <NavigationProperty Name="OT_refacciones" Relationship="Portal_2_0Model.FK_OT_refacciones_id_orden_trabajo" FromRole="orden_trabajo" ToRole="OT_refacciones" />
-          <Property Name="id_grupo_trabajo" Type="Int32" />
-          <Property Name="tpm" Type="Boolean" Nullable="false" />
-          <Property Name="numero_tarjeta" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="OT_grupo_trabajo" Relationship="Portal_2_0Model.FK_orden_trabajo_id_grupo_trabajo" FromRole="orden_trabajo" ToRole="OT_grupo_trabajo" />
-        </EntityType>
-        <Association Name="FK_orden_trabajo_id_area">
-          <End Type="Portal_2_0Model.Area" Role="Area" Multiplicity="1" />
-          <End Type="Portal_2_0Model.orden_trabajo" Role="orden_trabajo" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Area">
-              <PropertyRef Name="clave" />
-            </Principal>
-            <Dependent Role="orden_trabajo">
-              <PropertyRef Name="id_area" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_orden_trabajo_id_documento_cierre">
-          <End Type="Portal_2_0Model.biblioteca_digital" Role="biblioteca_digital" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.orden_trabajo" Role="orden_trabajo" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="biblioteca_digital">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="orden_trabajo">
-              <PropertyRef Name="id_documento_cierre" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_orden_trabajo_id_documento_solicitud">
-          <End Type="Portal_2_0Model.biblioteca_digital" Role="biblioteca_digital" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.orden_trabajo" Role="orden_trabajo" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="biblioteca_digital">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="orden_trabajo">
-              <PropertyRef Name="id_documento_solicitud" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_orden_trabajo_id_asignacion">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.orden_trabajo" Role="orden_trabajo" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="orden_trabajo">
-              <PropertyRef Name="id_asignacion" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_orden_trabajo_id_responsable">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.orden_trabajo" Role="orden_trabajo" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="orden_trabajo">
-              <PropertyRef Name="id_responsable" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_orden_trabajo_id_solicitante">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
-          <End Type="Portal_2_0Model.orden_trabajo" Role="orden_trabajo" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="orden_trabajo">
-              <PropertyRef Name="id_solicitante" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_orden_trabajo_id_linea">
-          <End Type="Portal_2_0Model.produccion_lineas" Role="produccion_lineas" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.orden_trabajo" Role="orden_trabajo" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="produccion_lineas">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="orden_trabajo">
-              <PropertyRef Name="id_linea" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_OT_refacciones_id_orden_trabajo">
-          <End Type="Portal_2_0Model.orden_trabajo" Role="orden_trabajo" Multiplicity="1" />
-          <End Type="Portal_2_0Model.OT_refacciones" Role="OT_refacciones" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="orden_trabajo">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="OT_refacciones">
-              <PropertyRef Name="id_orden_trabajo" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_orden_trabajo_id_grupo_trabajo">
-          <End Type="Portal_2_0Model.OT_grupo_trabajo" Role="OT_grupo_trabajo" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.orden_trabajo" Role="orden_trabajo" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="OT_grupo_trabajo">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="orden_trabajo">
-              <PropertyRef Name="id_grupo_trabajo" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityType Name="AspNetRoles">
           <Key>
             <PropertyRef Name="Id" />
@@ -5642,6 +5562,192 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             </Principal>
             <Dependent Role="IT_matriz_software">
               <PropertyRef Name="id_it_software" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="OT_rel_archivos">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_orden_trabajo" Type="Int32" Nullable="false" />
+          <Property Name="id_documento" Type="Int32" Nullable="false" />
+          <Property Name="tipo" Type="String" Nullable="false" MaxLength="15" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="biblioteca_digital" Relationship="Portal_2_0Model.FK_OT_rel_archivos_id_archivo" FromRole="OT_rel_archivos" ToRole="biblioteca_digital" />
+          <NavigationProperty Name="orden_trabajo" Relationship="Portal_2_0Model.FK_OT_rel_archivos_id_orden_trabajo" FromRole="OT_rel_archivos" ToRole="orden_trabajo" />
+        </EntityType>
+        <Association Name="FK_OT_rel_archivos_id_archivo">
+          <End Type="Portal_2_0Model.biblioteca_digital" Role="biblioteca_digital" Multiplicity="1" />
+          <End Type="Portal_2_0Model.OT_rel_archivos" Role="OT_rel_archivos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="biblioteca_digital">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="OT_rel_archivos">
+              <PropertyRef Name="id_documento" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="orden_trabajo">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_solicitante" Type="Int32" Nullable="false" />
+          <Property Name="id_asignacion" Type="Int32" />
+          <Property Name="id_responsable" Type="Int32" />
+          <Property Name="id_area" Type="Int32" Nullable="false" />
+          <Property Name="id_linea" Type="Int32" />
+          <Property Name="id_grupo_trabajo" Type="Int32" />
+          <Property Name="fecha_solicitud" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="nivel_urgencia" Type="String" Nullable="false" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="titulo" Type="String" Nullable="false" MaxLength="80" FixedLength="false" Unicode="false" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="300" FixedLength="false" Unicode="false" />
+          <Property Name="tpm" Type="Boolean" Nullable="false" />
+          <Property Name="numero_tarjeta" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="fecha_asignacion" Type="DateTime" Precision="3" />
+          <Property Name="fecha_en_proceso" Type="DateTime" Precision="3" />
+          <Property Name="fecha_cierre" Type="DateTime" Precision="3" />
+          <Property Name="estatus" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="comentario" Type="String" MaxLength="300" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Area" Relationship="Portal_2_0Model.FK_orden_trabajo_id_area" FromRole="orden_trabajo" ToRole="Area" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_orden_trabajo_id_asignacion" FromRole="orden_trabajo" ToRole="empleados" />
+          <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_orden_trabajo_id_responsable" FromRole="orden_trabajo" ToRole="empleados" />
+          <NavigationProperty Name="empleados2" Relationship="Portal_2_0Model.FK_orden_trabajo_id_solicitante" FromRole="orden_trabajo" ToRole="empleados" />
+          <NavigationProperty Name="OT_grupo_trabajo" Relationship="Portal_2_0Model.FK_orden_trabajo_id_grupo_trabajo" FromRole="orden_trabajo" ToRole="OT_grupo_trabajo" />
+          <NavigationProperty Name="produccion_lineas" Relationship="Portal_2_0Model.FK_orden_trabajo_id_linea" FromRole="orden_trabajo" ToRole="produccion_lineas" />
+          <NavigationProperty Name="OT_refacciones" Relationship="Portal_2_0Model.FK_OT_refacciones_id_orden_trabajo" FromRole="orden_trabajo" ToRole="OT_refacciones" />
+          <NavigationProperty Name="OT_rel_archivos" Relationship="Portal_2_0Model.FK_OT_rel_archivos_id_orden_trabajo" FromRole="orden_trabajo" ToRole="OT_rel_archivos" />
+        </EntityType>
+        <Association Name="FK_orden_trabajo_id_area">
+          <End Type="Portal_2_0Model.Area" Role="Area" Multiplicity="1" />
+          <End Type="Portal_2_0Model.orden_trabajo" Role="orden_trabajo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Area">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="orden_trabajo">
+              <PropertyRef Name="id_area" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_orden_trabajo_id_asignacion">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.orden_trabajo" Role="orden_trabajo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="orden_trabajo">
+              <PropertyRef Name="id_asignacion" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_orden_trabajo_id_responsable">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.orden_trabajo" Role="orden_trabajo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="orden_trabajo">
+              <PropertyRef Name="id_responsable" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_orden_trabajo_id_solicitante">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.orden_trabajo" Role="orden_trabajo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="orden_trabajo">
+              <PropertyRef Name="id_solicitante" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_orden_trabajo_id_grupo_trabajo">
+          <End Type="Portal_2_0Model.OT_grupo_trabajo" Role="OT_grupo_trabajo" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.orden_trabajo" Role="orden_trabajo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OT_grupo_trabajo">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="orden_trabajo">
+              <PropertyRef Name="id_grupo_trabajo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_orden_trabajo_id_linea">
+          <End Type="Portal_2_0Model.produccion_lineas" Role="produccion_lineas" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.orden_trabajo" Role="orden_trabajo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="produccion_lineas">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="orden_trabajo">
+              <PropertyRef Name="id_linea" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OT_refacciones_id_orden_trabajo">
+          <End Type="Portal_2_0Model.orden_trabajo" Role="orden_trabajo" Multiplicity="1" />
+          <End Type="Portal_2_0Model.OT_refacciones" Role="OT_refacciones" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="orden_trabajo">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="OT_refacciones">
+              <PropertyRef Name="id_orden_trabajo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OT_rel_archivos_id_orden_trabajo">
+          <End Type="Portal_2_0Model.orden_trabajo" Role="orden_trabajo" Multiplicity="1" />
+          <End Type="Portal_2_0Model.OT_rel_archivos" Role="OT_rel_archivos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="orden_trabajo">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="OT_rel_archivos">
+              <PropertyRef Name="id_orden_trabajo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="OT_responsables">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_empleado" Type="Int32" Nullable="false" />
+          <Property Name="supervisor" Type="Boolean" Nullable="false" />
+          <Property Name="id_supervisor" Type="Int32" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_OT_responsables_id_empleado" FromRole="OT_responsables" ToRole="empleados" />
+          <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_OT_responsables_id_supervisor" FromRole="OT_responsables" ToRole="empleados" />
+        </EntityType>
+        <Association Name="FK_OT_responsables_id_empleado">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.OT_responsables" Role="OT_responsables" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="OT_responsables">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OT_responsables_id_supervisor">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.OT_responsables" Role="OT_responsables" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="OT_responsables">
+              <PropertyRef Name="id_supervisor" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -6457,32 +6563,6 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="orden_trabajo">
-            <EntityTypeMapping TypeName="Portal_2_0Model.orden_trabajo">
-              <MappingFragment StoreEntitySet="orden_trabajo">
-                <ScalarProperty Name="numero_tarjeta" ColumnName="numero_tarjeta" />
-                <ScalarProperty Name="tpm" ColumnName="tpm" />
-                <ScalarProperty Name="id_grupo_trabajo" ColumnName="id_grupo_trabajo" />
-                <ScalarProperty Name="comentario" ColumnName="comentario" />
-                <ScalarProperty Name="estatus" ColumnName="estatus" />
-                <ScalarProperty Name="fecha_cierre" ColumnName="fecha_cierre" />
-                <ScalarProperty Name="fecha_en_proceso" ColumnName="fecha_en_proceso" />
-                <ScalarProperty Name="fecha_asignacion" ColumnName="fecha_asignacion" />
-                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
-                <ScalarProperty Name="titulo" ColumnName="titulo" />
-                <ScalarProperty Name="nivel_urgencia" ColumnName="nivel_urgencia" />
-                <ScalarProperty Name="fecha_solicitud" ColumnName="fecha_solicitud" />
-                <ScalarProperty Name="id_documento_cierre" ColumnName="id_documento_cierre" />
-                <ScalarProperty Name="id_documento_solicitud" ColumnName="id_documento_solicitud" />
-                <ScalarProperty Name="id_linea" ColumnName="id_linea" />
-                <ScalarProperty Name="id_area" ColumnName="id_area" />
-                <ScalarProperty Name="id_responsable" ColumnName="id_responsable" />
-                <ScalarProperty Name="id_asignacion" ColumnName="id_asignacion" />
-                <ScalarProperty Name="id_solicitante" ColumnName="id_solicitante" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="AspNetRoles">
             <EntityTypeMapping TypeName="Portal_2_0Model.AspNetRoles">
               <MappingFragment StoreEntitySet="AspNetRoles">
@@ -6715,6 +6795,51 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
                 <ScalarProperty Name="descripcion" ColumnName="descripcion" />
                 <ScalarProperty Name="id_it_software" ColumnName="id_it_software" />
                 <ScalarProperty Name="id_matriz_requerimientos" ColumnName="id_matriz_requerimientos" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OT_rel_archivos">
+            <EntityTypeMapping TypeName="Portal_2_0Model.OT_rel_archivos">
+              <MappingFragment StoreEntitySet="OT_rel_archivos">
+                <ScalarProperty Name="tipo" ColumnName="tipo" />
+                <ScalarProperty Name="id_documento" ColumnName="id_documento" />
+                <ScalarProperty Name="id_orden_trabajo" ColumnName="id_orden_trabajo" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="orden_trabajo">
+            <EntityTypeMapping TypeName="Portal_2_0Model.orden_trabajo">
+              <MappingFragment StoreEntitySet="orden_trabajo">
+                <ScalarProperty Name="comentario" ColumnName="comentario" />
+                <ScalarProperty Name="estatus" ColumnName="estatus" />
+                <ScalarProperty Name="fecha_cierre" ColumnName="fecha_cierre" />
+                <ScalarProperty Name="fecha_en_proceso" ColumnName="fecha_en_proceso" />
+                <ScalarProperty Name="fecha_asignacion" ColumnName="fecha_asignacion" />
+                <ScalarProperty Name="numero_tarjeta" ColumnName="numero_tarjeta" />
+                <ScalarProperty Name="tpm" ColumnName="tpm" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="titulo" ColumnName="titulo" />
+                <ScalarProperty Name="nivel_urgencia" ColumnName="nivel_urgencia" />
+                <ScalarProperty Name="fecha_solicitud" ColumnName="fecha_solicitud" />
+                <ScalarProperty Name="id_grupo_trabajo" ColumnName="id_grupo_trabajo" />
+                <ScalarProperty Name="id_linea" ColumnName="id_linea" />
+                <ScalarProperty Name="id_area" ColumnName="id_area" />
+                <ScalarProperty Name="id_responsable" ColumnName="id_responsable" />
+                <ScalarProperty Name="id_asignacion" ColumnName="id_asignacion" />
+                <ScalarProperty Name="id_solicitante" ColumnName="id_solicitante" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OT_responsables">
+            <EntityTypeMapping TypeName="Portal_2_0Model.OT_responsables">
+              <MappingFragment StoreEntitySet="OT_responsables">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="id_supervisor" ColumnName="id_supervisor" />
+                <ScalarProperty Name="supervisor" ColumnName="supervisor" />
+                <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

@@ -12,11 +12,14 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class OT_rel_depto_aplica_linea
+    public partial class OT_rel_archivos
     {
         public int id { get; set; }
-        public int id_area { get; set; }
+        public int id_orden_trabajo { get; set; }
+        public int id_documento { get; set; }
+        public string tipo { get; set; }
     
-        public virtual Area Area { get; set; }
+        public virtual biblioteca_digital biblioteca_digital { get; set; }
+        public virtual orden_trabajo orden_trabajo { get; set; }
     }
 }

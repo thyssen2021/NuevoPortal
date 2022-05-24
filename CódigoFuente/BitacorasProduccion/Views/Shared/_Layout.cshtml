@@ -428,6 +428,7 @@
                                                 {
                                                     <h3>Cat&aacute;logos</h3>
                                                     <li class="@(ViewBag.SegundoNivel == "OT_Grupos" ? "current-page" : null )"><a href="@Url.Action("Index", "OT_Grupos")">Grupos</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "OT_responsables" ? "current-page" : null )"><a href="@Url.Action("Index", "OT_responsables")">Responsables</a></li>
                                                 }
                                                 @if (User.IsInRole(TipoRoles.ADMIN))
                                                 {

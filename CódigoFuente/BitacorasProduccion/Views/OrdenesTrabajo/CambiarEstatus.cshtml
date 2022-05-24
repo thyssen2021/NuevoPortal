@@ -235,33 +235,30 @@
                         <div class="form-group row">
                             <span style="color:black"><b>DOCUMENTOS SOLICITUD</b></span>
                         </div>
-                        @if (Model != null && Model.id_documento_solicitud.HasValue)
+                        @foreach (var file in Model.OT_rel_archivos.Where(x => x.tipo == Bitacoras.Util.OT_tipo_documento.SOLICITUD))
                         {
-
                             <div class="form-group row" id="div_document_support_info">
-                                @Html.LabelFor(model => model.id_documento_solicitud, new { @class = "control-label col-md-2" })
+                                <label class="control-label col-md-2">Documento Solictud @(Model.OT_rel_archivos.Where(x => x.tipo == Bitacoras.Util.OT_tipo_documento.SOLICITUD).ToList().IndexOf(file) + 1) </label>
                                 <div class="col-md-7">
-                                    <input type="text" class="form-control col-md-12" style="text-align: right;" value="@Model.biblioteca_digital1.Nombre" readonly>
+                                    <input type="text" class="form-control col-md-12" style="text-align: right;" value="@file.biblioteca_digital.Nombre" readonly>
                                 </div>
                                 <div class="col-md-3">
-                                    <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = Model.id_documento_solicitud})" class="btn btn-success btm-sm" title="Download">
+                                    <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = file.id_documento})" class="btn btn-success btm-sm" title="Download">
                                         <i class="fa fa-download"></i>
                                     </a>
-                                    <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = Model.id_documento_solicitud, inline=true})" class="btn btn-info btm-sm" target="_blank" title="Inline">
+                                    <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = file.id_documento, inline=true})" class="btn btn-info btm-sm" target="_blank" title="Inline">
                                         <i class="fa-regular fa-eye"></i>
                                     </a>
                                 </div>
 
                             </div>
-
                         }
-                        else
+
+                        @if (Model.OT_rel_archivos.Where(x => x.tipo == Bitacoras.Util.OT_tipo_documento.SOLICITUD).Count() == 0)
                         {
                             <div class="form-group row" id="div_document_support_info">
-                                @Html.LabelFor(model => model.id_documento_solicitud, new { @class = "control-label col-md-2" })
-                                <div class="col-md-7">
-                                    <input type="text" class="form-control col-md-12" style="text-align: right;" value="NO DISPONIBLE" readonly>
-                                </div>
+                                <p>No hay archivos disponibles</p>
+
                             </div>
                         }
                         <div class="ln_solid"></div>
@@ -301,7 +298,7 @@
 
                         <div class="item form-group">
                             <div class="col-md-12 col-sm-12 offset-md-12">
-                                <button type="submit" class="btn btn-warning btn-lg float-lg-right" onclick="mostrarModal(@Model.id)"><i class="fa fa-check-square-o"></i>  Aceptar Solicitud</button>
+                                <button type="submit" class="btn btn-warning btn-lg float-lg-right" onclick="mostrarModal(@Model.id)"><i class="fa-solid fa-square-check"></i>  Aceptar Solicitud</button>
                             </div>
                         </div>
 

@@ -297,6 +297,7 @@
     <Compile Include="Controllers\OrdenesTrabajoController.cs" />
     <Compile Include="Controllers\OT_GruposController.cs" />
     <Compile Include="Controllers\OT_rel_depto_aplica_lineaController.cs" />
+    <Compile Include="Controllers\OT_responsablesController.cs" />
     <Compile Include="Controllers\PFA_Border_portController.cs" />
     <Compile Include="Controllers\PFA_DepartmentController.cs" />
     <Compile Include="Controllers\PFA_Destination_plantController.cs" />
@@ -474,6 +475,11 @@
     </Compile>
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\MetadataModels\IT_Matriz_requerimientosMetadata.cs" />
+    <Compile Include="Models\MetadataModels\orden_trabajoMetadata.cs" />
+    <Compile Include="Models\MetadataModels\OT_grupo_trabajoMetadata.cs" />
+    <Compile Include="Models\MetadataModels\OT_refraccionesMetadata.cs" />
+    <Compile Include="Models\MetadataModels\OT_rel_depto_aplica_lineaMetadata.cs" />
+    <Compile Include="Models\MetadataModels\OT_responsablesMetadata.cs" />
     <Compile Include="Models\mm_v3.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -511,7 +517,13 @@
     <Compile Include="Models\OT_refacciones.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\OT_rel_archivos.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\OT_rel_depto_aplica_linea.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\OT_responsables.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Paginacion.cs" />
@@ -6906,6 +6918,9 @@
     <Content Include="Views\IT_matriz_requerimientos\Details.cshtml" />
     <Content Include="Views\IT_matriz_requerimientos\Autorizar.cshtml" />
     <Content Include="Views\IT_matriz_requerimientos\Cerrar.cshtml" />
+    <Content Include="Views\OT_responsables\Create.cshtml" />
+    <Content Include="Views\OT_responsables\Delete.cshtml" />
+    <Content Include="Views\OT_responsables\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
