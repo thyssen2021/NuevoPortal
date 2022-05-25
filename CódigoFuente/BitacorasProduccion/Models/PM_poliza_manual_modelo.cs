@@ -11,8 +11,7 @@ namespace Portal_2_0.Models
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-
+    
     public partial class PM_poliza_manual_modelo
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -20,26 +19,11 @@ namespace Portal_2_0.Models
         {
             this.PM_conceptos_modelo = new HashSet<PM_conceptos_modelo>();
         }
-
-        [Display(Name = "Clave")]
+    
         public int id { get; set; }
-
-        [Required(AllowEmptyStrings = false)]
-        [StringLength(80, MinimumLength = 5)]
-        [Display(Name = "Descripción")]
         public string descripcion { get; set; }
-
-        [DataType(DataType.Date)]
-        [Display(Name = "Fecha de Creación")]
-        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public System.DateTime fecha_creacion { get; set; }
-
-        [Required(AllowEmptyStrings = false)]
-        [StringLength(250, MinimumLength = 5)]
-        [Display(Name = "Comentario")]
         public string comentario { get; set; }
-
-        [Display(Name = "Estado")]
         public bool activo { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

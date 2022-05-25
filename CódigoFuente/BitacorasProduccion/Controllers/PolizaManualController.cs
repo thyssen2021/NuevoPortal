@@ -2211,7 +2211,7 @@ namespace Portal_2_0.Controllers
 
                 ViewBag.id_contabilidad = AddFirstItem(new SelectList(listadoContabilidad, "id_empleado", "empleados.ConcatNombre"));
 
-                poliza_manual poliza_model = new poliza_manual();
+                poliza_manual poliza_model = new poliza_manual { fecha_documento = DateTime.Now };
 
                
 

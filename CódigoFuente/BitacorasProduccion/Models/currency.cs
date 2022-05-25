@@ -27,19 +27,9 @@ namespace Portal_2_0.Models
         public string Symbol { get; set; }
         public Nullable<decimal> LimitePoliza { get; set; }
         public bool activo { get; set; }
-
-        //Concatena clave y nombre
-        public string CocatCurrency
-        {
-            get
-            {
-                return "(" + CurrencyISO + ") " + CurrencyName;
-            }
-        }
-
+    
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<poliza_manual> poliza_manual { get; set; }
-       
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_cantidad> budget_cantidad { get; set; }
     }

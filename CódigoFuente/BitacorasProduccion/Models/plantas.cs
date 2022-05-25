@@ -11,8 +11,7 @@ namespace Portal_2_0.Models
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-
+    
     public partial class plantas
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -27,21 +26,12 @@ namespace Portal_2_0.Models
             this.empleados = new HashSet<empleados>();
             this.notificaciones_correo = new HashSet<notificaciones_correo>();
         }
-
-        [Display(Name = "Clave")]
+    
         public int clave { get; set; }
-
-        [Required(AllowEmptyStrings = false)]
-        [StringLength(100, MinimumLength = 2)]
-        [Display(Name = "Descripción")]
         public string descripcion { get; set; }
-        [Display(Name = "Estatus")]
         public bool activo { get; set; }
-        [Required(AllowEmptyStrings = false)]
-        [Display(Name = "Código SAP")]
-        [StringLength(4, MinimumLength = 2)]
         public string codigoSap { get; set; }
-
+    
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Area> Area { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

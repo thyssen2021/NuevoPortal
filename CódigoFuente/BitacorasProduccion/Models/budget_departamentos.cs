@@ -11,8 +11,7 @@ namespace Portal_2_0.Models
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-
+    
     public partial class budget_departamentos
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -20,20 +19,10 @@ namespace Portal_2_0.Models
         {
             this.budget_centro_costo = new HashSet<budget_centro_costo>();
         }
-
-      
+    
         public int id { get; set; }
-
-        [Required]
-        [Display(Name = "Plant")]
         public int id_budget_planta { get; set; }
-
-        [Required(AllowEmptyStrings = false)]
-        [StringLength(40, MinimumLength = 2)]
-        [Display(Name = "Description")]
         public string descripcion { get; set; }
-
-        [Display(Name = "Status")]
         public bool activo { get; set; }
     
         public virtual budget_plantas budget_plantas { get; set; }

@@ -66,7 +66,7 @@ namespace Portal_2_0.Controllers
             {
                 ViewBag.id_categoria_falla = AddFirstItem(new SelectList(db.inspeccion_categoria_fallas.Where(x=> x.activo==true), "id", "descripcion"));
               
-                return View(new inspeccion_fallas());
+                return View(new inspeccion_fallas { dano_interno = true});
             }
             else
             {

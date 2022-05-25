@@ -11,8 +11,7 @@ namespace Portal_2_0.Models
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-
+    
     public partial class Area
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -20,54 +19,24 @@ namespace Portal_2_0.Models
         {
             this.puesto = new HashSet<puesto>();
             this.empleados = new HashSet<empleados>();
-            this.orden_trabajo = new HashSet<orden_trabajo>();
             this.OT_rel_depto_aplica_linea = new HashSet<OT_rel_depto_aplica_linea>();
+            this.orden_trabajo = new HashSet<orden_trabajo>();
         }
-
-        [Display(Name = "Clave")]
+    
         public int clave { get; set; }
-
-        [Display(Name = "Estatus")]
         public bool activo { get; set; }
-
-        [Required(AllowEmptyStrings = false)]
-        [StringLength(80, MinimumLength = 2)]
-        [Display(Name = "Descripción")]
         public string descripcion { get; set; }
-
-        [DataType(DataType.EmailAddress)]
-        [StringLength(100, MinimumLength = 6)]
-        [EmailAddress]
-        [Display(Name = "Correo de área")]
         public string listaCorreoElectronico { get; set; }
-
-        [Required]
-        [Display(Name = "Planta")]
         public Nullable<int> plantaClave { get; set; }
-
-        //concatena el nombre
-        public string ConcatDeptoPlanta
-        {
-            get
-            {
-                string pt = String.Empty;
-
-                if (this.plantas != null)
-                    pt = plantas.descripcion;
-
-
-                return string.Format("({0}) {1}", pt, descripcion).ToUpper();
-            }
-        }
-
+    
         public virtual plantas plantas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<puesto> puesto { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<empleados> empleados { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<orden_trabajo> orden_trabajo { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<OT_rel_depto_aplica_linea> OT_rel_depto_aplica_linea { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<orden_trabajo> orden_trabajo { get; set; }
     }
 }

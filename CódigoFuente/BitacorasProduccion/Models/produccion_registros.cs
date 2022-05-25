@@ -11,114 +11,27 @@ namespace Portal_2_0.Models
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-    using System.Linq;
-
+    
     public partial class produccion_registros
     {
-        private Portal_2_0Entities db = new Portal_2_0Entities();
-
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public produccion_registros()
         {
             this.produccion_lotes = new HashSet<produccion_lotes>();
             this.inspeccion_pieza_descarte_produccion = new HashSet<inspeccion_pieza_descarte_produccion>();
         }
-
+    
         public int id { get; set; }
-        [Display(Name = "Planta")]
         public Nullable<int> clave_planta { get; set; }
-        [Display(Name = "Línea")]
         public Nullable<int> id_linea { get; set; }
-
-        [Required]
-        [Display(Name = "Operador")]
         public Nullable<int> id_operador { get; set; }
-
-        [Required]
-        [Display(Name = "Supervisor")]
         public Nullable<int> id_supervisor { get; set; }
-        [Display(Name = "Turno")]
         public Nullable<int> id_turno { get; set; }
-
-        [Required]
-        [Display(Name = "SAP Platina")]
         public string sap_platina { get; set; }
-
-        [Required]
-        [Display(Name = "SAP Rollo")]
         public string sap_rollo { get; set; }
-
-        [DataType(DataType.Date)]
-        [Display(Name = "Fecha")]
-        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public Nullable<System.DateTime> fecha { get; set; }
-        [Display(Name = "Estado")]
         public Nullable<bool> activo { get; set; }
-
-        //retorna el objeto mm y el cobjeto class asociado
-        public mm_v3 MM_asociado
-        {
-            get
-            {
-                mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == this.sap_platina);
-                if (mm == null)
-                    mm = new mm_v3 { };
-
-                return mm;
-            }
-        }
-
-        public class_v3 Class_asociado
-        {
-            get
-            {
-                class_v3 class_ = db.class_v3.FirstOrDefault(x => x.Object == this.sap_platina);
-                if (class_ == null)
-                    class_ = new class_v3 { };
-
-                return class_;
-            }
-        }
-
-        //obtiene el numero de piezas donde aplica calculo
-        public int TotalPiezasProduccion()
-        {
-            int cantidad = 0;
-
-            var list = this.inspeccion_pieza_descarte_produccion.Where(x => x.inspeccion_fallas.aplica_en_calculo == true).ToList();
-            cantidad = list.Sum(x => x.cantidad);
-
-            return cantidad;
-            
-        }
-
-        //obtiene el numero de pezas de descarte con daño interno
-        public int NumPiezasDescarteDanoInterno()
-        {
-                int cantidad = 0;
-
-                var list = this.inspeccion_pieza_descarte_produccion.Where(x => x.inspeccion_fallas.dano_interno == true && x.inspeccion_fallas.aplica_en_calculo==true).ToList();
-
-                cantidad = list.Sum(x=>x.cantidad);
-
-                return cantidad;
-        }
-
-        //obtiene el numero de pezas de descarte con daño interno
-        public int NumPiezasDescarteDanoExterno()
-        {
-            int cantidad = 0;
-
-            var list = this.inspeccion_pieza_descarte_produccion.Where(x => x.inspeccion_fallas.dano_externo == true && x.inspeccion_fallas.aplica_en_calculo == true).ToList();
-
-            cantidad = list.Sum(x => x.cantidad);
-
-            return cantidad;
-
-        }
-
-
+    
         public virtual plantas plantas { get; set; }
         public virtual produccion_datos_entrada produccion_datos_entrada { get; set; }
         public virtual produccion_lineas produccion_lineas { get; set; }

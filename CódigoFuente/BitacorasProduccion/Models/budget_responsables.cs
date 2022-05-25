@@ -19,7 +19,7 @@ namespace Portal_2_0.Models
         public int id_responsable { get; set; }
         public bool estatus { get; set; }
     
-        public virtual empleados empleados { get; set; }
         public virtual budget_centro_costo budget_centro_costo { get; set; }
+        public virtual empleados empleados { get; set; }
     }
 }

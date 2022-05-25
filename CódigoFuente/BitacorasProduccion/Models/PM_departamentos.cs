@@ -11,8 +11,7 @@ namespace Portal_2_0.Models
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-
+    
     public partial class PM_departamentos
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -21,28 +20,18 @@ namespace Portal_2_0.Models
             this.PM_departamentos1 = new HashSet<PM_departamentos>();
             this.PM_usuarios_capturistas = new HashSet<PM_usuarios_capturistas>();
         }
-
-        [Display(Name = "Clave")]
+    
         public int id { get; set; }
-
-        [Display(Name = "Jefe de Área")]
         public Nullable<int> id_empleado_jefe { get; set; }
-       
-        [Required(AllowEmptyStrings = false)]
-        [StringLength(30, MinimumLength = 2)]
-        [Display(Name = "Descripción")]
         public string descripcion { get; set; }
-
-        [Display(Name = "Departamento que valida")]
         public Nullable<int> id_departamento_validacion { get; set; }
-        [Display(Name = "Estado")]
         public bool activo { get; set; }
     
-        public virtual empleados empleados { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PM_departamentos> PM_departamentos1 { get; set; }
         public virtual PM_departamentos PM_departamentos2 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PM_usuarios_capturistas> PM_usuarios_capturistas { get; set; }
+        public virtual empleados empleados { get; set; }
     }
 }

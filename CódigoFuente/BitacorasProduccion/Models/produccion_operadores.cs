@@ -11,8 +11,7 @@ namespace Portal_2_0.Models
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-
+    
     public partial class produccion_operadores
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -20,24 +19,15 @@ namespace Portal_2_0.Models
         {
             this.produccion_registros = new HashSet<produccion_registros>();
         }
-
+    
         public int id { get; set; }
-        [Required(ErrorMessage = "El campo empleado es requerido")]
-        [Range(0, Int32.MaxValue, ErrorMessage = "El campo empleado es requerido")]
-        [Display(Name = "Empleado")]
         public int id_empleado { get; set; }
-
-        [Required(ErrorMessage = "El campo línea es requerido")]
-        [Display(Name = "Línea")]
-        [Range(0, Int32.MaxValue, ErrorMessage = "El campo línea es requerido")]
         public int id_linea { get; set; }
-
-        [Display(Name = "Estado")]
         public Nullable<bool> activo { get; set; }
-
-        public virtual empleados empleados { get; set; }
+    
         public virtual produccion_lineas produccion_lineas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<produccion_registros> produccion_registros { get; set; }
+        public virtual empleados empleados { get; set; }
     }
 }

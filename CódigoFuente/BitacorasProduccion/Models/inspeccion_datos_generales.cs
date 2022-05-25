@@ -11,22 +11,14 @@ namespace Portal_2_0.Models
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-
+    
     public partial class inspeccion_datos_generales
     {
         public int id_produccion_registro { get; set; }
-        [Display(Name = "Inspector")]
         public int id_empleado_inspector { get; set; }
-
-        
-        [StringLength(255, MinimumLength = 2)]
-        [Display(Name = "Comentarios")]
         public string comentarios { get; set; }
     
-
-
-        public virtual empleados empleados { get; set; }
         public virtual produccion_registros produccion_registros { get; set; }
+        public virtual empleados empleados { get; set; }
     }
 }

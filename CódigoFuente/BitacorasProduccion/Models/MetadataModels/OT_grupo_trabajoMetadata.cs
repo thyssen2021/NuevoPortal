@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
-namespace Portal_2_0.Models.MetadataModels
+namespace Portal_2_0.Models
 {
     public class OT_grupo_trabajoMetadata
     {

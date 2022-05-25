@@ -30,7 +30,7 @@
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_operador" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_supervisor" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_turnos" ManuallyRouted="false" />
-        <EntityTypeShape EntityType="Portal_2_0Model.PFA_Border_port" Width="1.5" PointX="7.625" PointY="1" />
+        <EntityTypeShape EntityType="Portal_2_0Model.PFA_Border_port" Width="1.5" PointX="7.625" PointY="1.125" />
         <EntityTypeShape EntityType="Portal_2_0Model.PFA_Department" Width="1.5" PointX="7.5" PointY="22.5" />
         <EntityTypeShape EntityType="Portal_2_0Model.PFA_Destination_plant" Width="1.5" PointX="7.5" PointY="30.625" />
         <EntityTypeShape EntityType="Portal_2_0Model.PFA_Reason" Width="1.5" PointX="7.5" PointY="4" />

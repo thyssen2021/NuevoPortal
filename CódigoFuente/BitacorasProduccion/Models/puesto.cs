@@ -11,8 +11,7 @@ namespace Portal_2_0.Models
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-
+    
     public partial class puesto
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -20,22 +19,12 @@ namespace Portal_2_0.Models
         {
             this.empleados = new HashSet<empleados>();
         }
-
-        [Display(Name = "Clave")]
+    
         public int clave { get; set; }
-
-        [Display(Name = "Estatus")]
         public bool activo { get; set; }
-
-        [Required(AllowEmptyStrings = false)]
-        [StringLength(80, MinimumLength = 2)]
-        [Display(Name = "Descripción")]
         public string descripcion { get; set; }
-
-        [Required(ErrorMessage = "El campo área es requerido")]
-        [Display(Name = "Área")]
         public Nullable<int> areaClave { get; set; }
-
+    
         public virtual Area Area { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<empleados> empleados { get; set; }

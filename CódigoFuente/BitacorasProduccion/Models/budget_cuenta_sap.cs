@@ -11,37 +11,23 @@ namespace Portal_2_0.Models
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-
+    
     public partial class budget_cuenta_sap
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public budget_cuenta_sap()
         {
-           
             this.budget_cantidad = new HashSet<budget_cantidad>();
             this.budget_rel_comentarios = new HashSet<budget_rel_comentarios>();
         }
-
+    
         public int id { get; set; }
-
-        [Display(Name = "Mapping")]
         public int id_mapping { get; set; }
-
-        [Required(AllowEmptyStrings = false)]
-        [StringLength(8, MinimumLength = 2)]
-        [Display(Name = "SAP Account")]
         public string sap_account { get; set; }
-
-        [Required(AllowEmptyStrings = false)]
-        [StringLength(40, MinimumLength = 2)]
-        [Display(Name = "Name")]
         public string name { get; set; }
-
-        [Display(Name = "Status")]
         public bool activo { get; set; }
-
-        public virtual budget_mapping budget_mapping { get; set; }      
+    
+        public virtual budget_mapping budget_mapping { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_cantidad> budget_cantidad { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

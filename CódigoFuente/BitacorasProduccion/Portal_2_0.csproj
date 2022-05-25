@@ -378,6 +378,7 @@
     <Compile Include="Models\budget_departamentos.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\MetadataModels\budget_departamentosMetadata.cs" />
     <Compile Include="Models\budget_mapping.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -474,12 +475,52 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\ManageViewModels.cs" />
+    <Compile Include="Models\MetadataModels\AreaMetada.cs" />
+    <Compile Include="Models\MetadataModels\bom_en_sapMetadata.cs" />
+    <Compile Include="Models\MetadataModels\budget_anio_fiscalMetadata.cs" />
+    <Compile Include="Models\MetadataModels\budget_centro_costoMetadata.cs" />
+    <Compile Include="Models\MetadataModels\budget_cuenta_sapMetadata.cs" />
+    <Compile Include="Models\MetadataModels\budget_mappingMetadata.cs" />
+    <Compile Include="Models\MetadataModels\budget_mapping_bridge_Metadata.cs" />
+    <Compile Include="Models\MetadataModels\budget_plantasMetadata.cs" />
+    <Compile Include="Models\MetadataModels\class_v3Metadata.cs" />
+    <Compile Include="Models\MetadataModels\currencyMetadata.cs" />
+    <Compile Include="Models\MetadataModels\empleadosMetadata.cs" />
+    <Compile Include="Models\MetadataModels\inspeccion_categoria_fallasMetadata.cs" />
+    <Compile Include="Models\MetadataModels\inspeccion_datos_generalesMetadata.cs" />
+    <Compile Include="Models\MetadataModels\inspeccion_fallasMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_Matriz_requerimientosMetadata.cs" />
+    <Compile Include="Models\MetadataModels\mm_v3Metadata.cs" />
     <Compile Include="Models\MetadataModels\orden_trabajoMetadata.cs" />
     <Compile Include="Models\MetadataModels\OT_grupo_trabajoMetadata.cs" />
     <Compile Include="Models\MetadataModels\OT_refraccionesMetadata.cs" />
     <Compile Include="Models\MetadataModels\OT_rel_depto_aplica_lineaMetadata.cs" />
     <Compile Include="Models\MetadataModels\OT_responsablesMetadata.cs" />
+    <Compile Include="Models\MetadataModels\PFAMetadata.cs" />
+    <Compile Include="Models\MetadataModels\PFA_Border_portMetadata.cs" />
+    <Compile Include="Models\MetadataModels\PFA_DepartmentMetadata.cs" />
+    <Compile Include="Models\MetadataModels\PFA_Destination_plantMetadata.cs" />
+    <Compile Include="Models\MetadataModels\PFA_ReasonMetadata.cs" />
+    <Compile Include="Models\MetadataModels\PFA_Recovered_costMetadata.cs" />
+    <Compile Include="Models\MetadataModels\PFA_Responsible_costMetadata.cs" />
+    <Compile Include="Models\MetadataModels\PFA_Type_shipmentMetadata.cs" />
+    <Compile Include="Models\MetadataModels\PFA_VolumeMetadata.cs" />
+    <Compile Include="Models\MetadataModels\plantasMetadata.cs" />
+    <Compile Include="Models\MetadataModels\PM_departamentosMetadata.cs" />
+    <Compile Include="Models\MetadataModels\PM_poliza_manual_modeloMetadata.cs" />
+    <Compile Include="Models\MetadataModels\PM_tipo_polizaMetadata.cs" />
+    <Compile Include="Models\MetadataModels\PM_usuarios_capturistasMetadata.cs" />
+    <Compile Include="Models\MetadataModels\poliza_manualMetadata.cs" />
+    <Compile Include="Models\MetadataModels\produccion_datos_entradaMetadata.cs" />
+    <Compile Include="Models\MetadataModels\produccion_lineasMetadata.cs" />
+    <Compile Include="Models\MetadataModels\produccion_operadoresMetadata.cs" />
+    <Compile Include="Models\MetadataModels\produccion_registrosMetadata.cs" />
+    <Compile Include="Models\MetadataModels\produccion_respaldoMetadata.cs" />
+    <Compile Include="Models\MetadataModels\produccion_supervisoresMetadata.cs" />
+    <Compile Include="Models\MetadataModels\produccion_turnosMetadata.cs" />
+    <Compile Include="Models\MetadataModels\puestoMetadata.cs" />
+    <Compile Include="Models\MetadataModels\view_historico_resultadoMetadata.cs" />
+    <Compile Include="Models\MetadataModels\view_valores_fiscal_yearMetadata.cs" />
     <Compile Include="Models\mm_v3.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
