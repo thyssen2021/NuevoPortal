@@ -48,5 +48,6 @@ namespace Clases.Util
         public const string IT_MATRIZ_REQUERIMIENTOS_DETALLES = "IT_Matriz_requerimientos_detalles";
         public const string IT_MATRIZ_REQUERIMIENTOS_AUTORIZAR = "IT_Matriz_requerimientos_autorizar";
         public const string IT_MATRIZ_REQUERIMIENTOS_CERRAR = "IT_Matriz_requerimientos_cerrar";
+        public const string IT_CATALOGOS = "IT_Catalogos";
     }
 }

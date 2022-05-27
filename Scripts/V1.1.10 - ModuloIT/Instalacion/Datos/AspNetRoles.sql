@@ -35,6 +35,11 @@ BEGIN
 	BEGIN
 		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'IT_Matriz_requerimientos_cerrar')
 	END
+	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='IT_Catalogos' )
+	BEGIN
+		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'IT_Catalogos')
+	END
+
 	
 	
 
