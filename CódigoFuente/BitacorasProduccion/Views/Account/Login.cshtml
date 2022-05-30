@@ -17,6 +17,30 @@
             font-family: 'TKTypeMedium';
             src: url('../../fonts/tkmm/TKTypeMedium.ttf') format('truetype');
         }
+
+        .tooltip_class + .tooltip > .tooltip-inner {
+            background-color: #fbf0b3;
+            color: #060689;
+            border: 1px solid #808080;
+            padding: 15px;
+            font-size: 15px;
+        }
+        /* Tooltip on top */
+        .tooltip_class + .tooltip.top > .tooltip-arrow {
+            border-top: 5px solid #b1a669;
+        }
+        /* Tooltip on bottom */
+        .tooltip_class + .tooltip.bottom > .tooltip-arrow {
+            border-bottom: 5px solid #b1a669;
+        }
+        /* Tooltip on left */
+        .tooltip_class + .tooltip.left > .tooltip-arrow {
+            border-left: 5px solid #b1a669;
+        }
+        /* Tooltip on right */
+        .tooltip_class + .tooltip.right > .tooltip-arrow {
+            border-right: 5px solid #b1a669;
+        }
     </style>
 </head>
 <body>
@@ -59,8 +83,19 @@
                                 @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
                             </div>
                             <button type="submit" class="btn btn-block btn-info" tabindex="3">Iniciar Sesi&oacute;n</button>
-
                         }
+                        <div class="row" style="padding-top:5px">
+                            <div class="col-md-6 col-sm-6 ">
+                                <a href="@Url.Action("ForgotPassword", "Account")" class="tooltip_class" data-toggle="tooltip" data-placement="bottom" data-html="true" title="Haz clic aquí para restablecer tu contraseña.</u>">
+                                    ¿Olvidaste tu contrase&ntilde;a?
+                                </a>
+                            </div>
+                            <div class="col-md-6 col-sm-6" style="text-align:right">
+                                <a href="@Url.Action("SolicitarUsuario", "Account")" class="tooltip_class" data-toggle="tooltip" data-placement="bottom" data-html="true" title="Si aún no tienes <b>usuario</b>, haz clic aquí para solicitarlo.</u>">
+                                    Solicitar Usuario
+                                </a>
+                            </div>
+                        </div>                      
                     </div>
                 </div><!--.panel-->
             </div><!--.cols-->
@@ -69,9 +104,13 @@
 </body>
 
 
-
 @Scripts.Render("~/bundles/jquery")
-@Scripts.Render("~/bundles/bootstrap")
+@Scripts.Render("~/Scripts/bootstrap_3.4.1_login.min.js")
 @Scripts.Render("~/bundles/jqueryval")
 
+<script>
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>
 </html>

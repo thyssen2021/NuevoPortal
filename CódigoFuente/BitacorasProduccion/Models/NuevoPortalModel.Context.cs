@@ -104,5 +104,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<OT_rel_archivos> OT_rel_archivos { get; set; }
         public virtual DbSet<orden_trabajo> orden_trabajo { get; set; }
         public virtual DbSet<OT_responsables> OT_responsables { get; set; }
+        public virtual DbSet<IT_solicitud_usuarios> IT_solicitud_usuarios { get; set; }
     }
 }

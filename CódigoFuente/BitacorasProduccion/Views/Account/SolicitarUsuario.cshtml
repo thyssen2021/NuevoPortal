@@ -1,0 +1,127 @@
+﻿@model Portal_2_0.Models.IT_solicitud_usuarios
+
+@{
+    ViewBag.Title = "Solicitud de Usuario";
+    ViewBag.ControllerName = "Account";
+
+}
+
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/green.css")" rel="stylesheet">
+
+}
+
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        @using (Html.BeginForm("Create", "Account", FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <h4>Datos generales</h4>
+                            <hr />
+
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", new { @class = "text-white" })
+                                </div>
+                            }
+
+                            <p><b>1.- Busque su nombre en la siguiente lista desplegable</b></p>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id_empleado, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.DropDownList("id_empleado", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @Html.ValidationMessageFor(model => model.id_empleado, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <p><b>2.- Si su nombre NO se encuentra en la lista, por favor marque la siguiente casilla.</b></p>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.no_encuentra_empleado, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.EditorFor(model => model.no_encuentra_empleado)
+                                    @Html.ValidationMessageFor(model => model.no_encuentra_empleado, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <p><b>3.- Complete la siguiente informaci&oacute;n.</b></p>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id_planta, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.DropDownList("id_planta", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @Html.ValidationMessageFor(model => model.id_planta, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.nombre, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.EditorFor(model => model.nombre, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.nombre, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="item form-group">
+                                <div class="col-md-6 col-sm-6 offset-md-3">
+                                    <button type="submit" class="btn btn-success">Guardar</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <script>
+        $(document).ready(function () {
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+                increaseArea: '20%' // optional
+            });
+
+
+        });
+
+        window.onload = function () {
+            clicMenu(1);
+        }
+
+    </script>
+}

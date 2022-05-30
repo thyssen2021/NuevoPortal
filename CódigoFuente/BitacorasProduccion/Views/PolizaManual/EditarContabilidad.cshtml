@@ -2,7 +2,7 @@
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewBag.Title = "Efitar Póliza Manual Finalizada";
+    ViewBag.Title = "Editar Póliza Manual Finalizada";
     ViewBag.PrimerNivel = "polizas_manuales";
     ViewBag.SegundoNivel = "PM_contabilidad_pendientes";
     ViewBag.ControllerName = "PolizaManual";
@@ -403,7 +403,6 @@
 
                             @Html.AntiForgeryToken()
 
-
                             @* input para saber si está o no activo el campo de soporte *@
                             <input type="hidden" name="cambio_documento" id="cambio_documento" value="0" />
 
@@ -418,6 +417,7 @@
                             @Html.HiddenFor(model => model.id_validador)
                             @Html.HiddenFor(model => model.descripcion_poliza)
                             @Html.HiddenFor(model => model.id_contabilidad)
+                             @Html.HiddenFor(model => model.currency_iso)
 
                             @* input para saber si está o no activo el campo de soporte *@
                             <input type="hidden" name="cambio_documento_soporte" id="cambio_documento_soporte" value="0" />

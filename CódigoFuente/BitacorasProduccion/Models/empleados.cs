@@ -43,6 +43,7 @@ namespace Portal_2_0.Models
             this.orden_trabajo2 = new HashSet<orden_trabajo>();
             this.OT_responsables = new HashSet<OT_responsables>();
             this.OT_responsables1 = new HashSet<OT_responsables>();
+            this.IT_solicitud_usuarios = new HashSet<IT_solicitud_usuarios>();
         }
     
         public int id { get; set; }
@@ -122,5 +123,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<OT_responsables> OT_responsables { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<OT_responsables> OT_responsables1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_solicitud_usuarios> IT_solicitud_usuarios { get; set; }
     }
 }

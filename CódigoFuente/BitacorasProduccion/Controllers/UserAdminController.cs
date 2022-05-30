@@ -198,7 +198,8 @@ namespace IdentitySample.Controllers
                 if (id == null)
                 {
                     return RedirectToAction("NotFound", "Error");
-                }
+                }                
+
                 var user = await _userManager.FindByIdAsync(id);
                 if (user == null)
                 {
@@ -209,10 +210,18 @@ namespace IdentitySample.Controllers
 
                 //obtien el tipo de usuario
                 if (user.IdEmpleado > 0)
-                    tipoU = "empleado";
-                else
-                    tipoU = "otro";
+                {
+                    empleados emp = db.empleados.Find(user.IdEmpleado);
+                    if (emp.activo.HasValue && !emp.activo.Value) {
+                        ViewBag.Titulo = "¡Lo sentimos!¡No se puede editar el usuario de un empleado que ha sido dado de baja!";
+                        ViewBag.Descripcion = "No se puede editar un usuario perteneciente a un usuario que ha sido dado de baja.";
 
+                        return View("../Home/ErrorGenerico");
+                    }
+                    tipoU = "empleado";
+                }
+                else
+                    tipoU = "otro";              
 
                 ViewBag.EmpleadosList = ComboSelect.obtieneEmpleadosSelectList();
                 ViewBag.TipoU = tipoU;

@@ -383,6 +383,9 @@
     <Compile Include="Models\budget_departamentos.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\IT_solicitud_usuarios.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\MetadataModels\budget_departamentosMetadata.cs" />
     <Compile Include="Models\budget_mapping.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
@@ -500,6 +503,7 @@
     <Compile Include="Models\MetadataModels\IT_comunicaciones_tipoMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_hardware_tipoMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_Matriz_requerimientosMetadata.cs" />
+    <Compile Include="Models\MetadataModels\IT_solicitud_usuariosMetadata.cs" />
     <Compile Include="Models\MetadataModels\mm_v3Metadata.cs" />
     <Compile Include="Models\MetadataModels\orden_trabajoMetadata.cs" />
     <Compile Include="Models\MetadataModels\OT_grupo_trabajoMetadata.cs" />
@@ -737,6 +741,7 @@
     <Content Include="Content\emails_plantillas\PM_envio_a_contabilidad.html" />
     <Content Include="Content\emails_plantillas\PM_envio_a_autorizador.html" />
     <Content Include="Content\emails_plantillas\OT_creacion.html" />
+    <Content Include="Content\emails_plantillas\Account_reset_password.html" />
     <Content Include="Content\emails_plantillas\PM_rechazo.html" />
     <Content Include="Content\emails_plantillas\PM_envio_a_validador.html" />
     <Content Include="Content\emails_plantillas\PFA_solicitud_recibida.html" />
@@ -5714,6 +5719,7 @@
     <Content Include="Scripts\bootstrap.bundle.min.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Scripts\bootstrap_3.4.1_login.min.js" />
     <Content Include="Scripts\bs-custom-file-input.min.js" />
     <Content Include="Scripts\esm\popper-utils.js" />
     <Content Include="Scripts\esm\popper-utils.min.js" />
@@ -7002,6 +7008,9 @@
     <Content Include="Views\IT_internet_tipo\Edit.cshtml" />
     <Content Include="Views\IT_internet_tipo\Enable.cshtml" />
     <Content Include="Views\IT_internet_tipo\Index.cshtml" />
+    <Content Include="Views\Account\SolicitarUsuario.cshtml" />
+    <Content Include="Views\Account\ForgotPassword.cshtml" />
+    <Content Include="Views\Account\ForgotPasswordConfirmation.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

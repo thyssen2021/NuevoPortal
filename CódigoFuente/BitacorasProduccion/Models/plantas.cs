@@ -25,6 +25,7 @@ namespace Portal_2_0.Models
             this.poliza_manual = new HashSet<poliza_manual>();
             this.empleados = new HashSet<empleados>();
             this.notificaciones_correo = new HashSet<notificaciones_correo>();
+            this.IT_solicitud_usuarios = new HashSet<IT_solicitud_usuarios>();
         }
     
         public int clave { get; set; }
@@ -48,5 +49,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<empleados> empleados { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<notificaciones_correo> notificaciones_correo { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_solicitud_usuarios> IT_solicitud_usuarios { get; set; }
     }
 }

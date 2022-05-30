@@ -5,6 +5,7 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using Portal_2_0.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -13,7 +14,7 @@ using System.Web.Mvc;
 namespace IdentitySample.Controllers
 {
     [Authorize]
-    public class AccountController : Controller
+    public class AccountController : BaseController
     {
         private Portal_2_0Entities db = new Portal_2_0Entities();
         public AccountController()
@@ -89,10 +90,11 @@ namespace IdentitySample.Controllers
             {
                 case SignInStatus.Success:
                     //inserta en log de inicio de sesion
-                    AspNetUsers usuarioASP = db.AspNetUsers.FirstOrDefault(x=>x.UserName == username);
+                    AspNetUsers usuarioASP = db.AspNetUsers.FirstOrDefault(x => x.UserName == username);
 
                     //guarda el inicio de sesión en el log
-                    if (usuarioASP != null) {
+                    if (usuarioASP != null)
+                    {
                         log_inicio_sesion logLogin = new log_inicio_sesion
                         {
                             id_usuario = usuarioASP.Id,
@@ -101,7 +103,7 @@ namespace IdentitySample.Controllers
                         db.log_inicio_sesion.Add(logLogin);
                         db.SaveChanges();
                     }
-                 
+
                     return RedirectToLocal(returnUrl);
                 case SignInStatus.LockedOut:
                     return View("Lockout");
@@ -224,52 +226,136 @@ namespace IdentitySample.Controllers
         //    return View(result.Succeeded ? "ConfirmEmail" : "Error");
         //}
 
-        //
-        //// GET: /Account/ForgotPassword
-        //[HttpGet]
-        //[AllowAnonymous]
-        //public ActionResult ForgotPassword()
-        //{
-        //    return View();
-        //}
 
-        ////
-        //// POST: /Account/ForgotPassword
-        //[HttpPost]
-        //[AllowAnonymous]
-        //[ValidateAntiForgeryToken]
-        //public async Task<ActionResult> ForgotPassword(ForgotPasswordViewModel model)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        var user = await UserManager.FindByNameAsync(model.Email);
-        //        if (user == null || !(await UserManager.IsEmailConfirmedAsync(user.Id)))
-        //        {
-        //            // Don't reveal that the user does not exist or is not confirmed
-        //            return View("ForgotPasswordConfirmation");
-        //        }
+        // GET: /Account/ForgotPassword
+        [HttpGet]
+        [AllowAnonymous]
+        public ActionResult ForgotPassword()
+        {
 
-        //        var code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
-        //        var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
-        //        await UserManager.SendEmailAsync(user.Id, "Reset Password", "Please reset your password by clicking here: <a href=\"" + callbackUrl + "\">link</a>");
-        //        ViewBag.Link = callbackUrl;
-        //        return View("ForgotPasswordConfirmation");
-        //    }
-
-        //    // If we got this far, something failed, redisplay form
-        //    return View(model);
-        //}
-
-        ////
-        //// GET: /Account/ForgotPasswordConfirmation
-        //[HttpGet]
-        //[AllowAnonymous]
-        //public ActionResult ForgotPasswordConfirmation()
-        //{
-        //    return View();
-        //}
+            return View();
+        }
 
         //
+        // POST: /Account/ForgotPassword
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            var aspNetUsers = db.AspNetUsers.FirstOrDefault(x => x.Email == model.Email);
+
+            if (aspNetUsers == null)
+                ModelState.AddModelError("", "No existe ningún usuario registrado con ese correo electrónico.");
+
+
+            if (ModelState.IsValid)
+            {
+
+                var user = await UserManager.FindByIdAsync(aspNetUsers.Id);
+                if (user == null)
+                {
+                    // Don't reveal that the user does not exist or is not confirmed
+                    return View("ForgotPasswordConfirmation");
+                }
+
+                var code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
+                var callbackUrl = Url.Action("ResetPasswordAnonymous", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
+
+                //envia correo electronico
+                EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+                List<String> correos = new List<string>(); //correos TO
+
+                if (!String.IsNullOrEmpty(model.Email))
+                    correos.Add(model.Email); //agrega correo del usuario
+
+                envioCorreo.SendEmailAsync(correos, "Solicitud de restablecimiento de contraseña.", envioCorreo.getBodyAccountResetPassword(callbackUrl));
+
+
+                ViewBag.Link = callbackUrl;
+                return View("ForgotPasswordConfirmation");
+            }
+
+            // If we got this far, something failed, redisplay form
+            return View(model);
+        }
+
+        //
+        // GET: /Account/ForgotPasswordConfirmation
+        [HttpGet]
+        [AllowAnonymous]
+        public ActionResult ForgotPasswordConfirmation()
+        {
+            return View();
+        }
+
+
+        // GET: /Account/ResetPasswordAnonymous
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<ActionResult> ResetPasswordAnonymous(string userId, string code)
+        {
+
+            if (String.IsNullOrEmpty(userId) || String.IsNullOrEmpty(code))
+            {
+                return RedirectToAction("NotFound", "Error");
+            }
+            var user = await UserManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return RedirectToAction("NotFound", "Error");
+            }
+
+            ResetPasswordViewModel modelo = new ResetPasswordViewModel();
+            modelo.Email = user.Email;
+            modelo.Code = code;
+            return View("ResetPassword", modelo);
+
+        }
+
+        //
+        // POST: /Account/ResetPasswordAnonymous
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AllowAnonymous]
+        public async Task<ActionResult> ResetPasswordAnonymous(ResetPasswordViewModel model)
+        {
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+            var user = await UserManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                TempData["Mensaje"] = new MensajesSweetAlert("No se ha podido restablecer la contraseña, el email no existe.", TipoMensajesSweetAlerts.SUCCESS);
+
+                return RedirectToAction("Index", "UsersAdmin");
+            }
+
+            //genera el token
+            //var code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
+
+            var result = await UserManager.ResetPasswordAsync(user.Id, model.Code, model.Password);
+            if (result.Succeeded)
+            {
+                return RedirectToAction("ResetPasswordConfirmation");
+            }
+            ModelState.AddModelError("", "No se ha podido restablecer la contraseña. Sí el token no es válido genere nuevamente el enlace de restablecimiento.");
+            AddErrors(result);
+            return View("ResetPassword", model);
+        }
+
+        // GET: /Account/ResetPasswordConfirmation
+        [HttpGet]
+        [AllowAnonymous]
+        public ActionResult ResetPasswordConfirmation()
+        {
+            return View();
+        }
+
+
+
         // GET: /Account/ResetPassword
         [HttpGet]
         [Authorize]
@@ -334,12 +420,7 @@ namespace IdentitySample.Controllers
         }
 
         //
-        // GET: /Account/ResetPasswordConfirmation
-        [HttpGet]
-        public ActionResult ResetPasswordConfirmation()
-        {
-            return View();
-        }
+
 
         //
         // POST: /Account/ExternalLogin
@@ -476,6 +557,17 @@ namespace IdentitySample.Controllers
             return RedirectToAction("Login", "Account");
         }
 
+        // GET: /Account/Login
+        [HttpGet]
+        [AllowAnonymous]
+        public ActionResult SolicitarUsuario()
+        {
+            ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas.Where(x => x.activo), "clave", "descripcion"));
+            ViewBag.id_empleado = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo.HasValue && x.activo.Value), "id", "ConcatNumEmpleadoNombre"));
+
+            return View();
+
+        }
 
         ////
         //// GET: /Account/ExternalLoginFailure

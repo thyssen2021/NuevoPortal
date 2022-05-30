@@ -385,6 +385,25 @@
           <Property Name="aplica_descripcion" Type="bit" Nullable="false" />
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
+        <EntityType Name="IT_solicitud_usuarios">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_empleado" Type="int" />
+          <Property Name="id_planta" Type="int" />
+          <Property Name="fecha_solicitud" Type="datetime" Nullable="false" />
+          <Property Name="fecha_cierre" Type="datetime" />
+          <Property Name="nombre" Type="varchar" MaxLength="50" />
+          <Property Name="apellido1" Type="varchar" MaxLength="50" />
+          <Property Name="apellido2" Type="varchar" MaxLength="50" />
+          <Property Name="area" Type="varchar" MaxLength="50" />
+          <Property Name="puesto" Type="varchar" MaxLength="50" />
+          <Property Name="8ID" Type="varchar" MaxLength="8" />
+          <Property Name="correo" Type="varchar" MaxLength="100" />
+          <Property Name="comentario" Type="varchar" MaxLength="250" />
+          <Property Name="estatus" Type="varchar" MaxLength="25" />
+        </EntityType>
         <EntityType Name="log_acceso_email">
           <Key>
             <PropertyRef Name="id" />
@@ -1495,6 +1514,30 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_IT_solicitud_usuarios_id_empleado">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="0..1" />
+          <End Role="IT_solicitud_usuarios" Type="Self.IT_solicitud_usuarios" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_solicitud_usuarios">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_solicitud_usuarios_id_planta">
+          <End Role="plantas" Type="Self.plantas" Multiplicity="0..1" />
+          <End Role="IT_solicitud_usuarios" Type="Self.IT_solicitud_usuarios" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="IT_solicitud_usuarios">
+              <PropertyRef Name="id_planta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_log_inicio_sesion_id_usuario">
           <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="1" />
           <End Role="log_inicio_sesion" Type="Self.log_inicio_sesion" Multiplicity="*" />
@@ -2298,6 +2341,7 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <EntitySet Name="IT_matriz_requerimientos" EntityType="Self.IT_matriz_requerimientos" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_matriz_software" EntityType="Self.IT_matriz_software" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_software_tipo" EntityType="Self.IT_software_tipo" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IT_solicitud_usuarios" EntityType="Self.IT_solicitud_usuarios" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="log_acceso_email" EntityType="Self.log_acceso_email" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="log_inicio_sesion" EntityType="Self.log_inicio_sesion" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="mm_v3" EntityType="Self.mm_v3" Schema="dbo" store:Type="Tables" />
@@ -2580,6 +2624,14 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <AssociationSet Name="FK_IT_mIT_matriz_requerimientos_id_solicitante" Association="Self.FK_IT_mIT_matriz_requerimientos_id_solicitante">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_solicitud_usuarios_id_empleado" Association="Self.FK_IT_solicitud_usuarios_id_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IT_solicitud_usuarios" EntitySet="IT_solicitud_usuarios" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_solicitud_usuarios_id_planta" Association="Self.FK_IT_solicitud_usuarios_id_planta">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="IT_solicitud_usuarios" EntitySet="IT_solicitud_usuarios" />
           </AssociationSet>
           <AssociationSet Name="FK_log_inicio_sesion_id_usuario" Association="Self.FK_log_inicio_sesion_id_usuario">
             <End Role="AspNetUsers" EntitySet="AspNetUsers" />
@@ -2926,6 +2978,7 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <NavigationProperty Name="poliza_manual" Relationship="Portal_2_0Model.FK_poliza_manual_planta" FromRole="plantas" ToRole="poliza_manual" />
           <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_empleados_planta_clave" FromRole="plantas" ToRole="empleados" />
           <NavigationProperty Name="notificaciones_correo" Relationship="Portal_2_0Model.FK_notificaciones_correo_planta" FromRole="plantas" ToRole="notificaciones_correo" />
+          <NavigationProperty Name="IT_solicitud_usuarios" Relationship="Portal_2_0Model.FK_IT_solicitud_usuarios_id_planta" FromRole="plantas" ToRole="IT_solicitud_usuarios" />
         </EntityType>
         <EntityType Name="produccion_datos_entrada">
           <Key>
@@ -3685,6 +3738,15 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <AssociationSet Name="FK_OT_responsables_id_supervisor" Association="Portal_2_0Model.FK_OT_responsables_id_supervisor">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="OT_responsables" EntitySet="OT_responsables" />
+          </AssociationSet>
+          <EntitySet Name="IT_solicitud_usuarios" EntityType="Portal_2_0Model.IT_solicitud_usuarios" />
+          <AssociationSet Name="FK_IT_solicitud_usuarios_id_empleado" Association="Portal_2_0Model.FK_IT_solicitud_usuarios_id_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IT_solicitud_usuarios" EntitySet="IT_solicitud_usuarios" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_solicitud_usuarios_id_planta" Association="Portal_2_0Model.FK_IT_solicitud_usuarios_id_planta">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="IT_solicitud_usuarios" EntitySet="IT_solicitud_usuarios" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="PFA_Border_port">
@@ -4737,6 +4799,7 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <NavigationProperty Name="orden_trabajo2" Relationship="Portal_2_0Model.FK_orden_trabajo_id_solicitante" FromRole="empleados" ToRole="orden_trabajo" />
           <NavigationProperty Name="OT_responsables" Relationship="Portal_2_0Model.FK_OT_responsables_id_empleado" FromRole="empleados" ToRole="OT_responsables" />
           <NavigationProperty Name="OT_responsables1" Relationship="Portal_2_0Model.FK_OT_responsables_id_supervisor" FromRole="empleados" ToRole="OT_responsables" />
+          <NavigationProperty Name="IT_solicitud_usuarios" Relationship="Portal_2_0Model.FK_IT_solicitud_usuarios_id_empleado" FromRole="empleados" ToRole="IT_solicitud_usuarios" />
           </EntityType>
         <Association Name="FK_empleados_area">
           <End Type="Portal_2_0Model.Area" Role="Area" Multiplicity="0..1" />
@@ -5748,6 +5811,51 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
             </Principal>
             <Dependent Role="OT_responsables">
               <PropertyRef Name="id_supervisor" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="IT_solicitud_usuarios">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_empleado" Type="Int32" />
+          <Property Name="id_planta" Type="Int32" />
+          <Property Name="fecha_solicitud" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="fecha_cierre" Type="DateTime" Precision="3" />
+          <Property Name="area" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="puesto" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="C8ID" Type="String" MaxLength="8" FixedLength="false" Unicode="false" />
+          <Property Name="correo" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="comentario" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="estatus" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_IT_solicitud_usuarios_id_empleado" FromRole="IT_solicitud_usuarios" ToRole="empleados" />
+          <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_IT_solicitud_usuarios_id_planta" FromRole="IT_solicitud_usuarios" ToRole="plantas" />
+          <Property Name="nombre" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="apellido1" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="apellido2" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <Association Name="FK_IT_solicitud_usuarios_id_empleado">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.IT_solicitud_usuarios" Role="IT_solicitud_usuarios" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_solicitud_usuarios">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_solicitud_usuarios_id_planta">
+          <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.IT_solicitud_usuarios" Role="IT_solicitud_usuarios" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="IT_solicitud_usuarios">
+              <PropertyRef Name="id_planta" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -6839,6 +6947,26 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
                 <ScalarProperty Name="activo" ColumnName="activo" />
                 <ScalarProperty Name="id_supervisor" ColumnName="id_supervisor" />
                 <ScalarProperty Name="supervisor" ColumnName="supervisor" />
+                <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IT_solicitud_usuarios">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_solicitud_usuarios">
+              <MappingFragment StoreEntitySet="IT_solicitud_usuarios">
+                <ScalarProperty Name="apellido2" ColumnName="apellido2" />
+                <ScalarProperty Name="apellido1" ColumnName="apellido1" />
+                <ScalarProperty Name="nombre" ColumnName="nombre" />
+                <ScalarProperty Name="estatus" ColumnName="estatus" />
+                <ScalarProperty Name="comentario" ColumnName="comentario" />
+                <ScalarProperty Name="correo" ColumnName="correo" />
+                <ScalarProperty Name="C8ID" ColumnName="8ID" />
+                <ScalarProperty Name="puesto" ColumnName="puesto" />
+                <ScalarProperty Name="area" ColumnName="area" />
+                <ScalarProperty Name="fecha_cierre" ColumnName="fecha_cierre" />
+                <ScalarProperty Name="fecha_solicitud" ColumnName="fecha_solicitud" />
+                <ScalarProperty Name="id_planta" ColumnName="id_planta" />
                 <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>

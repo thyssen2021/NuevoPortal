@@ -749,5 +749,28 @@ namespace Portal_2_0.Models
         }
 
         #endregion
+
+        #region account
+
+        /// <summary>
+        /// metodo para obtener el body de email de notificación de restablecimiento de contraseña
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public string getBodyAccountResetPassword(string enlace)
+        {
+            //obtiene la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+
+            string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/Account_reset_password.html"));
+                       
+            body = body.Replace("#ENLACE", enlace);
+
+            return body;
+
+        }
+
+
+        #endregion
     }
 }
