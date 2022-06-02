@@ -26,6 +26,17 @@
     });
 
 
+    //maneja el envió el del formulario
+    $('#btn-pass').click(function (e) {
+        
+        var pass = generatePasswordRand();
+
+        $('#Password').val(pass);
+        $('#ConfirmPassword').val(pass);
+        $('#passwordText').html(pass);
+
+    });
+
     valorInicial();
 
     desactivaCampos();
@@ -148,4 +159,65 @@ function activaCampos() {
 function verificaEmail() {
 
     $("#IdEmpleado").change();
+}
+
+//genera un password aleatoreo
+function generatePasswordRand() {
+
+    var length = 10;
+
+    var mayusculas = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    var minusculas = "abcdefghijklmnopqrstuvwxyz";
+    var numeros = "0123456789";
+    var simbolos = "!#$%&=*";
+    var characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&=*"; //1
+
+    var pass = "";
+    let tieneNumero = false;
+    let tieneMayuscula = false;
+    let tieneMinuscula = false;
+    let tieneSimbolo = false;
+
+    do {
+
+        pass = "";
+        tieneNumero = false;
+        tieneMayuscula = false;
+        tieneMinuscula = false;
+        tieneSimbolo = false;
+
+        for (i = 0; i < length; i++) {
+            pass += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        
+        for (i = 0; i < numeros.length; i++) {
+            if (pass.includes(numeros.charAt(i))) {
+                tieneNumero = true;
+                break;
+            }
+        }
+        
+        for (i = 0; i < mayusculas.length; i++) {
+            if (pass.includes(mayusculas.charAt(i))) {
+                tieneMayuscula = true;
+                break;
+            }
+        }
+        
+        for (i = 0; i < minusculas.length; i++) {
+            if (pass.includes(minusculas.charAt(i))) {
+                tieneMinuscula = true;
+                break;
+            }
+        }
+        
+        for (i = 0; i < simbolos.length; i++) {
+            if (pass.includes(simbolos.charAt(i))) {
+                tieneSimbolo = true;
+                break;
+            }
+        }
+    } while (!tieneNumero || !tieneMayuscula || !tieneMinuscula || !tieneSimbolo);
+
+    return pass;
 }

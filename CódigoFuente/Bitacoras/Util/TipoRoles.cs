@@ -44,6 +44,7 @@ namespace Clases.Util
         public const string BG_CONTROLLING = "BG_Controlling";
         public const string BG_REPORTES = "BG_Reportes";
         //Módulo IT - Matriz Requerimientos
+        public const string IT_SOLICITUD_USUARIOS = "IT_Solicitud_usuarios";
         public const string IT_MATRIZ_REQUERIMIENTOS_CREAR = "IT_Matriz_requerimientos_crear";
         public const string IT_MATRIZ_REQUERIMIENTOS_DETALLES = "IT_Matriz_requerimientos_detalles";
         public const string IT_MATRIZ_REQUERIMIENTOS_AUTORIZAR = "IT_Matriz_requerimientos_autorizar";

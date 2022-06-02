@@ -1,4 +1,5 @@
 ﻿using Bitacoras.Util;
+using IdentitySample.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -770,6 +771,65 @@ namespace Portal_2_0.Models
 
         }
 
+        /// <summary>
+        /// metodo para obtener el body de email de notificación para la creación de un usuario
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public string getBodyAccountWelcome(RegisterViewModel model)
+        {
+            Portal_2_0Entities db = new Portal_2_0Entities();
+
+            //obtiene la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+
+            string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/Account_welcome.html"));
+
+            empleados emp = db.empleados.Find(model.IdEmpleado);
+            string nombre = "NO DISPONIBLE";
+
+            if (emp != null)
+                nombre = emp.ConcatNombre;
+
+
+
+            body = body.Replace("#NOMBRE", nombre); //usuario creado
+            body = body.Replace("#USER", model.Email);
+            body = body.Replace("#PASS", model.Password); //elaborador         
+            body = body.Replace("#ENLACE", domainName + "/Home/");
+            body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
+
+            return body;
+        }
+
+        /// <summary>
+        /// metodo para obtener el body de notificacion de creacion de usuario
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public string getBodySolicitudUsuarioPortal(IT_solicitud_usuarios item)
+        {
+            //obtiene la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+
+            string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/IT_solicitud_usuario_portal.html"));
+
+            string solicitante = item.empleados != null ? item.empleados.ConcatNombre : item.nombre + " " + item.apellido1 + " " + item.apellido2;
+            string planta = item.empleados != null && item.empleados.plantas != null ? item.empleados.plantas.descripcion : item.plantas != null ? item.plantas.descripcion: string.Empty ;
+            string correo = item.empleados != null ? item.empleados.correo : item.correo;
+
+            body = body.Replace("#SOLICITANTE", solicitante);
+            body = body.Replace("#ID", item.id.ToString()); //elaborador
+            body = body.Replace("#PLANTA", planta);
+            body = body.Replace("#COMENTARIO", item.comentario);
+            body = body.Replace("#CORREO", correo);
+            body = body.Replace("#FECHA_SOLICITUD", item.fecha_solicitud.ToString("dd/MM/yyyy"));
+            body = body.Replace("#ENLACE", domainName + "/IT_solicitud_usuarios");
+            body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
+
+            return body;
+
+        }
 
         #endregion
     }

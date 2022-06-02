@@ -9,6 +9,8 @@
 
 @section estilos
 {
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
     <!-- Select2 -->
     <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
@@ -31,11 +33,9 @@
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
-                        @using (Html.BeginForm("Create", "Account", FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                        @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
                         {
                             @Html.AntiForgeryToken()
-                            <h4>Datos generales</h4>
-                            <hr />
 
                             if (!Html.ViewData.ModelState.IsValid)
                             {
@@ -44,10 +44,10 @@
                                 </div>
                             }
 
-                            <p><b>1.- Busque su nombre en la siguiente lista desplegable</b></p>
+                            <p><b>1.- Busque su nombre en la siguiente lista desplegable:</b></p>
 
                             <div class="item form-group">
-                                @Html.LabelFor(model => model.id_empleado, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                @Html.LabelFor(model => model.id_empleado, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                                 <div class="col-md-6 col-sm-6 ">
                                     @Html.DropDownList("id_empleado", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                     @Html.ValidationMessageFor(model => model.id_empleado, "", new { @class = "text-danger" })
@@ -57,35 +57,86 @@
                             <p><b>2.- Si su nombre NO se encuentra en la lista, por favor marque la siguiente casilla.</b></p>
 
                             <div class="item form-group">
-                                @Html.LabelFor(model => model.no_encuentra_empleado, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                @Html.LabelFor(model => model.no_encuentra_empleado, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
                                 <div class="col-md-6 col-sm-6 ">
                                     @Html.EditorFor(model => model.no_encuentra_empleado)
                                     @Html.ValidationMessageFor(model => model.no_encuentra_empleado, "", new { @class = "text-danger" })
                                 </div>
                             </div>
-                            <p><b>3.- Complete la siguiente informaci&oacute;n.</b></p>
-                            <div class="item form-group">
-                                @Html.LabelFor(model => model.id_planta, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
-                                <div class="col-md-6 col-sm-6 ">
-                                    @Html.DropDownList("id_planta", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
-                                    @Html.ValidationMessageFor(model => model.id_planta, "", new { @class = "text-danger" })
+                            <p><b>3.- De ser necesario, por favor complete la siguiente informaci&oacute;n.</b></p>
+                            <div id="div_datos_personales" style="@(Model==null || !Model.no_encuentra_empleado ? "display:none" : null )">
+                                <div class="item form-group">
+                                    @Html.LabelFor(model => model.id_planta, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                    <div class="col-md-3 col-sm-3 ">
+                                        @Html.DropDownList("id_planta", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                        @Html.ValidationMessageFor(model => model.id_planta, "", new { @class = "text-danger" })
+                                    </div>
+                                    @Html.LabelFor(model => model.area, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                    <div class="col-md-3 col-sm-3 ">
+                                        @Html.EditorFor(model => model.area, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.area, "", new { @class = "text-danger" })
+                                    </div>
+                                    @Html.LabelFor(model => model.puesto, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                    <div class="col-md-3 col-sm-3 ">
+                                        @Html.EditorFor(model => model.puesto, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.puesto, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+
+                                <div class="item form-group">
+                                    @Html.LabelFor(model => model.nombre, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                    <div class="col-md-3 col-sm-3 ">
+                                        @Html.EditorFor(model => model.nombre, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.nombre, "", new { @class = "text-danger" })
+                                    </div>
+                                    @Html.LabelFor(model => model.apellido1, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                    <div class="col-md-3 col-sm-3 ">
+                                        @Html.EditorFor(model => model.apellido1, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.apellido1, "", new { @class = "text-danger" })
+                                    </div>
+                                    @Html.LabelFor(model => model.apellido2, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                    <div class="col-md-3 col-sm-3 ">
+                                        @Html.EditorFor(model => model.apellido2, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.apellido2, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+
+                                <div class="item form-group">
+                                    @Html.LabelFor(model => model.C8ID, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                    <div class="col-md-3 col-sm-3 ">
+                                        @Html.EditorFor(model => model.C8ID, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.C8ID, "", new { @class = "text-danger" })
+                                    </div>
+                                    @Html.LabelFor(model => model.numero_empleado, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                    <div class="col-md-3 col-sm-3 ">
+                                        @Html.EditorFor(model => model.numero_empleado, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.numero_empleado, "", new { @class = "text-danger" })
+                                    </div>
+                                    @Html.LabelFor(model => model.correo, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                    <div class="col-md-3 col-sm-3 ">
+                                        @Html.EditorFor(model => model.correo, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.correo, "", new { @class = "text-danger" })
+                                    </div>
                                 </div>
                             </div>
 
                             <div class="item form-group">
-                                @Html.LabelFor(model => model.nombre, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
-                                <div class="col-md-6 col-sm-6 ">
-                                    @Html.EditorFor(model => model.nombre, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                                    @Html.ValidationMessageFor(model => model.nombre, "", new { @class = "text-danger" })
+                                @Html.LabelFor(model => model.comentario, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-11 col-sm-11 ">
+                                    @Html.TextAreaFor(model => model.comentario, new { @class = "form-control", @rows = "4", @autocomplete = "off" })
+                                    @Html.ValidationMessageFor(model => model.comentario, "", new { @class = "text-danger" })
                                 </div>
                             </div>
 
+                            <p><b>4.- Env&iacute;e la solicitud.</b></p>
+
                             <div class="item form-group">
-                                <div class="col-md-6 col-sm-6 offset-md-3">
-                                    <button type="submit" class="btn btn-success">Guardar</button>
+                                <div class="col-md-6 col-sm-6 offset-md-1">
+                                    <button type="button" id="btn-ok" class="btn btn-success">Enviar Solicitud</button>
                                 </div>
                             </div>
                         }
+
                     </div>
                 </div>
                 <div>
@@ -98,10 +149,13 @@
 
 
 @section Scripts {
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery-iu/jquery-ui.min.js"))
     @Scripts.Render("~/bundles/jqueryval")
     <!-- iCheck -->
     @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
     <script>
         $(document).ready(function () {
 
@@ -116,8 +170,116 @@
                 increaseArea: '20%' // optional
             });
 
+            $('input').on('ifChecked', function (event) {
+                verificaChecks(event);
+            });
 
+            $('input').on('ifUnchecked', function (event) {
+                verificaChecks(event);
+            });
+
+            //deshabilita combo de empledos si esta seleccionado
+            if ($('#no_encuentra_empleado').prop('checked')) {
+                $('#id_empleado').prop('disabled', true);
+            }
+
+            //agrega evento OnChange para saber si el empleado tiene usuari
+            $("#id_empleado").change(function () {
+                $.ajax({
+                    type: 'POST',
+                    url: '/Combos/obtienePuestoEmpleado',
+                    data: { id_empleado: $(this).val() },
+                    success: function (data) {
+                        try {
+                            tieneUsuario = data[0].existe;
+                            if (data[0].existe == true)
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Mensaje',
+                                    text: 'El empleado seleccionado ya cuenta con usuario, por favor intente la recuperación de la contraseña.',
+                                    confirmButtonText: 'Aceptar',
+                                    footer: '<a href="ForgotPassword" style="color:#0000ff"><b>Recuperar contraseña</b></a>'
+                                })
+                        }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    error: function (textStatus, errorThrown) {
+                        //en caso de error en la llamada ajax
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ocurrió un error',
+                            text: 'Intente nuevamente.'
+                        })
+                    },
+                    async: true
+                });
+            });
+
+            //maneja el envió el del formulario
+            $('form #btn-ok').click(function (e) {
+                let $form = $(this).closest('form');
+
+                const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: 'btn btn-success',
+                        cancelButton: 'btn btn-danger'
+                    },
+                    buttonsStyling: false,
+                })
+
+                if (tieneUsuario) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Mensaje',
+                        text: 'El empleado seleccionado ya cuenta con usuario, por favor intente la recuperación de la contraseña.',
+                        confirmButtonText: 'Aceptar',
+                        footer: '<a href="ForgotPassword" style="color:#0000ff"><b>Recuperar contraseña</b></a>'
+                    })
+                } else {
+                    swalWithBootstrapButtons.fire({
+                        title: '¿Desea Continuar?',
+                        html: "Se enviará la solicitud a <b>Sistemas</b>. Recibirá su usuario y contraseña via correo electrónico.",
+                        showCancelButton: true,
+                        confirmButtonText: 'Aceptar',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.value) {
+                            //espera a que se cierre el modal para enviar el formulario
+                            setTimeout(function () {
+                                $form.submit();
+                            }, 900);
+                        } 
+                    });
+                }
+
+            });
         });
+
+        var tieneUsuario = false;
+
+        function verificaChecks(event) {
+
+            if (event.target.checked) {
+                $('#div_datos_personales').show('highlight', 1000);
+                $("#id_empleado").val($("#id_empleado option:first").val());
+                //actualiza el select2
+                $('.select2bs4').select2({
+                    theme: 'bootstrap4'
+                })
+                $('#id_empleado').prop('disabled', true);
+                tieneUsuario = false;
+            } else {
+                $('#div_datos_personales').hide('fade', 500);
+                $('#id_empleado').prop('disabled', false);
+            }
+        }
 
         window.onload = function () {
             clicMenu(1);

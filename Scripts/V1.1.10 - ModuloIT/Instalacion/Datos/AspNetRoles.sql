@@ -17,7 +17,11 @@ IF object_id(N'AspNetRoles','U') IS NOT NULL
 BEGIN
 
 	--------------- MODULO IT - MATRIZ DE REQUERIMIENTOS ------------------------
-
+	--permiso para gestionar solicitudes de usuario
+	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='IT_Solicitud_usuarios' )
+	BEGIN
+		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'IT_Solicitud_usuarios')
+	END
 	
 	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='IT_Matriz_requerimientos_crear' )
 	BEGIN

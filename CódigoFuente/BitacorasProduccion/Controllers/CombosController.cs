@@ -237,6 +237,7 @@ namespace Portal_2_0.Controllers
         ///</summary>
         ///<return>
         ///retorna un JsonResult con las opciones disponibles
+        [AllowAnonymous]
         public JsonResult obtienePuestoEmpleado(int id_empleado = 0)
         {
 
@@ -267,6 +268,32 @@ namespace Portal_2_0.Controllers
             };
 
             return Json(empleado, JsonRequestBehavior.AllowGet);
+        }
+
+        ///<summary>
+        ///Obtiene si un usuario está registrado segun el email
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        [AllowAnonymous]
+        public JsonResult getUserByEmail(string correo)
+        {
+
+            //obtiene todos los posibles valores
+            bool existe = db.AspNetUsers.Any(x=>x.Email==correo);
+
+           
+
+            //inicializa la lista de objetos
+            var item = new object[1];
+
+
+            item[0] = new
+            {               
+                existe = existe
+            };
+
+            return Json(item, JsonRequestBehavior.AllowGet);
         }
 
         ///<summary>

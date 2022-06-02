@@ -400,6 +400,7 @@
           <Property Name="area" Type="varchar" MaxLength="50" />
           <Property Name="puesto" Type="varchar" MaxLength="50" />
           <Property Name="8ID" Type="varchar" MaxLength="8" />
+          <Property Name="numero_empleado" Type="varchar" MaxLength="8" />
           <Property Name="correo" Type="varchar" MaxLength="100" />
           <Property Name="comentario" Type="varchar" MaxLength="250" />
           <Property Name="estatus" Type="varchar" MaxLength="25" />
@@ -950,8 +951,8 @@
           <Property Name="nota" Type="varchar" MaxLength="250" />
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
-        <!--Errors Found During Generation:
-warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <!--Errores durante la generación:
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_historico_resultado">
           <Key>
             <PropertyRef Name="id" />
@@ -1006,8 +1007,8 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_historico_resultado' does not 
           <Property Name="Balance_de_Scrap_Real" Type="float" />
           <Property Name="comentario" Type="varchar" MaxLength="600" />
         </EntityType>
-        <!--Errors Found During Generation:
-warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <!--Errores durante la generación:
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_fiscal_year">
           <Key>
             <PropertyRef Name="id" />
@@ -5834,6 +5835,7 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <Property Name="nombre" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="apellido1" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="apellido2" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="numero_empleado" Type="String" MaxLength="8" FixedLength="false" Unicode="false" />
         </EntityType>
         <Association Name="FK_IT_solicitud_usuarios_id_empleado">
           <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
@@ -6955,6 +6957,7 @@ warning 6002: The table/view 'Portal_2_0.dbo.view_valores_fiscal_year' does not 
           <EntitySetMapping Name="IT_solicitud_usuarios">
             <EntityTypeMapping TypeName="Portal_2_0Model.IT_solicitud_usuarios">
               <MappingFragment StoreEntitySet="IT_solicitud_usuarios">
+                <ScalarProperty Name="numero_empleado" ColumnName="numero_empleado" />
                 <ScalarProperty Name="apellido2" ColumnName="apellido2" />
                 <ScalarProperty Name="apellido1" ColumnName="apellido1" />
                 <ScalarProperty Name="nombre" ColumnName="nombre" />

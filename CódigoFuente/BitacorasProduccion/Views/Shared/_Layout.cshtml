@@ -59,6 +59,7 @@
         .tooltip {
             pointer-events: none;
         }
+
         .link:hover {
             color: azure;
         }
@@ -131,13 +132,23 @@
                                             </ul>
                                         </li>
                                     }
-                                    @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR) || User.IsInRole(TipoRoles.IT_CATALOGOS))
+                                    @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR) || User.IsInRole(TipoRoles.IT_CATALOGOS) || User.IsInRole(TipoRoles.IT_SOLICITUD_USUARIOS))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "sistemas" ? "active" : null )">
                                             <a><i class="fa fa-computer"></i>Sistemas<span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "sistemas" ? "display:block" : null )">
-                                                <h3>Solicitudes RH</h3>
-                                                <li class="@(ViewBag.SegundoNivel == "solicitudes_usuarios_sistemas" ? "current-page" : null )"><a href="@Url.Action("solicitudes_sistemas", "IT_matriz_requerimientos")">RH - Solicitudes</a></li>
+                                                @if (User.IsInRole(TipoRoles.IT_SOLICITUD_USUARIOS))
+                                                {
+                                                    <h3>Solicitudes Portal</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_portal" ? "current-page" : null )"><a href="@Url.Action("index", "IT_solicitud_usuarios")">Portal - Solicitudes</a></li>
+
+                                                }
+                                                @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR))
+                                                {
+                                                    <h3>Solicitudes RH</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_usuarios_sistemas" ? "current-page" : null )"><a href="@Url.Action("solicitudes_sistemas", "IT_matriz_requerimientos")">RH - Solicitudes</a></li>
+                                                }
+
                                                 @if (User.IsInRole(TipoRoles.IT_CATALOGOS))
                                                 {
 
@@ -512,7 +523,7 @@
                                     @if (User.IsInRole(TipoRoles.USERS))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "usuarios" ? "active" : null )">
-                                            <a><i class="fa fa-cog"></i>Usuarios <span class="fa fa-chevron-down"></span></a>
+                                            <a><i class="fa fa-users"></i>Usuarios <span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "usuarios" ? "display:block" : null )">
                                                 <li class="@(ViewBag.SegundoNivel == "roles" ? "current-page" : null )"><a href="@Url.Action( "Index", "RolesAdmin")">Roles</a></li>
                                                 <li class="@(ViewBag.SegundoNivel == "usuarios" ? "current-page" : null )"><a href="@Url.Action("Index", "UsersAdmin")">Usuarios</a></li>

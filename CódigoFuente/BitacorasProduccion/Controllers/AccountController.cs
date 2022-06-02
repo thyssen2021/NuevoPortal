@@ -1,4 +1,5 @@
-﻿using Clases.Util;
+﻿using Bitacoras.Util;
+using Clases.Util;
 using IdentitySample.Models;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
@@ -562,11 +563,83 @@ namespace IdentitySample.Controllers
         [AllowAnonymous]
         public ActionResult SolicitarUsuario()
         {
+            //
             ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas.Where(x => x.activo), "clave", "descripcion"));
-            ViewBag.id_empleado = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo.HasValue && x.activo.Value), "id", "ConcatNumEmpleadoNombre"));
+            ViewBag.id_empleado = AddFirstItem(new SelectList(items: db.empleados.Where(x => x.activo.HasValue && x.activo.Value),
+                                                              "id",
+                                                              "ConcatNumEmpleadoNombre"));
 
             return View();
 
+        }
+
+        // POST: /Account/SolicitarUsuario
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public ActionResult SolicitarUsuario(IT_solicitud_usuarios model)
+        {
+
+            if(db.IT_solicitud_usuarios.Any(x=>
+                               ( model.no_encuentra_empleado==false && x.id_empleado == model.id_empleado)
+                               ||(!String.IsNullOrEmpty(model.correo) && x.correo == model.correo)
+                               || (!String.IsNullOrEmpty(model.C8ID) && x.C8ID == model.C8ID)
+                ))
+
+                ModelState.AddModelError("", "Ya existe una solicitud para el usuario seleccionado. Por favor espere a que la solicitud actual sea atendida.");
+
+            if (ModelState.IsValid)
+            {
+                //valores por defecto
+                model.estatus = IT_solicitud_usuario_Status.CREADO;
+                model.fecha_solicitud = DateTime.Now;
+
+                db.IT_solicitud_usuarios.Add(model);
+                db.SaveChanges();
+                TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);                
+
+                //envia correo electronico
+                EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+                List<String> correos = new List<string>(); //correos TO
+
+                //-- INICIO POR TABLA NOTIFICACION
+                List<notificaciones_correo> listadoNotificaciones = db.notificaciones_correo.Where(x => x.descripcion == NotificacionesCorreo.IT_SOLICITUD_PORTAL).ToList();
+                foreach (var n in listadoNotificaciones)
+                {                    
+                    //si el campo correo no está vacio
+                    if (!String.IsNullOrEmpty(n.correo) && !n.id_empleado.HasValue) 
+                        correos.Add(n.correo);
+                    //si tiene empleado asociado
+                    else if (n.empleados != null && !String.IsNullOrEmpty(n.empleados.correo) )
+                        correos.Add(n.empleados.correo);
+                }
+                //-- FIN POR TABLA NOTIFICACION
+
+                model.plantas = db.plantas.Find(model.id_planta);
+                model.empleados = db.empleados.Find(model.id_empleado);
+
+                envioCorreo.SendEmailAsync(correos, "Se ha creado una solicitud de usuario para el Portal.", envioCorreo.getBodySolicitudUsuarioPortal(model));
+
+
+                return RedirectToAction("SolicitarUsuarioConfirmed");
+
+            }
+
+            ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas.Where(x => x.activo), "clave", "descripcion"));
+            ViewBag.id_empleado = AddFirstItem(new SelectList(items: db.empleados.Where(x => x.activo.HasValue && x.activo.Value),
+                                                              "id",
+                                                              "ConcatNumEmpleadoNombre"));
+
+            return View(model);
+        }
+
+        //
+        // GET: /Account/SolicitarUsuarioConfirmed
+        [HttpGet]
+        [AllowAnonymous]
+        public ActionResult SolicitarUsuarioConfirmed()
+        {
+            return View();
         }
 
         ////

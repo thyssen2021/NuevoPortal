@@ -10,7 +10,8 @@ namespace Bitacoras.Util
     {
         public const string PFA_CC_INFO = "PFA_CC_INFO";
         public const string PM_DIRECCION = "PM_DIRECCION";
-        public const string PO_ASIGNACION = "PO_asignacion";
+        public const string PO_ASIGNACION = "PO_asignacion"; //ordenes de trabajo
+        public const string IT_SOLICITUD_PORTAL = "IT_SOLICITUD_PORTAL";
     }
        
 }

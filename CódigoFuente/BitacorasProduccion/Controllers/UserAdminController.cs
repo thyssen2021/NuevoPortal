@@ -9,6 +9,8 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using System.Collections.Generic;
+using Bitacoras.Util;
 
 namespace IdentitySample.Controllers
 {
@@ -58,7 +60,8 @@ namespace IdentitySample.Controllers
 
                 empleados empleados = db.empleados.FirstOrDefault(e => e.id == user.IdEmpleado);
 
-                if (empleados != null) {
+                if (empleados != null)
+                {
                     ViewBag.Empleado = empleados;
                 }
 
@@ -75,15 +78,33 @@ namespace IdentitySample.Controllers
         //
         // GET: /Users/Create
         [HttpGet]
-        public async Task<ActionResult> Create()
+        public async Task<ActionResult> Create(int? idEmpleado)
         {
+
+            RegisterViewModel model = new RegisterViewModel();
+
+            //Si tiene id_empleado, busca el empleado y lo manda a la vista
+            if (idEmpleado != null)
+            {
+                var empleado = db.empleados.Find(idEmpleado);
+
+                if (empleado != null)
+                {
+                    ViewBag.numEmpleado = empleado.id.ToString();
+                    ViewBag.TipoU = "empleado";
+                }
+            }
 
             if (TieneRol(TipoRoles.USERS))
             {
+
+                var s = new SelectList(await _roleManager.Roles.ToListAsync(), "Name", "Name");
+
                 //Get the list of Roles
                 ViewBag.RoleId = new SelectList(await _roleManager.Roles.ToListAsync(), "Name", "Name");
                 //empleados
                 ViewBag.EmpleadosList = ComboSelect.obtieneEmpleadosSelectList();
+
                 return View();
             }
             else
@@ -97,21 +118,24 @@ namespace IdentitySample.Controllers
         // POST: /Users/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create(RegisterViewModel userViewModel, FormCollection collection, params string[] selectedRoles )
+        public async Task<ActionResult> Create(RegisterViewModel userViewModel, FormCollection collection, params string[] selectedRoles)
         {
             String tipoU = collection["tipoUsuario"];
+            bool notificacion = Boolean.Parse(collection["notificacion"]);
             string username = String.Empty;
             string nombre = String.Empty;
             string apellidos = string.Empty;
-            if (ModelState.IsValid)  {                
-                
+            if (ModelState.IsValid)
+            {
+                //obtiene el empleado de la solicitud
+                empleados empleados = db.empleados.FirstOrDefault(e => e.id == userViewModel.IdEmpleado);
 
                 Random rd = new Random();
                 int valor = rd.Next(0, 999);
 
                 if (tipoU == "empleado")
                 {
-                    empleados empleados = db.empleados.FirstOrDefault(e => e.id == userViewModel.IdEmpleado);
+
                     apellidos = empleados.apellido1;
                     if (apellidos.Length >= 8)
                     {
@@ -121,7 +145,8 @@ namespace IdentitySample.Controllers
                     //crea el usuario
 
                 }
-                else { //es otro..
+                else
+                { //es otro..
 
                     nombre = userViewModel.Nombre;
                     if (nombre.Length >= 12)
@@ -129,12 +154,12 @@ namespace IdentitySample.Controllers
                         nombre = nombre.Substring(0, 12);
                     }
                     username = nombre + string.Format("{0:000}", valor);
-                }                   
-                
+                }
+
 
                 username = Clases.Util.UsoStrings.ReemplazaCaracteres(username);
 
-                var user = new ApplicationUser { UserName = username.ToUpper(), Email = userViewModel.Email, Nombre = nombre, IdEmpleado = userViewModel.IdEmpleado , FechaCreacion = DateTime.Now };
+                var user = new ApplicationUser { UserName = username.ToUpper(), Email = userViewModel.Email, Nombre = nombre, IdEmpleado = userViewModel.IdEmpleado, FechaCreacion = DateTime.Now };
 
                 var adminresult = await _userManager.CreateAsync(user, userViewModel.Password);
 
@@ -167,9 +192,40 @@ namespace IdentitySample.Controllers
                     return View();
 
                 }
+                string mensaje = TextoMensajesSweetAlerts.CREATE;
+
+                
+
+                if (notificacion)
+                {
+                    //envia correo electrónico
+                    EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+                    List<String> correos = new List<string>(); //correos TO
+
+                    if (!String.IsNullOrEmpty(userViewModel.Email))
+                        correos.Add(userViewModel.Email); //agrega correo del usuario
+
+                    envioCorreo.SendEmailAsync(correos, "Bienvenido al portal thyssenkrupp.", envioCorreo.getBodyAccountWelcome(userViewModel));
+
+                    mensaje += " Se envió email de notificación.";
+                }
+
+                //busca si existe una solicitud de usuario para este empleado
+                var solicitud = db.IT_solicitud_usuarios.FirstOrDefault(x => x.id_empleado == userViewModel.IdEmpleado && x.estatus == IT_solicitud_usuario_Status.CREADO);
+
+                if (solicitud != null)
+                {
+                    solicitud.fecha_cierre = DateTime.Now;
+                    solicitud.estatus = IT_solicitud_usuario_Status.CERRADO;
+
+                    db.Entry(solicitud).State = EntityState.Modified;
+                    db.SaveChanges();
+
+                    mensaje += " Se cerró una solicitud usuario.";
+                }
 
                 //agrega el mensaje para sweetalert
-                TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);
+                TempData["Mensaje"] = new MensajesSweetAlert(mensaje, TipoMensajesSweetAlerts.SUCCESS);
 
                 return RedirectToAction("Index");
             }
@@ -198,7 +254,7 @@ namespace IdentitySample.Controllers
                 if (id == null)
                 {
                     return RedirectToAction("NotFound", "Error");
-                }                
+                }
 
                 var user = await _userManager.FindByIdAsync(id);
                 if (user == null)
@@ -212,7 +268,8 @@ namespace IdentitySample.Controllers
                 if (user.IdEmpleado > 0)
                 {
                     empleados emp = db.empleados.Find(user.IdEmpleado);
-                    if (emp.activo.HasValue && !emp.activo.Value) {
+                    if (emp.activo.HasValue && !emp.activo.Value)
+                    {
                         ViewBag.Titulo = "¡Lo sentimos!¡No se puede editar el usuario de un empleado que ha sido dado de baja!";
                         ViewBag.Descripcion = "No se puede editar un usuario perteneciente a un usuario que ha sido dado de baja.";
 
@@ -221,7 +278,7 @@ namespace IdentitySample.Controllers
                     tipoU = "empleado";
                 }
                 else
-                    tipoU = "otro";              
+                    tipoU = "otro";
 
                 ViewBag.EmpleadosList = ComboSelect.obtieneEmpleadosSelectList();
                 ViewBag.TipoU = tipoU;
@@ -273,9 +330,9 @@ namespace IdentitySample.Controllers
                 //user.UserName = editUser.Email;
                 user.Email = editUser.Email;
 
-                if(!String.IsNullOrEmpty(editUser.Nombre))
+                if (!String.IsNullOrEmpty(editUser.Nombre))
                     user.Nombre = editUser.Nombre.ToUpper();
-              //  user.Apellidos = editUser.Apellidos.ToUpper(); 
+                //  user.Apellidos = editUser.Apellidos.ToUpper(); 
 
                 var userRoles = await _userManager.GetRolesAsync(user.Id);
 
@@ -328,7 +385,7 @@ namespace IdentitySample.Controllers
                 return RedirectToAction("Index");
             }
             ViewBag.EmpleadosList = ComboSelect.obtieneEmpleadosSelectList();
-           
+
             ModelState.AddModelError("", "Algo falló.");
             return View();
         }
@@ -471,7 +528,7 @@ namespace IdentitySample.Controllers
                         return View();
                     }
                     //agrega el mensaje para sweetalert
-                    TempData["Mensaje"] = new MensajesSweetAlert("Se ha vuelto a habilitar el usuario " + user.UserName + " correctamente.", TipoMensajesSweetAlerts.SUCCESS);                   
+                    TempData["Mensaje"] = new MensajesSweetAlert("Se ha vuelto a habilitar el usuario " + user.UserName + " correctamente.", TipoMensajesSweetAlerts.SUCCESS);
                     return RedirectToAction("Index");
                 }
                 return View();

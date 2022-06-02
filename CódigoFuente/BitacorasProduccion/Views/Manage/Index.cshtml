@@ -6,6 +6,8 @@
     ViewBag.SegundoNivel = "usuarios";
     ViewBag.ControllerName = "Manage";
 
+    Portal_2_0.Models.empleados empleado = (Portal_2_0.Models.empleados)ViewBag.Empleado;
+
 }
 
 <div class="right_col" role="main">
@@ -22,14 +24,12 @@
             <div class="col-md-12 col-sm-12  ">
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2>@ViewBag.Title.</h2>
-                        
+                        <h2>@ViewBag.Title</h2>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
                         <p class="text-success">@ViewBag.StatusMessage</p>
-                        <h4>Usuario</h4>
-                        <hr />
+
                         <dl class="dl-horizontal">
                             <dt>
                                 Usuario
@@ -37,6 +37,22 @@
                             <dd>
                                 @User.Identity.GetUserName()
                             </dd>
+                            @if (!String.IsNullOrEmpty(empleado.correo))
+                            {
+                                <dt>
+                                    Correo
+                                </dt>
+                                <dd>
+                                    @empleado.correo
+                                </dd>
+                            }
+                            <dt>
+                                Nombre
+                            </dt>
+                            <dd>
+                                @empleado.ConcatNombre
+                            </dd>
+
                         </dl>
 
                     </div>

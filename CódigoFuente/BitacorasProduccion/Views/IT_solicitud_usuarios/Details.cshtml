@@ -1,0 +1,146 @@
+﻿@model Portal_2_0.Models.IT_solicitud_usuarios
+
+@{
+    ViewBag.Title = "Detalles de Solicitud de Usuario";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.PrimerNivel = "sistemas";
+    ViewBag.SegundoNivel = "solicitudes_portal";
+    ViewBag.ControllerName = "IT_solicitud_usuarios";
+
+}
+
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+
+                        <div class="alert alert-primary" role="alert">
+                            @if (Model.empleados != null)
+                            {
+                                <span>El empleado se encuentra registrado en el sistema. No es necesario crear el empleado para crear el usuario.</span>
+                            }
+                            else
+                            {
+                                <span>Al momento de la solicitud, el empleado no se encontraba en la tabla de Empleados.</span>
+                            }
+                        </div>
+
+                        <p><b>Datos generales</b></p>
+                        <div id="div_datos_personales">
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.estatus, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    <input type="text" class="form-control" value="@Bitacoras.Util.IT_solicitud_usuario_Status.DescripcionStatus(Model.estatus)" readonly>
+                                </div>
+                                @Html.LabelFor(model => model.fecha_solicitud, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    <input type="text" class="form-control" value="@Model.fecha_solicitud" readonly>
+                                </div>
+                                @Html.LabelFor(model => model.fecha_cierre, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    <input type="text" class="form-control" value="@(Model.fecha_cierre.HasValue ? Model.fecha_cierre.Value.ToString(): "No disponible")" readonly>
+                                </div>
+                            </div>
+                            <hr />
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id_planta, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    <input type="text" class="form-control" value="@(Model.empleados!=null && Model.empleados.plantas!=null ? Model.empleados.plantas.descripcion : Model.plantas!=null? Model.plantas.descripcion: "No disponible" )" readonly>
+                                </div>
+                                @Html.LabelFor(model => model.area, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    <input type="text" class="form-control" value="@(Model.empleados!=null && Model.empleados.Area!=null ? Model.empleados.Area.descripcion : Model.area)" readonly>
+                                </div>
+                                @Html.LabelFor(model => model.puesto, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    <input type="text" class="form-control" value="@(Model.empleados!=null && Model.empleados.puesto1!=null ? Model.empleados.puesto1.descripcion : Model.puesto)" readonly>
+                                </div>
+                            </div>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.nombre, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    <input type="text" class="form-control" value="@(Model.empleados!=null ? Model.empleados.nombre : Model.nombre)" readonly>
+                                </div>
+                                @Html.LabelFor(model => model.apellido1, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    <input type="text" class="form-control" value="@(Model.empleados!=null ? Model.empleados.apellido1 : Model.apellido1)" readonly>
+                                </div>
+                                @Html.LabelFor(model => model.apellido2, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    <input type="text" class="form-control" value="@(Model.empleados!=null ? Model.empleados.apellido2 : Model.apellido2)" readonly>
+                                </div>
+                            </div>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.numero_empleado, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    <input type="text" class="form-control" value="@(Model.empleados!=null ? Model.empleados.numeroEmpleado : Model.numero_empleado)" readonly>
+                                </div>
+                                @Html.LabelFor(model => model.C8ID, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    <input type="text" class="form-control" value="@(Model.empleados!=null ? Model.empleados.C8ID : Model.C8ID)" readonly>
+                                </div>
+                                @Html.LabelFor(model => model.correo, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    <input type="text" class="form-control" value="@(Model.empleados!=null ? Model.empleados.correo : Model.correo)" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.comentario, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            <div class="col-md-11 col-sm-11 ">
+                                @Html.TextAreaFor(model => model.comentario, new { @class = "form-control", @rows = "4", @autocomplete = "off", @readonly = "readonly" })
+                                @Html.ValidationMessageFor(model => model.comentario, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div>
+
+                </div>
+                <div>
+                    <br />
+                    <a href="javascript: history.go(-1)" class="btn btn-round btn-info btm-sm float-left" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery-iu/jquery-ui.min.js"))
+    @Scripts.Render("~/bundles/jqueryval")
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    <script>
+        $(document).ready(function () {
+
+
+        });
+
+        window.onload = function () {
+            clicMenu(2);
+        }
+
+    </script>
+}
