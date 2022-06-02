@@ -596,14 +596,14 @@ namespace IdentitySample.Controllers
 
                 db.IT_solicitud_usuarios.Add(model);
                 db.SaveChanges();
-                TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);                
+                TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);
 
                 //envia correo electronico
                 EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
                 List<String> correos = new List<string>(); //correos TO
 
                 //-- INICIO POR TABLA NOTIFICACION
-                List<notificaciones_correo> listadoNotificaciones = db.notificaciones_correo.Where(x => x.descripcion == NotificacionesCorreo.IT_SOLICITUD_PORTAL).ToList();
+                List<notificaciones_correo> listadoNotificaciones = db.notificaciones_correo.Where(x => x.descripcion == NotificacionesCorreo.IT_SOLICITUD_PORTAL && x.activo).ToList();
                 foreach (var n in listadoNotificaciones)
                 {                    
                     //si el campo correo no está vacio

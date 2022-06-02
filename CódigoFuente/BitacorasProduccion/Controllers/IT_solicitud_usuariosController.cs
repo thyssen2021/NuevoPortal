@@ -17,9 +17,6 @@ namespace Portal_2_0.Controllers
     {
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
-
-
-
         // GET: IT_solicitud_usuarios
         public ActionResult Index(string estado_solicitud, int pagina = 1)
         {

@@ -172,6 +172,7 @@
                                             <a><i class="fa fa-database"></i>Cat&aacute;logos Admin <span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "catalogos_admin" ? "display:block" : null )">
                                                 <li class="@(ViewBag.SegundoNivel == "plantas" ? "current-page" : null )"><a href="@Url.Action( "Index", "Plantas")">Plantas</a></li>
+                                                <li class="@(ViewBag.SegundoNivel == "notificaciones_correo" ? "current-page" : null )"><a href="@Url.Action( "Index", "notificaciones_correo")">Notificaciones Correo</a></li>
                                             </ul>
                                         </li>
                                     }

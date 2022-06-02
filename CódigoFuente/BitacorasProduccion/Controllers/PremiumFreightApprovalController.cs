@@ -961,7 +961,7 @@ namespace Portal_2_0.Controllers
 
                 //envia correo de notificacion
                 correos = new List<string>();
-                notificaciones_correo notificaciones_Correo = db.notificaciones_correo.FirstOrDefault(x => x.descripcion == NotificacionesCorreo.PFA_CC_INFO);
+                notificaciones_correo notificaciones_Correo = db.notificaciones_correo.FirstOrDefault(x => x.descripcion == NotificacionesCorreo.PFA_CC_INFO && x.activo);
 
                 if (notificaciones_Correo != null)
                 {
@@ -1037,7 +1037,7 @@ namespace Portal_2_0.Controllers
 
                 //envia correo de notificacion
                 correos = new List<string>();
-                notificaciones_correo notificaciones_Correo = db.notificaciones_correo.FirstOrDefault(x => x.descripcion == NotificacionesCorreo.PFA_CC_INFO);
+                notificaciones_correo notificaciones_Correo = db.notificaciones_correo.FirstOrDefault(x => x.descripcion == NotificacionesCorreo.PFA_CC_INFO && x.activo);
 
                 if (notificaciones_Correo != null)
                 {

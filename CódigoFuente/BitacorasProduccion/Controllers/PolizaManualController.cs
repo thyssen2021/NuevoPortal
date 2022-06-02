@@ -1368,7 +1368,7 @@ namespace Portal_2_0.Controllers
                 if (poliza_manual.currency.LimitePoliza.HasValue && poliza_manual.currency.LimitePoliza.Value <= poliza_manual.totalHaber)
                 {
                     //obtiene el id de empleado de direccion
-                    notificaciones_correo notificaciones_Correo = db.notificaciones_correo.FirstOrDefault(x => x.descripcion == NotificacionesCorreo.PM_DIRECCION);
+                    notificaciones_correo notificaciones_Correo = db.notificaciones_correo.FirstOrDefault(x => x.descripcion == NotificacionesCorreo.PM_DIRECCION && x.activo);
 
                     if (notificaciones_Correo != null)
                         ViewBag.MensajeDireccion = "La Póliza excede los " + poliza_manual.currency.Symbol + " "

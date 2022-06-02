@@ -301,6 +301,7 @@
     <Compile Include="Controllers\IT_solicitud_usuariosController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\mm_v3Controller.cs" />
+    <Compile Include="Controllers\notificaciones_correoController.cs" />
     <Compile Include="Controllers\OrdenesTrabajoController.cs" />
     <Compile Include="Controllers\OT_GruposController.cs" />
     <Compile Include="Controllers\OT_rel_depto_aplica_lineaController.cs" />
@@ -507,6 +508,7 @@
     <Compile Include="Models\MetadataModels\IT_Matriz_requerimientosMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_solicitud_usuariosMetadata.cs" />
     <Compile Include="Models\MetadataModels\mm_v3Metadata.cs" />
+    <Compile Include="Models\MetadataModels\notificaciones_correoMetadata.cs" />
     <Compile Include="Models\MetadataModels\orden_trabajoMetadata.cs" />
     <Compile Include="Models\MetadataModels\OT_grupo_trabajoMetadata.cs" />
     <Compile Include="Models\MetadataModels\OT_refraccionesMetadata.cs" />
@@ -7019,6 +7021,11 @@
     <Content Include="Views\IT_solicitud_usuarios\Details.cshtml" />
     <Content Include="Views\IT_solicitud_usuarios\Index.cshtml" />
     <Content Include="Views\IT_solicitud_usuarios\Close.cshtml" />
+    <Content Include="Views\notificaciones_correo\Create.cshtml" />
+    <Content Include="Views\notificaciones_correo\Delete.cshtml" />
+    <Content Include="Views\notificaciones_correo\Details.cshtml" />
+    <Content Include="Views\notificaciones_correo\Edit.cshtml" />
+    <Content Include="Views\notificaciones_correo\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

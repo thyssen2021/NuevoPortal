@@ -1,0 +1,91 @@
+﻿@model Portal_2_0.Models.notificaciones_correo
+
+@{
+    ViewBag.Title = "Detalles Usuario de Notificación de Correo";
+    ViewBag.PrimerNivel = "catalogos_admin";
+    ViewBag.SegundoNivel = "notificaciones_correo";
+    ViewBag.ControllerName = "notificaciones_correo";
+
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.id_empleado, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input value="@(Model.empleados != null ? Model.empleados.ConcatNumEmpleadoNombre:"" )" class="form-control" readonly />
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.descripcion, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                @Html.EditorFor(model => model.descripcion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            <div class="col-md-3 col-sm-3 ">
+                            </div>
+                            <div class="col-md-6 col-sm-6 ">
+                                <p><b>Correo es obligatorio cuando no se selecciona empleado.</b></p>
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.correo, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input value="@(Model.empleados != null ? Model.empleados.correo:Model.correo)" class="form-control" readonly />
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            <div class="col-md-3 col-sm-3 ">
+                            </div>
+                            <div class="col-md-6 col-sm-6 ">
+                                <p><b>Planta es opcional cuando no se selecciona empleado.</b></p>
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.clave_planta, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input value="@(Model.plantas != null ? Model.plantas.descripcion:Model.empleados != null && Model.empleados.plantas!=null ? Model.empleados.plantas.descripcion:"")" class="form-control" readonly />
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script>
+        $(document).ready(function () {
+        });
+
+
+        window.onload = function () {
+            clicMenu(2);
+        }
+    </script>
+}
