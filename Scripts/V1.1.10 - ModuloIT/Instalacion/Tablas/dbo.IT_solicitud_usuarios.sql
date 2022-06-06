@@ -31,6 +31,7 @@ CREATE TABLE [IT_solicitud_usuarios](
 	[area][varchar](50) NULL,
 	[puesto][varchar](50) NULL,
 	[8ID][varchar](8) NULL,
+	[numero_empleado][varchar](8) NULL,
 	[correo][varchar](100) NULL,
 	[comentario][varchar](250) NULL,
 	[estatus][varchar](25) NULL,

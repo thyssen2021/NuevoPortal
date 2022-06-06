@@ -422,6 +422,7 @@ namespace Portal_2_0.Models
             //estilo para ajustar al texto
             SLStyle styleWrap = oSLDocument.CreateStyle();
             styleWrap.SetWrapText(true);
+            styleWrap.Alignment.Vertical = VerticalAlignmentValues.Top;
 
             //estilo para el encabezado
             SLStyle styleHeader = oSLDocument.CreateStyle();

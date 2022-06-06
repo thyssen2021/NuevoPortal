@@ -210,19 +210,28 @@ namespace IdentitySample.Controllers
                     mensaje += " Se envió email de notificación.";
                 }
 
-                //busca si existe una solicitud de usuario para este empleado
-                var solicitud = db.IT_solicitud_usuarios.FirstOrDefault(x => x.id_empleado == userViewModel.IdEmpleado && x.estatus == IT_solicitud_usuario_Status.CREADO);
-
-                if (solicitud != null)
+                try
                 {
-                    solicitud.fecha_cierre = DateTime.Now;
-                    solicitud.estatus = IT_solicitud_usuario_Status.CERRADO;
+                    //busca si existe una solicitud de usuario para este empleado
+                    var solicitud = db.IT_solicitud_usuarios.FirstOrDefault(x => x.id_empleado == userViewModel.IdEmpleado && x.estatus == IT_solicitud_usuario_Status.CREADO);
 
-                    db.Entry(solicitud).State = EntityState.Modified;
-                    db.SaveChanges();
+                    if (solicitud != null)
+                    {
+                        solicitud.fecha_cierre = DateTime.Now;
+                        solicitud.estatus = IT_solicitud_usuario_Status.CERRADO;
 
-                    mensaje += " Se cerró una solicitud usuario.";
+                        db.Entry(solicitud).State = EntityState.Modified;
+                        db.SaveChanges();
+
+                        mensaje += " Se cerró una solicitud usuario.";
+                    }
                 }
+                catch (Exception e) {
+
+                    System.Diagnostics.Debug.WriteLine(e.Message);
+                }
+
+                
 
                 //agrega el mensaje para sweetalert
                 TempData["Mensaje"] = new MensajesSweetAlert(mensaje, TipoMensajesSweetAlerts.SUCCESS);
