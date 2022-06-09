@@ -132,7 +132,8 @@
                                             </ul>
                                         </li>
                                     }
-                                    @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR) || User.IsInRole(TipoRoles.IT_CATALOGOS) || User.IsInRole(TipoRoles.IT_SOLICITUD_USUARIOS))
+                                    @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR) || User.IsInRole(TipoRoles.IT_CATALOGOS) || User.IsInRole(TipoRoles.IT_SOLICITUD_USUARIOS)
+                                        || User.IsInRole(TipoRoles.IT_INVENTORY))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "sistemas" ? "active" : null )">
                                             <a><i class="fa fa-computer"></i>Sistemas<span class="fa fa-chevron-down"></span></a>
@@ -152,7 +153,7 @@
                                                 @if (User.IsInRole(TipoRoles.IT_CATALOGOS))
                                                 {
 
-                                                    <li class="link @(ViewBag.SegundoNivel == "IT_Catalogos" ? "active" : null )">
+                                                    <li class="link @(ViewBag.SegundoNivel == "IT_Catalogos_RH" ? "active" : null )">
                                                         <a>C&aacute;talogos - Matriz RH <span class="fa fa-chevron-down"></span></a>
                                                         <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "IT_Catalogos_RH" ? "display:block" : null )">
                                                             <li class="@(ViewBag.TercelNivel == "IT_carpetas_red" ? "current-page" : null )"><a href="@Url.Action( "Index", "IT_carpetas_red")">Carpetas Red</a></li>
@@ -162,6 +163,27 @@
                                                             <li class="@(ViewBag.TercelNivel == "IT_internet_tipo" ? "current-page" : null )"><a href="@Url.Action( "Index", "IT_internet_tipo")">Internet</a></li>
                                                         </ul>
                                                     </li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.IT_INVENTORY))
+                                                {
+                                                    <h3>Inventory</h3>
+                                                    <li class="link @(ViewBag.SegundoNivel == "IT_Catalogos_inventory" ? "active" : null )">
+                                                        <a>Catalogs <span class="fa fa-chevron-down"></span></a>
+                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "IT_Catalogos_inventory" ? "display:block" : null )">
+                                                            <li class="@(ViewBag.TercelNivel == "IT_Inventory_desktop" ? "current-page" : null )"><a href="@Url.Action("Desktop", "IT_Inventory_items")">Desktops</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "IT_Inventory_laptop" ? "current-page" : null )"><a href="@Url.Action("Laptop", "IT_Inventory_items")">Laptops</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "IT_Inventory_monitor" ? "current-page" : null )"><a href="@Url.Action("Monitor", "IT_Inventory_items")">Monitors</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "IT_Inventory_printer" ? "current-page" : null )"><a href="@Url.Action("Printer", "IT_Inventory_items")">Printers</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "IT_Inventory_label_printer" ? "current-page" : null )"><a href="@Url.Action("Label_printer", "IT_Inventory_items")">Label Printers</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "IT_Inventory_PDA" ? "current-page" : null )"><a href="@Url.Action("PDA", "IT_Inventory_items")">PDAs</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "IT_Inventory_server" ? "current-page" : null )"><a href="@Url.Action("Server", "IT_Inventory_items")">Servers</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "IT_Inventory_tablet" ? "current-page" : null )"><a href="@Url.Action("Tablet", "IT_Inventory_items")">Tablets</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "IT_Inventory_radio" ? "current-page" : null )"><a href="@Url.Action("Radio", "IT_Inventory_items")">Radios</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "IT_Inventory_ap" ? "current-page" : null )"><a href="@Url.Action("AP", "IT_Inventory_items")">APs</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "IT_Inventory_smartphone" ? "current-page" : null )"><a href="@Url.Action("Smartphone", "IT_Inventory_items")">Smartphones</a></li>
+                                                        </ul>
+                                                    </li>                                                 
+
                                                 }
                                             </ul>
                                         </li>

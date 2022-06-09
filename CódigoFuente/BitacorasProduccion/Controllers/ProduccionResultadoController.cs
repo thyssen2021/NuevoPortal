@@ -31,18 +31,19 @@ namespace Portal_2_0.Controllers
 
                 empleados emp = obtieneEmpleadoLogeado();
 
-                //muestra error en caso de querer solicitar una planta distinta
-                if (clave_planta !=null && clave_planta != emp.planta_clave) {
+                ////muestra error en caso de querer solicitar una planta distinta
+                if (!TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE_ALL_ACCESS) && clave_planta != null && clave_planta != emp.planta_clave)
+                {
                     ViewBag.Titulo = "¡Lo sentimos!¡No se puede acceder a la información solicitada!";
                     ViewBag.Descripcion = "No puede consultar la información de la planta solicitada.";
 
                     return View("../Home/ErrorGenerico");
                 }
-               
+
 
                 CultureInfo provider = CultureInfo.InvariantCulture;
 
-                DateTime dateInicial = new DateTime(2000,1,1);  //fecha inicial por defecto
+                DateTime dateInicial = new DateTime(2000, 1, 1);  //fecha inicial por defecto
                 DateTime dateFinal = DateTime.Now;          //fecha final por defecto
                 DateTime dateTurno = DateTime.Now;          //fecha turno por defecto
 
@@ -50,10 +51,11 @@ namespace Portal_2_0.Controllers
                 {
                     if (!String.IsNullOrEmpty(fecha_inicial))
                         dateInicial = Convert.ToDateTime(fecha_inicial);
-                    if (!String.IsNullOrEmpty(fecha_final)) { 
-                            dateFinal = Convert.ToDateTime(fecha_final);
-                            dateFinal = dateFinal.AddHours(23).AddMinutes(59).AddSeconds(59);
-                       }
+                    if (!String.IsNullOrEmpty(fecha_final))
+                    {
+                        dateFinal = Convert.ToDateTime(fecha_final);
+                        dateFinal = dateFinal.AddHours(23).AddMinutes(59).AddSeconds(59);
+                    }
                     if (!String.IsNullOrEmpty(fecha_turno))
                         dateTurno = Convert.ToDateTime(fecha_turno);
                 }
@@ -110,28 +112,30 @@ namespace Portal_2_0.Controllers
 
                 //si no hay turno lo inicializa
                 if (turno1 == null)
-                    turno1 = new produccion_turnos { id=0 };
+                    turno1 = new produccion_turnos { id = 0 };
 
 
                 var cantidadRegistrosPorPagina = 20; // parámetro
 
                 //REALIZA LA CONSULTA DEPENDIENDO DEL TIPO
                 String tipoR = "sabana";  //valor por defecto 
-                if (!String.IsNullOrEmpty(tipo_reporte)) {
+                if (!String.IsNullOrEmpty(tipo_reporte))
+                {
                     tipoR = tipo_reporte;
                 }
 
                 List<view_historico_resultado> listado = new List<view_historico_resultado>();
                 int totalDeRegistros = 0;
 
-                if (tipoR.Contains("sabana")) {             //BUSCA POR SÁBANA
+                if (tipoR.Contains("sabana"))
+                {             //BUSCA POR SÁBANA
                     listado = db.view_historico_resultado.Where(
                         x =>
                         x.Planta.ToUpper().Contains(planta.descripcion.ToUpper())
                         && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
                         && x.Fecha >= dateInicial && x.Fecha <= dateFinal
-                       // && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
-                       // && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
+                        // && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
+                        // && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
                         )
                         .OrderBy(x => x.id)
                         .Skip((pagina - 1) * cantidadRegistrosPorPagina)
@@ -145,7 +149,9 @@ namespace Portal_2_0.Controllers
                         // && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
                         // && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
                         ).Count();
-                } else if (tipoR.Contains("turno")) { //BUSCA POR TURNO
+                }
+                else if (tipoR.Contains("turno"))
+                { //BUSCA POR TURNO
                     //determina la hora inicial y final del turno                   
                     DateTime fecha_fin_turno = dateTurno.Add(turno1.hora_fin);
                     //hora inicial
@@ -153,7 +159,7 @@ namespace Portal_2_0.Controllers
 
                     //si la hora fin es menor a la hora inicio es otro dia
                     if (TimeSpan.Compare(turno1.hora_inicio, turno1.hora_fin) == 1)
-                        fecha_fin_turno = fecha_fin_turno.AddDays(1);                   
+                        fecha_fin_turno = fecha_fin_turno.AddDays(1);
 
 
                     listado = db.view_historico_resultado.Where(
@@ -162,9 +168,9 @@ namespace Portal_2_0.Controllers
                        x.Planta.ToUpper().Contains(planta.descripcion.ToUpper())
                        && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
                        && (x.Turno.ToUpper().Contains(turno1.descripcion.ToUpper()) || x.Turno.ToUpper().Contains(turno1.valor.ToString()) || id_turno == 0)
-                       && x.Fecha >= dateTurno && x.Fecha <= fecha_fin_turno 
-                      // && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
-                      // && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
+                       && x.Fecha >= dateTurno && x.Fecha <= fecha_fin_turno
+                       // && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
+                       // && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
                        )
                        .OrderBy(x => x.id)
                        .Skip((pagina - 1) * cantidadRegistrosPorPagina)
@@ -176,8 +182,8 @@ namespace Portal_2_0.Controllers
                        && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
                        && (x.Turno.ToUpper().Contains(turno1.descripcion.ToUpper()) || x.Turno.ToUpper().Contains(turno1.valor.ToString()) || id_turno == 0)
                        && x.Fecha >= dateTurno && x.Fecha <= fecha_fin_turno
-                       // && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
-                       // && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
+                        // && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
+                        // && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
                         ).Count();
 
                 }
@@ -200,8 +206,11 @@ namespace Portal_2_0.Controllers
                 };
 
                 ViewBag.id_linea = new SelectList(db.produccion_lineas.Where(p => p.activo == true), "id", "linea");
-                ViewBag.turno = new SelectList(db.produccion_turnos.Where(p => p.activo.HasValue && p.activo.Value && p.clave_planta == emp.planta_clave ), "id", "descripcion");
-                ViewBag.clave_planta = new SelectList(db.plantas.Where(p => p.activo == true && p.clave == emp.planta_clave), "clave", "descripcion");
+                ViewBag.turno = new SelectList(db.produccion_turnos.Where(p => p.activo.HasValue && p.activo.Value && p.clave_planta == emp.planta_clave), "id", "descripcion");
+                if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE_ALL_ACCESS))
+                    ViewBag.clave_planta = new SelectList(db.plantas.Where(p => p.activo == true ), "clave", "descripcion");
+                else
+                    ViewBag.clave_planta = new SelectList(db.plantas.Where(p => p.activo == true && p.clave == emp.planta_clave), "clave", "descripcion");
                 ViewBag.Paginacion = paginacion;
 
                 return View(listado);
@@ -212,8 +221,8 @@ namespace Portal_2_0.Controllers
             }
 
         }
-               
-     
+
+
         public ActionResult Exportar(int? clave_planta, int? id_linea, string fecha_inicial, string fecha_final, string tipo_reporte, string fecha_turno, int? turno, int pagina = 1)
         {
             if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE))
@@ -315,7 +324,7 @@ namespace Portal_2_0.Controllers
                         .OrderBy(x => x.id)
                        .ToList();
 
-                  
+
                 }
                 else if (tipoR.Contains("turno"))
                 { //BUSCA POR TURNO
@@ -337,12 +346,12 @@ namespace Portal_2_0.Controllers
                        && (x.Linea.ToUpper().Contains(produccion_Lineas.linea.ToUpper()) || linea == 0)
                        && (x.Turno.ToUpper().Contains(turno1.descripcion.ToUpper()) || x.Turno.ToUpper().Contains(turno1.valor.ToString()) || id_turno == 0)
                        && x.Fecha >= dateTurno && x.Fecha <= fecha_fin_turno
-                     //  && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
-                     //  && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
+                       //  && !x.SAP_Platina.ToUpper().Contains("TEMPORAL")
+                       //  && !x.SAP_Rollo.ToUpper().Contains("TEMPORAL")
                        )
                        .OrderBy(x => x.id)
                        .ToList();
-                }                
+                }
 
                 byte[] stream = ExcelUtil.GeneraReporteBitacorasExcel(listado, porturno);
 
@@ -351,7 +360,7 @@ namespace Portal_2_0.Controllers
                 {
                     // for example foo.bak
                     //FileName = planta.descripcion + "_" + produccion_Lineas.linea + "_" + fecha_inicial + "_" + dateFinal.ToString("yyyy-MM-dd") + ".xlsx",
-                    FileName = Server.UrlEncode ("PRF005-04_Sábana_de_Producción_"+ planta.descripcion +".xlsx"),
+                    FileName = Server.UrlEncode("PRF005-04_Sábana_de_Producción_" + planta.descripcion + ".xlsx"),
 
                     // always prompt the user for downloading, set to true if you want 
                     // the browser to try to show the file inline
@@ -366,7 +375,7 @@ namespace Portal_2_0.Controllers
             {
                 return View("../Home/ErrorPermisos");
             }
-          
+
         }
 
 

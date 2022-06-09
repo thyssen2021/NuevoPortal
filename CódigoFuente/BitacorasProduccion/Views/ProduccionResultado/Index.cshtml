@@ -580,6 +580,22 @@
                 theme: 'bootstrap4'
             })
 
+            $("#clave_planta").change(function () {
+
+                var cPlanta = document.getElementById("clave_planta");
+
+                //realiza llamada para lineas
+                $.ajax({
+                    type: 'POST',
+                    url: '/Combos/obtieneLineasPlantas',
+                    data: { clavePlanta: cPlanta.value },
+                    success: function (data) {
+                        populateDropdown($("#id_linea"), data);
+                    },
+                    async: false
+                });
+
+            });
 
         });
 

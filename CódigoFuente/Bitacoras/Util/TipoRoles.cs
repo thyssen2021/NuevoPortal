@@ -14,6 +14,7 @@ namespace Clases.Util
         //bitácoras de producción 
         public const string BITACORAS_PRODUCCION_REGISTRO = "BitacoraProduccionRegistro";
         public const string BITACORAS_PRODUCCION_REPORTE = "BitacoraProduccionReporte";
+        public const string BITACORAS_PRODUCCION_REPORTE_ALL_ACCESS = "BitacoraProduccionReporteAllAccess";
         public const string BITACORAS_PRODUCCION_CATALOGOS = "BitacoraProduccionCatalogos";
         public const string REPORTES_PESADAS = "ReportePesadas";
         //Premium Freight Approval
@@ -50,5 +51,7 @@ namespace Clases.Util
         public const string IT_MATRIZ_REQUERIMIENTOS_AUTORIZAR = "IT_Matriz_requerimientos_autorizar";
         public const string IT_MATRIZ_REQUERIMIENTOS_CERRAR = "IT_Matriz_requerimientos_cerrar";
         public const string IT_CATALOGOS = "IT_Catalogos";
+        //Módulo IT - Inventory
+        public const string IT_INVENTORY = "IT_Inventory";
     }
 }

@@ -1,0 +1,299 @@
+﻿@model Portal_2_0.Models.IT_inventory_items
+
+@{
+    ViewBag.Title = "Edit Label Printer";
+    ViewBag.PrimerNivel = "sistemas";
+    ViewBag.SegundoNivel = "IT_Catalogos_inventory";
+    ViewBag.TercerNivel = "IT_Inventory_label_printer";
+    ViewBag.ControllerName = "IT_inventory_items";
+
+
+    int contador = 100;
+
+    string _planta = Request.QueryString["_id_planta"];
+    string _pagina = Request.QueryString["_pagina"];
+    string _model = Request.QueryString["_model"];
+    string _active = Request.QueryString["_active"];
+
+}
+
+@section estilos
+{
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/green.css")" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        @*Indica que los mensajes de validación son en ingles*@
+                        <input type="hidden" id="jquery_val_english" name="jquery_val_english" value="true" />
+                        @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" value="@Model.IT_inventory_hardware_type.id" id="id_inventory_type" name="id_inventory_type" />
+
+                            <input type="hidden" value="@_planta" id="_id_planta" name="_id_planta" />
+                            <input type="hidden" value="@_pagina" id="_pagina" name="_pagina" />
+                            <input type="hidden" value="@_model" id="_model" name="_model" />
+                            <input type="hidden" value="@_active" id="_active" name="_active" />
+
+                            @Html.HiddenFor(model => model.id)
+
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", new { @class = "text-white" })
+                                </div>
+                            }
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>GENERAL INFORMATION</b></span>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id, new { @class = "col-form-label col-md-11 col-sm-11 label-align" })
+                                <div class="col-md-1 col-sm-1 ">
+                                    @Html.EditorFor(model => model.id, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id_inventory_type, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    <input class="form-control" value="@Model.IT_inventory_hardware_type.descripcion" readonly="readonly" />
+                                    @Html.ValidationMessageFor(model => model.id_inventory_type, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.id_planta, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    @Html.DropDownList("id_planta", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @Html.ValidationMessageFor(model => model.id_planta, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.purchase_date, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    @Html.EditorFor(model => model.purchase_date, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.purchase_date, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.brand, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    @Html.EditorFor(model => model.brand, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.brand, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.model, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    @Html.EditorFor(model => model.model, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.model, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.serial_number, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    @Html.EditorFor(model => model.serial_number, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.serial_number, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.printer_ubication, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    @Html.EditorFor(model => model.printer_ubication, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.printer_ubication, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.ip_adress, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    @Html.EditorFor(model => model.ip_adress, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.ip_adress, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.cost_center, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    @Html.EditorFor(model => model.cost_center, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.cost_center, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.physical_status, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align:left" })
+                            </div>
+                            <div class="item form-group">
+                                <div class="col-md-12">
+                                    @Html.TextAreaFor(model => model.physical_status, new { @class = "form-control", @rows = "4", @autocomplete = "off" })
+                                    @Html.ValidationMessageFor(model => model.physical_status, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>WARRANTY</b></span>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.warranty, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    @Html.EditorFor(model => model.warranty, new { htmlAttributes = new { @class = "form-control select2bs4", @style = "width:100%" } })
+                                    @Html.ValidationMessageFor(model => model.warranty, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.start_warranty, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    @Html.EditorFor(model => model.start_warranty, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.start_warranty, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.end_warranty, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    @Html.EditorFor(model => model.end_warranty, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.end_warranty, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>STATUS</b></span>
+                            </div>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.is_in_operation, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    @Html.EditorFor(model => model.is_in_operation, new { htmlAttributes = new { @class = "form-control select2bs4", @style = "width:100%" } })
+                                    @Html.ValidationMessageFor(model => model.is_in_operation, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.active, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-1 col-sm-1 " @*rel="tooltip" data-title="Autorizar"*@>
+
+                                    @Html.EditorFor(model => model.active, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+
+                                    @Html.ValidationMessageFor(model => model.active, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.inactive_date, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    @Html.EditorFor(model => model.inactive_date, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.inactive_date, "", new { @class = "text-danger" })
+                                </div>
+
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>COMMENTS</b></span>
+                            </div>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.comments, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align:left" })
+                            </div>
+                            <div class="item form-group">
+                                <div class="col-md-12">
+                                    @Html.TextAreaFor(model => model.comments, new { @class = "form-control", @rows = "4", @autocomplete = "off" })
+                                    @Html.ValidationMessageFor(model => model.comments, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="ln_solid"></div>
+                            <div class="item form-group">
+                                <div class="col-md-12 col-sm-12 offset-md-12">
+                                    <button type="submit" class="btn btn-success btn-lg float-lg-right"> <i class="fa-regular fa-floppy-disk"></i>&ensp;Guardar</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("label_printer", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <script>
+        $(document).ready(function () {
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+                increaseArea: '20%' // optional
+            });
+
+
+            //agrega evento OnChange para saber si el empleado tiene usuari
+            $("#warranty").change(function () {
+                verificaCombos();
+            });
+
+            //eventos input
+            $('input').on('ifChecked', function (event) {
+                verificaCombos();
+            });
+
+            $('input').on('ifUnchecked', function (event) {
+                verificaCombos();
+            });
+
+            
+
+            verificaCombos();
+
+        });
+
+      
+
+        function verificaCombos() {
+            //warranty
+            let warranty = $('#warranty').val();
+
+            if (warranty == 'true') {
+                $('#start_warranty').prop('disabled', false);
+                $('#end_warranty').prop('disabled', false);
+            } else {
+                $('#start_warranty').prop('disabled', true);
+                $('#end_warranty').prop('disabled', true);
+                $('#start_warranty').val('');
+                $('#end_warranty').val('');
+            }
+
+            //check
+            if (!$('#active').prop('checked')) {
+                $('#inactive_date').prop('disabled', false);
+                $('#is_in_operation').prop('disabled', true);
+                $("#is_in_operation").val("false");
+
+                // Initialize Select2 Elements (debe ir después de asignar el valor)
+                $('.select2bs4').select2({
+                    theme: 'bootstrap4'
+                })
+
+            } else { //si el check está seleccionado
+                $('#inactive_date').prop('disabled', true);
+                $('#is_in_operation').prop('disabled', false);
+                $('#inactive_date').val('');
+            }
+
+        }
+
+        window.onload = function () {
+            clicMenu(1);
+        }
+    </script>
+}
+

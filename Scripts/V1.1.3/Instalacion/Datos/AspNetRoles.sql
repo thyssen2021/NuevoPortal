@@ -49,6 +49,13 @@ BEGIN
 		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'BitacoraProduccionReporte')
 	END
 
+	--BITACORAS REPORTES (Todas las plantas)
+	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='BitacoraProduccionReporteAllAccess' )
+	BEGIN
+
+		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'BitacoraProduccionReporteAllAccess')
+	END
+
 	--REPORTE PESADAS
 	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='ReportePesadas' )
 	BEGIN
