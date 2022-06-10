@@ -108,5 +108,7 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_inventory_hard_drives> IT_inventory_hard_drives { get; set; }
         public virtual DbSet<IT_inventory_hardware_type> IT_inventory_hardware_type { get; set; }
         public virtual DbSet<IT_inventory_items> IT_inventory_items { get; set; }
+        public virtual DbSet<IT_inventory_software> IT_inventory_software { get; set; }
+        public virtual DbSet<IT_inventory_software_versions> IT_inventory_software_versions { get; set; }
     }
 }

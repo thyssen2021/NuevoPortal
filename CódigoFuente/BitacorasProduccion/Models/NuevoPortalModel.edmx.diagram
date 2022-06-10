@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="3d6b38e8516649fd9491aed00dbc6337" Name="Diagram1" ZoomLevel="80">
+      <Diagram DiagramId="3d6b38e8516649fd9491aed00dbc6337" Name="Diagram1" ZoomLevel="82">
         <EntityTypeShape EntityType="Portal_2_0Model.Area" Width="1.5" PointX="3" PointY="5.5" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.class_v3" Width="1.5" PointX="2.75" PointY="0.875" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.mm_v3" Width="1.5" PointX="5.75" PointY="12.75" IsExpanded="true" />
@@ -194,6 +194,9 @@
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_item" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_items_id_inventory_type" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_items_id_planta" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_software" Width="1.5" PointX="28.375" PointY="11" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_software_versions" Width="1.5" PointX="30.625" PointY="10.875" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_id_inventory_software" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

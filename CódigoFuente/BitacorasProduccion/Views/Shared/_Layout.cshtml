@@ -168,7 +168,7 @@
                                                 {
                                                     <h3>Inventory</h3>
                                                     <li class="link @(ViewBag.SegundoNivel == "IT_Catalogos_inventory" ? "active" : null )">
-                                                        <a>Catalogs <span class="fa fa-chevron-down"></span></a>
+                                                        <a>Hardware <span class="fa fa-chevron-down"></span></a>
                                                         <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "IT_Catalogos_inventory" ? "display:block" : null )">
                                                             <li class="@(ViewBag.TercelNivel == "IT_Inventory_desktop" ? "current-page" : null )"><a href="@Url.Action("Desktop", "IT_Inventory_items")">Desktops</a></li>
                                                             <li class="@(ViewBag.TercelNivel == "IT_Inventory_laptop" ? "current-page" : null )"><a href="@Url.Action("Laptop", "IT_Inventory_items")">Laptops</a></li>
@@ -180,10 +180,23 @@
                                                             <li class="@(ViewBag.TercelNivel == "IT_Inventory_tablet" ? "current-page" : null )"><a href="@Url.Action("Tablet", "IT_Inventory_items")">Tablets</a></li>
                                                             <li class="@(ViewBag.TercelNivel == "IT_Inventory_radio" ? "current-page" : null )"><a href="@Url.Action("Radio", "IT_Inventory_items")">Radios</a></li>
                                                             <li class="@(ViewBag.TercelNivel == "IT_Inventory_ap" ? "current-page" : null )"><a href="@Url.Action("AP", "IT_Inventory_items")">APs</a></li>
+                                                           
+                                                        </ul>
+                                                    </li>
+
+                                                    <li class="link @(ViewBag.SegundoNivel == "IT_Catalogos_inventory_software" ? "active" : null )">
+                                                        <a>Software <span class="fa fa-chevron-down"></span></a>
+                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "IT_Catalogos_inventory_software" ? "display:block" : null )">
+                                                            <li class="@(ViewBag.TercelNivel == "IT_Inventory_software" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_Inventory_software")">Software List</a></li>
+                                                        </ul>
+                                                    </li>
+
+                                                    <li class="link @(ViewBag.SegundoNivel == "IT_Catalogos_inventory_telefonia" ? "active" : null )">
+                                                        <a>Telephony <span class="fa fa-chevron-down"></span></a>
+                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "IT_Catalogos_inventory_telefonia" ? "display:block" : null )">
                                                             <li class="@(ViewBag.TercelNivel == "IT_Inventory_smartphone" ? "current-page" : null )"><a href="@Url.Action("Smartphone", "IT_Inventory_items")">Smartphones</a></li>
                                                         </ul>
-                                                    </li>                                                 
-
+                                                    </li>
                                                 }
                                             </ul>
                                         </li>

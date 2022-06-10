@@ -297,6 +297,7 @@
     <Compile Include="Controllers\IT_hardware_tipoController.cs" />
     <Compile Include="Controllers\IT_internet_tipoController.cs" />
     <Compile Include="Controllers\IT_inventory_itemsController.cs" />
+    <Compile Include="Controllers\IT_inventory_softwareController.cs" />
     <Compile Include="Controllers\IT_matriz_requerimientosController.cs" />
     <Compile Include="Controllers\IT_software_tipoController.cs" />
     <Compile Include="Controllers\IT_solicitud_usuariosController.cs" />
@@ -394,6 +395,12 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IT_inventory_items.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_inventory_software.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_inventory_software_versions.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IT_solicitud_usuarios.cs">
@@ -506,6 +513,7 @@
     <Compile Include="Models\MetadataModels\budget_plantasMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_internet_tipoMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_inventory_itemsMetadata.cs" />
+    <Compile Include="Models\MetadataModels\IT_inventory_softwareMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_software_tipoMetadata.cs" />
     <Compile Include="Models\MetadataModels\class_v3Metadata.cs" />
     <Compile Include="Models\MetadataModels\currencyMetadata.cs" />
@@ -7081,6 +7089,11 @@
     <Content Include="Views\IT_inventory_items\DetailsSmartphone.cshtml" />
     <Content Include="Views\IT_inventory_items\EditSmartphone.cshtml" />
     <Content Include="Views\IT_inventory_items\smartphone.cshtml" />
+    <Content Include="Views\IT_inventory_software\Create.cshtml" />
+    <Content Include="Views\IT_inventory_software\Delete.cshtml" />
+    <Content Include="Views\IT_inventory_software\Details.cshtml" />
+    <Content Include="Views\IT_inventory_software\Edit.cshtml" />
+    <Content Include="Views\IT_inventory_software\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

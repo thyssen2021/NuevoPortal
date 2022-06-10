@@ -1,0 +1,213 @@
+﻿@model Portal_2_0.Models.IT_inventory_software
+
+@{
+    ViewBag.Title = "Create Software";
+    ViewBag.PrimerNivel = "sistemas";
+    ViewBag.SegundoNivel = "IT_Catalogos_inventory_software";
+    ViewBag.TercerNivel = "IT_Inventory_software";
+    ViewBag.ControllerName = "IT_inventory_software";
+
+
+    int contador = 100;
+}
+
+@section estilos
+{
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/green.css")" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        @*Indica que los mensajes de validación son en ingles*@
+                        <input type="hidden" id="jquery_val_english" name="jquery_val_english" value="true" />
+                        @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                        {
+                            @Html.AntiForgeryToken()
+
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", new { @class = "text-white" })
+                                </div>
+                            }
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>GENERAL INFORMATION</b></span>
+                            </div>
+                            <div class="item form-group">
+
+                                @Html.LabelFor(model => model.descripcion, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    @Html.EditorFor(model => model.descripcion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.descripcion, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.activo, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    @Html.EditorFor(model => model.activo, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.activo, "", new { @class = "text-danger" })
+                                </div>
+
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>VERSIONS</b></span>
+                            </div>
+                            <div id="div_versions">
+
+                                @foreach (Portal_2_0.Models.IT_inventory_software_versions item in Model.IT_inventory_software_versions)
+                                {
+
+                                    <div class="form-group row" id="div_versions_@contador">
+                                        <label class="control-label col-md-1" for="IT_inventory_software_versions[@contador].version">
+                                            <span class="float-right">Version:</span>
+                                        </label>
+                                        <div class="col-md-5">
+                                            <input type="text" style="text-transform: uppercase; " onkeyup="javascript:this.value=this.value.toUpperCase();" maxlength="50" name="IT_inventory_software_versions[@contador].version" id="IT_inventory_software_versions[@contador].version" class="form-control col-md-12" value="@item.version" autocomplete="off" required>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="IT_inventory_software_versions[@contador].version" data-valmsg-replace="true"></span>
+                                        </div>
+                                        <label class="control-label col-md-1" for="IT_inventory_software_versions[@contador].activo">
+                                            <span class="float-right">Active?:</span>
+                                        </label>
+                                        <div class="col-md-1">
+                                            <input type="checkbox" class="form-control" id="IT_inventory_software_versions[@contador].activo" name="IT_inventory_software_versions[@contador].activo" value="true" @(item.activo ? "checked": String.Empty)>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <input type="button" value="delete" class="btn btn-danger" onclick="borrarPieza(@contador); return false;">
+                                        </div>
+                                    </div>
+
+                                    contador++;
+                                }
+                            </div>
+
+                            <div class="form-group row">
+
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-10">
+                                </div>
+                                <div class="col-md-2">
+                                    <input type="button" value="Add" class="btn btn-round btn-warning float-right" onclick="AgregarConcepto(); return false;" style="width:100%">
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="item form-group">
+                                <div class="col-md-12 col-sm-12 offset-md-12">
+                                    <button type="submit" class="btn btn-success btn-lg float-lg-right"> <i class="fa-regular fa-floppy-disk"></i>&ensp;Guardar</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+<script>
+        $(document).ready(function () {
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+                increaseArea: '20%' // optional
+            });
+
+        });
+
+        //variable global para el id
+        var num = 0;
+        //variable global de los select
+        //var textoSelectFalla = obtieneSelectFalla();
+
+        //agreaga una fila para lotes
+        function AgregarConcepto() {
+            //obtine los valores de lotes
+
+
+            $("#div_versions").append(
+            `
+                <div class="form-group row" id="div_versions_`+ num + `">
+                    <label class="control-label col-md-1" for="IT_inventory_software_versions[`+ num + `].version">
+                        <span class="float-right">Version:</span>
+                    </label>
+                    <div class="col-md-5">
+                        <input type="text" style="text-transform: uppercase; " onkeyup="javascript:this.value=this.value.toUpperCase();" maxlength="50" name="IT_inventory_software_versions[`+ num + `].version" id="IT_inventory_software_versions[`+ num + `].version" class="form-control col-md-12" value="" autocomplete="off" required>
+                        <span class="field-validation-valid text-danger" data-valmsg-for="IT_inventory_software_versions[`+ num + `].version" data-valmsg-replace="true"></span>
+                    </div>
+                    <label class="control-label col-md-1" for="IT_inventory_software_versions[`+ num + `].activo">
+                        <span class="float-right">Active?:</span>
+                    </label>
+                    <div class="col-md-1">
+                        <input type="checkbox" class="form-control" id="IT_inventory_software_versions[`+ num + `].activo" name="IT_inventory_software_versions[`+ num + `].activo" value="true" checked>
+                    </div>
+                    <div class="col-md-1">
+                        <input type="button" value="Delete" class="btn btn-danger" onclick="borrarPieza(`+ num + `); return false;">
+                    </div>
+                </div>
+            `
+            );
+            $("#div_versions_" + num).hide().fadeIn(500);
+
+            //aplica estilo a los nuevos checks
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+                increaseArea: '20%' // optional
+            });
+
+
+            //aumenta el contador
+            num++;
+        }
+
+        //borra un lote
+        function borrarPieza(id) {
+
+            $("#div_versions_" + id).fadeOut(0, function () {
+                $(this).remove();
+            });
+
+        }
+
+        window.onload = function () {
+            clicMenu(1);
+        }
+</script>
+}
+
+

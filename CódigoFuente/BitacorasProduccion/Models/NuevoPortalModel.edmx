@@ -369,6 +369,23 @@
           <Property Name="movil_device_storage_mb" Type="int" />
           <Property Name="inches" Type="decimal" Precision="4" Scale="2" />
         </EntityType>
+        <EntityType Name="IT_inventory_software">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="40" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="IT_inventory_software_versions">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_inventory_software" Type="int" Nullable="false" />
+          <Property Name="version" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
         <EntityType Name="IT_matriz_carpetas">
           <Key>
             <PropertyRef Name="id" />
@@ -1414,6 +1431,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_IT_inventory_id_inventory_software">
+          <End Role="IT_inventory_software" Type="Self.IT_inventory_software" Multiplicity="1" />
+          <End Role="IT_inventory_software_versions" Type="Self.IT_inventory_software_versions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_inventory_software">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_inventory_software_versions">
+              <PropertyRef Name="id_inventory_software" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_IT_inventory_item">
           <End Role="IT_inventory_items" Type="Self.IT_inventory_items" Multiplicity="1" />
           <End Role="IT_inventory_hard_drives" Type="Self.IT_inventory_hard_drives" Multiplicity="*" />
@@ -2430,6 +2459,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySet Name="IT_inventory_hard_drives" EntityType="Self.IT_inventory_hard_drives" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_inventory_hardware_type" EntityType="Self.IT_inventory_hardware_type" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_inventory_items" EntityType="Self.IT_inventory_items" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IT_inventory_software" EntityType="Self.IT_inventory_software" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IT_inventory_software_versions" EntityType="Self.IT_inventory_software_versions" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_matriz_carpetas" EntityType="Self.IT_matriz_carpetas" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_matriz_comunicaciones" EntityType="Self.IT_matriz_comunicaciones" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_matriz_hardware" EntityType="Self.IT_matriz_hardware" Schema="dbo" store:Type="Tables" />
@@ -2667,6 +2698,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <AssociationSet Name="FK_inspeccion_pieza_descarte_produccion_id_produccion_registro" Association="Self.FK_inspeccion_pieza_descarte_produccion_id_produccion_registro">
             <End Role="produccion_registros" EntitySet="produccion_registros" />
             <End Role="inspeccion_pieza_descarte_produccion" EntitySet="inspeccion_pieza_descarte_produccion" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_inventory_id_inventory_software" Association="Self.FK_IT_inventory_id_inventory_software">
+            <End Role="IT_inventory_software" EntitySet="IT_inventory_software" />
+            <End Role="IT_inventory_software_versions" EntitySet="IT_inventory_software_versions" />
           </AssociationSet>
           <AssociationSet Name="FK_IT_inventory_item" Association="Self.FK_IT_inventory_item">
             <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
@@ -3870,6 +3905,12 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <AssociationSet Name="FK_IT_inventory_items_id_planta" Association="Portal_2_0Model.FK_IT_inventory_items_id_planta">
             <End Role="plantas" EntitySet="plantas" />
             <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
+          </AssociationSet>
+          <EntitySet Name="IT_inventory_software" EntityType="Portal_2_0Model.IT_inventory_software" />
+          <EntitySet Name="IT_inventory_software_versions" EntityType="Portal_2_0Model.IT_inventory_software_versions" />
+          <AssociationSet Name="FK_IT_inventory_id_inventory_software" Association="Portal_2_0Model.FK_IT_inventory_id_inventory_software">
+            <End Role="IT_inventory_software" EntitySet="IT_inventory_software" />
+            <End Role="IT_inventory_software_versions" EntitySet="IT_inventory_software_versions" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="PFA_Border_port">
@@ -6079,6 +6120,37 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="IT_inventory_software">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="IT_inventory_software_versions" Relationship="Portal_2_0Model.FK_IT_inventory_id_inventory_software" FromRole="IT_inventory_software" ToRole="IT_inventory_software_versions" />
+        </EntityType>
+        <EntityType Name="IT_inventory_software_versions">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_inventory_software" Type="Int32" Nullable="false" />
+          <Property Name="version" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="IT_inventory_software" Relationship="Portal_2_0Model.FK_IT_inventory_id_inventory_software" FromRole="IT_inventory_software_versions" ToRole="IT_inventory_software" />
+        </EntityType>
+        <Association Name="FK_IT_inventory_id_inventory_software">
+          <End Type="Portal_2_0Model.IT_inventory_software" Role="IT_inventory_software" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_inventory_software_versions" Role="IT_inventory_software_versions" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_inventory_software">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_inventory_software_versions">
+              <PropertyRef Name="id_inventory_software" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -7247,6 +7319,25 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
                 <ScalarProperty Name="active" ColumnName="active" />
                 <ScalarProperty Name="id_inventory_type" ColumnName="id_inventory_type" />
                 <ScalarProperty Name="id_planta" ColumnName="id_planta" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IT_inventory_software">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_inventory_software">
+              <MappingFragment StoreEntitySet="IT_inventory_software">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IT_inventory_software_versions">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_inventory_software_versions">
+              <MappingFragment StoreEntitySet="IT_inventory_software_versions">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="version" ColumnName="version" />
+                <ScalarProperty Name="id_inventory_software" ColumnName="id_inventory_software" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

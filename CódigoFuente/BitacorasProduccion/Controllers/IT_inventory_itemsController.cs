@@ -844,7 +844,6 @@ namespace Portal_2_0.Controllers
                 if (iT_inventory_items.active == false)
                     iT_inventory_items.is_in_operation = false;
 
-
                 // Activity already exist in database and modify it
                 db.Entry(db.IT_inventory_items.Find(iT_inventory_items.id)).CurrentValues.SetValues(iT_inventory_items);
                 db.SaveChanges();
