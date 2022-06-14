@@ -314,6 +314,30 @@
           <Property Name="descripcion" Type="varchar" MaxLength="40" Nullable="false" />
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
+        <EntityType Name="IT_inventory_cellular_plans">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_it_inventory_items" Type="int" />
+          <Property Name="razon_social" Type="varchar" MaxLength="120" />
+          <Property Name="cuenta_padre" Type="varchar" MaxLength="8" />
+          <Property Name="cuenta_hija" Type="varchar" MaxLength="8" />
+          <Property Name="num_telefono" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="centro_costo" Type="varchar" MaxLength="4" />
+          <Property Name="fecha_corte" Type="datetime" />
+          <Property Name="numero_factura" Type="varchar" MaxLength="15" />
+          <Property Name="nombre_plan" Type="varchar" MaxLength="120" Nullable="false" />
+          <Property Name="costo_servicios_telecomunicaciones" Type="decimal" Precision="7" Scale="2" />
+          <Property Name="costo_servicios_y_suscripciones" Type="decimal" Precision="7" Scale="2" />
+          <Property Name="costo_servicios_y_suscripciones_terceros" Type="decimal" Precision="7" Scale="2" />
+          <Property Name="costo_equipo_celular" Type="decimal" Precision="7" Scale="2" />
+          <Property Name="costo_servicios_cobrados_terceros" Type="decimal" Precision="7" Scale="2" />
+          <Property Name="porcentaje_iva" Type="decimal" Precision="4" Scale="2" />
+          <Property Name="nombre_compania" Type="varchar" MaxLength="80" Nullable="false" />
+          <Property Name="comentarios" Type="varchar" MaxLength="250" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
         <EntityType Name="IT_inventory_hard_drives">
           <Key>
             <PropertyRef Name="id" />
@@ -354,7 +378,7 @@
           <Property Name="mac_lan" Type="varchar" MaxLength="17" />
           <Property Name="mac_wlan" Type="varchar" MaxLength="17" />
           <Property Name="processor" Type="varchar" MaxLength="50" />
-          <Property Name="total_physical_memory_mb" Type="int" />
+          <Property Name="total_physical_memory_mb" Type="decimal" Precision="8" Scale="2" />
           <Property Name="maintenance_period_months" Type="int" />
           <Property Name="last_maintenance" Type="datetime" />
           <Property Name="physical_status" Type="varchar" MaxLength="150" />
@@ -368,6 +392,8 @@
           <Property Name="cost_center" Type="varchar" MaxLength="8" />
           <Property Name="movil_device_storage_mb" Type="int" />
           <Property Name="inches" Type="decimal" Precision="4" Scale="2" />
+          <Property Name="imei_1" Type="varchar" MaxLength="15" />
+          <Property Name="imei_2" Type="varchar" MaxLength="15" />
         </EntityType>
         <EntityType Name="IT_inventory_software">
           <Key>
@@ -1431,6 +1457,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_IT_id_it_inventory_items">
+          <End Role="IT_inventory_items" Type="Self.IT_inventory_items" Multiplicity="0..1" />
+          <End Role="IT_inventory_cellular_plans" Type="Self.IT_inventory_cellular_plans" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_inventory_items">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_inventory_cellular_plans">
+              <PropertyRef Name="id_it_inventory_items" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_IT_inventory_id_inventory_software">
           <End Role="IT_inventory_software" Type="Self.IT_inventory_software" Multiplicity="1" />
           <End Role="IT_inventory_software_versions" Type="Self.IT_inventory_software_versions" Multiplicity="*" />
@@ -2456,6 +2494,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySet Name="IT_comunicaciones_tipo" EntityType="Self.IT_comunicaciones_tipo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_hardware_tipo" EntityType="Self.IT_hardware_tipo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_internet_tipo" EntityType="Self.IT_internet_tipo" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IT_inventory_cellular_plans" EntityType="Self.IT_inventory_cellular_plans" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_inventory_hard_drives" EntityType="Self.IT_inventory_hard_drives" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_inventory_hardware_type" EntityType="Self.IT_inventory_hardware_type" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_inventory_items" EntityType="Self.IT_inventory_items" Schema="dbo" store:Type="Tables" />
@@ -2698,6 +2737,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <AssociationSet Name="FK_inspeccion_pieza_descarte_produccion_id_produccion_registro" Association="Self.FK_inspeccion_pieza_descarte_produccion_id_produccion_registro">
             <End Role="produccion_registros" EntitySet="produccion_registros" />
             <End Role="inspeccion_pieza_descarte_produccion" EntitySet="inspeccion_pieza_descarte_produccion" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_id_it_inventory_items" Association="Self.FK_IT_id_it_inventory_items">
+            <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
+            <End Role="IT_inventory_cellular_plans" EntitySet="IT_inventory_cellular_plans" />
           </AssociationSet>
           <AssociationSet Name="FK_IT_inventory_id_inventory_software" Association="Self.FK_IT_inventory_id_inventory_software">
             <End Role="IT_inventory_software" EntitySet="IT_inventory_software" />
@@ -3891,12 +3934,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="plantas" EntitySet="plantas" />
             <End Role="IT_solicitud_usuarios" EntitySet="IT_solicitud_usuarios" />
           </AssociationSet>
-          <EntitySet Name="IT_inventory_hard_drives" EntityType="Portal_2_0Model.IT_inventory_hard_drives" />
           <EntitySet Name="IT_inventory_hardware_type" EntityType="Portal_2_0Model.IT_inventory_hardware_type" />
+          <EntitySet Name="IT_inventory_software" EntityType="Portal_2_0Model.IT_inventory_software" />
+          <EntitySet Name="IT_inventory_software_versions" EntityType="Portal_2_0Model.IT_inventory_software_versions" />
+          <AssociationSet Name="FK_IT_inventory_id_inventory_software" Association="Portal_2_0Model.FK_IT_inventory_id_inventory_software">
+            <End Role="IT_inventory_software" EntitySet="IT_inventory_software" />
+            <End Role="IT_inventory_software_versions" EntitySet="IT_inventory_software_versions" />
+          </AssociationSet>
+          <EntitySet Name="IT_inventory_cellular_plans" EntityType="Portal_2_0Model.IT_inventory_cellular_plans" />
           <EntitySet Name="IT_inventory_items" EntityType="Portal_2_0Model.IT_inventory_items" />
-          <AssociationSet Name="FK_IT_inventory_item" Association="Portal_2_0Model.FK_IT_inventory_item">
+          <AssociationSet Name="FK_IT_id_it_inventory_items" Association="Portal_2_0Model.FK_IT_id_it_inventory_items">
             <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
-            <End Role="IT_inventory_hard_drives" EntitySet="IT_inventory_hard_drives" />
+            <End Role="IT_inventory_cellular_plans" EntitySet="IT_inventory_cellular_plans" />
           </AssociationSet>
           <AssociationSet Name="FK_IT_inventory_items_id_inventory_type" Association="Portal_2_0Model.FK_IT_inventory_items_id_inventory_type">
             <End Role="IT_inventory_hardware_type" EntitySet="IT_inventory_hardware_type" />
@@ -3906,11 +3955,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="plantas" EntitySet="plantas" />
             <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
           </AssociationSet>
-          <EntitySet Name="IT_inventory_software" EntityType="Portal_2_0Model.IT_inventory_software" />
-          <EntitySet Name="IT_inventory_software_versions" EntityType="Portal_2_0Model.IT_inventory_software_versions" />
-          <AssociationSet Name="FK_IT_inventory_id_inventory_software" Association="Portal_2_0Model.FK_IT_inventory_id_inventory_software">
-            <End Role="IT_inventory_software" EntitySet="IT_inventory_software" />
-            <End Role="IT_inventory_software_versions" EntitySet="IT_inventory_software_versions" />
+          <EntitySet Name="IT_inventory_hard_drives" EntityType="Portal_2_0Model.IT_inventory_hard_drives" />
+          <AssociationSet Name="FK_IT_inventory_item" Association="Portal_2_0Model.FK_IT_inventory_item">
+            <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
+            <End Role="IT_inventory_hard_drives" EntitySet="IT_inventory_hard_drives" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="PFA_Border_port">
@@ -6024,18 +6072,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityType Name="IT_inventory_hard_drives">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_inventory_item" Type="Int32" Nullable="false" />
-          <Property Name="disk_name" Type="String" Nullable="false" MaxLength="1" FixedLength="true" Unicode="false" />
-          <Property Name="total_drive_space_mb" Type="Int32" />
-          <Property Name="free_drive_space_mb" Type="Int32" />
-          <Property Name="type_drive" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="IT_inventory_items" Relationship="Portal_2_0Model.FK_IT_inventory_item" FromRole="IT_inventory_hard_drives" ToRole="IT_inventory_items" />
-        </EntityType>
         <EntityType Name="IT_inventory_hardware_type">
           <Key>
             <PropertyRef Name="id" />
@@ -6045,81 +6081,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="activo" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="IT_inventory_items" Relationship="Portal_2_0Model.FK_IT_inventory_items_id_inventory_type" FromRole="IT_inventory_hardware_type" ToRole="IT_inventory_items" />
         </EntityType>
-        <EntityType Name="IT_inventory_items">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_planta" Type="Int32" Nullable="false" />
-          <Property Name="id_inventory_type" Type="Int32" Nullable="false" />
-          <Property Name="active" Type="Boolean" Nullable="false" />
-          <Property Name="purchase_date" Type="DateTime" Precision="3" />
-          <Property Name="inactive_date" Type="DateTime" Precision="3" />
-          <Property Name="comments" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
-          <Property Name="hostname" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="brand" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
-          <Property Name="model" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
-          <Property Name="serial_number" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="warranty" Type="Boolean" />
-          <Property Name="start_warranty" Type="DateTime" Precision="3" />
-          <Property Name="end_warranty" Type="DateTime" Precision="3" />
-          <Property Name="mac_lan" Type="String" MaxLength="17" FixedLength="false" Unicode="false" />
-          <Property Name="mac_wlan" Type="String" MaxLength="17" FixedLength="false" Unicode="false" />
-          <Property Name="processor" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="total_physical_memory_mb" Type="Int32" />
-          <Property Name="maintenance_period_months" Type="Int32" />
-          <Property Name="last_maintenance" Type="DateTime" Precision="3" />
-          <Property Name="physical_status" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="is_in_operation" Type="Boolean" />
-          <Property Name="cpu_speed_mhz" Type="Int32" />
-          <Property Name="operation_system" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="bits_operation_system" Type="Int32" />
-          <Property Name="number_of_cpus" Type="Int32" />
-          <Property Name="printer_ubication" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="ip_adress" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
-          <Property Name="cost_center" Type="String" MaxLength="8" FixedLength="false" Unicode="false" />
-          <Property Name="movil_device_storage_mb" Type="Int32" />
-          <Property Name="inches" Type="Decimal" Precision="4" Scale="2" />
-          <NavigationProperty Name="IT_inventory_hard_drives" Relationship="Portal_2_0Model.FK_IT_inventory_item" FromRole="IT_inventory_items" ToRole="IT_inventory_hard_drives" />
-          <NavigationProperty Name="IT_inventory_hardware_type" Relationship="Portal_2_0Model.FK_IT_inventory_items_id_inventory_type" FromRole="IT_inventory_items" ToRole="IT_inventory_hardware_type" />
-          <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_IT_inventory_items_id_planta" FromRole="IT_inventory_items" ToRole="plantas" />
-        </EntityType>
-        <Association Name="FK_IT_inventory_item">
-          <End Type="Portal_2_0Model.IT_inventory_items" Role="IT_inventory_items" Multiplicity="1" />
-          <End Type="Portal_2_0Model.IT_inventory_hard_drives" Role="IT_inventory_hard_drives" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="IT_inventory_items">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_inventory_hard_drives">
-              <PropertyRef Name="id_inventory_item" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_IT_inventory_items_id_inventory_type">
-          <End Type="Portal_2_0Model.IT_inventory_hardware_type" Role="IT_inventory_hardware_type" Multiplicity="1" />
-          <End Type="Portal_2_0Model.IT_inventory_items" Role="IT_inventory_items" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="IT_inventory_hardware_type">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_inventory_items">
-              <PropertyRef Name="id_inventory_type" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_IT_inventory_items_id_planta">
-          <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="1" />
-          <End Type="Portal_2_0Model.IT_inventory_items" Role="IT_inventory_items" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="plantas">
-              <PropertyRef Name="clave" />
-            </Principal>
-            <Dependent Role="IT_inventory_items">
-              <PropertyRef Name="id_planta" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityType Name="IT_inventory_software">
           <Key>
             <PropertyRef Name="id" />
@@ -6148,6 +6109,133 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Principal>
             <Dependent Role="IT_inventory_software_versions">
               <PropertyRef Name="id_inventory_software" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="IT_inventory_cellular_plans">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_it_inventory_items" Type="Int32" />
+          <Property Name="razon_social" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
+          <Property Name="cuenta_padre" Type="String" MaxLength="8" FixedLength="false" Unicode="false" />
+          <Property Name="cuenta_hija" Type="String" MaxLength="8" FixedLength="false" Unicode="false" />
+          <Property Name="num_telefono" Type="String" MaxLength="10" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="centro_costo" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="fecha_corte" Type="DateTime" Precision="3" />
+          <Property Name="numero_factura" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="nombre_plan" Type="String" MaxLength="120" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="costo_servicios_telecomunicaciones" Type="Decimal" Precision="7" Scale="2" />
+          <Property Name="costo_servicios_y_suscripciones" Type="Decimal" Precision="7" Scale="2" />
+          <Property Name="costo_servicios_y_suscripciones_terceros" Type="Decimal" Precision="7" Scale="2" />
+          <Property Name="costo_equipo_celular" Type="Decimal" Precision="7" Scale="2" />
+          <Property Name="costo_servicios_cobrados_terceros" Type="Decimal" Precision="7" Scale="2" />
+          <Property Name="porcentaje_iva" Type="Decimal" Precision="4" Scale="2" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <Property Name="nombre_compania" Type="String" Nullable="false" MaxLength="80" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="IT_inventory_items" Relationship="Portal_2_0Model.FK_IT_id_it_inventory_items" FromRole="IT_inventory_cellular_plans" ToRole="IT_inventory_items" />
+          <Property Name="comentarios" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="IT_inventory_items">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_planta" Type="Int32" Nullable="false" />
+          <Property Name="id_inventory_type" Type="Int32" Nullable="false" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="purchase_date" Type="DateTime" Precision="3" />
+          <Property Name="inactive_date" Type="DateTime" Precision="3" />
+          <Property Name="comments" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="hostname" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="brand" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
+          <Property Name="model" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
+          <Property Name="serial_number" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="warranty" Type="Boolean" />
+          <Property Name="start_warranty" Type="DateTime" Precision="3" />
+          <Property Name="end_warranty" Type="DateTime" Precision="3" />
+          <Property Name="mac_lan" Type="String" MaxLength="17" FixedLength="false" Unicode="false" />
+          <Property Name="mac_wlan" Type="String" MaxLength="17" FixedLength="false" Unicode="false" />
+          <Property Name="processor" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="total_physical_memory_mb" Type="Decimal" Precision="8" Scale="2" />
+          <Property Name="maintenance_period_months" Type="Int32" />
+          <Property Name="last_maintenance" Type="DateTime" Precision="3" />
+          <Property Name="physical_status" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="is_in_operation" Type="Boolean" />
+          <Property Name="cpu_speed_mhz" Type="Int32" />
+          <Property Name="operation_system" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="bits_operation_system" Type="Int32" />
+          <Property Name="number_of_cpus" Type="Int32" />
+          <Property Name="printer_ubication" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ip_adress" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="cost_center" Type="String" MaxLength="8" FixedLength="false" Unicode="false" />
+          <Property Name="movil_device_storage_mb" Type="Int32" />
+          <Property Name="inches" Type="Decimal" Precision="4" Scale="2" />
+          <Property Name="imei_1" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="imei_2" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="IT_inventory_cellular_plans" Relationship="Portal_2_0Model.FK_IT_id_it_inventory_items" FromRole="IT_inventory_items" ToRole="IT_inventory_cellular_plans" />
+          <NavigationProperty Name="IT_inventory_hardware_type" Relationship="Portal_2_0Model.FK_IT_inventory_items_id_inventory_type" FromRole="IT_inventory_items" ToRole="IT_inventory_hardware_type" />
+          <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_IT_inventory_items_id_planta" FromRole="IT_inventory_items" ToRole="plantas" />
+          <NavigationProperty Name="IT_inventory_hard_drives" Relationship="Portal_2_0Model.FK_IT_inventory_item" FromRole="IT_inventory_items" ToRole="IT_inventory_hard_drives" />
+        </EntityType>
+        <Association Name="FK_IT_id_it_inventory_items">
+          <End Type="Portal_2_0Model.IT_inventory_items" Role="IT_inventory_items" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.IT_inventory_cellular_plans" Role="IT_inventory_cellular_plans" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_inventory_items">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_inventory_cellular_plans">
+              <PropertyRef Name="id_it_inventory_items" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_inventory_items_id_inventory_type">
+          <End Type="Portal_2_0Model.IT_inventory_hardware_type" Role="IT_inventory_hardware_type" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_inventory_items" Role="IT_inventory_items" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_inventory_hardware_type">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_inventory_items">
+              <PropertyRef Name="id_inventory_type" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_inventory_items_id_planta">
+          <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_inventory_items" Role="IT_inventory_items" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="IT_inventory_items">
+              <PropertyRef Name="id_planta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="IT_inventory_hard_drives">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_inventory_item" Type="Int32" Nullable="false" />
+          <Property Name="disk_name" Type="String" Nullable="false" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="total_drive_space_mb" Type="Int32" />
+          <Property Name="free_drive_space_mb" Type="Int32" />
+          <Property Name="type_drive" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="IT_inventory_items" Relationship="Portal_2_0Model.FK_IT_inventory_item" FromRole="IT_inventory_hard_drives" ToRole="IT_inventory_items" />
+        </EntityType>
+        <Association Name="FK_IT_inventory_item">
+          <End Type="Portal_2_0Model.IT_inventory_items" Role="IT_inventory_items" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_inventory_hard_drives" Role="IT_inventory_hard_drives" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_inventory_items">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_inventory_hard_drives">
+              <PropertyRef Name="id_inventory_item" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -7265,18 +7353,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="IT_inventory_hard_drives">
-            <EntityTypeMapping TypeName="Portal_2_0Model.IT_inventory_hard_drives">
-              <MappingFragment StoreEntitySet="IT_inventory_hard_drives">
-                <ScalarProperty Name="type_drive" ColumnName="type_drive" />
-                <ScalarProperty Name="free_drive_space_mb" ColumnName="free_drive_space_mb" />
-                <ScalarProperty Name="total_drive_space_mb" ColumnName="total_drive_space_mb" />
-                <ScalarProperty Name="disk_name" ColumnName="disk_name" />
-                <ScalarProperty Name="id_inventory_item" ColumnName="id_inventory_item" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="IT_inventory_hardware_type">
             <EntityTypeMapping TypeName="Portal_2_0Model.IT_inventory_hardware_type">
               <MappingFragment StoreEntitySet="IT_inventory_hardware_type">
@@ -7286,9 +7362,55 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="IT_inventory_software">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_inventory_software">
+              <MappingFragment StoreEntitySet="IT_inventory_software">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IT_inventory_software_versions">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_inventory_software_versions">
+              <MappingFragment StoreEntitySet="IT_inventory_software_versions">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="version" ColumnName="version" />
+                <ScalarProperty Name="id_inventory_software" ColumnName="id_inventory_software" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IT_inventory_cellular_plans">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_inventory_cellular_plans">
+              <MappingFragment StoreEntitySet="IT_inventory_cellular_plans">
+                <ScalarProperty Name="comentarios" ColumnName="comentarios" />
+                <ScalarProperty Name="nombre_compania" ColumnName="nombre_compania" />
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="porcentaje_iva" ColumnName="porcentaje_iva" />
+                <ScalarProperty Name="costo_servicios_cobrados_terceros" ColumnName="costo_servicios_cobrados_terceros" />
+                <ScalarProperty Name="costo_equipo_celular" ColumnName="costo_equipo_celular" />
+                <ScalarProperty Name="costo_servicios_y_suscripciones_terceros" ColumnName="costo_servicios_y_suscripciones_terceros" />
+                <ScalarProperty Name="costo_servicios_y_suscripciones" ColumnName="costo_servicios_y_suscripciones" />
+                <ScalarProperty Name="costo_servicios_telecomunicaciones" ColumnName="costo_servicios_telecomunicaciones" />
+                <ScalarProperty Name="nombre_plan" ColumnName="nombre_plan" />
+                <ScalarProperty Name="numero_factura" ColumnName="numero_factura" />
+                <ScalarProperty Name="fecha_corte" ColumnName="fecha_corte" />
+                <ScalarProperty Name="centro_costo" ColumnName="centro_costo" />
+                <ScalarProperty Name="num_telefono" ColumnName="num_telefono" />
+                <ScalarProperty Name="cuenta_hija" ColumnName="cuenta_hija" />
+                <ScalarProperty Name="cuenta_padre" ColumnName="cuenta_padre" />
+                <ScalarProperty Name="razon_social" ColumnName="razon_social" />
+                <ScalarProperty Name="id_it_inventory_items" ColumnName="id_it_inventory_items" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="IT_inventory_items">
             <EntityTypeMapping TypeName="Portal_2_0Model.IT_inventory_items">
               <MappingFragment StoreEntitySet="IT_inventory_items">
+                <ScalarProperty Name="imei_2" ColumnName="imei_2" />
+                <ScalarProperty Name="imei_1" ColumnName="imei_1" />
                 <ScalarProperty Name="inches" ColumnName="inches" />
                 <ScalarProperty Name="movil_device_storage_mb" ColumnName="movil_device_storage_mb" />
                 <ScalarProperty Name="cost_center" ColumnName="cost_center" />
@@ -7323,21 +7445,14 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="IT_inventory_software">
-            <EntityTypeMapping TypeName="Portal_2_0Model.IT_inventory_software">
-              <MappingFragment StoreEntitySet="IT_inventory_software">
-                <ScalarProperty Name="activo" ColumnName="activo" />
-                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="IT_inventory_software_versions">
-            <EntityTypeMapping TypeName="Portal_2_0Model.IT_inventory_software_versions">
-              <MappingFragment StoreEntitySet="IT_inventory_software_versions">
-                <ScalarProperty Name="activo" ColumnName="activo" />
-                <ScalarProperty Name="version" ColumnName="version" />
-                <ScalarProperty Name="id_inventory_software" ColumnName="id_inventory_software" />
+          <EntitySetMapping Name="IT_inventory_hard_drives">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_inventory_hard_drives">
+              <MappingFragment StoreEntitySet="IT_inventory_hard_drives">
+                <ScalarProperty Name="type_drive" ColumnName="type_drive" />
+                <ScalarProperty Name="free_drive_space_mb" ColumnName="free_drive_space_mb" />
+                <ScalarProperty Name="total_drive_space_mb" ColumnName="total_drive_space_mb" />
+                <ScalarProperty Name="disk_name" ColumnName="disk_name" />
+                <ScalarProperty Name="id_inventory_item" ColumnName="id_inventory_item" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

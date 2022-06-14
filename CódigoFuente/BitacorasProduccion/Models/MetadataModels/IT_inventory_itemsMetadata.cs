@@ -82,8 +82,9 @@ namespace Portal_2_0.Models
         public string processor { get; set; }
 
         [Display(Name = "Total Physical Memory (MB)")]
-        [Range(0, Int32.MaxValue, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
-        public Nullable<int> total_physical_memory_mb { get; set; }
+        [RegularExpression(@"^\d+(\.\d{1,2})?$", ErrorMessage = "Invalid Format. Use only two decimals.")]
+        [Range(0, 999999.99)]
+        public Nullable<decimal> total_physical_memory_mb { get; set; }
 
         [Display(Name = "Maintenance Period (months)")]
         [Range(0, Int32.MaxValue, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
@@ -137,6 +138,16 @@ namespace Portal_2_0.Models
         [Range(0, 99.99)]
         [Display(Name = "Inches")]
         public Nullable<decimal> inches { get; set; }
+
+        [Display(Name = "IMEI 1")]
+        [StringLength(15, MinimumLength = 15, ErrorMessage = "The field {0} must be {2} characters long.")]
+        [RegularExpression("(^[0-9]+$)", ErrorMessage = "Only numbers are allowed.")]
+        public string imei_1 { get; set; }
+
+        [Display(Name = "IMEI 2")]
+        [StringLength(15, MinimumLength = 15, ErrorMessage = "The field {0} must be {2} characters long.")]
+        [RegularExpression("(^[0-9]+$)", ErrorMessage = "Only numbers are allowed.")]
+        public string imei_2 { get; set; }
     }
 
     [MetadataType(typeof(IT_inventory_itemsMetadata))]
@@ -177,6 +188,40 @@ namespace Portal_2_0.Models
                     return 0;
                 return this.IT_inventory_hard_drives.Sum(x => x.free_drive_space_mb);
             }
+        }
+
+        [NotMapped]
+        public string ConcatInfoSmartphone  //no incluye equipo
+        {
+            get
+            {
+                string info = "(" + id + ") ";
+                try
+                {
+                    if (this.plantas != null)
+                        info += " - "+plantas.descripcion+" ";
+                    if (!string.IsNullOrEmpty(this.brand))
+                        info += " - " + brand + " ";
+                    if (!string.IsNullOrEmpty(this.model))
+                        info += " - " + model + " ";
+                    if (!string.IsNullOrEmpty(this.serial_number))
+                        info += " - " + serial_number + " ";
+
+                    return info;
+                }
+                catch
+                {
+                    return info;
+                }
+
+            }
+        }
+
+        public string GetNombrePlan() {
+            if (this.IT_inventory_cellular_plans == null || this.IT_inventory_cellular_plans.Count == 0)
+                return String.Empty;
+            else
+                return this.IT_inventory_cellular_plans.FirstOrDefault().nombre_plan;
         }
     }
 }

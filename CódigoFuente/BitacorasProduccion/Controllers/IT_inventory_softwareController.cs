@@ -253,30 +253,41 @@ namespace Portal_2_0.Controllers
             return View(iT_inventory_software);
         }
 
-        // GET: IT_inventory_software/Delete/5
-        public ActionResult Delete(int? id)
+        public ActionResult Export(string description)
         {
-            if (id == null)
+            if (TieneRol(TipoRoles.IT_INVENTORY))
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            IT_inventory_software iT_inventory_software = db.IT_inventory_software.Find(id);
-            if (iT_inventory_software == null)
-            {
-                return HttpNotFound();
-            }
-            return View(iT_inventory_software);
-        }
 
-        // POST: IT_inventory_software/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
-        {
-            IT_inventory_software iT_inventory_software = db.IT_inventory_software.Find(id);
-            db.IT_inventory_software.Remove(iT_inventory_software);
-            db.SaveChanges();
-            return RedirectToAction("Index");
+                var listado = db.IT_inventory_software
+                    .Where(x =>
+                     (x.descripcion.Contains(description) || String.IsNullOrEmpty(description))
+                    )
+                  .OrderBy(x => x.id)
+                  .ToList();
+
+                //** DE MOMENTO ES EL MISMO QUE DESKTOP ***//
+                byte[] stream = ExcelUtil.GeneraReporteITSoftwareExcel(listado);
+
+
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+                    // for example foo.bak
+                    FileName = "Inventory_Software_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+                    // always prompt the user for downloading, set to true if you want 
+                    // the browser to try to show the file inline
+                    Inline = false,
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                return File(stream, "application/vnd.ms-excel");
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
         }
 
         protected override void Dispose(bool disposing)

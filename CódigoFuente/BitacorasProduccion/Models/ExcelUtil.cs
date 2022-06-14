@@ -91,7 +91,7 @@ namespace Portal_2_0.Models
                 filasEncabezados.Add(true);
 
                 //verifica es una fila temporal
-                if(item.SAP_Platina.ToUpper().Contains("TEMPORAL")||item.SAP_Rollo.ToUpper().Contains("TEMPORAL"))
+                if (item.SAP_Platina.ToUpper().Contains("TEMPORAL") || item.SAP_Rollo.ToUpper().Contains("TEMPORAL"))
                     filasTemporales.Add(true);
                 else
                     filasTemporales.Add(false);
@@ -163,7 +163,7 @@ namespace Portal_2_0.Models
             //estilo para el encabezado de cada fila
             SLStyle styleHeaderRow = oSLDocument.CreateStyle();
             styleHeaderRow.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#daeef3"), System.Drawing.ColorTranslator.FromHtml("#daeef3"));
-           
+
             //estilo para el encabezado de cada fila
             SLStyle styleHeaderRowTemporal = oSLDocument.CreateStyle();
             styleHeaderRowTemporal.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffa0a2"), System.Drawing.ColorTranslator.FromHtml("#ffa0a2"));
@@ -220,7 +220,7 @@ namespace Portal_2_0.Models
             {
                 if (filasEncabezados[i])
                 {
-                    oSLDocument.SetCellStyle(i + 1, 1,i+1,dt.Columns.Count, styleHeaderRow);
+                    oSLDocument.SetCellStyle(i + 1, 1, i + 1, dt.Columns.Count, styleHeaderRow);
                 }
                 else
                 {
@@ -237,7 +237,7 @@ namespace Portal_2_0.Models
                 {
                     oSLDocument.SetCellStyle(i + 1, 1, i + 1, dt.Columns.Count, styleHeaderRowTemporal);
                 }
-                
+
             }
 
             //da estilo a los numero
@@ -1259,7 +1259,7 @@ namespace Portal_2_0.Models
             ////registros , rows
             foreach (orden_trabajo item in listado)
             {
-                
+
                 string tPM = "NO";
                 string noTarjeta = string.Empty;
                 string grupoTrabajo = string.Empty;
@@ -1267,7 +1267,8 @@ namespace Portal_2_0.Models
                 string responsable = string.Empty;
                 object fecha_asignacion, fecha_en_proceso, fecha_cierre;
 
-                if (item.tpm) {
+                if (item.tpm)
+                {
                     tPM = "SÍ";
                     noTarjeta = item.numero_tarjeta;
                     grupoTrabajo = item.OT_grupo_trabajo.descripcion;
@@ -1295,7 +1296,7 @@ namespace Portal_2_0.Models
                     fecha_cierre = DBNull.Value;
 
                 dt.Rows.Add(item.id, item.empleados2.ConcatNombre, item.fecha_solicitud, OT_Status.DescripcionStatus(item.estatus), item.Area.descripcion, OT_nivel_urgencia.DescripcionStatus(item.nivel_urgencia),
-                    linea, tPM, noTarjeta, grupoTrabajo, item.titulo, item.descripcion, responsable, fecha_asignacion, fecha_en_proceso, fecha_cierre,null,null,null,null, item.comentario
+                    linea, tPM, noTarjeta, grupoTrabajo, item.titulo, item.descripcion, responsable, fecha_asignacion, fecha_en_proceso, fecha_cierre, null, null, null, null, item.comentario
                     );
 
                 filasEncabezados.Add(true);
@@ -1313,7 +1314,8 @@ namespace Portal_2_0.Models
                 {
                     System.Data.DataRow row = dt.NewRow();
 
-                    if (RNList.Count > i) {
+                    if (RNList.Count > i)
+                    {
                         row["R.N. Cantidad"] = RNList[i].cantidad;
                         row["R.N. Descripción"] = RNList[i].descripcion;
                     }
@@ -1548,7 +1550,7 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Processor", typeof(string));
             dt.Columns.Add("MAC LAN", typeof(string));
             dt.Columns.Add("MAC WLAN", typeof(string));
-            dt.Columns.Add("Total Physical Memory (MB)", typeof(int));
+            dt.Columns.Add("Total Physical Memory (MB)", typeof(decimal));
             dt.Columns.Add("Drive Letter", typeof(string));
             dt.Columns.Add("Total Drive Space (MB)", typeof(int));
             dt.Columns.Add("Free Drive Space (MB)", typeof(int));
@@ -1572,7 +1574,7 @@ namespace Portal_2_0.Models
             {
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.hostname, item.brand, item.model, item.serial_number,
                     item.operation_system, item.bits_operation_system, item.purchase_date, item.cpu_speed_mhz, item.number_of_cpus, item.processor, item.mac_lan, item.mac_wlan,
-                    item.total_physical_memory_mb, null,null,null, null, item.NumberOfHardDrives, item.TotalDiskSpace, item.TotalFreeDiskSpace, item.maintenance_period_months, item.last_maintenance, item.physical_status, item.warranty, item.start_warranty, item.end_warranty,
+                    item.total_physical_memory_mb, null, null, null, null, item.NumberOfHardDrives, item.TotalDiskSpace, item.TotalFreeDiskSpace, item.maintenance_period_months, item.last_maintenance, item.physical_status, item.warranty, item.start_warranty, item.end_warranty,
                     item.is_in_operation, item.active, item.inactive_date, item.comments
                     );
 
@@ -1580,7 +1582,8 @@ namespace Portal_2_0.Models
                 //obtiene la cantidad de fila actual
                 int fila_inicial = filasEncabezados.Count + 1;
 
-                foreach (IT_inventory_hard_drives hd in item.IT_inventory_hard_drives) {
+                foreach (IT_inventory_hard_drives hd in item.IT_inventory_hard_drives)
+                {
                     System.Data.DataRow row = dt.NewRow();
 
                     row["Drive Letter"] = hd.disk_name;
@@ -1601,7 +1604,7 @@ namespace Portal_2_0.Models
             }
 
             //crea la hoja de Inventory y la selecciona
-            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Inventory "+inventoryType);
+            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Inventory " + inventoryType);
             oSLDocument.ImportDataTable(1, 1, dt, true);
 
             //estilo para ajustar al texto
@@ -1625,6 +1628,10 @@ namespace Portal_2_0.Models
             //estilo para numeros
             SLStyle styleNumberInt = oSLDocument.CreateStyle();
             styleNumberInt.FormatCode = "#,##0";
+
+            //estilo para numeros
+            SLStyle styleNumberDecimal = oSLDocument.CreateStyle();
+            styleNumberDecimal.FormatCode = "#,##0.00";
 
 
             //estilo para cada lote
@@ -1674,11 +1681,11 @@ namespace Portal_2_0.Models
             }
             //da estilo a los numero
             oSLDocument.SetColumnStyle(11, styleNumberInt);
-            oSLDocument.SetColumnStyle(16,19, styleNumberInt);
+            oSLDocument.SetColumnStyle(19, styleNumberInt);
             oSLDocument.SetColumnStyle(22, 23, styleNumberInt);
+            oSLDocument.SetColumnStyle(16, styleNumberDecimal); //decimal
 
-
-            oSLDocument.Filter(1,1,1, dt.Columns.Count);
+            oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
             oSLDocument.AutoFitColumn(1, dt.Columns.Count);
 
             oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
@@ -1705,7 +1712,7 @@ namespace Portal_2_0.Models
             SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
 
             System.Data.DataTable dt = new System.Data.DataTable();
-          
+
 
             //columnas          
             dt.Columns.Add("Id", typeof(string));
@@ -1715,7 +1722,7 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Model", typeof(string));
             dt.Columns.Add("Serial Number", typeof(string));
             dt.Columns.Add("Inches", typeof(string));
-            dt.Columns.Add("Purchase Date", typeof(DateTime));          
+            dt.Columns.Add("Purchase Date", typeof(DateTime));
             dt.Columns.Add("Physical Staus", typeof(string));
             dt.Columns.Add("Warranty", typeof(bool));
             dt.Columns.Add("Start Warranty", typeof(DateTime));
@@ -1748,7 +1755,7 @@ namespace Portal_2_0.Models
             styleHeader.Font.Bold = true;
             styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
 
-            
+
             //estilo para numeros
             SLStyle styleNumberInt = oSLDocument.CreateStyle();
             styleNumberInt.FormatCode = "#,##0";
@@ -1770,7 +1777,7 @@ namespace Portal_2_0.Models
             SLStyle styleShortDate = oSLDocument.CreateStyle();
             styleShortDate.FormatCode = "yyyy/MM/dd";
             oSLDocument.SetColumnStyle(8, styleShortDate);
-            oSLDocument.SetColumnStyle(11,12, styleShortDate);
+            oSLDocument.SetColumnStyle(11, 12, styleShortDate);
             oSLDocument.SetColumnStyle(15, styleShortDate);
 
 
@@ -1782,8 +1789,8 @@ namespace Portal_2_0.Models
 
             //da estilo a la hoja de excel
             //inmoviliza el encabezado
-            oSLDocument.FreezePanes(1, 0);            
-            
+            oSLDocument.FreezePanes(1, 0);
+
 
             oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
             oSLDocument.AutoFitColumn(1, dt.Columns.Count);
@@ -1792,7 +1799,7 @@ namespace Portal_2_0.Models
             oSLDocument.SetRowStyle(1, styleHeader);
             oSLDocument.SetRowStyle(1, styleHeaderFont);
 
-           
+
             oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
 
             System.IO.Stream stream = new System.IO.MemoryStream();
@@ -1942,7 +1949,7 @@ namespace Portal_2_0.Models
             foreach (IT_inventory_items item in listado)
             {
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.brand, item.model, item.serial_number, item.printer_ubication,
-                    item.ip_adress,item.cost_center, item.purchase_date, item.physical_status, item.warranty, item.start_warranty, item.end_warranty,
+                    item.ip_adress, item.cost_center, item.purchase_date, item.physical_status, item.warranty, item.start_warranty, item.end_warranty,
                     item.is_in_operation, item.active, item.inactive_date, item.comments
                     );
             }
@@ -2264,7 +2271,7 @@ namespace Portal_2_0.Models
             ////registros , rows
             foreach (IT_inventory_items item in listado)
             {
-                dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.brand, item.model, item.serial_number, 
+                dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.brand, item.model, item.serial_number,
                     item.purchase_date, item.physical_status, item.warranty, item.start_warranty, item.end_warranty,
                     item.is_in_operation, item.active, item.inactive_date, item.comments
                     );
@@ -2469,6 +2476,8 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Storage (MB)", typeof(int));
             dt.Columns.Add("Operation System", typeof(string));
             dt.Columns.Add("MAC WLAN", typeof(string));
+            dt.Columns.Add("IMEI 1", typeof(string));
+            dt.Columns.Add("IMEI 2", typeof(string));
             dt.Columns.Add("Purchase Date", typeof(DateTime));
             dt.Columns.Add("Physical Staus", typeof(string));
             dt.Columns.Add("Warranty", typeof(bool));
@@ -2483,7 +2492,7 @@ namespace Portal_2_0.Models
             foreach (IT_inventory_items item in listado)
             {
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.brand, item.model, item.serial_number,
-                    item.processor, item.total_physical_memory_mb, item.movil_device_storage_mb, item.operation_system, item.mac_wlan,
+                    item.processor, item.total_physical_memory_mb, item.movil_device_storage_mb, item.operation_system, item.mac_wlan, item.imei_1, item.imei_2,
                     item.purchase_date, item.physical_status, item.warranty, item.start_warranty, item.end_warranty,
                     item.is_in_operation, item.active, item.inactive_date, item.comments
                     );
@@ -2524,9 +2533,9 @@ namespace Portal_2_0.Models
             ////estilo para fecha
             SLStyle styleShortDate = oSLDocument.CreateStyle();
             styleShortDate.FormatCode = "yyyy/MM/dd";
-            oSLDocument.SetColumnStyle(12, styleShortDate);
-            oSLDocument.SetColumnStyle(15, 16, styleShortDate);
-            oSLDocument.SetColumnStyle(19, styleShortDate);
+            oSLDocument.SetColumnStyle(14, styleShortDate);
+            oSLDocument.SetColumnStyle(17, 18, styleShortDate);
+            oSLDocument.SetColumnStyle(21, styleShortDate);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
@@ -2552,6 +2561,271 @@ namespace Portal_2_0.Models
 
 
             oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
+
+            System.IO.Stream stream = new System.IO.MemoryStream();
+
+            oSLDocument.SaveAs(stream);
+
+            byte[] array = Bitacoras.Util.StreamUtil.ToByteArray(stream);
+
+            return (array);
+        }
+
+        public static byte[] GeneraReporteITSoftwareExcel(List<IT_inventory_software> listado)
+        {
+
+            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+
+            System.Data.DataTable dt = new System.Data.DataTable();
+            //para llevar el control de si es encabezado o no
+            List<bool> filasEncabezados = new List<bool>();
+            filasEncabezados.Add(false); //es el encabezado principal
+
+            //columnas          
+            dt.Columns.Add("Id", typeof(string));
+            dt.Columns.Add("Name", typeof(string));
+            dt.Columns.Add("Active?", typeof(bool));
+            dt.Columns.Add("Version", typeof(string));
+            dt.Columns.Add("Version Active?", typeof(bool));
+
+
+            ////registros , rows
+            foreach (IT_inventory_software item in listado)
+            {
+                dt.Rows.Add(item.id, item.descripcion, item.activo, null, null
+                    );
+
+                filasEncabezados.Add(true);
+                //obtiene la cantidad de fila actual
+                int fila_inicial = filasEncabezados.Count + 1;
+
+                foreach (IT_inventory_software_versions sv in item.IT_inventory_software_versions)
+                {
+                    System.Data.DataRow row = dt.NewRow();
+
+                    row["Version"] = sv.version;
+                    row["Version Active?"] = sv.activo;
+
+                    dt.Rows.Add(row);
+                    filasEncabezados.Add(false);
+                }
+
+                //obtiene la fila final
+                int fila_final = filasEncabezados.Count + 1;
+
+                //verifica si hubo cambios
+                if (fila_inicial != fila_final)
+                    oSLDocument.GroupRows(fila_inicial, fila_final - 1);
+            }
+
+            //crea la hoja de Inventory y la selecciona
+            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Inventory Software");
+            oSLDocument.ImportDataTable(1, 1, dt, true);
+
+            //estilo para ajustar al texto
+            SLStyle styleWrap = oSLDocument.CreateStyle();
+            styleWrap.SetWrapText(true);
+            styleWrap.Alignment.Vertical = VerticalAlignmentValues.Top;
+
+            //estilo para el encabezado
+            SLStyle styleHeader = oSLDocument.CreateStyle();
+            styleHeader.Font.Bold = true;
+            styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
+
+            //estilo para el encabezado de cada fila
+            SLStyle styleHeaderRow = oSLDocument.CreateStyle();
+            styleHeaderRow.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#daeef3"), System.Drawing.ColorTranslator.FromHtml("#daeef3"));
+
+            //estilo para el encabezado de cada fila
+            SLStyle styleHeaderRowDrive = oSLDocument.CreateStyle();
+            styleHeaderRowDrive.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#778082"), System.Drawing.ColorTranslator.FromHtml("#778082"));
+
+            //estilo para numeros
+            SLStyle styleNumberInt = oSLDocument.CreateStyle();
+            styleNumberInt.FormatCode = "#,##0";
+
+
+            //estilo para cada lote
+            SLStyle styleLoteInfo = oSLDocument.CreateStyle();
+            styleLoteInfo.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffffcc"), System.Drawing.ColorTranslator.FromHtml("#ffffcc"));
+            styleLoteInfo.Border.BottomBorder.BorderStyle = BorderStyleValues.Thin;
+            styleLoteInfo.Border.BottomBorder.Color = System.Drawing.Color.LightGray;
+            styleLoteInfo.Border.TopBorder.BorderStyle = BorderStyleValues.Thin;
+            styleLoteInfo.Border.TopBorder.Color = System.Drawing.Color.LightGray;
+            styleLoteInfo.Border.LeftBorder.BorderStyle = BorderStyleValues.Thin;
+            styleLoteInfo.Border.LeftBorder.Color = System.Drawing.Color.LightGray;
+            styleLoteInfo.Border.RightBorder.BorderStyle = BorderStyleValues.Thin;
+            styleLoteInfo.Border.RightBorder.Color = System.Drawing.Color.LightGray;
+
+            ////estilo para fecha
+            //SLStyle styleShortDate = oSLDocument.CreateStyle();
+            //styleShortDate.FormatCode = "yyyy/MM/dd";
+            //oSLDocument.SetColumnStyle(10, styleShortDate);
+
+
+            SLStyle styleHeaderFont = oSLDocument.CreateStyle();
+            styleHeaderFont.Font.FontName = "Calibri";
+            styleHeaderFont.Font.FontSize = 11;
+            styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
+            styleHeaderFont.Font.Bold = true;
+
+            //da estilo a la hoja de excel
+            //inmoviliza el encabezado
+            oSLDocument.FreezePanes(1, 0);
+            //aplica formato a las filas de encabezado
+            for (int i = 0; i < filasEncabezados.Count; i++)
+            {
+                if (filasEncabezados[i])
+                {
+                    oSLDocument.SetCellStyle(i + 1, 1, i + 1, dt.Columns.Count, styleHeaderRow);
+                }
+                else
+                {
+                    oSLDocument.SetCellStyle(i + 1, 4, i + 1, 5, styleLoteInfo);
+                }
+                //colapsa todas las filas
+                oSLDocument.CollapseRows(i + 2);
+            }
+
+
+
+            oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
+            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+
+
+            oSLDocument.SetRowStyle(1, styleHeader);
+            oSLDocument.SetRowStyle(1, styleHeaderFont);
+
+            //da color gris a cabeceras expandibles
+            oSLDocument.SetCellStyle(1, 4, 1, 5, styleHeaderRowDrive);
+            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
+
+            oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
+            oSLDocument.SetColumnWidth(3, 12.0);
+
+            System.IO.Stream stream = new System.IO.MemoryStream();
+
+            oSLDocument.SaveAs(stream);
+
+            byte[] array = Bitacoras.Util.StreamUtil.ToByteArray(stream);
+
+            return (array);
+        }
+
+        public static byte[] GeneraReporteITPlanesTelefoniaExcel(List<IT_inventory_cellular_plans> listado)
+        {
+
+
+            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+
+            System.Data.DataTable dt = new System.Data.DataTable();
+
+
+            //columnas          
+            dt.Columns.Add("Cuenta Padre", typeof(string));
+            dt.Columns.Add("Cuenta Hija", typeof(string));
+            dt.Columns.Add("Número de Teléfono", typeof(string));
+            dt.Columns.Add("CeCo", typeof(string));
+            dt.Columns.Add("Nombre", typeof(string));
+            dt.Columns.Add("Razón Social", typeof(string));
+            dt.Columns.Add("Fecha Corte", typeof(DateTime));
+            dt.Columns.Add("Número Factura", typeof(string));
+            dt.Columns.Add("Plan Nombre", typeof(string));
+            dt.Columns.Add("Sevicio de Telecomunicaciones", typeof(decimal));
+            dt.Columns.Add("Sevicios y Suscripciones", typeof(decimal));
+            dt.Columns.Add("Sevicios y Suscripciones (Terceros)", typeof(decimal));
+            dt.Columns.Add("Equipo Celular", typeof(decimal));
+            dt.Columns.Add("Sevicios cobrados por cuenta y orden de terceros", typeof(decimal));
+            dt.Columns.Add("IVA", typeof(decimal));
+            dt.Columns.Add("Total (sin equipo)", typeof(decimal));
+            dt.Columns.Add("Total (con equipo)", typeof(decimal));
+            dt.Columns.Add("Comentarios", typeof(string));
+
+            ////registros , rows
+            foreach (IT_inventory_cellular_plans item in listado)
+            {
+                dt.Rows.Add(item.cuenta_padre, item.cuenta_hija, item.num_telefono, item.centro_costo, "*Pendiente*", item.razon_social, item.fecha_corte, item.numero_factura,
+                    item.nombre_plan, item.costo_servicios_telecomunicaciones, item.costo_servicios_y_suscripciones, item.costo_servicios_y_suscripciones_terceros, item.costo_equipo_celular,
+                    item.costo_servicios_cobrados_terceros, item.IVA, item.CostoTotal, item.CostoTotalConEquipo, item.comentarios
+                    );
+            }
+
+            //dar formato al excel y agregar la sumatoria
+            System.Data.DataRow row = dt.NewRow();
+            row["Total (sin equipo)"] = listado.Sum(x => x.CostoTotal);
+            row["Total (con equipo)"] = listado.Sum(x => x.CostoTotalConEquipo);
+
+            dt.Rows.Add(row);
+
+            SLStyle styleFooter = oSLDocument.CreateStyle();
+            styleFooter.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#c6efce"), System.Drawing.ColorTranslator.FromHtml("#c6efce"));
+            styleFooter.Font.Bold = true;
+            styleFooter.Font.FontColor = System.Drawing.ColorTranslator.FromHtml("#006100");
+            oSLDocument.SetCellStyle(dt.Rows.Count + 1, 1, dt.Rows.Count + 1, dt.Columns.Count, styleFooter);
+
+            //crea la hoja de Inventory y la selecciona
+            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Planes Telefonía");
+            oSLDocument.ImportDataTable(1, 1, dt, true);
+
+            //estilo para ajustar al texto
+            SLStyle styleWrap = oSLDocument.CreateStyle();
+            styleWrap.SetWrapText(true);
+            styleWrap.Alignment.Vertical = VerticalAlignmentValues.Top;
+
+            //estilo para el encabezado
+            SLStyle styleHeader = oSLDocument.CreateStyle();
+            styleHeader.Font.Bold = true;
+            styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
+
+
+            //estilo para numeros
+            SLStyle styleNumberInt = oSLDocument.CreateStyle();
+            styleNumberInt.FormatCode = "$ #,##0.00";
+
+
+            //estilo para cada lote
+            SLStyle styleLoteInfo = oSLDocument.CreateStyle();
+            styleLoteInfo.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffffcc"), System.Drawing.ColorTranslator.FromHtml("#ffffcc"));
+            styleLoteInfo.Border.BottomBorder.BorderStyle = BorderStyleValues.Thin;
+            styleLoteInfo.Border.BottomBorder.Color = System.Drawing.Color.LightGray;
+            styleLoteInfo.Border.TopBorder.BorderStyle = BorderStyleValues.Thin;
+            styleLoteInfo.Border.TopBorder.Color = System.Drawing.Color.LightGray;
+            styleLoteInfo.Border.LeftBorder.BorderStyle = BorderStyleValues.Thin;
+            styleLoteInfo.Border.LeftBorder.Color = System.Drawing.Color.LightGray;
+            styleLoteInfo.Border.RightBorder.BorderStyle = BorderStyleValues.Thin;
+            styleLoteInfo.Border.RightBorder.Color = System.Drawing.Color.LightGray;
+
+            ////estilo para fecha
+            SLStyle styleShortDate = oSLDocument.CreateStyle();
+            styleShortDate.FormatCode = "yyyy/MM/dd";
+            oSLDocument.SetColumnStyle(7, styleShortDate);
+
+            oSLDocument.SetColumnStyle(10, 17, styleNumberInt);
+
+
+            SLStyle styleHeaderFont = oSLDocument.CreateStyle();
+            styleHeaderFont.Font.FontName = "Calibri";
+            styleHeaderFont.Font.FontSize = 11;
+            styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
+            styleHeaderFont.Font.Bold = true;
+
+            //da estilo a la hoja de excel
+            //inmoviliza el encabezado
+            oSLDocument.FreezePanes(1, 0);
+
+
+            oSLDocument.Filter(1, 1, 1, dt.Columns.Count);     
+
+            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
+
+            oSLDocument.SetRowStyle(1, styleHeader);
+            oSLDocument.SetRowStyle(1, styleHeaderFont);
+            oSLDocument.SetRowHeight(1, 45.0);
+            oSLDocument.SetRowHeight(2, listado.Count + 1, 15.0);   
+
+            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+
+            oSLDocument.SetColumnWidth(10, 17, 17.5);
 
             System.IO.Stream stream = new System.IO.MemoryStream();
 

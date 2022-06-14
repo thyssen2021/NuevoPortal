@@ -105,10 +105,11 @@ namespace Portal_2_0.Models
         public virtual DbSet<orden_trabajo> orden_trabajo { get; set; }
         public virtual DbSet<OT_responsables> OT_responsables { get; set; }
         public virtual DbSet<IT_solicitud_usuarios> IT_solicitud_usuarios { get; set; }
-        public virtual DbSet<IT_inventory_hard_drives> IT_inventory_hard_drives { get; set; }
         public virtual DbSet<IT_inventory_hardware_type> IT_inventory_hardware_type { get; set; }
-        public virtual DbSet<IT_inventory_items> IT_inventory_items { get; set; }
         public virtual DbSet<IT_inventory_software> IT_inventory_software { get; set; }
         public virtual DbSet<IT_inventory_software_versions> IT_inventory_software_versions { get; set; }
+        public virtual DbSet<IT_inventory_cellular_plans> IT_inventory_cellular_plans { get; set; }
+        public virtual DbSet<IT_inventory_items> IT_inventory_items { get; set; }
+        public virtual DbSet<IT_inventory_hard_drives> IT_inventory_hard_drives { get; set; }
     }
 }

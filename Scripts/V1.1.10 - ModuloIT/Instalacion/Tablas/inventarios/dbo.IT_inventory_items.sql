@@ -37,7 +37,7 @@ CREATE TABLE [IT_inventory_items](
 	[mac_lan][varchar](17) NULL,
 	[mac_wlan][varchar](17) NULL,
 	[processor][varchar](50) NULL,
-	[total_physical_memory_mb][int] NULL, --RAM
+	[total_physical_memory_mb][decimal](8,2) NULL, --RAM
 	[maintenance_period_months][int] NULL,
 	[last_maintenance][datetime] NULL,
 	[physical_status][varchar](150) NULL,
@@ -51,6 +51,9 @@ CREATE TABLE [IT_inventory_items](
 	[cost_center][varchar](8) NULL,
 	[movil_device_storage_mb][int] NULL,
 	[inches][decimal](4,2) NULL,
+	[imei_1][varchar](15) NULL,
+	[imei_2][varchar](15) NULL,
+
  CONSTRAINT [PK_IT_inventory_items] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC

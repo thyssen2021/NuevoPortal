@@ -49,7 +49,7 @@ INSERT [IT_inventory_software] ([id], [descripcion], [activo]) VALUES (8, N'Micr
 INSERT [IT_inventory_software] ([id], [descripcion], [activo]) VALUES (9, N'Microsoft Project',1)
 INSERT [IT_inventory_software] ([id], [descripcion], [activo]) VALUES (10, N'Microsoft Teams',1)
 INSERT [IT_inventory_software] ([id], [descripcion], [activo]) VALUES (11, N'McAfee Endpoint Security',1)
-INSERT [IT_inventory_software] ([id], [descripcion], [activo]) VALUES (12, N'AutoCAD Full Edition',1)
+INSERT [IT_inventory_software] ([id], [descripcion], [activo]) VALUES (12, N'AutoCAD',1)
 INSERT [IT_inventory_software] ([id], [descripcion], [activo]) VALUES (13, N'Cisco vpn client',1)
 INSERT [IT_inventory_software] ([id], [descripcion], [activo]) VALUES (14, N'Cisco AnyConnect Secure Mobility Client',1)
 INSERT [IT_inventory_software] ([id], [descripcion], [activo]) VALUES (15, N'Cofidi',1)
@@ -63,9 +63,8 @@ INSERT [IT_inventory_software] ([id], [descripcion], [activo]) VALUES (22, N'Min
 INSERT [IT_inventory_software] ([id], [descripcion], [activo]) VALUES (23, N'SoftExpert FMEA',1)
 INSERT [IT_inventory_software] ([id], [descripcion], [activo]) VALUES (24, N'SQL Server estandar',1)
 INSERT [IT_inventory_software] ([id], [descripcion], [activo]) VALUES (25, N'Windows 10',1)
-INSERT [IT_inventory_software] ([id], [descripcion], [activo]) VALUES (26, N'Autocad LT',1)
-INSERT [IT_inventory_software] ([id], [descripcion], [activo]) VALUES (27, N'Windows Server estándar',1)
-INSERT [IT_inventory_software] ([id], [descripcion], [activo]) VALUES (28, N'Ivanti Velocity TE Client License',1)
+INSERT [IT_inventory_software] ([id], [descripcion], [activo]) VALUES (26, N'Windows Server estándar',1)
+INSERT [IT_inventory_software] ([id], [descripcion], [activo]) VALUES (27, N'Ivanti Velocity TE Client License',1)
 
 
 

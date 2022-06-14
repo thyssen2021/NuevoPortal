@@ -3,7 +3,7 @@
 @{
     ViewBag.Title = "Smartphone Details";
     ViewBag.PrimerNivel = "sistemas";
-    ViewBag.SegundoNivel = "IT_Catalogos_inventory";
+    ViewBag.SegundoNivel = "IT_Catalogos_inventory_telefonia";
     ViewBag.TercerNivel = "IT_Inventory_smartphone";
     ViewBag.ControllerName = "IT_inventory_items";
 
@@ -89,7 +89,7 @@
                             </div>
                         </div>
                         <div class="item form-group">
-                           
+
                             @Html.LabelFor(model => model.operation_system, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                             <div class="col-md-3 col-sm-3 ">
                                 @Html.EditorFor(model => model.operation_system, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
@@ -97,6 +97,17 @@
                             @Html.LabelFor(model => model.mac_wlan, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                             <div class="col-md-3 col-sm-3 ">
                                 @Html.EditorFor(model => model.mac_wlan, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>
+                            @Html.LabelFor(model => model.imei_1, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            <div class="col-md-3 col-sm-3 ">
+                                @Html.EditorFor(model => model.imei_1, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>
+                        </div>
+
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.imei_2, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            <div class="col-md-3 col-sm-3 ">
+                                @Html.EditorFor(model => model.imei_2, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                             </div>
                         </div>
 
@@ -175,10 +186,96 @@
 
                     </div>
                 </div>
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Plan Details</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box ">
+                                    @if (Model.IT_inventory_cellular_plans != null && Model.IT_inventory_cellular_plans.Count > 0)
+                                    {
+                                       
+                                        <div class="item form-group row">
+                                            @Html.LabelFor(model => model.IT_inventory_cellular_plans.FirstOrDefault().razon_social, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                            <div class="col-md-7 col-sm-7 ">
+                                                @Html.EditorFor(model => model.IT_inventory_cellular_plans.FirstOrDefault().razon_social, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                            </div>
+                                            @Html.LabelFor(model => model.IT_inventory_cellular_plans.FirstOrDefault().num_telefono, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                            <div class="col-md-3 col-sm-3 ">
+                                                @Html.EditorFor(model => model.IT_inventory_cellular_plans.FirstOrDefault().num_telefono, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                            </div>
+
+                                        </div>
+                                        <div class="item form-group row">
+                                            @Html.LabelFor(model => model.IT_inventory_cellular_plans.FirstOrDefault().nombre_compania, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                            <div class="col-md-2 col-sm-2">
+                                                @Html.EditorFor(model => model.IT_inventory_cellular_plans.FirstOrDefault().nombre_compania, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                            </div>
+                                            @Html.LabelFor(model => model.IT_inventory_cellular_plans.FirstOrDefault().nombre_plan, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                            <div class="col-md-4 col-sm-4">
+                                                @Html.EditorFor(model => model.IT_inventory_cellular_plans.FirstOrDefault().nombre_plan, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                            </div>
+                                            @Html.LabelFor(model => model.IT_inventory_cellular_plans.FirstOrDefault().fecha_corte, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                            <div class="col-md-3 col-sm-3 ">
+                                                @Html.EditorFor(model => model.IT_inventory_cellular_plans.FirstOrDefault().fecha_corte, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                            </div>
+                                        </div>
+
+                                        <div class="item form-group row">
+                                            @Html.LabelFor(model => model.IT_inventory_cellular_plans.FirstOrDefault().cuenta_padre, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                            <div class="col-md-2 col-sm-2 ">
+                                                @Html.EditorFor(model => model.IT_inventory_cellular_plans.FirstOrDefault().cuenta_padre, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                            </div>
+                                            @Html.LabelFor(model => model.IT_inventory_cellular_plans.FirstOrDefault().cuenta_hija, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                            <div class="col-md-2 col-sm-2 ">
+                                                @Html.EditorFor(model => model.IT_inventory_cellular_plans.FirstOrDefault().cuenta_hija, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                            </div>
+
+                                            @Html.LabelFor(model => model.IT_inventory_cellular_plans.FirstOrDefault().centro_costo, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                            <div class="col-md-2 col-sm-2">
+                                                @Html.EditorFor(model => model.IT_inventory_cellular_plans.FirstOrDefault().centro_costo, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                            </div>
+
+                                            @Html.LabelFor(model => model.IT_inventory_cellular_plans.FirstOrDefault().numero_factura, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                            <div class="col-md-2 col-sm-2">
+                                                @Html.EditorFor(model => model.IT_inventory_cellular_plans.FirstOrDefault().numero_factura, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                            </div>
+                                        </div>
+                                        <div class="ln_solid"></div>
+                                        <div class="item form-group">
+                                            <div class="col-md-12 col-sm-12">
+                                                <button type="button" 
+                                                        onclick="javascript: window.open('/IT_inventory_cellular_plans/Details/@Model.IT_inventory_cellular_plans.FirstOrDefault().id', 'popup', 'width=' + screen.width * .80 + ',height=' + screen.height * .80 );" 
+                                                        class="btn btn-primary float-right"> <i class="fa-solid fa-eye"></i>&nbsp; Detalles</button>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <h2>No hay plan asignado</h2>
+                                    }
+
+                                </div>
+                                <br />
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div>
                     <br />
                     <a onclick="volverAtras()" class="btn btn-round btn-info" title="Volver" style="color:white">
-                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                        <i class="fa fa-arrow-circle-left"></i> Back to List
                     </a>
                 </div>
             </div>
@@ -210,7 +307,7 @@
 
         });
 
-       
+
         window.onload = function () {
             clicMenu(1);
         }

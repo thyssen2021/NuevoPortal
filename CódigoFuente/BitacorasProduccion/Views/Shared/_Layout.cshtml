@@ -180,7 +180,7 @@
                                                             <li class="@(ViewBag.TercelNivel == "IT_Inventory_tablet" ? "current-page" : null )"><a href="@Url.Action("Tablet", "IT_Inventory_items")">Tablets</a></li>
                                                             <li class="@(ViewBag.TercelNivel == "IT_Inventory_radio" ? "current-page" : null )"><a href="@Url.Action("Radio", "IT_Inventory_items")">Radios</a></li>
                                                             <li class="@(ViewBag.TercelNivel == "IT_Inventory_ap" ? "current-page" : null )"><a href="@Url.Action("AP", "IT_Inventory_items")">APs</a></li>
-                                                           
+
                                                         </ul>
                                                     </li>
 
@@ -192,9 +192,10 @@
                                                     </li>
 
                                                     <li class="link @(ViewBag.SegundoNivel == "IT_Catalogos_inventory_telefonia" ? "active" : null )">
-                                                        <a>Telephony <span class="fa fa-chevron-down"></span></a>
+                                                        <a>Telefon&iacute;a <span class="fa fa-chevron-down"></span></a>
                                                         <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "IT_Catalogos_inventory_telefonia" ? "display:block" : null )">
                                                             <li class="@(ViewBag.TercelNivel == "IT_Inventory_smartphone" ? "current-page" : null )"><a href="@Url.Action("Smartphone", "IT_Inventory_items")">Smartphones</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "IT_inventory_cellular_plans" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_inventory_cellular_plans")">Planes</a></li>
                                                         </ul>
                                                     </li>
                                                 }

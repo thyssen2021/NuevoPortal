@@ -3,7 +3,7 @@
 @{
     ViewBag.Title = "Create Smartphone";
     ViewBag.PrimerNivel = "sistemas";
-    ViewBag.SegundoNivel = "IT_Catalogos_inventory";
+    ViewBag.SegundoNivel = "IT_Catalogos_inventory_telefonia";
     ViewBag.TercerNivel = "IT_Inventory_smartphone";
     ViewBag.ControllerName = "IT_inventory_items";
 
@@ -77,12 +77,12 @@
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.brand, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                                 <div class="col-md-3 col-sm-3 ">
-                                    @Html.EditorFor(model => model.brand, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.EditorFor(model => model.brand, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @required ="required" } })
                                     @Html.ValidationMessageFor(model => model.brand, "", new { @class = "text-danger" })
                                 </div>
                                 @Html.LabelFor(model => model.model, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                                 <div class="col-md-3 col-sm-3 ">
-                                    @Html.EditorFor(model => model.model, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.EditorFor(model => model.model, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @required = "required" } })
                                     @Html.ValidationMessageFor(model => model.model, "", new { @class = "text-danger" })
                                 </div>
                                 @Html.LabelFor(model => model.serial_number, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
@@ -111,7 +111,7 @@
                             </div>
 
                             <div class="item form-group">
-                               
+
                                 @Html.LabelFor(model => model.operation_system, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                                 <div class="col-md-3 col-sm-3 ">
                                     @Html.EditorFor(model => model.operation_system, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
@@ -121,6 +121,19 @@
                                 <div class="col-md-3 col-sm-3 ">
                                     @Html.EditorFor(model => model.mac_wlan, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
                                     @Html.ValidationMessageFor(model => model.mac_wlan, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.imei_1, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    @Html.EditorFor(model => model.imei_1, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.imei_1, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">                              
+                                
+                                @Html.LabelFor(model => model.imei_2, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    @Html.EditorFor(model => model.imei_2, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.imei_2, "", new { @class = "text-danger" })
                                 </div>
 
                             </div>
@@ -200,7 +213,7 @@
                             <div class="ln_solid"></div>
                             <div class="item form-group">
                                 <div class="col-md-12 col-sm-12 offset-md-12">
-                                    <button type="submit" class="btn btn-success btn-lg float-lg-right"> <i class="fa-regular fa-floppy-disk"></i>&ensp;Guardar</button>
+                                    <button type="submit" class="btn btn-success btn-lg float-lg-right"> <i class="fa-regular fa-floppy-disk"></i>&ensp;Save</button>
                                 </div>
                             </div>
                         }
@@ -209,7 +222,7 @@
                 <div>
                     <br />
                     <a href="@Url.Action("smartphone", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
-                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                        <i class="fa fa-arrow-circle-left"></i> Back to List
                     </a>
                 </div>
             </div>
