@@ -353,14 +353,32 @@ namespace Portal_2_0.Controllers
                        .ToList();
                 }
 
-                byte[] stream = ExcelUtil.GeneraReporteBitacorasExcel(listado, porturno);
+                byte[] stream = ExcelUtil.GeneraReporteBitacorasExcel(listado, planta, porturno);
+
+                //obtiene la clave según planta
+                string claveDoc = String.Empty;
+
+                switch (planta.clave)
+                {
+                    case 1:
+                    default:
+                        //para puebla y default
+                        claveDoc = "PRF014-04";
+                        break;
+                    case 2:
+                        //para silao
+                        claveDoc = "PRF005-04";
+                        break;
+
+                }
 
 
                 var cd = new System.Net.Mime.ContentDisposition
                 {
+
                     // for example foo.bak
                     //FileName = planta.descripcion + "_" + produccion_Lineas.linea + "_" + fecha_inicial + "_" + dateFinal.ToString("yyyy-MM-dd") + ".xlsx",
-                    FileName = Server.UrlEncode("PRF005-04_Sábana_de_Producción_" + planta.descripcion + ".xlsx"),
+                    FileName = Server.UrlEncode( claveDoc+"_Bitácora_de_Producción_" + planta.descripcion + ".xlsx"),
 
                     // always prompt the user for downloading, set to true if you want 
                     // the browser to try to show the file inline

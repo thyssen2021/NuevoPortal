@@ -13,11 +13,29 @@ namespace Portal_2_0.Models
     public class ExcelUtil
     {
 
-        public static byte[] GeneraReporteBitacorasExcel(List<view_historico_resultado> listado, bool tipo_turno = false)
+        public static byte[] GeneraReporteBitacorasExcel(List<view_historico_resultado> listado, plantas planta, bool tipo_turno = false)
         {
 
+            string plantilla = String.Empty;
+            string codigoDoc = String.Empty;
+            switch (planta.clave)
+            {
+                case 1:
+                default:
+                    //para puebla y default
+                    plantilla = "~/Content/plantillas_excel/plantilla_reporte_produccion_historial_cambios_puebla.xlsx";
+                    codigoDoc = "PRF014-04";
+                    break;
+                case 2:
+                    //para silao
+                    plantilla = "~/Content/plantillas_excel/plantilla_reporte_produccion_historial_cambios_silao.xlsx";
+                    codigoDoc = "PRF005-04";
+                    break;
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion_historial_cambios.xlsx"), "Sheet1");
+            }
+
+
+            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath(plantilla), "Sheet1");
             Portal_2_0Entities db = new Portal_2_0Entities();
 
             System.Data.DataTable dt = new System.Data.DataTable();
@@ -147,7 +165,7 @@ namespace Portal_2_0.Models
 
 
             //crea la hoja de FACTURAS y la selecciona
-            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Sábana Producción");
+            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Bitácora Producción");
             oSLDocument.ImportDataTable(1, 1, dt, true);
 
             //estilo para ajustar al texto
@@ -167,6 +185,13 @@ namespace Portal_2_0.Models
             //estilo para el encabezado de cada fila
             SLStyle styleHeaderRowTemporal = oSLDocument.CreateStyle();
             styleHeaderRowTemporal.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffa0a2"), System.Drawing.ColorTranslator.FromHtml("#ffa0a2"));
+
+            //estilo para centrar y agrandar el texto
+            SLStyle styleEncabezado = oSLDocument.CreateStyle();
+            styleEncabezado.Alignment.Horizontal = HorizontalAlignmentValues.Center;
+            styleEncabezado.Alignment.Vertical = VerticalAlignmentValues.Top;
+            styleEncabezado.Font.FontSize = 13;
+
 
             //estilo para cada lote
             SLStyle styleLoteInfo = oSLDocument.CreateStyle();
@@ -245,19 +270,34 @@ namespace Portal_2_0.Models
             oSLDocument.SetColumnStyle(42, 46, styleNumber);
 
             //inmoviliza el encabezado
-            oSLDocument.FreezePanes(1, 0);
-
-            oSLDocument.Filter("A1", "AV1");
-            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
-
+            oSLDocument.FreezePanes(2, 0);
+            
+            
             oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
             oSLDocument.SetRowStyle(1, styleHeader);
             oSLDocument.SetRowStyle(1, styleHeaderFont);
 
+            oSLDocument.CollapseRows(filasEncabezados.Count + 1);            
 
-            oSLDocument.CollapseRows(filasEncabezados.Count + 1);
+            //inserta una celda al inicio
+            // insert 1 rows at row 1
+            oSLDocument.InsertRow(1, 1);
+            oSLDocument.Filter("A2", "AV2");
+            oSLDocument.SetRowHeight(2, filasEncabezados.Count + 1, 15.0);
+            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+            oSLDocument.SetRowStyle(1, styleHeader);
+            oSLDocument.SetRowStyle(1, styleHeaderFont);
 
-            oSLDocument.SetRowHeight(1, filasEncabezados.Count + 1, 15.0);
+            //combina las celdas
+
+            oSLDocument.MergeWorksheetCells(1, 1, 1, 2);
+            oSLDocument.SetCellValue("G1", codigoDoc);
+            oSLDocument.MergeWorksheetCells(1, 3, 1, 6);
+            oSLDocument.SetCellValue("C1", "thyssenkrupp Materials de México S.A de C.V.");
+            oSLDocument.SetCellValue("A1", DateTime.Now.ToShortDateString());
+            
+            oSLDocument.SetRowStyle(1, styleEncabezado);
+            oSLDocument.SetRowHeight(1, 32.0);
 
             System.IO.Stream stream = new System.IO.MemoryStream();
 
@@ -2814,14 +2854,14 @@ namespace Portal_2_0.Models
             oSLDocument.FreezePanes(1, 0);
 
 
-            oSLDocument.Filter(1, 1, 1, dt.Columns.Count);     
+            oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
 
             oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
 
             oSLDocument.SetRowStyle(1, styleHeader);
             oSLDocument.SetRowStyle(1, styleHeaderFont);
             oSLDocument.SetRowHeight(1, 45.0);
-            oSLDocument.SetRowHeight(2, listado.Count + 1, 15.0);   
+            oSLDocument.SetRowHeight(2, listado.Count + 1, 15.0);
 
             oSLDocument.AutoFitColumn(1, dt.Columns.Count);
 
