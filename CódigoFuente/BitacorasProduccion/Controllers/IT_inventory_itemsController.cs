@@ -181,7 +181,7 @@ namespace Portal_2_0.Controllers
                     type = new IT_inventory_hardware_type();
 
                 ViewBag.type = type;
-                //agregar --firtsitem
+                ViewBag.bits_operation_system = AddFirstItem(SelectBitsOS(), textoPorDefecto: "-- Seleccionar --");
                 ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
                 return View(new IT_inventory_items { active = true });
             }
@@ -210,7 +210,6 @@ namespace Portal_2_0.Controllers
             {
                 int index = -1;
                 int total_drive_space_mb = 0;
-                int free_drive_space_mb = 0;
 
                 Match m = Regex.Match(key, @"\d+");
 
@@ -223,7 +222,6 @@ namespace Portal_2_0.Controllers
                     string disk_name = collection["IT_inventory_hard_drives[" + index + "].disk_name"].ToUpper();
                     string type_drive = collection["IT_inventory_hard_drives[" + index + "].type_drive"];
                     int.TryParse(collection["IT_inventory_hard_drives[" + index + "].total_drive_space_mb"], out total_drive_space_mb);
-                    int.TryParse(collection["IT_inventory_hard_drives[" + index + "].free_drive_space_mb"], out free_drive_space_mb);
 
                     //agrega el drive
                     drives.Add(
@@ -232,7 +230,6 @@ namespace Portal_2_0.Controllers
                             disk_name = disk_name,
                             type_drive = type_drive,
                             total_drive_space_mb = total_drive_space_mb,
-                            free_drive_space_mb = free_drive_space_mb
                         }
                     );
 
@@ -252,25 +249,22 @@ namespace Portal_2_0.Controllers
 
                 if (num > 1)
                     ModelState.AddModelError("", "The hard drive " + item + " is duplicated.");
-                else
-                {  //valida que el total space sea mayor que el free space                 
-                    var drive = drives.FirstOrDefault(x => x.disk_name == item);
 
-                    if (drive != null && drive.free_drive_space_mb > drive.total_drive_space_mb)
-                        ModelState.AddModelError("", "The total space for hard drive " + item + " can't be less than free space.");
-                }
             }
 
+            //verifica que no exista el hostname
+            if (db.IT_inventory_items.Any(x => x.hostname == iT_inventory_items.hostname && !String.IsNullOrEmpty(x.hostname) && x.id_inventory_type == iT_inventory_items.id_inventory_type))
+                ModelState.AddModelError("", "A record the same hostname already exists.");
 
 
             #endregion
 
+            //verifica purchasedate sea menor a end warranty
+            if (iT_inventory_items.purchase_date.HasValue && iT_inventory_items.end_warranty.HasValue && iT_inventory_items.purchase_date > iT_inventory_items.end_warranty)
+                ModelState.AddModelError("", "End Warranty must be greater than Purchase Date.");
 
             if (ModelState.IsValid)
             {
-                //si está inactivo, en operación es falso
-                if (iT_inventory_items.active == false)
-                    iT_inventory_items.is_in_operation = false;
 
                 db.IT_inventory_items.Add(iT_inventory_items);
                 db.SaveChanges();
@@ -287,7 +281,7 @@ namespace Portal_2_0.Controllers
                 type = new IT_inventory_hardware_type();
 
             ViewBag.type = type;
-            //agregar --firtsitem
+            ViewBag.bits_operation_system = AddFirstItem(SelectBitsOS(), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.bits_operation_system.ToString());
             ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
             return View(iT_inventory_items);
         }
@@ -318,7 +312,7 @@ namespace Portal_2_0.Controllers
                     return View("../Home/ErrorGenerico");
                 }
 
-                //agregar --firtsitem
+                ViewBag.bits_operation_system = AddFirstItem(SelectBitsOS(), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.bits_operation_system.ToString());
                 ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.id_planta.ToString());
                 return View(iT_inventory_items);
             }
@@ -345,7 +339,6 @@ namespace Portal_2_0.Controllers
             {
                 int index = -1;
                 int total_drive_space_mb = 0;
-                int free_drive_space_mb = 0;
 
                 Match m = Regex.Match(key, @"\d+");
 
@@ -358,7 +351,6 @@ namespace Portal_2_0.Controllers
                     string disk_name = collection["IT_inventory_hard_drives[" + index + "].disk_name"].ToUpper();
                     string type_drive = collection["IT_inventory_hard_drives[" + index + "].type_drive"];
                     int.TryParse(collection["IT_inventory_hard_drives[" + index + "].total_drive_space_mb"], out total_drive_space_mb);
-                    int.TryParse(collection["IT_inventory_hard_drives[" + index + "].free_drive_space_mb"], out free_drive_space_mb);
 
                     //agrega el drive
                     drives.Add(
@@ -368,7 +360,6 @@ namespace Portal_2_0.Controllers
                             disk_name = disk_name,
                             type_drive = type_drive,
                             total_drive_space_mb = total_drive_space_mb,
-                            free_drive_space_mb = free_drive_space_mb
                         }
                     );
 
@@ -388,16 +379,18 @@ namespace Portal_2_0.Controllers
 
                 if (num > 1)
                     ModelState.AddModelError("", "The hard drive " + item + " is duplicated.");
-                else
-                {  //valida que el total space sea mayor que el free space                 
-                    var drive = drives.FirstOrDefault(x => x.disk_name == item);
 
-                    if (drive != null && drive.free_drive_space_mb > drive.total_drive_space_mb)
-                        ModelState.AddModelError("", "The total space for hard drive " + item + " can't be less than free space.");
-                }
             }
 
+            //verifica que no exista el hostname
+            if (db.IT_inventory_items.Any(x => x.hostname == iT_inventory_items.hostname && !String.IsNullOrEmpty(x.hostname) && x.id_inventory_type == iT_inventory_items.id_inventory_type && x.id != iT_inventory_items.id))
+                ModelState.AddModelError("", "A record the same hostname already exists.");
+
             #endregion
+
+            //verifica purchasedate sea menor a end warranty
+            if (iT_inventory_items.purchase_date.HasValue && iT_inventory_items.end_warranty.HasValue && iT_inventory_items.purchase_date > iT_inventory_items.end_warranty)
+                ModelState.AddModelError("", "End Warranty must be greater than Purchase Date.");
 
             if (ModelState.IsValid)
             {
@@ -408,10 +401,6 @@ namespace Portal_2_0.Controllers
                 //agrega los nuevos harddrives
                 foreach (IT_inventory_hard_drives drive in iT_inventory_items.IT_inventory_hard_drives)
                     db.IT_inventory_hard_drives.Add(drive);
-
-                //si está inactivo, en operación es falso
-                if (iT_inventory_items.active == false)
-                    iT_inventory_items.is_in_operation = false;
 
 
                 // Activity already exist in database and modify it
@@ -447,7 +436,7 @@ namespace Portal_2_0.Controllers
                 type = new IT_inventory_hardware_type();
 
             iT_inventory_items.IT_inventory_hardware_type = type;
-            //agregar --firtsitem
+            ViewBag.bits_operation_system = AddFirstItem(SelectBitsOS(), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.bits_operation_system.ToString());
             ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
             return View(iT_inventory_items);
         }
@@ -589,7 +578,7 @@ namespace Portal_2_0.Controllers
             var typeLaptop = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion.Contains("laptop"));
             if (typeLaptop == null || iT_inventory_items.id_inventory_type != typeLaptop.id)
             {
-                ViewBag.Titulo ="¡Lo sentimos!¡No se ver el detalle de este elemento!";
+                ViewBag.Titulo = "¡Lo sentimos!¡No se ver el detalle de este elemento!";
                 ViewBag.Descripcion = "El tipo de Hardware no corresponde con el de la vista solicitada.";
 
                 return View("../Home/ErrorGenerico");
@@ -612,7 +601,7 @@ namespace Portal_2_0.Controllers
                     type = new IT_inventory_hardware_type();
 
                 ViewBag.type = type;
-                //agregar --firtsitem
+                ViewBag.bits_operation_system = AddFirstItem(SelectBitsOS(), textoPorDefecto: "-- Seleccionar --");
                 ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
                 return View(new IT_inventory_items { active = true });
             }
@@ -641,7 +630,6 @@ namespace Portal_2_0.Controllers
             {
                 int index = -1;
                 int total_drive_space_mb = 0;
-                int free_drive_space_mb = 0;
 
                 Match m = Regex.Match(key, @"\d+");
 
@@ -654,7 +642,6 @@ namespace Portal_2_0.Controllers
                     string disk_name = collection["IT_inventory_hard_drives[" + index + "].disk_name"].ToUpper();
                     string type_drive = collection["IT_inventory_hard_drives[" + index + "].type_drive"];
                     int.TryParse(collection["IT_inventory_hard_drives[" + index + "].total_drive_space_mb"], out total_drive_space_mb);
-                    int.TryParse(collection["IT_inventory_hard_drives[" + index + "].free_drive_space_mb"], out free_drive_space_mb);
 
                     //agrega el drive
                     drives.Add(
@@ -663,7 +650,6 @@ namespace Portal_2_0.Controllers
                             disk_name = disk_name,
                             type_drive = type_drive,
                             total_drive_space_mb = total_drive_space_mb,
-                            free_drive_space_mb = free_drive_space_mb
                         }
                     );
 
@@ -683,25 +669,21 @@ namespace Portal_2_0.Controllers
 
                 if (num > 1)
                     ModelState.AddModelError("", "The hard drive " + item + " is duplicated.");
-                else
-                {  //valida que el total space sea mayor que el free space                 
-                    var drive = drives.FirstOrDefault(x => x.disk_name == item);
 
-                    if (drive != null && drive.free_drive_space_mb > drive.total_drive_space_mb)
-                        ModelState.AddModelError("", "The total space for hard drive " + item + " can't be less than free space.");
-                }
             }
 
-
+            //verifica que no exista el hostname
+            if (db.IT_inventory_items.Any(x => x.hostname == iT_inventory_items.hostname && !String.IsNullOrEmpty(x.hostname) && x.id_inventory_type == iT_inventory_items.id_inventory_type))
+                ModelState.AddModelError("", "A record the same hostname already exists.");
 
             #endregion
 
+            //verifica purchasedate sea menor a end warranty
+            if (iT_inventory_items.purchase_date.HasValue && iT_inventory_items.end_warranty.HasValue && iT_inventory_items.purchase_date > iT_inventory_items.end_warranty)
+                ModelState.AddModelError("", "End Warranty must be greater than Purchase Date.");
 
             if (ModelState.IsValid)
             {
-                //si está inactivo, en operación es falso
-                if (iT_inventory_items.active == false)
-                    iT_inventory_items.is_in_operation = false;
 
                 db.IT_inventory_items.Add(iT_inventory_items);
                 db.SaveChanges();
@@ -718,7 +700,7 @@ namespace Portal_2_0.Controllers
                 type = new IT_inventory_hardware_type();
 
             ViewBag.type = type;
-            //agregar --firtsitem
+            ViewBag.bits_operation_system = AddFirstItem(SelectBitsOS(), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.bits_operation_system.ToString());
             ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
             return View(iT_inventory_items);
         }
@@ -749,7 +731,7 @@ namespace Portal_2_0.Controllers
                     return View("../Home/ErrorGenerico");
                 }
 
-                //agregar --firtsitem
+                ViewBag.bits_operation_system = AddFirstItem(SelectBitsOS(), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.bits_operation_system.ToString());
                 ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.id_planta.ToString());
                 return View(iT_inventory_items);
             }
@@ -776,7 +758,6 @@ namespace Portal_2_0.Controllers
             {
                 int index = -1;
                 int total_drive_space_mb = 0;
-                int free_drive_space_mb = 0;
 
                 Match m = Regex.Match(key, @"\d+");
 
@@ -789,7 +770,6 @@ namespace Portal_2_0.Controllers
                     string disk_name = collection["IT_inventory_hard_drives[" + index + "].disk_name"].ToUpper();
                     string type_drive = collection["IT_inventory_hard_drives[" + index + "].type_drive"];
                     int.TryParse(collection["IT_inventory_hard_drives[" + index + "].total_drive_space_mb"], out total_drive_space_mb);
-                    int.TryParse(collection["IT_inventory_hard_drives[" + index + "].free_drive_space_mb"], out free_drive_space_mb);
 
                     //agrega el drive
                     drives.Add(
@@ -799,7 +779,6 @@ namespace Portal_2_0.Controllers
                             disk_name = disk_name,
                             type_drive = type_drive,
                             total_drive_space_mb = total_drive_space_mb,
-                            free_drive_space_mb = free_drive_space_mb
                         }
                     );
 
@@ -819,16 +798,18 @@ namespace Portal_2_0.Controllers
 
                 if (num > 1)
                     ModelState.AddModelError("", "The hard drive " + item + " is duplicated.");
-                else
-                {  //valida que el total space sea mayor que el free space                 
-                    var drive = drives.FirstOrDefault(x => x.disk_name == item);
 
-                    if (drive != null && drive.free_drive_space_mb > drive.total_drive_space_mb)
-                        ModelState.AddModelError("", "The total space for hard drive " + item + " can't be less than free space.");
-                }
             }
 
+            //verifica que no exista el hostname
+            if (db.IT_inventory_items.Any(x => x.hostname == iT_inventory_items.hostname && !String.IsNullOrEmpty(x.hostname) && x.id_inventory_type == iT_inventory_items.id_inventory_type && x.id != iT_inventory_items.id))
+                ModelState.AddModelError("", "A record the same hostname already exists.");
+
             #endregion
+
+            //verifica purchasedate sea menor a end warranty
+            if (iT_inventory_items.purchase_date.HasValue && iT_inventory_items.end_warranty.HasValue && iT_inventory_items.purchase_date > iT_inventory_items.end_warranty)
+                ModelState.AddModelError("", "End Warranty must be greater than Purchase Date.");
 
             if (ModelState.IsValid)
             {
@@ -840,9 +821,6 @@ namespace Portal_2_0.Controllers
                 foreach (IT_inventory_hard_drives drive in iT_inventory_items.IT_inventory_hard_drives)
                     db.IT_inventory_hard_drives.Add(drive);
 
-                //si está inactivo, en operación es falso
-                if (iT_inventory_items.active == false)
-                    iT_inventory_items.is_in_operation = false;
 
                 // Activity already exist in database and modify it
                 db.Entry(db.IT_inventory_items.Find(iT_inventory_items.id)).CurrentValues.SetValues(iT_inventory_items);
@@ -877,7 +855,7 @@ namespace Portal_2_0.Controllers
                 type = new IT_inventory_hardware_type();
 
             iT_inventory_items.IT_inventory_hardware_type = type;
-            //agregar --firtsitem
+            ViewBag.bits_operation_system = AddFirstItem(SelectBitsOS(), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.bits_operation_system.ToString());
             ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
             return View(iT_inventory_items);
         }
@@ -1059,11 +1037,12 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Createmonitor(IT_inventory_items iT_inventory_items, FormCollection collection)
         {
+            //verifica purchasedate sea menor a end warranty
+            if (iT_inventory_items.purchase_date.HasValue && iT_inventory_items.end_warranty.HasValue && iT_inventory_items.purchase_date > iT_inventory_items.end_warranty)
+                ModelState.AddModelError("", "End Warranty must be greater than Purchase Date.");
+
             if (ModelState.IsValid)
             {
-                //si está inactivo, en operación es falso
-                if (iT_inventory_items.active == false)
-                    iT_inventory_items.is_in_operation = false;
 
                 db.IT_inventory_items.Add(iT_inventory_items);
                 db.SaveChanges();
@@ -1128,14 +1107,12 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Editmonitor(IT_inventory_items iT_inventory_items, FormCollection collection)
         {
-            
+            //verifica purchasedate sea menor a end warranty
+            if (iT_inventory_items.purchase_date.HasValue && iT_inventory_items.end_warranty.HasValue && iT_inventory_items.purchase_date > iT_inventory_items.end_warranty)
+                ModelState.AddModelError("", "End Warranty must be greater than Purchase Date.");
+
             if (ModelState.IsValid)
-            {              
-
-                //si está inactivo, en operación es falso
-                if (iT_inventory_items.active == false)
-                    iT_inventory_items.is_in_operation = false;
-
+            {
 
                 // Activity already exist in database and modify it
                 db.Entry(db.IT_inventory_items.Find(iT_inventory_items.id)).CurrentValues.SetValues(iT_inventory_items);
@@ -1323,6 +1300,7 @@ namespace Portal_2_0.Controllers
         // GET: IT_inventory_items/Createprinter
         public ActionResult Createprinter()
         {
+
             if (TieneRol(TipoRoles.IT_INVENTORY))
             {
                 //busca el tipo inventario para printer
@@ -1351,11 +1329,13 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Createprinter(IT_inventory_items iT_inventory_items, FormCollection collection)
         {
+
+            //verifica purchasedate sea menor a end warranty
+            if (iT_inventory_items.purchase_date.HasValue && iT_inventory_items.end_warranty.HasValue && iT_inventory_items.purchase_date > iT_inventory_items.end_warranty)
+                ModelState.AddModelError("", "End Warranty must be greater than Purchase Date.");
+
             if (ModelState.IsValid)
             {
-                //si está inactivo, en operación es falso
-                if (iT_inventory_items.active == false)
-                    iT_inventory_items.is_in_operation = false;
 
                 db.IT_inventory_items.Add(iT_inventory_items);
                 db.SaveChanges();
@@ -1420,14 +1400,12 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Editprinter(IT_inventory_items iT_inventory_items, FormCollection collection)
         {
+            //verifica purchasedate sea menor a end warranty
+            if (iT_inventory_items.purchase_date.HasValue && iT_inventory_items.end_warranty.HasValue && iT_inventory_items.purchase_date > iT_inventory_items.end_warranty)
+                ModelState.AddModelError("", "End Warranty must be greater than Purchase Date.");
 
             if (ModelState.IsValid)
             {
-
-                //si está inactivo, en operación es falso
-                if (iT_inventory_items.active == false)
-                    iT_inventory_items.is_in_operation = false;
-
 
                 // Activity already exist in database and modify it
                 db.Entry(db.IT_inventory_items.Find(iT_inventory_items.id)).CurrentValues.SetValues(iT_inventory_items);
@@ -1643,11 +1621,12 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Createlabel_printer(IT_inventory_items iT_inventory_items, FormCollection collection)
         {
+            //verifica purchasedate sea menor a end warranty
+            if (iT_inventory_items.purchase_date.HasValue && iT_inventory_items.end_warranty.HasValue && iT_inventory_items.purchase_date > iT_inventory_items.end_warranty)
+                ModelState.AddModelError("", "End Warranty must be greater than Purchase Date.");
+
             if (ModelState.IsValid)
             {
-                //si está inactivo, en operación es falso
-                if (iT_inventory_items.active == false)
-                    iT_inventory_items.is_in_operation = false;
 
                 db.IT_inventory_items.Add(iT_inventory_items);
                 db.SaveChanges();
@@ -1712,13 +1691,12 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Editlabel_printer(IT_inventory_items iT_inventory_items, FormCollection collection)
         {
+            //verifica purchasedate sea menor a end warranty
+            if (iT_inventory_items.purchase_date.HasValue && iT_inventory_items.end_warranty.HasValue && iT_inventory_items.purchase_date > iT_inventory_items.end_warranty)
+                ModelState.AddModelError("", "End Warranty must be greater than Purchase Date.");
 
             if (ModelState.IsValid)
             {
-
-                //si está inactivo, en operación es falso
-                if (iT_inventory_items.active == false)
-                    iT_inventory_items.is_in_operation = false;
 
 
                 // Activity already exist in database and modify it
@@ -1936,11 +1914,13 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Createpda(IT_inventory_items iT_inventory_items, FormCollection collection)
         {
+
+            //verifica purchasedate sea menor a end warranty
+            if (iT_inventory_items.purchase_date.HasValue && iT_inventory_items.end_warranty.HasValue && iT_inventory_items.purchase_date > iT_inventory_items.end_warranty)
+                ModelState.AddModelError("", "End Warranty must be greater than Purchase Date.");
+
             if (ModelState.IsValid)
             {
-                //si está inactivo, en operación es falso
-                if (iT_inventory_items.active == false)
-                    iT_inventory_items.is_in_operation = false;
 
                 db.IT_inventory_items.Add(iT_inventory_items);
                 db.SaveChanges();
@@ -2005,14 +1985,12 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Editpda(IT_inventory_items iT_inventory_items, FormCollection collection)
         {
+            //verifica purchasedate sea menor a end warranty
+            if (iT_inventory_items.purchase_date.HasValue && iT_inventory_items.end_warranty.HasValue && iT_inventory_items.purchase_date > iT_inventory_items.end_warranty)
+                ModelState.AddModelError("", "End Warranty must be greater than Purchase Date.");
 
             if (ModelState.IsValid)
             {
-
-                //si está inactivo, en operación es falso
-                if (iT_inventory_items.active == false)
-                    iT_inventory_items.is_in_operation = false;
-
 
                 // Activity already exist in database and modify it
                 db.Entry(db.IT_inventory_items.Find(iT_inventory_items.id)).CurrentValues.SetValues(iT_inventory_items);
@@ -2041,6 +2019,299 @@ namespace Portal_2_0.Controllers
             }
             //busca el tipo inventario para pda
             var type = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion.Contains("pda"));
+
+            //si es nulo inicializa un objeto vacio
+            if (type == null)
+                type = new IT_inventory_hardware_type();
+
+            iT_inventory_items.IT_inventory_hardware_type = type;
+            //agregar --firtsitem
+            ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
+            return View(iT_inventory_items);
+        }
+
+        #endregion
+
+        #region scanner 
+        // GET: IT_inventory_items/scanner
+        public ActionResult scanner(int? id_planta, string model, bool? active, int pagina = 1)
+        {
+            if (TieneRol(TipoRoles.IT_INVENTORY))
+            {
+
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
+                var cantidadRegistrosPorPagina = 20; // parámetro
+
+                //busca el tipo inventario para scanner
+                var type = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion.Contains("scanner"));
+
+                //si es nulo inicializa un objeto vacio
+                if (type == null)
+                    type = new IT_inventory_hardware_type();
+
+                var listado = db.IT_inventory_items
+                    .Where(x =>
+                    x.id_inventory_type == type.id
+                    && (x.id_planta == id_planta || id_planta == null)
+                    && (x.model.Contains(model) || String.IsNullOrEmpty(model))
+                    && (x.active == active || active == null)
+                    )
+                  .OrderByDescending(x => x.id_planta)
+                  .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                 .Take(cantidadRegistrosPorPagina).ToList();
+
+                var totalDeRegistros = db.IT_inventory_items
+                      .Where(x =>
+                    x.id_inventory_type == type.id
+                    && (x.id_planta == id_planta || id_planta == null)
+                    && (x.model.Contains(model) || String.IsNullOrEmpty(model))
+                    && (x.active == active || active == null)
+                    )
+                         .Count();
+
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                routeValues["id_planta"] = id_planta;
+                routeValues["model"] = model;
+                routeValues["active"] = active;
+                routeValues["pagina"] = pagina;
+
+                Paginacion paginacion = new Paginacion
+                {
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                ViewBag.Paginacion = paginacion;
+                ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas.Where(x => x.activo), "clave", "descripcion"), textoPorDefecto: "-- All --", selected: id_planta.ToString());
+
+
+                return View(listado);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+        public ActionResult Exportarscanner(int? id_planta, string model, bool? active)
+        {
+            if (TieneRol(TipoRoles.IT_INVENTORY))
+            {
+
+                //busca el tipo inventario para scanner
+                var type = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion.Contains("scanner"));
+
+                //si es nulo inicializa un objeto vacio
+                if (type == null)
+                    type = new IT_inventory_hardware_type();
+
+                var listado = db.IT_inventory_items
+                    .Where(x =>
+                    x.id_inventory_type == type.id
+                    && (x.id_planta == id_planta || id_planta == null)
+                    && (x.model.Contains(model) || String.IsNullOrEmpty(model))
+                    && (x.active == active || active == null)
+                    )
+                  .OrderByDescending(x => x.id_planta)
+               .ToList();
+
+                //** DE MOMENTO ES EL MISMO QUE DESKTOP ***//
+                byte[] stream = ExcelUtil.GeneraReporteITscannerExcel(listado);
+
+
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+                    // for example foo.bak
+                    FileName = "Inventory_scanner_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+                    // always prompt the user for downloading, set to true if you want 
+                    // the browser to try to show the file inline
+                    Inline = false,
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                return File(stream, "application/vnd.ms-excel");
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+        // GET: IT_inventory_items/Detailsscanner/5
+        public ActionResult Detailsscanner(int? id)
+        {
+            if (id == null)
+            {
+                return View("../Error/BadRequest");
+            }
+            IT_inventory_items iT_inventory_items = db.IT_inventory_items.Find(id);
+            if (iT_inventory_items == null)
+            {
+                return View("../Error/NotFound");
+            }
+
+            //verifica si el item pertenece a tipo scanner
+            //busca el tipo inventario para scanner
+            var typescanner = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion.Contains("scanner"));
+            if (typescanner == null || iT_inventory_items.id_inventory_type != typescanner.id)
+            {
+                ViewBag.Titulo = "¡Lo sentimos!¡No se ver el detalle de este elemento!";
+                ViewBag.Descripcion = "El tipo de Hardware no corresponde con el de la vista solicitada.";
+
+                return View("../Home/ErrorGenerico");
+            }
+
+
+            return View(iT_inventory_items);
+        }
+
+        // GET: IT_inventory_items/Createscanner
+        public ActionResult Createscanner()
+        {
+            if (TieneRol(TipoRoles.IT_INVENTORY))
+            {
+                //busca el tipo inventario para scanner
+                var type = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion.Contains("scanner"));
+
+                //si es nulo inicializa un objeto vacio
+                if (type == null)
+                    type = new IT_inventory_hardware_type();
+
+                ViewBag.type = type;
+                //agregar --firtsitem
+                ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
+                return View(new IT_inventory_items { active = true });
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+        // POST: IT_inventory_items/Create
+        // Para protegerse de ataques de publicación excesiva, habilite las propiedades específicas a las que quiere enlazarse. Para obtener 
+        // más detalles, vea https://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Createscanner(IT_inventory_items iT_inventory_items, FormCollection collection)
+        {
+
+            //verifica purchasedate sea menor a end warranty
+            if (iT_inventory_items.purchase_date.HasValue && iT_inventory_items.end_warranty.HasValue && iT_inventory_items.purchase_date > iT_inventory_items.end_warranty)
+                ModelState.AddModelError("", "End Warranty must be greater than Purchase Date.");
+
+            if (ModelState.IsValid)
+            {
+
+                db.IT_inventory_items.Add(iT_inventory_items);
+                db.SaveChanges();
+
+                TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);
+
+                return RedirectToAction("scanner");
+            }
+            //busca el tipo inventario para scanner
+            var type = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion.Contains("scanner"));
+
+            //si es nulo inicializa un objeto vacio
+            if (type == null)
+                type = new IT_inventory_hardware_type();
+
+            ViewBag.type = type;
+            //agregar --firtsitem
+            ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
+            return View(iT_inventory_items);
+        }
+
+        // GET: IT_inventory_items/Editscanner/5
+        public ActionResult Editscanner(int? id)
+        {
+            if (TieneRol(TipoRoles.IT_INVENTORY))
+            {
+                if (id == null)
+                {
+                    return View("../Error/BadRequest");
+                }
+                IT_inventory_items iT_inventory_items = db.IT_inventory_items.Find(id);
+                if (iT_inventory_items == null)
+                {
+                    return View("../Error/NotFound");
+                }
+
+                //verifica si el item pertenece a tipo scanner
+                //busca el tipo inventario para scanner
+                var typescanner = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion.Contains("scanner"));
+                if (typescanner == null || iT_inventory_items.id_inventory_type != typescanner.id)
+                {
+                    ViewBag.Titulo = "¡Lo sentimos!¡No se ver el detalle de este elemento!";
+                    ViewBag.Descripcion = "El tipo de Hardware no corresponde con el de la vista solicitada.";
+
+                    return View("../Home/ErrorGenerico");
+                }
+
+                //agregar --firtsitem
+                ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.id_planta.ToString());
+                return View(iT_inventory_items);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+        }
+
+        // POST: IT_inventory_items/Editscanner/5
+        // Para protegerse de ataques de publicación excesiva, habilite las propiedades específicas a las que quiere enlazarse. Para obtener 
+        // más detalles, vea https://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Editscanner(IT_inventory_items iT_inventory_items, FormCollection collection)
+        {
+            //verifica purchasedate sea menor a end warranty
+            if (iT_inventory_items.purchase_date.HasValue && iT_inventory_items.end_warranty.HasValue && iT_inventory_items.purchase_date > iT_inventory_items.end_warranty)
+                ModelState.AddModelError("", "End Warranty must be greater than Purchase Date.");
+
+            if (ModelState.IsValid)
+            {
+
+                // Activity already exist in database and modify it
+                db.Entry(db.IT_inventory_items.Find(iT_inventory_items.id)).CurrentValues.SetValues(iT_inventory_items);
+                db.SaveChanges();
+
+                TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
+
+                //agrega los valores de redireccionamiento
+                List<string> keys = collection.AllKeys.ToList();
+
+                string string_id_planta = String.Empty;
+                string string_pagina = String.Empty;
+                string string_model = String.Empty;
+                string string_active = String.Empty;
+
+                if (keys.Contains("_id_planta"))
+                    string_id_planta = collection["_id_planta"];
+                if (keys.Contains("_pagina"))
+                    string_pagina = collection["_pagina"];
+                if (keys.Contains("_model"))
+                    string_model = collection["_model"];
+                if (keys.Contains("_active"))
+                    string_active = collection["_active"];
+
+                return RedirectToAction("scanner", new { id_planta = string_id_planta, pagina = string_pagina, model = string_model, active = string_active });
+            }
+            //busca el tipo inventario para scanner
+            var type = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion.Contains("scanner"));
 
             //si es nulo inicializa un objeto vacio
             if (type == null)
@@ -2211,7 +2482,7 @@ namespace Portal_2_0.Controllers
                     type = new IT_inventory_hardware_type();
 
                 ViewBag.type = type;
-                //agregar --firtsitem
+                ViewBag.bits_operation_system = AddFirstItem(SelectBitsOS(), textoPorDefecto: "-- Seleccionar --");
                 ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
                 return View(new IT_inventory_items { active = true });
             }
@@ -2235,12 +2506,13 @@ namespace Portal_2_0.Controllers
 
             #region obtiene y valida drives
 
+            
+
             //obtiene los drives del formcollection
             foreach (string key in collection.AllKeys.Where(x => x.StartsWith("IT_inventory_hard_drives") && x.EndsWith(".disk_name")))
             {
                 int index = -1;
                 int total_drive_space_mb = 0;
-                int free_drive_space_mb = 0;
 
                 Match m = Regex.Match(key, @"\d+");
 
@@ -2253,7 +2525,6 @@ namespace Portal_2_0.Controllers
                     string disk_name = collection["IT_inventory_hard_drives[" + index + "].disk_name"].ToUpper();
                     string type_drive = collection["IT_inventory_hard_drives[" + index + "].type_drive"];
                     int.TryParse(collection["IT_inventory_hard_drives[" + index + "].total_drive_space_mb"], out total_drive_space_mb);
-                    int.TryParse(collection["IT_inventory_hard_drives[" + index + "].free_drive_space_mb"], out free_drive_space_mb);
 
                     //agrega el drive
                     drives.Add(
@@ -2262,7 +2533,6 @@ namespace Portal_2_0.Controllers
                             disk_name = disk_name,
                             type_drive = type_drive,
                             total_drive_space_mb = total_drive_space_mb,
-                            free_drive_space_mb = free_drive_space_mb
                         }
                     );
 
@@ -2282,25 +2552,21 @@ namespace Portal_2_0.Controllers
 
                 if (num > 1)
                     ModelState.AddModelError("", "The hard drive " + item + " is duplicated.");
-                else
-                {  //valida que el total space sea mayor que el free space                 
-                    var drive = drives.FirstOrDefault(x => x.disk_name == item);
 
-                    if (drive != null && drive.free_drive_space_mb > drive.total_drive_space_mb)
-                        ModelState.AddModelError("", "The total space for hard drive " + item + " can't be less than free space.");
-                }
             }
 
-
+            //verifica que no exista el hostname
+            if (db.IT_inventory_items.Any(x => x.hostname == iT_inventory_items.hostname && !String.IsNullOrEmpty(x.hostname) && x.id_inventory_type == iT_inventory_items.id_inventory_type))
+                ModelState.AddModelError("", "A record the same hostname already exists.");
 
             #endregion
 
+            //verifica purchasedate sea menor a end warranty
+            if (iT_inventory_items.purchase_date.HasValue && iT_inventory_items.end_warranty.HasValue && iT_inventory_items.purchase_date > iT_inventory_items.end_warranty)
+                ModelState.AddModelError("", "End Warranty must be greater than Purchase Date.");
 
             if (ModelState.IsValid)
             {
-                //si está inactivo, en operación es falso
-                if (iT_inventory_items.active == false)
-                    iT_inventory_items.is_in_operation = false;
 
                 db.IT_inventory_items.Add(iT_inventory_items);
                 db.SaveChanges();
@@ -2317,7 +2583,7 @@ namespace Portal_2_0.Controllers
                 type = new IT_inventory_hardware_type();
 
             ViewBag.type = type;
-            //agregar --firtsitem
+            ViewBag.bits_operation_system = AddFirstItem(SelectBitsOS(), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.bits_operation_system.ToString());
             ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
             return View(iT_inventory_items);
         }
@@ -2348,7 +2614,7 @@ namespace Portal_2_0.Controllers
                     return View("../Home/ErrorGenerico");
                 }
 
-                //agregar --firtsitem
+                ViewBag.bits_operation_system = AddFirstItem(SelectBitsOS(), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.bits_operation_system.ToString());
                 ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.id_planta.ToString());
                 return View(iT_inventory_items);
             }
@@ -2375,7 +2641,6 @@ namespace Portal_2_0.Controllers
             {
                 int index = -1;
                 int total_drive_space_mb = 0;
-                int free_drive_space_mb = 0;
 
                 Match m = Regex.Match(key, @"\d+");
 
@@ -2388,7 +2653,6 @@ namespace Portal_2_0.Controllers
                     string disk_name = collection["IT_inventory_hard_drives[" + index + "].disk_name"].ToUpper();
                     string type_drive = collection["IT_inventory_hard_drives[" + index + "].type_drive"];
                     int.TryParse(collection["IT_inventory_hard_drives[" + index + "].total_drive_space_mb"], out total_drive_space_mb);
-                    int.TryParse(collection["IT_inventory_hard_drives[" + index + "].free_drive_space_mb"], out free_drive_space_mb);
 
                     //agrega el drive
                     drives.Add(
@@ -2397,8 +2661,7 @@ namespace Portal_2_0.Controllers
                             id_inventory_item = iT_inventory_items.id,
                             disk_name = disk_name,
                             type_drive = type_drive,
-                            total_drive_space_mb = total_drive_space_mb,
-                            free_drive_space_mb = free_drive_space_mb
+                            total_drive_space_mb = total_drive_space_mb
                         }
                     );
 
@@ -2418,16 +2681,18 @@ namespace Portal_2_0.Controllers
 
                 if (num > 1)
                     ModelState.AddModelError("", "The hard drive " + item + " is duplicated.");
-                else
-                {  //valida que el total space sea mayor que el free space                 
-                    var drive = drives.FirstOrDefault(x => x.disk_name == item);
 
-                    if (drive != null && drive.free_drive_space_mb > drive.total_drive_space_mb)
-                        ModelState.AddModelError("", "The total space for hard drive " + item + " can't be less than free space.");
-                }
             }
 
+            //verifica que no exista el hostname
+            if (db.IT_inventory_items.Any(x => x.hostname == iT_inventory_items.hostname && !String.IsNullOrEmpty(x.hostname) && x.id_inventory_type == iT_inventory_items.id_inventory_type && x.id != iT_inventory_items.id))
+                ModelState.AddModelError("", "A record the same hostname already exists.");
+
             #endregion
+
+            //verifica purchasedate sea menor a end warranty
+            if (iT_inventory_items.purchase_date.HasValue && iT_inventory_items.end_warranty.HasValue && iT_inventory_items.purchase_date > iT_inventory_items.end_warranty)
+                ModelState.AddModelError("", "End Warranty must be greater than Purchase Date.");
 
             if (ModelState.IsValid)
             {
@@ -2438,10 +2703,6 @@ namespace Portal_2_0.Controllers
                 //agrega los nuevos harddrives
                 foreach (IT_inventory_hard_drives drive in iT_inventory_items.IT_inventory_hard_drives)
                     db.IT_inventory_hard_drives.Add(drive);
-
-                //si está inactivo, en operación es falso
-                if (iT_inventory_items.active == false)
-                    iT_inventory_items.is_in_operation = false;
 
 
                 // Activity already exist in database and modify it
@@ -2477,7 +2738,7 @@ namespace Portal_2_0.Controllers
                 type = new IT_inventory_hardware_type();
 
             iT_inventory_items.IT_inventory_hardware_type = type;
-            //agregar --firtsitem
+            ViewBag.bits_operation_system = AddFirstItem(SelectBitsOS(), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.bits_operation_system.ToString());
             ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
             return View(iT_inventory_items);
         }
@@ -2659,11 +2920,14 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Createtablet(IT_inventory_items iT_inventory_items, FormCollection collection)
         {
+
+            //verifica purchasedate sea menor a end warranty
+            if (iT_inventory_items.purchase_date.HasValue && iT_inventory_items.end_warranty.HasValue && iT_inventory_items.purchase_date > iT_inventory_items.end_warranty)
+                ModelState.AddModelError("", "End Warranty must be greater than Purchase Date.");
+
+
             if (ModelState.IsValid)
             {
-                //si está inactivo, en operación es falso
-                if (iT_inventory_items.active == false)
-                    iT_inventory_items.is_in_operation = false;
 
                 db.IT_inventory_items.Add(iT_inventory_items);
                 db.SaveChanges();
@@ -2728,15 +2992,12 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edittablet(IT_inventory_items iT_inventory_items, FormCollection collection)
         {
+            //verifica purchasedate sea menor a end warranty
+            if (iT_inventory_items.purchase_date.HasValue && iT_inventory_items.end_warranty.HasValue && iT_inventory_items.purchase_date > iT_inventory_items.end_warranty)
+                ModelState.AddModelError("", "End Warranty must be greater than Purchase Date.");
 
             if (ModelState.IsValid)
             {
-
-                //si está inactivo, en operación es falso
-                if (iT_inventory_items.active == false)
-                    iT_inventory_items.is_in_operation = false;
-
-
                 // Activity already exist in database and modify it
                 db.Entry(db.IT_inventory_items.Find(iT_inventory_items.id)).CurrentValues.SetValues(iT_inventory_items);
                 db.SaveChanges();
@@ -2951,11 +3212,12 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Createradio(IT_inventory_items iT_inventory_items, FormCollection collection)
         {
+            //verifica purchasedate sea menor a end warranty
+            if (iT_inventory_items.purchase_date.HasValue && iT_inventory_items.end_warranty.HasValue && iT_inventory_items.purchase_date > iT_inventory_items.end_warranty)
+                ModelState.AddModelError("", "End Warranty must be greater than Purchase Date.");
+
             if (ModelState.IsValid)
             {
-                //si está inactivo, en operación es falso
-                if (iT_inventory_items.active == false)
-                    iT_inventory_items.is_in_operation = false;
 
                 db.IT_inventory_items.Add(iT_inventory_items);
                 db.SaveChanges();
@@ -3020,13 +3282,12 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Editradio(IT_inventory_items iT_inventory_items, FormCollection collection)
         {
+            //verifica purchasedate sea menor a end warranty
+            if (iT_inventory_items.purchase_date.HasValue && iT_inventory_items.end_warranty.HasValue && iT_inventory_items.purchase_date > iT_inventory_items.end_warranty)
+                ModelState.AddModelError("", "End Warranty must be greater than Purchase Date.");
 
             if (ModelState.IsValid)
             {
-
-                //si está inactivo, en operación es falso
-                if (iT_inventory_items.active == false)
-                    iT_inventory_items.is_in_operation = false;
 
 
                 // Activity already exist in database and modify it
@@ -3243,11 +3504,12 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Createap(IT_inventory_items iT_inventory_items, FormCollection collection)
         {
+            //verifica purchasedate sea menor a end warranty
+            if (iT_inventory_items.purchase_date.HasValue && iT_inventory_items.end_warranty.HasValue && iT_inventory_items.purchase_date > iT_inventory_items.end_warranty)
+                ModelState.AddModelError("", "End Warranty must be greater than Purchase Date.");
+
             if (ModelState.IsValid)
             {
-                //si está inactivo, en operación es falso
-                if (iT_inventory_items.active == false)
-                    iT_inventory_items.is_in_operation = false;
 
                 db.IT_inventory_items.Add(iT_inventory_items);
                 db.SaveChanges();
@@ -3312,14 +3574,12 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Editap(IT_inventory_items iT_inventory_items, FormCollection collection)
         {
+            //verifica purchasedate sea menor a end warranty
+            if (iT_inventory_items.purchase_date.HasValue && iT_inventory_items.end_warranty.HasValue && iT_inventory_items.purchase_date > iT_inventory_items.end_warranty)
+                ModelState.AddModelError("", "End Warranty must be greater than Purchase Date.");
 
             if (ModelState.IsValid)
             {
-
-                //si está inactivo, en operación es falso
-                if (iT_inventory_items.active == false)
-                    iT_inventory_items.is_in_operation = false;
-
 
                 // Activity already exist in database and modify it
                 db.Entry(db.IT_inventory_items.Find(iT_inventory_items.id)).CurrentValues.SetValues(iT_inventory_items);
@@ -3536,11 +3796,12 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Createsmartphone(IT_inventory_items iT_inventory_items, FormCollection collection)
         {
+            //verifica purchasedate sea menor a end warranty
+            if (iT_inventory_items.purchase_date.HasValue && iT_inventory_items.end_warranty.HasValue && iT_inventory_items.purchase_date > iT_inventory_items.end_warranty)
+                ModelState.AddModelError("", "End Warranty must be greater than Purchase Date.");
+
             if (ModelState.IsValid)
             {
-                //si está inactivo, en operación es falso
-                if (iT_inventory_items.active == false)
-                    iT_inventory_items.is_in_operation = false;
 
                 db.IT_inventory_items.Add(iT_inventory_items);
                 db.SaveChanges();
@@ -3605,14 +3866,12 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Editsmartphone(IT_inventory_items iT_inventory_items, FormCollection collection)
         {
+            //verifica purchasedate sea menor a end warranty
+            if (iT_inventory_items.purchase_date.HasValue && iT_inventory_items.end_warranty.HasValue && iT_inventory_items.purchase_date > iT_inventory_items.end_warranty)
+                ModelState.AddModelError("", "End Warranty must be greater than Purchase Date.");
 
             if (ModelState.IsValid)
             {
-
-                //si está inactivo, en operación es falso
-                if (iT_inventory_items.active == false)
-                    iT_inventory_items.is_in_operation = false;
-
 
                 // Activity already exist in database and modify it
                 db.Entry(db.IT_inventory_items.Find(iT_inventory_items.id)).CurrentValues.SetValues(iT_inventory_items);
@@ -3688,6 +3947,30 @@ namespace Portal_2_0.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        [NonAction]
+        protected SelectList SelectBitsOS()
+        {
+            //crea un Select  list para las opciones
+            List<SelectListItem> newList = new List<SelectListItem>();
+
+            newList.Add(new SelectListItem()
+            {
+                Text = "64",
+                Value = "64"
+            });
+
+            newList.Add(new SelectListItem()
+            {
+                Text = "32",
+                Value = "32"
+            });
+
+            SelectList selectListItems = new SelectList(newList, "Value", "Text");
+
+            return selectListItems;
+
         }
     }
 }

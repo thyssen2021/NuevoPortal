@@ -192,13 +192,12 @@
         <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_software" Width="1.5" PointX="28.375" PointY="11" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_software_versions" Width="1.5" PointX="30.625" PointY="10.875" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_id_inventory_software" />
-        <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_cellular_plans" Width="1.5" PointX="5.25" PointY="25" />
-        <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_items" Width="1.5" PointX="3" PointY="15.875" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_id_it_inventory_items" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_cellular_plans" Width="1.5" PointX="3.375" PointY="24.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_hard_drives" Width="1.5" PointX="5.625" PointY="38.875" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_items" Width="1.5" PointX="3.375" PointY="16.25" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_item" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_items_id_inventory_type" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_items_id_planta" />
-        <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_hard_drives" Width="1.5" PointX="5.25" PointY="20.75" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_item" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

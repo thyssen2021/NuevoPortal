@@ -48,6 +48,7 @@ INSERT [IT_inventory_hardware_type] ([id], [descripcion], [activo]) VALUES (8, N
 INSERT [IT_inventory_hardware_type] ([id], [descripcion], [activo]) VALUES (9, N'Radio', 1)
 INSERT [IT_inventory_hardware_type] ([id], [descripcion], [activo]) VALUES (10, N'AP', 1)
 INSERT [IT_inventory_hardware_type] ([id], [descripcion], [activo]) VALUES (11, N'Smartphone', 1)
+INSERT [IT_inventory_hardware_type] ([id], [descripcion], [activo]) VALUES (12, N'Scanners', 1)
 
 SET IDENTITY_INSERT [IT_inventory_hardware_type] OFF
 GO

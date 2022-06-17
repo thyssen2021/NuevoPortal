@@ -50,31 +50,7 @@
                             <div class="form-group row">
                                 <span style="color:black"><b>INFORMACI&Oacute;N GENERAL</b></span>
                             </div>
-                            <div class="item form-group">
-
-                                @Html.LabelFor(model => model.id_it_inventory_items, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-3 col-sm-3 ">
-                                    @Html.DropDownList("id_it_inventory_items", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
-                                    @Html.ValidationMessageFor(model => model.id_it_inventory_items, "", new { @class = "text-danger" })
-                                </div>
-                                <div class="col-md-1 col-sm-1">
-                                    <button type="button" id="btn-info-cell" class="btn btn-primary btn-sm" style="@(Model.id_it_inventory_items>0?"display:block":"display:none")"> <i class="fa-solid fa-eye"></i></button>
-                                </div>
-                            </div>
-
-                            <div class="item form-group row">
-                                @Html.LabelFor(model => model.razon_social, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-7 col-sm-7 ">
-                                    @Html.EditorFor(model => model.razon_social, new { htmlAttributes = new { @class = "form-control" } })
-                                    @Html.ValidationMessageFor(model => model.razon_social, "", new { @class = "text-danger" })
-                                </div>
-                                @Html.LabelFor(model => model.num_telefono, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-3 col-sm-3 ">
-                                    @Html.EditorFor(model => model.num_telefono, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                                    @Html.ValidationMessageFor(model => model.num_telefono, "", new { @class = "text-danger" })
-                                </div>
-
-                            </div>
+                          
                             <div class="item form-group row">
                                 @Html.LabelFor(model => model.nombre_compania, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                                 <div class="col-md-2 col-sm-2">
@@ -82,97 +58,17 @@
                                     @Html.ValidationMessageFor(model => model.nombre_compania, "", new { @class = "text-danger" })
                                 </div>
                                 @Html.LabelFor(model => model.nombre_plan, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-4 col-sm-4">
+                                <div class="col-md-5 col-sm-5">
                                     @Html.EditorFor(model => model.nombre_plan, new { htmlAttributes = new { @class = "form-control" } })
                                     @Html.ValidationMessageFor(model => model.nombre_plan, "", new { @class = "text-danger" })
                                 </div>
-                                @Html.LabelFor(model => model.fecha_corte, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-3 col-sm-3 ">
-                                    @Html.EditorFor(model => model.fecha_corte, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                                    @Html.ValidationMessageFor(model => model.fecha_corte, "", new { @class = "text-danger" })
+                                @Html.LabelFor(model => model.precio, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-2 col-sm-">
+                                    @Html.EditorFor(model => model.precio, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.precio, "", new { @class = "text-danger" })
                                 </div>
+
                             </div>
-
-                            <div class="item form-group row">
-                                @Html.LabelFor(model => model.cuenta_padre, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-2 col-sm-2 ">
-                                    @Html.EditorFor(model => model.cuenta_padre, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                                    @Html.ValidationMessageFor(model => model.cuenta_padre, "", new { @class = "text-danger" })
-                                </div>
-                                @Html.LabelFor(model => model.cuenta_hija, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-2 col-sm-2 ">
-                                    @Html.EditorFor(model => model.cuenta_hija, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                                    @Html.ValidationMessageFor(model => model.cuenta_hija, "", new { @class = "text-danger" })
-                                </div>
-
-                                @Html.LabelFor(model => model.centro_costo, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-2 col-sm-2">
-                                    @Html.EditorFor(model => model.centro_costo, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                                    @Html.ValidationMessageFor(model => model.centro_costo, "", new { @class = "text-danger" })
-                                </div>
-
-                                @Html.LabelFor(model => model.numero_factura, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-2 col-sm-2">
-                                    @Html.EditorFor(model => model.numero_factura, new { htmlAttributes = new { @class = "form-control" } })
-                                    @Html.ValidationMessageFor(model => model.numero_factura, "", new { @class = "text-danger" })
-                                </div>
-                            </div>
-
-                            <div class="ln_solid"></div>
-                            <div class="form-group row">
-                                <span style="color:black"><b>COSTOS</b></span>
-                            </div>
-
-                            <div class="item form-group row">
-                                @Html.LabelFor(model => model.costo_servicios_telecomunicaciones, new { @class = "col-form-label col-md-1 col-sm-3 label-align", @type = "number", @step = ".01", @min = "0.01" })
-                                <div class="col-md-2 col-sm-3 ">
-                                    @Html.EditorFor(model => model.costo_servicios_telecomunicaciones, new { htmlAttributes = new { @class = "form-control cantidad", @autocomplete = "off" } })
-                                    @Html.ValidationMessageFor(model => model.costo_servicios_telecomunicaciones, "", new { @class = "text-danger" })
-                                </div>
-                                @Html.LabelFor(model => model.costo_servicios_y_suscripciones, new { @class = "col-form-label col-md-1 col-sm-3 label-align" })
-                                <div class="col-md-2 col-sm-3 ">
-                                    @Html.EditorFor(model => model.costo_servicios_y_suscripciones, new { htmlAttributes = new { @class = "form-control cantidad", @autocomplete = "off" } })
-                                    @Html.ValidationMessageFor(model => model.costo_servicios_y_suscripciones, "", new { @class = "text-danger" })
-                                </div>
-                                @Html.LabelFor(model => model.costo_servicios_y_suscripciones_terceros, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-2 col-sm-3 ">
-                                    @Html.EditorFor(model => model.costo_servicios_y_suscripciones_terceros, new { htmlAttributes = new { @class = "form-control cantidad", @autocomplete = "off" } })
-                                    @Html.ValidationMessageFor(model => model.costo_servicios_y_suscripciones_terceros, "", new { @class = "text-danger" })
-                                </div>
-                                @Html.LabelFor(model => model.costo_equipo_celular, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-2 col-sm-3 ">
-                                    @Html.EditorFor(model => model.costo_equipo_celular, new { htmlAttributes = new { @class = "form-control cantidad", @autocomplete = "off" } })
-                                    @Html.ValidationMessageFor(model => model.costo_equipo_celular, "", new { @class = "text-danger" })
-                                </div>
-                                @Html.LabelFor(model => model.costo_servicios_cobrados_terceros, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-2 col-sm-3 ">
-                                    @Html.EditorFor(model => model.costo_servicios_cobrados_terceros, new { htmlAttributes = new { @class = "form-control cantidad", @autocomplete = "off" } })
-                                    @Html.ValidationMessageFor(model => model.costo_servicios_cobrados_terceros, "", new { @class = "text-danger" })
-                                </div>
-                                @Html.LabelFor(model => model.porcentaje_iva, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-2 col-sm-2 ">
-                                    @Html.EditorFor(model => model.porcentaje_iva, new { htmlAttributes = new { @class = "form-control cantidad", @autocomplete = "off" } })
-                                    @Html.ValidationMessageFor(model => model.porcentaje_iva, "", new { @class = "text-danger" })
-                                </div>
-                                @Html.LabelFor(model => model.IVA, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-2 col-sm-2 ">
-                                    <input id="iva" class="form-control" value="@Model.IVA" style="text-align:right" readonly />
-                                </div>
-                            </div>
-                            <div class="item form-group row ">
-                                <div class="col-md-6 col-sm-4 ">
-
-                                </div>
-                                @Html.LabelFor(model => model.CostoTotal, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-2 col-sm-3 ">
-                                    <input id="CostoTotal" class="form-control" value="@Model.CostoTotal" style="text-align:right" readonly />
-                                </div>
-                                @Html.LabelFor(model => model.CostoTotalConEquipo, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-2 col-sm-3 ">
-                                    <input id="CostoTotalConEquipo" class="form-control" value="@Model.CostoTotalConEquipo" style="text-align:right" readonly />
-                                </div>
-                            </div>
-
                             <div class="ln_solid"></div>
                             <div class="form-group row">
                                 <span style="color:black"><b>COMENTARIOS</b></span>
@@ -222,100 +118,11 @@
             })
 
             //inicializa input mask
-            $('#@Html.IdFor(model => model.num_telefono)').inputmask({ "mask": "(999) 999-9999", 'autoUnmask': true, 'removeMaskOnSubmit': true });
-            $('#@Html.IdFor(model => model.costo_servicios_telecomunicaciones)').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
-            $('#@Html.IdFor(model => model.costo_servicios_y_suscripciones)').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
-            $('#@Html.IdFor(model => model.costo_servicios_y_suscripciones_terceros)').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
-            $('#@Html.IdFor(model => model.costo_equipo_celular)').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
-             $('#@Html.IdFor(model => model.costo_servicios_cobrados_terceros)').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
-            $('#@Html.IdFor(model => model.porcentaje_iva)').inputmask({ 'alias': 'decimal', 'min': 0, 'max': 100, 'digits': 2, 'digitsOptional': false, 'suffix': ' %', 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
+    
+            $('#@Html.IdFor(model => model.precio)').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
+                       
+        });      
 
-
-
-            //agrega evento OnChange para saber si el empleado tiene usuari
-            //Agrega el evento a todos los input
-            $(".cantidad").each(function () {
-                $(this).on('input', function (e) {
-                    calculaTotales();
-                });
-                //agregado para detectar todos los eventos
-                $(this).on('keyup', function (e) {
-                    calculaTotales();
-                });
-            });
-
-            //calcula los datos cuando carga la página por primera vez
-            calculaTotales();
-
-            //activa desactiva info_device
-            $("#@Html.IdFor(model => model.id_it_inventory_items)").change(function () {
-                verificaInfo();
-            });
-
-
-            //muestra el modal con la info
-            $("#btn-info-cell").click(function () {
-                var id_cel = $("#@Html.IdFor(model => model.id_it_inventory_items) option:selected").val();
-                window.open('/IT_Inventory_items/Detailssmartphone/'+id_cel+'', 'popup', "width=" + screen.width *.80 + ",height=" + screen.height *.80 + "");
-            });
-        });
-
-        function verificaInfo() {
-            var id_cel = $("#@Html.IdFor(model => model.id_it_inventory_items) option:selected").val();
-
-            //si material esta vacia
-            if (id_cel == "") {
-                $("#btn-info-cell").prop("disabled", true);
-                $("#btn-info-cell").hide(400);
-            }
-            else {
-                $("#btn-info-cell").prop("disabled", false);
-                $("#btn-info-cell").show(400);
-            }
-        }
-
-
-        function calculaTotales() {
-
-            let costo_servicios_telecomunicaciones = ConvierteAFloat($('#@Html.IdFor(model => model.costo_servicios_telecomunicaciones)').val(), 0);
-            let costo_servicios_y_suscripciones = ConvierteAFloat($('#@Html.IdFor(model => model.costo_servicios_y_suscripciones)').val(), 0);
-            let costo_servicios_y_suscripciones_terceros = ConvierteAFloat($('#@Html.IdFor(model => model.costo_servicios_y_suscripciones_terceros)').val(), 0);
-            let costo_equipo_celular = ConvierteAFloat($('#@Html.IdFor(model => model.costo_equipo_celular)').val(), 0);
-            let costo_servicios_cobrados_terceros = ConvierteAFloat($('#@Html.IdFor(model => model.costo_servicios_cobrados_terceros)').val(), 0);
-            let porcentaje_iva = ConvierteAFloat($('#@Html.IdFor(model => model.porcentaje_iva)').val(), 0);
-
-
-            let iva = (
-                costo_servicios_telecomunicaciones
-                + costo_servicios_y_suscripciones
-                + costo_servicios_cobrados_terceros
-                + costo_servicios_y_suscripciones_terceros
-                + costo_equipo_celular
-            )
-                * (porcentaje_iva / 100);
-
-            let total_sin_equipo = (
-                costo_servicios_telecomunicaciones
-                + costo_servicios_y_suscripciones
-                + costo_servicios_cobrados_terceros
-                + costo_servicios_y_suscripciones_terceros)
-                * (1 + (porcentaje_iva / 100));
-
-            let total_con_equipo = (
-                costo_servicios_telecomunicaciones
-                + costo_servicios_y_suscripciones
-                + costo_servicios_cobrados_terceros
-                + costo_servicios_y_suscripciones_terceros
-                + costo_equipo_celular
-                )
-                * (1 + (porcentaje_iva / 100))
-
-
-
-            $('#iva').val('$ ' + iva.toFixed(2));
-            $('#CostoTotal').val('$ ' + total_sin_equipo.toFixed(2));
-            $('#CostoTotalConEquipo').val('$ ' + total_con_equipo.toFixed(2));
-        }
 
         window.onload = function () {
             clicMenu(1);

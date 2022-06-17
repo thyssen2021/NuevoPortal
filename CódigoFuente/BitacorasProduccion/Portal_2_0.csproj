@@ -7106,6 +7106,10 @@
     <Content Include="Views\IT_inventory_cellular_plans\Index.cshtml" />
     <Content Include="Views\IT_inventory_cellular_plans\Disable.cshtml" />
     <Content Include="Views\IT_inventory_cellular_plans\Enable.cshtml" />
+    <Content Include="Views\IT_inventory_items\CreateScanner.cshtml" />
+    <Content Include="Views\IT_inventory_items\DetailsScanner.cshtml" />
+    <Content Include="Views\IT_inventory_items\EditScanner.cshtml" />
+    <Content Include="Views\IT_inventory_items\Scanner.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

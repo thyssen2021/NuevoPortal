@@ -17,7 +17,7 @@ namespace Portal_2_0.Controllers
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
         // GET: IT_inventory_cellular_plans
-        public ActionResult Index(string num_telefono, bool? activo, int pagina = 1)
+        public ActionResult Index( bool? activo, int pagina = 1)
         {
             if (TieneRol(TipoRoles.IT_INVENTORY))
             {
@@ -31,9 +31,8 @@ namespace Portal_2_0.Controllers
 
 
                 var listado = db.IT_inventory_cellular_plans
-                    .Where(x =>
-                    (x.num_telefono.Contains(num_telefono) || String.IsNullOrEmpty(num_telefono))
-                    && (x.activo == activo || activo == null)
+                    .Where(x =>                    
+                     (x.activo == activo || activo == null)
                     )
                   //porteriormente ordenar por id_planta
                   .OrderByDescending(x => x.id)
@@ -41,14 +40,12 @@ namespace Portal_2_0.Controllers
                  .Take(cantidadRegistrosPorPagina).ToList();
 
                 var totalDeRegistros = db.IT_inventory_cellular_plans
-                      .Where(x =>
-                    (x.num_telefono.Contains(num_telefono) || String.IsNullOrEmpty(num_telefono))
-                    && (x.activo == activo || activo == null)
+                        .Where(x =>
+                     (x.activo == activo || activo == null)
                     )
                          .Count();
 
-                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
-                routeValues["num_telefono"] = num_telefono;
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();              
                 routeValues["activo"] = activo;
                 routeValues["pagina"] = pagina;
 
@@ -74,7 +71,7 @@ namespace Portal_2_0.Controllers
 
         }
 
-        public ActionResult Exportar(string num_telefono, bool? activo)
+        public ActionResult Exportar( bool? activo)
         {
             if (TieneRol(TipoRoles.IT_INVENTORY))
             {
@@ -89,8 +86,7 @@ namespace Portal_2_0.Controllers
 
                 var listado = db.IT_inventory_cellular_plans
                     .Where(x =>
-                    (x.num_telefono.Contains(num_telefono) || String.IsNullOrEmpty(num_telefono))
-                    && (x.activo == activo || activo == null)
+                    (x.activo == activo || activo == null)
                     )
                   //porteriormente ordenar por id_planta
                   .OrderByDescending(x => x.id)
@@ -147,14 +143,8 @@ namespace Portal_2_0.Controllers
         public ActionResult Create()
         {
             if (TieneRol(TipoRoles.IT_INVENTORY))
-            {
-                decimal porcentaje_iva = 16.0M;
-
-                //busca el tipo inventario para desktop
-                //ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas.Where(x => x.activo), "clave", "descripcion"), textoPorDefecto: "-- All --", selected: id_planta.ToString());
-                var type = GetHardware_TypeCell();
-                ViewBag.id_it_inventory_items = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x => x.id_inventory_type == type.id && x.active == true), "id", "ConcatInfoSmartphone"));
-                return View(new IT_inventory_cellular_plans { activo = true, porcentaje_iva = porcentaje_iva });
+            {        
+                                    return View(new IT_inventory_cellular_plans { activo = true });
             }
             else
             {
@@ -170,13 +160,7 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(IT_inventory_cellular_plans iT_inventory_cellular_plans)
         {
-            // ModelState.AddModelError("", "Ejemplo de error.");
-
-            if (db.IT_inventory_cellular_plans.Any(x => x.id_it_inventory_items == iT_inventory_cellular_plans.id_it_inventory_items && iT_inventory_cellular_plans.id_it_inventory_items > 0))
-                ModelState.AddModelError("", "El equipo seleccionado ya se encuentra asignado a otro plan.");
-
-            if (db.IT_inventory_cellular_plans.Any(x => x.num_telefono == iT_inventory_cellular_plans.num_telefono && !String.IsNullOrEmpty(iT_inventory_cellular_plans.num_telefono)))
-                ModelState.AddModelError("", "El número de celular ya se encuentra asignado a otro plan.");
+           
 
             if (ModelState.IsValid)
             {
@@ -186,9 +170,7 @@ namespace Portal_2_0.Controllers
                 return RedirectToAction("Index");
             }
 
-            var type = GetHardware_TypeCell();
-            ViewBag.id_it_inventory_items = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x => x.id_inventory_type == type.id && x.active == true), "id", "ConcatInfoSmartphone"), selected: iT_inventory_cellular_plans.id_it_inventory_items.ToString());
-            return View(iT_inventory_cellular_plans);
+                return View(iT_inventory_cellular_plans);
         }
 
         // GET: IT_inventory_cellular_plans/Edit/5
@@ -205,9 +187,7 @@ namespace Portal_2_0.Controllers
                 {
                     return View("../Error/NotFound");
                 }
-                var type = GetHardware_TypeCell();
-                ViewBag.id_it_inventory_items = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x => x.id_inventory_type == type.id && x.active == true), "id", "ConcatInfoSmartphone"), selected: iT_inventory_cellular_plans.id_it_inventory_items.ToString());
-                return View(iT_inventory_cellular_plans);
+                    return View(iT_inventory_cellular_plans);
             }
             else
             {
@@ -223,11 +203,7 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit(IT_inventory_cellular_plans iT_inventory_cellular_plans)
         {
-            if (db.IT_inventory_cellular_plans.Any(x => x.id_it_inventory_items == iT_inventory_cellular_plans.id_it_inventory_items && iT_inventory_cellular_plans.id_it_inventory_items > 0 && x.id != iT_inventory_cellular_plans.id))
-                ModelState.AddModelError("", "El equipo seleccionado ya se encuentra asignado a otro plan.");
-
-            if (db.IT_inventory_cellular_plans.Any(x => x.num_telefono == iT_inventory_cellular_plans.num_telefono && !String.IsNullOrEmpty(iT_inventory_cellular_plans.num_telefono) && x.id != iT_inventory_cellular_plans.id))
-                ModelState.AddModelError("", "El número de celular ya se encuentra asignado a otro plan.");
+            
 
             if (ModelState.IsValid)
             {
@@ -236,9 +212,7 @@ namespace Portal_2_0.Controllers
                 TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
                 return RedirectToAction("Index");
             }
-            var type = GetHardware_TypeCell();
-            ViewBag.id_it_inventory_items = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x => x.id_inventory_type == type.id && x.active == true), "id", "ConcatInfoSmartphone"), selected: iT_inventory_cellular_plans.id_it_inventory_items.ToString());
-            return View(iT_inventory_cellular_plans);
+                return View(iT_inventory_cellular_plans);
         }
 
         // GET: PFA_Departmet/Disable/5

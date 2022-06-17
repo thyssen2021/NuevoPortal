@@ -1,6 +1,7 @@
 ﻿using Bitacoras.Util;
 using DocumentFormat.OpenXml.Spreadsheet;
 using SpreadsheetLight;
+using SpreadsheetLight.Drawing;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -271,13 +272,13 @@ namespace Portal_2_0.Models
 
             //inmoviliza el encabezado
             oSLDocument.FreezePanes(2, 0);
-            
-            
+
+
             oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
             oSLDocument.SetRowStyle(1, styleHeader);
             oSLDocument.SetRowStyle(1, styleHeaderFont);
 
-            oSLDocument.CollapseRows(filasEncabezados.Count + 1);            
+            oSLDocument.CollapseRows(filasEncabezados.Count + 1);
 
             //inserta una celda al inicio
             // insert 1 rows at row 1
@@ -295,9 +296,27 @@ namespace Portal_2_0.Models
             oSLDocument.MergeWorksheetCells(1, 3, 1, 6);
             oSLDocument.SetCellValue("C1", "thyssenkrupp Materials de México S.A de C.V.");
             oSLDocument.SetCellValue("A1", DateTime.Now.ToShortDateString());
-            
+
             oSLDocument.SetRowStyle(1, styleEncabezado);
             oSLDocument.SetRowHeight(1, 32.0);
+
+            //Inserta pie de página
+            oSLDocument.MergeWorksheetCells(dt.Rows.Count + 6, 3, dt.Rows.Count + 6, 4);
+            oSLDocument.MergeWorksheetCells(dt.Rows.Count + 6, 5, dt.Rows.Count + 6, 7);
+            oSLDocument.SetRowHeight(dt.Rows.Count + 6, 50.0);
+
+            //copia de la hoja Aux
+            oSLDocument.CopyCellFromWorksheet("Aux", 1, 1, 1, 7, dt.Rows.Count + 6, 2);
+
+            //establece la clave del documento
+            oSLDocument.SetCellValue(dt.Rows.Count + 6,8, codigoDoc);
+
+            SLPicture pic = new SLPicture(HttpContext.Current.Server.MapPath("~/Content/images/logo_1.png"));
+            // set the top of the picture to be halfway in row 3
+            // and the left of the picture to be halfway in column 1
+            pic.ResizeInPercentage(30, 30);
+            pic.SetPosition(dt.Rows.Count + 5.1, 1);
+            oSLDocument.InsertPicture(pic);
 
             System.IO.Stream stream = new System.IO.MemoryStream();
 
@@ -1575,47 +1594,41 @@ namespace Portal_2_0.Models
             filasEncabezados.Add(false); //es el encabezado principal
 
             //columnas          
-            dt.Columns.Add("Id", typeof(string));
-            dt.Columns.Add("Type", typeof(string));
-            dt.Columns.Add("Plant", typeof(string));
-            dt.Columns.Add("Hostname", typeof(string));
-            dt.Columns.Add("Brand", typeof(string));
-            dt.Columns.Add("Model", typeof(string));
-            dt.Columns.Add("Serial Number", typeof(string));
-            dt.Columns.Add("Operation System", typeof(string));
-            dt.Columns.Add("OS bits", typeof(int));
-            dt.Columns.Add("Purchase Date", typeof(DateTime));
-            dt.Columns.Add("CPU speed (MHz)", typeof(int));
-            dt.Columns.Add("Numbers of CPUs", typeof(int));
-            dt.Columns.Add("Processor", typeof(string));
-            dt.Columns.Add("MAC LAN", typeof(string));
-            dt.Columns.Add("MAC WLAN", typeof(string));
-            dt.Columns.Add("Total Physical Memory (MB)", typeof(decimal));
-            dt.Columns.Add("Drive Letter", typeof(string));
-            dt.Columns.Add("Total Drive Space (MB)", typeof(int));
-            dt.Columns.Add("Free Drive Space (MB)", typeof(int));
-            dt.Columns.Add("Drive Type", typeof(string));
-            dt.Columns.Add("Number of hard drives", typeof(int));
-            dt.Columns.Add("Total Disk Space (MB)", typeof(int));
-            dt.Columns.Add("Total Free Disk Space (MB)", typeof(int));
-            dt.Columns.Add("Maintenance Period (months)", typeof(int));
-            dt.Columns.Add("Last Maintenance", typeof(DateTime));
-            dt.Columns.Add("Physical Staus", typeof(string));
-            dt.Columns.Add("Warranty", typeof(bool));
-            dt.Columns.Add("Start Warranty", typeof(DateTime));
-            dt.Columns.Add("End Warranty", typeof(DateTime));
-            dt.Columns.Add("Is in operation?", typeof(bool));
-            dt.Columns.Add("Is active?", typeof(bool));
-            dt.Columns.Add("Inactive Date?", typeof(DateTime));
-            dt.Columns.Add("Comments", typeof(string));
+            dt.Columns.Add("Id", typeof(string));   //1
+            dt.Columns.Add("Type", typeof(string)); //2
+            dt.Columns.Add("Plant", typeof(string));  //3
+            dt.Columns.Add("Hostname", typeof(string)); //4
+            dt.Columns.Add("Brand", typeof(string));    //5
+            dt.Columns.Add("Model", typeof(string));    //6
+            dt.Columns.Add("Serial Number", typeof(string));    //7
+            dt.Columns.Add("Operation System", typeof(string)); //8
+            dt.Columns.Add("OS bits", typeof(int)); //9
+            dt.Columns.Add("CPU speed (MHz)", typeof(int)); //10
+            dt.Columns.Add("Numbers of CPUs", typeof(int)); //11
+            dt.Columns.Add("Processor", typeof(string));    //12
+            dt.Columns.Add("MAC LAN", typeof(string));      //13
+            dt.Columns.Add("MAC WLAN", typeof(string));     //14
+            dt.Columns.Add("Total Physical Memory (MB)", typeof(decimal)); //15
+            dt.Columns.Add("Drive Letter", typeof(string));     //16
+            dt.Columns.Add("Total Drive Space (MB)", typeof(int));  //17
+            dt.Columns.Add("Drive Type", typeof(string));       //18
+            dt.Columns.Add("Number of hard drives", typeof(int));   //19
+            dt.Columns.Add("Total Disk Space (MB)", typeof(int));   //20
+            dt.Columns.Add("Maintenance Period (months)", typeof(int)); //21
+            dt.Columns.Add("Purchase Date", typeof(DateTime));  //22
+            dt.Columns.Add("End Warranty", typeof(DateTime));   //23
+            dt.Columns.Add("Is active?", typeof(bool));         //24
+            dt.Columns.Add("Inactive Date?", typeof(DateTime)); //25
+            dt.Columns.Add("Comments", typeof(string));         //26
 
             ////registros , rows
             foreach (IT_inventory_items item in listado)
             {
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.hostname, item.brand, item.model, item.serial_number,
-                    item.operation_system, item.bits_operation_system, item.purchase_date, item.cpu_speed_mhz, item.number_of_cpus, item.processor, item.mac_lan, item.mac_wlan,
-                    item.total_physical_memory_mb, null, null, null, null, item.NumberOfHardDrives, item.TotalDiskSpace, item.TotalFreeDiskSpace, item.maintenance_period_months, item.last_maintenance, item.physical_status, item.warranty, item.start_warranty, item.end_warranty,
-                    item.is_in_operation, item.active, item.inactive_date, item.comments
+                    item.operation_system, item.bits_operation_system,  item.cpu_speed_mhz, item.number_of_cpus, item.processor, item.mac_lan, item.mac_wlan,
+                    item.total_physical_memory_mb, null, null,  null, item.NumberOfHardDrives, item.TotalDiskSpace,  item.maintenance_period_months, 
+                     item.purchase_date, item.end_warranty,
+                     item.active, item.inactive_date, item.comments
                     );
 
                 filasEncabezados.Add(true);
@@ -1628,7 +1641,6 @@ namespace Portal_2_0.Models
 
                     row["Drive Letter"] = hd.disk_name;
                     row["Total Drive Space (MB)"] = hd.total_drive_space_mb;
-                    row["Free Drive Space (MB)"] = hd.free_drive_space_mb;
                     row["Drive Type"] = hd.type_drive;
 
                     dt.Rows.Add(row);
@@ -1689,11 +1701,9 @@ namespace Portal_2_0.Models
             ////estilo para fecha
             SLStyle styleShortDate = oSLDocument.CreateStyle();
             styleShortDate.FormatCode = "yyyy/MM/dd";
-            oSLDocument.SetColumnStyle(10, styleShortDate);
+            oSLDocument.SetColumnStyle(22, styleShortDate);
+            oSLDocument.SetColumnStyle(23, styleShortDate);
             oSLDocument.SetColumnStyle(25, styleShortDate);
-            oSLDocument.SetColumnStyle(28, styleShortDate);
-            oSLDocument.SetColumnStyle(29, styleShortDate);
-            oSLDocument.SetColumnStyle(32, styleShortDate);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
@@ -1714,16 +1724,16 @@ namespace Portal_2_0.Models
                 }
                 else
                 {
-                    oSLDocument.SetCellStyle(i + 1, 17, i + 1, 20, styleLoteInfo);
+                    oSLDocument.SetCellStyle(i + 1, 17, i + 1, 19, styleLoteInfo);
                 }
                 //colapsa todas las filas
                 oSLDocument.CollapseRows(i + 2);
             }
             //da estilo a los numero
-            oSLDocument.SetColumnStyle(11, styleNumberInt);
-            oSLDocument.SetColumnStyle(19, styleNumberInt);
-            oSLDocument.SetColumnStyle(22, 23, styleNumberInt);
-            oSLDocument.SetColumnStyle(16, styleNumberDecimal); //decimal
+            oSLDocument.SetColumnStyle(10, styleNumberInt);
+            oSLDocument.SetColumnStyle(17, styleNumberInt);
+            oSLDocument.SetColumnStyle(20, styleNumberInt);
+            oSLDocument.SetColumnStyle(15, styleNumberDecimal); //decimal
 
             oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
             oSLDocument.AutoFitColumn(1, dt.Columns.Count);
@@ -1733,7 +1743,7 @@ namespace Portal_2_0.Models
             oSLDocument.SetRowStyle(1, styleHeaderFont);
 
             //da color gris a cabeceras expandibles
-            oSLDocument.SetCellStyle(1, 17, 1, 20, styleHeaderRowDrive);
+            oSLDocument.SetCellStyle(1, 17, 1, 19, styleHeaderRowDrive);
 
             oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
 
@@ -1755,29 +1765,24 @@ namespace Portal_2_0.Models
 
 
             //columnas          
-            dt.Columns.Add("Id", typeof(string));
-            dt.Columns.Add("Type", typeof(string));
-            dt.Columns.Add("Plant", typeof(string));
-            dt.Columns.Add("Brand", typeof(string));
-            dt.Columns.Add("Model", typeof(string));
-            dt.Columns.Add("Serial Number", typeof(string));
-            dt.Columns.Add("Inches", typeof(string));
-            dt.Columns.Add("Purchase Date", typeof(DateTime));
-            dt.Columns.Add("Physical Staus", typeof(string));
-            dt.Columns.Add("Warranty", typeof(bool));
-            dt.Columns.Add("Start Warranty", typeof(DateTime));
-            dt.Columns.Add("End Warranty", typeof(DateTime));
-            dt.Columns.Add("Is in operation?", typeof(bool));
-            dt.Columns.Add("Is active?", typeof(bool));
-            dt.Columns.Add("Inactive Date?", typeof(DateTime));
-            dt.Columns.Add("Comments", typeof(string));
+            dt.Columns.Add("Id", typeof(string));       //1
+            dt.Columns.Add("Type", typeof(string));     //2
+            dt.Columns.Add("Plant", typeof(string));    //3
+            dt.Columns.Add("Brand", typeof(string));    //4
+            dt.Columns.Add("Model", typeof(string));    //5
+            dt.Columns.Add("Serial Number", typeof(string));    //6
+            dt.Columns.Add("Inches", typeof(string));           //7
+            dt.Columns.Add("Purchase Date", typeof(DateTime));  //8       
+            dt.Columns.Add("End Warranty", typeof(DateTime));   //9
+            dt.Columns.Add("Is active?", typeof(bool));         //10
+            dt.Columns.Add("Inactive Date?", typeof(DateTime)); //11
+            dt.Columns.Add("Comments", typeof(string));         //12
 
             ////registros , rows
             foreach (IT_inventory_items item in listado)
             {
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.brand, item.model, item.serial_number, item.inches,
-                    item.purchase_date, item.physical_status, item.warranty, item.start_warranty, item.end_warranty,
-                    item.is_in_operation, item.active, item.inactive_date, item.comments
+                    item.purchase_date,  item.end_warranty, item.active, item.inactive_date, item.comments
                     );
             }
 
@@ -1816,9 +1821,8 @@ namespace Portal_2_0.Models
             ////estilo para fecha
             SLStyle styleShortDate = oSLDocument.CreateStyle();
             styleShortDate.FormatCode = "yyyy/MM/dd";
-            oSLDocument.SetColumnStyle(8, styleShortDate);
-            oSLDocument.SetColumnStyle(11, 12, styleShortDate);
-            oSLDocument.SetColumnStyle(15, styleShortDate);
+            oSLDocument.SetColumnStyle(8, 9, styleShortDate);
+            oSLDocument.SetColumnStyle(11, styleShortDate);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
@@ -1860,30 +1864,26 @@ namespace Portal_2_0.Models
 
 
             //columnas          
-            dt.Columns.Add("Id", typeof(string));
-            dt.Columns.Add("Type", typeof(string));
-            dt.Columns.Add("Plant", typeof(string));
-            dt.Columns.Add("Brand", typeof(string));
-            dt.Columns.Add("Model", typeof(string));
-            dt.Columns.Add("Serial Number", typeof(string));
-            dt.Columns.Add("Printer Ubication", typeof(string));
-            dt.Columns.Add("Ip Address", typeof(string));
-            dt.Columns.Add("Purchase Date", typeof(DateTime));
-            dt.Columns.Add("Physical Staus", typeof(string));
-            dt.Columns.Add("Warranty", typeof(bool));
-            dt.Columns.Add("Start Warranty", typeof(DateTime));
-            dt.Columns.Add("End Warranty", typeof(DateTime));
-            dt.Columns.Add("Is in operation?", typeof(bool));
-            dt.Columns.Add("Is active?", typeof(bool));
-            dt.Columns.Add("Inactive Date?", typeof(DateTime));
-            dt.Columns.Add("Comments", typeof(string));
+            dt.Columns.Add("Id", typeof(string));           //1
+            dt.Columns.Add("Type", typeof(string));         //2
+            dt.Columns.Add("Plant", typeof(string));        //3
+            dt.Columns.Add("Brand", typeof(string));        //4
+            dt.Columns.Add("Model", typeof(string));        //5
+            dt.Columns.Add("Serial Number", typeof(string));//6
+            dt.Columns.Add("Printer Ubication", typeof(string));    //7
+            dt.Columns.Add("Ip Address", typeof(string));           //8
+            dt.Columns.Add("Purchase Date", typeof(DateTime));      //9    
+            dt.Columns.Add("End Warranty", typeof(DateTime));       //10
+            dt.Columns.Add("Is active?", typeof(bool));             //11
+            dt.Columns.Add("Inactive Date?", typeof(DateTime));     //12
+            dt.Columns.Add("Comments", typeof(string));             //13
 
             ////registros , rows
             foreach (IT_inventory_items item in listado)
             {
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.brand, item.model, item.serial_number, item.printer_ubication,
-                    item.ip_adress, item.purchase_date, item.physical_status, item.warranty, item.start_warranty, item.end_warranty,
-                    item.is_in_operation, item.active, item.inactive_date, item.comments
+                    item.ip_adress, item.purchase_date,  item.end_warranty,
+                     item.active, item.inactive_date, item.comments
                     );
             }
 
@@ -1922,9 +1922,8 @@ namespace Portal_2_0.Models
             ////estilo para fecha
             SLStyle styleShortDate = oSLDocument.CreateStyle();
             styleShortDate.FormatCode = "yyyy/MM/dd";
-            oSLDocument.SetColumnStyle(9, styleShortDate);
-            oSLDocument.SetColumnStyle(12, 13, styleShortDate);
-            oSLDocument.SetColumnStyle(16, styleShortDate);
+            oSLDocument.SetColumnStyle(9, 10, styleShortDate);
+            oSLDocument.SetColumnStyle(12, styleShortDate);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
@@ -1966,31 +1965,27 @@ namespace Portal_2_0.Models
 
 
             //columnas          
-            dt.Columns.Add("Id", typeof(string));
-            dt.Columns.Add("Type", typeof(string));
-            dt.Columns.Add("Plant", typeof(string));
-            dt.Columns.Add("Brand", typeof(string));
-            dt.Columns.Add("Model", typeof(string));
-            dt.Columns.Add("Serial Number", typeof(string));
-            dt.Columns.Add("Printer Ubication", typeof(string));
-            dt.Columns.Add("Ip Address", typeof(string));
-            dt.Columns.Add("Cost Center", typeof(string));
-            dt.Columns.Add("Purchase Date", typeof(DateTime));
-            dt.Columns.Add("Physical Staus", typeof(string));
-            dt.Columns.Add("Warranty", typeof(bool));
-            dt.Columns.Add("Start Warranty", typeof(DateTime));
-            dt.Columns.Add("End Warranty", typeof(DateTime));
-            dt.Columns.Add("Is in operation?", typeof(bool));
-            dt.Columns.Add("Is active?", typeof(bool));
-            dt.Columns.Add("Inactive Date?", typeof(DateTime));
-            dt.Columns.Add("Comments", typeof(string));
+            dt.Columns.Add("Id", typeof(string));               //1
+            dt.Columns.Add("Type", typeof(string));             //2
+            dt.Columns.Add("Plant", typeof(string));            //3
+            dt.Columns.Add("Brand", typeof(string));            //4
+            dt.Columns.Add("Model", typeof(string));            //5
+            dt.Columns.Add("Serial Number", typeof(string));    //6
+            dt.Columns.Add("Printer Ubication", typeof(string));//7
+            dt.Columns.Add("Ip Address", typeof(string));       //8
+            dt.Columns.Add("Cost Center", typeof(string));      //9
+            dt.Columns.Add("Purchase Date", typeof(DateTime));  //10          
+            dt.Columns.Add("End Warranty", typeof(DateTime));   //11
+            dt.Columns.Add("Is active?", typeof(bool));         //12
+            dt.Columns.Add("Inactive Date?", typeof(DateTime)); //13
+            dt.Columns.Add("Comments", typeof(string));         //14
 
             ////registros , rows
             foreach (IT_inventory_items item in listado)
             {
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.brand, item.model, item.serial_number, item.printer_ubication,
-                    item.ip_adress, item.cost_center, item.purchase_date, item.physical_status, item.warranty, item.start_warranty, item.end_warranty,
-                    item.is_in_operation, item.active, item.inactive_date, item.comments
+                    item.ip_adress, item.cost_center, item.purchase_date,  item.end_warranty,
+                     item.active, item.inactive_date, item.comments
                     );
             }
 
@@ -2029,9 +2024,8 @@ namespace Portal_2_0.Models
             ////estilo para fecha
             SLStyle styleShortDate = oSLDocument.CreateStyle();
             styleShortDate.FormatCode = "yyyy/MM/dd";
-            oSLDocument.SetColumnStyle(10, styleShortDate);
-            oSLDocument.SetColumnStyle(13, 14, styleShortDate);
-            oSLDocument.SetColumnStyle(17, styleShortDate);
+            oSLDocument.SetColumnStyle(10, 11, styleShortDate);
+            oSLDocument.SetColumnStyle(13, styleShortDate);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
@@ -2073,29 +2067,24 @@ namespace Portal_2_0.Models
 
 
             //columnas          
-            dt.Columns.Add("Id", typeof(string));
-            dt.Columns.Add("Type", typeof(string));
-            dt.Columns.Add("Plant", typeof(string));
-            dt.Columns.Add("Brand", typeof(string));
-            dt.Columns.Add("Model", typeof(string));
-            dt.Columns.Add("Serial Number", typeof(string));
-            dt.Columns.Add("MAC WLAN", typeof(string));
-            dt.Columns.Add("Purchase Date", typeof(DateTime));
-            dt.Columns.Add("Physical Staus", typeof(string));
-            dt.Columns.Add("Warranty", typeof(bool));
-            dt.Columns.Add("Start Warranty", typeof(DateTime));
-            dt.Columns.Add("End Warranty", typeof(DateTime));
-            dt.Columns.Add("Is in operation?", typeof(bool));
-            dt.Columns.Add("Is active?", typeof(bool));
-            dt.Columns.Add("Inactive Date?", typeof(DateTime));
-            dt.Columns.Add("Comments", typeof(string));
+            dt.Columns.Add("Id", typeof(string));                   //1
+            dt.Columns.Add("Type", typeof(string));                 //2
+            dt.Columns.Add("Plant", typeof(string));                //3
+            dt.Columns.Add("Brand", typeof(string));                //4
+            dt.Columns.Add("Model", typeof(string));                //5
+            dt.Columns.Add("Serial Number", typeof(string));        //6
+            dt.Columns.Add("MAC WLAN", typeof(string));             //7
+            dt.Columns.Add("Purchase Date", typeof(DateTime));      //8           
+            dt.Columns.Add("End Warranty", typeof(DateTime));       //9
+            dt.Columns.Add("Is active?", typeof(bool));             //10
+            dt.Columns.Add("Inactive Date?", typeof(DateTime));     //11
+            dt.Columns.Add("Comments", typeof(string));             //12
 
             ////registros , rows
             foreach (IT_inventory_items item in listado)
             {
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.brand, item.model, item.serial_number, item.mac_wlan,
-                    item.purchase_date, item.physical_status, item.warranty, item.start_warranty, item.end_warranty,
-                    item.is_in_operation, item.active, item.inactive_date, item.comments
+                    item.purchase_date, item.end_warranty, item.active, item.inactive_date, item.comments
                     );
             }
 
@@ -2134,9 +2123,8 @@ namespace Portal_2_0.Models
             ////estilo para fecha
             SLStyle styleShortDate = oSLDocument.CreateStyle();
             styleShortDate.FormatCode = "yyyy/MM/dd";
-            oSLDocument.SetColumnStyle(8, styleShortDate);
-            oSLDocument.SetColumnStyle(11, 12, styleShortDate);
-            oSLDocument.SetColumnStyle(15, styleShortDate);
+            oSLDocument.SetColumnStyle(8, 9, styleShortDate);
+            oSLDocument.SetColumnStyle(11, styleShortDate);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
@@ -2178,35 +2166,31 @@ namespace Portal_2_0.Models
 
 
             //columnas          
-            dt.Columns.Add("Id", typeof(string));
-            dt.Columns.Add("Type", typeof(string));
-            dt.Columns.Add("Plant", typeof(string));
-            dt.Columns.Add("Brand", typeof(string));
-            dt.Columns.Add("Model", typeof(string));
-            dt.Columns.Add("Serial Number", typeof(string));
-            dt.Columns.Add("Inches", typeof(string));
-            dt.Columns.Add("Processor", typeof(string));
-            dt.Columns.Add("Total Physical Memory (MB)", typeof(int));
-            dt.Columns.Add("Storage (MB)", typeof(int));
-            dt.Columns.Add("Operation System", typeof(string));
-            dt.Columns.Add("MAC WLAN", typeof(string));
-            dt.Columns.Add("Purchase Date", typeof(DateTime));
-            dt.Columns.Add("Physical Staus", typeof(string));
-            dt.Columns.Add("Warranty", typeof(bool));
-            dt.Columns.Add("Start Warranty", typeof(DateTime));
-            dt.Columns.Add("End Warranty", typeof(DateTime));
-            dt.Columns.Add("Is in operation?", typeof(bool));
-            dt.Columns.Add("Is active?", typeof(bool));
-            dt.Columns.Add("Inactive Date?", typeof(DateTime));
-            dt.Columns.Add("Comments", typeof(string));
+            dt.Columns.Add("Id", typeof(string));                       //1
+            dt.Columns.Add("Type", typeof(string));                     //2
+            dt.Columns.Add("Plant", typeof(string));                    //3
+            dt.Columns.Add("Brand", typeof(string));                    //4
+            dt.Columns.Add("Model", typeof(string));                    //5
+            dt.Columns.Add("Serial Number", typeof(string));            //6
+            dt.Columns.Add("Inches", typeof(string));                   //7
+            dt.Columns.Add("Processor", typeof(string));                //8
+            dt.Columns.Add("Total Physical Memory (MB)", typeof(int));  //9
+            dt.Columns.Add("Storage (MB)", typeof(int));                //10
+            dt.Columns.Add("Operation System", typeof(string));         //11
+            dt.Columns.Add("MAC WLAN", typeof(string));                 //12
+            dt.Columns.Add("Purchase Date", typeof(DateTime));          //13             
+            dt.Columns.Add("End Warranty", typeof(DateTime));           //14
+            dt.Columns.Add("Is active?", typeof(bool));                 //15
+            dt.Columns.Add("Inactive Date?", typeof(DateTime));         //16
+            dt.Columns.Add("Comments", typeof(string));                 //17
 
             ////registros , rows
             foreach (IT_inventory_items item in listado)
             {
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.brand, item.model, item.serial_number, item.inches,
                     item.processor, item.total_physical_memory_mb, item.movil_device_storage_mb, item.operation_system, item.mac_wlan,
-                    item.purchase_date, item.physical_status, item.warranty, item.start_warranty, item.end_warranty,
-                    item.is_in_operation, item.active, item.inactive_date, item.comments
+                    item.purchase_date,  item.end_warranty,
+                   item.active, item.inactive_date, item.comments
                     );
             }
 
@@ -2245,9 +2229,8 @@ namespace Portal_2_0.Models
             ////estilo para fecha
             SLStyle styleShortDate = oSLDocument.CreateStyle();
             styleShortDate.FormatCode = "yyyy/MM/dd";
-            oSLDocument.SetColumnStyle(13, styleShortDate);
-            oSLDocument.SetColumnStyle(16, 17, styleShortDate);
-            oSLDocument.SetColumnStyle(20, styleShortDate);
+            oSLDocument.SetColumnStyle(13, 14, styleShortDate);
+            oSLDocument.SetColumnStyle(16, styleShortDate);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
@@ -2292,28 +2275,24 @@ namespace Portal_2_0.Models
 
 
             //columnas          
-            dt.Columns.Add("Id", typeof(string));
-            dt.Columns.Add("Type", typeof(string));
-            dt.Columns.Add("Plant", typeof(string));
-            dt.Columns.Add("Brand", typeof(string));
-            dt.Columns.Add("Model", typeof(string));
-            dt.Columns.Add("Serial Number", typeof(string));
-            dt.Columns.Add("Purchase Date", typeof(DateTime));
-            dt.Columns.Add("Physical Staus", typeof(string));
-            dt.Columns.Add("Warranty", typeof(bool));
-            dt.Columns.Add("Start Warranty", typeof(DateTime));
-            dt.Columns.Add("End Warranty", typeof(DateTime));
-            dt.Columns.Add("Is in operation?", typeof(bool));
-            dt.Columns.Add("Is active?", typeof(bool));
-            dt.Columns.Add("Inactive Date?", typeof(DateTime));
-            dt.Columns.Add("Comments", typeof(string));
+            dt.Columns.Add("Id", typeof(string));                   //1
+            dt.Columns.Add("Type", typeof(string));                 //2
+            dt.Columns.Add("Plant", typeof(string));                //3
+            dt.Columns.Add("Brand", typeof(string));                //4
+            dt.Columns.Add("Model", typeof(string));                //5
+            dt.Columns.Add("Serial Number", typeof(string));        //6
+            dt.Columns.Add("Purchase Date", typeof(DateTime));      //7     
+            dt.Columns.Add("End Warranty", typeof(DateTime));       //8
+            dt.Columns.Add("Is active?", typeof(bool));             //9
+            dt.Columns.Add("Inactive Date?", typeof(DateTime));     //10
+            dt.Columns.Add("Comments", typeof(string));             //11
 
             ////registros , rows
             foreach (IT_inventory_items item in listado)
             {
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.brand, item.model, item.serial_number,
-                    item.purchase_date, item.physical_status, item.warranty, item.start_warranty, item.end_warranty,
-                    item.is_in_operation, item.active, item.inactive_date, item.comments
+                    item.purchase_date,  item.end_warranty,
+                    item.active, item.inactive_date, item.comments
                     );
             }
 
@@ -2352,9 +2331,8 @@ namespace Portal_2_0.Models
             ////estilo para fecha
             SLStyle styleShortDate = oSLDocument.CreateStyle();
             styleShortDate.FormatCode = "yyyy/MM/dd";
-            oSLDocument.SetColumnStyle(7, styleShortDate);
-            oSLDocument.SetColumnStyle(10, 11, styleShortDate);
-            oSLDocument.SetColumnStyle(14, styleShortDate);
+            oSLDocument.SetColumnStyle(7, 8, styleShortDate);
+            oSLDocument.SetColumnStyle(10, styleShortDate);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
@@ -2396,33 +2374,29 @@ namespace Portal_2_0.Models
 
 
             //columnas          
-            dt.Columns.Add("Id", typeof(string));
-            dt.Columns.Add("Type", typeof(string));
-            dt.Columns.Add("Plant", typeof(string));
-            dt.Columns.Add("Name", typeof(string));
-            dt.Columns.Add("Brand", typeof(string));
-            dt.Columns.Add("Model", typeof(string));
-            dt.Columns.Add("Serial Number", typeof(string));
-            dt.Columns.Add("MAC LAN", typeof(string));
-            dt.Columns.Add("MAC WLAN", typeof(string));
-            dt.Columns.Add("IP Address", typeof(string));
-            dt.Columns.Add("Purchase Date", typeof(DateTime));
-            dt.Columns.Add("Physical Staus", typeof(string));
-            dt.Columns.Add("Warranty", typeof(bool));
-            dt.Columns.Add("Start Warranty", typeof(DateTime));
-            dt.Columns.Add("End Warranty", typeof(DateTime));
-            dt.Columns.Add("Is in operation?", typeof(bool));
-            dt.Columns.Add("Is active?", typeof(bool));
-            dt.Columns.Add("Inactive Date?", typeof(DateTime));
-            dt.Columns.Add("Comments", typeof(string));
+            dt.Columns.Add("Id", typeof(string));                   //1
+            dt.Columns.Add("Type", typeof(string));                 //2
+            dt.Columns.Add("Plant", typeof(string));                //3
+            dt.Columns.Add("Name", typeof(string));                 //4
+            dt.Columns.Add("Brand", typeof(string));                //5
+            dt.Columns.Add("Model", typeof(string));                //6
+            dt.Columns.Add("Serial Number", typeof(string));        //7
+            dt.Columns.Add("MAC LAN", typeof(string));              //8
+            dt.Columns.Add("MAC WLAN", typeof(string));             //9
+            dt.Columns.Add("IP Address", typeof(string));           //10
+            dt.Columns.Add("Purchase Date", typeof(DateTime));      //11              
+            dt.Columns.Add("End Warranty", typeof(DateTime));       //12
+            dt.Columns.Add("Is active?", typeof(bool));             //13
+            dt.Columns.Add("Inactive Date?", typeof(DateTime));     //14
+            dt.Columns.Add("Comments", typeof(string));             //15
 
             ////registros , rows
             foreach (IT_inventory_items item in listado)
             {
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.hostname, item.brand, item.model, item.serial_number,
                     item.mac_lan, item.mac_wlan, item.ip_adress,
-                    item.purchase_date, item.physical_status, item.warranty, item.start_warranty, item.end_warranty,
-                    item.is_in_operation, item.active, item.inactive_date, item.comments
+                    item.purchase_date,  item.end_warranty,
+                    item.active, item.inactive_date, item.comments
                     );
             }
 
@@ -2461,9 +2435,8 @@ namespace Portal_2_0.Models
             ////estilo para fecha
             SLStyle styleShortDate = oSLDocument.CreateStyle();
             styleShortDate.FormatCode = "yyyy/MM/dd";
-            oSLDocument.SetColumnStyle(11, styleShortDate);
-            oSLDocument.SetColumnStyle(14, 15, styleShortDate);
-            oSLDocument.SetColumnStyle(18, styleShortDate);
+            oSLDocument.SetColumnStyle(11, 12, styleShortDate);
+            oSLDocument.SetColumnStyle(14, styleShortDate);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
@@ -2505,36 +2478,32 @@ namespace Portal_2_0.Models
 
 
             //columnas          
-            dt.Columns.Add("Id", typeof(string));
-            dt.Columns.Add("Type", typeof(string));
-            dt.Columns.Add("Plant", typeof(string));
-            dt.Columns.Add("Brand", typeof(string));
-            dt.Columns.Add("Model", typeof(string));
-            dt.Columns.Add("Serial Number", typeof(string));
-            dt.Columns.Add("Processor", typeof(string));
-            dt.Columns.Add("Total Physical Memory (MB)", typeof(int));
-            dt.Columns.Add("Storage (MB)", typeof(int));
-            dt.Columns.Add("Operation System", typeof(string));
-            dt.Columns.Add("MAC WLAN", typeof(string));
-            dt.Columns.Add("IMEI 1", typeof(string));
-            dt.Columns.Add("IMEI 2", typeof(string));
-            dt.Columns.Add("Purchase Date", typeof(DateTime));
-            dt.Columns.Add("Physical Staus", typeof(string));
-            dt.Columns.Add("Warranty", typeof(bool));
-            dt.Columns.Add("Start Warranty", typeof(DateTime));
-            dt.Columns.Add("End Warranty", typeof(DateTime));
-            dt.Columns.Add("Is in operation?", typeof(bool));
-            dt.Columns.Add("Is active?", typeof(bool));
-            dt.Columns.Add("Inactive Date?", typeof(DateTime));
-            dt.Columns.Add("Comments", typeof(string));
+            dt.Columns.Add("Id", typeof(string));                           //1
+            dt.Columns.Add("Type", typeof(string));                         //2
+            dt.Columns.Add("Plant", typeof(string));                        //3
+            dt.Columns.Add("Brand", typeof(string));                        //4
+            dt.Columns.Add("Model", typeof(string));                        //5
+            dt.Columns.Add("Serial Number", typeof(string));                //6
+            dt.Columns.Add("Processor", typeof(string));                    //7
+            dt.Columns.Add("Total Physical Memory (MB)", typeof(int));      //8
+            dt.Columns.Add("Storage (MB)", typeof(int));                    //9
+            dt.Columns.Add("Operation System", typeof(string));             //10
+            dt.Columns.Add("MAC WLAN", typeof(string));                     //11
+            dt.Columns.Add("IMEI 1", typeof(string));                       //12
+            dt.Columns.Add("IMEI 2", typeof(string));                       //13
+            dt.Columns.Add("Purchase Date", typeof(DateTime));              //14
+            dt.Columns.Add("End Warranty", typeof(DateTime));               //15
+            dt.Columns.Add("Is active?", typeof(bool));                     //16
+            dt.Columns.Add("Inactive Date?", typeof(DateTime));             //17
+            dt.Columns.Add("Comments", typeof(string));                     //18
 
             ////registros , rows
             foreach (IT_inventory_items item in listado)
             {
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.brand, item.model, item.serial_number,
                     item.processor, item.total_physical_memory_mb, item.movil_device_storage_mb, item.operation_system, item.mac_wlan, item.imei_1, item.imei_2,
-                    item.purchase_date, item.physical_status, item.warranty, item.start_warranty, item.end_warranty,
-                    item.is_in_operation, item.active, item.inactive_date, item.comments
+                    item.purchase_date, item.end_warranty,
+                    item.active, item.inactive_date, item.comments
                     );
             }
 
@@ -2573,9 +2542,8 @@ namespace Portal_2_0.Models
             ////estilo para fecha
             SLStyle styleShortDate = oSLDocument.CreateStyle();
             styleShortDate.FormatCode = "yyyy/MM/dd";
-            oSLDocument.SetColumnStyle(14, styleShortDate);
-            oSLDocument.SetColumnStyle(17, 18, styleShortDate);
-            oSLDocument.SetColumnStyle(21, styleShortDate);
+            oSLDocument.SetColumnStyle(14, 15, styleShortDate);
+            oSLDocument.SetColumnStyle(17, styleShortDate);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
@@ -2762,50 +2730,25 @@ namespace Portal_2_0.Models
 
 
             //columnas          
-            dt.Columns.Add("Cuenta Padre", typeof(string));
-            dt.Columns.Add("Cuenta Hija", typeof(string));
-            dt.Columns.Add("Número de Teléfono", typeof(string));
-            dt.Columns.Add("CeCo", typeof(string));
-            dt.Columns.Add("Nombre", typeof(string));
-            dt.Columns.Add("Razón Social", typeof(string));
-            dt.Columns.Add("Fecha Corte", typeof(DateTime));
-            dt.Columns.Add("Número Factura", typeof(string));
+            dt.Columns.Add("ID", typeof(int));
             dt.Columns.Add("Plan Nombre", typeof(string));
-            dt.Columns.Add("Sevicio de Telecomunicaciones", typeof(decimal));
-            dt.Columns.Add("Sevicios y Suscripciones", typeof(decimal));
-            dt.Columns.Add("Sevicios y Suscripciones (Terceros)", typeof(decimal));
-            dt.Columns.Add("Equipo Celular", typeof(decimal));
-            dt.Columns.Add("Sevicios cobrados por cuenta y orden de terceros", typeof(decimal));
-            dt.Columns.Add("IVA", typeof(decimal));
-            dt.Columns.Add("Total (sin equipo)", typeof(decimal));
-            dt.Columns.Add("Total (con equipo)", typeof(decimal));
+            dt.Columns.Add("Compañia", typeof(string));       
+            dt.Columns.Add("Precio", typeof(decimal));           
             dt.Columns.Add("Comentarios", typeof(string));
+            dt.Columns.Add("Activo?", typeof(bool));
 
             ////registros , rows
             foreach (IT_inventory_cellular_plans item in listado)
             {
-                dt.Rows.Add(item.cuenta_padre, item.cuenta_hija, item.num_telefono, item.centro_costo, "*Pendiente*", item.razon_social, item.fecha_corte, item.numero_factura,
-                    item.nombre_plan, item.costo_servicios_telecomunicaciones, item.costo_servicios_y_suscripciones, item.costo_servicios_y_suscripciones_terceros, item.costo_equipo_celular,
-                    item.costo_servicios_cobrados_terceros, item.IVA, item.CostoTotal, item.CostoTotalConEquipo, item.comentarios
-                    );
+                dt.Rows.Add(item.id, item.nombre_plan, item.nombre_compania, item.precio,  item.comentarios, item.activo);
             }
 
-            //dar formato al excel y agregar la sumatoria
-            System.Data.DataRow row = dt.NewRow();
-            row["Total (sin equipo)"] = listado.Sum(x => x.CostoTotal);
-            row["Total (con equipo)"] = listado.Sum(x => x.CostoTotalConEquipo);
 
-            dt.Rows.Add(row);
-
-            SLStyle styleFooter = oSLDocument.CreateStyle();
-            styleFooter.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#c6efce"), System.Drawing.ColorTranslator.FromHtml("#c6efce"));
-            styleFooter.Font.Bold = true;
-            styleFooter.Font.FontColor = System.Drawing.ColorTranslator.FromHtml("#006100");
-            oSLDocument.SetCellStyle(dt.Rows.Count + 1, 1, dt.Rows.Count + 1, dt.Columns.Count, styleFooter);
-
+          
             //crea la hoja de Inventory y la selecciona
             oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Planes Telefonía");
             oSLDocument.ImportDataTable(1, 1, dt, true);
+
 
             //estilo para ajustar al texto
             SLStyle styleWrap = oSLDocument.CreateStyle();
@@ -2819,8 +2762,9 @@ namespace Portal_2_0.Models
 
 
             //estilo para numeros
-            SLStyle styleNumberInt = oSLDocument.CreateStyle();
-            styleNumberInt.FormatCode = "$ #,##0.00";
+            SLStyle styleCurrency = oSLDocument.CreateStyle();
+            styleCurrency.FormatCode = "$ #,##0.00";
+            oSLDocument.SetColumnStyle(4, styleCurrency);
 
 
             //estilo para cada lote
@@ -2835,12 +2779,12 @@ namespace Portal_2_0.Models
             styleLoteInfo.Border.RightBorder.BorderStyle = BorderStyleValues.Thin;
             styleLoteInfo.Border.RightBorder.Color = System.Drawing.Color.LightGray;
 
-            ////estilo para fecha
-            SLStyle styleShortDate = oSLDocument.CreateStyle();
-            styleShortDate.FormatCode = "yyyy/MM/dd";
-            oSLDocument.SetColumnStyle(7, styleShortDate);
+            //////estilo para fecha
+            //SLStyle styleShortDate = oSLDocument.CreateStyle();
+            //styleShortDate.FormatCode = "yyyy/MM/dd";
+            //oSLDocument.SetColumnStyle(7, styleShortDate);
 
-            oSLDocument.SetColumnStyle(10, 17, styleNumberInt);
+            //oSLDocument.SetColumnStyle(10, 17, styleNumberInt);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
@@ -2861,11 +2805,113 @@ namespace Portal_2_0.Models
             oSLDocument.SetRowStyle(1, styleHeader);
             oSLDocument.SetRowStyle(1, styleHeaderFont);
             oSLDocument.SetRowHeight(1, 45.0);
-            oSLDocument.SetRowHeight(2, listado.Count + 1, 15.0);
+            oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
 
             oSLDocument.AutoFitColumn(1, dt.Columns.Count);
 
-            oSLDocument.SetColumnWidth(10, 17, 17.5);
+
+            oSLDocument.SetColumnWidth(6, 12);
+
+
+            System.IO.Stream stream = new System.IO.MemoryStream();
+
+            oSLDocument.SaveAs(stream);
+
+            byte[] array = Bitacoras.Util.StreamUtil.ToByteArray(stream);
+
+            return (array);
+        }
+
+        public static byte[] GeneraReporteITscannerExcel(List<IT_inventory_items> listado)
+        {
+
+            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+
+            System.Data.DataTable dt = new System.Data.DataTable();
+
+
+            //columnas          
+            dt.Columns.Add("Code", typeof(string));                   //1
+            dt.Columns.Add("Type", typeof(string));                 //2
+            dt.Columns.Add("Plant", typeof(string));                //3
+            dt.Columns.Add("Brand", typeof(string));                //4
+            dt.Columns.Add("Model", typeof(string));                //5
+            dt.Columns.Add("Serial Number", typeof(string));        //6
+            dt.Columns.Add("MAC WLAN", typeof(string));             //7
+            dt.Columns.Add("Purchase Date", typeof(DateTime));      //8           
+            dt.Columns.Add("End Warranty", typeof(DateTime));       //9
+            dt.Columns.Add("Is active?", typeof(bool));             //10
+            dt.Columns.Add("Inactive Date?", typeof(DateTime));     //11
+            dt.Columns.Add("Accessories", typeof(string));          //12
+            dt.Columns.Add("Comments", typeof(string));             //13
+
+            ////registros , rows
+            foreach (IT_inventory_items item in listado)
+            {
+                dt.Rows.Add(item.code, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.brand, item.model, item.serial_number, item.mac_wlan,
+                    item.purchase_date, item.end_warranty, item.active, item.inactive_date, item.accessories, item.comments
+                    );
+            }
+
+            //crea la hoja de Inventory y la selecciona
+            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Inventory Scanners");
+            oSLDocument.ImportDataTable(1, 1, dt, true);
+
+            //estilo para ajustar al texto
+            SLStyle styleWrap = oSLDocument.CreateStyle();
+            styleWrap.SetWrapText(true);
+            styleWrap.Alignment.Vertical = VerticalAlignmentValues.Top;
+
+            //estilo para el encabezado
+            SLStyle styleHeader = oSLDocument.CreateStyle();
+            styleHeader.Font.Bold = true;
+            styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
+
+
+            //estilo para numeros
+            SLStyle styleNumberInt = oSLDocument.CreateStyle();
+            styleNumberInt.FormatCode = "#,##0";
+
+
+            //estilo para cada lote
+            SLStyle styleLoteInfo = oSLDocument.CreateStyle();
+            styleLoteInfo.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffffcc"), System.Drawing.ColorTranslator.FromHtml("#ffffcc"));
+            styleLoteInfo.Border.BottomBorder.BorderStyle = BorderStyleValues.Thin;
+            styleLoteInfo.Border.BottomBorder.Color = System.Drawing.Color.LightGray;
+            styleLoteInfo.Border.TopBorder.BorderStyle = BorderStyleValues.Thin;
+            styleLoteInfo.Border.TopBorder.Color = System.Drawing.Color.LightGray;
+            styleLoteInfo.Border.LeftBorder.BorderStyle = BorderStyleValues.Thin;
+            styleLoteInfo.Border.LeftBorder.Color = System.Drawing.Color.LightGray;
+            styleLoteInfo.Border.RightBorder.BorderStyle = BorderStyleValues.Thin;
+            styleLoteInfo.Border.RightBorder.Color = System.Drawing.Color.LightGray;
+
+            ////estilo para fecha
+            SLStyle styleShortDate = oSLDocument.CreateStyle();
+            styleShortDate.FormatCode = "yyyy/MM/dd";
+            oSLDocument.SetColumnStyle(8, 9, styleShortDate);
+            oSLDocument.SetColumnStyle(11, styleShortDate);
+
+
+            SLStyle styleHeaderFont = oSLDocument.CreateStyle();
+            styleHeaderFont.Font.FontName = "Calibri";
+            styleHeaderFont.Font.FontSize = 11;
+            styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
+            styleHeaderFont.Font.Bold = true;
+
+            //da estilo a la hoja de excel
+            //inmoviliza el encabezado
+            oSLDocument.FreezePanes(1, 0);
+
+
+            oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
+            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+
+            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
+            oSLDocument.SetRowStyle(1, styleHeader);
+            oSLDocument.SetRowStyle(1, styleHeaderFont);
+
+
+            oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
 
             System.IO.Stream stream = new System.IO.MemoryStream();
 

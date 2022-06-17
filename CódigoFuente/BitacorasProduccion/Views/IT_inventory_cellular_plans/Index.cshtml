@@ -19,12 +19,7 @@
     {
         pagina = paginacionFiltros.ValoresQueryString["pagina"].ToString();
     }
-
-    string num_telefono = string.Empty;
-    if (paginacionFiltros.ValoresQueryString["num_telefono"] != null)
-    {
-        num_telefono = paginacionFiltros.ValoresQueryString["num_telefono"].ToString();
-    }
+  
 
     bool? active = null;
     if (paginacionFiltros.ValoresQueryString["activo"] != null)
@@ -95,14 +90,8 @@
                                         {
 
                                             <div class="form-group row ">
-                                                @*<label class="control-label col-md-1 col-sm-1" for="id_planta" style="text-align:right">Plant:</label>
-                                                <div class="col-md-2 col-sm-2 ">
-                                                    @Html.DropDownList("id_planta", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
-                                                </div>*@
-                                                <label class="control-label col-md-1 col-sm-1" for="hostname" style="text-align:right">Núm. Celular:</label>
-                                                <div class="col-md-2 col-sm-2">
-                                                    <input type="text" id="num_telefono" name="num_telefono" class="form-control" value="@num_telefono" autocomplete="off" />
-                                                </div>
+                                               
+                                               
                                                 <label class="control-label col-md-1 col-sm-1" for="active" style="text-align:right">Active:</label>
                                                 <div class="col-md-2 col-sm-2 ">
                                                     <select name="active" class="form-control select2bs4" style="width:100%">
@@ -133,22 +122,15 @@
                                     </div>
                                     <table id="datatable_1" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
                                         <thead>
-                                            <tr>
-
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.num_telefono)
-                                                </th>
+                                            <tr>                                              
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.nombre_compania)
                                                 </th>
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.nombre_plan)
-                                                </th>
+                                                </th>                                                
                                                 <th>
-                                                    Asignado
-                                                </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.fecha_corte)
+                                                    @Html.DisplayNameFor(model => model.precio)
                                                 </th>
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.activo)
@@ -160,10 +142,7 @@
                                             @foreach (var item in Model)
                                             {
                                                 <tr style="@(item.activo == false ? "color:red" :"" )">
-
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.num_telefono)
-                                                    </td>
+                                                 
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.nombre_compania)
                                                     </td>
@@ -172,11 +151,9 @@
                                                         @Html.DisplayFor(modelItem => item.nombre_plan)
                                                     </td>
                                                     <td>
-                                                        **Pendiente
+                                                        @Html.DisplayFor(modelItem => item.precio)
                                                     </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.fecha_corte)
-                                                    </td>
+                                                  
                                                     <td>
                                                         @if (item.activo)
                                                         {
@@ -223,9 +200,7 @@
                                     <div class="form-group">
 
                                         <a href="@Url.Action("Exportar", ViewBag.ControllerName, new
-                                                {
-                                                    //id_planta = id_planta,
-                                                    num_telefono = num_telefono,
+                                                {                                                   
                                                     activo = active,
 
                                                 })" class="btn btn-success btm-sm" target="_blank" title="Reporte">

@@ -15,25 +15,10 @@ namespace Portal_2_0.Models
     public partial class IT_inventory_cellular_plans
     {
         public int id { get; set; }
-        public Nullable<int> id_it_inventory_items { get; set; }
-        public string razon_social { get; set; }
-        public string cuenta_padre { get; set; }
-        public string cuenta_hija { get; set; }
-        public string num_telefono { get; set; }
-        public string centro_costo { get; set; }
-        public Nullable<System.DateTime> fecha_corte { get; set; }
-        public string numero_factura { get; set; }
         public string nombre_plan { get; set; }
-        public Nullable<decimal> costo_servicios_telecomunicaciones { get; set; }
-        public Nullable<decimal> costo_servicios_y_suscripciones { get; set; }
-        public Nullable<decimal> costo_servicios_y_suscripciones_terceros { get; set; }
-        public Nullable<decimal> costo_equipo_celular { get; set; }
-        public Nullable<decimal> costo_servicios_cobrados_terceros { get; set; }
-        public Nullable<decimal> porcentaje_iva { get; set; }
-        public bool activo { get; set; }
         public string nombre_compania { get; set; }
+        public Nullable<decimal> precio { get; set; }
         public string comentarios { get; set; }
-    
-        public virtual IT_inventory_items IT_inventory_items { get; set; }
+        public bool activo { get; set; }
     }
 }

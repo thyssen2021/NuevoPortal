@@ -13,7 +13,7 @@ namespace Portal_2_0.Models
         [Display(Name = "Id")]
         public int id { get; set; }
 
-        [Required(ErrorMessage ="The field {0} is required.")]
+        [Required(ErrorMessage = "The field {0} is required.")]
         [Display(Name = "Plant")]
         public int id_planta { get; set; }
 
@@ -25,6 +25,7 @@ namespace Portal_2_0.Models
 
         [DataType(DataType.Date)]
         [Display(Name = "Purchase Date")]
+        [RequiredIf("WarrantyRequired", true, ErrorMessage = "The field {0} is Required.")]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public Nullable<System.DateTime> purchase_date { get; set; }
 
@@ -34,7 +35,7 @@ namespace Portal_2_0.Models
         [RequiredIf("active", false, ErrorMessage = "The field {0} is Required.")]
         public Nullable<System.DateTime> inactive_date { get; set; }
 
-        [MaxLength(250, ErrorMessage = "The max length for {0} is {1} characters.")]    
+        [MaxLength(250, ErrorMessage = "The max length for {0} is {1} characters.")]
         [Display(Name = "Comments")]
         public string comments { get; set; }
 
@@ -54,19 +55,11 @@ namespace Portal_2_0.Models
         [Display(Name = "Serial Number")]
         public string serial_number { get; set; }
 
-        [Display(Name = "Warranty?")]
-        public Nullable<bool> warranty { get; set; }
 
-        [Display(Name = "Start Warranty")]
         [DataType(DataType.Date)]
-        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
-        [RequiredIf("warranty", true, ErrorMessage = "The field {0} is Required.")]
-        public Nullable<System.DateTime> start_warranty { get; set; }
-
         [Display(Name = "End Warranty")]
-        [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
-        [RequiredIf("warranty", true, ErrorMessage = "The field {0} is Required.")]
+        [RequiredIf("WarrantyRequired", true, ErrorMessage = "The field {0} is Required.")]
         public Nullable<System.DateTime> end_warranty { get; set; }
 
         [Display(Name = "MAC LAN")]
@@ -90,17 +83,9 @@ namespace Portal_2_0.Models
         [Range(0, Int32.MaxValue, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
         public Nullable<int> maintenance_period_months { get; set; }
 
-        [Display(Name = "Last Maintenance")]
-        [DataType(DataType.Date)]
-        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
-        public Nullable<System.DateTime> last_maintenance { get; set; }
-
-        [Display(Name = "Physical Status")]
-        [MaxLength(150, ErrorMessage = "The max length for {0} is {1} characters.")]
-        public string physical_status { get; set; }
-
-        [Display(Name = "Is in operation?")]
-        public Nullable<bool> is_in_operation { get; set; }
+        //[Display(Name = "Physical Status")]
+        //[MaxLength(150, ErrorMessage = "The max length for {0} is {1} characters.")]
+        //public string physical_status { get; set; }       
 
         [Display(Name = "CPU speed (MHz)")]
         [Range(0, Int32.MaxValue, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
@@ -111,7 +96,7 @@ namespace Portal_2_0.Models
         public string operation_system { get; set; }
 
         [Display(Name = "OS bits")]
-        [Range(32,64, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
+        [Range(32, 64, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
         public Nullable<int> bits_operation_system { get; set; }
 
         [Display(Name = "Number of CPUs")]
@@ -134,7 +119,7 @@ namespace Portal_2_0.Models
         [Range(0, Int32.MaxValue, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
         public Nullable<int> movil_device_storage_mb { get; set; }
 
-        [RegularExpression(@"^\d+(\.\d{1,2})?$",ErrorMessage ="Invalid Format. Use only two decimals.")]
+        [RegularExpression(@"^\d+(\.\d{1,2})?$", ErrorMessage = "Invalid Format. Use only two decimals.")]
         [Range(0, 99.99)]
         [Display(Name = "Inches")]
         public Nullable<decimal> inches { get; set; }
@@ -148,12 +133,20 @@ namespace Portal_2_0.Models
         [StringLength(15, MinimumLength = 15, ErrorMessage = "The field {0} must be {2} characters long.")]
         [RegularExpression("(^[0-9]+$)", ErrorMessage = "Only numbers are allowed.")]
         public string imei_2 { get; set; }
+
+        [Display(Name = "Code")]
+        [MaxLength(20, ErrorMessage = "The max length for {0} is {1} characters")]
+        public string code { get; set; }
+
+        [Display(Name = "Accesories")]
+        [MaxLength(50, ErrorMessage = "The max length for {0} is {1} characters")]
+        public string accessories { get; set; }
     }
 
     [MetadataType(typeof(IT_inventory_itemsMetadata))]
     public partial class IT_inventory_items
     {
-        
+
         [NotMapped]
         [Display(Name = "Number of hard drives")]
         public int NumberOfHardDrives
@@ -174,21 +167,10 @@ namespace Portal_2_0.Models
             {
                 if (this.IT_inventory_hard_drives == null)
                     return 0;
-                return this.IT_inventory_hard_drives.Sum(x=>x.total_drive_space_mb);
+                return this.IT_inventory_hard_drives.Sum(x => x.total_drive_space_mb);
             }
         }
 
-        [NotMapped]
-        [Display(Name = "Total Free Disk Space (MB)")]
-        public int? TotalFreeDiskSpace
-        {
-            get
-            {
-                if (this.IT_inventory_hard_drives == null)
-                    return 0;
-                return this.IT_inventory_hard_drives.Sum(x => x.free_drive_space_mb);
-            }
-        }
 
         [NotMapped]
         public string ConcatInfoSmartphone  //no incluye equipo
@@ -199,7 +181,7 @@ namespace Portal_2_0.Models
                 try
                 {
                     if (this.plantas != null)
-                        info += " - "+plantas.descripcion+" ";
+                        info += " - " + plantas.descripcion + " ";
                     if (!string.IsNullOrEmpty(this.brand))
                         info += " - " + brand + " ";
                     if (!string.IsNullOrEmpty(this.model))
@@ -217,12 +199,20 @@ namespace Portal_2_0.Models
             }
         }
 
-        public string GetNombrePlan() {
-            if (this.IT_inventory_cellular_plans == null || this.IT_inventory_cellular_plans.Count == 0)
-                return String.Empty;
-            else
-                return this.IT_inventory_cellular_plans.FirstOrDefault().nombre_plan;
+        //para foolproof
+        [NotMapped]
+        public bool WarrantyRequired
+        {
+            get
+            {
+                if (this.purchase_date.HasValue || this.end_warranty.HasValue)
+                    return true;
+                else
+                    return false;
+            }
         }
+
+
     }
 }
 

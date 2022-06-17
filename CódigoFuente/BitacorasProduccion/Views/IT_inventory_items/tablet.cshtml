@@ -156,10 +156,7 @@
                                                 </th>
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.inches)
-                                                </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.is_in_operation)
-                                                </th>
+                                                </th>                                                
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.active)
                                                 </th>
@@ -189,23 +186,6 @@
                                                     </td>
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.inches)
-                                                    </td>
-                                                    <td>
-                                                        @if (item.is_in_operation.HasValue)
-                                                        {
-                                                            if (item.is_in_operation.Value)
-                                                            {
-                                                                <span>True</span>
-                                                            }
-                                                            else
-                                                            {
-                                                                <span>False</span>
-                                                            }
-                                                        }
-                                                        else
-                                                        {
-                                                            <span>Not Set</span>
-                                                        }
                                                     </td>
                                                     <td>
                                                         @if (item.active)

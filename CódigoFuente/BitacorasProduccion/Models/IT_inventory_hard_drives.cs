@@ -18,7 +18,6 @@ namespace Portal_2_0.Models
         public int id_inventory_item { get; set; }
         public string disk_name { get; set; }
         public Nullable<int> total_drive_space_mb { get; set; }
-        public Nullable<int> free_drive_space_mb { get; set; }
         public string type_drive { get; set; }
     
         public virtual IT_inventory_items IT_inventory_items { get; set; }

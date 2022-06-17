@@ -54,10 +54,7 @@
                             <div class="col-md-3 col-sm-3 ">
                                 <input class="form-control" value="@Model.plantas.descripcion" readonly="readonly" />
                             </div>
-                            @Html.LabelFor(model => model.purchase_date, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                            <div class="col-md-3 col-sm-3 ">
-                                @Html.EditorFor(model => model.purchase_date, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
-                            </div>
+                           
                         </div>
 
                         <div class="item form-group">
@@ -81,30 +78,15 @@
                                 @Html.EditorFor(model => model.mac_wlan, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                             </div>
                         </div>
-
-                        <div class="item form-group">
-                            @Html.LabelFor(model => model.physical_status, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align:left" })
-                        </div>
-                        <div class="item form-group">
-                            <div class="col-md-12">
-                                @Html.TextAreaFor(model => model.physical_status, new { @class = "form-control", @rows = "4", @readonly = "readonly" })
-                                @Html.ValidationMessageFor(model => model.physical_status, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
+                       
                         <div class="ln_solid"></div>
                         <div class="form-group row">
                             <span style="color:black"><b>WARRANTY</b></span>
                         </div>
                         <div class="item form-group">
-                            @Html.LabelFor(model => model.warranty, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            @Html.LabelFor(model => model.purchase_date, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                             <div class="col-md-3 col-sm-3 ">
-                                @Html.EditorFor(model => model.warranty, new { htmlAttributes = new { @class = "form-control select2bs4", @style = "width:100%", @disabled = "true" } })
-                                @Html.ValidationMessageFor(model => model.warranty, "", new { @class = "text-danger" })
-                            </div>
-                            @Html.LabelFor(model => model.start_warranty, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                            <div class="col-md-3 col-sm-3 ">
-                                @Html.EditorFor(model => model.start_warranty, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
-                                @Html.ValidationMessageFor(model => model.start_warranty, "", new { @class = "text-danger" })
+                                @Html.EditorFor(model => model.purchase_date, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                             </div>
                             @Html.LabelFor(model => model.end_warranty, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                             <div class="col-md-3 col-sm-3 ">
@@ -118,12 +100,7 @@
                             <span style="color:black"><b>STATUS</b></span>
                         </div>
 
-                        <div class="item form-group">
-                            @Html.LabelFor(model => model.is_in_operation, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                            <div class="col-md-3 col-sm-3 ">
-                                @Html.EditorFor(model => model.is_in_operation, new { htmlAttributes = new { @class = "form-control select2bs4", @style = "width:100%", @disabled = "true" } })
-                                @Html.ValidationMessageFor(model => model.is_in_operation, "", new { @class = "text-danger" })
-                            </div>
+                        <div class="item form-group">                           
                             @Html.LabelFor(model => model.active, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                             <div class="col-md-1 col-sm-1 " @*rel="tooltip" data-title="Autorizar"*@>
 

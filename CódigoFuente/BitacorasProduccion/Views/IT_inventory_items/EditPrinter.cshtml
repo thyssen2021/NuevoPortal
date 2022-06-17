@@ -80,11 +80,7 @@
                                     @Html.DropDownList("id_planta", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                     @Html.ValidationMessageFor(model => model.id_planta, "", new { @class = "text-danger" })
                                 </div>
-                                @Html.LabelFor(model => model.purchase_date, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-3 col-sm-3 ">
-                                    @Html.EditorFor(model => model.purchase_date, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                                    @Html.ValidationMessageFor(model => model.purchase_date, "", new { @class = "text-danger" })
-                                </div>
+                               
                             </div>
 
                             <div class="item form-group">
@@ -117,30 +113,15 @@
                                 </div>
                             </div>
 
-
-                            <div class="item form-group">
-                                @Html.LabelFor(model => model.physical_status, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align:left" })
-                            </div>
-                            <div class="item form-group">
-                                <div class="col-md-12">
-                                    @Html.TextAreaFor(model => model.physical_status, new { @class = "form-control", @rows = "4", @autocomplete = "off" })
-                                    @Html.ValidationMessageFor(model => model.physical_status, "", new { @class = "text-danger" })
-                                </div>
-                            </div>
                             <div class="ln_solid"></div>
                             <div class="form-group row">
                                 <span style="color:black"><b>WARRANTY</b></span>
                             </div>
                             <div class="item form-group">
-                                @Html.LabelFor(model => model.warranty, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                @Html.LabelFor(model => model.purchase_date, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                                 <div class="col-md-3 col-sm-3 ">
-                                    @Html.EditorFor(model => model.warranty, new { htmlAttributes = new { @class = "form-control select2bs4", @style = "width:100%" } })
-                                    @Html.ValidationMessageFor(model => model.warranty, "", new { @class = "text-danger" })
-                                </div>
-                                @Html.LabelFor(model => model.start_warranty, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-3 col-sm-3 ">
-                                    @Html.EditorFor(model => model.start_warranty, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                                    @Html.ValidationMessageFor(model => model.start_warranty, "", new { @class = "text-danger" })
+                                    @Html.EditorFor(model => model.purchase_date, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.purchase_date, "", new { @class = "text-danger" })
                                 </div>
                                 @Html.LabelFor(model => model.end_warranty, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                                 <div class="col-md-3 col-sm-3 ">
@@ -154,12 +135,7 @@
                                 <span style="color:black"><b>STATUS</b></span>
                             </div>
 
-                            <div class="item form-group">
-                                @Html.LabelFor(model => model.is_in_operation, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-3 col-sm-3 ">
-                                    @Html.EditorFor(model => model.is_in_operation, new { htmlAttributes = new { @class = "form-control select2bs4", @style = "width:100%" } })
-                                    @Html.ValidationMessageFor(model => model.is_in_operation, "", new { @class = "text-danger" })
-                                </div>
+                            <div class="item form-group">                                
                                 @Html.LabelFor(model => model.active, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                                 <div class="col-md-1 col-sm-1 " @*rel="tooltip" data-title="Autorizar"*@>
 
@@ -231,11 +207,6 @@
             });
 
 
-            //agrega evento OnChange para saber si el empleado tiene usuari
-            $("#warranty").change(function () {
-                verificaCombos();
-            });
-
             //eventos input
             $('input').on('ifChecked', function (event) {
                 verificaCombos();
@@ -254,24 +225,10 @@
       
 
         function verificaCombos() {
-            //warranty
-            let warranty = $('#warranty').val();
-
-            if (warranty == 'true') {
-                $('#start_warranty').prop('disabled', false);
-                $('#end_warranty').prop('disabled', false);
-            } else {
-                $('#start_warranty').prop('disabled', true);
-                $('#end_warranty').prop('disabled', true);
-                $('#start_warranty').val('');
-                $('#end_warranty').val('');
-            }
-
+            
             //check
             if (!$('#active').prop('checked')) {
-                $('#inactive_date').prop('disabled', false);
-                $('#is_in_operation').prop('disabled', true);
-                $("#is_in_operation").val("false");
+                $('#inactive_date').prop('disabled', false);                
 
                 // Initialize Select2 Elements (debe ir después de asignar el valor)
                 $('.select2bs4').select2({
@@ -279,9 +236,8 @@
                 })
 
             } else { //si el check está seleccionado
-                $('#inactive_date').prop('disabled', true);
-                $('#is_in_operation').prop('disabled', false);
-                $('#inactive_date').val('');
+                $('#inactive_date').prop('disabled', true);               
+                //$('#inactive_date').val('');
             }
 
         }

@@ -17,7 +17,6 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public IT_inventory_items()
         {
-            this.IT_inventory_cellular_plans = new HashSet<IT_inventory_cellular_plans>();
             this.IT_inventory_hard_drives = new HashSet<IT_inventory_hard_drives>();
         }
     
@@ -32,17 +31,12 @@ namespace Portal_2_0.Models
         public string brand { get; set; }
         public string model { get; set; }
         public string serial_number { get; set; }
-        public Nullable<bool> warranty { get; set; }
-        public Nullable<System.DateTime> start_warranty { get; set; }
         public Nullable<System.DateTime> end_warranty { get; set; }
         public string mac_lan { get; set; }
         public string mac_wlan { get; set; }
         public string processor { get; set; }
         public Nullable<decimal> total_physical_memory_mb { get; set; }
         public Nullable<int> maintenance_period_months { get; set; }
-        public Nullable<System.DateTime> last_maintenance { get; set; }
-        public string physical_status { get; set; }
-        public Nullable<bool> is_in_operation { get; set; }
         public Nullable<int> cpu_speed_mhz { get; set; }
         public string operation_system { get; set; }
         public Nullable<int> bits_operation_system { get; set; }
@@ -54,12 +48,12 @@ namespace Portal_2_0.Models
         public Nullable<decimal> inches { get; set; }
         public string imei_1 { get; set; }
         public string imei_2 { get; set; }
+        public string code { get; set; }
+        public string accessories { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IT_inventory_cellular_plans> IT_inventory_cellular_plans { get; set; }
+        public virtual ICollection<IT_inventory_hard_drives> IT_inventory_hard_drives { get; set; }
         public virtual IT_inventory_hardware_type IT_inventory_hardware_type { get; set; }
         public virtual plantas plantas { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IT_inventory_hard_drives> IT_inventory_hard_drives { get; set; }
     }
 }

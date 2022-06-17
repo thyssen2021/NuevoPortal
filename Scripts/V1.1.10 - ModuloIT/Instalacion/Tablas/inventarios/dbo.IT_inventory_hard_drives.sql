@@ -23,7 +23,7 @@ CREATE TABLE [IT_inventory_hard_drives](
 	[id_inventory_item] [int] NOT NULL,
 	[disk_name][char] NOT NULL,
 	[total_drive_space_mb][int] NULL,
-	[free_drive_space_mb][int] NULL,
+	--[free_drive_space_mb][int] NULL,
 	[type_drive][varchar](20) NULL, --definir lista en codigo
  CONSTRAINT [PK_IT_inventory_hard_drives] PRIMARY KEY CLUSTERED 
 (

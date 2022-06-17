@@ -31,17 +31,17 @@ CREATE TABLE [IT_inventory_items](
 	[brand][varchar](80) NULL,
 	[model][varchar](80) NULL,
 	[serial_number][varchar](30) NULL,
-	[warranty][bit] NULL,
-	[start_warranty][datetime] NULL,
+	--[warranty][bit] NULL,
+	--[start_warranty][datetime] NULL,
 	[end_warranty][datetime] NULL,
 	[mac_lan][varchar](17) NULL,
 	[mac_wlan][varchar](17) NULL,
 	[processor][varchar](50) NULL,
 	[total_physical_memory_mb][decimal](8,2) NULL, --RAM
 	[maintenance_period_months][int] NULL,
-	[last_maintenance][datetime] NULL,
-	[physical_status][varchar](150) NULL,
-	[is_in_operation][bit] NULL,
+	--[last_maintenance][datetime] NULL,
+	--[physical_status][varchar](150) NULL,
+	--[is_in_operation][bit] NULL,
 	[cpu_speed_mhz][int] NULL,
 	[operation_system][varchar](50) NULL,
 	[bits_operation_system][int] NULL,
@@ -53,6 +53,8 @@ CREATE TABLE [IT_inventory_items](
 	[inches][decimal](4,2) NULL,
 	[imei_1][varchar](15) NULL,
 	[imei_2][varchar](15) NULL,
+	[code][varchar](20) NULL,
+	[accessories][varchar](50) NULL,
 
  CONSTRAINT [PK_IT_inventory_items] PRIMARY KEY CLUSTERED 
 (

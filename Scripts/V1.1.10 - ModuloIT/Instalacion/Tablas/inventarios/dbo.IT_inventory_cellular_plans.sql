@@ -19,24 +19,10 @@ GO
 ******************************************************************************/
 
 CREATE TABLE [IT_inventory_cellular_plans](
-	[id] [int] IDENTITY(1,1) NOT NULL,
-	--[id_planta] [int] NULL,  --id_planta se obtendrá de quien esté asignado a la solicitud  
-	[id_it_inventory_items] [int] NULL, --celular de inventario
-	[razon_social] [varchar](120) NULL,
-	[cuenta_padre][varchar](8) NULL,
-	[cuenta_hija][varchar](8) NULL,
-	[num_telefono][varchar](10) NOT NULL,
-	[centro_costo][varchar](4) NULL,
-	[fecha_corte][datetime] NULL,
-	[numero_factura][varchar](15) NULL,
+	[id] [int] IDENTITY(1,1) NOT NULL,	
 	[nombre_plan][varchar](120) NOT NULL,
-	[costo_servicios_telecomunicaciones][decimal](7,2) NULL,
-	[costo_servicios_y_suscripciones][decimal](7,2) NULL,
-	[costo_servicios_y_suscripciones_terceros][decimal](7,2) NULL,
-	[costo_equipo_celular][decimal](7,2) NULL,
-	[costo_servicios_cobrados_terceros][decimal](7,2) NULL,
-	[porcentaje_iva][decimal](4,2) NULL,
 	[nombre_compania][varchar](80) NOT NULL,
+	[precio][decimal](7,2) NULL,
 	[comentarios][varchar](250) NULL,
 	[activo] [bit] NOT NULL DEFAULT 1, 
  CONSTRAINT [PK_IT_inventory_cellular_plans] PRIMARY KEY CLUSTERED 
@@ -46,12 +32,7 @@ CREATE TABLE [IT_inventory_cellular_plans](
 ) ON [PRIMARY]
 GO
 
-  -- restriccion de clave foranea
-alter table [IT_inventory_cellular_plans]
- add constraint FK_IT_id_it_inventory_items
-  foreign key (id_it_inventory_items)
-  references IT_inventory_items(id);  
-GO
+
 
 --UNIQUE
 --restringir mediante código para que no se pueda insertar un registro numero celular repetido
