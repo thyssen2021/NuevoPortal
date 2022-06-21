@@ -97,14 +97,14 @@
                                     @Html.DropDownList("bits_operation_system", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                     @Html.ValidationMessageFor(model => model.bits_operation_system, "", new { @class = "text-danger" })
                                 </div>
-                                 @Html.LabelFor(model => model.cpu_speed_mhz, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                @Html.LabelFor(model => model.cpu_speed_mhz, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                                 <div class="col-md-3 col-sm-3 ">
                                     @Html.EditorFor(model => model.cpu_speed_mhz, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
                                     @Html.ValidationMessageFor(model => model.cpu_speed_mhz, "", new { @class = "text-danger" })
                                 </div>
                             </div>
 
-                            <div class="item form-group">                               
+                            <div class="item form-group">
                                 @Html.LabelFor(model => model.number_of_cpus, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                                 <div class="col-md-3 col-sm-3 ">
                                     @Html.EditorFor(model => model.number_of_cpus, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
@@ -115,14 +115,14 @@
                                     @Html.EditorFor(model => model.processor, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
                                     @Html.ValidationMessageFor(model => model.processor, "", new { @class = "text-danger" })
                                 </div>
-                                 @Html.LabelFor(model => model.mac_lan, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                @Html.LabelFor(model => model.mac_lan, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                                 <div class="col-md-3 col-sm-3 ">
                                     @Html.EditorFor(model => model.mac_lan, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
                                     @Html.ValidationMessageFor(model => model.mac_lan, "", new { @class = "text-danger" })
                                 </div>
                             </div>
 
-                            <div class="item form-group">                               
+                            <div class="item form-group">
                                 @Html.LabelFor(model => model.mac_wlan, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                                 <div class="col-md-3 col-sm-3 ">
                                     @Html.EditorFor(model => model.mac_wlan, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
@@ -163,7 +163,7 @@
                                             <span class="float-right">Type</span>
                                         </label>
                                         <div class="col-md-2">
-                                            <select name="IT_inventory_hard_drives[@contador].type_drive" id="IT_inventory_hard_drives[@contador].type_drive" class="categoria form-control select2bs4" style="width:100%" >
+                                            <select name="IT_inventory_hard_drives[@contador].type_drive" id="IT_inventory_hard_drives[@contador].type_drive" class="categoria form-control select2bs4" style="width:100%">
                                                 <option value=''>-- Seleccione un valor --</option>
                                                 <option value='SSD' @(item.type_drive == "SSD" ? "selected" : "")>SSD</option>
                                                 <option value='HDD' @(item.type_drive == "HDD" ? "selected" : "")>HDD</option>
@@ -210,8 +210,8 @@
                                 <div class="col-md-1 col-sm-1 ">
                                     @Html.EditorFor(model => model.maintenance_period_months, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
                                     @Html.ValidationMessageFor(model => model.maintenance_period_months, "", new { @class = "text-danger" })
-                                </div>                               
-                            </div>                           
+                                </div>
+                            </div>
                             <div class="ln_solid"></div>
                             <div class="form-group row">
                                 <span style="color:black"><b>WARRANTY</b></span>
@@ -234,7 +234,7 @@
                                 <span style="color:black"><b>STATUS</b></span>
                             </div>
 
-                            <div class="item form-group">                               
+                            <div class="item form-group">
                                 @Html.LabelFor(model => model.active, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                                 <div class="col-md-1 col-sm-1 " @*rel="tooltip" data-title="Autorizar"*@>
 
@@ -290,6 +290,9 @@
     <!-- iCheck -->
     @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/inputmask/inputmask.extensions.js"))
     <script>
         $(document).ready(function () {
 
@@ -317,6 +320,11 @@
 
             //agrega eventos a los input
             asignaEventosInput();
+
+             //inicializa input mask
+            $('#@Html.IdFor(model => model.total_physical_memory_mb)').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'suffix': ' MB', 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true  });
+            $('#@Html.IdFor(model => model.mac_wlan)').inputmask({ 'alias': "mac", 'autoUnmask': true, 'removeMaskOnSubmit': true });
+            $('#@Html.IdFor(model => model.mac_lan)').inputmask({ 'alias': "mac", 'autoUnmask': true, 'removeMaskOnSubmit': true });
 
             verificaCombos();
 
@@ -373,11 +381,11 @@
 
 
 
-        function verificaCombos() {           
+        function verificaCombos() {
 
             //check
             if (!$('#active').prop('checked')) {
-                $('#inactive_date').prop('disabled', false);             
+                $('#inactive_date').prop('disabled', false);
 
                 // Initialize Select2 Elements (debe ir después de asignar el valor)
                 $('.select2bs4').select2({
@@ -385,7 +393,7 @@
                 })
 
             } else { //si el check está seleccionado
-                $('#inactive_date').prop('disabled', true);              
+                $('#inactive_date').prop('disabled', true);
                 //$('#inactive_date').val('');
             }
 

@@ -51,7 +51,7 @@ namespace Portal_2_0.Models
         [Display(Name = "Model")]
         public string model { get; set; }
 
-        [MaxLength(30, ErrorMessage = "The max length for {0} is {1} characters.")]
+        [MaxLength(60, ErrorMessage = "The max length for {0} is {1} characters.")]
         [Display(Name = "Serial Number")]
         public string serial_number { get; set; }
 
@@ -63,11 +63,13 @@ namespace Portal_2_0.Models
         public Nullable<System.DateTime> end_warranty { get; set; }
 
         [Display(Name = "MAC LAN")]
-        [RegularExpression("^(?:[0-9A-Fa-f]{2}[:-]){5}(?:[0-9A-Fa-f]{2})$", ErrorMessage = "Use the format 00:00:00:00:00:00")]
+        [StringLength(12, MinimumLength = 12, ErrorMessage = "The length for {0} must be {1} characters.")]
+        //[RegularExpression("^(?:[0-9A-Fa-f]{2}[:-]){5}(?:[0-9A-Fa-f]{2})$", ErrorMessage = "Use the format 00:00:00:00:00:00")]
         public string mac_lan { get; set; }
 
         [Display(Name = "MAC WLAN")]
-        [RegularExpression("^(?:[0-9A-Fa-f]{2}[:-]){5}(?:[0-9A-Fa-f]{2})$", ErrorMessage = "Use the format 00:00:00:00:00:00")]
+        [StringLength(12, MinimumLength = 12,ErrorMessage = "The length for {0} must be {1} characters.")]
+        //[RegularExpression("^(?:[0-9A-Fa-f]{2}[:-]){5}(?:[0-9A-Fa-f]{2})$", ErrorMessage = "Use the format 00:00:00:00:00:00")]
         public string mac_wlan { get; set; }
 
         [Display(Name = "Processor")]
@@ -75,7 +77,7 @@ namespace Portal_2_0.Models
         public string processor { get; set; }
 
         [Display(Name = "Total Physical Memory (MB)")]
-        [RegularExpression(@"^\d+(\.\d{1,2})?$", ErrorMessage = "Invalid Format. Use only two decimals.")]
+      //  [RegularExpression(@"^\d+(\.\d{1,2})?$", ErrorMessage = "Invalid Format. Use only two decimals.")]
         [Range(0, 999999.99)]
         public Nullable<decimal> total_physical_memory_mb { get; set; }
 

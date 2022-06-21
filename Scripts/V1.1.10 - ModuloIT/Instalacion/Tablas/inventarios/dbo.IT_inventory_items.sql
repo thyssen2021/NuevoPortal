@@ -30,7 +30,7 @@ CREATE TABLE [IT_inventory_items](
 	[hostname][varchar](50) NULL,
 	[brand][varchar](80) NULL,
 	[model][varchar](80) NULL,
-	[serial_number][varchar](30) NULL,
+	[serial_number][varchar](60) NULL,
 	--[warranty][bit] NULL,
 	--[start_warranty][datetime] NULL,
 	[end_warranty][datetime] NULL,

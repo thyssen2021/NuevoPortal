@@ -39,7 +39,7 @@
                         <div class="form-group row">
                             <span style="color:black"><b>GENERAL INFORMATION</b></span>
                         </div>
-                        <div class="item form-group">                           
+                        <div class="item form-group">
                             @Html.LabelFor(model => model.id, new { @class = "col-form-label col-md-11 col-sm-11 label-align" })
                             <div class="col-md-1 col-sm-1 ">
                                 @Html.EditorFor(model => model.id, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
@@ -85,7 +85,7 @@
                                 @Html.EditorFor(model => model.accessories, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                             </div>
                         </div>
-                       
+
                         <div class="ln_solid"></div>
                         <div class="form-group row">
                             <span style="color:black"><b>WARRANTY</b></span>
@@ -107,7 +107,7 @@
                             <span style="color:black"><b>STATUS</b></span>
                         </div>
 
-                        <div class="item form-group">                           
+                        <div class="item form-group">
                             @Html.LabelFor(model => model.active, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                             <div class="col-md-1 col-sm-1 " @*rel="tooltip" data-title="Autorizar"*@>
 
@@ -158,7 +158,10 @@
     <!-- iCheck -->
     @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
-    <script>
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/inputmask/inputmask.extensions.js"))
+<script>
         $(document).ready(function () {
 
             // Initialize Select2 Elements (debe ir después de asignar el valor)
@@ -174,12 +177,17 @@
             });
 
 
+                        //inicializa input mask
+             $('#@Html.IdFor(model => model.total_physical_memory_mb)').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'suffix': ' MB', 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true  });
+             $('#@Html.IdFor(model => model.mac_wlan)').inputmask({ 'alias': "mac", 'autoUnmask': true, 'removeMaskOnSubmit': true });
+             $('#@Html.IdFor(model => model.mac_lan)').inputmask({ 'alias': "mac", 'autoUnmask': true, 'removeMaskOnSubmit': true });
+
         });
 
-       
+
         window.onload = function () {
             clicMenu(1);
         }
-    </script>
+</script>
 }
 

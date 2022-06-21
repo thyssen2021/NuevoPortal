@@ -79,7 +79,7 @@
                                 <div class="col-md-3 col-sm-3 ">
                                     @Html.DropDownList("id_planta", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                     @Html.ValidationMessageFor(model => model.id_planta, "", new { @class = "text-danger" })
-                                </div>                               
+                                </div>
                             </div>
 
                             <div class="item form-group">
@@ -122,7 +122,7 @@
                                 <span style="color:black"><b>WARRANTY</b></span>
                             </div>
                             <div class="item form-group">
-                                 @Html.LabelFor(model => model.purchase_date, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                @Html.LabelFor(model => model.purchase_date, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                                 <div class="col-md-3 col-sm-3 ">
                                     @Html.EditorFor(model => model.purchase_date, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
                                     @Html.ValidationMessageFor(model => model.purchase_date, "", new { @class = "text-danger" })
@@ -139,7 +139,7 @@
                                 <span style="color:black"><b>STATUS</b></span>
                             </div>
 
-                            <div class="item form-group">                               
+                            <div class="item form-group">
                                 @Html.LabelFor(model => model.active, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                                 <div class="col-md-1 col-sm-1 " @*rel="tooltip" data-title="Autorizar"*@>
 
@@ -195,7 +195,10 @@
     <!-- iCheck -->
     @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
-    <script>
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/inputmask/inputmask.extensions.js"))
+<script>
         $(document).ready(function () {
 
             // Initialize Select2 Elements (debe ir después de asignar el valor)
@@ -218,19 +221,25 @@
 
             $('input').on('ifUnchecked', function (event) {
                 verificaCombos();
-            });            
+            });
+
+                        //inicializa input mask
+             $('#@Html.IdFor(model => model.total_physical_memory_mb)').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'suffix': ' MB', 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true  });
+             $('#@Html.IdFor(model => model.mac_wlan)').inputmask({ 'alias': "mac", 'autoUnmask': true, 'removeMaskOnSubmit': true });
+             $('#@Html.IdFor(model => model.mac_lan)').inputmask({ 'alias': "mac", 'autoUnmask': true, 'removeMaskOnSubmit': true });
+
 
             verificaCombos();
 
         });
 
-      
 
-        function verificaCombos() {            
+
+        function verificaCombos() {
 
             //check
             if (!$('#active').prop('checked')) {
-                $('#inactive_date').prop('disabled', false);               
+                $('#inactive_date').prop('disabled', false);
 
                 // Initialize Select2 Elements (debe ir después de asignar el valor)
                 $('.select2bs4').select2({
@@ -238,7 +247,7 @@
                 })
 
             } else { //si el check está seleccionado
-                $('#inactive_date').prop('disabled', true);               
+                $('#inactive_date').prop('disabled', true);
                 //$('#inactive_date').val('');
             }
 
@@ -247,6 +256,6 @@
         window.onload = function () {
             clicMenu(1);
         }
-    </script>
+</script>
 }
 

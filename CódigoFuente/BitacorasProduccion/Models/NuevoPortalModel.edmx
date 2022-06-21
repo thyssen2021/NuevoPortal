@@ -357,7 +357,7 @@
           <Property Name="hostname" Type="varchar" MaxLength="50" />
           <Property Name="brand" Type="varchar" MaxLength="80" />
           <Property Name="model" Type="varchar" MaxLength="80" />
-          <Property Name="serial_number" Type="varchar" MaxLength="30" />
+          <Property Name="serial_number" Type="varchar" MaxLength="60" />
           <Property Name="end_warranty" Type="datetime" />
           <Property Name="mac_lan" Type="varchar" MaxLength="17" />
           <Property Name="mac_wlan" Type="varchar" MaxLength="17" />
@@ -6111,7 +6111,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="hostname" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="brand" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
           <Property Name="model" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
-          <Property Name="serial_number" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="serial_number" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
           <Property Name="end_warranty" Type="DateTime" Precision="3" />
           <Property Name="mac_lan" Type="String" MaxLength="17" FixedLength="false" Unicode="false" />
           <Property Name="mac_wlan" Type="String" MaxLength="17" FixedLength="false" Unicode="false" />

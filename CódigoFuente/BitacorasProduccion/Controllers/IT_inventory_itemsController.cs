@@ -253,8 +253,8 @@ namespace Portal_2_0.Controllers
             }
 
             //verifica que no exista el hostname
-            if (db.IT_inventory_items.Any(x => x.hostname == iT_inventory_items.hostname && !String.IsNullOrEmpty(x.hostname) && x.id_inventory_type == iT_inventory_items.id_inventory_type))
-                ModelState.AddModelError("", "A record the same hostname already exists.");
+            if (db.IT_inventory_items.Any(x => x.hostname == iT_inventory_items.hostname && !String.IsNullOrEmpty(x.hostname) && x.id_inventory_type == iT_inventory_items.id_inventory_type && x.active==true))
+                ModelState.AddModelError("", "An active record with the same hostname already exists.");
 
 
             #endregion
@@ -383,8 +383,8 @@ namespace Portal_2_0.Controllers
             }
 
             //verifica que no exista el hostname
-            if (db.IT_inventory_items.Any(x => x.hostname == iT_inventory_items.hostname && !String.IsNullOrEmpty(x.hostname) && x.id_inventory_type == iT_inventory_items.id_inventory_type && x.id != iT_inventory_items.id))
-                ModelState.AddModelError("", "A record the same hostname already exists.");
+            if (db.IT_inventory_items.Any(x => x.hostname == iT_inventory_items.hostname && !String.IsNullOrEmpty(x.hostname) && x.id_inventory_type == iT_inventory_items.id_inventory_type && x.id != iT_inventory_items.id && x.active == true))
+                ModelState.AddModelError("", "An active record with the same hostname already exists.");
 
             #endregion
 
@@ -673,8 +673,8 @@ namespace Portal_2_0.Controllers
             }
 
             //verifica que no exista el hostname
-            if (db.IT_inventory_items.Any(x => x.hostname == iT_inventory_items.hostname && !String.IsNullOrEmpty(x.hostname) && x.id_inventory_type == iT_inventory_items.id_inventory_type))
-                ModelState.AddModelError("", "A record the same hostname already exists.");
+            if (db.IT_inventory_items.Any(x => x.hostname == iT_inventory_items.hostname && !String.IsNullOrEmpty(x.hostname) && x.id_inventory_type == iT_inventory_items.id_inventory_type && x.active == true))
+                ModelState.AddModelError("", "An active record with the same hostname already exists.");
 
             #endregion
 
@@ -802,8 +802,8 @@ namespace Portal_2_0.Controllers
             }
 
             //verifica que no exista el hostname
-            if (db.IT_inventory_items.Any(x => x.hostname == iT_inventory_items.hostname && !String.IsNullOrEmpty(x.hostname) && x.id_inventory_type == iT_inventory_items.id_inventory_type && x.id != iT_inventory_items.id))
-                ModelState.AddModelError("", "A record the same hostname already exists.");
+            if (db.IT_inventory_items.Any(x => x.hostname == iT_inventory_items.hostname && !String.IsNullOrEmpty(x.hostname) && x.id_inventory_type == iT_inventory_items.id_inventory_type && x.id != iT_inventory_items.id && x.active == true))
+                ModelState.AddModelError("", "An active record with the same hostname already exists.");
 
             #endregion
 
@@ -2556,8 +2556,8 @@ namespace Portal_2_0.Controllers
             }
 
             //verifica que no exista el hostname
-            if (db.IT_inventory_items.Any(x => x.hostname == iT_inventory_items.hostname && !String.IsNullOrEmpty(x.hostname) && x.id_inventory_type == iT_inventory_items.id_inventory_type))
-                ModelState.AddModelError("", "A record the same hostname already exists.");
+            if (db.IT_inventory_items.Any(x => x.hostname == iT_inventory_items.hostname && !String.IsNullOrEmpty(x.hostname) && x.id_inventory_type == iT_inventory_items.id_inventory_type && x.active == true))
+                ModelState.AddModelError("", "An active record with the same hostname already exists.");
 
             #endregion
 
@@ -2685,8 +2685,8 @@ namespace Portal_2_0.Controllers
             }
 
             //verifica que no exista el hostname
-            if (db.IT_inventory_items.Any(x => x.hostname == iT_inventory_items.hostname && !String.IsNullOrEmpty(x.hostname) && x.id_inventory_type == iT_inventory_items.id_inventory_type && x.id != iT_inventory_items.id))
-                ModelState.AddModelError("", "A record the same hostname already exists.");
+            if (db.IT_inventory_items.Any(x => x.hostname == iT_inventory_items.hostname && !String.IsNullOrEmpty(x.hostname) && x.id_inventory_type == iT_inventory_items.id_inventory_type && x.id != iT_inventory_items.id && x.active == true))
+                ModelState.AddModelError("", "An active record with the same hostname already exists.");
 
             #endregion
 
@@ -3504,6 +3504,10 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Createap(IT_inventory_items iT_inventory_items, FormCollection collection)
         {
+            //verifica que no exista el hostname
+            if (db.IT_inventory_items.Any(x => x.hostname == iT_inventory_items.hostname && !String.IsNullOrEmpty(x.hostname) && x.id_inventory_type == iT_inventory_items.id_inventory_type && x.active == true))
+                ModelState.AddModelError("", "An active record with the same hostname already exists.");
+
             //verifica purchasedate sea menor a end warranty
             if (iT_inventory_items.purchase_date.HasValue && iT_inventory_items.end_warranty.HasValue && iT_inventory_items.purchase_date > iT_inventory_items.end_warranty)
                 ModelState.AddModelError("", "End Warranty must be greater than Purchase Date.");
@@ -3574,6 +3578,10 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Editap(IT_inventory_items iT_inventory_items, FormCollection collection)
         {
+            //verifica que no exista el hostname
+            if (db.IT_inventory_items.Any(x => x.hostname == iT_inventory_items.hostname && !String.IsNullOrEmpty(x.hostname) && x.id_inventory_type == iT_inventory_items.id_inventory_type && x.id != iT_inventory_items.id && x.active == true))
+                ModelState.AddModelError("", "An active record with the same hostname already exists.");
+
             //verifica purchasedate sea menor a end warranty
             if (iT_inventory_items.purchase_date.HasValue && iT_inventory_items.end_warranty.HasValue && iT_inventory_items.purchase_date > iT_inventory_items.end_warranty)
                 ModelState.AddModelError("", "End Warranty must be greater than Purchase Date.");
