@@ -48,6 +48,11 @@ BEGIN
 	BEGIN
 		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'IT_Inventory')
 	END
+	--Asignacion
+	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='IT_Asignacion_Hardware' )
+	BEGIN
+		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'IT_Asignacion_Hardware')
+	END
 	
 
 PRINT '<<<CORRECTO: La TABLA dbo.AspNetRoles ha sido INICIALIZADA en la Base de Datos: ' + db_name() + ' en el Servidor: ' + @@servername + '  >>>'     	

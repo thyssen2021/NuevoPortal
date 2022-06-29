@@ -292,6 +292,7 @@
     <Compile Include="Controllers\inspeccionCategoriaFallasController.cs" />
     <Compile Include="Controllers\InspeccionRegistrosController.cs" />
     <Compile Include="Controllers\inspeccion_fallasController.cs" />
+    <Compile Include="Controllers\IT_asignacion_hardwareController.cs" />
     <Compile Include="Controllers\IT_carpetas_redController.cs" />
     <Compile Include="Controllers\IT_comunicaciones_tipoController.cs" />
     <Compile Include="Controllers\IT_hardware_tipoController.cs" />
@@ -388,6 +389,15 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\budget_departamentos.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IATF_documentos.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IATF_revisiones.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_asignacion_hardware.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IT_inventory_cellular_plans.cs">
@@ -516,7 +526,10 @@
     <Compile Include="Models\MetadataModels\budget_mappingMetadata.cs" />
     <Compile Include="Models\MetadataModels\budget_mapping_bridge_Metadata.cs" />
     <Compile Include="Models\MetadataModels\budget_plantasMetadata.cs" />
+    <Compile Include="Models\MetadataModels\IT_asignacion_hardwareMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_internet_tipoMetadata.cs" />
+    <Compile Include="Models\MetadataModels\IT_inventory_hardware_typeMetadata.cs" />
+    <Compile Include="Models\MetadataModels\IT_inventory_hard_drivesMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_inventory_itemsMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_inventory_softwareMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_inventory_cellular_plansMetadata.cs" />
@@ -611,6 +624,8 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Paginacion.cs" />
+    <Compile Include="Models\PDFHandlers\FooterEventHandlerPDF_Responsiva.cs" />
+    <Compile Include="Models\PDFHandlers\HeaderEventHandlerPDF_Responsiva.cs" />
     <Compile Include="Models\PFA.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -7052,50 +7067,6 @@
     <Content Include="Views\notificaciones_correo\Details.cshtml" />
     <Content Include="Views\notificaciones_correo\Edit.cshtml" />
     <Content Include="Views\notificaciones_correo\Index.cshtml" />
-    <Content Include="Views\IT_inventory_items\desktop.cshtml" />
-    <Content Include="Views\IT_inventory_items\CreateDesktop.cshtml" />
-    <Content Include="Views\IT_inventory_items\DetailsDesktop.cshtml" />
-    <Content Include="Views\IT_inventory_items\EditDesktop.cshtml" />
-    <Content Include="Views\IT_inventory_items\laptop.cshtml" />
-    <Content Include="Views\IT_inventory_items\CreateLaptop.cshtml" />
-    <Content Include="Views\IT_inventory_items\DetailsLaptop.cshtml" />
-    <Content Include="Views\IT_inventory_items\EditLaptop.cshtml" />
-    <Content Include="Views\IT_inventory_items\monitor.cshtml" />
-    <Content Include="Views\IT_inventory_items\EditMonitor.cshtml" />
-    <Content Include="Views\IT_inventory_items\DetailsMonitor.cshtml" />
-    <Content Include="Views\IT_inventory_items\CreateMonitor.cshtml" />
-    <Content Include="Views\IT_inventory_items\CreatePrinter.cshtml" />
-    <Content Include="Views\IT_inventory_items\DetailsPrinter.cshtml" />
-    <Content Include="Views\IT_inventory_items\EditPrinter.cshtml" />
-    <Content Include="Views\IT_inventory_items\printer.cshtml" />
-    <Content Include="Views\IT_inventory_items\CreateLabel_printer.cshtml" />
-    <Content Include="Views\IT_inventory_items\label_printer.cshtml" />
-    <Content Include="Views\IT_inventory_items\DetailsLabel_printer.cshtml" />
-    <Content Include="Views\IT_inventory_items\EditLabel_printer.cshtml" />
-    <Content Include="Views\IT_inventory_items\CreatePDA.cshtml" />
-    <Content Include="Views\IT_inventory_items\DetailsPDA.cshtml" />
-    <Content Include="Views\IT_inventory_items\EditPDA.cshtml" />
-    <Content Include="Views\IT_inventory_items\PDA.cshtml" />
-    <Content Include="Views\IT_inventory_items\CreateServer.cshtml" />
-    <Content Include="Views\IT_inventory_items\DetailsServer.cshtml" />
-    <Content Include="Views\IT_inventory_items\EditServer.cshtml" />
-    <Content Include="Views\IT_inventory_items\server.cshtml" />
-    <Content Include="Views\IT_inventory_items\CreateTablet.cshtml" />
-    <Content Include="Views\IT_inventory_items\DetailsTablet.cshtml" />
-    <Content Include="Views\IT_inventory_items\EditTablet.cshtml" />
-    <Content Include="Views\IT_inventory_items\tablet.cshtml" />
-    <Content Include="Views\IT_inventory_items\CreateRadio.cshtml" />
-    <Content Include="Views\IT_inventory_items\DetailsRadio.cshtml" />
-    <Content Include="Views\IT_inventory_items\EditRadio.cshtml" />
-    <Content Include="Views\IT_inventory_items\Radio.cshtml" />
-    <Content Include="Views\IT_inventory_items\CreateAP.cshtml" />
-    <Content Include="Views\IT_inventory_items\DetailsAP.cshtml" />
-    <Content Include="Views\IT_inventory_items\EditAP.cshtml" />
-    <Content Include="Views\IT_inventory_items\AP.cshtml" />
-    <Content Include="Views\IT_inventory_items\CreateSmartphone.cshtml" />
-    <Content Include="Views\IT_inventory_items\DetailsSmartphone.cshtml" />
-    <Content Include="Views\IT_inventory_items\EditSmartphone.cshtml" />
-    <Content Include="Views\IT_inventory_items\smartphone.cshtml" />
     <Content Include="Views\IT_inventory_software\Create.cshtml" />
     <Content Include="Views\IT_inventory_software\Details.cshtml" />
     <Content Include="Views\IT_inventory_software\Edit.cshtml" />
@@ -7106,10 +7077,19 @@
     <Content Include="Views\IT_inventory_cellular_plans\Index.cshtml" />
     <Content Include="Views\IT_inventory_cellular_plans\Disable.cshtml" />
     <Content Include="Views\IT_inventory_cellular_plans\Enable.cshtml" />
-    <Content Include="Views\IT_inventory_items\CreateScanner.cshtml" />
-    <Content Include="Views\IT_inventory_items\DetailsScanner.cshtml" />
-    <Content Include="Views\IT_inventory_items\EditScanner.cshtml" />
-    <Content Include="Views\IT_inventory_items\Scanner.cshtml" />
+    <Content Include="Views\IT_asignacion_hardware\Create.cshtml" />
+    <Content Include="Views\IT_asignacion_hardware\DesasociarEquipo.cshtml" />
+    <Content Include="Views\IT_asignacion_hardware\Details.cshtml" />
+    <Content Include="Views\IT_asignacion_hardware\Edit.cshtml" />
+    <Content Include="Views\IT_asignacion_hardware\Index.cshtml" />
+    <Content Include="Views\IT_asignacion_hardware\ListadoAsignaciones.cshtml" />
+    <Content Include="Views\IT_asignacion_hardware\Asignar.cshtml" />
+    <Content Include="Views\IT_asignacion_hardware\CargarResponsiva.cshtml" />
+    <Content Include="Views\IT_asignacion_hardware\DetailsEmpleado.cshtml" />
+    <Content Include="Views\IT_inventory_items\index.cshtml" />
+    <Content Include="Views\IT_inventory_items\Create.cshtml" />
+    <Content Include="Views\IT_inventory_items\Edit.cshtml" />
+    <Content Include="Views\IT_inventory_items\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

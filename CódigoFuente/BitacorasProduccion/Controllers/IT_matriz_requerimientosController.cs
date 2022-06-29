@@ -1279,8 +1279,6 @@ namespace Portal_2_0.Controllers
                 PdfFont font = PdfFontFactory.CreateFont(Server.MapPath("/fonts/tkmm/TKTypeMedium.ttf"));
                 var thyssenColor = new DeviceRgb(0, 159, 245);
 
-
-
                 //márgenes del documento
                 doc.SetMargins(75, 35, 75, 35);
 

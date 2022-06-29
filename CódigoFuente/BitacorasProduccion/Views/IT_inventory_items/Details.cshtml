@@ -1,0 +1,578 @@
+﻿@model Portal_2_0.Models.IT_inventory_items
+@using Portal_2_0.Models
+@using Bitacoras.Util
+
+@{
+    ViewBag.Title = "Details (" + Model.IT_inventory_hardware_type.descripcion + ")";
+    ViewBag.PrimerNivel = "sistemas";
+    ViewBag.SegundoNivel = "it_inventory_hardware";
+    ViewBag.ControllerName = "IT_inventory_items";
+
+    int contador = 100;
+}
+
+@section estilos
+{
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/green.css")" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+
+    <style>
+        .fondo-verde {
+            background-color: #e1ffe1;
+        }
+
+        .fondo-amarillo {
+            background-color: #fadebd;
+        }
+
+        .fondo-gris {
+            background-color: #f2f2f2;
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+
+
+                        <div class="form-group row">
+                            <span style="color:black"><b>GENERAL INFORMATION</b></span>
+                        </div>
+
+                        <div class="item form-group row">
+                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.id_inventory_type)))
+                            {
+                                <div class="form-group col-md-4">
+                                    @Html.LabelFor(model => model.id_inventory_type, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                    <div class="col-md-9 col-sm-9 ">
+                                        <input class="form-control" value="@Model.IT_inventory_hardware_type.descripcion" readonly="readonly" />
+                                    </div>
+                                </div>
+                            }
+
+                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.id_planta)))
+                            {
+                                <div class="form-group col-md-4">
+                                    @Html.LabelFor(model => model.id_planta, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                    <div class="col-md-9 col-sm-9 ">
+                                        <input class="form-control" value=" @Html.DisplayFor(model => model.plantas.descripcion)" readonly="readonly" />
+                                    </div>
+                                </div>
+                            }
+                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.hostname)))
+                            {
+                                <div class="form-group col-md-4">
+                                    @Html.LabelFor(model => model.hostname, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                    <div class="col-md-9 col-sm-9 ">
+                                        @Html.EditorFor(model => model.hostname, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+                                    </div>
+                                </div>
+                            }
+
+                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.brand)))
+                            {
+                                <div class="form-group col-md-4">
+                                    @Html.LabelFor(model => model.brand, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                    <div class="col-md-9 col-sm-9 ">
+                                        @Html.EditorFor(model => model.brand, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+                                    </div>
+                                </div>
+                            }
+
+                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.model)))
+                            {
+                                <div class="form-group col-md-4">
+                                    @Html.LabelFor(model => model.model, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                    <div class="col-md-9 col-sm-9 ">
+                                        @Html.EditorFor(model => model.model, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                    </div>
+                                </div>
+                            }
+
+                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.serial_number)))
+                            {
+                                <div class="form-group col-md-4">
+                                    @Html.LabelFor(model => model.serial_number, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                    <div class="col-md-9 col-sm-9 ">
+                                        @Html.EditorFor(model => model.serial_number, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                    </div>
+                                </div>
+                            }
+                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.operation_system)))
+                            {
+                                <div class="form-group col-md-4">
+                                    @Html.LabelFor(model => model.operation_system, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                    <div class="col-md-9 col-sm-9 ">
+                                        @Html.EditorFor(model => model.operation_system, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                    </div>
+                                </div>
+                            }
+
+                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.bits_operation_system)))
+                            {
+                                <div class="form-group col-md-4">
+                                    @Html.LabelFor(model => model.bits_operation_system, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                    <div class="col-md-9 col-sm-9 ">
+                                        <input class="form-control" value=" @Html.DisplayFor(model => model.bits_operation_system)" readonly="readonly" />
+                                    </div>
+                                </div>
+                            }
+
+                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.cpu_speed_mhz)))
+                            {
+                                <div class="form-group col-md-4">
+                                    @Html.LabelFor(model => model.cpu_speed_mhz, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                    <div class="col-md-9 col-sm-9 ">
+                                        @Html.EditorFor(model => model.cpu_speed_mhz, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+                                    </div>
+                                </div>
+                            }
+                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.number_of_cpus)))
+                            {
+                                <div class="form-group col-md-4">
+                                    @Html.LabelFor(model => model.number_of_cpus, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                    <div class="col-md-9 col-sm-9 ">
+                                        @Html.EditorFor(model => model.number_of_cpus, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                    </div>
+                                </div>
+                            }
+                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.processor)))
+                            {
+                                <div class="form-group col-md-4">
+                                    @Html.LabelFor(model => model.processor, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                    <div class="col-md-9 col-sm-9">
+                                        @Html.EditorFor(model => model.processor, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                    </div>
+                                </div>
+                            }
+                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.mac_lan)))
+                            {
+                                <div class="form-group col-md-4">
+                                    @Html.LabelFor(model => model.mac_lan, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                    <div class="col-md-9 col-sm-9 ">
+                                        @Html.EditorFor(model => model.mac_lan, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                    </div>
+                                </div>
+                            }
+                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.printer_ubication)))
+                            {
+                                <div class="form-group col-md-4">
+                                    @Html.LabelFor(model => model.printer_ubication, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                    <div class="col-md-9 col-sm-9 ">
+                                        @Html.EditorFor(model => model.printer_ubication, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                    </div>
+                                </div>
+                            }
+                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.mac_wlan)))
+                            {
+                                <div class="form-group col-md-4">
+                                    @Html.LabelFor(model => model.mac_wlan, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                    <div class="col-md-9 col-sm-9 ">
+                                        @Html.EditorFor(model => model.mac_wlan, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                    </div>
+                                </div>
+                            }
+                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.ip_adress)))
+                            {
+                                <div class="form-group col-md-4">
+                                    @Html.LabelFor(model => model.ip_adress, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                    <div class="col-md-9 col-sm-9 ">
+                                        @Html.EditorFor(model => model.ip_adress, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                    </div>
+                                </div>
+                            }
+                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.cost_center)))
+                            {
+                                <div class="form-group col-md-4">
+                                    @Html.LabelFor(model => model.cost_center, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                    <div class="col-md-9 col-sm-9 ">
+                                        @Html.EditorFor(model => model.cost_center, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                    </div>
+                                </div>
+                            }
+                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.movil_device_storage_mb)))
+                            {
+                                <div class="form-group col-md-4">
+                                    @Html.LabelFor(model => model.movil_device_storage_gb, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                    <div class="col-md-9 col-sm-9 ">
+                                        @Html.EditorFor(model => model.movil_device_storage_gb, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                    </div>
+                                </div>
+                            }
+                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.inches)))
+                            {
+                                <div class="form-group col-md-4">
+                                    @Html.LabelFor(model => model.inches, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                    <div class="col-md-9 col-sm-9 ">
+                                        @Html.EditorFor(model => model.inches, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                    </div>
+                                </div>
+                            }
+                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.imei_1)))
+                            {
+                                <div class="form-group col-md-4">
+                                    @Html.LabelFor(model => model.imei_1, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                    <div class="col-md-9 col-sm-9 ">
+                                        @Html.EditorFor(model => model.imei_1, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                    </div>
+                                </div>
+                            }
+                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.imei_2)))
+                            {
+                                <div class="form-group col-md-4">
+                                    @Html.LabelFor(model => model.imei_2, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                    <div class="col-md-9 col-sm-9 ">
+                                        @Html.EditorFor(model => model.imei_2, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                    </div>
+                                </div>
+                            }
+                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.code)))
+                            {
+                                <div class="form-group col-md-4">
+                                    @Html.LabelFor(model => model.code, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                    <div class="col-md-9 col-sm-9 ">
+                                        @Html.EditorFor(model => model.code, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                    </div>
+                                </div>
+                            }
+                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.total_physical_memory_mb)))
+                            {
+                                <div class="form-group col-md-4">
+                                    @Html.LabelFor(model => model.total_physical_memory_gb, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                    <div class="col-md-9 col-sm-9 ">
+                                        @Html.EditorFor(model => model.total_physical_memory_gb, new { htmlAttributes = new { @class = "form-control", @readonly="readonly" } })
+                                    </div>
+                                </div>
+                            }
+                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.accessories)))
+                            {
+                                <div class="form-group col-md-6">
+                                    @Html.LabelFor(model => model.accessories, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                                    <div class="col-md-10 col-sm-10 ">
+                                        @Html.EditorFor(model => model.accessories, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                    </div>
+                                </div>
+                            }
+
+
+                        </div>
+
+                        <div class="ln_solid"></div>
+                        @if (Model.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.DESKTOP || Model.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.LAPTOP || Model.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.SERVER)
+                        {
+                            
+                            <div class="form-group row">
+                                <span style="color:black"><b>HARD DRIVES</b></span>
+                            </div>
+                            <div id="div_drives">
+
+                                @foreach (Portal_2_0.Models.IT_inventory_hard_drives item in Model.IT_inventory_hard_drives)
+                                {
+
+                                    <div class="form-group row" id="div_drives_@contador">
+                                        <label class="control-label col-md-1" for="IT_inventory_hard_drives[@contador].disk_name">
+                                            <span class="float-right">Drive Letter</span>
+                                        </label>
+                                        <div class="col-md-1">
+                                            <input type="text" style="text-transform: uppercase; text-align: right" onkeyup="javascript:this.value=this.value.toUpperCase();" maxlength="1" name="IT_inventory_hard_drives[@contador].disk_name" id="IT_inventory_hard_drives[@contador].disk_name" class="form-control col-md-12" value="@item.disk_name" autocomplete="off" readonly>
+
+                                        </div>
+                                        <label class="control-label col-md-1" for="IT_inventory_hard_drives[@contador].total_drive_space_gb">
+                                            <span class="float-right">Total Drive Space (MB)</span>
+                                        </label>
+                                        <div class="col-md-2">
+                                            <input style="text-align:right" type="text" min="0" step=".01" max="2147483647" name="IT_inventory_hard_drives[@contador].total_drive_space_gb" id="IT_inventory_hard_drives[@contador].total_drive_space_gb" class="drive-total form-control col-md-12" value="@item.total_drive_space_gb" autocomplete="off" readonly>
+                                        </div>
+
+                                        <label class="control-label col-md-1" for="IT_inventory_hard_drives[@contador].type_drive">
+                                            <span class="float-right">Type</span>
+                                        </label>
+                                        <div class="col-md-2">
+                                            <select name="IT_inventory_hard_drives[@contador].type_drive" id="IT_inventory_hard_drives[@contador].type_drive" class="drive-total categoria form-control select2bs4" style="width:100%" disabled>
+                                                <option value=''>-- Seleccione un valor --</option>
+                                                <option value='SSD' @(item.type_drive == "SSD" ? "selected" : "")>SSD</option>
+                                                <option value='HDD' @(item.type_drive == "HDD" ? "selected" : "")>HDD</option>
+                                                <option value='M.2' @(item.type_drive == "M.2" ? "selected" : "")>M.2</option>
+                                            </select>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="IT_inventory_hard_drives[@contador].type_drive" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </div>
+
+                                    contador++;
+                                }
+                            </div>
+
+                            <div class="form-group row">
+
+                            </div>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.NumberOfHardDrives, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-1 col-sm-1 ">
+                                    <input id="NumberOfHardDrives" class="form-control" value="@Model.NumberOfHardDrives" readonly />
+                                </div>
+                                @Html.LabelFor(model => model.TotalDiskSpace, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-2 col-sm-2 ">
+                                    <input id="TotalDiskSpace" class="form-control" value="@Model.TotalDiskSpace" readonly />
+                                </div>
+
+                            </div>
+
+
+                        }
+                        @if (Model.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.DESKTOP || Model.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.LAPTOP || Model.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.SERVER)
+                        {
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>MAINTENANCE</b></span>
+                            </div>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.maintenance_period_months, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-1 col-sm-1 ">
+                                    @Html.EditorFor(model => model.maintenance_period_months, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                </div>
+                            </div>
+                        }
+                        <div class="form-group row">
+                            <span style="color:black"><b>WARRANTY</b></span>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.purchase_date, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            <div class="col-md-3 col-sm-3 ">
+                                @Html.EditorFor(model => model.purchase_date, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>
+                            @Html.LabelFor(model => model.end_warranty, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            <div class="col-md-3 col-sm-3 ">
+                                @Html.EditorFor(model => model.end_warranty, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>
+                        </div>
+
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>STATUS</b></span>
+                        </div>
+
+                        <div class="item form-group">
+
+                            @Html.LabelFor(model => model.active, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            <div class="col-md-1 col-sm-1 " @*rel="tooltip" data-title="Autorizar"*@>
+
+                                @Html.EditorFor(model => model.active, new { htmlAttributes = new { @class = "form-control", @disabled = "true" } })
+                            </div>
+                            @Html.LabelFor(model => model.inactive_date, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            <div class="col-md-3 col-sm-3 ">
+                                @Html.EditorFor(model => model.inactive_date, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>
+
+                        </div>
+
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>COMMENTS</b></span>
+                        </div>
+
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.comments, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align:left" })
+                        </div>
+                        <div class="item form-group">
+                            <div class="col-md-12">
+                                @Html.TextAreaFor(model => model.comments, new { @class = "form-control", @rows = "4", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="ln_solid"></div>
+                    </div>
+                </div>
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Historial de Asignaciones</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box ">
+
+                                    <div class="form-group row">
+                                        @{int c = 1;}
+
+                                        @if (Model.IT_asignacion_hardware.Count > 0)
+                                        {
+                                            <table id="datatable_1" class="table datatable table-bordered nowrap" cellspacing="0" width="100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th width="1%">#</th>
+                                                        <th width="1%">Núm. Empleado</th>
+                                                        <th>
+                                                            Planta
+                                                        </th>
+                                                        <th>
+                                                            Nombre
+                                                        </th>
+                                                        <th>
+                                                            Departamento
+                                                        </th>
+                                                        <th>
+                                                            Puesto
+                                                        </th>
+                                                        <th>
+                                                            ¿Asignaci&oacute;n Actual?
+                                                        </th>
+                                                        <th>
+                                                            Fecha Asignaci&oacute;n
+                                                        </th>
+                                                        <th width="1%">
+                                                            Fecha Desvinculaci&oacute;n
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var item in Model.IT_asignacion_hardware.OrderByDescending(x => x.fecha_asignacion))
+                                                    {
+                                                        <tr class="@(item.es_asignacion_actual ? "fondo-verde":String.Empty ) ">
+                                                            <td>@(c++)</td>
+                                                            <td>
+                                                                @Html.DisplayFor(model => item.empleados.numeroEmpleado)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(model => item.empleados.plantas.descripcion)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(model => item.empleados.ConcatNombre)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(model => item.empleados.Area.descripcion)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(model => item.empleados.puesto1.descripcion)
+                                                            </td>
+                                                            <td>
+                                                                @if (item.es_asignacion_actual)
+                                                                {
+                                                                    <span>S&Iacute;</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span>NO</span>
+                                                                }
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(model => item.fecha_asignacion)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(model => item.fecha_desasignacion)
+                                                            </td>
+
+                                                        </tr>
+                                                    }
+
+
+
+                                                </tbody>
+                                            </table>
+                                            <div class="col-md-12 col-sm-12">
+                                                <br />
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <p>&emsp; No hay asignaciones disponibles.</p>
+                                        }
+
+
+                                    </div>
+
+                                </div>
+                                <br />
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a onclick="volverAtras()" class="btn btn-round btn-info btm-sm" title="Volver" style="color:white">
+                        <i class="fa fa-arrow-circle-left"></i> Back
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/inputmask/inputmask.extensions.js"))
+    @Scripts.Render("~/bundles/dataTables_js")
+<script>
+        $(document).ready(function () {
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //inicializa los data table
+            var tabla = $('.datatable').DataTable({
+                "paging": false,
+                "ordering": false,
+                "searching": false,
+                "scrollX": true,
+                "info": false
+            });
+
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+                increaseArea: '20%' // optional
+            });
+
+
+                        //inicializa input mask
+             $('#@Html.IdFor(model => model.total_physical_memory_mb)').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'suffix': ' MB', 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true  });
+             $('#@Html.IdFor(model => model.total_physical_memory_gb)').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'suffix': ' GB', 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true  });
+             $('#@Html.IdFor(model => model.movil_device_storage_gb)').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'suffix': ' GB', 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
+             $('#@Html.IdFor(model => model.mac_wlan)').inputmask({ 'alias': "mac", 'autoUnmask': true, 'removeMaskOnSubmit': true });
+            $('#@Html.IdFor(model => model.mac_lan)').inputmask({ 'alias': "mac", 'autoUnmask': true, 'removeMaskOnSubmit': true });
+            $('#@Html.IdFor(model => model.TotalDiskSpace)').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'suffix': ' GB', 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
+            $('.drive-total').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'suffix': ' GB', 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
+
+
+
+        });
+
+        window.onload = function () {
+            clicMenu(1);
+        }
+</script>
+}
+

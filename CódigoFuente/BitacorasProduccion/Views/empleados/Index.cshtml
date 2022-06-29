@@ -145,22 +145,22 @@
                                             @foreach (var item in Model)
                                             {
                                             <tr style="@(item.activo == false ? "color:red" :"" )">
-                                                <th>
+                                                <td>
                                                     @Html.DisplayFor(modelItem => item.numeroEmpleado)
-                                                </th>
-                                                <th>
+                                                </td>
+                                                <td>
                                                     @Html.DisplayFor(modelItem => item.plantas.descripcion)
-                                                </th>
-                                                <th>
+                                                </td>
+                                                <td>
                                                     @Html.DisplayFor(modelItem => item.ConcatNombre)
-                                                </th>
-                                                <th>
+                                                </td>
+                                                <td>
                                                     @Html.DisplayFor(modelItem => item.C8ID)
-                                                </th>
+                                                </td>
 
-                                                <th>
+                                                <td>
                                                     @Html.DisplayFor(modelItem => item.correo)
-                                                </th>
+                                                </td>
 
                                                 @*<th>
                                                     @Html.DisplayFor(modelItem => item.Area.descripcion)
@@ -168,7 +168,7 @@
                                                 <th>
                                                     @Html.DisplayFor(modelItem => item.puesto1.descripcion)
                                                 </th>*@
-                                                <th>
+                                                <td>
                                                     @if (item.activo.HasValue && item.activo.Value)
                                                     {
                                                         <span>Activo</span>
@@ -177,7 +177,7 @@
                                                     {
                                                         <span>Inactivo</span>
                                                     }
-                                                </th>
+                                                </td>
                                                 <td>
                                                     <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = item.id})" class="btn btn-success btn-sm" title="Editar">
                                                         <i class="fa-regular fa-pen-to-square"></i>

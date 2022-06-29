@@ -1608,12 +1608,12 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Processor", typeof(string));    //12
             dt.Columns.Add("MAC LAN", typeof(string));      //13
             dt.Columns.Add("MAC WLAN", typeof(string));     //14
-            dt.Columns.Add("Total Physical Memory (MB)", typeof(decimal)); //15
+            dt.Columns.Add("Total Physical Memory (GB)", typeof(decimal)); //15
             dt.Columns.Add("Drive Letter", typeof(string));     //16
-            dt.Columns.Add("Total Drive Space (MB)", typeof(int));  //17
+            dt.Columns.Add("Total Drive Space (GB)", typeof(decimal));  //17
             dt.Columns.Add("Drive Type", typeof(string));       //18
             dt.Columns.Add("Number of hard drives", typeof(int));   //19
-            dt.Columns.Add("Total Disk Space (MB)", typeof(int));   //20
+            dt.Columns.Add("Total Disk Space (GB)", typeof(decimal));   //20
             dt.Columns.Add("Maintenance Period (months)", typeof(int)); //21
             dt.Columns.Add("Purchase Date", typeof(DateTime));  //22
             dt.Columns.Add("End Warranty", typeof(DateTime));   //23
@@ -1626,7 +1626,7 @@ namespace Portal_2_0.Models
             {
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.hostname, item.brand, item.model, item.serial_number,
                     item.operation_system, item.bits_operation_system,  item.cpu_speed_mhz, item.number_of_cpus, item.processor, item.mac_lan, item.mac_wlan,
-                    item.total_physical_memory_mb, null, null,  null, item.NumberOfHardDrives, item.TotalDiskSpace,  item.maintenance_period_months, 
+                    item.total_physical_memory_gb, null, null,  null, item.NumberOfHardDrives, item.TotalDiskSpace,  item.maintenance_period_months, 
                      item.purchase_date, item.end_warranty,
                      item.active, item.inactive_date, item.comments
                     );
@@ -1640,7 +1640,7 @@ namespace Portal_2_0.Models
                     System.Data.DataRow row = dt.NewRow();
 
                     row["Drive Letter"] = hd.disk_name;
-                    row["Total Drive Space (MB)"] = hd.total_drive_space_mb;
+                    row["Total Drive Space (GB)"] = hd.total_drive_space_gb;
                     row["Drive Type"] = hd.type_drive;
 
                     dt.Rows.Add(row);
@@ -1731,8 +1731,8 @@ namespace Portal_2_0.Models
             }
             //da estilo a los numero
             oSLDocument.SetColumnStyle(10, styleNumberInt);
-            oSLDocument.SetColumnStyle(17, styleNumberInt);
-            oSLDocument.SetColumnStyle(20, styleNumberInt);
+            oSLDocument.SetColumnStyle(17, styleNumberDecimal);
+            oSLDocument.SetColumnStyle(20, styleNumberDecimal);
             oSLDocument.SetColumnStyle(15, styleNumberDecimal); //decimal
 
             oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
@@ -2174,8 +2174,8 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Serial Number", typeof(string));            //6
             dt.Columns.Add("Inches", typeof(string));                   //7
             dt.Columns.Add("Processor", typeof(string));                //8
-            dt.Columns.Add("Total Physical Memory (MB)", typeof(int));  //9
-            dt.Columns.Add("Storage (MB)", typeof(int));                //10
+            dt.Columns.Add("Total Physical Memory (GB)", typeof(double));  //9
+            dt.Columns.Add("Storage (GB)", typeof(double));                //10
             dt.Columns.Add("Operation System", typeof(string));         //11
             dt.Columns.Add("MAC WLAN", typeof(string));                 //12
             dt.Columns.Add("Purchase Date", typeof(DateTime));          //13             
@@ -2188,7 +2188,7 @@ namespace Portal_2_0.Models
             foreach (IT_inventory_items item in listado)
             {
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.brand, item.model, item.serial_number, item.inches,
-                    item.processor, item.total_physical_memory_mb, item.movil_device_storage_mb, item.operation_system, item.mac_wlan,
+                    item.processor, item.total_physical_memory_gb, item.movil_device_storage_gb, item.operation_system, item.mac_wlan,
                     item.purchase_date,  item.end_warranty,
                    item.active, item.inactive_date, item.comments
                     );
@@ -2210,8 +2210,8 @@ namespace Portal_2_0.Models
 
 
             //estilo para numeros
-            SLStyle styleNumberInt = oSLDocument.CreateStyle();
-            styleNumberInt.FormatCode = "#,##0";
+            SLStyle styleNumberDecimal = oSLDocument.CreateStyle();
+            styleNumberDecimal.FormatCode = "#,##0.00";
 
 
             //estilo para cada lote
@@ -2240,7 +2240,7 @@ namespace Portal_2_0.Models
             styleHeaderFont.Font.Bold = true;
 
             //da estilo a los numeros
-            oSLDocument.SetColumnStyle(9, 10, styleNumberInt);
+            oSLDocument.SetColumnStyle(9, 10, styleNumberDecimal);
 
             //da estilo a la hoja de excel
             //inmoviliza el encabezado
@@ -2485,8 +2485,8 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Model", typeof(string));                        //5
             dt.Columns.Add("Serial Number", typeof(string));                //6
             dt.Columns.Add("Processor", typeof(string));                    //7
-            dt.Columns.Add("Total Physical Memory (MB)", typeof(int));      //8
-            dt.Columns.Add("Storage (MB)", typeof(int));                    //9
+            dt.Columns.Add("Total Physical Memory (GB)", typeof(int));      //8
+            dt.Columns.Add("Storage (GB)", typeof(int));                    //9
             dt.Columns.Add("Operation System", typeof(string));             //10
             dt.Columns.Add("MAC WLAN", typeof(string));                     //11
             dt.Columns.Add("IMEI 1", typeof(string));                       //12
@@ -2501,7 +2501,7 @@ namespace Portal_2_0.Models
             foreach (IT_inventory_items item in listado)
             {
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.brand, item.model, item.serial_number,
-                    item.processor, item.total_physical_memory_mb, item.movil_device_storage_mb, item.operation_system, item.mac_wlan, item.imei_1, item.imei_2,
+                    item.processor, item.total_physical_memory_gb, item.movil_device_storage_gb, item.operation_system, item.mac_wlan, item.imei_1, item.imei_2,
                     item.purchase_date, item.end_warranty,
                     item.active, item.inactive_date, item.comments
                     );
@@ -2523,8 +2523,8 @@ namespace Portal_2_0.Models
 
 
             //estilo para numeros
-            SLStyle styleNumberInt = oSLDocument.CreateStyle();
-            styleNumberInt.FormatCode = "#,##0";
+            SLStyle styleNumberDecimal = oSLDocument.CreateStyle();
+            styleNumberDecimal.FormatCode = "#,##0.00";
 
 
             //estilo para cada lote
@@ -2553,7 +2553,7 @@ namespace Portal_2_0.Models
             styleHeaderFont.Font.Bold = true;
 
             //da estilo a los numeros
-            oSLDocument.SetColumnStyle(8, 9, styleNumberInt);
+            oSLDocument.SetColumnStyle(8, 9, styleNumberDecimal);
 
             //da estilo a la hoja de excel
             //inmoviliza el encabezado

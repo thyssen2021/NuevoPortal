@@ -43,6 +43,48 @@ alter table [IT_inventory_software_versions]
   unique (id_inventory_software,[version]);
 GO
 
+USE [Portal_2_0]
+GO
+SET IDENTITY_INSERT [dbo].[IT_inventory_software_versions] ON 
+GO
+INSERT [dbo].[IT_inventory_software_versions] ([id], [id_inventory_software], [version], [activo]) VALUES (1, 12, N'FULL EDITION 2022', 1)
+GO
+INSERT [dbo].[IT_inventory_software_versions] ([id], [id_inventory_software], [version], [activo]) VALUES (2, 12, N'LT', 1)
+GO
+INSERT [dbo].[IT_inventory_software_versions] ([id], [id_inventory_software], [version], [activo]) VALUES (3, 1, N'2021', 1)
+GO
+INSERT [dbo].[IT_inventory_software_versions] ([id], [id_inventory_software], [version], [activo]) VALUES (4, 2, N'19.3.0.9', 1)
+GO
+INSERT [dbo].[IT_inventory_software_versions] ([id], [id_inventory_software], [version], [activo]) VALUES (5, 3, N'4.0', 1)
+GO
+INSERT [dbo].[IT_inventory_software_versions] ([id], [id_inventory_software], [version], [activo]) VALUES (6, 4, N'42.1.0', 1)
+GO
+INSERT [dbo].[IT_inventory_software_versions] ([id], [id_inventory_software], [version], [activo]) VALUES (7, 5, N'41.7', 1)
+GO
+INSERT [dbo].[IT_inventory_software_versions] ([id], [id_inventory_software], [version], [activo]) VALUES (8, 6, N'6.2', 1)
+GO
+INSERT [dbo].[IT_inventory_software_versions] ([id], [id_inventory_software], [version], [activo]) VALUES (9, 7, N'2016', 1)
+GO
+INSERT [dbo].[IT_inventory_software_versions] ([id], [id_inventory_software], [version], [activo]) VALUES (10, 8, N'2013', 1)
+GO
+INSERT [dbo].[IT_inventory_software_versions] ([id], [id_inventory_software], [version], [activo]) VALUES (11, 9, N'2013', 1)
+GO
+INSERT [dbo].[IT_inventory_software_versions] ([id], [id_inventory_software], [version], [activo]) VALUES (12, 9, N'2016', 1)
+GO
+INSERT [dbo].[IT_inventory_software_versions] ([id], [id_inventory_software], [version], [activo]) VALUES (13, 13, N'5.0.07', 1)
+GO
+INSERT [dbo].[IT_inventory_software_versions] ([id], [id_inventory_software], [version], [activo]) VALUES (14, 14, N'4.9.04', 1)
+GO
+INSERT [dbo].[IT_inventory_software_versions] ([id], [id_inventory_software], [version], [activo]) VALUES (15, 15, N'3.3', 1)
+GO
+INSERT [dbo].[IT_inventory_software_versions] ([id], [id_inventory_software], [version], [activo]) VALUES (16, 16, N'2.3', 1)
+GO
+INSERT [dbo].[IT_inventory_software_versions] ([id], [id_inventory_software], [version], [activo]) VALUES (17, 19, N'6.4-4', 1)
+GO
+INSERT [dbo].[IT_inventory_software_versions] ([id], [id_inventory_software], [version], [activo]) VALUES (18, 20, N'2021', 1)
+GO
+SET IDENTITY_INSERT [dbo].[IT_inventory_software_versions] OFF
+GO
 
  	  
 IF object_id(N'IT_inventory_software_versions',N'U') IS NOT NULL

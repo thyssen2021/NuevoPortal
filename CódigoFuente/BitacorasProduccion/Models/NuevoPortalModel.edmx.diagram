@@ -198,6 +198,16 @@
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_item" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_items_id_inventory_type" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_items_id_planta" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IATF_documentos" Width="1.5" PointX="3" PointY="30.125" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IATF_revisiones" Width="1.5" PointX="5.25" PointY="30.125" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_asignacion_hardware" Width="1.5" PointX="18.125" PointY="26" />
+        <AssociationConnector Association="Portal_2_0Model.FK_id_biblioteca_digital" />
+        <AssociationConnector Association="Portal_2_0Model.FK_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_id_sistemas" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IATF_documentos_id_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_id_iatf_documento" />
+        <AssociationConnector Association="Portal_2_0Model.FK_id_iatf_version" />
+        <AssociationConnector Association="Portal_2_0Model.FK_id_it_inventory_item" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
