@@ -1592,12 +1592,18 @@ namespace Portal_2_0.Models
             //para llevar el control de si es encabezado o no
             List<bool> filasEncabezados = new List<bool>();
             filasEncabezados.Add(false); //es el encabezado principal
+            int physical = 0;
+            if (inventoryType == Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER)
+                physical++;
+
 
             //columnas          
             dt.Columns.Add("Id", typeof(string));   //1
             dt.Columns.Add("Type", typeof(string)); //2
             dt.Columns.Add("Plant", typeof(string));  //3
             dt.Columns.Add("Hostname", typeof(string)); //4
+            if(inventoryType == Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER )
+                dt.Columns.Add("Physical Server", typeof(string));    //4.5
             dt.Columns.Add("Brand", typeof(string));    //5
             dt.Columns.Add("Model", typeof(string));    //6
             dt.Columns.Add("Serial Number", typeof(string));    //7
@@ -1624,12 +1630,21 @@ namespace Portal_2_0.Models
             ////registros , rows
             foreach (IT_inventory_items item in listado)
             {
-                dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.hostname, item.brand, item.model, item.serial_number,
+                if (inventoryType != Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER)
+                    dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.hostname, item.brand, item.model, item.serial_number,
                     item.operation_system, item.bits_operation_system,  item.cpu_speed_mhz, item.number_of_cpus, item.processor, item.mac_lan, item.mac_wlan,
                     item.total_physical_memory_gb, null, null,  null, item.NumberOfHardDrives, item.TotalDiskSpace,  item.maintenance_period_months, 
                      item.purchase_date, item.end_warranty,
                      item.active, item.inactive_date, item.comments
                     );
+                else{ //se agrega phyical server
+                    dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.hostname,item.IT_inventory_items2.hostname, item.brand, item.model, item.serial_number,
+                      item.operation_system, item.bits_operation_system, item.cpu_speed_mhz, item.number_of_cpus, item.processor, item.mac_lan, item.mac_wlan,
+                      item.total_physical_memory_gb, null, null, null, item.NumberOfHardDrives, item.TotalDiskSpace, item.maintenance_period_months,
+                       item.purchase_date, item.end_warranty,
+                       item.active, item.inactive_date, item.comments
+                      );
+                }
 
                 filasEncabezados.Add(true);
                 //obtiene la cantidad de fila actual
@@ -1698,12 +1713,14 @@ namespace Portal_2_0.Models
             styleLoteInfo.Border.RightBorder.BorderStyle = BorderStyleValues.Thin;
             styleLoteInfo.Border.RightBorder.Color = System.Drawing.Color.LightGray;
 
+
+
             ////estilo para fecha
             SLStyle styleShortDate = oSLDocument.CreateStyle();
             styleShortDate.FormatCode = "yyyy/MM/dd";
-            oSLDocument.SetColumnStyle(22, styleShortDate);
-            oSLDocument.SetColumnStyle(23, styleShortDate);
-            oSLDocument.SetColumnStyle(25, styleShortDate);
+            oSLDocument.SetColumnStyle(22 + physical, styleShortDate);
+            oSLDocument.SetColumnStyle(23 + physical, styleShortDate);
+            oSLDocument.SetColumnStyle(25 + physical, styleShortDate);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
@@ -1724,16 +1741,16 @@ namespace Portal_2_0.Models
                 }
                 else
                 {
-                    oSLDocument.SetCellStyle(i + 1, 17, i + 1, 19, styleLoteInfo);
+                    oSLDocument.SetCellStyle(i + 1, 17 + physical, i + 1, 19 + physical, styleLoteInfo);
                 }
                 //colapsa todas las filas
                 oSLDocument.CollapseRows(i + 2);
             }
             //da estilo a los numero
-            oSLDocument.SetColumnStyle(10, styleNumberInt);
-            oSLDocument.SetColumnStyle(17, styleNumberDecimal);
-            oSLDocument.SetColumnStyle(20, styleNumberDecimal);
-            oSLDocument.SetColumnStyle(15, styleNumberDecimal); //decimal
+            oSLDocument.SetColumnStyle(10 + physical, styleNumberInt);
+            oSLDocument.SetColumnStyle(17 + physical, styleNumberDecimal);
+            oSLDocument.SetColumnStyle(20 + physical, styleNumberDecimal);
+            oSLDocument.SetColumnStyle(15 + physical, styleNumberDecimal); //decimal
 
             oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
             oSLDocument.AutoFitColumn(1, dt.Columns.Count);
@@ -1743,7 +1760,7 @@ namespace Portal_2_0.Models
             oSLDocument.SetRowStyle(1, styleHeaderFont);
 
             //da color gris a cabeceras expandibles
-            oSLDocument.SetCellStyle(1, 17, 1, 19, styleHeaderRowDrive);
+            oSLDocument.SetCellStyle(1, 17 + physical, 1, 19 + physical, styleHeaderRowDrive);
 
             oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
 
@@ -1788,6 +1805,105 @@ namespace Portal_2_0.Models
 
             //crea la hoja de Inventory y la selecciona
             oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Inventory Monitor");
+            oSLDocument.ImportDataTable(1, 1, dt, true);
+
+            //estilo para ajustar al texto
+            SLStyle styleWrap = oSLDocument.CreateStyle();
+            styleWrap.SetWrapText(true);
+            styleWrap.Alignment.Vertical = VerticalAlignmentValues.Top;
+
+            //estilo para el encabezado
+            SLStyle styleHeader = oSLDocument.CreateStyle();
+            styleHeader.Font.Bold = true;
+            styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
+
+
+            //estilo para numeros
+            SLStyle styleNumberInt = oSLDocument.CreateStyle();
+            styleNumberInt.FormatCode = "#,##0";
+
+
+            //estilo para cada lote
+            SLStyle styleLoteInfo = oSLDocument.CreateStyle();
+            styleLoteInfo.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffffcc"), System.Drawing.ColorTranslator.FromHtml("#ffffcc"));
+            styleLoteInfo.Border.BottomBorder.BorderStyle = BorderStyleValues.Thin;
+            styleLoteInfo.Border.BottomBorder.Color = System.Drawing.Color.LightGray;
+            styleLoteInfo.Border.TopBorder.BorderStyle = BorderStyleValues.Thin;
+            styleLoteInfo.Border.TopBorder.Color = System.Drawing.Color.LightGray;
+            styleLoteInfo.Border.LeftBorder.BorderStyle = BorderStyleValues.Thin;
+            styleLoteInfo.Border.LeftBorder.Color = System.Drawing.Color.LightGray;
+            styleLoteInfo.Border.RightBorder.BorderStyle = BorderStyleValues.Thin;
+            styleLoteInfo.Border.RightBorder.Color = System.Drawing.Color.LightGray;
+
+            ////estilo para fecha
+            SLStyle styleShortDate = oSLDocument.CreateStyle();
+            styleShortDate.FormatCode = "yyyy/MM/dd";
+            oSLDocument.SetColumnStyle(8, 9, styleShortDate);
+            oSLDocument.SetColumnStyle(11, styleShortDate);
+
+
+            SLStyle styleHeaderFont = oSLDocument.CreateStyle();
+            styleHeaderFont.Font.FontName = "Calibri";
+            styleHeaderFont.Font.FontSize = 11;
+            styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
+            styleHeaderFont.Font.Bold = true;
+
+            //da estilo a la hoja de excel
+            //inmoviliza el encabezado
+            oSLDocument.FreezePanes(1, 0);
+
+
+            oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
+            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+
+            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
+            oSLDocument.SetRowStyle(1, styleHeader);
+            oSLDocument.SetRowStyle(1, styleHeaderFont);
+
+
+            oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
+
+            System.IO.Stream stream = new System.IO.MemoryStream();
+
+            oSLDocument.SaveAs(stream);
+
+            byte[] array = Bitacoras.Util.StreamUtil.ToByteArray(stream);
+
+            return (array);
+        }
+
+        public static byte[] GeneraReporteITAccessoryExcel(List<IT_inventory_items> listado)
+        {
+
+            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+
+            System.Data.DataTable dt = new System.Data.DataTable();
+
+
+            //columnas          
+            dt.Columns.Add("Id", typeof(string));                //1
+            dt.Columns.Add("Type", typeof(string));             //2
+            dt.Columns.Add("Plant", typeof(string));             //3
+            dt.Columns.Add("Accessory Type", typeof(string));    //4
+            dt.Columns.Add("Brand", typeof(string));            //5
+            dt.Columns.Add("Model", typeof(string));            //6
+            dt.Columns.Add("Serial Number", typeof(string));    //7
+            dt.Columns.Add("Purchase Date", typeof(DateTime));  //8       
+            dt.Columns.Add("End Warranty", typeof(DateTime));   //9
+            dt.Columns.Add("Is active?", typeof(bool));         //10
+            dt.Columns.Add("Inactive Date?", typeof(DateTime)); //11
+            dt.Columns.Add("Comments", typeof(string));         //12
+
+            ////registros , rows
+            foreach (IT_inventory_items item in listado)
+            {
+                dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion,item.descripcion ,item.brand, item.model, item.serial_number,
+                    item.purchase_date, item.end_warranty, item.active, item.inactive_date, item.comments
+                    );
+            }
+
+            //crea la hoja de Inventory y la selecciona
+            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Inventory Accessories");
             oSLDocument.ImportDataTable(1, 1, dt, true);
 
             //estilo para ajustar al texto

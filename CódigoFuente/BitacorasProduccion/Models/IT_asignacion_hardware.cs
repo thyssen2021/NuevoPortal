@@ -21,12 +21,14 @@ namespace Portal_2_0.Models
         public int id_sistemas { get; set; }
         public Nullable<int> id_biblioteca_digital { get; set; }
         public System.DateTime fecha_asignacion { get; set; }
-        public bool es_asignacion_actual { get; set; }
         public Nullable<System.DateTime> fecha_desasignacion { get; set; }
+        public bool es_asignacion_actual { get; set; }
+        public Nullable<int> id_responsable_principal { get; set; }
     
         public virtual biblioteca_digital biblioteca_digital { get; set; }
         public virtual empleados empleados { get; set; }
         public virtual empleados empleados1 { get; set; }
+        public virtual empleados empleados2 { get; set; }
         public virtual IATF_revisiones IATF_revisiones { get; set; }
         public virtual IT_inventory_items IT_inventory_items { get; set; }
     }

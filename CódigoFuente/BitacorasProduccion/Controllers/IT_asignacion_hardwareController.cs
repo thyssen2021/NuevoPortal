@@ -184,11 +184,11 @@ namespace Portal_2_0.Controllers
             model.id_empleado = empleado.id;
             model.empleados = empleado;
             model.id_sistemas = sistemas.id;
-            model.empleados1 = sistemas;
+            model.empleados2 = sistemas;
             model.fecha_asignacion = DateTime.Now;
+            model.es_asignacion_actual = true;
 
-
-            //genera el select list para laptops activas
+            //genera el select list para hardware activas
             ViewBag.id_it_inventory_item = AddFirstItem(new SelectList(
                 db.IT_inventory_items
                 .Where(x => x.id_inventory_type == id_tipo_hardware && x.active == true)
@@ -207,13 +207,13 @@ namespace Portal_2_0.Controllers
         {
 
             //verifica que este equipo no esté asignado a otra persona que sea la asignación actual    
-            if (db.IT_asignacion_hardware.Any(x => x.id_it_inventory_item == iT_asignacion_hardware.id_it_inventory_item && x.es_asignacion_actual == true))
-                ModelState.AddModelError("", "Este equipo se encuentra actualmente asignado a otra persona. Para continuar debe quitar la asignacion actual.");
+            if (db.IT_asignacion_hardware.Any(x => x.id_it_inventory_item == iT_asignacion_hardware.id_it_inventory_item && x.es_asignacion_actual == true && x.id_empleado == iT_asignacion_hardware.id_empleado))
+                ModelState.AddModelError("", "Este equipo ya se encuentra asignado a esta persona.");
 
             //trata de obtener la version asociada al documento
             //primero obtiene los documentos asociados al proceso y de la planta del usuario de sistemas
-            empleados empleados = db.empleados.Find(iT_asignacion_hardware.id_sistemas);
-            var iatf_docto = db.IATF_documentos.Where(x => x.proceso == Bitacoras.Util.DocumentosProcesos.RESPONSIVA_LAPTOP && x.id_planta == empleados.planta_clave).FirstOrDefault();
+            empleados empleado_sistemas = db.empleados.Find(iT_asignacion_hardware.id_sistemas);
+            var iatf_docto = db.IATF_documentos.Where(x => x.proceso == Bitacoras.Util.DocumentosProcesos.RESPONSIVA_LAPTOP && x.id_planta == empleado_sistemas.planta_clave).FirstOrDefault();
 
             if (iatf_docto == null)
                 ModelState.AddModelError("", "No se encontró un documento de IATF asociado a la planta del empleado.");
@@ -228,7 +228,49 @@ namespace Portal_2_0.Controllers
 
             if (ModelState.IsValid)
             {
-                iT_asignacion_hardware.es_asignacion_actual = true;
+                //busca registro para saber si debe ser responsable actual
+                var asignacion_previa = db.IT_asignacion_hardware.FirstOrDefault(x => x.id_it_inventory_item == iT_asignacion_hardware.id_it_inventory_item && x.es_asignacion_actual == true && x.id_responsable_principal == x.id_empleado);
+
+                //si no existe un registro con  responsable principal y asignación actual para este item, el resposable principal es true}}
+                if (asignacion_previa == null && iT_asignacion_hardware.es_asignacion_actual)
+                {
+                    iT_asignacion_hardware.id_responsable_principal = iT_asignacion_hardware.id_empleado;
+                    //obtiene las asignaciones previas
+                    var asignaciones_previas = db.IT_asignacion_hardware.Where(x => x.id_it_inventory_item == iT_asignacion_hardware.id_it_inventory_item && x.es_asignacion_actual == true);
+
+                    //crea una nueva asignacion para todas las asignaciones previas, unicamente cambiando el id responsable
+                    foreach (var asg in asignaciones_previas) {
+                        db.IT_asignacion_hardware.Add(new IT_asignacion_hardware() {
+                            id_it_inventory_item = asg.id_it_inventory_item,
+                            id_iatf_version = asg.id_iatf_version,
+                            id_empleado = asg.id_empleado,
+                            id_sistemas = asg.id_sistemas,
+                            fecha_asignacion = asg.fecha_asignacion,
+                            es_asignacion_actual = asg.es_asignacion_actual,
+                            id_responsable_principal = iT_asignacion_hardware.id_responsable_principal
+                        });
+                    }
+
+                    //actualiza todos los registros anteriores para que dejen de ser la asignación actual
+                    foreach (var asg in asignaciones_previas)
+                    {
+                        asg.es_asignacion_actual = false;
+                        asg.fecha_desasignacion = DateTime.Now;
+                        db.Entry(asg).State = EntityState.Modified;
+                    }
+
+
+                } else if (!iT_asignacion_hardware.es_asignacion_actual) {
+                    iT_asignacion_hardware.id_responsable_principal = iT_asignacion_hardware.id_empleado;
+                }
+                else if (iT_asignacion_hardware.es_asignacion_actual)//si ya existe, responsable principal es false y se copia el id responsiva
+                {
+                    iT_asignacion_hardware.id_responsable_principal = asignacion_previa.id_responsable_principal;
+                    iT_asignacion_hardware.id_biblioteca_digital = asignacion_previa.id_biblioteca_digital;
+                }
+
+
+                //iT_asignacion_hardware.es_asignacion_actual = true;
                 iT_asignacion_hardware.fecha_asignacion = DateTime.Now;
                 db.IT_asignacion_hardware.Add(iT_asignacion_hardware);
                 db.SaveChanges();
@@ -237,12 +279,18 @@ namespace Portal_2_0.Controllers
             }
 
             empleados sistemas = obtieneEmpleadoLogeado();
-            iT_asignacion_hardware.empleados = empleados;
-            iT_asignacion_hardware.empleados1 = db.empleados.Find(iT_asignacion_hardware.id_sistemas);
+            iT_asignacion_hardware.empleados = db.empleados.Find(iT_asignacion_hardware.id_empleado);
+            iT_asignacion_hardware.empleados2 = db.empleados.Find(iT_asignacion_hardware.id_sistemas);
 
-            //genera el select list para laptops activas
-            ViewBag.id_it_inventory_item = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x => x.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.LAPTOP && x.active == true)
-                , "id", "ConcatInfoGeneral"), selected: iT_asignacion_hardware.id_it_inventory_item.ToString());
+            //obtiene el item 
+            var itemHardware = db.IT_inventory_items.Find(iT_asignacion_hardware.id_it_inventory_item);
+
+            //genera el select list para hardware activas
+            ViewBag.id_it_inventory_item = AddFirstItem(new SelectList(
+                db.IT_inventory_items.Where(x => x.id_inventory_type == itemHardware.id_inventory_type && x.active == true)
+                , "id", "ConcatInfoGeneral"));
+            //envia el tipo de hardware
+            ViewBag.TipoHardware = db.IT_inventory_hardware_type.FirstOrDefault(x => x.id == itemHardware.id_inventory_type);
 
             return View(iT_asignacion_hardware);
         }
@@ -339,6 +387,21 @@ namespace Portal_2_0.Controllers
                 {
                     db.Entry(item).State = EntityState.Modified;
                     db.SaveChanges();
+
+                    //actualiza el numero de responsiva a los demas involucrados
+                    //busca registro para saber si debe ser responsable actual
+
+                    var asignacion_previa = db.IT_asignacion_hardware.Where(x => x.id_it_inventory_item == item.id_it_inventory_item && x.es_asignacion_actual == true);
+
+                    //solamente copia a  las demas asignaciones se se trata de una asignacion actual
+                    if (item.es_asignacion_actual)
+                        foreach (var p in asignacion_previa)
+                        {
+                            p.id_biblioteca_digital = item.id_biblioteca_digital;
+                            db.Entry(p).State = EntityState.Modified;
+                        }
+                    db.SaveChanges();
+
                     TempData["Mensaje"] = new MensajesSweetAlert("Se ha subido la responsiva correctamente.", TipoMensajesSweetAlerts.SUCCESS);
                     return RedirectToAction("ListadoAsignaciones", new { id = iT_asignacion_hardware.id_empleado });
                 }
@@ -519,7 +582,7 @@ namespace Portal_2_0.Controllers
                 table.AddCell(new Cell().Add(new Paragraph("Marca:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
                 table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.IT_inventory_items.brand) ? item.IT_inventory_items.brand : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
                 table.AddCell(new Cell().Add(new Paragraph("Modelo:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
-                table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.IT_inventory_items.model)? item.IT_inventory_items.model: "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
+                table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.IT_inventory_items.model) ? item.IT_inventory_items.model : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
                 table.AddCell(new Cell().Add(new Paragraph("Núm. Serie:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
                 table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.IT_inventory_items.serial_number) ? item.IT_inventory_items.serial_number : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
 
@@ -547,18 +610,18 @@ namespace Portal_2_0.Controllers
 
                 string elaboro = String.Empty, recibe = String.Empty;
 
-                if (item.empleados1 != null)
-                    elaboro = item.empleados1.ConcatNombre.ToUpper();
-                if (item.empleados1.puesto1 != null)
-                    elaboro += "\n" + item.empleados1.puesto1.descripcion.ToUpper();
-                if (item.empleados1.Area != null)
-                    elaboro += "\n" + item.empleados1.Area.descripcion.ToUpper();
+                if (item.empleados2 != null)
+                    elaboro = item.empleados2.ConcatNombre.ToUpper();
+                if (item.empleados2.puesto1 != null)
+                    elaboro += "\n" + item.empleados2.puesto1.descripcion.ToUpper();
+                if (item.empleados2.Area != null)
+                    elaboro += "\n" + item.empleados2.Area.descripcion.ToUpper();
 
                 if (item.empleados != null)
                     recibe = item.empleados.ConcatNombre.ToUpper();
                 if (item.empleados.puesto1 != null)
                     recibe += "\n" + item.empleados.puesto1.descripcion.ToUpper();
-                if (item.empleados1.Area != null)
+                if (item.empleados2.Area != null)
                     recibe += "\n" + item.empleados.Area.descripcion.ToUpper();
 
                 table.AddCell(new Cell().Add(new Paragraph(elaboro)
@@ -596,11 +659,11 @@ namespace Portal_2_0.Controllers
                 table.AddCell(new Cell().Add(new Paragraph("Revisión")).AddStyle(encabezadoTabla));
                 table.AddCell(new Cell().Add(new Paragraph("Descripción")).AddStyle(encabezadoTabla));
 
-                foreach (var revision in item.IATF_revisiones.IATF_documentos.IATF_revisiones.OrderBy(x=>x.numero_revision))
+                foreach (var revision in item.IATF_revisiones.IATF_documentos.IATF_revisiones.OrderBy(x => x.numero_revision))
                 {
                     table.AddCell(new Cell().Add(new Paragraph(revision.fecha_revision.ToShortDateString()).AddStyle(fuenteThyssen)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
                     table.AddCell(new Cell().Add(new Paragraph(revision.responsable).AddStyle(fuenteThyssen)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
-                  //  table.AddCell(new Cell().Add(new Paragraph(String.IsNullOrEmpty(revision.puesto_responsable) ? String.Empty : revision.puesto_responsable).AddStyle(fuenteThyssen)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                    //  table.AddCell(new Cell().Add(new Paragraph(String.IsNullOrEmpty(revision.puesto_responsable) ? String.Empty : revision.puesto_responsable).AddStyle(fuenteThyssen)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
                     table.AddCell(new Cell().Add(new Paragraph(revision.numero_revision.ToString()).SetTextAlignment(TextAlignment.CENTER).AddStyle(fuenteThyssen)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
                     table.AddCell(new Cell().Add(new Paragraph(revision.descripcion).AddStyle(fuenteThyssen)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
                 }

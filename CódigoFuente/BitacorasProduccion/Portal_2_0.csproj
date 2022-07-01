@@ -293,6 +293,7 @@
     <Compile Include="Controllers\InspeccionRegistrosController.cs" />
     <Compile Include="Controllers\inspeccion_fallasController.cs" />
     <Compile Include="Controllers\IT_asignacion_hardwareController.cs" />
+    <Compile Include="Controllers\IT_asignacion_softwareController.cs" />
     <Compile Include="Controllers\IT_carpetas_redController.cs" />
     <Compile Include="Controllers\IT_comunicaciones_tipoController.cs" />
     <Compile Include="Controllers\IT_hardware_tipoController.cs" />
@@ -398,6 +399,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IT_asignacion_hardware.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_asignacion_software.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IT_inventory_cellular_plans.cs">
@@ -527,6 +531,7 @@
     <Compile Include="Models\MetadataModels\budget_mapping_bridge_Metadata.cs" />
     <Compile Include="Models\MetadataModels\budget_plantasMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_asignacion_hardwareMetadata.cs" />
+    <Compile Include="Models\MetadataModels\IT_asignacion_softwareMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_internet_tipoMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_inventory_hardware_typeMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_inventory_hard_drivesMetadata.cs" />
@@ -7077,10 +7082,8 @@
     <Content Include="Views\IT_inventory_cellular_plans\Index.cshtml" />
     <Content Include="Views\IT_inventory_cellular_plans\Disable.cshtml" />
     <Content Include="Views\IT_inventory_cellular_plans\Enable.cshtml" />
-    <Content Include="Views\IT_asignacion_hardware\Create.cshtml" />
     <Content Include="Views\IT_asignacion_hardware\DesasociarEquipo.cshtml" />
     <Content Include="Views\IT_asignacion_hardware\Details.cshtml" />
-    <Content Include="Views\IT_asignacion_hardware\Edit.cshtml" />
     <Content Include="Views\IT_asignacion_hardware\Index.cshtml" />
     <Content Include="Views\IT_asignacion_hardware\ListadoAsignaciones.cshtml" />
     <Content Include="Views\IT_asignacion_hardware\Asignar.cshtml" />
@@ -7090,6 +7093,7 @@
     <Content Include="Views\IT_inventory_items\Create.cshtml" />
     <Content Include="Views\IT_inventory_items\Edit.cshtml" />
     <Content Include="Views\IT_inventory_items\Details.cshtml" />
+    <Content Include="Views\IT_asignacion_software\Asignar.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

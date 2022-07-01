@@ -17,8 +17,9 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public IT_inventory_items()
         {
-            this.IT_inventory_hard_drives = new HashSet<IT_inventory_hard_drives>();
             this.IT_asignacion_hardware = new HashSet<IT_asignacion_hardware>();
+            this.IT_inventory_hard_drives = new HashSet<IT_inventory_hard_drives>();
+            this.IT_inventory_items1 = new HashSet<IT_inventory_items>();
         }
     
         public int id { get; set; }
@@ -51,12 +52,17 @@ namespace Portal_2_0.Models
         public string imei_2 { get; set; }
         public string code { get; set; }
         public string accessories { get; set; }
+        public string descripcion { get; set; }
+        public Nullable<int> physical_server { get; set; }
     
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_asignacion_hardware> IT_asignacion_hardware { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_inventory_hard_drives> IT_inventory_hard_drives { get; set; }
         public virtual IT_inventory_hardware_type IT_inventory_hardware_type { get; set; }
         public virtual plantas plantas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IT_asignacion_hardware> IT_asignacion_hardware { get; set; }
+        public virtual ICollection<IT_inventory_items> IT_inventory_items1 { get; set; }
+        public virtual IT_inventory_items IT_inventory_items2 { get; set; }
     }
 }

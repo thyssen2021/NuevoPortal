@@ -40,6 +40,9 @@ namespace Portal_2_0.Models
         [Display(Name = "¿Asignación Actual?")]
         public bool es_asignacion_actual { get; set; }
 
+        [Display(Name = "Responsable Principal")]
+        public Nullable<int> id_responsable_principal { get; set; }
+
         [DataType(DataType.Date)]
         [Display(Name = "Fecha de Desvinculación")]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
@@ -53,6 +56,23 @@ namespace Portal_2_0.Models
         [NotMapped]
         [Display(Name = "Documento Responsiva")]
         public HttpPostedFileBase PostedFileResponsiva { get; set; }
+
+        /// <summary>
+        /// Determina si la asignación es una asignación actual sin responsable principal
+        /// </summary>
+        /// <returns></returns>
+        public bool TieneAsignacionValida() {
+
+            bool result = false;
+            using (var db = new Portal_2_0Entities()) {
+                result = db.IT_asignacion_hardware.Any(x => x.id_it_inventory_item == this.id_it_inventory_item && x.es_asignacion_actual == true && x.id_empleado == x.id_responsable_principal);
+            }
+
+            return result;
+
+        }
+
+            
 
     }
 }

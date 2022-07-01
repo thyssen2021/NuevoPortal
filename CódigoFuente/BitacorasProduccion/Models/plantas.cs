@@ -26,8 +26,8 @@ namespace Portal_2_0.Models
             this.empleados = new HashSet<empleados>();
             this.notificaciones_correo = new HashSet<notificaciones_correo>();
             this.IT_solicitud_usuarios = new HashSet<IT_solicitud_usuarios>();
-            this.IT_inventory_items = new HashSet<IT_inventory_items>();
             this.IATF_documentos = new HashSet<IATF_documentos>();
+            this.IT_inventory_items = new HashSet<IT_inventory_items>();
         }
     
         public int clave { get; set; }
@@ -54,8 +54,8 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_solicitud_usuarios> IT_solicitud_usuarios { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IT_inventory_items> IT_inventory_items { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IATF_documentos> IATF_documentos { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_inventory_items> IT_inventory_items { get; set; }
     }
 }

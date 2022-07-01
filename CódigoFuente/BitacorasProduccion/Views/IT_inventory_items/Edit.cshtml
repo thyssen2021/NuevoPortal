@@ -83,6 +83,16 @@
                                         </div>
                                     </div>
                                 }
+                                @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, type.id.ToString(), nameof(IT_inventory_items.physical_server)))
+                                {
+                                    <div class="form-group col-md-4">
+                                        @Html.LabelFor(model => model.physical_server, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                        <div class="col-md-9 col-sm-9 ">
+                                            @Html.DropDownList("physical_server", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                            @Html.ValidationMessageFor(model => model.physical_server, "", new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+                                }
                                 @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, type.id.ToString(), nameof(IT_inventory_items.hostname)))
                                 {
                                     <div class="form-group col-md-4">
@@ -90,6 +100,16 @@
                                         <div class="col-md-9 col-sm-9 ">
                                             @Html.EditorFor(model => model.hostname, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @required = "required" } })
                                             @Html.ValidationMessageFor(model => model.hostname, "", new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+                                }
+                                @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, type.id.ToString(), nameof(IT_inventory_items.descripcion)))
+                                {
+                                    <div class="form-group col-md-4">
+                                        @Html.LabelFor(model => model.descripcion, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                        <div class="col-md-9 col-sm-9 ">
+                                            @Html.EditorFor(model => model.descripcion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                            @Html.ValidationMessageFor(model => model.descripcion, "", new { @class = "text-danger" })
                                         </div>
                                     </div>
                                 }

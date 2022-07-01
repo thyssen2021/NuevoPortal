@@ -24,4 +24,32 @@ namespace Portal_2_0.Models
         [Display(Name = "Usuario")]
         public string id_usuario { get; set; }
     }
+
+    /// <summary>
+    /// Modelo para crear inspector de piezas de descarte
+    /// </summary>
+    public class AsignarSoftwareViewModel
+    {
+
+        public AsignarSoftwareViewModel()
+        {
+            this.IT_asignacion_software = new List<IT_asignacion_software>();
+        }
+
+        [Required]
+        [Display(Name = "Empleado")]
+        public int id_empleado { get; set; }
+
+        [Required]
+        [Display(Name = "Sistemas")]
+        public int id_sistemas { get; set; }
+
+        public List<IT_asignacion_software> IT_asignacion_software;
+
+
+        public empleados EmpleadoUsuario;
+        public empleados EmpleadoSistemas;
+
+        
+    }
 }

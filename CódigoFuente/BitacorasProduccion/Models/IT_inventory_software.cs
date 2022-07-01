@@ -18,6 +18,7 @@ namespace Portal_2_0.Models
         public IT_inventory_software()
         {
             this.IT_inventory_software_versions = new HashSet<IT_inventory_software_versions>();
+            this.IT_asignacion_software = new HashSet<IT_asignacion_software>();
         }
     
         public int id { get; set; }
@@ -26,5 +27,7 @@ namespace Portal_2_0.Models
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_inventory_software_versions> IT_inventory_software_versions { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_asignacion_software> IT_asignacion_software { get; set; }
     }
 }

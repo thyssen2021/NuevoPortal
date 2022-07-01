@@ -14,11 +14,19 @@ namespace Portal_2_0.Models
     
     public partial class IT_inventory_software_versions
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public IT_inventory_software_versions()
+        {
+            this.IT_asignacion_software = new HashSet<IT_asignacion_software>();
+        }
+    
         public int id { get; set; }
         public int id_inventory_software { get; set; }
         public string version { get; set; }
         public bool activo { get; set; }
     
         public virtual IT_inventory_software IT_inventory_software { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_asignacion_software> IT_asignacion_software { get; set; }
     }
 }

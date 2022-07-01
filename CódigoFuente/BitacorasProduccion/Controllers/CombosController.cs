@@ -271,6 +271,45 @@ namespace Portal_2_0.Controllers
         }
 
         ///<summary>
+        ///Obtiene datos InventoryIntem
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        [AllowAnonymous]
+        public JsonResult InventoryItemDetails(int id = 0)
+        {
+
+            //obtiene todos los posibles valores
+            IT_inventory_items item = db.IT_inventory_items.Find(id);
+
+            //inicializa la lista de objetos
+            var objeto = new object[1];
+
+            bool existe = db.IT_asignacion_hardware.Any(x => x.id_it_inventory_item == id && x.es_asignacion_actual == true);
+
+            int id_responsable = 0;
+            string nombre = String.Empty;
+
+            var asignacion = db.IT_asignacion_hardware.Where(x => x.id_it_inventory_item == id && x.es_asignacion_actual == true && x.id_empleado == x.id_responsable_principal).FirstOrDefault();
+
+            if (asignacion != null)
+            {
+                nombre = asignacion.empleados.ConcatNombre;
+                id_responsable = asignacion.id_empleado;
+            }
+
+            objeto[0] = new
+            {
+                id_responsable = id_responsable,
+                nombre_responsable = nombre,
+                existe = existe
+
+            };
+
+            return Json(objeto, JsonRequestBehavior.AllowGet);
+        }
+
+        ///<summary>
         ///Obtiene si un usuario está registrado segun el email
         ///</summary>
         ///<return>
@@ -365,6 +404,63 @@ namespace Portal_2_0.Controllers
 
             return Json(list, JsonRequestBehavior.AllowGet);
         }
+
+        ///<summary>
+        ///Obtiene todas los software activos
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles que esten activas
+        public JsonResult obtieneSoftware()
+        {
+            //obtiene todos los posibles valores
+            List<IT_inventory_software> listado = db.IT_inventory_software.Where(p => p.activo == true).ToList();
+
+            String textoSelects = "<option value=''>-- Seleccione un valor --</option>";
+
+            foreach (IT_inventory_software item in listado)
+            {                               
+                        textoSelects += "<option value='" + item.id + "'>" + item.descripcion + "</option>";               
+            }
+
+            //inicializa la lista de objetos
+            var list = new object[1];
+
+            list[0] = new { text = textoSelects };
+
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+        ///<summary>
+        ///Obtiene los las versiones activas según el id de software
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult GetSoftwareVersion(int id_inventory_software = 0)
+        {
+            //obtiene todos los posibles valores
+            List<IT_inventory_software_versions> listado = db.IT_inventory_software_versions.Where(p => p.id_inventory_software==id_inventory_software && p.activo == true).ToList();
+
+            //inserta el valor por default
+            listado.Insert(0, new IT_inventory_software_versions
+            {
+                id = 0,
+                version = "-- N/A --"
+            });
+
+            //inicializa la lista de objetos
+            var list = new object[listado.Count];
+
+            //completa la lista de objetos
+            for (int i = 0; i < listado.Count; i++)
+            {
+                if (i == 0)//en caso de item por defecto
+                    list[i] = new { value = "", name = listado[i].version };
+                else
+                    list[i] = new { value = listado[i].id, name = listado[i].version };
+            }
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
 
         ///<summary>
         ///Obtiene todas los empleados

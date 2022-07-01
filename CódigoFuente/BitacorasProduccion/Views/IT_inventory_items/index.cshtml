@@ -31,6 +31,12 @@
         hostname = paginacionFiltros.ValoresQueryString["hostname"].ToString();
     }
 
+    string description = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["description"] != null)
+    {
+        description = paginacionFiltros.ValoresQueryString["description"].ToString();
+    }
+
     string model_ = string.Empty;
     if (paginacionFiltros.ValoresQueryString["model"] != null)
     {
@@ -129,6 +135,14 @@
                                                     <input type="text" id="hostname" name="hostname" class="form-control" value="@hostname" autocomplete="off" />
                                                 </div>
                                             }
+
+                                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.BUSQUEDA, tipo_hardware, nameof(IT_inventory_items.descripcion)))
+                                            {
+                                                <label class="control-label col-md-1 col-sm-1" for="descripcion" style="text-align:right">Accessory Type:</label>
+                                                <div class="col-md-2 col-sm-2">
+                                                    <input type="text" id="description" name="description" class="form-control" value="@description" autocomplete="off" />
+                                                </div>
+                                            }
                                             @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.BUSQUEDA, tipo_hardware, nameof(IT_inventory_items.model)))
                                             {
                                                 <label class="control-label col-md-1 col-sm-1" for="model" style="text-align:right">Model:</label>
@@ -207,19 +221,32 @@
                                                         @Html.DisplayNameFor(model => model.hostname)
                                                     </th>
                                                 }
-
+                                                @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.physical_server)))
+                                                {
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.physical_server)
+                                                    </th>
+                                                }
+                                                @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.descripcion)))
+                                                {
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.descripcion)
+                                                    </th>
+                                                }
                                                 @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.brand)))
                                                 {
                                                     <th>
                                                         @Html.DisplayNameFor(model => model.brand)
                                                     </th>
                                                 }
+
                                                 @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.model)))
                                                 {
                                                     <th>
                                                         @Html.DisplayNameFor(model => model.model)
                                                     </th>
                                                 }
+
                                                 @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.serial_number)))
                                                 {
                                                     <th>
@@ -283,12 +310,25 @@
                                                             @Html.DisplayFor(modelItem => item.hostname)
                                                         </td>
                                                     }
+                                                    @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.physical_server)))
+                                                    {
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.IT_inventory_items2.hostname)
+                                                        </td>
+                                                    }
+                                                    @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.descripcion)))
+                                                    {
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.descripcion)
+                                                        </td>
+                                                    }
                                                     @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.brand)))
                                                     {
                                                         <td>
                                                             @Html.DisplayFor(modelItem => item.brand)
                                                         </td>
                                                     }
+
                                                     @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.model)))
                                                     {
                                                         <td>
@@ -335,28 +375,41 @@
 
                                                     <td>
                                                         <a href="@Url.Action("Edit", null, new {
-                                                                id = item.id,  
+                                                                id = item.id,
                                                                 _id_planta = id_planta,
                                                                 _hostname = hostname,
                                                                 pagina = pagina,
                                                                 _model = model_,
-                                                                _active = active,                                                              
+                                                                _active = active,
                                                             })" class="btn btn-success " title="Edit">
                                                             <i class="fa-regular fa-pen-to-square"></i>
                                                         </a>
-                                                        <a href="@Url.Action("Details", null, new {
-                                                                id = item.id,  
+                                                        <a href="@Url.Action("Create", null, new {
+                                                                id = item.id,
+                                                                id_hardware_type = tipo_hardware,
                                                                 _id_planta = id_planta,
                                                                 _hostname = hostname,
                                                                 pagina = pagina,
                                                                 _model = model_,
-                                                                _active = active,                                                              
-                                                            })" class="btn btn-primary " title="Details">
+                                                                _active = active,
+
+                                                            })" class="btn btn-primary " title="Clone">
+                                                            <i class="fa-regular fa-clone"></i>
+                                                        </a>
+                                                        <a href="@Url.Action("Details", null, new {
+                                                                id = item.id,
+                                                                _id_planta = id_planta,
+                                                                _hostname = hostname,
+                                                                pagina = pagina,
+                                                                _model = model_,
+                                                                _active = active,
+                                                            })" class="btn btn-secondary " title="Details">
                                                             <i class="fa-solid fa-circle-info"></i>
                                                         </a>
+
                                                         @*<a href="@Url.Action("DeleteDesktop", null, new { id = item.id })" class="btn btn-danger " title="Delete">
-                                                                <i class="fa-regular fa-trash-can"></i>
-                                                            </a>*@
+                <i class="fa-regular fa-trash-can"></i>
+            </a>*@
                                                     </td>
                                                 </tr>
                                             }
@@ -377,20 +430,19 @@
                                         @{Html.RenderPartial("_Paginacion", Model);}
                                     </nav>
                                     <div class="form-group">
-                                        
+
                                         <a href="@Url.Action("Export", ViewBag.ControllerName, new
-                                                {                                                   
+                                                {
                                                     tipo_hardware = tipo_hardware,
                                                     id_planta = id_planta,
                                                     hostname = hostname,
                                                     model = model_,
                                                     active = active,
+                                                    description = description
 
                                                 })" class="btn btn-success btm-sm" target="_blank" title="Reporte">
                                             <i class="fa-regular fa-file-excel"></i> Export Excel
                                         </a>
-
-
                                     </div>
                                 }
                             </div>

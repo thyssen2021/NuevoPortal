@@ -19,6 +19,8 @@
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
     <!-- SweetAlert2 -->
     <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/green.css")" rel="stylesheet">
 
     <style>
 
@@ -101,6 +103,7 @@
 
                             @Html.HiddenFor(model => model.id_empleado)
                             @Html.HiddenFor(model => model.id_sistemas)
+                            @Html.HiddenFor(model => model.id_responsable_principal)
 
                             if (!Html.ViewData.ModelState.IsValid)
                             {
@@ -109,14 +112,23 @@
                                 </div>
                             }
 
+                            <div id="aviso" class="alert alert-warning" role="alert" style="color:#454545; display:none">
+                                <i class="fa-solid fa-warning"></i> Este equipo ya se encuentra asociado a otro usuario. La asignaci&oacute;n se anexar&aacute; a la responsiva actual.
+                            </div>
+
+                            <div id="aviso_nuevo_responsable" class="alert alert-warning" role="alert" style="color:#454545; display:none">
+                                <i class="fa-solid fa-warning"></i> Actualmente este equipo tiene una responsiva activa, pero el responsable principal ya no está asociado a esta. 
+                                Al continuar (Si se trata de una asignación actual), se crear&aacute; una nueva responsiva para todos los usuarios asociados actualmente a este equipo, con este usuario como Responsable Principal. 
+                            </div>
+
                             <div class="form-group row">
                                 <span style="color:black"><b>INFORMACI&Oacute;N GENERAL</b></span>
                             </div>
 
                             <div class="item form-group">
-                                @Html.LabelFor(model => model.id_sistemas, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                @Html.LabelFor(model => model.id_sistemas, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
                                 <div class="col-md-6 col-sm-6 ">
-                                    <input type="text" class="form-control" value="@Html.DisplayFor(model => model.empleados1.ConcatNombre)" readonly />
+                                    <input type="text" class="form-control" value="@Html.DisplayFor(model => model.empleados2.ConcatNombre)" readonly />
                                 </div>
                                 @Html.LabelFor(model => model.fecha_asignacion, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
                                 <div class="col-md-2 col-sm-2 ">
@@ -124,14 +136,20 @@
                                 </div>
                             </div>
                             <div class="item form-group">
-                                @Html.LabelFor(model => model.id_empleado, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                @Html.LabelFor(model => model.id_empleado, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
                                 <div class="col-md-6 col-sm-6 ">
-                                    <input type="text" class="form-control" value="@Html.DisplayFor(model => model.empleados.ConcatNombre)" readonly />
+                                    <input id="empleado" type="text" class="form-control" value="@Html.DisplayFor(model => model.empleados.ConcatNombre)" readonly />
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id_responsable_principal, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    <input id="responsable" type="text" class="form-control" value="PENDIENTE" readonly />
                                 </div>
                             </div>
                             <div class="item form-group">
 
-                                @Html.LabelFor(model => model.id_it_inventory_item, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                @Html.LabelFor(model => model.id_it_inventory_item, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
                                 <div class="col-md-6 col-sm-6 ">
                                     @Html.DropDownList("id_it_inventory_item", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                     @Html.ValidationMessageFor(model => model.id_it_inventory_item, "", new { @class = "text-danger" })
@@ -140,6 +158,13 @@
                                     <button type="button" id="btn-info-cell" class="btn btn-primary btn-sm" style="@(Model.id_it_inventory_item>0?"display:block":"display:none")"> <i class="fa-solid fa-eye"></i></button>
                                 </div>
                             </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.es_asignacion_actual, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.EditorFor(model => model.es_asignacion_actual, new { htmlAttributes = new { @class = "form-control" } })
+                                </div>
+                            </div>
+
 
                             <div class="ln_solid"></div>
                             <div class="item form-group">
@@ -171,12 +196,76 @@
     <!-- input mask -->
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
-    <script>
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+<script>
         $(document).ready(function () {
             // Initialize Select2 Elements (debe ir después de asignar el valor)
             $('.select2bs4').select2({
                 theme: 'bootstrap4'
             })
+
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+                increaseArea: '20%' // optional
+            });
+
+            $('input').on('ifChecked', function (event) {
+                $("#@Html.IdFor(model => model.id_it_inventory_item)").change();
+            });
+
+            $('input').on('ifUnchecked', function (event) {
+                $('#aviso').hide(600);
+                $('#aviso_nuevo_responsable').hide(600);
+                $('#responsable').val($('#empleado').val());
+            });
+
+            $("#@Html.IdFor(model => model.id_it_inventory_item)").change(function () {
+
+                //llamada ajax para obtener las lineas por planta
+                $.ajax({
+                    type: 'POST',
+                    url: '/Combos/InventoryItemDetails',
+                    data: { id: $(this).val() },
+                    success: function (data) {
+                        try {
+
+                            tieneUsuario = data[0].existe;
+                            if (data[0].existe == true && data[0].id_responsable != "0") { //existe y hay una asignación actual
+
+                                $('#aviso').show(600);
+                                $('#aviso_nuevo_responsable').hide(600);
+                                $('#responsable').val(data[0].nombre_responsable);
+                            } else if (data[0].existe == true && data[0].id_responsable == "0") {
+
+                                $('#aviso_nuevo_responsable').show(600);
+                                $('#aviso').hide(600);
+                                $('#responsable').val($('#empleado').val());
+
+                            } else{ //no existe asignacion asociada al item
+
+                                $('#aviso').hide(600);
+                                $('#aviso_nuevo_responsable').hide(600);
+                                $('#responsable').val($('#empleado').val());
+                            }
+
+                        }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    async: false
+                });
+
+            });
+
+            $("#@Html.IdFor(model => model.id_it_inventory_item)").change();
 
             //activa desactiva info_device
             $("#@Html.IdFor(model => model.id_it_inventory_item)").change(function () {
@@ -229,5 +318,5 @@
         window.onload = function () {
             clicMenu(1);
         }
-    </script>
+</script>
 }

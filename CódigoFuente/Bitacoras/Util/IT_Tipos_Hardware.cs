@@ -21,6 +21,7 @@ namespace Bitacoras.Util
         public const string AP = "AP";
         public const string SMARTPHONE = "Smartphone";
         public const string SCANNERS = "Scanners";
-
+        public const string ACCESSORIES = "Accessories";
+        public const string VIRTUAL_SERVER = "Virtual Server";
     }
 }

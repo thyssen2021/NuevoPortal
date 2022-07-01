@@ -315,6 +315,17 @@
           <Property Name="fecha_asignacion" Type="datetime" Nullable="false" />
           <Property Name="fecha_desasignacion" Type="datetime" />
           <Property Name="es_asignacion_actual" Type="bit" Nullable="false" />
+          <Property Name="id_responsable_principal" Type="int" />
+        </EntityType>
+        <EntityType Name="IT_asignacion_software">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_inventory_software" Type="int" Nullable="false" />
+          <Property Name="id_inventory_software_version" Type="int" />
+          <Property Name="id_sistemas" Type="int" Nullable="false" />
+          <Property Name="id_empleado" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="IT_carpetas_red">
           <Key>
@@ -414,6 +425,8 @@
           <Property Name="imei_2" Type="varchar" MaxLength="15" />
           <Property Name="code" Type="varchar" MaxLength="20" />
           <Property Name="accessories" Type="varchar" MaxLength="50" />
+          <Property Name="descripcion" Type="varchar" MaxLength="120" />
+          <Property Name="physical_server" Type="int" />
         </EntityType>
         <EntityType Name="IT_inventory_software">
           <Key>
@@ -1489,6 +1502,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_id_responsable_principal">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="0..1" />
+          <End Role="IT_asignacion_hardware" Type="Self.IT_asignacion_hardware" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_asignacion_hardware">
+              <PropertyRef Name="id_responsable_principal" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_id_sistemas">
           <End Role="empleados" Type="Self.empleados" Multiplicity="1" />
           <End Role="IT_asignacion_hardware" Type="Self.IT_asignacion_hardware" Multiplicity="*" />
@@ -1558,6 +1583,54 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Principal>
             <Dependent Role="inspeccion_pieza_descarte_produccion">
               <PropertyRef Name="id_produccion_registro" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_asignacion_software_id_empleado">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="1" />
+          <End Role="IT_asignacion_software" Type="Self.IT_asignacion_software" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_asignacion_software">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_asignacion_software_id_inventory_software">
+          <End Role="IT_inventory_software" Type="Self.IT_inventory_software" Multiplicity="1" />
+          <End Role="IT_asignacion_software" Type="Self.IT_asignacion_software" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_inventory_software">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_asignacion_software">
+              <PropertyRef Name="id_inventory_software" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_asignacion_software_id_inventory_software_version">
+          <End Role="IT_inventory_software_versions" Type="Self.IT_inventory_software_versions" Multiplicity="0..1" />
+          <End Role="IT_asignacion_software" Type="Self.IT_asignacion_software" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_inventory_software_versions">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_asignacion_software">
+              <PropertyRef Name="id_inventory_software_version" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_asignacion_software_id_sistemas">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="1" />
+          <End Role="IT_asignacion_software" Type="Self.IT_asignacion_software" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_asignacion_software">
+              <PropertyRef Name="id_sistemas" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1822,6 +1895,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Principal>
             <Dependent Role="notificaciones_correo">
               <PropertyRef Name="clave_planta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_notificaciones_virtual_server">
+          <End Role="IT_inventory_items" Type="Self.IT_inventory_items" Multiplicity="0..1" />
+          <End Role="IT_inventory_items1" Type="Self.IT_inventory_items" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_inventory_items">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_inventory_items1">
+              <PropertyRef Name="physical_server" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -2585,6 +2670,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySet Name="inspeccion_fallas" EntityType="Self.inspeccion_fallas" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="inspeccion_pieza_descarte_produccion" EntityType="Self.inspeccion_pieza_descarte_produccion" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_asignacion_hardware" EntityType="Self.IT_asignacion_hardware" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IT_asignacion_software" EntityType="Self.IT_asignacion_software" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_carpetas_red" EntityType="Self.IT_carpetas_red" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_comunicaciones_tipo" EntityType="Self.IT_comunicaciones_tipo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_hardware_tipo" EntityType="Self.IT_hardware_tipo" Schema="dbo" store:Type="Tables" />
@@ -2837,6 +2923,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="PFA_Recovered_cost" EntitySet="PFA_Recovered_cost" />
             <End Role="PFA" EntitySet="PFA" />
           </AssociationSet>
+          <AssociationSet Name="FK_id_responsable_principal" Association="Self.FK_id_responsable_principal">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IT_asignacion_hardware" EntitySet="IT_asignacion_hardware" />
+          </AssociationSet>
           <AssociationSet Name="FK_id_sistemas" Association="Self.FK_id_sistemas">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="IT_asignacion_hardware" EntitySet="IT_asignacion_hardware" />
@@ -2860,6 +2950,22 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <AssociationSet Name="FK_inspeccion_pieza_descarte_produccion_id_produccion_registro" Association="Self.FK_inspeccion_pieza_descarte_produccion_id_produccion_registro">
             <End Role="produccion_registros" EntitySet="produccion_registros" />
             <End Role="inspeccion_pieza_descarte_produccion" EntitySet="inspeccion_pieza_descarte_produccion" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_asignacion_software_id_empleado" Association="Self.FK_IT_asignacion_software_id_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IT_asignacion_software" EntitySet="IT_asignacion_software" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_asignacion_software_id_inventory_software" Association="Self.FK_IT_asignacion_software_id_inventory_software">
+            <End Role="IT_inventory_software" EntitySet="IT_inventory_software" />
+            <End Role="IT_asignacion_software" EntitySet="IT_asignacion_software" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_asignacion_software_id_inventory_software_version" Association="Self.FK_IT_asignacion_software_id_inventory_software_version">
+            <End Role="IT_inventory_software_versions" EntitySet="IT_inventory_software_versions" />
+            <End Role="IT_asignacion_software" EntitySet="IT_asignacion_software" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_asignacion_software_id_sistemas" Association="Self.FK_IT_asignacion_software_id_sistemas">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IT_asignacion_software" EntitySet="IT_asignacion_software" />
           </AssociationSet>
           <AssociationSet Name="FK_IT_inventory_id_inventory_software" Association="Self.FK_IT_inventory_id_inventory_software">
             <End Role="IT_inventory_software" EntitySet="IT_inventory_software" />
@@ -2948,6 +3054,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <AssociationSet Name="FK_notificaciones_correo_planta" Association="Self.FK_notificaciones_correo_planta">
             <End Role="plantas" EntitySet="plantas" />
             <End Role="notificaciones_correo" EntitySet="notificaciones_correo" />
+          </AssociationSet>
+          <AssociationSet Name="FK_notificaciones_virtual_server" Association="Self.FK_notificaciones_virtual_server">
+            <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
+            <End Role="IT_inventory_items1" EntitySet="IT_inventory_items" />
           </AssociationSet>
           <AssociationSet Name="FK_orden_trabajo_id_area" Association="Self.FK_orden_trabajo_id_area">
             <End Role="Area" EntitySet="Area" />
@@ -3283,8 +3393,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_empleados_planta_clave" FromRole="plantas" ToRole="empleados" />
           <NavigationProperty Name="notificaciones_correo" Relationship="Portal_2_0Model.FK_notificaciones_correo_planta" FromRole="plantas" ToRole="notificaciones_correo" />
           <NavigationProperty Name="IT_solicitud_usuarios" Relationship="Portal_2_0Model.FK_IT_solicitud_usuarios_id_planta" FromRole="plantas" ToRole="IT_solicitud_usuarios" />
-          <NavigationProperty Name="IT_inventory_items" Relationship="Portal_2_0Model.FK_IT_inventory_items_id_planta" FromRole="plantas" ToRole="IT_inventory_items" />
           <NavigationProperty Name="IATF_documentos" Relationship="Portal_2_0Model.FK_IATF_documentos_id_planta" FromRole="plantas" ToRole="IATF_documentos" />
+          <NavigationProperty Name="IT_inventory_items" Relationship="Portal_2_0Model.FK_IT_inventory_items_id_planta" FromRole="plantas" ToRole="IT_inventory_items" />
         </EntityType>
         <EntityType Name="produccion_datos_entrada">
           <Key>
@@ -4063,7 +4173,59 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           </AssociationSet>
           <EntitySet Name="IT_inventory_cellular_plans" EntityType="Portal_2_0Model.IT_inventory_cellular_plans" />
           <EntitySet Name="IT_inventory_hard_drives" EntityType="Portal_2_0Model.IT_inventory_hard_drives" />
+          <EntitySet Name="IATF_documentos" EntityType="Portal_2_0Model.IATF_documentos" />
+          <EntitySet Name="IATF_revisiones" EntityType="Portal_2_0Model.IATF_revisiones" />
+          <AssociationSet Name="FK_IATF_documentos_id_planta" Association="Portal_2_0Model.FK_IATF_documentos_id_planta">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="IATF_documentos" EntitySet="IATF_documentos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_id_iatf_documento" Association="Portal_2_0Model.FK_id_iatf_documento">
+            <End Role="IATF_documentos" EntitySet="IATF_documentos" />
+            <End Role="IATF_revisiones" EntitySet="IATF_revisiones" />
+          </AssociationSet>
+          <EntitySet Name="IT_asignacion_software" EntityType="Portal_2_0Model.IT_asignacion_software" />
+          <AssociationSet Name="FK_IT_asignacion_software_id_empleado" Association="Portal_2_0Model.FK_IT_asignacion_software_id_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IT_asignacion_software" EntitySet="IT_asignacion_software" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_asignacion_software_id_sistemas" Association="Portal_2_0Model.FK_IT_asignacion_software_id_sistemas">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IT_asignacion_software" EntitySet="IT_asignacion_software" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_asignacion_software_id_inventory_software" Association="Portal_2_0Model.FK_IT_asignacion_software_id_inventory_software">
+            <End Role="IT_inventory_software" EntitySet="IT_inventory_software" />
+            <End Role="IT_asignacion_software" EntitySet="IT_asignacion_software" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_asignacion_software_id_inventory_software_version" Association="Portal_2_0Model.FK_IT_asignacion_software_id_inventory_software_version">
+            <End Role="IT_inventory_software_versions" EntitySet="IT_inventory_software_versions" />
+            <End Role="IT_asignacion_software" EntitySet="IT_asignacion_software" />
+          </AssociationSet>
+          <EntitySet Name="IT_asignacion_hardware" EntityType="Portal_2_0Model.IT_asignacion_hardware" />
+          <AssociationSet Name="FK_id_biblioteca_digital" Association="Portal_2_0Model.FK_id_biblioteca_digital">
+            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
+            <End Role="IT_asignacion_hardware" EntitySet="IT_asignacion_hardware" />
+          </AssociationSet>
+          <AssociationSet Name="FK_id_empleado" Association="Portal_2_0Model.FK_id_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IT_asignacion_hardware" EntitySet="IT_asignacion_hardware" />
+          </AssociationSet>
+          <AssociationSet Name="FK_id_responsable_principal" Association="Portal_2_0Model.FK_id_responsable_principal">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IT_asignacion_hardware" EntitySet="IT_asignacion_hardware" />
+          </AssociationSet>
+          <AssociationSet Name="FK_id_sistemas" Association="Portal_2_0Model.FK_id_sistemas">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IT_asignacion_hardware" EntitySet="IT_asignacion_hardware" />
+          </AssociationSet>
+          <AssociationSet Name="FK_id_iatf_version" Association="Portal_2_0Model.FK_id_iatf_version">
+            <End Role="IATF_revisiones" EntitySet="IATF_revisiones" />
+            <End Role="IT_asignacion_hardware" EntitySet="IT_asignacion_hardware" />
+          </AssociationSet>
           <EntitySet Name="IT_inventory_items" EntityType="Portal_2_0Model.IT_inventory_items" />
+          <AssociationSet Name="FK_id_it_inventory_item" Association="Portal_2_0Model.FK_id_it_inventory_item">
+            <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
+            <End Role="IT_asignacion_hardware" EntitySet="IT_asignacion_hardware" />
+          </AssociationSet>
           <AssociationSet Name="FK_IT_inventory_item" Association="Portal_2_0Model.FK_IT_inventory_item">
             <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
             <End Role="IT_inventory_hard_drives" EntitySet="IT_inventory_hard_drives" />
@@ -4076,36 +4238,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="plantas" EntitySet="plantas" />
             <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
           </AssociationSet>
-          <EntitySet Name="IATF_documentos" EntityType="Portal_2_0Model.IATF_documentos" />
-          <EntitySet Name="IATF_revisiones" EntityType="Portal_2_0Model.IATF_revisiones" />
-          <EntitySet Name="IT_asignacion_hardware" EntityType="Portal_2_0Model.IT_asignacion_hardware" />
-          <AssociationSet Name="FK_id_biblioteca_digital" Association="Portal_2_0Model.FK_id_biblioteca_digital">
-            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
-            <End Role="IT_asignacion_hardware" EntitySet="IT_asignacion_hardware" />
-          </AssociationSet>
-          <AssociationSet Name="FK_id_empleado" Association="Portal_2_0Model.FK_id_empleado">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="IT_asignacion_hardware" EntitySet="IT_asignacion_hardware" />
-          </AssociationSet>
-          <AssociationSet Name="FK_id_sistemas" Association="Portal_2_0Model.FK_id_sistemas">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="IT_asignacion_hardware" EntitySet="IT_asignacion_hardware" />
-          </AssociationSet>
-          <AssociationSet Name="FK_IATF_documentos_id_planta" Association="Portal_2_0Model.FK_IATF_documentos_id_planta">
-            <End Role="plantas" EntitySet="plantas" />
-            <End Role="IATF_documentos" EntitySet="IATF_documentos" />
-          </AssociationSet>
-          <AssociationSet Name="FK_id_iatf_documento" Association="Portal_2_0Model.FK_id_iatf_documento">
-            <End Role="IATF_documentos" EntitySet="IATF_documentos" />
-            <End Role="IATF_revisiones" EntitySet="IATF_revisiones" />
-          </AssociationSet>
-          <AssociationSet Name="FK_id_iatf_version" Association="Portal_2_0Model.FK_id_iatf_version">
-            <End Role="IATF_revisiones" EntitySet="IATF_revisiones" />
-            <End Role="IT_asignacion_hardware" EntitySet="IT_asignacion_hardware" />
-          </AssociationSet>
-          <AssociationSet Name="FK_id_it_inventory_item" Association="Portal_2_0Model.FK_id_it_inventory_item">
+          <AssociationSet Name="FK_notificaciones_virtual_server" Association="Portal_2_0Model.FK_notificaciones_virtual_server">
             <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
-            <End Role="IT_asignacion_hardware" EntitySet="IT_asignacion_hardware" />
+            <End Role="IT_inventory_items1" EntitySet="IT_inventory_items" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="PFA_Border_port">
@@ -5160,8 +5295,11 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="OT_responsables" Relationship="Portal_2_0Model.FK_OT_responsables_id_empleado" FromRole="empleados" ToRole="OT_responsables" />
           <NavigationProperty Name="OT_responsables1" Relationship="Portal_2_0Model.FK_OT_responsables_id_supervisor" FromRole="empleados" ToRole="OT_responsables" />
           <NavigationProperty Name="IT_solicitud_usuarios" Relationship="Portal_2_0Model.FK_IT_solicitud_usuarios_id_empleado" FromRole="empleados" ToRole="IT_solicitud_usuarios" />
+          <NavigationProperty Name="IT_asignacion_software" Relationship="Portal_2_0Model.FK_IT_asignacion_software_id_empleado" FromRole="empleados" ToRole="IT_asignacion_software" />
+          <NavigationProperty Name="IT_asignacion_software1" Relationship="Portal_2_0Model.FK_IT_asignacion_software_id_sistemas" FromRole="empleados" ToRole="IT_asignacion_software" />
           <NavigationProperty Name="IT_asignacion_hardware" Relationship="Portal_2_0Model.FK_id_empleado" FromRole="empleados" ToRole="IT_asignacion_hardware" />
-          <NavigationProperty Name="IT_asignacion_hardware1" Relationship="Portal_2_0Model.FK_id_sistemas" FromRole="empleados" ToRole="IT_asignacion_hardware" />
+          <NavigationProperty Name="IT_asignacion_hardware1" Relationship="Portal_2_0Model.FK_id_responsable_principal" FromRole="empleados" ToRole="IT_asignacion_hardware" />
+          <NavigationProperty Name="IT_asignacion_hardware2" Relationship="Portal_2_0Model.FK_id_sistemas" FromRole="empleados" ToRole="IT_asignacion_hardware" />
           </EntityType>
         <Association Name="FK_empleados_area">
           <End Type="Portal_2_0Model.Area" Role="Area" Multiplicity="0..1" />
@@ -6239,6 +6377,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="descripcion" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
           <Property Name="activo" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="IT_inventory_software_versions" Relationship="Portal_2_0Model.FK_IT_inventory_id_inventory_software" FromRole="IT_inventory_software" ToRole="IT_inventory_software_versions" />
+          <NavigationProperty Name="IT_asignacion_software" Relationship="Portal_2_0Model.FK_IT_asignacion_software_id_inventory_software" FromRole="IT_inventory_software" ToRole="IT_asignacion_software" />
         </EntityType>
         <EntityType Name="IT_inventory_software_versions">
           <Key>
@@ -6249,6 +6388,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="version" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="activo" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="IT_inventory_software" Relationship="Portal_2_0Model.FK_IT_inventory_id_inventory_software" FromRole="IT_inventory_software_versions" ToRole="IT_inventory_software" />
+          <NavigationProperty Name="IT_asignacion_software" Relationship="Portal_2_0Model.FK_IT_asignacion_software_id_inventory_software_version" FromRole="IT_inventory_software_versions" ToRole="IT_asignacion_software" />
         </EntityType>
         <Association Name="FK_IT_inventory_id_inventory_software">
           <End Type="Portal_2_0Model.IT_inventory_software" Role="IT_inventory_software" Multiplicity="1" />
@@ -6284,6 +6424,200 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="type_drive" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="IT_inventory_items" Relationship="Portal_2_0Model.FK_IT_inventory_item" FromRole="IT_inventory_hard_drives" ToRole="IT_inventory_items" />
         </EntityType>
+        <EntityType Name="IATF_documentos">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_planta" Type="Int32" />
+          <Property Name="clave" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="nombre_documento" Type="String" Nullable="false" MaxLength="120" FixedLength="false" Unicode="false" />
+          <Property Name="proceso" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_IATF_documentos_id_planta" FromRole="IATF_documentos" ToRole="plantas" />
+          <NavigationProperty Name="IATF_revisiones" Relationship="Portal_2_0Model.FK_id_iatf_documento" FromRole="IATF_documentos" ToRole="IATF_revisiones" />
+        </EntityType>
+        <EntityType Name="IATF_revisiones">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_iatf_documento" Type="Int32" Nullable="false" />
+          <Property Name="numero_revision" Type="Int32" Nullable="false" />
+          <Property Name="responsable" Type="String" Nullable="false" MaxLength="120" FixedLength="false" Unicode="false" />
+          <Property Name="fecha_revision" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="IATF_documentos" Relationship="Portal_2_0Model.FK_id_iatf_documento" FromRole="IATF_revisiones" ToRole="IATF_documentos" />
+          <Property Name="puesto_responsable" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="IT_asignacion_hardware" Relationship="Portal_2_0Model.FK_id_iatf_version" FromRole="IATF_revisiones" ToRole="IT_asignacion_hardware" />
+        </EntityType>
+        <Association Name="FK_IATF_documentos_id_planta">
+          <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.IATF_documentos" Role="IATF_documentos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="IATF_documentos">
+              <PropertyRef Name="id_planta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_id_iatf_documento">
+          <End Type="Portal_2_0Model.IATF_documentos" Role="IATF_documentos" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IATF_revisiones" Role="IATF_revisiones" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IATF_documentos">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IATF_revisiones">
+              <PropertyRef Name="id_iatf_documento" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="IT_asignacion_software">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_inventory_software" Type="Int32" Nullable="false" />
+          <Property Name="id_inventory_software_version" Type="Int32" />
+          <Property Name="id_sistemas" Type="Int32" Nullable="false" />
+          <Property Name="id_empleado" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_IT_asignacion_software_id_empleado" FromRole="IT_asignacion_software" ToRole="empleados" />
+          <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_IT_asignacion_software_id_sistemas" FromRole="IT_asignacion_software" ToRole="empleados" />
+          <NavigationProperty Name="IT_inventory_software" Relationship="Portal_2_0Model.FK_IT_asignacion_software_id_inventory_software" FromRole="IT_asignacion_software" ToRole="IT_inventory_software" />
+          <NavigationProperty Name="IT_inventory_software_versions" Relationship="Portal_2_0Model.FK_IT_asignacion_software_id_inventory_software_version" FromRole="IT_asignacion_software" ToRole="IT_inventory_software_versions" />
+        </EntityType>
+        <Association Name="FK_IT_asignacion_software_id_empleado">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_asignacion_software" Role="IT_asignacion_software" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_asignacion_software">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_asignacion_software_id_sistemas">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_asignacion_software" Role="IT_asignacion_software" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_asignacion_software">
+              <PropertyRef Name="id_sistemas" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_asignacion_software_id_inventory_software">
+          <End Type="Portal_2_0Model.IT_inventory_software" Role="IT_inventory_software" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_asignacion_software" Role="IT_asignacion_software" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_inventory_software">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_asignacion_software">
+              <PropertyRef Name="id_inventory_software" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_asignacion_software_id_inventory_software_version">
+          <End Type="Portal_2_0Model.IT_inventory_software_versions" Role="IT_inventory_software_versions" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.IT_asignacion_software" Role="IT_asignacion_software" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_inventory_software_versions">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_asignacion_software">
+              <PropertyRef Name="id_inventory_software_version" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="IT_asignacion_hardware">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_it_inventory_item" Type="Int32" Nullable="false" />
+          <Property Name="id_iatf_version" Type="Int32" Nullable="false" />
+          <Property Name="id_empleado" Type="Int32" Nullable="false" />
+          <Property Name="id_sistemas" Type="Int32" Nullable="false" />
+          <Property Name="id_biblioteca_digital" Type="Int32" />
+          <Property Name="fecha_asignacion" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="fecha_desasignacion" Type="DateTime" Precision="3" />
+          <Property Name="es_asignacion_actual" Type="Boolean" Nullable="false" />
+          <Property Name="id_responsable_principal" Type="Int32" />
+          <NavigationProperty Name="biblioteca_digital" Relationship="Portal_2_0Model.FK_id_biblioteca_digital" FromRole="IT_asignacion_hardware" ToRole="biblioteca_digital" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_id_empleado" FromRole="IT_asignacion_hardware" ToRole="empleados" />
+          <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_id_responsable_principal" FromRole="IT_asignacion_hardware" ToRole="empleados" />
+          <NavigationProperty Name="empleados2" Relationship="Portal_2_0Model.FK_id_sistemas" FromRole="IT_asignacion_hardware" ToRole="empleados" />
+          <NavigationProperty Name="IATF_revisiones" Relationship="Portal_2_0Model.FK_id_iatf_version" FromRole="IT_asignacion_hardware" ToRole="IATF_revisiones" />
+          <NavigationProperty Name="IT_inventory_items" Relationship="Portal_2_0Model.FK_id_it_inventory_item" FromRole="IT_asignacion_hardware" ToRole="IT_inventory_items" />
+        </EntityType>
+        <Association Name="FK_id_biblioteca_digital">
+          <End Type="Portal_2_0Model.biblioteca_digital" Role="biblioteca_digital" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.IT_asignacion_hardware" Role="IT_asignacion_hardware" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="biblioteca_digital">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="IT_asignacion_hardware">
+              <PropertyRef Name="id_biblioteca_digital" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_id_empleado">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_asignacion_hardware" Role="IT_asignacion_hardware" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_asignacion_hardware">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_id_responsable_principal">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.IT_asignacion_hardware" Role="IT_asignacion_hardware" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_asignacion_hardware">
+              <PropertyRef Name="id_responsable_principal" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_id_sistemas">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_asignacion_hardware" Role="IT_asignacion_hardware" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_asignacion_hardware">
+              <PropertyRef Name="id_sistemas" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_id_iatf_version">
+          <End Type="Portal_2_0Model.IATF_revisiones" Role="IATF_revisiones" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_asignacion_hardware" Role="IT_asignacion_hardware" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IATF_revisiones">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_asignacion_hardware">
+              <PropertyRef Name="id_iatf_version" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityType Name="IT_inventory_items">
           <Key>
             <PropertyRef Name="id" />
@@ -6318,11 +6652,27 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="imei_2" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
           <Property Name="code" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="accessories" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="descripcion" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
+          <Property Name="physical_server" Type="Int32" />
+          <NavigationProperty Name="IT_asignacion_hardware" Relationship="Portal_2_0Model.FK_id_it_inventory_item" FromRole="IT_inventory_items" ToRole="IT_asignacion_hardware" />
           <NavigationProperty Name="IT_inventory_hard_drives" Relationship="Portal_2_0Model.FK_IT_inventory_item" FromRole="IT_inventory_items" ToRole="IT_inventory_hard_drives" />
           <NavigationProperty Name="IT_inventory_hardware_type" Relationship="Portal_2_0Model.FK_IT_inventory_items_id_inventory_type" FromRole="IT_inventory_items" ToRole="IT_inventory_hardware_type" />
           <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_IT_inventory_items_id_planta" FromRole="IT_inventory_items" ToRole="plantas" />
-          <NavigationProperty Name="IT_asignacion_hardware" Relationship="Portal_2_0Model.FK_id_it_inventory_item" FromRole="IT_inventory_items" ToRole="IT_asignacion_hardware" />
+          <NavigationProperty Name="IT_inventory_items1" Relationship="Portal_2_0Model.FK_notificaciones_virtual_server" FromRole="IT_inventory_items" ToRole="IT_inventory_items1" />
+          <NavigationProperty Name="IT_inventory_items2" Relationship="Portal_2_0Model.FK_notificaciones_virtual_server" FromRole="IT_inventory_items1" ToRole="IT_inventory_items" />
         </EntityType>
+        <Association Name="FK_id_it_inventory_item">
+          <End Type="Portal_2_0Model.IT_inventory_items" Role="IT_inventory_items" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_asignacion_hardware" Role="IT_asignacion_hardware" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_inventory_items">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_asignacion_hardware">
+              <PropertyRef Name="id_it_inventory_item" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_IT_inventory_item">
           <End Type="Portal_2_0Model.IT_inventory_items" Role="IT_inventory_items" Multiplicity="1" />
           <End Type="Portal_2_0Model.IT_inventory_hard_drives" Role="IT_inventory_hard_drives" Multiplicity="*" />
@@ -6359,133 +6709,15 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityType Name="IATF_documentos">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_planta" Type="Int32" />
-          <Property Name="clave" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="nombre_documento" Type="String" Nullable="false" MaxLength="120" FixedLength="false" Unicode="false" />
-          <Property Name="proceso" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="activo" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_IATF_documentos_id_planta" FromRole="IATF_documentos" ToRole="plantas" />
-          <NavigationProperty Name="IATF_revisiones" Relationship="Portal_2_0Model.FK_id_iatf_documento" FromRole="IATF_documentos" ToRole="IATF_revisiones" />
-        </EntityType>
-        <EntityType Name="IATF_revisiones">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_iatf_documento" Type="Int32" Nullable="false" />
-          <Property Name="numero_revision" Type="Int32" Nullable="false" />
-          <Property Name="responsable" Type="String" Nullable="false" MaxLength="120" FixedLength="false" Unicode="false" />
-          <Property Name="fecha_revision" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="IATF_documentos" Relationship="Portal_2_0Model.FK_id_iatf_documento" FromRole="IATF_revisiones" ToRole="IATF_documentos" />
-          <NavigationProperty Name="IT_asignacion_hardware" Relationship="Portal_2_0Model.FK_id_iatf_version" FromRole="IATF_revisiones" ToRole="IT_asignacion_hardware" />
-          <Property Name="puesto_responsable" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
-        </EntityType>
-        <EntityType Name="IT_asignacion_hardware">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_it_inventory_item" Type="Int32" Nullable="false" />
-          <Property Name="id_iatf_version" Type="Int32" Nullable="false" />
-          <Property Name="id_empleado" Type="Int32" Nullable="false" />
-          <Property Name="id_sistemas" Type="Int32" Nullable="false" />
-          <Property Name="id_biblioteca_digital" Type="Int32" />
-          <Property Name="fecha_asignacion" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="es_asignacion_actual" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="biblioteca_digital" Relationship="Portal_2_0Model.FK_id_biblioteca_digital" FromRole="IT_asignacion_hardware" ToRole="biblioteca_digital" />
-          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_id_empleado" FromRole="IT_asignacion_hardware" ToRole="empleados" />
-          <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_id_sistemas" FromRole="IT_asignacion_hardware" ToRole="empleados" />
-          <NavigationProperty Name="IATF_revisiones" Relationship="Portal_2_0Model.FK_id_iatf_version" FromRole="IT_asignacion_hardware" ToRole="IATF_revisiones" />
-          <NavigationProperty Name="IT_inventory_items" Relationship="Portal_2_0Model.FK_id_it_inventory_item" FromRole="IT_asignacion_hardware" ToRole="IT_inventory_items" />
-          <Property Name="fecha_desasignacion" Type="DateTime" Precision="3" />
-        </EntityType>
-        <Association Name="FK_id_biblioteca_digital">
-          <End Type="Portal_2_0Model.biblioteca_digital" Role="biblioteca_digital" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.IT_asignacion_hardware" Role="IT_asignacion_hardware" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="biblioteca_digital">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="IT_asignacion_hardware">
-              <PropertyRef Name="id_biblioteca_digital" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_id_empleado">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
-          <End Type="Portal_2_0Model.IT_asignacion_hardware" Role="IT_asignacion_hardware" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_asignacion_hardware">
-              <PropertyRef Name="id_empleado" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_id_sistemas">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
-          <End Type="Portal_2_0Model.IT_asignacion_hardware" Role="IT_asignacion_hardware" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_asignacion_hardware">
-              <PropertyRef Name="id_sistemas" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_IATF_documentos_id_planta">
-          <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.IATF_documentos" Role="IATF_documentos" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="plantas">
-              <PropertyRef Name="clave" />
-            </Principal>
-            <Dependent Role="IATF_documentos">
-              <PropertyRef Name="id_planta" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_id_iatf_documento">
-          <End Type="Portal_2_0Model.IATF_documentos" Role="IATF_documentos" Multiplicity="1" />
-          <End Type="Portal_2_0Model.IATF_revisiones" Role="IATF_revisiones" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="IATF_documentos">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IATF_revisiones">
-              <PropertyRef Name="id_iatf_documento" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_id_iatf_version">
-          <End Type="Portal_2_0Model.IATF_revisiones" Role="IATF_revisiones" Multiplicity="1" />
-          <End Type="Portal_2_0Model.IT_asignacion_hardware" Role="IT_asignacion_hardware" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="IATF_revisiones">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_asignacion_hardware">
-              <PropertyRef Name="id_iatf_version" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_id_it_inventory_item">
-          <End Type="Portal_2_0Model.IT_inventory_items" Role="IT_inventory_items" Multiplicity="1" />
-          <End Type="Portal_2_0Model.IT_asignacion_hardware" Role="IT_asignacion_hardware" Multiplicity="*" />
+        <Association Name="FK_notificaciones_virtual_server">
+          <End Type="Portal_2_0Model.IT_inventory_items" Role="IT_inventory_items" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.IT_inventory_items" Role="IT_inventory_items1" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="IT_inventory_items">
               <PropertyRef Name="id" />
             </Principal>
-            <Dependent Role="IT_asignacion_hardware">
-              <PropertyRef Name="id_it_inventory_item" />
+            <Dependent Role="IT_inventory_items1">
+              <PropertyRef Name="physical_server" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -7654,9 +7886,63 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="IATF_documentos">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IATF_documentos">
+              <MappingFragment StoreEntitySet="IATF_documentos">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="proceso" ColumnName="proceso" />
+                <ScalarProperty Name="nombre_documento" ColumnName="nombre_documento" />
+                <ScalarProperty Name="clave" ColumnName="clave" />
+                <ScalarProperty Name="id_planta" ColumnName="id_planta" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IATF_revisiones">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IATF_revisiones">
+              <MappingFragment StoreEntitySet="IATF_revisiones">
+                <ScalarProperty Name="puesto_responsable" ColumnName="puesto_responsable" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="fecha_revision" ColumnName="fecha_revision" />
+                <ScalarProperty Name="responsable" ColumnName="responsable" />
+                <ScalarProperty Name="numero_revision" ColumnName="numero_revision" />
+                <ScalarProperty Name="id_iatf_documento" ColumnName="id_iatf_documento" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IT_asignacion_software">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_asignacion_software">
+              <MappingFragment StoreEntitySet="IT_asignacion_software">
+                <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
+                <ScalarProperty Name="id_sistemas" ColumnName="id_sistemas" />
+                <ScalarProperty Name="id_inventory_software_version" ColumnName="id_inventory_software_version" />
+                <ScalarProperty Name="id_inventory_software" ColumnName="id_inventory_software" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IT_asignacion_hardware">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_asignacion_hardware">
+              <MappingFragment StoreEntitySet="IT_asignacion_hardware">
+                <ScalarProperty Name="id_responsable_principal" ColumnName="id_responsable_principal" />
+                <ScalarProperty Name="es_asignacion_actual" ColumnName="es_asignacion_actual" />
+                <ScalarProperty Name="fecha_desasignacion" ColumnName="fecha_desasignacion" />
+                <ScalarProperty Name="fecha_asignacion" ColumnName="fecha_asignacion" />
+                <ScalarProperty Name="id_biblioteca_digital" ColumnName="id_biblioteca_digital" />
+                <ScalarProperty Name="id_sistemas" ColumnName="id_sistemas" />
+                <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
+                <ScalarProperty Name="id_iatf_version" ColumnName="id_iatf_version" />
+                <ScalarProperty Name="id_it_inventory_item" ColumnName="id_it_inventory_item" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="IT_inventory_items">
             <EntityTypeMapping TypeName="Portal_2_0Model.IT_inventory_items">
               <MappingFragment StoreEntitySet="IT_inventory_items">
+                <ScalarProperty Name="physical_server" ColumnName="physical_server" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
                 <ScalarProperty Name="accessories" ColumnName="accessories" />
                 <ScalarProperty Name="code" ColumnName="code" />
                 <ScalarProperty Name="imei_2" ColumnName="imei_2" />
@@ -7686,46 +7972,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
                 <ScalarProperty Name="active" ColumnName="active" />
                 <ScalarProperty Name="id_inventory_type" ColumnName="id_inventory_type" />
                 <ScalarProperty Name="id_planta" ColumnName="id_planta" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="IATF_documentos">
-            <EntityTypeMapping TypeName="Portal_2_0Model.IATF_documentos">
-              <MappingFragment StoreEntitySet="IATF_documentos">
-                <ScalarProperty Name="activo" ColumnName="activo" />
-                <ScalarProperty Name="proceso" ColumnName="proceso" />
-                <ScalarProperty Name="nombre_documento" ColumnName="nombre_documento" />
-                <ScalarProperty Name="clave" ColumnName="clave" />
-                <ScalarProperty Name="id_planta" ColumnName="id_planta" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="IATF_revisiones">
-            <EntityTypeMapping TypeName="Portal_2_0Model.IATF_revisiones">
-              <MappingFragment StoreEntitySet="IATF_revisiones">
-                <ScalarProperty Name="puesto_responsable" ColumnName="puesto_responsable" />
-                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
-                <ScalarProperty Name="fecha_revision" ColumnName="fecha_revision" />
-                <ScalarProperty Name="responsable" ColumnName="responsable" />
-                <ScalarProperty Name="numero_revision" ColumnName="numero_revision" />
-                <ScalarProperty Name="id_iatf_documento" ColumnName="id_iatf_documento" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="IT_asignacion_hardware">
-            <EntityTypeMapping TypeName="Portal_2_0Model.IT_asignacion_hardware">
-              <MappingFragment StoreEntitySet="IT_asignacion_hardware">
-                <ScalarProperty Name="fecha_desasignacion" ColumnName="fecha_desasignacion" />
-                <ScalarProperty Name="es_asignacion_actual" ColumnName="es_asignacion_actual" />
-                <ScalarProperty Name="fecha_asignacion" ColumnName="fecha_asignacion" />
-                <ScalarProperty Name="id_biblioteca_digital" ColumnName="id_biblioteca_digital" />
-                <ScalarProperty Name="id_sistemas" ColumnName="id_sistemas" />
-                <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
-                <ScalarProperty Name="id_iatf_version" ColumnName="id_iatf_version" />
-                <ScalarProperty Name="id_it_inventory_item" ColumnName="id_it_inventory_item" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

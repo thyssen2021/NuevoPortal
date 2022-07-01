@@ -110,9 +110,10 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_inventory_software_versions> IT_inventory_software_versions { get; set; }
         public virtual DbSet<IT_inventory_cellular_plans> IT_inventory_cellular_plans { get; set; }
         public virtual DbSet<IT_inventory_hard_drives> IT_inventory_hard_drives { get; set; }
-        public virtual DbSet<IT_inventory_items> IT_inventory_items { get; set; }
         public virtual DbSet<IATF_documentos> IATF_documentos { get; set; }
         public virtual DbSet<IATF_revisiones> IATF_revisiones { get; set; }
+        public virtual DbSet<IT_asignacion_software> IT_asignacion_software { get; set; }
         public virtual DbSet<IT_asignacion_hardware> IT_asignacion_hardware { get; set; }
+        public virtual DbSet<IT_inventory_items> IT_inventory_items { get; set; }
     }
 }

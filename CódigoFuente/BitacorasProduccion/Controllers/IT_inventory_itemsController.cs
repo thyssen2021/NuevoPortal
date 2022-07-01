@@ -7,6 +7,7 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
+using Bitacoras.Util;
 using Clases.Util;
 using Portal_2_0.Models;
 
@@ -18,7 +19,7 @@ namespace Portal_2_0.Controllers
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
         // GET: IT_inventory_items
-        public ActionResult Index(int? id_planta, int? tipo_hardware, string hostname, string model, bool? active, int pagina = 1)
+        public ActionResult Index(int? id_planta, int? tipo_hardware, string hostname, string description, string model, bool? active, int pagina = 1)
         {
             if (TieneRol(TipoRoles.IT_INVENTORY))
             {
@@ -36,6 +37,7 @@ namespace Portal_2_0.Controllers
                    (x.id_planta == id_planta || id_planta == null)
                     && (x.hostname.Contains(hostname) || String.IsNullOrEmpty(hostname))
                       && (x.model.Contains(model) || String.IsNullOrEmpty(model))
+                      && (x.descripcion.Contains(description) || String.IsNullOrEmpty(description))
                     && (x.active == active || active == null)
                     && (x.id_inventory_type == tipo_hardware && tipo_hardware.HasValue)
                     )
@@ -48,6 +50,7 @@ namespace Portal_2_0.Controllers
                    (x.id_planta == id_planta || id_planta == null)
                     && (x.hostname.Contains(hostname) || String.IsNullOrEmpty(hostname))
                     && (x.model.Contains(model) || String.IsNullOrEmpty(model))
+                        && (x.descripcion.Contains(description) || String.IsNullOrEmpty(description))
                     && (x.active == active || active == null)
                     && (x.id_inventory_type == tipo_hardware && tipo_hardware.HasValue)
                     )
@@ -56,6 +59,7 @@ namespace Portal_2_0.Controllers
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
                 routeValues["id_planta"] = id_planta;
                 routeValues["hostname"] = hostname;
+                routeValues["description"] = description;
                 routeValues["model"] = model;
                 routeValues["tipo_hardware"] = tipo_hardware;
                 routeValues["active"] = active;
@@ -82,7 +86,7 @@ namespace Portal_2_0.Controllers
         }
 
         // GET: IT_inventory_items/Create
-        public ActionResult Create(int? id_hardware_type, int? _id_planta, string _hostname, bool? _active, int? pagina, string _model)
+        public ActionResult Create(int? id, int? id_hardware_type, int? _id_planta, string _hostname, bool? _active, int? pagina, string _model)
         {
             if (!TieneRol(TipoRoles.IT_INVENTORY))
                 return View("../Home/ErrorPermisos");
@@ -97,23 +101,41 @@ namespace Portal_2_0.Controllers
                 return View("../Error/NotFound");
             }
 
-            ViewBag.type = type;
-            ViewBag.bits_operation_system = AddFirstItem(SelectBitsOS(), textoPorDefecto: "-- Seleccionar --");
-            ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --");
+            IT_inventory_items iT_inventory_items = db.IT_inventory_items.Find(id);
+           
 
             string brand = string.Empty;
-            if (type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.LAPTOP || type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.DESKTOP )
+            if (type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.LAPTOP || type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.DESKTOP)
                 brand = "HP";
 
-            //asigna los filtros
-            return View(new IT_inventory_items { active = true,
+            //modelo por defecto
+            IT_inventory_items model = new IT_inventory_items
+            {
+                active = true,
                 filtro_activo = _active,
-                filtro_hostname = _hostname, 
-                filtro_id_planta = _id_planta, 
+                filtro_hostname = _hostname,
+                filtro_id_planta = _id_planta,
                 filtro_model = _model,
                 filtro_pagina = pagina,
                 brand = brand
-            });
+            };
+
+            //en caso de ser un clon copia los valores y deja hostname vacio
+            if (iT_inventory_items != null)
+            {
+                model = iT_inventory_items;
+                model.hostname = null;
+
+                ViewBag.EsClone = true;
+            }
+
+            ViewBag.type = type;
+            ViewBag.bits_operation_system = AddFirstItem(SelectBitsOS(), textoPorDefecto: "-- Seleccionar --", selected: model.bits_operation_system.ToString());
+            ViewBag.physical_server = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x=>x.active ==true && x.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.SERVER), "id", "ConcatInfoGeneral"), textoPorDefecto: "-- Seleccionar --", selected: model.physical_server.ToString());
+            ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: model.id_planta.ToString());
+
+            //asigna los filtros
+            return View(model);
 
         }
 
@@ -218,6 +240,8 @@ namespace Portal_2_0.Controllers
             ViewBag.type = type;
             ViewBag.bits_operation_system = AddFirstItem(SelectBitsOS(), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.bits_operation_system.ToString());
             ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.id_planta.ToString());
+            ViewBag.physical_server = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x=>x.active ==true && x.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.SERVER), "id", "ConcatInfoGeneral"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.physical_server.ToString());
+      
 
             return View(iT_inventory_items);
         }
@@ -237,6 +261,8 @@ namespace Portal_2_0.Controllers
             ViewBag.type = iT_inventory_items.IT_inventory_hardware_type;
             ViewBag.bits_operation_system = AddFirstItem(SelectBitsOS(), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.bits_operation_system.ToString());
             ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.id_planta.ToString());
+            ViewBag.physical_server = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x => x.active == true && x.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.SERVER), "id", "ConcatInfoGeneral"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.physical_server.ToString());
+
 
             //asigna los filtros
             iT_inventory_items.filtro_activo = _active;
@@ -359,6 +385,8 @@ namespace Portal_2_0.Controllers
             ViewBag.type = type;
             ViewBag.bits_operation_system = AddFirstItem(SelectBitsOS(), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.bits_operation_system.ToString());
             ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.id_planta.ToString());
+            ViewBag.physical_server = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x => x.active == true && x.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.SERVER), "id", "ConcatInfoGeneral"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.physical_server.ToString());
+
 
             return View(iT_inventory_items);
         }
@@ -383,7 +411,7 @@ namespace Portal_2_0.Controllers
         }
 
         // GET: IT_inventory_items/Export/5
-        public ActionResult Export(int? id_planta, int? tipo_hardware, string hostname, string model, bool? active)
+        public ActionResult Export(int? id_planta, int? tipo_hardware, string hostname, string description, string model, bool? active)
         {
             if (!TieneRol(TipoRoles.IT_INVENTORY))
                 return View("../Home/ErrorPermisos");
@@ -407,6 +435,8 @@ namespace Portal_2_0.Controllers
                     return RedirectToAction("ExportarDesktop", new { id_planta = id_planta, hostname = hostname, active = active });
                 case Bitacoras.Util.IT_Tipos_Hardware.SERVER:
                     return RedirectToAction("Exportarserver", new { id_planta = id_planta, hostname = hostname, active = active });
+                case Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER:
+                    return RedirectToAction("Exportarvirtualserver", new { id_planta = id_planta, hostname = hostname, active = active });
                 case Bitacoras.Util.IT_Tipos_Hardware.MONITOR:
                     return RedirectToAction("Exportarmonitor", new { id_planta = id_planta, model = model, active = active });
                 case Bitacoras.Util.IT_Tipos_Hardware.PRINTER:
@@ -425,6 +455,8 @@ namespace Portal_2_0.Controllers
                     return RedirectToAction("Exportarap", new { id_planta = id_planta, model = model, active = active });
                 case Bitacoras.Util.IT_Tipos_Hardware.SMARTPHONE:
                     return RedirectToAction("Exportarsmartphone", new { id_planta = id_planta, model = model, active = active });
+                case Bitacoras.Util.IT_Tipos_Hardware.ACCESSORIES:
+                    return RedirectToAction("ExportarAccessory", new { id_planta = id_planta, description = description, active = active });
 
                 default:
                     return View("../Error/NotFound");
@@ -442,7 +474,7 @@ namespace Portal_2_0.Controllers
             //obtiene el id de celulares
             var cel = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion == Bitacoras.Util.IT_Tipos_Hardware.SMARTPHONE);
 
-            return RedirectToAction("Index", new { tipo_hardware= cel.id});
+            return RedirectToAction("Index", new { tipo_hardware = cel.id });
         }
 
         #region ExportacionExcel
@@ -585,6 +617,54 @@ namespace Portal_2_0.Controllers
             }
 
         }
+
+        public ActionResult ExportarAccessory(int? id_planta, string description, bool? active)
+        {
+            if (TieneRol(TipoRoles.IT_INVENTORY))
+            {
+
+                //busca el tipo inventario para monitor
+                var type = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion == Bitacoras.Util.IT_Tipos_Hardware.ACCESSORIES);
+
+                //si es nulo inicializa un objeto vacio
+                if (type == null)
+                    type = new IT_inventory_hardware_type();
+
+                var listado = db.IT_inventory_items
+                    .Where(x =>
+                    x.id_inventory_type == type.id
+                    && (x.id_planta == id_planta || id_planta == null)
+                    && (x.descripcion.Contains(description) || String.IsNullOrEmpty(description))
+                    && (x.active == active || active == null)
+                    )
+                  .OrderByDescending(x => x.id_planta)
+               .ToList();
+
+                //** DE MOMENTO ES EL MISMO QUE DESKTOP ***//
+                byte[] stream = ExcelUtil.GeneraReporteITAccessoryExcel(listado);
+
+
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+                    // for example foo.bak
+                    FileName = "Inventory_accessories_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+                    // always prompt the user for downloading, set to true if you want 
+                    // the browser to try to show the file inline
+                    Inline = false,
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                return File(stream, "application/vnd.ms-excel");
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
         public ActionResult Exportarprinter(int? id_planta, string model, bool? active)
         {
             if (TieneRol(TipoRoles.IT_INVENTORY))
@@ -797,6 +877,52 @@ namespace Portal_2_0.Controllers
                 {
                     // for example foo.bak
                     FileName = "Inventory_server_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+                    // always prompt the user for downloading, set to true if you want 
+                    // the browser to try to show the file inline
+                    Inline = false,
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                return File(stream, "application/vnd.ms-excel");
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+        public ActionResult Exportarvirtualserver(int? id_planta, string hostname, bool? active)
+        {
+            if (TieneRol(TipoRoles.IT_INVENTORY))
+            {
+
+                //busca el tipo inventario para server
+                var type = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion == Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER);
+
+                //si es nulo inicializa un objeto vacio
+                if (type == null)
+                    type = new IT_inventory_hardware_type();
+
+                var listado = db.IT_inventory_items
+                    .Where(x =>
+                    x.id_inventory_type == type.id
+                    && (x.id_planta == id_planta || id_planta == null)
+                    && (x.hostname.Contains(hostname) || String.IsNullOrEmpty(hostname))
+                    && (x.active == active || active == null)
+                    )
+                  .OrderByDescending(x => x.id_planta)
+               .ToList();
+
+                //** DE MOMENTO ES EL MISMO QUE DESKTOP ***//
+                byte[] stream = ExcelUtil.GeneraReporteITDesktopExcel(listado, type.descripcion);
+
+
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+                    // for example foo.bak
+                    FileName = "Inventory_virtual_server_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
 
                     // always prompt the user for downloading, set to true if you want 
                     // the browser to try to show the file inline
