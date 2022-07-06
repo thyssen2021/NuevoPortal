@@ -259,12 +259,13 @@ namespace Portal_2_0.Controllers
             bool existe = db.AspNetUsers.Any(x => x.IdEmpleado == emp.id);
 
 
-            empleado[0] = new { 
-                area = emp.Area == null ? "NO DISPONIBLE": emp.Area.descripcion,
+            empleado[0] = new
+            {
+                area = emp.Area == null ? "NO DISPONIBLE" : emp.Area.descripcion,
                 plantas = emp.plantas == null ? "NO DISPONIBLE" : emp.plantas.descripcion,
                 puesto = emp.puesto1 == null ? "NO DISPONIBLE" : emp.puesto1.descripcion,
                 existe = existe
-            
+
             };
 
             return Json(empleado, JsonRequestBehavior.AllowGet);
@@ -319,16 +320,16 @@ namespace Portal_2_0.Controllers
         {
 
             //obtiene todos los posibles valores
-            bool existe = db.AspNetUsers.Any(x=>x.Email==correo);
+            bool existe = db.AspNetUsers.Any(x => x.Email == correo);
 
-           
+
 
             //inicializa la lista de objetos
             var item = new object[1];
 
 
             item[0] = new
-            {               
+            {
                 existe = existe
             };
 
@@ -367,6 +368,52 @@ namespace Portal_2_0.Controllers
                     list[i] = new { value = "", name = distinctList[i] };
                 else
                     list[i] = new { value = distinctList[i], name = distinctList[i] };
+            }
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+        ///<summary>
+        ///Obtiene los items activos del tipo de hardware recibido 
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult obtieneDescripcionInventoryItem(int? id_tipo_hardware = 0)
+        {
+            //obtiene todos los posibles valores
+            List<IT_inventory_items> listado = db.IT_inventory_items.Where(p => p.active == true && p.id_inventory_type == id_tipo_hardware).ToList();
+
+            //inicializa la lista de objetos
+            var list = new object[listado.Count + 1];
+
+            //inserta valor por defecto
+            list[0] = new { value = "", name = "-- Selectione un valor --" };
+
+            //obtiene el tipo de hardware
+            var item_type = db.IT_inventory_hardware_type.Find(id_tipo_hardware);
+            string tipo = String.Empty;
+
+            if (item_type != null)
+                tipo = item_type.descripcion;
+
+            switch (tipo)
+            {
+                case Bitacoras.Util.IT_Tipos_Hardware.ACCESSORIES:
+                    for (int i = 1; i < listado.Count + 1; i++)
+                        list[i] = new { value = listado[i - 1].id, name = listado[i - 1].ConcatAccesoriesInfo };
+                    break;
+                //case Bitacoras.Util.IT_Tipos_Hardware.LAPTOP:
+                //case Bitacoras.Util.IT_Tipos_Hardware.DESKTOP:
+                //case Bitacoras.Util.IT_Tipos_Hardware.SERVER:
+                default:
+                    for (int i = 1; i < listado.Count + 1; i++)
+                        list[i] = new { value = listado[i - 1].id, name = listado[i - 1].ConcatInfoGeneral };
+                    break;
+            }
+
+            //completa la lista de objetos
+            for (int i = 1; i < listado.Count + 1; i++)
+            {
+                list[i] = new { value = listado[i - 1].id, name = listado[i - 1].ConcatInfoGeneral };
             }
             return Json(list, JsonRequestBehavior.AllowGet);
         }
@@ -418,8 +465,8 @@ namespace Portal_2_0.Controllers
             String textoSelects = "<option value=''>-- Seleccione un valor --</option>";
 
             foreach (IT_inventory_software item in listado)
-            {                               
-                        textoSelects += "<option value='" + item.id + "'>" + item.descripcion + "</option>";               
+            {
+                textoSelects += "<option value='" + item.id + "'>" + item.descripcion + "</option>";
             }
 
             //inicializa la lista de objetos
@@ -438,7 +485,7 @@ namespace Portal_2_0.Controllers
         public JsonResult GetSoftwareVersion(int id_inventory_software = 0)
         {
             //obtiene todos los posibles valores
-            List<IT_inventory_software_versions> listado = db.IT_inventory_software_versions.Where(p => p.id_inventory_software==id_inventory_software && p.activo == true).ToList();
+            List<IT_inventory_software_versions> listado = db.IT_inventory_software_versions.Where(p => p.id_inventory_software == id_inventory_software && p.activo == true).ToList();
 
             //inserta el valor por default
             listado.Insert(0, new IT_inventory_software_versions

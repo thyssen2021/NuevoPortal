@@ -23,6 +23,7 @@ namespace Portal_2_0.Models
         public int id { get; set; }
         public string descripcion { get; set; }
         public bool activo { get; set; }
+        public bool puede_asignarse { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_inventory_items> IT_inventory_items { get; set; }

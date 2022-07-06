@@ -292,6 +292,7 @@
     <Compile Include="Controllers\inspeccionCategoriaFallasController.cs" />
     <Compile Include="Controllers\InspeccionRegistrosController.cs" />
     <Compile Include="Controllers\inspeccion_fallasController.cs" />
+    <Compile Include="Controllers\IT_asignacion_cellular_lineController.cs" />
     <Compile Include="Controllers\IT_asignacion_hardwareController.cs" />
     <Compile Include="Controllers\IT_asignacion_softwareController.cs" />
     <Compile Include="Controllers\IT_carpetas_redController.cs" />
@@ -398,10 +399,16 @@
     <Compile Include="Models\IATF_revisiones.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\IT_asignacion_cellular_line.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\IT_asignacion_hardware.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IT_asignacion_software.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_inventory_cellular_line.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IT_inventory_cellular_plans.cs">
@@ -420,6 +427,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IT_inventory_software_versions.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_inventory_tipos_accesorios.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IT_solicitud_usuarios.cs">
@@ -530,9 +540,11 @@
     <Compile Include="Models\MetadataModels\budget_mappingMetadata.cs" />
     <Compile Include="Models\MetadataModels\budget_mapping_bridge_Metadata.cs" />
     <Compile Include="Models\MetadataModels\budget_plantasMetadata.cs" />
+    <Compile Include="Models\MetadataModels\IT_asignacion_cellular_lineMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_asignacion_hardwareMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_asignacion_softwareMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_internet_tipoMetadata.cs" />
+    <Compile Include="Models\MetadataModels\IT_inventory_cellular_lineMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_inventory_hardware_typeMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_inventory_hard_drivesMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_inventory_itemsMetadata.cs" />
@@ -7089,11 +7101,10 @@
     <Content Include="Views\IT_asignacion_hardware\Asignar.cshtml" />
     <Content Include="Views\IT_asignacion_hardware\CargarResponsiva.cshtml" />
     <Content Include="Views\IT_asignacion_hardware\DetailsEmpleado.cshtml" />
-    <Content Include="Views\IT_inventory_items\index.cshtml" />
-    <Content Include="Views\IT_inventory_items\Create.cshtml" />
-    <Content Include="Views\IT_inventory_items\Edit.cshtml" />
-    <Content Include="Views\IT_inventory_items\Details.cshtml" />
     <Content Include="Views\IT_asignacion_software\Asignar.cshtml" />
+    <Content Include="Views\IT_asignacion_cellular_line\Asignar.cshtml" />
+    <Content Include="Views\IT_asignacion_cellular_line\DesasociarNumero.cshtml" />
+    <Content Include="Views\IT_asignacion_cellular_line\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

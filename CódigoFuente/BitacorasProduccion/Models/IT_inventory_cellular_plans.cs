@@ -14,11 +14,20 @@ namespace Portal_2_0.Models
     
     public partial class IT_inventory_cellular_plans
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public IT_inventory_cellular_plans()
+        {
+            this.IT_inventory_cellular_line = new HashSet<IT_inventory_cellular_line>();
+        }
+    
         public int id { get; set; }
         public string nombre_plan { get; set; }
         public string nombre_compania { get; set; }
         public Nullable<decimal> precio { get; set; }
         public string comentarios { get; set; }
         public bool activo { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_inventory_cellular_line> IT_inventory_cellular_line { get; set; }
     }
 }

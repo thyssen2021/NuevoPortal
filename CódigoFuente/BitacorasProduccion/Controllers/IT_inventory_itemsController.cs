@@ -19,7 +19,7 @@ namespace Portal_2_0.Controllers
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
         // GET: IT_inventory_items
-        public ActionResult Index(int? id_planta, int? tipo_hardware, string hostname, string description, string model, bool? active, int pagina = 1)
+        public ActionResult Index(int? id_planta, int? tipo_hardware, string hostname, int? id_tipo_accesorio, string model, bool? active, int pagina = 1)
         {
             if (TieneRol(TipoRoles.IT_INVENTORY))
             {
@@ -37,7 +37,7 @@ namespace Portal_2_0.Controllers
                    (x.id_planta == id_planta || id_planta == null)
                     && (x.hostname.Contains(hostname) || String.IsNullOrEmpty(hostname))
                       && (x.model.Contains(model) || String.IsNullOrEmpty(model))
-                      && (x.descripcion.Contains(description) || String.IsNullOrEmpty(description))
+                    && (x.id_tipo_accesorio == id_tipo_accesorio || id_tipo_accesorio == null)
                     && (x.active == active || active == null)
                     && (x.id_inventory_type == tipo_hardware && tipo_hardware.HasValue)
                     )
@@ -50,7 +50,7 @@ namespace Portal_2_0.Controllers
                    (x.id_planta == id_planta || id_planta == null)
                     && (x.hostname.Contains(hostname) || String.IsNullOrEmpty(hostname))
                     && (x.model.Contains(model) || String.IsNullOrEmpty(model))
-                        && (x.descripcion.Contains(description) || String.IsNullOrEmpty(description))
+                    && (x.id_tipo_accesorio == id_tipo_accesorio || id_tipo_accesorio == null)
                     && (x.active == active || active == null)
                     && (x.id_inventory_type == tipo_hardware && tipo_hardware.HasValue)
                     )
@@ -59,7 +59,7 @@ namespace Portal_2_0.Controllers
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
                 routeValues["id_planta"] = id_planta;
                 routeValues["hostname"] = hostname;
-                routeValues["description"] = description;
+                routeValues["id_tipo_accesorio"] = id_tipo_accesorio;
                 routeValues["model"] = model;
                 routeValues["tipo_hardware"] = tipo_hardware;
                 routeValues["active"] = active;
@@ -76,6 +76,8 @@ namespace Portal_2_0.Controllers
                 ViewBag.Paginacion = paginacion;
                 ViewBag.tipo_hardware = AddFirstItem(new SelectList(db.IT_inventory_hardware_type.Where(x => x.activo), "id", "descripcion"), textoPorDefecto: "-- Select --", selected: id_planta.ToString());
                 ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas.Where(x => x.activo), "clave", "descripcion"), textoPorDefecto: "-- All --", selected: id_planta.ToString());
+                ViewBag.id_tipo_accesorio = AddFirstItem(new SelectList(db.IT_inventory_tipos_accesorios, "id", "descripcion"), textoPorDefecto: "-- All --", selected: id_tipo_accesorio.ToString());
+
 
                 return View(listado);
             }
@@ -132,6 +134,7 @@ namespace Portal_2_0.Controllers
             ViewBag.type = type;
             ViewBag.bits_operation_system = AddFirstItem(SelectBitsOS(), textoPorDefecto: "-- Seleccionar --", selected: model.bits_operation_system.ToString());
             ViewBag.physical_server = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x=>x.active ==true && x.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.SERVER), "id", "ConcatInfoGeneral"), textoPorDefecto: "-- Seleccionar --", selected: model.physical_server.ToString());
+            ViewBag.id_tipo_accesorio = AddFirstItem(new SelectList(db.IT_inventory_tipos_accesorios.Where(x => x.activo == true ), "id", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: model.id_tipo_accesorio.ToString());
             ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: model.id_planta.ToString());
 
             //asigna los filtros
@@ -240,6 +243,7 @@ namespace Portal_2_0.Controllers
             ViewBag.type = type;
             ViewBag.bits_operation_system = AddFirstItem(SelectBitsOS(), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.bits_operation_system.ToString());
             ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.id_planta.ToString());
+            ViewBag.id_tipo_accesorio = AddFirstItem(new SelectList(db.IT_inventory_tipos_accesorios.Where(x => x.activo == true), "id", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.id_tipo_accesorio.ToString());
             ViewBag.physical_server = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x=>x.active ==true && x.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.SERVER), "id", "ConcatInfoGeneral"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.physical_server.ToString());
       
 
@@ -262,6 +266,8 @@ namespace Portal_2_0.Controllers
             ViewBag.bits_operation_system = AddFirstItem(SelectBitsOS(), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.bits_operation_system.ToString());
             ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.id_planta.ToString());
             ViewBag.physical_server = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x => x.active == true && x.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.SERVER), "id", "ConcatInfoGeneral"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.physical_server.ToString());
+            ViewBag.id_tipo_accesorio = AddFirstItem(new SelectList(db.IT_inventory_tipos_accesorios.Where(x => x.activo == true), "id", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.id_tipo_accesorio.ToString());
+
 
 
             //asigna los filtros
@@ -386,6 +392,7 @@ namespace Portal_2_0.Controllers
             ViewBag.bits_operation_system = AddFirstItem(SelectBitsOS(), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.bits_operation_system.ToString());
             ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.id_planta.ToString());
             ViewBag.physical_server = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x => x.active == true && x.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.SERVER), "id", "ConcatInfoGeneral"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.physical_server.ToString());
+            ViewBag.id_tipo_accesorio = AddFirstItem(new SelectList(db.IT_inventory_tipos_accesorios.Where(x => x.activo == true), "id", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.id_tipo_accesorio.ToString());
 
 
             return View(iT_inventory_items);
@@ -411,7 +418,7 @@ namespace Portal_2_0.Controllers
         }
 
         // GET: IT_inventory_items/Export/5
-        public ActionResult Export(int? id_planta, int? tipo_hardware, string hostname, string description, string model, bool? active)
+        public ActionResult Export(int? id_planta, int? tipo_hardware, string hostname, int? id_tipo_accesorio, string model, bool? active)
         {
             if (!TieneRol(TipoRoles.IT_INVENTORY))
                 return View("../Home/ErrorPermisos");
@@ -456,7 +463,7 @@ namespace Portal_2_0.Controllers
                 case Bitacoras.Util.IT_Tipos_Hardware.SMARTPHONE:
                     return RedirectToAction("Exportarsmartphone", new { id_planta = id_planta, model = model, active = active });
                 case Bitacoras.Util.IT_Tipos_Hardware.ACCESSORIES:
-                    return RedirectToAction("ExportarAccessory", new { id_planta = id_planta, description = description, active = active });
+                    return RedirectToAction("ExportarAccessory", new { id_planta = id_planta, id_tipo_accesorio = id_tipo_accesorio, active = active });
 
                 default:
                     return View("../Error/NotFound");
@@ -618,7 +625,7 @@ namespace Portal_2_0.Controllers
 
         }
 
-        public ActionResult ExportarAccessory(int? id_planta, string description, bool? active)
+        public ActionResult ExportarAccessory(int? id_planta, int? id_tipo_accesorio, bool? active)
         {
             if (TieneRol(TipoRoles.IT_INVENTORY))
             {
@@ -634,7 +641,7 @@ namespace Portal_2_0.Controllers
                     .Where(x =>
                     x.id_inventory_type == type.id
                     && (x.id_planta == id_planta || id_planta == null)
-                    && (x.descripcion.Contains(description) || String.IsNullOrEmpty(description))
+                    && (x.id_tipo_accesorio == id_tipo_accesorio || id_tipo_accesorio == null)
                     && (x.active == active || active == null)
                     )
                   .OrderByDescending(x => x.id_planta)

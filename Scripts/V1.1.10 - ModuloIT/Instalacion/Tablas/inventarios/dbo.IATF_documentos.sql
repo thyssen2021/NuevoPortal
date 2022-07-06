@@ -49,6 +49,12 @@ alter table [IATF_documentos]
 
 INSERT INTO IATF_documentos (id_planta,clave, nombre_documento, proceso, activo) VALUES (1,'ITF007', N'Responsiva de Equipo', N'RESPONSIVA_LAPTOP',1);
 INSERT INTO IATF_documentos (id_planta,clave, nombre_documento, proceso, activo) VALUES (2,'ITF007', N'Responsiva de Equipo',N'RESPONSIVA_LAPTOP',1);
+-----------------------------------------------------------------------------------
+INSERT INTO IATF_documentos (id_planta,clave, nombre_documento, proceso, activo) VALUES (1,'ITF008', N'Responsiva de Celular', N'RESPONSIVA_CELULAR',1);
+INSERT INTO IATF_documentos (id_planta,clave, nombre_documento, proceso, activo) VALUES (2,'ITF008', N'Responsiva de Celular', N'RESPONSIVA_CELULAR',1);
+
+INSERT INTO IATF_documentos (id_planta,clave, nombre_documento, proceso, activo) VALUES (1,'ITF009', N'Responsiva de Accesorios', N'RESPONSIVA_ACCESORIOS',1);
+INSERT INTO IATF_documentos (id_planta,clave, nombre_documento, proceso, activo) VALUES (2,'ITF009', N'Responsiva de Accesorios', N'RESPONSIVA_ACCESORIOS',1);
 
 IF object_id(N'IATF_documentos',N'U') IS NOT NULL
 	BEGIN

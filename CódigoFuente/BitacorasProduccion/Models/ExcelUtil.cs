@@ -1897,7 +1897,7 @@ namespace Portal_2_0.Models
             ////registros , rows
             foreach (IT_inventory_items item in listado)
             {
-                dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion,item.descripcion ,item.brand, item.model, item.serial_number,
+                dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.IT_inventory_tipos_accesorios.descripcion,item.brand, item.model, item.serial_number,
                     item.purchase_date, item.end_warranty, item.active, item.inactive_date, item.comments
                     );
             }

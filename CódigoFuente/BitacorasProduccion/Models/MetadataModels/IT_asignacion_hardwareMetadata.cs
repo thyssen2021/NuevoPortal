@@ -57,6 +57,18 @@ namespace Portal_2_0.Models
         [Display(Name = "Documento Responsiva")]
         public HttpPostedFileBase PostedFileResponsiva { get; set; }
 
+
+        [NotMapped]
+        [Required]
+        [Display(Name = "Tipo de Hardware")]
+        public int tipo_hardware { get; set; }
+
+        [NotMapped]
+        [Display(Name = "Línea Celular")]
+        public int id_inventory_cellular_line { get; set; }
+
+
+
         /// <summary>
         /// Determina si la asignación es una asignación actual sin responsable principal
         /// </summary>

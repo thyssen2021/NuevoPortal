@@ -22,6 +22,7 @@ GO
 CREATE TABLE [IT_inventory_hardware_type](
 	[id] [int] IDENTITY(1,1) NOT NULL,
 	[descripcion] [varchar](40) NOT NULL,
+	puede_asignarse bit NOT NULL DEFAULT 0,
 	[activo] [bit] NOT NULL	
  CONSTRAINT [PK_IT_inventory_hardware_type] PRIMARY KEY CLUSTERED 
 (
@@ -34,23 +35,26 @@ GO
 ALTER TABLE [IT_inventory_hardware_type] ADD  CONSTRAINT [DF_IT_inventory_hardware_type_activo]  DEFAULT (1) FOR [activo]
 GO
 
+--agrega campo de tipo accesorio
+ALTER TABLE [IT_inventory_hardware_type] ADD puede_asignarse bit NOT NULL DEFAULT 0
+			PRINT 'Se ha creado la columna puede_asignarse en la tabla IT_inventory_items'			
 
 SET IDENTITY_INSERT [IT_inventory_hardware_type] ON 
 
-INSERT [IT_inventory_hardware_type] ([id], [descripcion], [activo]) VALUES (1, N'Laptop', 1)
-INSERT [IT_inventory_hardware_type] ([id], [descripcion], [activo]) VALUES (2, N'Desktop',1)
-INSERT [IT_inventory_hardware_type] ([id], [descripcion], [activo]) VALUES (3, N'Monitor', 1)
-INSERT [IT_inventory_hardware_type] ([id], [descripcion], [activo]) VALUES (4, N'Printer', 1)
-INSERT [IT_inventory_hardware_type] ([id], [descripcion], [activo]) VALUES (5, N'Label Printer', 1)
-INSERT [IT_inventory_hardware_type] ([id], [descripcion], [activo]) VALUES (6, N'PDA', 1)
-INSERT [IT_inventory_hardware_type] ([id], [descripcion], [activo]) VALUES (7, N'Server', 1)
-INSERT [IT_inventory_hardware_type] ([id], [descripcion], [activo]) VALUES (8, N'Tablet', 1)
-INSERT [IT_inventory_hardware_type] ([id], [descripcion], [activo]) VALUES (9, N'Radio', 1)
-INSERT [IT_inventory_hardware_type] ([id], [descripcion], [activo]) VALUES (10, N'AP', 1)
-INSERT [IT_inventory_hardware_type] ([id], [descripcion], [activo]) VALUES (11, N'Smartphone', 1)
-INSERT [IT_inventory_hardware_type] ([id], [descripcion], [activo]) VALUES (12, N'Scanners', 1)
-INSERT [IT_inventory_hardware_type] ([id], [descripcion], [activo]) VALUES (13, N'Accessories', 1)
-INSERT [IT_inventory_hardware_type] ([id], [descripcion], [activo]) VALUES (14, N'Virtual Server', 1)
+INSERT [IT_inventory_hardware_type] ([id], [descripcion], [puede_asignarse], [activo]) VALUES (1, N'Laptop',1, 1)
+INSERT [IT_inventory_hardware_type] ([id], [descripcion], [puede_asignarse], [activo]) VALUES (2, N'Desktop',1,1)
+INSERT [IT_inventory_hardware_type] ([id], [descripcion], [puede_asignarse], [activo]) VALUES (3, N'Monitor',0, 0)
+INSERT [IT_inventory_hardware_type] ([id], [descripcion], [puede_asignarse], [activo]) VALUES (4, N'Printer',0, 1)
+INSERT [IT_inventory_hardware_type] ([id], [descripcion], [puede_asignarse], [activo]) VALUES (5, N'Label Printer',0, 1)
+INSERT [IT_inventory_hardware_type] ([id], [descripcion], [puede_asignarse], [activo]) VALUES (6, N'PDA',1, 1)
+INSERT [IT_inventory_hardware_type] ([id], [descripcion], [puede_asignarse], [activo]) VALUES (7, N'Server',0, 1)
+INSERT [IT_inventory_hardware_type] ([id], [descripcion], [puede_asignarse], [activo]) VALUES (8, N'Tablet',1, 1)
+INSERT [IT_inventory_hardware_type] ([id], [descripcion], [puede_asignarse], [activo]) VALUES (9, N'Radio',1, 1)
+INSERT [IT_inventory_hardware_type] ([id], [descripcion], [puede_asignarse], [activo]) VALUES (10, N'AP',0, 1)
+INSERT [IT_inventory_hardware_type] ([id], [descripcion], [puede_asignarse], [activo]) VALUES (11, N'Smartphone',1, 1)
+INSERT [IT_inventory_hardware_type] ([id], [descripcion], [puede_asignarse], [activo]) VALUES (12, N'Scanners',1, 1)
+INSERT [IT_inventory_hardware_type] ([id], [descripcion], [puede_asignarse], [activo]) VALUES (13, N'Accessories',1, 1)
+INSERT [IT_inventory_hardware_type] ([id], [descripcion], [puede_asignarse], [activo]) VALUES (14, N'Virtual Server',0, 1)
 
 SET IDENTITY_INSERT [IT_inventory_hardware_type] OFF
 GO

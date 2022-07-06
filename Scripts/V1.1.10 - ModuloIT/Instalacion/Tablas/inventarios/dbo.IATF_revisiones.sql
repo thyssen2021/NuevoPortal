@@ -54,6 +54,21 @@ INSERT INTO IATF_revisiones (id_iatf_documento,numero_revision,responsable, pues
 INSERT INTO IATF_revisiones (id_iatf_documento,numero_revision,responsable, puesto_responsable,fecha_revision,descripcion) VALUES (2,1,'IT SISTEMAS',null, '2019-12-01', 'Emisión del Formato.')
 INSERT INTO IATF_revisiones (id_iatf_documento,numero_revision,responsable, puesto_responsable, fecha_revision,descripcion) VALUES (2,2,'IT SISTEMAS',null, '2020-10-21', 'Se quita el no. De revisión de la política interna de TkMM y solo se mantiene el código ITE001')
 INSERT INTO IATF_revisiones (id_iatf_documento,numero_revision,responsable, puesto_responsable,fecha_revision,descripcion) VALUES (2,3,'Alfredo Xochitemol Cruz',null, '2022-06-22', 'Se emite documento a través de portal web con la clave ITF007-03.')
+--------------------------------------------------------------------------------------------------------------------------
+INSERT INTO IATF_revisiones (id_iatf_documento,numero_revision,responsable, puesto_responsable,fecha_revision,descripcion) VALUES (3,1,'IT SISTEMAS',null, '2019-12-01', 'Emisión del Formato.')
+INSERT INTO IATF_revisiones (id_iatf_documento,numero_revision,responsable, puesto_responsable, fecha_revision,descripcion) VALUES (3,2,'IT SISTEMAS',null, '2020-10-21', 'Se quita el no. De revisión de la política interna de TkMM y solo se mantiene el código ITE001')
+INSERT INTO IATF_revisiones (id_iatf_documento,numero_revision,responsable, puesto_responsable,fecha_revision,descripcion) VALUES (3,3,'Alfredo Xochitemol Cruz',null, '2022-06-22', 'Se emite documento a través de portal web con la clave ITF008-03.')
+
+INSERT INTO IATF_revisiones (id_iatf_documento,numero_revision,responsable, puesto_responsable,fecha_revision,descripcion) VALUES (4,1,'IT SISTEMAS',null, '2019-12-01', 'Emisión del Formato.')
+INSERT INTO IATF_revisiones (id_iatf_documento,numero_revision,responsable, puesto_responsable, fecha_revision,descripcion) VALUES (4,2,'IT SISTEMAS',null, '2020-10-21', 'Se quita el no. De revisión de la política interna de TkMM y solo se mantiene el código ITE001')
+INSERT INTO IATF_revisiones (id_iatf_documento,numero_revision,responsable, puesto_responsable,fecha_revision,descripcion) VALUES (4,3,'Alfredo Xochitemol Cruz',null, '2022-06-22', 'Se emite documento a través de portal web con la clave ITF008-03.')
+
+INSERT INTO IATF_revisiones (id_iatf_documento,numero_revision,responsable, puesto_responsable,fecha_revision,descripcion) VALUES (5,1,'IT SISTEMAS',null, '2019-12-01', 'Emisión del Formato.')
+INSERT INTO IATF_revisiones (id_iatf_documento,numero_revision,responsable, puesto_responsable,fecha_revision,descripcion) VALUES (5,2,'Alfredo Xochitemol Cruz',null, '2022-06-22', 'Se emite documento a través de portal web con la clave ITF009-02.')
+
+INSERT INTO IATF_revisiones (id_iatf_documento,numero_revision,responsable, puesto_responsable,fecha_revision,descripcion) VALUES (6,1,'IT SISTEMAS',null, '2019-12-01', 'Emisión del Formato.')
+INSERT INTO IATF_revisiones (id_iatf_documento,numero_revision,responsable, puesto_responsable,fecha_revision,descripcion) VALUES (6,2,'Alfredo Xochitemol Cruz',null, '2022-06-22', 'Se emite documento a través de portal web con la clave ITF009-02.')
+
 
 IF object_id(N'IATF_revisiones',N'U') IS NOT NULL
 	BEGIN

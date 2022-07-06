@@ -146,9 +146,8 @@ namespace Portal_2_0.Models
         [MaxLength(50, ErrorMessage = "The max length for {0} is {1} characters")]
         public string accessories { get; set; }
 
-        [Display(Name = "Accesorie Type")]
-        [MaxLength(120, ErrorMessage = "The max length for {0} is {1} characters")]
-        public string descripcion { get; set; }
+        [Display(Name = "Accessory Type")]
+        public Nullable<int> id_tipo_accesorio { get; set; }    
 
         [Display(Name = "Physical Server")]
         public Nullable<int> physical_server { get; set; }
@@ -301,7 +300,38 @@ namespace Portal_2_0.Models
                 {
 
                     if (!string.IsNullOrEmpty(this.hostname))
-                        info += " (" + hostname + ") ";
+                        info += " (" + hostname + ") - ";
+                    if (this.plantas != null)
+                        info += plantas.descripcion + " ";
+                    if (!string.IsNullOrEmpty(this.brand))
+                        info += " - " + brand + " ";
+                    if (!string.IsNullOrEmpty(this.model))
+                        info += " - " + model + " ";
+                    if (!string.IsNullOrEmpty(this.serial_number))
+                        info += " - " + serial_number + " ";
+
+                    return info;
+                }
+                catch
+                {
+                    return info;
+                }
+
+            }
+        } 
+        
+        [NotMapped]
+        public string ConcatAccesoriesInfo
+        {
+            get
+            {
+                //string info = "(" + id + ") ";
+                string info = String.Empty;
+                try
+                {
+
+                    if (this.IT_inventory_tipos_accesorios!=null)
+                        info += " (" + this.IT_inventory_tipos_accesorios.descripcion + ") ";
                     if (this.plantas != null)
                         info += " - " + plantas.descripcion + " ";
                     if (!string.IsNullOrEmpty(this.brand))
@@ -565,7 +595,7 @@ namespace Portal_2_0.Models
             ,new FiltersInventoryUtil {tipoHardware = accessories(),nombreCampo =  nameof(IT_inventory_items.id_planta), tipoFormulario = FiltersInventoryTypes.BUSQUEDA}
           //  ,new FiltersInventoryUtil {tipoHardware = accessories(),nombreCampo =  nameof(IT_inventory_items.model), tipoFormulario = FiltersInventoryTypes.BUSQUEDA}
             ,new FiltersInventoryUtil {tipoHardware = accessories(),nombreCampo =  nameof(IT_inventory_items.active), tipoFormulario = FiltersInventoryTypes.BUSQUEDA}
-            ,new FiltersInventoryUtil {tipoHardware = accessories(),nombreCampo =  nameof(IT_inventory_items.descripcion), tipoFormulario = FiltersInventoryTypes.BUSQUEDA}
+            ,new FiltersInventoryUtil {tipoHardware = accessories(),nombreCampo =  nameof(IT_inventory_items.id_tipo_accesorio), tipoFormulario = FiltersInventoryTypes.BUSQUEDA}
             //--FORMULARIOS DESKTOP
             ,new FiltersInventoryUtil {tipoHardware = desktop(),nombreCampo =  nameof(IT_inventory_items.id_inventory_type), tipoFormulario = FiltersInventoryTypes.EDICION}
             ,new FiltersInventoryUtil {tipoHardware = desktop(),nombreCampo =  nameof(IT_inventory_items.id_planta), tipoFormulario = FiltersInventoryTypes.EDICION}
@@ -695,6 +725,7 @@ namespace Portal_2_0.Models
             ,new FiltersInventoryUtil {tipoHardware = scanner(),nombreCampo =  nameof(IT_inventory_items.serial_number), tipoFormulario = FiltersInventoryTypes.EDICION}
             ,new FiltersInventoryUtil {tipoHardware = scanner(),nombreCampo =  nameof(IT_inventory_items.mac_wlan), tipoFormulario = FiltersInventoryTypes.EDICION}
             ,new FiltersInventoryUtil {tipoHardware = scanner(),nombreCampo =  nameof(IT_inventory_items.accessories), tipoFormulario = FiltersInventoryTypes.EDICION}
+            ,new FiltersInventoryUtil {tipoHardware = scanner(),nombreCampo =  nameof(IT_inventory_items.code), tipoFormulario = FiltersInventoryTypes.EDICION}
             //--FORMULARIOS SMARTPHONE
             ,new FiltersInventoryUtil {tipoHardware = smartphone(),nombreCampo =  nameof(IT_inventory_items.id_inventory_type), tipoFormulario = FiltersInventoryTypes.EDICION}
             ,new FiltersInventoryUtil {tipoHardware = smartphone(),nombreCampo =  nameof(IT_inventory_items.id_planta), tipoFormulario = FiltersInventoryTypes.EDICION}
@@ -710,11 +741,12 @@ namespace Portal_2_0.Models
             ,new FiltersInventoryUtil {tipoHardware = smartphone(),nombreCampo =  nameof(IT_inventory_items.imei_2), tipoFormulario = FiltersInventoryTypes.EDICION}
             //--FORMULARIOS accesories
             ,new FiltersInventoryUtil {tipoHardware = accessories(),nombreCampo =  nameof(IT_inventory_items.id_inventory_type), tipoFormulario = FiltersInventoryTypes.EDICION}
-            ,new FiltersInventoryUtil {tipoHardware = accessories(),nombreCampo =  nameof(IT_inventory_items.descripcion), tipoFormulario = FiltersInventoryTypes.EDICION}
+            ,new FiltersInventoryUtil {tipoHardware = accessories(),nombreCampo =  nameof(IT_inventory_items.id_tipo_accesorio), tipoFormulario = FiltersInventoryTypes.EDICION}
             ,new FiltersInventoryUtil {tipoHardware = accessories(),nombreCampo =  nameof(IT_inventory_items.id_planta), tipoFormulario = FiltersInventoryTypes.EDICION}
             ,new FiltersInventoryUtil {tipoHardware = accessories(),nombreCampo =  nameof(IT_inventory_items.brand), tipoFormulario = FiltersInventoryTypes.EDICION}
             ,new FiltersInventoryUtil {tipoHardware = accessories(),nombreCampo =  nameof(IT_inventory_items.model), tipoFormulario = FiltersInventoryTypes.EDICION}
             ,new FiltersInventoryUtil {tipoHardware = accessories(),nombreCampo =  nameof(IT_inventory_items.serial_number), tipoFormulario = FiltersInventoryTypes.EDICION}
+            ,new FiltersInventoryUtil {tipoHardware = accessories(),nombreCampo =  nameof(IT_inventory_items.inches), tipoFormulario = FiltersInventoryTypes.EDICION}
             //--INDEX DESKTOP
             ,new FiltersInventoryUtil {tipoHardware = desktop(),nombreCampo =  nameof(IT_inventory_items.id_inventory_type), tipoFormulario = FiltersInventoryTypes.INDEX}
             ,new FiltersInventoryUtil {tipoHardware = desktop(),nombreCampo =  nameof(IT_inventory_items.active), tipoFormulario = FiltersInventoryTypes.INDEX}
@@ -812,6 +844,7 @@ namespace Portal_2_0.Models
             ,new FiltersInventoryUtil {tipoHardware = scanner(),nombreCampo =  nameof(IT_inventory_items.id_planta), tipoFormulario = FiltersInventoryTypes.INDEX}
             ,new FiltersInventoryUtil {tipoHardware = scanner(),nombreCampo =  nameof(IT_inventory_items.model), tipoFormulario = FiltersInventoryTypes.INDEX}
             ,new FiltersInventoryUtil {tipoHardware = scanner(),nombreCampo =  nameof(IT_inventory_items.serial_number), tipoFormulario = FiltersInventoryTypes.INDEX}
+            ,new FiltersInventoryUtil {tipoHardware = scanner(),nombreCampo =  nameof(IT_inventory_items.code), tipoFormulario = FiltersInventoryTypes.INDEX}
             //--INDEX smartphone
             ,new FiltersInventoryUtil {tipoHardware = smartphone(),nombreCampo =  nameof(IT_inventory_items.id_inventory_type), tipoFormulario = FiltersInventoryTypes.INDEX}
             ,new FiltersInventoryUtil {tipoHardware = smartphone(),nombreCampo =  nameof(IT_inventory_items.active), tipoFormulario = FiltersInventoryTypes.INDEX}
@@ -821,7 +854,7 @@ namespace Portal_2_0.Models
             ,new FiltersInventoryUtil {tipoHardware = smartphone(),nombreCampo =  nameof(IT_inventory_items.serial_number), tipoFormulario = FiltersInventoryTypes.INDEX}
                //--INDEX accessories
             ,new FiltersInventoryUtil {tipoHardware = accessories(),nombreCampo =  nameof(IT_inventory_items.id_inventory_type), tipoFormulario = FiltersInventoryTypes.INDEX}
-            ,new FiltersInventoryUtil {tipoHardware = accessories(),nombreCampo =  nameof(IT_inventory_items.descripcion), tipoFormulario = FiltersInventoryTypes.INDEX}
+            ,new FiltersInventoryUtil {tipoHardware = accessories(),nombreCampo =  nameof(IT_inventory_items.id_tipo_accesorio), tipoFormulario = FiltersInventoryTypes.INDEX}
             ,new FiltersInventoryUtil {tipoHardware = accessories(),nombreCampo =  nameof(IT_inventory_items.active), tipoFormulario = FiltersInventoryTypes.INDEX}
             ,new FiltersInventoryUtil {tipoHardware = accessories(),nombreCampo =  nameof(IT_inventory_items.brand), tipoFormulario = FiltersInventoryTypes.INDEX}
             ,new FiltersInventoryUtil {tipoHardware = accessories(),nombreCampo =  nameof(IT_inventory_items.id_planta), tipoFormulario = FiltersInventoryTypes.INDEX}

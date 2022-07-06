@@ -34,9 +34,14 @@ GO
 
 
 
---UNIQUE
---restringir mediante código para que no se pueda insertar un registro numero celular repetido
+--Datos demo
 
+delete from dbo.[IT_inventory_cellular_plans]; DBCC checkident ('IT_inventory_cellular_plans', reseed,0);
+Select * from [IT_inventory_cellular_plans]
+
+INSERT INTO IT_inventory_cellular_plans (nombre_plan, nombre_compania, precio, activo) values (N'TM SIN LIMITE EMPRESA 2000','TELCEL',257.76,1);
+INSERT INTO IT_inventory_cellular_plans (nombre_plan, nombre_compania, precio, activo) values (N'TM SIN LIMITE EMPRESA 5000','TELCEL',430.17,1);
+INSERT INTO IT_inventory_cellular_plans (nombre_plan, nombre_compania, precio, activo) values (N'MAX SL EMPRESA 7000 4G','TELCEL',690.47,1);
  	  
 IF object_id(N'IT_inventory_cellular_plans',N'U') IS NOT NULL
 	BEGIN

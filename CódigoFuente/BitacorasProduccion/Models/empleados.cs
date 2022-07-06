@@ -49,6 +49,8 @@ namespace Portal_2_0.Models
             this.IT_asignacion_hardware = new HashSet<IT_asignacion_hardware>();
             this.IT_asignacion_hardware1 = new HashSet<IT_asignacion_hardware>();
             this.IT_asignacion_hardware2 = new HashSet<IT_asignacion_hardware>();
+            this.IT_asignacion_cellular_line = new HashSet<IT_asignacion_cellular_line>();
+            this.IT_asignacion_cellular_line1 = new HashSet<IT_asignacion_cellular_line>();
         }
     
         public int id { get; set; }
@@ -140,5 +142,9 @@ namespace Portal_2_0.Models
         public virtual ICollection<IT_asignacion_hardware> IT_asignacion_hardware1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_asignacion_hardware> IT_asignacion_hardware2 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_asignacion_cellular_line> IT_asignacion_cellular_line { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_asignacion_cellular_line> IT_asignacion_cellular_line1 { get; set; }
     }
 }

@@ -31,10 +31,10 @@
         hostname = paginacionFiltros.ValoresQueryString["hostname"].ToString();
     }
 
-    string description = string.Empty;
-    if (paginacionFiltros.ValoresQueryString["description"] != null)
+    string id_tipo_accesorio = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["id_tipo_accesorio"] != null)
     {
-        description = paginacionFiltros.ValoresQueryString["description"].ToString();
+        id_tipo_accesorio = paginacionFiltros.ValoresQueryString["id_tipo_accesorio"].ToString();
     }
 
     string model_ = string.Empty;
@@ -136,11 +136,11 @@
                                                 </div>
                                             }
 
-                                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.BUSQUEDA, tipo_hardware, nameof(IT_inventory_items.descripcion)))
+                                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.BUSQUEDA, tipo_hardware, nameof(IT_inventory_items.id_tipo_accesorio)))
                                             {
-                                                <label class="control-label col-md-1 col-sm-1" for="descripcion" style="text-align:right">Accessory Type:</label>
-                                                <div class="col-md-2 col-sm-2">
-                                                    <input type="text" id="description" name="description" class="form-control" value="@description" autocomplete="off" />
+                                                <label class="control-label col-md-1 col-sm-1" for="id_planta" style="text-align:right">Accessory Type:</label>
+                                                <div class="col-md-2 col-sm-2 ">
+                                                    @Html.DropDownList("id_tipo_accesorio", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                                 </div>
                                             }
                                             @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.BUSQUEDA, tipo_hardware, nameof(IT_inventory_items.model)))
@@ -227,10 +227,10 @@
                                                         @Html.DisplayNameFor(model => model.physical_server)
                                                     </th>
                                                 }
-                                                @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.descripcion)))
+                                                @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.id_tipo_accesorio)))
                                                 {
                                                     <th>
-                                                        @Html.DisplayNameFor(model => model.descripcion)
+                                                        @Html.DisplayNameFor(model => model.id_tipo_accesorio)
                                                     </th>
                                                 }
                                                 @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.brand)))
@@ -316,10 +316,10 @@
                                                             @Html.DisplayFor(modelItem => item.IT_inventory_items2.hostname)
                                                         </td>
                                                     }
-                                                    @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.descripcion)))
+                                                    @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.id_tipo_accesorio)))
                                                     {
                                                         <td>
-                                                            @Html.DisplayFor(modelItem => item.descripcion)
+                                                            @Html.DisplayFor(modelItem => item.IT_inventory_tipos_accesorios.descripcion)
                                                         </td>
                                                     }
                                                     @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.brand)))
@@ -408,8 +408,8 @@
                                                         </a>
 
                                                         @*<a href="@Url.Action("DeleteDesktop", null, new { id = item.id })" class="btn btn-danger " title="Delete">
-                <i class="fa-regular fa-trash-can"></i>
-            </a>*@
+                                                                <i class="fa-regular fa-trash-can"></i>
+                                                            </a>*@
                                                     </td>
                                                 </tr>
                                             }
@@ -438,7 +438,7 @@
                                                     hostname = hostname,
                                                     model = model_,
                                                     active = active,
-                                                    description = description
+                                                    id_tipo_accesorio = id_tipo_accesorio
 
                                                 })" class="btn btn-success btm-sm" target="_blank" title="Reporte">
                                             <i class="fa-regular fa-file-excel"></i> Export Excel
@@ -483,6 +483,10 @@
             });
 
             $("#id_planta").change(function () {
+                verificaEstadoCombos();
+            });
+            
+            $("#id_tipo_accesorio").change(function () {
                 verificaEstadoCombos();
             });
 

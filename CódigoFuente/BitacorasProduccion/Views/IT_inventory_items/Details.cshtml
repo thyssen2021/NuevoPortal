@@ -93,12 +93,12 @@
                                     </div>
                                 </div>
                             }
-                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.descripcion)))
+                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.id_tipo_accesorio)))
                             {
                                 <div class="form-group col-md-4">
-                                    @Html.LabelFor(model => model.descripcion, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                    @Html.LabelFor(model => model.id_tipo_accesorio, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                     <div class="col-md-9 col-sm-9 ">
-                                        @Html.EditorFor(model => model.descripcion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+                                        <input id="id_tipo_accesorio" class="form-control" value="@Model.IT_inventory_tipos_accesorios.descripcion" readonly="readonly" />
                                     </div>
                                 </div>
                             }
@@ -235,7 +235,7 @@
                             }
                             @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.inches)))
                             {
-                                <div class="form-group col-md-4">
+                                <div id="inches" class="form-group col-md-4">
                                     @Html.LabelFor(model => model.inches, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                     <div class="col-md-9 col-sm-9 ">
                                         @Html.EditorFor(model => model.inches, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
@@ -568,6 +568,15 @@
                 "info": false
             });
 
+             //inches
+            var tipo_accesorio = $('#@Html.IdFor(model => model.id_tipo_accesorio)').val();
+
+            if (tipo_accesorio != null && tipo_accesorio.toUpperCase().includes("MONITOR")) {
+                $('#inches').show();
+            } else if (tipo_accesorio != null) {
+                $('#inches').hide();
+            }
+            
             $('input').iCheck({
                 checkboxClass: 'icheckbox_square-green',
                 radioClass: 'iradio_square-green',
@@ -583,7 +592,6 @@
             $('#@Html.IdFor(model => model.mac_lan)').inputmask({ 'alias': "mac", 'autoUnmask': true, 'removeMaskOnSubmit': true });
             $('#@Html.IdFor(model => model.TotalDiskSpace)').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'suffix': ' GB', 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
             $('.drive-total').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'suffix': ' GB', 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
-
 
 
         });

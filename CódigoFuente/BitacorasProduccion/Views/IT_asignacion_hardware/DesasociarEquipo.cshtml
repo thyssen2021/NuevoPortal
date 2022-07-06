@@ -74,6 +74,11 @@
                                         <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.Area.descripcion)</dd>
                                         <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.puesto)</dt>
                                         <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.puesto1.descripcion)</dd>
+                                        @foreach (var linea in Model.empleados.IT_asignacion_cellular_line.Where(x => x.es_asignacion_actual == true))
+                                        {
+                                            <dt class="col-sm-2">@Html.DisplayNameFor(model => linea.IT_inventory_cellular_line.numero_celular)</dt>
+                                            <dd class="col-sm-2">@Html.DisplayFor(model => linea.IT_inventory_cellular_line.numero_celular)</dd>
+                                        }
                                         <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.activo)</dt>
                                         <dd class="col-sm-2">
                                             @if (Model.empleados.activo.HasValue && Model.empleados.activo.Value)

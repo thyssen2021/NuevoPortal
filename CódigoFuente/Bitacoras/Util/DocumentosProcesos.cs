@@ -11,6 +11,8 @@ namespace Bitacoras.Util
         //Tipos de procesos para Documentos
 
         public const string RESPONSIVA_LAPTOP = "RESPONSIVA_LAPTOP";
+        public const string RESPONSIVA_ACCESORIOS = "RESPONSIVA_ACCESORIOS";
+        public const string RESPONSIVA_CELULAR = "RESPONSIVA_CELULAR";
 
         //public static string DescripcionStatus(String status)
         //{
