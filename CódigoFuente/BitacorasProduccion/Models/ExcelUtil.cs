@@ -1592,6 +1592,9 @@ namespace Portal_2_0.Models
             //para llevar el control de si es encabezado o no
             List<bool> filasEncabezados = new List<bool>();
             filasEncabezados.Add(false); //es el encabezado principal
+
+            List<int> filasServidoresVirtuales = new List<int>();
+
             int physical = 0;
             if (inventoryType == Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER)
                 physical++;
@@ -1602,7 +1605,7 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Type", typeof(string)); //2
             dt.Columns.Add("Plant", typeof(string));  //3
             dt.Columns.Add("Hostname", typeof(string)); //4
-            if(inventoryType == Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER )
+            if(inventoryType == Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER || inventoryType == Bitacoras.Util.IT_Tipos_Hardware.SERVER)
                 dt.Columns.Add("Physical Server", typeof(string));    //4.5
             dt.Columns.Add("Brand", typeof(string));    //5
             dt.Columns.Add("Model", typeof(string));    //6
@@ -1630,15 +1633,19 @@ namespace Portal_2_0.Models
             ////registros , rows
             foreach (IT_inventory_items item in listado)
             {
-                if (inventoryType != Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER)
+                if (inventoryType != Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER && inventoryType != Bitacoras.Util.IT_Tipos_Hardware.SERVER )
                     dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.hostname, item.brand, item.model, item.serial_number,
                     item.operation_system, item.bits_operation_system,  item.cpu_speed_mhz, item.number_of_cpus, item.processor, item.mac_lan, item.mac_wlan,
                     item.total_physical_memory_gb, null, null,  null, item.NumberOfHardDrives, item.TotalDiskSpace,  item.maintenance_period_months, 
                      item.purchase_date, item.end_warranty,
                      item.active, item.inactive_date, item.comments
                     );
-                else{ //se agrega phyical server
-                    dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.hostname,item.IT_inventory_items2.hostname, item.brand, item.model, item.serial_number,
+                else{ //se agrega phyical server{
+                    string virtualhost = null;
+                    if (item.IT_inventory_items2 != null)
+                        virtualhost = item.IT_inventory_items2.hostname;
+
+                    dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.hostname,virtualhost, item.brand, item.model, item.serial_number,
                       item.operation_system, item.bits_operation_system, item.cpu_speed_mhz, item.number_of_cpus, item.processor, item.mac_lan, item.mac_wlan,
                       item.total_physical_memory_gb, null, null, null, item.NumberOfHardDrives, item.TotalDiskSpace, item.maintenance_period_months,
                        item.purchase_date, item.end_warranty,
@@ -1668,6 +1675,41 @@ namespace Portal_2_0.Models
                 //verifica si hubo cambios
                 if (fila_inicial != fila_final)
                     oSLDocument.GroupRows(fila_inicial, fila_final - 1);
+
+                //agrega una fila por cada servidor virtual
+                foreach (var vs in item.IT_inventory_items1)
+                {
+                   dt.Rows.Add(vs.id, vs.IT_inventory_hardware_type.descripcion, vs.plantas.descripcion, vs.hostname, vs.IT_inventory_items2.hostname, vs.brand, vs.model
+                    , vs.serial_number, vs.operation_system, vs.bits_operation_system, vs.cpu_speed_mhz, vs.number_of_cpus, vs.processor, vs.mac_lan, vs.mac_wlan,
+                   vs.total_physical_memory_gb, null, null, null, vs.NumberOfHardDrives, vs.TotalDiskSpace, vs.maintenance_period_months,
+                   vs.purchase_date, vs.end_warranty, vs.active, vs.inactive_date, vs.comments);
+
+                    filasEncabezados.Add(false);
+                    filasServidoresVirtuales.Add(filasEncabezados.Count);
+
+
+                    //obtiene la cantidad de fila actual
+                    fila_inicial = filasEncabezados.Count + 1;
+
+                    foreach (IT_inventory_hard_drives hd in vs.IT_inventory_hard_drives)
+                    {
+                        System.Data.DataRow row = dt.NewRow();
+
+                        row["Drive Letter"] = hd.disk_name;
+                        row["Total Drive Space (GB)"] = hd.total_drive_space_gb;
+                        row["Drive Type"] = hd.type_drive;
+
+                        dt.Rows.Add(row);
+                        filasEncabezados.Add(false);
+                    }
+
+                    //obtiene la fila final
+                    fila_final = filasEncabezados.Count + 1;
+
+                    //verifica si hubo cambios
+                    if (fila_inicial != fila_final)
+                        oSLDocument.GroupRows(fila_inicial, fila_final - 1);
+                }
             }
 
             //crea la hoja de Inventory y la selecciona
@@ -1687,6 +1729,10 @@ namespace Portal_2_0.Models
             //estilo para el encabezado de cada fila
             SLStyle styleHeaderRow = oSLDocument.CreateStyle();
             styleHeaderRow.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#daeef3"), System.Drawing.ColorTranslator.FromHtml("#daeef3"));
+            
+            //estilo para el encabezado de cada fila (Virtual server)
+            SLStyle styleHeaderRowVS = oSLDocument.CreateStyle();
+            styleHeaderRowVS.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#fae6d7"), System.Drawing.ColorTranslator.FromHtml("#fae6d7"));
 
             //estilo para el encabezado de cada fila
             SLStyle styleHeaderRowDrive = oSLDocument.CreateStyle();
@@ -1712,8 +1758,6 @@ namespace Portal_2_0.Models
             styleLoteInfo.Border.LeftBorder.Color = System.Drawing.Color.LightGray;
             styleLoteInfo.Border.RightBorder.BorderStyle = BorderStyleValues.Thin;
             styleLoteInfo.Border.RightBorder.Color = System.Drawing.Color.LightGray;
-
-
 
             ////estilo para fecha
             SLStyle styleShortDate = oSLDocument.CreateStyle();
@@ -1746,6 +1790,11 @@ namespace Portal_2_0.Models
                 //colapsa todas las filas
                 oSLDocument.CollapseRows(i + 2);
             }
+
+            //aplica formato a los encabezados de VS
+            foreach(var i in filasServidoresVirtuales)
+                oSLDocument.SetCellStyle(i, 1, i, dt.Columns.Count, styleHeaderRowVS);
+
             //da estilo a los numero
             oSLDocument.SetColumnStyle(10 + physical, styleNumberInt);
             oSLDocument.SetColumnStyle(17 + physical, styleNumberDecimal);
@@ -1762,7 +1811,7 @@ namespace Portal_2_0.Models
             //da color gris a cabeceras expandibles
             oSLDocument.SetCellStyle(1, 17 + physical, 1, 19 + physical, styleHeaderRowDrive);
 
-            oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
+            oSLDocument.SetRowHeight(1, dt.Rows.Count + 1, 15.0);
 
             System.IO.Stream stream = new System.IO.MemoryStream();
 

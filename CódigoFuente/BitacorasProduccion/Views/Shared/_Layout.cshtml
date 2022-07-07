@@ -169,16 +169,17 @@
                                                     <h3>Inventory</h3>
                                                     <li class="@(ViewBag.SegundoNivel == "it_inventory_hardware" ? "current-page" : null )"><a href="@Url.Action("index", "IT_Inventory_items")">Hardware</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "IT_Inventory_software" ? "current-page" : null )"><a href="@Url.Action("index", "IT_Inventory_software")">Software</a></li>
-
                                                     <li class="link @(ViewBag.SegundoNivel == "IT_Catalogos_inventory_telefonia" ? "active" : null )">
                                                         <a>Telefon&iacute;a <span class="fa fa-chevron-down"></span></a>
                                                         <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "IT_Catalogos_inventory_telefonia" ? "display:block" : null )">
                                                             <li class="@(ViewBag.TercelNivel == "IT_Inventory_smartphone" ? "current-page" : null )"><a href="@Url.Action("Smartphone", "IT_Inventory_items")">Smartphones</a></li>
                                                             <li class="@(ViewBag.TercelNivel == "IT_inventory_cellular_plans" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_inventory_cellular_plans")">Planes</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "IT_inventory_cellular_line" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_inventory_cellular_line")">L&iacute;neas</a></li>
                                                         </ul>
                                                     </li>
-                                                }
+                                                    <li class="@(ViewBag.SegundoNivel == "IT_inventory_tipos_accesorios" ? "current-page" : null )"><a href="@Url.Action("index", "IT_inventory_tipos_accesorios")">Tipos de Accesorios</a></li>
 
+                                                }
 
                                                 @if (User.IsInRole(TipoRoles.IT_ASIGNACION_HARDWARE))
                                                 {

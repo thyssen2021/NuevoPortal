@@ -86,6 +86,18 @@
                                 @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, type.id.ToString(), nameof(IT_inventory_items.physical_server)))
                                 {
                                     <div class="form-group col-md-4">
+                                        @Html.LabelFor(model => model.es_servidor_virtual, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                        <div class="col-md-9 col-sm-9 " @*rel="tooltip" data-title="Autorizar"*@>
+
+                                            @Html.EditorFor(model => model.es_servidor_virtual, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+
+                                            @Html.ValidationMessageFor(model => model.es_servidor_virtual, "", new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+                                }
+                                @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, type.id.ToString(), nameof(IT_inventory_items.physical_server)))
+                                {
+                                    <div class="form-group col-md-4">
                                         @Html.LabelFor(model => model.physical_server, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                         <div class="col-md-9 col-sm-9 ">
                                             @Html.DropDownList("physical_server", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
@@ -119,7 +131,7 @@
                                     <div class="form-group col-md-4">
                                         @Html.LabelFor(model => model.brand, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                         <div class="col-md-9 col-sm-9 ">
-                                            @Html.EditorFor(model => model.brand, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @required="required" } })
+                                            @Html.EditorFor(model => model.brand, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @required = "required" } })
                                             @Html.ValidationMessageFor(model => model.brand, "", new { @class = "text-danger" })
                                         </div>
                                     </div>
@@ -260,7 +272,7 @@
                                 }
                                 @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, type.id.ToString(), nameof(IT_inventory_items.inches)))
                                 {
-                                    <div id ="inches" class="form-group col-md-4">
+                                    <div id="inches" class="form-group col-md-4">
                                         @Html.LabelFor(model => model.inches, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                         <div class="col-md-9 col-sm-9 ">
                                             @Html.EditorFor(model => model.inches, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
@@ -323,7 +335,7 @@
                             </div>
 
                             <div class="ln_solid"></div>
-                            if (type.descripcion == IT_Tipos_Hardware.DESKTOP || type.descripcion == IT_Tipos_Hardware.LAPTOP || type.descripcion == IT_Tipos_Hardware.SERVER)
+                            if (type.descripcion == IT_Tipos_Hardware.DESKTOP || type.descripcion == IT_Tipos_Hardware.LAPTOP || type.descripcion == IT_Tipos_Hardware.SERVER || type.descripcion == IT_Tipos_Hardware.VIRTUAL_SERVER)
                             {
                                 <div class="form-group row">
                                     <span style="color:black"><b>HARD DRIVES</b></span>
@@ -606,6 +618,19 @@
                 //$('#inactive_date').val('');
             }
 
+               //check virtual
+            if ($('#@Html.IdFor(model => model.es_servidor_virtual)').prop('checked')) {
+                $('#@Html.IdFor(model => model.physical_server)').prop('disabled', false);
+
+                // Initialize Select2 Elements (debe ir después de asignar el valor)
+                $('.select2bs4').select2({
+                    theme: 'bootstrap4'
+                })
+
+            } else { //si el check está seleccionado
+                $('#@Html.IdFor(model => model.physical_server)').prop('disabled', true);
+                //$('#inactive_date').val('');
+            }
 
              //inches
             var tipo_accesorio = $('#@Html.IdFor(model => model.id_tipo_accesorio) option:selected').text();

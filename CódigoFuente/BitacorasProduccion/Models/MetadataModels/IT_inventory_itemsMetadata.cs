@@ -213,6 +213,11 @@ namespace Portal_2_0.Models
             }
         }
 
+        //para filtros
+        [NotMapped]
+        [Display(Name = "Is virtual?")]
+        public bool es_servidor_virtual { get; set; }
+
 
         //para filtros
         [NotMapped]
@@ -626,6 +631,7 @@ namespace Portal_2_0.Models
             ,new FiltersInventoryUtil {tipoHardware = server(),nombreCampo =  nameof(IT_inventory_items.mac_lan), tipoFormulario = FiltersInventoryTypes.EDICION}
             ,new FiltersInventoryUtil {tipoHardware = server(),nombreCampo =  nameof(IT_inventory_items.mac_wlan), tipoFormulario = FiltersInventoryTypes.EDICION}
             ,new FiltersInventoryUtil {tipoHardware = server(),nombreCampo =  nameof(IT_inventory_items.total_physical_memory_mb), tipoFormulario = FiltersInventoryTypes.EDICION}
+            ,new FiltersInventoryUtil {tipoHardware = server(),nombreCampo =  nameof(IT_inventory_items.physical_server), tipoFormulario = FiltersInventoryTypes.EDICION}
              //--FORMULARIOS Virtual Server
             ,new FiltersInventoryUtil {tipoHardware = virtual_server(),nombreCampo =  nameof(IT_inventory_items.id_inventory_type), tipoFormulario = FiltersInventoryTypes.EDICION}
             ,new FiltersInventoryUtil {tipoHardware = virtual_server(),nombreCampo =  nameof(IT_inventory_items.id_planta), tipoFormulario = FiltersInventoryTypes.EDICION}
@@ -774,6 +780,7 @@ namespace Portal_2_0.Models
             ,new FiltersInventoryUtil {tipoHardware = server(),nombreCampo =  nameof(IT_inventory_items.model), tipoFormulario = FiltersInventoryTypes.INDEX}
             ,new FiltersInventoryUtil {tipoHardware = server(),nombreCampo =  nameof(IT_inventory_items.serial_number), tipoFormulario = FiltersInventoryTypes.INDEX}
             ,new FiltersInventoryUtil {tipoHardware = server(),nombreCampo =  nameof(IT_inventory_items.operation_system), tipoFormulario = FiltersInventoryTypes.INDEX}
+            ,new FiltersInventoryUtil {tipoHardware = server(),nombreCampo =  nameof(IT_inventory_items.physical_server), tipoFormulario = FiltersInventoryTypes.INDEX}
               //--INDEX virtual server
             ,new FiltersInventoryUtil {tipoHardware = virtual_server(),nombreCampo =  nameof(IT_inventory_items.id_inventory_type), tipoFormulario = FiltersInventoryTypes.INDEX}
             ,new FiltersInventoryUtil {tipoHardware = virtual_server(),nombreCampo =  nameof(IT_inventory_items.active), tipoFormulario = FiltersInventoryTypes.INDEX}
@@ -860,7 +867,6 @@ namespace Portal_2_0.Models
             ,new FiltersInventoryUtil {tipoHardware = accessories(),nombreCampo =  nameof(IT_inventory_items.id_planta), tipoFormulario = FiltersInventoryTypes.INDEX}
             ,new FiltersInventoryUtil {tipoHardware = accessories(),nombreCampo =  nameof(IT_inventory_items.model), tipoFormulario = FiltersInventoryTypes.INDEX}
             ,new FiltersInventoryUtil {tipoHardware = accessories(),nombreCampo =  nameof(IT_inventory_items.serial_number), tipoFormulario = FiltersInventoryTypes.INDEX}
-
 
         };
 

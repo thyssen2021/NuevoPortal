@@ -30,13 +30,14 @@ namespace Portal_2_0.Controllers
                 }
 
                 var cantidadRegistrosPorPagina = 20; // parámetro
-
+                             
 
                 var listado = db.IT_inventory_items
                     .Where(x =>
                    (x.id_planta == id_planta || id_planta == null)
-                    && (x.hostname.Contains(hostname) || String.IsNullOrEmpty(hostname))
-                      && (x.model.Contains(model) || String.IsNullOrEmpty(model))
+                    && ((x.hostname.Contains(hostname) || String.IsNullOrEmpty(hostname))
+                    || (x.IT_inventory_items1.Any(y=>y.hostname.Contains(hostname))))
+                    && (x.model.Contains(model) || String.IsNullOrEmpty(model))
                     && (x.id_tipo_accesorio == id_tipo_accesorio || id_tipo_accesorio == null)
                     && (x.active == active || active == null)
                     && (x.id_inventory_type == tipo_hardware && tipo_hardware.HasValue)
@@ -48,7 +49,8 @@ namespace Portal_2_0.Controllers
                 var totalDeRegistros = db.IT_inventory_items
                       .Where(x =>
                    (x.id_planta == id_planta || id_planta == null)
-                    && (x.hostname.Contains(hostname) || String.IsNullOrEmpty(hostname))
+                    && ((x.hostname.Contains(hostname) || String.IsNullOrEmpty(hostname))
+                    || (x.IT_inventory_items1.Any(y => y.hostname.Contains(hostname))))
                     && (x.model.Contains(model) || String.IsNullOrEmpty(model))
                     && (x.id_tipo_accesorio == id_tipo_accesorio || id_tipo_accesorio == null)
                     && (x.active == active || active == null)
@@ -74,7 +76,8 @@ namespace Portal_2_0.Controllers
                 };
 
                 ViewBag.Paginacion = paginacion;
-                ViewBag.tipo_hardware = AddFirstItem(new SelectList(db.IT_inventory_hardware_type.Where(x => x.activo), "id", "descripcion"), textoPorDefecto: "-- Select --", selected: id_planta.ToString());
+                //quita de la lista el tipo Virtual server (se incluiye en el formulario de server)
+                ViewBag.tipo_hardware = AddFirstItem(new SelectList(db.IT_inventory_hardware_type.Where(x => x.activo && x.descripcion != Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER), "id", "descripcion"), textoPorDefecto: "-- Select --", selected: id_planta.ToString());
                 ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas.Where(x => x.activo), "clave", "descripcion"), textoPorDefecto: "-- All --", selected: id_planta.ToString());
                 ViewBag.id_tipo_accesorio = AddFirstItem(new SelectList(db.IT_inventory_tipos_accesorios, "id", "descripcion"), textoPorDefecto: "-- All --", selected: id_tipo_accesorio.ToString());
 
@@ -104,7 +107,7 @@ namespace Portal_2_0.Controllers
             }
 
             IT_inventory_items iT_inventory_items = db.IT_inventory_items.Find(id);
-           
+
 
             string brand = string.Empty;
             if (type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.LAPTOP || type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.DESKTOP)
@@ -131,10 +134,14 @@ namespace Portal_2_0.Controllers
                 ViewBag.EsClone = true;
             }
 
+            // Verifica si es virtual server
+            if (model.physical_server.HasValue)
+                model.es_servidor_virtual = true;
+
             ViewBag.type = type;
             ViewBag.bits_operation_system = AddFirstItem(SelectBitsOS(), textoPorDefecto: "-- Seleccionar --", selected: model.bits_operation_system.ToString());
-            ViewBag.physical_server = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x=>x.active ==true && x.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.SERVER), "id", "ConcatInfoGeneral"), textoPorDefecto: "-- Seleccionar --", selected: model.physical_server.ToString());
-            ViewBag.id_tipo_accesorio = AddFirstItem(new SelectList(db.IT_inventory_tipos_accesorios.Where(x => x.activo == true ), "id", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: model.id_tipo_accesorio.ToString());
+            ViewBag.physical_server = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x => x.active == true && x.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.SERVER), "id", "ConcatInfoGeneral"), textoPorDefecto: "-- Seleccionar --", selected: model.physical_server.ToString());
+            ViewBag.id_tipo_accesorio = AddFirstItem(new SelectList(db.IT_inventory_tipos_accesorios.Where(x => x.activo == true), "id", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: model.id_tipo_accesorio.ToString());
             ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: model.id_planta.ToString());
 
             //asigna los filtros
@@ -217,7 +224,12 @@ namespace Portal_2_0.Controllers
 
             if (ModelState.IsValid)
             {
+                int id_inventory = iT_inventory_items.id_inventory_type;
 
+                if (iT_inventory_items.es_servidor_virtual)
+                    iT_inventory_items.id_inventory_type = db.IT_inventory_hardware_type.Where(x => x.descripcion == IT_Tipos_Hardware.VIRTUAL_SERVER).Select(x => x.id).FirstOrDefault();
+
+                //guarda en BD
                 db.IT_inventory_items.Add(iT_inventory_items);
                 db.SaveChanges();
 
@@ -225,7 +237,7 @@ namespace Portal_2_0.Controllers
 
                 return RedirectToAction("index", new
                 {
-                    tipo_hardware = iT_inventory_items.id_inventory_type,
+                    tipo_hardware = id_inventory,
                     id_planta = iT_inventory_items.filtro_id_planta,
                     //hostname = iT_inventory_items.filtro_hostname,
                     //active = iT_inventory_items.filtro_activo,
@@ -244,8 +256,8 @@ namespace Portal_2_0.Controllers
             ViewBag.bits_operation_system = AddFirstItem(SelectBitsOS(), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.bits_operation_system.ToString());
             ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.id_planta.ToString());
             ViewBag.id_tipo_accesorio = AddFirstItem(new SelectList(db.IT_inventory_tipos_accesorios.Where(x => x.activo == true), "id", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.id_tipo_accesorio.ToString());
-            ViewBag.physical_server = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x=>x.active ==true && x.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.SERVER), "id", "ConcatInfoGeneral"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.physical_server.ToString());
-      
+            ViewBag.physical_server = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x => x.active == true && x.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.SERVER), "id", "ConcatInfoGeneral"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.physical_server.ToString());
+
 
             return View(iT_inventory_items);
         }
@@ -262,13 +274,15 @@ namespace Portal_2_0.Controllers
                 return View("../Error/NotFound");
             }
 
+            // Verifica si es virtual server
+            if (iT_inventory_items.physical_server.HasValue)
+                iT_inventory_items.es_servidor_virtual = true;
+
             ViewBag.type = iT_inventory_items.IT_inventory_hardware_type;
             ViewBag.bits_operation_system = AddFirstItem(SelectBitsOS(), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.bits_operation_system.ToString());
             ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, "clave", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.id_planta.ToString());
             ViewBag.physical_server = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x => x.active == true && x.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.SERVER), "id", "ConcatInfoGeneral"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.physical_server.ToString());
             ViewBag.id_tipo_accesorio = AddFirstItem(new SelectList(db.IT_inventory_tipos_accesorios.Where(x => x.activo == true), "id", "descripcion"), textoPorDefecto: "-- Seleccionar --", selected: iT_inventory_items.id_tipo_accesorio.ToString());
-
-
 
             //asigna los filtros
             iT_inventory_items.filtro_activo = _active;
@@ -364,7 +378,27 @@ namespace Portal_2_0.Controllers
                 foreach (IT_inventory_hard_drives drive in iT_inventory_items.IT_inventory_hard_drives)
                     db.IT_inventory_hard_drives.Add(drive);
 
+                
+                int tipo_hardware = iT_inventory_items.id_inventory_type;
+                int id_tipo_v_s = db.IT_inventory_hardware_type.Where(x => x.descripcion == IT_Tipos_Hardware.VIRTUAL_SERVER).Select(x => x.id).FirstOrDefault();
+                int id_tipo_server = db.IT_inventory_hardware_type.Where(x => x.descripcion == IT_Tipos_Hardware.SERVER).Select(x => x.id).FirstOrDefault();
 
+                //verifica si es servidor virtual
+                if (iT_inventory_items.es_servidor_virtual)
+                {
+                    //si es servidor virtual coloca el id de servidor virtual (en caso de que venga de server)
+                    iT_inventory_items.id_inventory_type = id_tipo_v_s;
+                    //tipo harware se establece con id de SERVER (para pantalla de retorono)
+                    tipo_hardware = id_tipo_server;
+                }
+                else if (iT_inventory_items.id_inventory_type == id_tipo_v_s) {
+                    //el tipo vuelve a ser server
+                    iT_inventory_items.id_inventory_type = id_tipo_server;
+                    //tipo harware se establece con id de SERVER (para pantalla de retorono)
+                    tipo_hardware = id_tipo_server;
+                }
+
+              
                 // Activity already exist in database and modify it
                 db.Entry(db.IT_inventory_items.Find(iT_inventory_items.id)).CurrentValues.SetValues(iT_inventory_items);
                 db.SaveChanges();
@@ -373,7 +407,7 @@ namespace Portal_2_0.Controllers
 
                 return RedirectToAction("index", new
                 {
-                    tipo_hardware = iT_inventory_items.id_inventory_type,
+                    tipo_hardware = tipo_hardware,
                     id_planta = iT_inventory_items.filtro_id_planta,
                     //hostname = iT_inventory_items.filtro_hostname,
                     //active = iT_inventory_items.filtro_activo,
@@ -866,11 +900,12 @@ namespace Portal_2_0.Controllers
                 if (type == null)
                     type = new IT_inventory_hardware_type();
 
+
                 var listado = db.IT_inventory_items
                     .Where(x =>
                     x.id_inventory_type == type.id
                     && (x.id_planta == id_planta || id_planta == null)
-                    && (x.hostname.Contains(hostname) || String.IsNullOrEmpty(hostname))
+                    && ((x.hostname.Contains(hostname) || String.IsNullOrEmpty(hostname)) || (x.IT_inventory_items1.Any(y => y.hostname.Contains(hostname))))
                     && (x.active == active || active == null)
                     )
                   .OrderByDescending(x => x.id_planta)

@@ -94,12 +94,25 @@
                                 @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, type.id.ToString(), nameof(IT_inventory_items.physical_server)))
                                 {
                                     <div class="form-group col-md-4">
-                                        @Html.LabelFor(model => model.physical_server, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
-                                        <div class="col-md-9 col-sm-9 ">
-                                            @Html.DropDownList("physical_server", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
-                                            @Html.ValidationMessageFor(model => model.physical_server, "", new { @class = "text-danger" })
+                                        @Html.LabelFor(model => model.es_servidor_virtual, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                        <div class="col-md-9 col-sm-9 " @*rel="tooltip" data-title="Autorizar"*@>
+
+                                            @Html.EditorFor(model => model.es_servidor_virtual, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+
+                                            @Html.ValidationMessageFor(model => model.es_servidor_virtual, "", new { @class = "text-danger" })
                                         </div>
                                     </div>
+                                }
+                                
+                                @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, type.id.ToString(), nameof(IT_inventory_items.physical_server)))
+                                {
+                                <div class="form-group col-md-4">
+                                    @Html.LabelFor(model => model.physical_server, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                    <div class="col-md-9 col-sm-9 ">
+                                        @Html.DropDownList("physical_server", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                        @Html.ValidationMessageFor(model => model.physical_server, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
                                 }
 
                                 @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, type.id.ToString(), nameof(IT_inventory_items.hostname)))
@@ -118,7 +131,7 @@
                                     <div class="form-group col-md-4">
                                         @Html.LabelFor(model => model.id_tipo_accesorio, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                         <div class="col-md-9 col-sm-9 ">
-                                            @Html.DropDownList("id_tipo_accesorio", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required="required" })
+                                            @Html.DropDownList("id_tipo_accesorio", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
                                             @Html.ValidationMessageFor(model => model.id_tipo_accesorio, "", new { @class = "text-danger" })
                                         </div>
                                     </div>
@@ -504,7 +517,7 @@
     <!-- input mask -->
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/inputmask/inputmask.extensions.js"))
-    <script>
+<script>
         $(document).ready(function () {
 
             // Initialize Select2 Elements (debe ir después de asignar el valor)
@@ -600,7 +613,7 @@
 
         function verificaCombos() {
 
-            //check
+            //check active
             if (!$('#active').prop('checked')) {
                 $('#inactive_date').prop('disabled', false);
 
@@ -614,7 +627,21 @@
                 //$('#inactive_date').val('');
             }
 
-         
+            //check virtual
+            if ($('#@Html.IdFor(model => model.es_servidor_virtual)').prop('checked')) {
+                $('#@Html.IdFor(model => model.physical_server)').prop('disabled', false);
+
+                // Initialize Select2 Elements (debe ir después de asignar el valor)
+                $('.select2bs4').select2({
+                    theme: 'bootstrap4'
+                })
+
+            } else { //si el check está seleccionado
+                $('#@Html.IdFor(model => model.physical_server)').prop('disabled', true);
+                //$('#inactive_date').val('');
+            }
+
+
             //inches
             var tipo_accesorio = $('#@Html.IdFor(model => model.id_tipo_accesorio) option:selected').text();
 
@@ -623,7 +650,7 @@
             } else if (tipo_accesorio != null) {
                 $('#inches').hide(300);
             }
-              
+
         }
 
 
@@ -701,6 +728,6 @@
         window.onload = function () {
             clicMenu(1);
         }
-    </script>
+</script>
 }
 

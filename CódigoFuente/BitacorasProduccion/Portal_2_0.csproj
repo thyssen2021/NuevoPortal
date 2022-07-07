@@ -299,9 +299,11 @@
     <Compile Include="Controllers\IT_comunicaciones_tipoController.cs" />
     <Compile Include="Controllers\IT_hardware_tipoController.cs" />
     <Compile Include="Controllers\IT_internet_tipoController.cs" />
+    <Compile Include="Controllers\IT_inventory_cellular_lineController.cs" />
     <Compile Include="Controllers\IT_inventory_cellular_plansController.cs" />
     <Compile Include="Controllers\IT_inventory_itemsController.cs" />
     <Compile Include="Controllers\IT_inventory_softwareController.cs" />
+    <Compile Include="Controllers\IT_inventory_tipos_accesoriosController.cs" />
     <Compile Include="Controllers\IT_matriz_requerimientosController.cs" />
     <Compile Include="Controllers\IT_software_tipoController.cs" />
     <Compile Include="Controllers\IT_solicitud_usuariosController.cs" />
@@ -550,6 +552,7 @@
     <Compile Include="Models\MetadataModels\IT_inventory_itemsMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_inventory_softwareMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_inventory_cellular_plansMetadata.cs" />
+    <Compile Include="Models\MetadataModels\IT_inventory_tipos_accesoriosMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_software_tipoMetadata.cs" />
     <Compile Include="Models\MetadataModels\class_v3Metadata.cs" />
     <Compile Include="Models\MetadataModels\currencyMetadata.cs" />
@@ -7105,6 +7108,22 @@
     <Content Include="Views\IT_asignacion_cellular_line\Asignar.cshtml" />
     <Content Include="Views\IT_asignacion_cellular_line\DesasociarNumero.cshtml" />
     <Content Include="Views\IT_asignacion_cellular_line\Details.cshtml" />
+    <Content Include="Views\IT_inventory_cellular_line\Create.cshtml" />
+    <Content Include="Views\IT_inventory_cellular_line\Details.cshtml" />
+    <Content Include="Views\IT_inventory_cellular_line\Disable.cshtml" />
+    <Content Include="Views\IT_inventory_cellular_line\Edit.cshtml" />
+    <Content Include="Views\IT_inventory_cellular_line\Enable.cshtml" />
+    <Content Include="Views\IT_inventory_cellular_line\Index.cshtml" />
+    <Content Include="Views\IT_inventory_items\Create.cshtml" />
+    <Content Include="Views\IT_inventory_items\Details.cshtml" />
+    <Content Include="Views\IT_inventory_items\Edit.cshtml" />
+    <Content Include="Views\IT_inventory_items\index.cshtml" />
+    <Content Include="Views\IT_inventory_tipos_accesorios\Create.cshtml" />
+    <Content Include="Views\IT_inventory_tipos_accesorios\Details.cshtml" />
+    <Content Include="Views\IT_inventory_tipos_accesorios\Disable.cshtml" />
+    <Content Include="Views\IT_inventory_tipos_accesorios\Edit.cshtml" />
+    <Content Include="Views\IT_inventory_tipos_accesorios\Enable.cshtml" />
+    <Content Include="Views\IT_inventory_tipos_accesorios\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

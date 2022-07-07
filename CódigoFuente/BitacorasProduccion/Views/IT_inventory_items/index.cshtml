@@ -285,7 +285,9 @@
                                         <tbody>
                                             @foreach (var item in Model)
                                             {
-                                                <tr style="@(item.active == false ? "color:red" :"" )">
+
+                                                <tr style="@(item.active == false ? "color:red" :"")
+                                                    @(item.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.SERVER ? "background-color:#DDFEEC; font-weight:600":String.Empty)">
                                                     @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.id_inventory_type)))
                                                     {
                                                         <td>
@@ -412,6 +414,139 @@
                                                             </a>*@
                                                     </td>
                                                 </tr>
+
+                                                @*Agrega una fila por cada servidor virtual*@
+                                                foreach (var virtualServer in item.IT_inventory_items1)
+                                                {
+                                                    <tr style="background-color: lightgoldenrodyellow ">
+                                                        @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.id_inventory_type)))
+                                                        {
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => virtualServer.IT_inventory_hardware_type.descripcion)
+                                                            </td>
+                                                        }
+                                                        @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.id_planta)))
+                                                        {
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => virtualServer.plantas.descripcion)
+                                                            </td>
+                                                        }
+                                                        @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.code)))
+                                                        {
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => virtualServer.code)
+                                                            </td>
+                                                        }
+                                                        @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.hostname)))
+                                                        {
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => virtualServer.hostname)
+                                                            </td>
+                                                        }
+                                                        @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.physical_server)))
+                                                        {
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => virtualServer.IT_inventory_items2.hostname)
+                                                            </td>
+                                                        }
+                                                        @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.id_tipo_accesorio)))
+                                                        {
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => virtualServer.IT_inventory_tipos_accesorios.descripcion)
+                                                            </td>
+                                                        }
+                                                        @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.brand)))
+                                                        {
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => virtualServer.brand)
+                                                            </td>
+                                                        }
+
+                                                        @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.model)))
+                                                        {
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => virtualServer.model)
+                                                            </td>
+                                                        }
+                                                        @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.serial_number)))
+                                                        {
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => virtualServer.serial_number)
+                                                            </td>
+                                                        }
+                                                        @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.operation_system)))
+                                                        {
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => virtualServer.operation_system)
+                                                            </td>
+                                                        }
+                                                        @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.inches)))
+                                                        {
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => virtualServer.inches)
+                                                            </td>
+                                                        }
+                                                        @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.printer_ubication)))
+                                                        {
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => virtualServer.printer_ubication)
+                                                            </td>
+                                                        }
+                                                        @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.active)))
+                                                        {
+                                                            <td>
+                                                                @if (item.active)
+                                                                {
+                                                                    <span>True</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span>False</span>
+                                                                }
+                                                            </td>
+                                                        }
+
+                                                        <td>
+                                                            <a href="@Url.Action("Edit", null, new {
+                                                                id =virtualServer.id,
+                                                                _id_planta = id_planta,
+                                                                _hostname = hostname,
+                                                                pagina = pagina,
+                                                                _model = model_,
+                                                                _active = active,
+                                                            })" class="btn btn-success " title="Edit">
+                                                                <i class="fa-regular fa-pen-to-square"></i>
+                                                            </a>
+                                                            <a href="@Url.Action("Create", null, new {
+                                                                id =virtualServer.id,
+                                                                id_hardware_type = tipo_hardware,
+                                                                _id_planta = id_planta,
+                                                                _hostname = hostname,
+                                                                pagina = pagina,
+                                                                _model = model_,
+                                                                _active = active,
+
+                                                            })" class="btn btn-primary " title="Clone">
+                                                                <i class="fa-regular fa-clone"></i>
+                                                            </a>
+                                                            <a href="@Url.Action("Details", null, new {
+                                                                id =virtualServer.id,
+                                                                _id_planta = id_planta,
+                                                                _hostname = hostname,
+                                                                pagina = pagina,
+                                                                _model = model_,
+                                                                _active = active,
+                                                            })" class="btn btn-secondary " title="Details">
+                                                                <i class="fa-solid fa-circle-info"></i>
+                                                            </a>
+
+                                                            @*<a href="@Url.Action("DeleteDesktop", null, new { id =virtualServer.id })" class="btn btn-danger " title="Delete">
+                                                                    <i class="fa-regular fa-trash-can"></i>
+                                                                </a>*@
+                                                        </td>
+                                                    </tr>
+                                                }
+
                                             }
                                         </tbody>
                                     </table>
@@ -485,7 +620,7 @@
             $("#id_planta").change(function () {
                 verificaEstadoCombos();
             });
-            
+
             $("#id_tipo_accesorio").change(function () {
                 verificaEstadoCombos();
             });
