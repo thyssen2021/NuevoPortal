@@ -7129,10 +7129,11 @@
     <Content Include="Views\IT_inventory_tipos_accesorios\Enable.cshtml" />
     <Content Include="Views\IT_inventory_tipos_accesorios\Index.cshtml" />
     <Content Include="Views\IT_inventory_items_genericos\Create.cshtml" />
-    <Content Include="Views\IT_inventory_items_genericos\Delete.cshtml" />
     <Content Include="Views\IT_inventory_items_genericos\Details.cshtml" />
     <Content Include="Views\IT_inventory_items_genericos\Edit.cshtml" />
     <Content Include="Views\IT_inventory_items_genericos\Index.cshtml" />
+    <Content Include="Views\IT_inventory_items_genericos\Enable.cshtml" />
+    <Content Include="Views\IT_inventory_items_genericos\Disable.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

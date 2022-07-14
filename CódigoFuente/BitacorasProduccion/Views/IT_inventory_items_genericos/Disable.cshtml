@@ -1,0 +1,128 @@
+﻿@model Portal_2_0.Models.IT_inventory_items_genericos
+
+@{
+    ViewBag.Title = "Deshabiltar Hardware Genérico";
+    ViewBag.PrimerNivel = "sistemas";
+    ViewBag.SegundoNivel = "IT_inventory_items_genericos";
+    ViewBag.ControllerName = "IT_inventory_items_genericos";
+}
+
+
+@section estilos
+{
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/green.css")" rel="stylesheet">
+
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+
+
+                        <h4>Datos generales</h4>
+                        <hr />
+
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.id_inventory_type, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.IT_inventory_hardware_type.descripcion)" readonly />
+                            </div>
+                        </div>
+                        @if (Model.id_tipo_accesorio.HasValue)
+                        {
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id_tipo_accesorio, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    <input type="text" class="form-control" value="@Html.DisplayFor(model => model.IT_inventory_tipos_accesorios.descripcion)" readonly />
+                                </div>
+                            </div>
+                        }
+
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.brand, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                @Html.EditorFor(model => model.brand, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.model, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                @Html.EditorFor(model => model.model, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.comments, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                @Html.TextAreaFor(model => model.comments, new { @class = "form-control", @rows = "4", @autocomplete = "off", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.active, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                @Html.EditorFor(model => model.active, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @disabled = "@disabled" } })
+                            </div>
+                        </div>
+                        <div class="ln_solid"></div>
+                        <div class="col-md-12">
+                            <p class="float-md-left">
+                                <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = Model.id})" class="btn btn-success btm-sm" title="Editar">
+                                    <i class="fa-regular fa-pen-to-square"></i> Editar
+                                </a>
+                            </p>
+                            <p class="float-md-right">
+                                @using (Html.BeginForm())
+                                {
+                                    @Html.AntiForgeryToken()
+
+                                    <div class="form-actions no-color float-md-right">
+                                        <input type="submit" value="Deshabilitar" class="btn btn-danger btm-sm" />
+                                    </div>
+                                }
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    <script>
+        $(document).ready(function () {
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+                increaseArea: '20%' // optional
+            });
+
+
+        });
+
+
+        window.onload = function () {
+            clicMenu(2);
+        }
+    </script>
+}
+

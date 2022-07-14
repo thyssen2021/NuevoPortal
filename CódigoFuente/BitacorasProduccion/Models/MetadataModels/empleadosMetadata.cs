@@ -128,7 +128,7 @@ namespace Portal_2_0.Models
                 ).Select(x => x.IT_inventory_cellular_line).ToList();
 
                 //elimina las lineas repetidas
-                lineas.Distinct();
+                lineas = lineas.Distinct().ToList();
 
             }
 

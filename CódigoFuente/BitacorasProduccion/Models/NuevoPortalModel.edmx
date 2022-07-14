@@ -934,6 +934,7 @@
           <Property Name="total_piezas_ajuste" Type="int" />
           <Property Name="ordenes_por_pieza" Type="int" />
           <Property Name="comentarios" Type="varchar" MaxLength="600" />
+          <Property Name="sap_platina_2" Type="varchar" MaxLength="30" />
         </EntityType>
         <EntityType Name="produccion_lineas">
           <Key>
@@ -954,6 +955,7 @@
           <Property Name="numero_lote_izquierdo" Type="int" />
           <Property Name="numero_lote_derecho" Type="int" />
           <Property Name="piezas_paquete" Type="int" />
+          <Property Name="sap_platina" Type="varchar" MaxLength="30" />
         </EntityType>
         <EntityType Name="produccion_operadores">
           <Key>
@@ -3593,6 +3595,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="ordenes_por_pieza" Type="Int32" />
           <Property Name="comentarios" Type="String" MaxLength="600" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="produccion_registros" Relationship="Self.FK_produccion_datos_entrada_id_produccion_registro" FromRole="produccion_datos_entrada" ToRole="produccion_registros" />
+          <Property Name="sap_platina_2" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="produccion_lineas">
           <Key>
@@ -3618,6 +3621,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="numero_lote_derecho" Type="Int32" />
           <Property Name="piezas_paquete" Type="Int32" />
           <NavigationProperty Name="produccion_registros" Relationship="Self.FK_produccion_lotes_id_produccion_registro" FromRole="produccion_lotes" ToRole="produccion_registros" />
+          <Property Name="sap_platina" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="produccion_operadores">
           <Key>
@@ -7173,6 +7177,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySetMapping Name="produccion_datos_entrada">
             <EntityTypeMapping TypeName="Portal_2_0Model.produccion_datos_entrada">
               <MappingFragment StoreEntitySet="produccion_datos_entrada">
+                <ScalarProperty Name="sap_platina_2" ColumnName="sap_platina_2" />
                 <ScalarProperty Name="id_produccion_registro" ColumnName="id_produccion_registro" />
                 <ScalarProperty Name="peso_real_pieza_neto" ColumnName="peso_real_pieza_neto" />
                 <ScalarProperty Name="orden_sap" ColumnName="orden_sap" />
@@ -7205,6 +7210,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySetMapping Name="produccion_lotes">
             <EntityTypeMapping TypeName="Portal_2_0Model.produccion_lotes">
               <MappingFragment StoreEntitySet="produccion_lotes">
+                <ScalarProperty Name="sap_platina" ColumnName="sap_platina" />
                 <ScalarProperty Name="id" ColumnName="id" />
                 <ScalarProperty Name="id_produccion_registro" ColumnName="id_produccion_registro" />
                 <ScalarProperty Name="numero_lote_izquierdo" ColumnName="numero_lote_izquierdo" />

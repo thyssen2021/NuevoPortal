@@ -12,6 +12,7 @@ namespace Portal_2_0.Models
         [Display(Name = "Id")]
         public int id { get; set; }
 
+        [Required]
         [Display(Name = "Tipo de Hardware")]
         public int id_inventory_type { get; set; }
 
@@ -19,10 +20,12 @@ namespace Portal_2_0.Models
         [Display(Name = "Tipo de Accesorio")]
         public Nullable<int> id_tipo_accesorio { get; set; }
 
+        [Required]
         [MaxLength(80, ErrorMessage = "La longitud másima para {0} es de {1} carácteres.")]
         [Display(Name = "Marca")]
         public string brand { get; set; }
 
+        [Required]
         [MaxLength(80, ErrorMessage = "La longitud másima para {0} es de {1} carácteres.")]
         [Display(Name = "Model")]
         public string model { get; set; }

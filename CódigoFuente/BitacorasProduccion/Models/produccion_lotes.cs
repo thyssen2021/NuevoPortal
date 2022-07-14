@@ -19,6 +19,7 @@ namespace Portal_2_0.Models
         public Nullable<int> numero_lote_izquierdo { get; set; }
         public Nullable<int> numero_lote_derecho { get; set; }
         public Nullable<int> piezas_paquete { get; set; }
+        public string sap_platina { get; set; }
     
         public virtual produccion_registros produccion_registros { get; set; }
     }

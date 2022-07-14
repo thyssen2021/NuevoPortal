@@ -1,80 +1,134 @@
 ﻿@model Portal_2_0.Models.IT_inventory_items_genericos
 
 @{
-    ViewBag.Title = "Edit";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Editar Hardware Genérico";
+    ViewBag.PrimerNivel = "sistemas";
+    ViewBag.SegundoNivel = "IT_inventory_items_genericos";
+    ViewBag.ControllerName = "IT_inventory_items_genericos";
 }
 
-<h2>Edit</h2>
-
-@using (Html.BeginForm())
+@section estilos
 {
-    @Html.AntiForgeryToken()
-    
-    <div class="form-horizontal">
-        <h4>IT_inventory_items_genericos</h4>
-        <hr />
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-        @Html.HiddenFor(model => model.id)
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.id_inventory_type, "id_inventory_type", htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.DropDownList("id_inventory_type", null, htmlAttributes: new { @class = "form-control" })
-                @Html.ValidationMessageFor(model => model.id_inventory_type, "", new { @class = "text-danger" })
-            </div>
-        </div>
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.id_tipo_accesorio, "id_tipo_accesorio", htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.DropDownList("id_tipo_accesorio", null, htmlAttributes: new { @class = "form-control" })
-                @Html.ValidationMessageFor(model => model.id_tipo_accesorio, "", new { @class = "text-danger" })
-            </div>
-        </div>
+}
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.brand, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.brand, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.brand, "", new { @class = "text-danger" })
-            </div>
-        </div>
+<div class="right_col" role="main">
+    <div class="">
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.model, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.model, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.model, "", new { @class = "text-danger" })
-            </div>
-        </div>
+        <div class="clearfix"></div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.comments, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.comments, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.comments, "", new { @class = "text-danger" })
-            </div>
-        </div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        @using (Html.BeginForm("Edit", null, FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(model => model.id)
+                            @Html.HiddenFor(model => model.active)
+                            <h4>Datos generales</h4>
+                            <hr />
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", new { @class = "text-white" })
+                                </div>
+                            }
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.active, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                <div class="checkbox">
-                    @Html.EditorFor(model => model.active)
-                    @Html.ValidationMessageFor(model => model.active, "", new { @class = "text-danger" })
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id_inventory_type, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.DropDownList("id_inventory_type", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                    @Html.ValidationMessageFor(model => model.id_inventory_type, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group" id="accesorio_div" style="display:none">
+                                @Html.LabelFor(model => model.id_tipo_accesorio, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.DropDownList("id_tipo_accesorio", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                    @Html.ValidationMessageFor(model => model.id_tipo_accesorio, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.brand, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.EditorFor(model => model.brand, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.brand, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.model, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.EditorFor(model => model.model, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.model, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.comments, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.TextAreaFor(model => model.comments, new { @class = "form-control", @rows = "4", @autocomplete = "off" })
+                                    @Html.ValidationMessageFor(model => model.comments, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="item form-group">
+                                <div class="col-md-6 col-sm-6 offset-md-3">
+                                    <button type="submit" class="btn btn-success">Guardar</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
                 </div>
             </div>
         </div>
-
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Save" class="btn btn-default" />
-            </div>
-        </div>
     </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery-iu/jquery-ui.min.js"))
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+
+    <script>
+        $(document).ready(function () {
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            $("#@Html.IdFor(model => model.id_inventory_type)").change(function () {
+                var seleccion = $('#@Html.IdFor(model => model.id_inventory_type) option:selected').html();
+                if (seleccion == "Accessories") {
+                    $("#accesorio_div").show(500);
+                    $("#@Html.IdFor(model => model.id_tipo_accesorio)").prop("disabled", false);
+                } else {
+                    $("#accesorio_div").hide(500);
+                    $("#@Html.IdFor(model => model.id_tipo_accesorio)").prop("disabled", true);
+                }
+
+            });
+
+            $("#@Html.IdFor(model => model.id_inventory_type)").change();
+
+        });
+
+
+
+    </script>
 }
 
-<div>
-    @Html.ActionLink("Back to List", "Index")
-</div>

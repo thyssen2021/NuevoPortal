@@ -77,7 +77,7 @@ namespace Portal_2_0.Controllers
 
                 ViewBag.Paginacion = paginacion;
                 //quita de la lista el tipo Virtual server (se incluiye en el formulario de server)
-                ViewBag.tipo_hardware = AddFirstItem(new SelectList(db.IT_inventory_hardware_type.Where(x => x.activo && x.descripcion != Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER), "id", "descripcion"), textoPorDefecto: "-- Select --", selected: id_planta.ToString());
+                ViewBag.tipo_hardware = AddFirstItem(new SelectList(db.IT_inventory_hardware_type.Where(x => x.activo && x.descripcion != Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER), "id", "descripcion"), textoPorDefecto: "-- Select --", selected: tipo_hardware.ToString());
                 ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas.Where(x => x.activo), "clave", "descripcion"), textoPorDefecto: "-- All --", selected: id_planta.ToString());
                 ViewBag.id_tipo_accesorio = AddFirstItem(new SelectList(db.IT_inventory_tipos_accesorios, "id", "descripcion"), textoPorDefecto: "-- All --", selected: id_tipo_accesorio.ToString());
 
