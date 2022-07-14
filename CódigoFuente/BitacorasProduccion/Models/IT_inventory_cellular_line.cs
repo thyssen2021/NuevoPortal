@@ -17,7 +17,7 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public IT_inventory_cellular_line()
         {
-            this.IT_asignacion_cellular_line = new HashSet<IT_asignacion_cellular_line>();
+            this.IT_asignacion_hardware = new HashSet<IT_asignacion_hardware>();
         }
     
         public int id { get; set; }
@@ -27,9 +27,9 @@ namespace Portal_2_0.Models
         public Nullable<System.DateTime> fecha_corte { get; set; }
         public bool activo { get; set; }
     
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IT_asignacion_cellular_line> IT_asignacion_cellular_line { get; set; }
         public virtual IT_inventory_cellular_plans IT_inventory_cellular_plans { get; set; }
         public virtual plantas plantas { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_asignacion_hardware> IT_asignacion_hardware { get; set; }
     }
 }

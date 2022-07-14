@@ -21,6 +21,7 @@ using iText.Layout.Element;
 using iText.Layout.Properties;
 using System.IO;
 using Portal_2_0.Models.PDFHandlers;
+using System.Text.RegularExpressions;
 
 namespace Portal_2_0.Controllers
 {
@@ -108,8 +109,7 @@ namespace Portal_2_0.Controllers
 
             //envia un list con todos los tipos de hardware
             ViewBag.TiposHardware = db.IT_inventory_hardware_type.ToList();
-            ViewBag.id_tipo_hardware = new SelectList(db.IT_inventory_hardware_type.Where(x => x.activo && x.puede_asignarse), "id", "descripcion");
-
+            ViewBag.id_tipo_hardware = AddFirstItem(new SelectList(db.IT_inventory_hardware_type.Where(x => x.activo && x.puede_asignarse), "id", "descripcion"), textoPorDefecto: "-- Seleccione un valor --");
 
             return View(empleado);
         }
@@ -154,6 +154,9 @@ namespace Portal_2_0.Controllers
                 ViewBag.MensajeAlert = TempData["Mensaje"];
             }
 
+            //envia un list con todos los tipos de hardware
+            ViewBag.TiposHardware = db.IT_inventory_hardware_type.ToList();
+
             return View(empleado);
         }
 
@@ -189,30 +192,50 @@ namespace Portal_2_0.Controllers
             model.empleados2 = sistemas;
             model.fecha_asignacion = DateTime.Now;
             model.es_asignacion_actual = true;
+            model.tipo_hardware = id_tipo_hardware.Value;
+
 
             string campoSelect = String.Empty;
-
 
             switch (tipoHardware.descripcion)
             {
                 case Bitacoras.Util.IT_Tipos_Hardware.ACCESSORIES:
                     campoSelect = nameof(IT_inventory_items.ConcatAccesoriesInfo);
+                    ViewBag.Multiple = true; //si se trata de accesorios se pueden enviar varios hardware
                     break;
                 default:
+                    //si no se trata de accesorio limita a un sólo registro
+                    ViewBag.Multiple = false;
                     campoSelect = nameof(IT_inventory_items.ConcatInfoGeneral);
+                    model.IT_asignacion_hardware_rel_items.Add(new IT_asignacion_hardware_rel_items
+                    {
+                        id_it_inventory_item = 0
+                    });
                     break;
             }
 
 
             //genera el select list para hardware activas
-            ViewBag.id_it_inventory_item = AddFirstItem(new SelectList(
-                db.IT_inventory_items
-                .Where(x => x.id_inventory_type == id_tipo_hardware && x.active == true)
-                , "id", campoSelect));
+            //ViewBag.id_it_inventory_item = AddFirstItem(new SelectList(
+            //    db.IT_inventory_items
+            //    .Where(x => x.id_inventory_type == id_tipo_hardware && x.active == true)
+            //    , "id", campoSelect));
+
+            ViewBag.ListadoHardwareInventario = db.IT_inventory_items.Where(x => x.id_inventory_type == id_tipo_hardware && x.active == true).ToList();
+            ViewBag.ListadoHardwareGenerico = db.IT_inventory_items_genericos.Where(x => x.id_inventory_type == id_tipo_hardware && x.active == true).ToList();
+            ViewBag.ListadoTiposAccesorios = db.IT_inventory_tipos_accesorios.ToList();
+
+            //obtiene la primera linea asignada
+            int numcel = 0;
+
+            var linea = empleado.GetIT_Inventory_Cellular_LinesActivas().FirstOrDefault();
+            if (linea != null)
+                numcel = linea.id;
+
             //envia el tipo de hardware
             ViewBag.TipoHardware = tipoHardware;
             ViewBag.tipo_hardware = AddFirstItem(new SelectList(db.IT_inventory_hardware_type.Where(x => x.activo), "id", "descripcion"), textoPorDefecto: "-- Select --", selected: id_tipo_hardware.ToString());
-            ViewBag.id_inventory_cellular_line = AddFirstItem(new SelectList(db.IT_inventory_cellular_line.Where(x => x.id_planta == empleado.planta_clave), "id", "ConcatDetalles"), textoPorDefecto: "-- Seleccionar --", selected: model.id_inventory_cellular_line.ToString());
+            ViewBag.id_cellular_line = AddFirstItem(new SelectList(db.IT_inventory_cellular_line.Where(x => x.id_planta == empleado.planta_clave), "id", "ConcatDetalles"), textoPorDefecto: "-- Seleccionar --", selected: numcel.ToString());
 
 
             return View(model);
@@ -223,24 +246,112 @@ namespace Portal_2_0.Controllers
         // más detalles, vea https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Asignar(IT_asignacion_hardware iT_asignacion_hardware)
+        public ActionResult Asignar(IT_asignacion_hardware iT_asignacion_hardware, FormCollection collection)
         {
 
-            //verifica que este equipo no esté asignado a otra persona que sea la asignación actual    
-            if (db.IT_asignacion_hardware.Any(x => x.id_it_inventory_item == iT_asignacion_hardware.id_it_inventory_item && x.es_asignacion_actual == true && x.id_empleado == iT_asignacion_hardware.id_empleado))
-                ModelState.AddModelError("", "Este equipo ya se encuentra asignado a esta persona.");
+            //primero contrulle los objetos desde el form collection
+            //crea lista vacia
+            List<IT_asignacion_hardware_rel_items> listaItems = new List<IT_asignacion_hardware_rel_items>();
 
-            //validar que no se repida la misma conbinacion entre software y versión
-            if (db.IT_asignacion_cellular_line.Any(x => x.id_empleado == iT_asignacion_hardware.id_empleado && x.es_asignacion_actual && iT_asignacion_hardware.id_inventory_cellular_line > 0))
-                ModelState.AddModelError("", "El empleado ya se encuentra asignado a este número telefónico.");
+            //lee los datos del collection
+            foreach (string key in collection.AllKeys.Where(x => x.StartsWith("es_de_inventario_")))
+            {
+                int index = -1;
+
+                int? id_it_inventory_item = null;
+                int id_inventory = 0;
+
+                int? id_it_inventory_item_generico = null;
+                int id_inventory_generico = 0;
+
+                string comentarios = null;
+
+                Match m = Regex.Match(key, @"\d+");
+
+                if (m.Success) //si tiene un numero
+                {
+                    int.TryParse(m.Value, out index);
+
+                    int.TryParse(collection["hardware_inventario_" + index], out id_inventory);
+                    int.TryParse(collection["hardware_generico_" + index], out id_inventory_generico);
+                    comentarios = collection["comentario_" + index];
+
+                    if (id_inventory > 0)
+                        id_it_inventory_item = id_inventory;
+                    else
+                        id_it_inventory_item = null;
+
+                    if (id_inventory_generico > 0)
+                        id_it_inventory_item_generico = id_inventory_generico;
+                    else
+                        id_it_inventory_item_generico = null;
+
+                    listaItems.Add(
+                        new IT_asignacion_hardware_rel_items
+                        {
+                            id_it_inventory_item = id_it_inventory_item,
+                            id_it_inventory_generico = id_it_inventory_item_generico,
+                            comments = comentarios,
+                        }
+                    );
+                }
+            }
+
+            //asocia los items obtenidos con el modelo
+            iT_asignacion_hardware.IT_asignacion_hardware_rel_items = listaItems;
+
+            //verifica que este ninguno de los equipos se encuentre ya asignado al usuario actual
+            foreach (var item in listaItems)
+            {
+                if (db.IT_asignacion_hardware_rel_items.Any(x => x.id_it_inventory_item == item.id_it_inventory_item
+                && x.id_it_inventory_generico == item.id_it_inventory_generico && iT_asignacion_hardware.es_asignacion_actual == true
+                && x.IT_asignacion_hardware.es_asignacion_actual == true && x.IT_asignacion_hardware.id_empleado == iT_asignacion_hardware.id_empleado))
+                {
+
+                    var item_inventory = db.IT_inventory_items.Find(item.id_it_inventory_item);
+                    var item_generico = db.IT_inventory_items_genericos.Find(item.id_it_inventory_generico);
+
+
+                    if (item_inventory != null)
+                    {
+                        ModelState.AddModelError("", "El equipo " + item_inventory.ConcatInfoGeneral + " ya se encuentra asignado a este usuario.");
+                    }
+                    else if (item_generico != null)
+                    {
+                        ModelState.AddModelError("", "El equipo " + item_generico.model + " ya se encuentra asignado a este usuario.");
+                    }
+                }
+            }
+
+            //verifica si la lista harware está vacia
+            if (listaItems.Count == 0)
+                ModelState.AddModelError("", "La lista de Hardwares no puede estra vacía.");
+
+            //verifica si algun harware se repite
+            bool repetido = false;
+            foreach (var li in listaItems)
+            {
+                if (listaItems.Where(x =>
+                    x.id_it_inventory_item == li.id_it_inventory_item
+                    && x.id_it_inventory_generico == li.id_it_inventory_generico).ToList().Count>1)
+                {
+                    repetido = true;
+                }
+            }
+
+            if(repetido)
+                ModelState.AddModelError("", "Existe Hardware repetido, verifique que cada equipo se indique una sóla vez.");
+
+            var relItem = listaItems.FirstOrDefault();
+
 
             //trata de obtener la version asociada al documento
             string tipoDocumento = String.Empty;
 
             //obtiene el item 
-            var itemHardware = db.IT_inventory_items.Find(iT_asignacion_hardware.id_it_inventory_item);
+            var tipoHardware = db.IT_inventory_hardware_type.Find(iT_asignacion_hardware.tipo_hardware);
 
-            switch (itemHardware.IT_inventory_hardware_type.descripcion)
+            switch (tipoHardware.descripcion)
             {
                 case Bitacoras.Util.IT_Tipos_Hardware.ACCESSORIES:
                     tipoDocumento = Bitacoras.Util.DocumentosProcesos.RESPONSIVA_ACCESORIOS; //responsivas para accesorios
@@ -274,30 +385,46 @@ namespace Portal_2_0.Controllers
                 iT_asignacion_hardware.id_iatf_version = id_version_iatf;
             }
 
+            //aplica cuando es diferente de accesorio
             if (ModelState.IsValid)
             {
-                //busca registro para saber si debe ser responsable actual
-                var asignacion_previa = db.IT_asignacion_hardware.FirstOrDefault(x => x.id_it_inventory_item == iT_asignacion_hardware.id_it_inventory_item && x.es_asignacion_actual == true && x.id_responsable_principal == x.id_empleado);
+
+                //busca registro para saber si debe ser responsable actual (Sólo para cuando el hardware es diferente de accesorio) 
+                var asignacion_previa = db.IT_asignacion_hardware.FirstOrDefault(x =>
+                    x.IT_asignacion_hardware_rel_items.Any(y => y.id_it_inventory_item == relItem.id_it_inventory_item)
+                    && x.es_asignacion_actual == true
+                    && x.id_responsable_principal == x.id_empleado);
 
                 //si no existe un registro con  responsable principal y asignación actual para este item, el resposable principal es true}}
-                if (asignacion_previa == null && iT_asignacion_hardware.es_asignacion_actual)
+                if (asignacion_previa == null && iT_asignacion_hardware.es_asignacion_actual && tipoHardware != null
+                     && Bitacoras.Util.IT_Tipos_Hardware.ACCESSORIES != tipoHardware.descripcion
+                    //&& listaItems.Count == 1
+                    )
                 {
                     iT_asignacion_hardware.id_responsable_principal = iT_asignacion_hardware.id_empleado;
-                    //obtiene las asignaciones previas
-                    var asignaciones_previas = db.IT_asignacion_hardware.Where(x => x.id_it_inventory_item == iT_asignacion_hardware.id_it_inventory_item && x.es_asignacion_actual == true);
+                    //obtiene las asignaciones previas (solo para hardware items)
+                    var asignaciones_previas = db.IT_asignacion_hardware.Where(x =>
+                    x.IT_asignacion_hardware_rel_items.Any(y => y.id_it_inventory_item == relItem.id_it_inventory_item && relItem.id_it_inventory_item.HasValue)
+                    && x.es_asignacion_actual == true);
 
                     //crea una nueva asignacion para todas las asignaciones previas, unicamente cambiando el id responsable
                     foreach (var asg in asignaciones_previas)
                     {
                         db.IT_asignacion_hardware.Add(new IT_asignacion_hardware()
                         {
-                            id_it_inventory_item = asg.id_it_inventory_item,
                             id_iatf_version = asg.id_iatf_version,
                             id_empleado = asg.id_empleado,
                             id_sistemas = asg.id_sistemas,
                             fecha_asignacion = asg.fecha_asignacion,
                             es_asignacion_actual = asg.es_asignacion_actual,
-                            id_responsable_principal = iT_asignacion_hardware.id_responsable_principal
+                            id_responsable_principal = iT_asignacion_hardware.id_responsable_principal,
+                            IT_asignacion_hardware_rel_items = new List<IT_asignacion_hardware_rel_items> {
+                                new IT_asignacion_hardware_rel_items {
+                                        id_it_inventory_item = relItem.id_it_inventory_item,
+                                        id_it_inventory_generico = relItem.id_it_inventory_generico,
+                                        comments = relItem.comments
+                                    }
+                            }
                         });
                     }
 
@@ -315,30 +442,37 @@ namespace Portal_2_0.Controllers
                 {
                     iT_asignacion_hardware.id_responsable_principal = iT_asignacion_hardware.id_empleado;
                 }
-                else if (iT_asignacion_hardware.es_asignacion_actual)//si ya existe, responsable principal es false y se copia el id responsiva
+                else if (iT_asignacion_hardware.es_asignacion_actual && asignacion_previa != null)//si ya existe, responsable principal es false y se copia el id responsiva
                 {
                     iT_asignacion_hardware.id_responsable_principal = asignacion_previa.id_responsable_principal;
                     iT_asignacion_hardware.id_biblioteca_digital = asignacion_previa.id_biblioteca_digital;
                 }
 
 
+                //si es accesorio, siempre va a ser responsable principal
+                if(Bitacoras.Util.IT_Tipos_Hardware.ACCESSORIES == tipoHardware.descripcion)
+                    iT_asignacion_hardware.id_responsable_principal = iT_asignacion_hardware.id_empleado;
+
+
+                //indica si la asignacion de la linea es la actual
+                if (iT_asignacion_hardware.id_cellular_line.HasValue && iT_asignacion_hardware.es_asignacion_actual)
+                    iT_asignacion_hardware.es_asignacion_linea_actual = true;
+
+
+
+                /*                
+                //en caso de que no exista una asignación igual
+                if (iT_asignacion_hardware.id_cellular_line.HasValue && !db.IT_asignacion_cellular_line.Any(x =>
+                    x.id_empleado == iT_asignacion_hardware.id_empleado
+                    && x.es_asignacion_actual
+                    && x.id_inventory_cellular_line == iT_asignacion_hardware.id_inventory_cellular_line))
+                    db.IT_asignacion_cellular_line.Add(asignacionCelular);
+                */
+
+
                 //iT_asignacion_hardware.es_asignacion_actual = true;
                 iT_asignacion_hardware.fecha_asignacion = DateTime.Now;
                 db.IT_asignacion_hardware.Add(iT_asignacion_hardware);
-
-                //agrega la asignación de celular
-                IT_asignacion_cellular_line asignacionCelular = new IT_asignacion_cellular_line()
-                {
-                    id_inventory_cellular_line = iT_asignacion_hardware.id_inventory_cellular_line,
-                    id_empleado = iT_asignacion_hardware.id_empleado,
-                    id_sistemas = iT_asignacion_hardware.id_sistemas,
-                    fecha_asignacion = iT_asignacion_hardware.fecha_asignacion,
-                    es_asignacion_actual = iT_asignacion_hardware.es_asignacion_actual,
-                };
-
-                //en caso de que el campo de asinación de celular no este vacío
-                if (iT_asignacion_hardware.id_inventory_cellular_line > 0)
-                    db.IT_asignacion_cellular_line.Add(asignacionCelular);
 
                 db.SaveChanges();
                 TempData["Mensaje"] = new MensajesSweetAlert("Se ha generado la asignación correctamente.", TipoMensajesSweetAlerts.SUCCESS);
@@ -348,14 +482,21 @@ namespace Portal_2_0.Controllers
             iT_asignacion_hardware.empleados = db.empleados.Find(iT_asignacion_hardware.id_empleado);
             iT_asignacion_hardware.empleados2 = db.empleados.Find(iT_asignacion_hardware.id_sistemas);
 
-            //genera el select list para hardware activas
-            ViewBag.id_it_inventory_item = AddFirstItem(new SelectList(
-                db.IT_inventory_items.Where(x => x.id_inventory_type == itemHardware.id_inventory_type && x.active == true)
-                , "id", "ConcatInfoGeneral"));
+
             //envia el tipo de hardware
-            ViewBag.TipoHardware = db.IT_inventory_hardware_type.FirstOrDefault(x => x.id == itemHardware.id_inventory_type);
-            ViewBag.tipo_hardware = AddFirstItem(new SelectList(db.IT_inventory_hardware_type.Where(x => x.activo), "id", "descripcion"), textoPorDefecto: "-- Select --", selected: itemHardware.id_inventory_type.ToString());
-            ViewBag.id_inventory_cellular_line = AddFirstItem(new SelectList(db.IT_inventory_cellular_line.Where(x => x.id_planta == iT_asignacion_hardware.empleados.planta_clave), "id", "ConcatDetalles"), textoPorDefecto: "-- Seleccionar --", selected: iT_asignacion_hardware.id_inventory_cellular_line.ToString());
+            ViewBag.TipoHardware = tipoHardware;
+            ViewBag.tipo_hardware = AddFirstItem(new SelectList(db.IT_inventory_hardware_type.Where(x => x.activo), "id", "descripcion"), textoPorDefecto: "-- Select --", selected: iT_asignacion_hardware.tipo_hardware.ToString());
+            ViewBag.id_cellular_line = AddFirstItem(new SelectList(db.IT_inventory_cellular_line.Where(x => x.id_planta == iT_asignacion_hardware.empleados.planta_clave), "id", "ConcatDetalles"), textoPorDefecto: "-- Seleccionar --", selected: iT_asignacion_hardware.id_cellular_line.ToString());
+
+            ViewBag.ListadoHardwareInventario = db.IT_inventory_items.Where(x => x.id_inventory_type == iT_asignacion_hardware.tipo_hardware && x.active == true).ToList();
+            ViewBag.ListadoHardwareGenerico = db.IT_inventory_items_genericos.Where(x => x.id_inventory_type == iT_asignacion_hardware.tipo_hardware && x.active == true).ToList();
+            ViewBag.ListadoTiposAccesorios = db.IT_inventory_tipos_accesorios.ToList();
+
+            //determina si permite enviar multiples hardware items
+            if (tipoHardware.descripcion == Bitacoras.Util.IT_Tipos_Hardware.ACCESSORIES)
+                ViewBag.Multiple = true;
+            else
+                ViewBag.Multiple = false;
 
             return View(iT_asignacion_hardware);
         }
@@ -456,15 +597,20 @@ namespace Portal_2_0.Controllers
                     //actualiza el numero de responsiva a los demas involucrados
                     //busca registro para saber si debe ser responsable actual
 
-                    var asignacion_previa = db.IT_asignacion_hardware.Where(x => x.id_it_inventory_item == item.id_it_inventory_item && x.es_asignacion_actual == true);
+                    //obtiene el primer valor de las responsiva (solo habra uno a excepcion de accesorios)
+                    var firstItem = item.IT_asignacion_hardware_rel_items.FirstOrDefault();
 
-                    //solamente copia a  las demas asignaciones se se trata de una asignacion actual
-                    if (item.es_asignacion_actual)
+                    //busca todas las responsivas donde el objeto esta asignado
+                    var asignacion_previa = db.IT_asignacion_hardware.Where(x => x.IT_asignacion_hardware_rel_items.Any(y => y.id_it_inventory_item == firstItem.id_it_inventory_item) && x.es_asignacion_actual == true);
+
+                    //solamente copia a  las demas asignaciones se se trata de una asignacion actual y proviene de inventarios
+                    if (item.es_asignacion_actual && firstItem.EsInventario() && firstItem.GetHardwareType().descripcion != Bitacoras.Util.IT_Tipos_Hardware.ACCESSORIES)
                         foreach (var p in asignacion_previa)
                         {
                             p.id_biblioteca_digital = item.id_biblioteca_digital;
                             db.Entry(p).State = EntityState.Modified;
                         }
+
                     db.SaveChanges();
 
                     TempData["Mensaje"] = new MensajesSweetAlert("Se ha subido la responsiva correctamente.", TipoMensajesSweetAlerts.SUCCESS);
@@ -494,6 +640,52 @@ namespace Portal_2_0.Controllers
                 }
             }
             return View(item);
+        }
+
+        // GET: IT_asignacion_hardware/DesvincularLinea/5
+        public ActionResult DesvincularLinea(int? id, int? id_empleado)
+        {
+            if (!TieneRol(TipoRoles.IT_ASIGNACION_HARDWARE))
+                return View("../Home/ErrorPermisos");
+
+            if (id == null)
+            {
+                return View("../Error/BadRequest");
+            }
+            IT_inventory_cellular_line line = db.IT_inventory_cellular_line.Find(id);
+            if (line == null)
+            {
+                return View("../Error/NotFound");
+            }
+
+            if (id_empleado == null)
+            {
+                return View("../Error/BadRequest");
+            }
+            empleados empleado = db.empleados.Find(id_empleado);
+            if (empleado == null)
+            {
+                return View("../Error/NotFound");
+            }
+
+            //busca lasasig naciones donde la linea este activa
+            var asignaciones = db.IT_asignacion_hardware.Where(x =>
+            x.id_empleado == id_empleado
+            && x.id_cellular_line == line.id
+            && x.es_asignacion_linea_actual
+            );
+
+            //modifica el estado de cada asignacion
+            foreach (var item in asignaciones)
+            {
+                item.es_asignacion_linea_actual = false;
+                db.Entry(item).State = EntityState.Modified;
+            }
+            db.SaveChanges();
+
+            TempData["Mensaje"] = new MensajesSweetAlert("Se ha desvinculado la línea celular.", TipoMensajesSweetAlerts.SUCCESS);
+
+            return RedirectToAction("ListadoAsignaciones", new { id = id_empleado });
         }
 
         // GET: IT_asignacion_hardware/DesasociarEquipo/5
@@ -528,6 +720,24 @@ namespace Portal_2_0.Controllers
             iT_asignacion_hardware_old.fecha_desasignacion = iT_asignacion_hardware.fecha_desasignacion;
             iT_asignacion_hardware_old.es_asignacion_actual = false;
 
+            //si se leccionó la opcion de desasociar lineas
+            if (iT_asignacion_hardware.desasociar_linea)
+            {
+                var asignaciones = db.IT_asignacion_hardware.Where(x =>
+                x.id_empleado == iT_asignacion_hardware_old.id_empleado
+                && x.id_cellular_line == iT_asignacion_hardware_old.id_cellular_line
+                && x.es_asignacion_linea_actual
+                );
+
+                //modifica el estado de cada asignacion
+                foreach (var item in asignaciones)
+                {
+                    item.es_asignacion_linea_actual = false;
+                    db.Entry(item).State = EntityState.Modified;
+                }
+
+            }
+
             db.Entry(iT_asignacion_hardware_old).State = EntityState.Modified;
             db.SaveChanges();
 
@@ -550,6 +760,9 @@ namespace Portal_2_0.Controllers
             {
                 return View("../Error/NotFound");
             }
+            var firstItem = item.IT_asignacion_hardware_rel_items.FirstOrDefault();
+
+            IT_inventory_hardware_type tipoHardware = firstItem.GetHardwareType();
 
             byte[] pdfBytes;
             using (var stream = new MemoryStream())
@@ -585,8 +798,8 @@ namespace Portal_2_0.Controllers
                 //lineaEn blanco
                 Paragraph newline = new Paragraph(new Text("\n"));
 
-                //nombre documento
-                doc.Add(new Paragraph(item.IATF_revisiones.IATF_documentos.nombre_documento + ": " + item.IT_inventory_items.IT_inventory_hardware_type.descripcion).AddStyle(fuenteThyssen));
+                //nombre documento                
+                doc.Add(new Paragraph(item.IATF_revisiones.IATF_documentos.nombre_documento + ": " + tipoHardware.descripcion).AddStyle(fuenteThyssen));
 
 
                 fuenteThyssen.SetFontSize(10).SetTextAlignment(TextAlignment.RIGHT);
@@ -631,54 +844,75 @@ namespace Portal_2_0.Controllers
 
                 doc.Add(table);
 
-                //crea tabla para datos del equipo
-                pTitle = new Paragraph("").Add(new Tab());
-                pTitle.AddTabStops(new TabStop(85, TabAlignment.RIGHT));
-                pTitle.Add("Datos del Equipo").AddStyle(encabezado);
-                doc.Add(pTitle);
+                int c = 1;
 
-
-                table = new Table(UnitValue.CreatePercentArray(cellWidth)).UseAllAvailableWidth();
-
-                table.AddCell(new Cell().Add(new Paragraph("Tipo:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
-                table.AddCell(new Cell().Add(new Paragraph(item.IT_inventory_items.IT_inventory_hardware_type.descripcion)).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
-
-                if (item.IT_inventory_items.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.LAPTOP
-                    || item.IT_inventory_items.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.DESKTOP)
+                //agrega los datos de cada item en la responsiva 
+                foreach (var relItem in item.IT_asignacion_hardware_rel_items)
                 {
-                    table.AddCell(new Cell().Add(new Paragraph("Hostname:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
-                    table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.IT_inventory_items.hostname) ? item.IT_inventory_items.hostname : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
-                }
 
-                if (item.IT_inventory_items.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.ACCESSORIES)
-                {
-                    table.AddCell(new Cell().Add(new Paragraph("Tipo Accesorio:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
-                    table.AddCell(new Cell().Add(new Paragraph(item.IT_inventory_items.IT_inventory_tipos_accesorios != null ? item.IT_inventory_items.IT_inventory_tipos_accesorios.descripcion : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
-                }
+                    string encabezadoEquipo = "Datos del Equipo";
+
+                    if (item.IT_asignacion_hardware_rel_items.Count > 1)
+                        encabezadoEquipo = "Datos del Equipo " + (c++) + ":";
+
+                    //crea tabla para datos del equipo
+                    pTitle = new Paragraph("").Add(new Tab());
+                    pTitle.AddTabStops(new TabStop(85, TabAlignment.RIGHT));
+                    pTitle.Add(encabezadoEquipo).AddStyle(encabezado);
+                    doc.Add(pTitle);
 
 
-                table.AddCell(new Cell().Add(new Paragraph("Marca:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
-                table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.IT_inventory_items.brand) ? item.IT_inventory_items.brand : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
-                table.AddCell(new Cell().Add(new Paragraph("Modelo:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
-                table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.IT_inventory_items.model) ? item.IT_inventory_items.model : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
-                table.AddCell(new Cell().Add(new Paragraph("Núm. Serie:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
-                table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.IT_inventory_items.serial_number) ? item.IT_inventory_items.serial_number : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
+                    table = new Table(UnitValue.CreatePercentArray(cellWidth)).UseAllAvailableWidth();
 
-                if (item.IT_inventory_items.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.SMARTPHONE)
-                {
-                    table.AddCell(new Cell().Add(new Paragraph("Imei:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
-                    table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.IT_inventory_items.imei_1) ? item.IT_inventory_items.imei_1 : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
+                    var _item = relItem.GetGenericObject();
 
-                    foreach (var linea in item.empleados.IT_asignacion_cellular_line.Where(x => x.es_asignacion_actual == true))
+                    if (_item.IT_inventory_hardware_type.descripcion != Bitacoras.Util.IT_Tipos_Hardware.ACCESSORIES)
                     {
+                        table.AddCell(new Cell().Add(new Paragraph("Tipo:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
+                        table.AddCell(new Cell().Add(new Paragraph(_item.IT_inventory_hardware_type.descripcion)).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
+                    }
+
+                    if (_item.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.LAPTOP
+                        || _item.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.DESKTOP)
+                    {
+                        table.AddCell(new Cell().Add(new Paragraph("Hostname:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
+                        table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(_item.hostname) ? _item.hostname : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
+                    }
+
+                    if (_item.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.ACCESSORIES)
+                    {
+                        table.AddCell(new Cell().Add(new Paragraph("Tipo Accesorio:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
+                        table.AddCell(new Cell().Add(new Paragraph(_item.IT_inventory_tipos_accesorios != null ? _item.IT_inventory_tipos_accesorios.descripcion : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
+                    }
+
+
+                    table.AddCell(new Cell().Add(new Paragraph("Marca:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
+                    table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(_item.brand) ? _item.brand : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
+                    table.AddCell(new Cell().Add(new Paragraph("Modelo:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
+                    table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(_item.model) ? _item.model : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
+                    table.AddCell(new Cell().Add(new Paragraph("Núm. Serie:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
+                    table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(_item.serial_number) ? _item.serial_number : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
+
+                    if (_item.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.SMARTPHONE)
+                    {
+                        table.AddCell(new Cell().Add(new Paragraph("Imei:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
+                        table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(_item.imei_1) ? _item.imei_1 : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
+
+
                         table.AddCell(new Cell().Add(new Paragraph("Número de Teléfono:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
-                        table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(linea.IT_inventory_cellular_line.numero_celular) ? linea.IT_inventory_cellular_line.numero_celular : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
+                        table.AddCell(new Cell().Add(new Paragraph(item.IT_inventory_cellular_line != null ? item.IT_inventory_cellular_line.numero_celular : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
+
+                        table.AddCell(new Cell().Add(new Paragraph("PLAN:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
+                        table.AddCell(new Cell().Add(new Paragraph(item.IT_inventory_cellular_line != null ? item.IT_inventory_cellular_line.IT_inventory_cellular_plans.nombre_plan : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
 
                     }
 
-                }
+                    //agrega comentarios
+                    table.AddCell(new Cell().Add(new Paragraph("Comentarios:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
+                    table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(relItem.comments) ? relItem.comments : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
+                    doc.Add(table);
 
-                doc.Add(table);
+                }
 
                 //crea parrafo de detalles
                 fuenteThyssen.SetTextAlignment(TextAlignment.JUSTIFIED);
@@ -690,9 +924,14 @@ namespace Portal_2_0.Controllers
                     .AddStyle(fuenteThyssen);
                 doc.Add(pTitle);
 
-                //agrega tres lineas en blanco
-                doc.Add(newline);
-                doc.Add(newline);
+                //si es celular no agrega los espacios en blanco, para que no se corte la hoja
+                if (item.IT_asignacion_hardware_rel_items.FirstOrDefault().GetHardwareType().descripcion != Bitacoras.Util.IT_Tipos_Hardware.SMARTPHONE)
+                {
+                    //agrega tres lineas en blanco
+                    doc.Add(newline);
+                    doc.Add(newline);
+                }
+
 
                 //crea tabla para firmas
                 float[] cellWidth2 = { 50f, 50f };
@@ -722,7 +961,8 @@ namespace Portal_2_0.Controllers
                     .SetBorder(Border.NO_BORDER)
                     .SetBorderRight(new SolidBorder(ColorConstants.BLACK, 1))
                     .SetVerticalAlignment(VerticalAlignment.BOTTOM)
-                    .SetHorizontalAlignment(HorizontalAlignment.CENTER));
+                    .SetHorizontalAlignment(HorizontalAlignment.CENTER)
+                    );
 
                 table.AddCell(new Cell().Add(new Paragraph(recibe).SetTextAlignment(TextAlignment.CENTER)).AddStyle(fuenteThyssen)
                     .SetHeight(120)
@@ -731,6 +971,10 @@ namespace Portal_2_0.Controllers
                     .SetHorizontalAlignment(HorizontalAlignment.CENTER));
 
                 table.SetBorder(new SolidBorder(ColorConstants.BLACK, 1));
+
+                //evita que la tabla se divida
+                table.SetKeepTogether(true);
+
                 doc.Add(table);
 
 

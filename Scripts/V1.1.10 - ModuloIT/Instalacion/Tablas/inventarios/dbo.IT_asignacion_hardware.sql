@@ -20,7 +20,7 @@ GO
 
 CREATE TABLE [dbo].[IT_asignacion_hardware](
 	[id] [int] IDENTITY(1,1) NOT NULL,
-	[id_it_inventory_item] [int] NOT NULL,
+	--[id_it_inventory_item] [int] NOT NULL,
 	[id_iatf_version] [int] NOT NULL,
 	[id_empleado] [int] NOT NULL,
 	[id_sistemas] [int] NOT NULL,
@@ -29,6 +29,8 @@ CREATE TABLE [dbo].[IT_asignacion_hardware](
 	[fecha_desasignacion] [datetime] NULL,
 	[es_asignacion_actual] [bit] NOT NULL,
 	[id_responsable_principal][int] NULL,
+	[id_cellular_line][int] NULL,
+	[es_asignacion_linea_actual] [bit] NOT NULL,
  CONSTRAINT [PK_IT_asignacion_hardware] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
@@ -60,11 +62,18 @@ GO
 ALTER TABLE [dbo].[IT_asignacion_hardware] CHECK CONSTRAINT [FK_id_iatf_version]
 GO
 
-ALTER TABLE [dbo].[IT_asignacion_hardware]  WITH CHECK ADD  CONSTRAINT [FK_id_it_inventory_item] FOREIGN KEY([id_it_inventory_item])
-REFERENCES [dbo].[IT_inventory_items] ([id])
+--ALTER TABLE [dbo].[IT_asignacion_hardware]  WITH CHECK ADD  CONSTRAINT [FK_id_it_inventory_item] FOREIGN KEY([id_it_inventory_item])
+--REFERENCES [dbo].[IT_inventory_items] ([id])
+--GO
+
+--ALTER TABLE [dbo].[IT_asignacion_hardware] CHECK CONSTRAINT [FK_id_it_inventory_item]
+--GO
+
+ALTER TABLE [dbo].[IT_asignacion_hardware]  WITH CHECK ADD  CONSTRAINT [FK_id_cellular_line] FOREIGN KEY([id_cellular_line])
+REFERENCES [dbo].[IT_inventory_cellular_line] ([id])
 GO
 
-ALTER TABLE [dbo].[IT_asignacion_hardware] CHECK CONSTRAINT [FK_id_it_inventory_item]
+ALTER TABLE [dbo].[IT_asignacion_hardware] CHECK CONSTRAINT [FK_id_cellular_line]
 GO
 
 ALTER TABLE [dbo].[IT_asignacion_hardware]  WITH CHECK ADD  CONSTRAINT [FK_id_sistemas] FOREIGN KEY([id_sistemas])

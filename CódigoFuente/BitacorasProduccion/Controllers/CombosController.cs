@@ -285,18 +285,19 @@ namespace Portal_2_0.Controllers
 
             //inicializa la lista de objetos
             var objeto = new object[1];
-
-            bool existe = db.IT_asignacion_hardware.Any(x => x.id_it_inventory_item == id && x.es_asignacion_actual == true);
-
+            
+            bool existe = db.IT_asignacion_hardware.Any(x => x.IT_asignacion_hardware_rel_items.Any(y=>y.id_it_inventory_item == id)  && x.es_asignacion_actual == true);
+            
             int id_responsable = 0;
-            string nombre = String.Empty;
 
-            var asignacion = db.IT_asignacion_hardware.Where(x => x.id_it_inventory_item == id && x.es_asignacion_actual == true && x.id_empleado == x.id_responsable_principal).FirstOrDefault();
-
+            string nombre = String.Empty;           
+            
+            var asignacion = db.IT_asignacion_hardware_rel_items.Where(x => x.id_it_inventory_item == id && x.IT_asignacion_hardware.es_asignacion_actual == true && x.IT_asignacion_hardware.id_empleado == x.IT_asignacion_hardware.id_responsable_principal).FirstOrDefault();
+            
             if (asignacion != null)
             {
-                nombre = asignacion.empleados.ConcatNombre;
-                id_responsable = asignacion.id_empleado;
+                nombre = asignacion.IT_asignacion_hardware.empleados.ConcatNombre;
+                id_responsable = asignacion.IT_asignacion_hardware.id_empleado;
             }
 
             objeto[0] = new

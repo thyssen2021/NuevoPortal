@@ -145,7 +145,7 @@ namespace Portal_2_0.Controllers
             }
             ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas.Where(x => x.activo), nameof(plantas.clave), nameof(plantas.descripcion)), textoPorDefecto: "-- Seleccionar --", selected: item.id_planta.ToString());
             ViewBag.id_inventory_celullar_plan = AddFirstItem(new SelectList(db.IT_inventory_cellular_plans.Where(x => x.activo), nameof(IT_inventory_cellular_plans.id), nameof(IT_inventory_cellular_plans.nombre_plan)), textoPorDefecto: "-- Seleccionar --", selected: item.id_inventory_celullar_plan.ToString());
-            item.IT_asignacion_cellular_line = db.IT_asignacion_cellular_line.Where(x => x.id_inventory_cellular_line == item.id).ToList();
+          
             return View(item);
         }
 

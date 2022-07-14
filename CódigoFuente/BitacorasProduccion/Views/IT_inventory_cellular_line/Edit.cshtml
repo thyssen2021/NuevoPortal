@@ -53,13 +53,13 @@
                                     @Html.ValidationMessageFor(model => model.id_inventory_celullar_plan, "", new { @class = "text-danger" })
                                 </div>
                             </div>
-                            <div class="item form-group">
+                            @*<div class="item form-group">
                                 <label class="col-form-label col-md-3 col-sm-3 label-align">Asignado</label>
                                 <div class="col-md-6 col-sm-6">
                                     <input type="text" class="form-control" value="@(Model.IT_asignacion_cellular_line.Count>0 ?
                                                         Model.IT_asignacion_cellular_line.First().empleados.ConcatNumEmpleadoNombre : "NO ASIGNADO" )" readonly>
                                 </div>
-                            </div>
+                            </div>*@
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.numero_celular, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                 <div class="col-md-6 col-sm-6 ">

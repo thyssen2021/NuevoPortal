@@ -448,6 +448,9 @@ namespace Portal_2_0.Controllers
                 return View("../Error/NotFound");
             }
 
+
+            ViewBag.Asignaciones = db.IT_asignacion_hardware.Where(x => x.IT_asignacion_hardware_rel_items.Any(y => y.id_it_inventory_item == id)).ToList();
+
             return View(iT_inventory_items);
         }
 

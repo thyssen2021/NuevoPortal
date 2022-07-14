@@ -112,5 +112,28 @@ namespace Portal_2_0.Models
                     return string.Format("({0}) {1} {2} {3}", numeroEmpleado, nombre, apellido1, apellido2).ToUpper();
             }
         }
+
+        /// <summary>
+        /// Obtiene todas las lineas activas para un empleado según sus asignaciones
+        /// </summary>
+        /// <returns></returns>
+        public List<IT_inventory_cellular_line> GetIT_Inventory_Cellular_LinesActivas() {
+            List<IT_inventory_cellular_line> lineas = new List<IT_inventory_cellular_line>();
+
+            using (var db = new Portal_2_0Entities())
+            {
+                lineas = db.IT_asignacion_hardware.Where(x => x.es_asignacion_linea_actual == true
+                && x.id_empleado == this.id
+                && x.id_cellular_line.HasValue
+                ).Select(x => x.IT_inventory_cellular_line).ToList();
+
+                //elimina las lineas repetidas
+                lineas.Distinct();
+
+            }
+
+
+            return lineas;
+        }
     }
 }

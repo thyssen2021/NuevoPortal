@@ -73,9 +73,9 @@
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.fecha_corte)
                                                 </th>
-                                                <th>
+                                                @*<th>
                                                     Asignado
-                                                </th>
+                                                </th>*@
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.activo)
                                                 </th>
@@ -98,7 +98,7 @@
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.fecha_corte)
                                                     </td>
-                                                    <td>
+                                                    @*<td>
                                                         @if (item.IT_asignacion_cellular_line.Count > 0)
                                                         {
                                                             @Html.DisplayFor(modelItem => item.IT_asignacion_cellular_line.First().empleados.ConcatNombre)
@@ -108,7 +108,7 @@
                                                             <span>NO ASIGNADO</span>
                                                         }
 
-                                                    </td>
+                                                    </td>*@
                                                     <td>
                                                         @if (item.activo)
                                                         {

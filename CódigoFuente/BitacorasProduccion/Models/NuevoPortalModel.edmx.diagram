@@ -203,27 +203,30 @@
         <AssociationConnector Association="Portal_2_0Model.FK_IT_asignacion_software_id_sistemas" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_asignacion_software_id_inventory_software" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_asignacion_software_id_inventory_software_version" />
-        <EntityTypeShape EntityType="Portal_2_0Model.IT_asignacion_hardware" Width="1.5" PointX="18.125" PointY="25.75" />
-        <AssociationConnector Association="Portal_2_0Model.FK_id_biblioteca_digital" />
-        <AssociationConnector Association="Portal_2_0Model.FK_id_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_id_responsable_principal" />
-        <AssociationConnector Association="Portal_2_0Model.FK_id_sistemas" />
-        <AssociationConnector Association="Portal_2_0Model.FK_id_iatf_version" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_tipos_accesorios" Width="1.5" PointX="8.125" PointY="39" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_items" Width="1.5" PointX="10.375" PointY="28.5" />
-        <AssociationConnector Association="Portal_2_0Model.FK_id_it_inventory_item" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_item" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_items_id_inventory_type" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_items_id_planta" />
         <AssociationConnector Association="Portal_2_0Model.FK_notificaciones_id_tipo_accesorio" />
         <AssociationConnector Association="Portal_2_0Model.FK_notificaciones_virtual_server" />
-        <EntityTypeShape EntityType="Portal_2_0Model.IT_asignacion_cellular_line" Width="1.5" PointX="22.625" PointY="0.75" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_asignacion_cellular_line_id_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_asignacion_cellular_line_id_sistemas" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_cellular_line" Width="1.5" PointX="12.625" PointY="28.375" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_asignacion_cellular_line_id_inventory_line" />
         <AssociationConnector Association="Portal_2_0Model.FK_IATF_documentos_id_inventory_celullar_plan" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_cellular_line_id_planta" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_items_genericos" Width="1.5" PointX="31.125" PointY="25.875" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_items_genericos_id_inventory_type" />
+        <AssociationConnector Association="Portal_2_0Model.FK_inventory_items_genericos_id_tipo_accesorio" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_asignacion_hardware" Width="1.5" PointX="31.125" PointY="19.625" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_asignacion_hardware_rel_items" Width="1.5" PointX="33.375" PointY="27" />
+        <AssociationConnector Association="Portal_2_0Model.FK_id_biblioteca_digital" />
+        <AssociationConnector Association="Portal_2_0Model.FK_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_id_responsable_principal" />
+        <AssociationConnector Association="Portal_2_0Model.FK_id_sistemas" />
+        <AssociationConnector Association="Portal_2_0Model.FK_id_iatf_version" />
+        <AssociationConnector Association="Portal_2_0Model.FK_id_cellular_line" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_item_id_asignacion_hardware" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_item_id_it_inventory_generico" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_item_id_it_inventory_item" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

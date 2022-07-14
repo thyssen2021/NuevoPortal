@@ -292,7 +292,6 @@
     <Compile Include="Controllers\inspeccionCategoriaFallasController.cs" />
     <Compile Include="Controllers\InspeccionRegistrosController.cs" />
     <Compile Include="Controllers\inspeccion_fallasController.cs" />
-    <Compile Include="Controllers\IT_asignacion_cellular_lineController.cs" />
     <Compile Include="Controllers\IT_asignacion_hardwareController.cs" />
     <Compile Include="Controllers\IT_asignacion_softwareController.cs" />
     <Compile Include="Controllers\IT_carpetas_redController.cs" />
@@ -302,6 +301,7 @@
     <Compile Include="Controllers\IT_inventory_cellular_lineController.cs" />
     <Compile Include="Controllers\IT_inventory_cellular_plansController.cs" />
     <Compile Include="Controllers\IT_inventory_itemsController.cs" />
+    <Compile Include="Controllers\IT_inventory_items_genericosController.cs" />
     <Compile Include="Controllers\IT_inventory_softwareController.cs" />
     <Compile Include="Controllers\IT_inventory_tipos_accesoriosController.cs" />
     <Compile Include="Controllers\IT_matriz_requerimientosController.cs" />
@@ -401,10 +401,10 @@
     <Compile Include="Models\IATF_revisiones.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\IT_asignacion_cellular_line.cs">
+    <Compile Include="Models\IT_asignacion_hardware.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\IT_asignacion_hardware.cs">
+    <Compile Include="Models\IT_asignacion_hardware_rel_items.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IT_asignacion_software.cs">
@@ -423,6 +423,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IT_inventory_items.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_inventory_items_genericos.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IT_inventory_software.cs">
@@ -542,14 +545,15 @@
     <Compile Include="Models\MetadataModels\budget_mappingMetadata.cs" />
     <Compile Include="Models\MetadataModels\budget_mapping_bridge_Metadata.cs" />
     <Compile Include="Models\MetadataModels\budget_plantasMetadata.cs" />
-    <Compile Include="Models\MetadataModels\IT_asignacion_cellular_lineMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_asignacion_hardwareMetadata.cs" />
+    <Compile Include="Models\MetadataModels\IT_asignacion_hardware_rel_itemsMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_asignacion_softwareMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_internet_tipoMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_inventory_cellular_lineMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_inventory_hardware_typeMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_inventory_hard_drivesMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_inventory_itemsMetadata.cs" />
+    <Compile Include="Models\MetadataModels\IT_inventory_items_genericosMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_inventory_softwareMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_inventory_cellular_plansMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_inventory_tipos_accesoriosMetadata.cs" />
@@ -7124,6 +7128,11 @@
     <Content Include="Views\IT_inventory_tipos_accesorios\Edit.cshtml" />
     <Content Include="Views\IT_inventory_tipos_accesorios\Enable.cshtml" />
     <Content Include="Views\IT_inventory_tipos_accesorios\Index.cshtml" />
+    <Content Include="Views\IT_inventory_items_genericos\Create.cshtml" />
+    <Content Include="Views\IT_inventory_items_genericos\Delete.cshtml" />
+    <Content Include="Views\IT_inventory_items_genericos\Details.cshtml" />
+    <Content Include="Views\IT_inventory_items_genericos\Edit.cshtml" />
+    <Content Include="Views\IT_inventory_items_genericos\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

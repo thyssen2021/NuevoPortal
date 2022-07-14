@@ -15,6 +15,8 @@
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
     <!-- SweetAlert2 -->
     <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/green.css")" rel="stylesheet">
 
     <style>
 
@@ -74,10 +76,10 @@
                                         <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.Area.descripcion)</dd>
                                         <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.puesto)</dt>
                                         <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.puesto1.descripcion)</dd>
-                                        @foreach (var linea in Model.empleados.IT_asignacion_cellular_line.Where(x => x.es_asignacion_actual == true))
+                                        @foreach (var linea in Model.empleados.GetIT_Inventory_Cellular_LinesActivas())
                                         {
-                                            <dt class="col-sm-2">@Html.DisplayNameFor(model => linea.IT_inventory_cellular_line.numero_celular)</dt>
-                                            <dd class="col-sm-2">@Html.DisplayFor(model => linea.IT_inventory_cellular_line.numero_celular)</dd>
+                                            <dt class="col-sm-2">@Html.DisplayNameFor(model => linea.numero_celular)</dt>
+                                            <dd class="col-sm-2">@Html.DisplayFor(model => linea.GetPhoneNumberFormat)</dd>
                                         }
                                         <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.activo)</dt>
                                         <dd class="col-sm-2">
@@ -101,7 +103,7 @@
                             @Html.AntiForgeryToken()
 
                             @Html.HiddenFor(model => model.id)
-                            @Html.HiddenFor(model => model.id_it_inventory_item)
+                            @*@Html.HiddenFor(model => model.id_it_inventory_item)*@
                             @Html.HiddenFor(model => model.id_empleado)
                             @Html.HiddenFor(model => model.id_sistemas)
 
@@ -133,16 +135,45 @@
                                     <input type="text" class="form-control" value="@Html.DisplayFor(model => model.empleados.ConcatNombre)" readonly />
                                 </div>
                             </div>
-                            <div class="item form-group">
 
-                                @Html.LabelFor(model => model.id_it_inventory_item, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
-                                <div class="col-md-6 col-sm-6 ">
-                                    <input type="text" class="form-control" value="@Html.DisplayFor(model => model.IT_inventory_items.ConcatInfoGeneral)" readonly />
+                            if (Model.id_cellular_line.HasValue)
+                            {
+                                <div class="item form-group">
+                                    @Html.LabelFor(model => model.id_cellular_line, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                                    <div class="col-md-6 col-sm-6 ">
+                                        <input type="text" class="form-control" value="@Html.DisplayFor(model => model.IT_inventory_cellular_line.ConcatDetalles)" readonly />
+                                    </div>
                                 </div>
-                                <div class="col-md-1 col-sm-1">
-                                    <button type="button" id="btn-info-cell" class="btn btn-primary btn-sm" style="@(Model.id_it_inventory_item>0?"display:block":"display:none")" title="Ver Detalles"> <i class="fa-solid fa-eye"></i></button>
-                                </div>
+                            }
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>LISTADO HARDWARE</b></span>
                             </div>
+
+                            foreach (var item in Model.IT_asignacion_hardware_rel_items)
+                            {
+                                var generic = item.GetGenericObject();
+
+
+
+                                <div class="item form-group">
+                                    <label class="col-form-label col-md-1 col-sm-1 label-align">Origen</label>
+                                    <div class="col-md-1 col-sm-1 ">
+                                        <input type="text" class="form-control" value="@(item.EsInventario()?"Inventario":"Genérico")" readonly />
+                                    </div>
+                                    <label class="col-form-label col-md-1 col-sm-1 label-align">Tipo</label>
+                                    <div class="col-md-2 col-sm-2 ">
+                                        <input type="text" class="form-control" value="@generic.IT_inventory_hardware_type.descripcion" readonly />
+                                    </div>
+                                    <label class="col-form-label col-md-1 col-sm-1 label-align">Hardware</label>
+                                    <div class="col-md-4 col-sm-4 ">
+                                        <input type="text" class="form-control" value="@generic.ConcatInfoGeneral" readonly />
+                                    </div>
+                                    <div class="col-md-1 col-sm-1">
+                                        <button type="button" onclick="MuestraDetalles(@Convert.ToInt32(item.EsInventario()), @generic.id)" class="btn btn-primary btn-sm" style="@(generic.id>0?"display:block":"display:none")" title="Ver Detalles"> <i class="fa-solid fa-eye"></i></button>
+                                    </div>
+                                </div>
+                            }
 
                             <div class="ln_solid"></div>
                             <div class="form-group row">
@@ -178,11 +209,20 @@
                                 </div>
                             }
 
-                            <div class="ln_solid"></div>
-                            <div class="form-group row">
+
+
+                            <div class="ln_solid"></div><div class="form-group row">
                                 <span style="color:black"><b>FECHA DE DESASOCIACI&Oacute;N</b></span>
                             </div>
-
+                            if (Model.id_cellular_line.HasValue)
+                            {
+                                <div class="item form-group">
+                                    @Html.LabelFor(model => model.desasociar_linea, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                    <div class="col-md-3 col-sm-3 ">
+                                        @Html.EditorFor(model => model.desasociar_linea, new { htmlAttributes = new { @class = "form-control" } })
+                                    </div>
+                                </div>
+                            }
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.fecha_desasignacion, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                 <div class="col-md-3 col-sm-3 ">
@@ -224,16 +264,27 @@
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/bootstrap/site/docs/4.3/assets/js/vendor/bs-custom-file-input.min.js"))
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
     <script>
         $(document).ready(function () {
 
-            //muestra el modal con la info
-            $("#btn-info-cell").click(function () {
-                window.open('/IT_Inventory_items/Details/' + @Model.id_it_inventory_item+'', 'popup', "width=" + screen.width * .80 + ",height=" + screen.height * .80 + "");
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+                increaseArea: '20%' // optional
             });
         });
 
-       function showDialog(text) {
+        function MuestraDetalles(inventario, id) {
+            if (inventario) {
+                window.open('/IT_Inventory_items/Details/' + id + '', 'popup', "width=" + screen.width * .80 + ",height=" + screen.height * .80 + "");
+            } else { //es generico
+                window.open('/IT_Inventory_items_genericos/Details/' + id + '', 'popup', "width=" + screen.width * .80 + ",height=" + screen.height * .80 + "");
+            }
+        }
+
+        function showDialog(text) {
 
             Swal.fire({
                 title: 'Confirmación',

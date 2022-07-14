@@ -8,6 +8,8 @@
     ViewBag.SegundoNivel = "it_inventory_hardware";
     ViewBag.ControllerName = "IT_inventory_items";
 
+    List<Portal_2_0.Models.IT_asignacion_hardware> asignaciones = (List<Portal_2_0.Models.IT_asignacion_hardware>)ViewBag.Asignaciones;
+
     int contador = 100;
 }
 
@@ -294,7 +296,7 @@
                         <div class="ln_solid"></div>
                         @if (Model.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.DESKTOP || Model.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.LAPTOP || Model.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.SERVER)
                         {
-                            
+
                             <div class="form-group row">
                                 <span style="color:black"><b>HARD DRIVES</b></span>
                             </div>
@@ -437,7 +439,7 @@
                                     <div class="form-group row">
                                         @{int c = 1;}
 
-                                        @if (Model.IT_asignacion_hardware.Count > 0)
+                                        @if (asignaciones.Count > 0)
                                         {
                                             <table id="datatable_1" class="table datatable table-bordered nowrap" cellspacing="0" width="100%">
                                                 <thead>
@@ -468,7 +470,7 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    @foreach (var item in Model.IT_asignacion_hardware.OrderByDescending(x => x.fecha_asignacion))
+                                                    @foreach (var item in asignaciones.OrderByDescending(x => x.fecha_asignacion))
                                                     {
                                                         <tr class="@(item.es_asignacion_actual ? "fondo-verde":String.Empty ) ">
                                                             <td>@(c++)</td>
@@ -551,7 +553,7 @@
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/inputmask/inputmask.extensions.js"))
     @Scripts.Render("~/bundles/dataTables_js")
-<script>
+    <script>
         $(document).ready(function () {
 
             // Initialize Select2 Elements (debe ir después de asignar el valor)
@@ -576,7 +578,7 @@
             } else if (tipo_accesorio != null) {
                 $('#inches').hide();
             }
-            
+
             $('input').iCheck({
                 checkboxClass: 'icheckbox_square-green',
                 radioClass: 'iradio_square-green',
@@ -599,6 +601,6 @@
         window.onload = function () {
             clicMenu(1);
         }
-</script>
+    </script>
 }
 

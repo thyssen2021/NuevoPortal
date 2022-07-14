@@ -18,6 +18,7 @@ namespace Portal_2_0.Models
         public IT_inventory_tipos_accesorios()
         {
             this.IT_inventory_items = new HashSet<IT_inventory_items>();
+            this.IT_inventory_items_genericos = new HashSet<IT_inventory_items_genericos>();
         }
     
         public int id { get; set; }
@@ -27,5 +28,7 @@ namespace Portal_2_0.Models
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_inventory_items> IT_inventory_items { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_inventory_items_genericos> IT_inventory_items_genericos { get; set; }
     }
 }

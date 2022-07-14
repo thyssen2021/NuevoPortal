@@ -9,12 +9,6 @@
     //obtiene el listado de hardwares
     List<Portal_2_0.Models.IT_inventory_hardware_type> listaTipos = (List<Portal_2_0.Models.IT_inventory_hardware_type>)ViewBag.TiposHardware;
 
-    Portal_2_0.Models.IT_inventory_hardware_type tipoLaptop = listaTipos.FirstOrDefault(x => x.descripcion == Bitacoras.Util.IT_Tipos_Hardware.LAPTOP);
-
-    Portal_2_0.Models.IT_inventory_hardware_type tipoDesktop = listaTipos.FirstOrDefault(x => x.descripcion == Bitacoras.Util.IT_Tipos_Hardware.DESKTOP);
-
-    Portal_2_0.Models.IT_inventory_hardware_type tipoAccesorios = listaTipos.FirstOrDefault(x => x.descripcion == Bitacoras.Util.IT_Tipos_Hardware.ACCESSORIES);
-
     Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
 }
 
@@ -128,10 +122,10 @@
                                         <dd class="col-sm-2">@Html.DisplayFor(model => model.Area.descripcion)</dd>
                                         <dt class="col-sm-2">@Html.DisplayNameFor(model => model.puesto)</dt>
                                         <dd class="col-sm-2">@Html.DisplayFor(model => model.puesto1.descripcion)</dd>
-                                        @foreach (var linea in Model.IT_asignacion_cellular_line.Where(x => x.es_asignacion_actual == true))
+                                        @foreach (var linea in Model.GetIT_Inventory_Cellular_LinesActivas())
                                         {
-                                            <dt class="col-sm-2">@Html.DisplayNameFor(model => linea.IT_inventory_cellular_line.numero_celular)</dt>
-                                            <dd class="col-sm-2">@Html.DisplayFor(model => linea.IT_inventory_cellular_line.numero_celular)</dd>
+                                            <dt class="col-sm-2">@Html.DisplayNameFor(model => linea.numero_celular)</dt>
+                                            <dd class="col-sm-2">@Html.DisplayFor(model => linea.GetPhoneNumberFormat)</dd>
                                         }
                                         <dt class="col-sm-2">@Html.DisplayNameFor(model => model.activo)</dt>
                                         <dd class="col-sm-2">
@@ -160,31 +154,34 @@
 
                                 <label class="control-label col-md-1 col-sm-1" for="id_tipo_hardware" style="text-align:right">Tipo:</label>
                                 <div class="col-md-4 col-sm-4 ">
-                                    @Html.DropDownList("id_tipo_hardware", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @Html.DropDownList("id_tipo_hardware", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
                                 </div>
                                 <div class="col-md-2 col-sm-2">
-                                    <input type="submit" value="Asignar Hardware" class="btn btn-success " />
+                                    <input type="submit" id="btn-submit" value="Asignar Hardware" class="btn btn-success " />
                                 </div>
                                 <div class="col-md-2 col-sm-2">
                                     <a href="@Url.Action( "Asignar", "IT_asignacion_software", new { id_empleado = Model.id})" class="btn btn-primary">
                                         <i class="fa-solid fa-code"></i> Asignar Software
                                     </a>
                                 </div>
-                                <div class="col-md-2 col-sm-2">
-                                    <a href="@Url.Action( "Asignar", "IT_asignacion_cellular_line", new { id_empleado = Model.id})" class="btn btn-primary">
-                                        <i class="fa-solid fa-phone-flip"></i> Asignar L&iacute;nea Celular
-                                    </a>
-                                </div>
-
+                                @*<div class="col-md-2 col-sm-2">
+                                        <a href="@Url.Action( "Asignar", "IT_asignacion_cellular_line", new { id_empleado = Model.id})" class="btn btn-primary">
+                                            <i class="fa-solid fa-phone-flip"></i> Asignar L&iacute;nea Celular
+                                        </a>
+                                    </div>*@
                             </div>
                         }
 
                         <div class="ln_solid"></div>
                         @{int c = 1;}
+
                         @foreach (var tipoHardware in listaTipos.Where(x => x.puede_asignarse))
                         {
                             c = 1;
-                            if (Model.IT_asignacion_hardware.Where(x => x.IT_inventory_items.id_inventory_type == tipoHardware.id).Count() > 0)
+                            if (Model.IT_asignacion_hardware.Where(x => x.IT_asignacion_hardware_rel_items.Any(y =>
+                                                                            (y.IT_inventory_items != null && y.IT_inventory_items.id_inventory_type == tipoHardware.id)
+                                                                            || (y.IT_inventory_items_genericos != null && y.IT_inventory_items_genericos.id_inventory_type == tipoHardware.id)
+                                                                    )).Count() > 0)
                             {
                                 <div class="form-group row">
                                     <span style="color:black"><b>&ensp; HISTORIAL DE ASIGNACIONES - @tipoHardware.descripcion.ToUpper()</b></span>
@@ -192,7 +189,10 @@
 
                                 <div class="form-group row">
 
-                                    @if (Model.IT_asignacion_hardware.Where(x => x.IT_inventory_items.id_inventory_type == tipoHardware.id).Count() > 0)
+                                    @if (Model.IT_asignacion_hardware.Where(x => x.IT_asignacion_hardware_rel_items.Any(y =>
+                                                                            (y.IT_inventory_items != null && y.IT_inventory_items.id_inventory_type == tipoHardware.id)
+                                                                            || (y.IT_inventory_items_genericos != null && y.IT_inventory_items_genericos.id_inventory_type == tipoHardware.id)
+                                                                    )).Count() > 0)
                                     {
                                         <table id="datatable_@listaTipos.Where(x => x.puede_asignarse).ToList().IndexOf(tipoHardware)" class="table datatable table-bordered nowrap" cellspacing="0" width="100%">
                                             <thead>
@@ -241,95 +241,102 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach (var item in Model.IT_asignacion_hardware.Where(x => x.IT_inventory_items.id_inventory_type == tipoHardware.id)
-                                            .OrderByDescending(x => x.fecha_asignacion).OrderByDescending(x=>x.id)
+                                                @foreach (var item in Model.IT_asignacion_hardware.Where(x => x.IT_asignacion_hardware_rel_items.Any(y =>
+                                                                            (y.IT_inventory_items != null && y.IT_inventory_items.id_inventory_type == tipoHardware.id)
+                                                                            || (y.IT_inventory_items_genericos != null && y.IT_inventory_items_genericos.id_inventory_type == tipoHardware.id)
+                                                                    ))
+                                            .OrderByDescending(x => x.fecha_asignacion).OrderByDescending(x => x.id)
                                             )
                                                 {
-                                                    <tr class="@(item.es_asignacion_actual ? item.id_biblioteca_digital.HasValue ? "registro-actual fondo-verde" : "registro-actual fondo-amarillo" : "registro-pasado fondo-gris" ) ">
-                                                        <td>@(c++)</td>
-                                                        <td>
-                                                            <a href="@Url.Action("Details", null, new { id = item.id })" class="btn btn-info btn-sm" rel="tooltip" data-title="Detalles" data-placement="right">
-                                                                <i class="fa-solid fa-circle-info"></i>
-                                                            </a>
-                                                            @if (item.id_empleado == item.id_responsable_principal || (!item.es_asignacion_actual && item.id_empleado == item.id_responsable_principal))
-                                                            {
-                                                                <a href="@Url.Action("GenerarPlantillaResponsiva", null, new { id = item.id })" class="btn btn-warning btn-sm" rel="tooltip" data-title="Generar Plantilla" data-placement="right" target="_blank">
-                                                                    <i class="fa-solid fa-file-export"></i>
-                                                                </a>
-                                                                <a href="@Url.Action("CargarResponsiva", null, new { id = item.id })" class="btn btn-success btn-sm" rel="tooltip" data-title="Subir Responsiva" data-placement="right">
-                                                                    <i class="fa-solid fa-file-arrow-up"></i>
-                                                                </a>
-                                                            }
-                                                            @if (item.es_asignacion_actual)
-                                                            {
-                                                                <a href="@Url.Action("DesasociarEquipo", null, new { id = item.id })" class="btn btn-danger btn-sm" rel="tooltip" data-title="Desasociar Equipo" data-placement="right">
-                                                                    <i class="fa-solid fa-user-xmark"></i>
-                                                                </a>
-                                                            }
-                                                        </td>
-                                                        @if (tipoHardware.descripcion == Bitacoras.Util.IT_Tipos_Hardware.LAPTOP
-                                                        || tipoHardware.descripcion == Bitacoras.Util.IT_Tipos_Hardware.DESKTOP)
-                                                        {
+                                                    foreach (var element in item.IT_asignacion_hardware_rel_items)
+                                                    {
+                                                        <tr class="@(item.es_asignacion_actual ? item.id_biblioteca_digital.HasValue ? "registro-actual fondo-verde" : "registro-actual fondo-amarillo" : "registro-pasado fondo-gris" ) ">
+                                                            <td>@(c++)</td>
                                                             <td>
-                                                                @Html.DisplayFor(model => item.IT_inventory_items.hostname)
-                                                            </td>
-                                                        }
-                                                        @if (tipoHardware.descripcion == Bitacoras.Util.IT_Tipos_Hardware.ACCESSORIES)
-                                                        {
-                                                            <td>
-                                                                @Html.DisplayFor(model => item.IT_inventory_items.IT_inventory_tipos_accesorios.descripcion)
-                                                            </td>
-                                                        }
-                                                        <td>
-                                                            @Html.DisplayFor(model => item.IT_inventory_items.brand)
-                                                        </td>
-                                                        <td>
-                                                            @Html.DisplayFor(model => item.IT_inventory_items.model)
-                                                        </td>
-                                                        <td>
-                                                            @Html.DisplayFor(model => item.IT_inventory_items.serial_number)
-                                                        </td>
-                                                        <td>
-                                                            @Html.DisplayFor(model => item.fecha_asignacion)
-                                                        </td>
-                                                        <td>
-                                                            @Html.DisplayFor(model => item.fecha_desasignacion)
-                                                        </td>
-                                                        <td>
-                                                            @if (item.id_biblioteca_digital.HasValue)
-                                                            {
-                                                                <a href="@Url.Action("DownloadFile", "Combos", new { idDocumento = item.id_biblioteca_digital, inline = true })" class="btn btn-info btn-sm" target="_blank" title="Ver">
-                                                                    <i class="fa-regular fa-eye"></i>
+                                                                <a href="@Url.Action("Details", null, new { id = item.id })" class="btn btn-info btn-sm" rel="tooltip" data-title="Detalles" data-placement="right">
+                                                                    <i class="fa-solid fa-circle-info"></i>
                                                                 </a>
-                                                                <a href="@Url.Action("DownloadFile", "Combos", new { idDocumento = item.id_biblioteca_digital })" class="btn btn-success btn-sm" title="Descargar">
-                                                                    <i class="fa fa-download"></i>
-                                                                </a>
-                                                                if (!item.TieneAsignacionValida() && item.es_asignacion_actual)
+                                                                @if (item.id_empleado == item.id_responsable_principal || (!item.es_asignacion_actual && item.id_empleado == item.id_responsable_principal))
                                                                 {
-                                                                    <a onclick="showWarningDialog()" class="btn btn-warning btn-sm" title="Información">
-                                                                        <i class="fa fa-warning"></i>
+                                                                    <a href="@Url.Action("GenerarPlantillaResponsiva", null, new { id = item.id })" class="btn btn-warning btn-sm" rel="tooltip" data-title="Generar Plantilla" data-placement="right" target="_blank">
+                                                                        <i class="fa-solid fa-file-export"></i>
+                                                                    </a>
+                                                                    <a href="@Url.Action("CargarResponsiva", null, new { id = item.id })" class="btn btn-success btn-sm" rel="tooltip" data-title="Subir Responsiva" data-placement="right">
+                                                                        <i class="fa-solid fa-file-arrow-up"></i>
                                                                     </a>
                                                                 }
-                                                            }
-                                                            else
+                                                                @if (item.es_asignacion_actual)
+                                                                {
+                                                                    <a href="@Url.Action("DesasociarEquipo", null, new { id = item.id })" class="btn btn-danger btn-sm" rel="tooltip" data-title="Desasociar Equipo" data-placement="right">
+                                                                        <i class="fa-solid fa-user-xmark"></i>
+                                                                    </a>
+                                                                }
+                                                            </td>
+                                                            @if (tipoHardware.descripcion == Bitacoras.Util.IT_Tipos_Hardware.LAPTOP
+                                                            || tipoHardware.descripcion == Bitacoras.Util.IT_Tipos_Hardware.DESKTOP)
                                                             {
-                                                                <span>PENDIENTE</span>
+                                                                <td>
+                                                                    @element.GetGenericObject().hostname
+                                                                </td>
                                                             }
-                                                        </td>
-                                                        <td>
-                                                            @Html.DisplayFor(model => item.empleados1.ConcatNombre)
-                                                        </td>
-                                                        <td>
-                                                            @if (item.es_asignacion_actual)
+                                                            @if (tipoHardware.descripcion == Bitacoras.Util.IT_Tipos_Hardware.ACCESSORIES)
                                                             {
-                                                                <span>S&Iacute;</span>
+                                                                <td>
+                                                                    @element.GetGenericObject().IT_inventory_tipos_accesorios.descripcion
+                                                                    @*@Html.DisplayFor(model => element.IT_inventory_items.IT_inventory_tipos_accesorios.descripcion)*@
+                                                                </td>
                                                             }
-                                                            else
-                                                            {
-                                                                <span>NO</span>
-                                                            }
-                                                        </td>
-                                                    </tr>
+                                                            <td>
+                                                                @element.GetGenericObject().brand
+                                                            </td>
+                                                            <td>
+                                                                @element.GetGenericObject().model
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(model => element.IT_inventory_items.serial_number)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(model => item.fecha_asignacion)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(model => item.fecha_desasignacion)
+                                                            </td>
+                                                            <td>
+                                                                @if (item.id_biblioteca_digital.HasValue)
+                                                                {
+                                                                    <a href="@Url.Action("DownloadFile", "Combos", new { idDocumento = item.id_biblioteca_digital, inline = true })" class="btn btn-info btn-sm" target="_blank" title="Ver">
+                                                                        <i class="fa-regular fa-eye"></i>
+                                                                    </a>
+                                                                    <a href="@Url.Action("DownloadFile", "Combos", new { idDocumento = item.id_biblioteca_digital })" class="btn btn-success btn-sm" title="Descargar">
+                                                                        <i class="fa fa-download"></i>
+                                                                    </a>
+                                                                    if (!element.TieneAsignacionValida() && item.es_asignacion_actual)
+                                                                    {
+                                                                        <a onclick="showWarningDialog()" class="btn btn-warning btn-sm" title="Información">
+                                                                            <i class="fa fa-warning"></i>
+                                                                        </a>
+                                                                    }
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span>PENDIENTE</span>
+                                                                }
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(model => item.empleados1.ConcatNombre)
+                                                            </td>
+                                                            <td>
+                                                                @if (item.es_asignacion_actual)
+                                                                {
+                                                                    <span>S&Iacute;</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span>NO</span>
+                                                                }
+                                                            </td>
+                                                        </tr>
+                                                    }
                                                 }
 
                                             </tbody>
@@ -342,13 +349,16 @@
                                     {
                                         <p>&emsp; No hay asignaciones disponibles.</p>
                                     }
-                                    @*botón para agregar asignación*@
+
+
 
                                 </div>
 
                                 <div class="ln_solid"></div>
                             }
                         }
+
+
 
                         <div class="form-group row">
                             <span style="color:black"><b>&ensp; SOFTWARE -  HISTORIAL DE ASIGNACIONES</b></span>
@@ -417,31 +427,21 @@
                         <div class="ln_solid"></div>
 
                         <div class="form-group row">
-                            <span style="color:black"><b>&ensp; L&Iacute;NEA CELULAR -  HISTORIAL DE ASIGNACIONES</b></span>
+                            <span style="color:black"><b>&ensp; L&Iacute;NEAS DE CELULAR ASIGNADAS </b></span>
                         </div>
                         <div class="form-group row">
                             @{ c = 1;}
 
-                            @if (Model.IT_asignacion_cellular_line.Count > 0)
+                            @if (Model.GetIT_Inventory_Cellular_LinesActivas().Count > 0)
                             {
                                 <table id="datatable_100" class="table datatable table-bordered nowrap" cellspacing="0" width="100%">
                                     <thead>
                                         <tr>
                                             <th width="1%">#</th>
-                                            <th>Planta</th>
                                             <th>N&uacute;mero Celular </th>
                                             <th>Plan</th>
                                             <th>
-                                                Asign&oacute;
-                                            </th>
-                                            <th>
-                                                Fecha Asignaci&oacute;n
-                                            </th>
-                                            <th>
-                                                Fecha Desasignaci&oacute;n
-                                            </th>
-                                            <th width="1%">
-                                                ¿Asignación Actual?
+                                                ¿Activo?
                                             </th>
                                             <th width="1%">
                                                 Acciones
@@ -449,30 +449,18 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach (var item in Model.IT_asignacion_cellular_line.OrderByDescending(x => x.id))
+                                        @foreach (var item in Model.GetIT_Inventory_Cellular_LinesActivas())
                                         {
-                                            <tr class="@(item.es_asignacion_actual?"fondo-verde":"fondo-rojo")">
+                                            <tr class="fondo-verde">
                                                 <td>@(c++)</td>
                                                 <th>
-                                                    @Html.DisplayFor(model => item.IT_inventory_cellular_line.plantas.descripcion)
-                                                </th>
-                                                <th>
-                                                    @Html.DisplayFor(model => item.IT_inventory_cellular_line.numero_celular)
+                                                    @Html.DisplayFor(model => item.GetPhoneNumberFormat)
                                                 </th>
                                                 <td>
-                                                    @Html.DisplayFor(model => item.IT_inventory_cellular_line.IT_inventory_cellular_plans.nombre_plan)
+                                                    @item.Get_Cellular_Plans(item.id_inventory_celullar_plan).nombre_plan
                                                 </td>
                                                 <td>
-                                                    @Html.DisplayFor(model => item.empleados1.ConcatNombre)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(model => item.fecha_asignacion)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(model => item.fecha_desasignacion)
-                                                </td>
-                                                <td>
-                                                    @if (item.es_asignacion_actual)
+                                                    @if (item.activo)
                                                     {
                                                         <span>S&Iacute;</span>
                                                     }
@@ -481,18 +469,17 @@
                                                         <span>NO</span>
                                                     }
                                                 </td>
+
                                                 <td>
 
-                                                    <a href="@Url.Action("Details", "IT_asignacion_cellular_line", new { id = item.id })" class="btn btn-info btn-sm" rel="tooltip" data-title="Desasociar Equipo" data-placement="right">
+                                                    <a onclick="MuestraDetalles(@item.id)"  class="btn btn-info btn-sm" rel="tooltip" data-title="Detalles" data-placement="right" style="color:white">
                                                         <i class="fa-solid fa-info-circle"></i>
                                                     </a>
 
-                                                    @if (item.es_asignacion_actual)
-                                                    {
-                                                        <a href="@Url.Action("DesasociarNumero", "IT_asignacion_cellular_line", new { id = item.id })" class="btn btn-danger btn-sm" rel="tooltip" data-title="Desasociar Equipo" data-placement="right">
-                                                            <i class="fa-solid fa-user-xmark"></i>
-                                                        </a>
-                                                    }
+                                                    <a  onclick="showDialogDeshabilitarLinea('@item.GetPhoneNumberFormat', @item.id, @Model.id)" style="color:white" class="btn btn-danger btn-sm" rel="tooltip" data-title="Desasociar Línea" data-placement="right">
+                                                        <i class="fa-solid fa-user-xmark"></i>
+                                                    </a>
+
                                                 </td>
                                             </tr>
                                         }
@@ -508,11 +495,11 @@
                                 <p>&emsp; No hay asignaciones disponibles.</p>
                             }
 
-                            <div class="col-md-12 col-sm-12">
-                                <a href="@Url.Action( "Asignar", "IT_asignacion_cellular_line", new { id_empleado = Model.id})" class="btn btn-success">
-                                    <i class="fa-solid fa-phone-flip"></i> Asignar L&iacute;nea Celular
-                                </a>
-                            </div>
+                            @*<div class="col-md-12 col-sm-12">
+                                    <a href="@Url.Action( "Asignar", "IT_asignacion_cellular_line", new { id_empleado = Model.id})" class="btn btn-success">
+                                        <i class="fa-solid fa-phone-flip"></i> Asignar L&iacute;nea Celular
+                                    </a>
+                                </div>*@
                         </div>
                         <div class="ln_solid"></div>
 
@@ -554,7 +541,43 @@
                 "info": false
             });
 
+            //Envia el formulario cada vez que se modifica el combo
+            $("#id_tipo_hardware").change(function () {
+                if ($('#id_tipo_hardware').val().trim() === '') {
+                    //do nothing
+                } else {
+                    $("#buscarForm").submit();
+                }
+            });
+
         });
+
+        function showDialogDeshabilitarLinea(texto="", id, id_empleado) {
+
+           
+            Swal.fire({
+                title: 'Confirmación',
+                text: "¿Realmente desea desvicular el número " + texto + " del usuario seleccionado?",
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Continuar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+
+                if (result.isConfirmed) {
+                    window.location.replace('/@ViewBag.ControllerName/DesvincularLinea/' + id + '?id_empleado='+id_empleado);               
+                } else if (result.isDismissed) {
+                    /*Swal.fire('Los cambios no han sido guardados.', '', 'info')*/
+                }
+            });
+
+        }
+
+        function MuestraDetalles( id) {          
+            window.open('/IT_inventory_cellular_line/Details/' + id + '', 'popup', "width=" + screen.width * .80 + ",height=" + screen.height * .80 + "");           
+        }
 
         function showWarningDialog() {
 

@@ -13,9 +13,9 @@ namespace Portal_2_0.Models
         [Display(Name = "Folio")]
         public int id { get; set; }
 
-        [Required]
-        [Display(Name = "Hardware")]
-        public int id_it_inventory_item { get; set; }
+        //[Required]
+        //[Display(Name = "Hardware")]
+        //public int id_it_inventory_item { get; set; }
 
         [Display(Name = "Versión IATF")]
         public int id_iatf_version { get; set; }
@@ -48,6 +48,12 @@ namespace Portal_2_0.Models
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public Nullable<System.DateTime> fecha_desasignacion { get; set; }
 
+        [Display(Name = "Línea Celular")]
+        public Nullable<int> id_cellular_line { get; set; }
+
+        [Display(Name = "¿Línea Actual?")]
+        public bool es_asignacion_linea_actual { get; set; }
+
     }
 
     [MetadataType(typeof(IT_asignacion_hardwareMetadata))]
@@ -64,27 +70,9 @@ namespace Portal_2_0.Models
         public int tipo_hardware { get; set; }
 
         [NotMapped]
-        [Display(Name = "Línea Celular")]
-        public int id_inventory_cellular_line { get; set; }
+        [Display(Name = "¿Desasociar Línea Celular?")]
+        public bool desasociar_linea { get; set; }
 
-
-
-        /// <summary>
-        /// Determina si la asignación es una asignación actual sin responsable principal
-        /// </summary>
-        /// <returns></returns>
-        public bool TieneAsignacionValida() {
-
-            bool result = false;
-            using (var db = new Portal_2_0Entities()) {
-                result = db.IT_asignacion_hardware.Any(x => x.id_it_inventory_item == this.id_it_inventory_item && x.es_asignacion_actual == true && x.id_empleado == x.id_responsable_principal);
-            }
-
-            return result;
-
-        }
-
-            
 
     }
 }

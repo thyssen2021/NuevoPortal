@@ -70,7 +70,7 @@ namespace Portal_2_0.Models
 
                 this.numero_celular = new System.Text.RegularExpressions.Regex(@"\D")
                     .Replace(this.numero_celular, string.Empty);
-              
+
                 // this.numero_celular = this.numero_celular.TrimStart('1');
                 if (this.numero_celular.Length == 7)
                     return result.ToString("###-####");
@@ -82,6 +82,24 @@ namespace Portal_2_0.Models
                 return this.numero_celular;
             }
         }
+
+        /// <summary>
+        /// Obtiene todas las lineas activas para un empleado según sus asignaciones
+        /// </summary>
+        /// <returns></returns>
+        public IT_inventory_cellular_plans Get_Cellular_Plans(int id_plan)
+        {
+            IT_inventory_cellular_plans plan = new IT_inventory_cellular_plans();
+
+            using (var db = new Portal_2_0Entities())
+            {
+                plan = db.IT_inventory_cellular_plans.Find(id_plan);
+            }
+
+
+            return plan;
+        }
+
 
     }
 }
