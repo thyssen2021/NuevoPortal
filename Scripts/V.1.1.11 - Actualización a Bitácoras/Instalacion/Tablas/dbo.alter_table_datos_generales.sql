@@ -19,8 +19,7 @@ BEGIN TRANSACTION
 		IF object_id(N'produccion_datos_entrada','U') IS NOT NULL
 		BEGIN
 			ALTER TABLE produccion_datos_entrada ADD sap_platina_2 VARCHAR(30) NULL
-			PRINT 'Se ha creado la columna sap_platina_2 en la tabla produccion_datos_entrada'		
-			
+			PRINT 'Se ha creado la columna sap_platina_2 en la tabla produccion_datos_entrada'	
 		END
 		ELSE
 		BEGIN

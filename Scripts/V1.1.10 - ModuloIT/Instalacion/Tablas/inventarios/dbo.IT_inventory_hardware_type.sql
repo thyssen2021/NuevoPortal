@@ -57,6 +57,13 @@ INSERT [IT_inventory_hardware_type] ([id], [descripcion], [puede_asignarse], [ac
 INSERT [IT_inventory_hardware_type] ([id], [descripcion], [puede_asignarse], [activo]) VALUES (14, N'Virtual Server',0, 1)
 
 SET IDENTITY_INSERT [IT_inventory_hardware_type] OFF
+
+-------------------------------------------------
+--select * from [IT_inventory_hardware_type]
+--ALTER TABLE [IT_inventory_hardware_type] ADD puede_asignarse bit NOT NULL DEFAULT 0			
+--delete from dbo.IT_inventory_hardware_type; DBCC checkident ('IT_inventory_hardware_type', reseed,0);
+-------------------------------------------------
+
 GO
 
 
