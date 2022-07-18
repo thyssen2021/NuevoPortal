@@ -410,6 +410,10 @@ namespace Portal_2_0.Controllers
 
                 ViewBag.MM = mm;
                 ViewBag.Class = class_;
+
+                //para agregar sap platina 2
+                ViewBag.produccion_datos_entrada_sap_platina_2 = ComboSelect.obtieneMaterial_BOM();
+
                 return View(produccion);
             }
             else
@@ -427,6 +431,9 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DatosEntradas(produccion_registros produccion_registros)
         {
+
+            if(!String.IsNullOrEmpty(produccion_registros.produccion_datos_entrada.sap_platina_2) && String.IsNullOrEmpty(produccion_registros.produccion_datos_entrada.orden_sap_2))
+                ModelState.AddModelError("", "Para definir Sap Platina 2, es necesario ingresar Orden SAP 2.");
 
             bool error = false;
 
@@ -525,6 +532,10 @@ namespace Portal_2_0.Controllers
 
             ViewBag.MM = mm;
             ViewBag.Class = class_;
+
+            //para agregar sap platina 2
+            ViewBag.produccion_datos_entrada_sap_platina_2 = ComboSelect.obtieneMaterial_BOM();
+
             return View(produccion_registros);
         }
 

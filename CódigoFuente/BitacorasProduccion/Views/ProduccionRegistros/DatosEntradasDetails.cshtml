@@ -191,6 +191,11 @@
                                     @Html.EditorFor(model => model.produccion_datos_entrada.orden_sap_2, new { htmlAttributes = new { @class = "form-control col-md-12", @readonly = "readonly" } })
                                     @Html.ValidationMessageFor(model => model.produccion_datos_entrada.orden_sap_2, "", new { @class = "text-danger" })
                                 </div>
+                                @Html.LabelFor(model => model.produccion_datos_entrada.sap_platina_2, new { @class = "control-label col-md-1" })
+                                <div class="col-md-3">
+                                    <input type="text" class="form-control" value="@Model.produccion_datos_entrada.sap_platina_2" readonly/>
+                                       @Html.ValidationMessageFor(model => model.produccion_datos_entrada.sap_platina_2, "", new { @class = "text-danger" })
+                                </div>
                             </div>
                             <div class="ln_solid"></div>
                             <div class="form-group row">
@@ -253,38 +258,43 @@
                             <div id="div_lotes">
                                 @foreach (Portal_2_0.Models.produccion_lotes lote in Model.produccion_lotes)
                                 {
-                                <div class="form-group row" id="div_lotes_@contador">
-                                    <input type="hidden" name="produccion_lotes.Index" id="produccion_lotes.Index" value="@contador" />
+                                    <div class="form-group row" id="div_lotes_@contador">
+                                        <div class="col-md-1">
+                                            <input style="text-align:center; background-color:antiquewhite" type="text" class="form-control col-md-12 input-contador-lotes" value="" readonly="readonly">
+                                        </div>
+                                        @* Necesario para auto binding *@
+                                        <input type="hidden" name="produccion_lotes.Index" id="produccion_lotes.Index" value="@contador" />
+                                        <label class="control-label col-md-1" >
+                                            <span class="float-right">Material</span>
+                                        </label>
+                                        <div class="col-md-2">
+                                            <input style="text-align:right" type="text" maxlenght=30 name="produccion_lotes[@contador].sap_platina" id="produccion_lotes[@contador].sap_platina" class="form-control col-md-12 material-lote" value="@lote.sap_platina" readonly required>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[@contador].sap_platina" data-valmsg-replace="true"></span>
+                                        </div>
 
-                                    <div class="col-md-1">
-                                        <input style="text-align:center; background-color:antiquewhite" type="text" class="form-control col-md-12 input-contador-lotes" value="@numeracionLotes++" readonly="readonly">
-                                    </div>
+                                        <label class="control-label col-md-1" for="produccion_lotes[@contador].numero_lote_izquierdo">
+                                            <span class="float-right">Lote Izquierdo</span>
+                                        </label>
+                                        <div class="col-md-1">
+                                            <input style="text-align:right" type="text" min="0" step="1" max="50000" name="produccion_lotes[@contador].numero_lote_izquierdo" id="produccion_lotes[@contador].lote_izquierdo" class="form-control col-md-12 entero" value="@lote.numero_lote_izquierdo" readonly>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[@contador].numero_lote_izquierdo" data-valmsg-replace="true"></span>
+                                        </div>
+                                        <label class="control-label col-md-1" for="produccion_lotes[@contador].numero_lote_derecho">
+                                            <span class="float-right">Lote Derecho</span>
+                                        </label>
+                                        <div class="col-md-1">
+                                            <input type="text" min="0" step="1" max="50000" name="produccion_lotes[@contador].numero_lote_derecho" id="produccion_lotes[@contador].lote_derecho" class="form-control col-md-12 entero" value="@lote.numero_lote_derecho" readonly>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[@contador].numero_lote_derecho" data-valmsg-replace="true"></span>
+                                        </div>
+                                        <label class="control-label col-md-1" for="produccion_lotes[@contador].piezas_paquete">
+                                            <span class="float-right">Piezas por paquete</span>
+                                        </label>
+                                        <div class="col-md-1">
+                                            <input type="text" min="0" step="1" max="5000" name="produccion_lotes[@contador].piezas_paquete" id="produccion_lotes[@contador].piezas_paquete" class="form-control col-md-12 total_piezas entero" value="@lote.piezas_paquete" maxlength="10" readonly>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[@contador].piezas_paquete" data-valmsg-replace="true"></span>
+                                        </div>
 
-                                    <label class="control-label col-md-1" for="produccion_lotes[@contador].numero_lote_izquierdo">
-                                        <span class="float-right">Lote Izquierdo</span>
-                                    </label>
-                                    <div class="col-md-2">
-                                        <input style="text-align:right" type="number" min="0" step="1" max="50000" name="produccion_lotes[@contador].numero_lote_izquierdo" id="produccion_lotes[@contador].lote_izquierdo" class="form-control col-md-12" value="@lote.numero_lote_izquierdo" autocomplete="off" readonly>
-                                        <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[@contador].numero_lote_izquierdo" data-valmsg-replace="true"></span>
                                     </div>
-                                    <label class="control-label col-md-1" for="produccion_lotes[@contador].numero_lote_derecho">
-                                        <span class="float-right">Lote Derecho</span>
-                                    </label>
-                                    <div class="col-md-2">
-                                        <input type="number" min="0" step="1" max="50000" name="produccion_lotes[@contador].numero_lote_derecho" id="produccion_lotes[@contador].lote_derecho" class="form-control col-md-12" value="@lote.numero_lote_derecho" autocomplete="off" readonly>
-                                        <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[@contador].numero_lote_derecho" data-valmsg-replace="true"></span>
-                                    </div>
-                                    <label class="control-label col-md-2" for="produccion_lotes[@contador].piezas_paquete">
-                                        <span class="float-right">Piezas por paquete</span>
-                                    </label>
-                                    <div class="col-md-2">
-                                        <input type="number" min="0" step="1" max="5000" name="produccion_lotes[@contador].piezas_paquete" id="produccion_lotes[@contador].piezas_paquete" class="form-control col-md-12 total_piezas" value="@lote.piezas_paquete" maxlength="10" readonly>
-                                        <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[@contador].piezas_paquete" data-valmsg-replace="true"></span>
-                                    </div>
-                                    @*<div class="col-md-1">
-            <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarLote(@contador); return false;">
-        </div>*@
-                                </div>
 
                                     contador++;
                                 }
@@ -293,13 +303,13 @@
 
                             </div>
                             @*<div class="form-group row">
-                <div class="col-md-11">
-                    <input type="button" value="Agregar" class="btn btn-round btn-warning float-right" onclick="AgregarConcepto(); return false;">
-                </div>
-            </div>*@
+                                    <div class="col-md-11">
+                                        <input type="button" value="Agregar" class="btn btn-round btn-warning float-right" onclick="AgregarConcepto(); return false;">
+                                    </div>
+                                </div>*@
                             <!---------------------  -----------  -----------  -----------  ------------------>
                             <div class="form-group row">
-                              
+
                                 <!--Total de piezas-->
                                 <label class="control-label col-md-1" for="total_piezas">
                                     Total de piezas
@@ -375,7 +385,7 @@
                                 <div class="col-md-2">
                                     <input type="text" id="peso_real_pieza_bruto_input" class="form-control col-md-12" value="" readonly>
                                 </div>
-                      
+
                             </div>
 
                             <div class="ln_solid"></div>
@@ -509,8 +519,8 @@
                                     <a href="@Url.Action("DatosEntradas", ViewBag.ControllerName, new { id = Model.id })" class="btn btn-success btm-sm float-md-right" title="Editar">
                                         <i class="fa-regular fa-pen-to-square"></i> Editar
                                     </a>
-                                    }
-                                </div>
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -594,5 +604,9 @@
     @Scripts.Render("~/bundles/dataTables_js")
     @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
     @Scripts.Render(Url.Content("~/Scripts/Forms/datosEntrada.js"))
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/inputmask/inputmask.extensions.js"))
+
 }
 

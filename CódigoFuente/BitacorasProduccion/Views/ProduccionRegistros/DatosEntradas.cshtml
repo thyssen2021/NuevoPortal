@@ -23,6 +23,9 @@
     @Styles.Render("~/Content/dataTables_css")
     <!-- SweetAlert2 -->
     <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
 
     <style>
 
@@ -198,6 +201,11 @@
                                     @Html.EditorFor(model => model.produccion_datos_entrada.orden_sap_2, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
                                     @Html.ValidationMessageFor(model => model.produccion_datos_entrada.orden_sap_2, "", new { @class = "text-danger" })
                                 </div>
+                                @Html.LabelFor(model => model.produccion_datos_entrada.sap_platina_2, new { @class = "control-label col-md-1" })
+                                <div class="col-md-3">
+                                    @Html.DropDownList("produccion_datos_entrada.sap_platina_2", (List<SelectListItem>)ViewBag.produccion_datos_entrada_sap_platina_2, null, htmlAttributes: new { @class = "form-control select2bs4 combo-material", @style = "width:100%" })
+                                    @Html.ValidationMessageFor(model => model.produccion_datos_entrada.sap_platina_2, "", new { @class = "text-danger" })
+                                </div>
                             </div>
                             <div class="ln_solid"></div>
                             <div class="form-group row">
@@ -264,27 +272,40 @@
                                         <div class="col-md-1">
                                             <input style="text-align:center; background-color:antiquewhite" type="text" class="form-control col-md-12 input-contador-lotes" value="" readonly="readonly">
                                         </div>
-
+                                        @* Necesario para auto binding *@
                                         <input type="hidden" name="produccion_lotes.Index" id="produccion_lotes.Index" value="@contador" />
+                                        <div class="col-md-2">
+                                            <select name="select_@contador" class="form-control select2bs4 combo-material" data-row="@contador" style="width: 100%" required>
+                                                <option value="" selected>-- Sin Definir --</option>
+                                                <option value="value1" @(Model.sap_platina == lote.sap_platina ? "selected" : String.Empty)>SAP Platina 1</option>
+                                                <option value="value2" @(Model.produccion_datos_entrada.sap_platina_2 == lote.sap_platina && !string.IsNullOrEmpty(lote.sap_platina) ? "selected" : String.Empty)>SAP Platina 2</option>
+                                            </select>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="select_@contador" data-valmsg-replace="true"></span>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <input style="text-align:right" type="text" maxlenght=30 name="produccion_lotes[@contador].sap_platina" id="produccion_lotes[@contador].sap_platina" class="form-control col-md-12 material-lote" value="@lote.sap_platina" readonly required>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[@contador].sap_platina" data-valmsg-replace="true"></span>
+                                        </div>
+
                                         <label class="control-label col-md-1" for="produccion_lotes[@contador].numero_lote_izquierdo">
                                             <span class="float-right">Lote Izquierdo</span>
                                         </label>
-                                        <div class="col-md-2">
-                                            <input style="text-align:right" type="number" min="0" step="1" max="50000" name="produccion_lotes[@contador].numero_lote_izquierdo" id="produccion_lotes[@contador].lote_izquierdo" class="form-control col-md-12" value="@lote.numero_lote_izquierdo" autocomplete="off">
+                                        <div class="col-md-1">
+                                            <input style="text-align:right" type="text" min="0" step="1" max="50000" name="produccion_lotes[@contador].numero_lote_izquierdo" id="produccion_lotes[@contador].lote_izquierdo" class="form-control col-md-12 entero" value="@lote.numero_lote_izquierdo" autocomplete="off">
                                             <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[@contador].numero_lote_izquierdo" data-valmsg-replace="true"></span>
                                         </div>
                                         <label class="control-label col-md-1" for="produccion_lotes[@contador].numero_lote_derecho">
                                             <span class="float-right">Lote Derecho</span>
                                         </label>
-                                        <div class="col-md-2">
-                                            <input type="number" min="0" step="1" max="50000" name="produccion_lotes[@contador].numero_lote_derecho" id="produccion_lotes[@contador].lote_derecho" class="form-control col-md-12" value="@lote.numero_lote_derecho" autocomplete="off">
+                                        <div class="col-md-1">
+                                            <input type="text" min="0" step="1" max="50000" name="produccion_lotes[@contador].numero_lote_derecho" id="produccion_lotes[@contador].lote_derecho" class="form-control col-md-12 entero" value="@lote.numero_lote_derecho" autocomplete="off">
                                             <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[@contador].numero_lote_derecho" data-valmsg-replace="true"></span>
                                         </div>
-                                        <label class="control-label col-md-2" for="produccion_lotes[@contador].piezas_paquete">
+                                        <label class="control-label col-md-1" for="produccion_lotes[@contador].piezas_paquete">
                                             <span class="float-right">Piezas por paquete</span>
                                         </label>
-                                        <div class="col-md-2">
-                                            <input type="number" min="0" step="1" max="5000" name="produccion_lotes[@contador].piezas_paquete" id="produccion_lotes[@contador].piezas_paquete" class="form-control col-md-12 total_piezas" value="@lote.piezas_paquete" maxlength="10" required>
+                                        <div class="col-md-1">
+                                            <input type="text" min="0" step="1" max="5000" name="produccion_lotes[@contador].piezas_paquete" id="produccion_lotes[@contador].piezas_paquete" class="form-control col-md-12 total_piezas entero" value="@lote.piezas_paquete" maxlength="10" autocomplete="off" required>
                                             <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[@contador].piezas_paquete" data-valmsg-replace="true"></span>
                                         </div>
                                         <div class="col-md-1">
@@ -645,10 +666,26 @@
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
     @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render("~/bundles/dataTables_js")
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/inputmask/inputmask.extensions.js"))
     @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
-    @Scripts.Render(Url.Content("~/Scripts/Forms/datosEntrada.js"))
+    @*<script src="~/Scripts/Forms/datosEntrada.js?time=@DateTime.Now.ToShortDateString()"></script>*@
+    <script src="~/Scripts/Forms/datosEntrada.js?time=@DateTime.Now"></script>
+
     <script>
-        //muestra modal de confirmación de cerrar pagina
+        $(document).ready(function () {
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //aplica el evento a los combos de material
+            AplicaEventsMaterial();
+
+
+        });
 
         // Warning
         $(window).on('beforeunload', function () {

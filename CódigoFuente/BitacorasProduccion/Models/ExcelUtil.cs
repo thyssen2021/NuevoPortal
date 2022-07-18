@@ -48,36 +48,38 @@ namespace Portal_2_0.Models
             filasTemporales.Add(false);
 
             //columnas
-            dt.Columns.Add("Planta", typeof(string));
-            dt.Columns.Add("Linea", typeof(string));
-            dt.Columns.Add("Operador", typeof(string));
-            dt.Columns.Add("Supervisor", typeof(string));
-            dt.Columns.Add("SAP Platina", typeof(string));
-            dt.Columns.Add("Tipo de Material", typeof(string));
-            dt.Columns.Add("Número Parte Cliente", typeof(string));
-            dt.Columns.Add("SAP Rollo", typeof(string));
-            dt.Columns.Add("Material", typeof(string));
-            dt.Columns.Add("Fecha", typeof(DateTime));
-            dt.Columns.Add("Turno", typeof(string));
-            dt.Columns.Add("Hora", typeof(string));
-            dt.Columns.Add("Orden SAP", typeof(string));
-            dt.Columns.Add("Orden SAP 2", typeof(string));
-            dt.Columns.Add("Pieza por Golpe", typeof(int));
-            dt.Columns.Add("Número de Rollo", typeof(string));
-            dt.Columns.Add("Lote de Rollo", typeof(string));
-            dt.Columns.Add("Peso Etiqueta (kg)", typeof(string));
-            dt.Columns.Add("Peso Regreso Rollo Real", typeof(string));
-            dt.Columns.Add("Peso Rollo Usado", typeof(double));
-            dt.Columns.Add("Peso Báscula", typeof(double));
-            dt.Columns.Add("No. Lote Izquierdo", typeof(double));
-            dt.Columns.Add("No. Lote Derecho", typeof(double));
-            dt.Columns.Add("Piezas por Paquete", typeof(double));
-            dt.Columns.Add("Total Piezas", typeof(double));
-            dt.Columns.Add("Peso de Rollo Consumido", typeof(double));
-            dt.Columns.Add("Número de Golpes", typeof(double));
-            dt.Columns.Add("Kg Restante de Rollo", typeof(double));
-            dt.Columns.Add("Peso Despunte Kgs", typeof(double));
-            dt.Columns.Add("Peso Cola Kgs", typeof(double));
+            dt.Columns.Add("Planta", typeof(string));                           //1
+            dt.Columns.Add("Linea", typeof(string));                            //2
+            dt.Columns.Add("Operador", typeof(string));                         //3
+            dt.Columns.Add("Supervisor", typeof(string));                       //4
+            dt.Columns.Add("SAP Platina", typeof(string));                      //5
+            dt.Columns.Add("SAP Platina 2", typeof(string));                    //6
+            dt.Columns.Add("Tipo de Material", typeof(string));                 //7
+            dt.Columns.Add("Número Parte Cliente", typeof(string));             //8
+            dt.Columns.Add("SAP Rollo", typeof(string));                        //9
+            dt.Columns.Add("Material", typeof(string));                         //10
+            dt.Columns.Add("Fecha", typeof(DateTime));                          //11
+            dt.Columns.Add("Turno", typeof(string));                            //12
+            dt.Columns.Add("Hora", typeof(string));                             //13    
+            dt.Columns.Add("Orden SAP", typeof(string));                        //14
+            dt.Columns.Add("Orden SAP 2", typeof(string));                      //15
+            dt.Columns.Add("Pieza por Golpe", typeof(int));                     //16
+            dt.Columns.Add("Número de Rollo", typeof(string));                  //17
+            dt.Columns.Add("Lote de Rollo", typeof(string));                    //18
+            dt.Columns.Add("Peso Etiqueta (kg)", typeof(string));               //19
+            dt.Columns.Add("Peso Regreso Rollo Real", typeof(string));          //20
+            dt.Columns.Add("Peso Rollo Usado", typeof(double));                 //21
+            dt.Columns.Add("Peso Báscula", typeof(double));                     //22
+            dt.Columns.Add("Material Lote", typeof(string));                    //23 ---->
+            dt.Columns.Add("No. Lote Izquierdo", typeof(double));               //24
+            dt.Columns.Add("No. Lote Derecho", typeof(double));                 //25
+            dt.Columns.Add("Piezas por Paquete", typeof(double));               //26
+            dt.Columns.Add("Total Piezas", typeof(double));                     //27
+            dt.Columns.Add("Peso de Rollo Consumido", typeof(double));          //28
+            dt.Columns.Add("Número de Golpes", typeof(double));                 //29
+            dt.Columns.Add("Kg Restante de Rollo", typeof(double));             //30
+            dt.Columns.Add("Peso Despunte Kgs", typeof(double));                //31
+            dt.Columns.Add("Peso Cola Kgs", typeof(double));                        
             dt.Columns.Add("% Punta y colas", typeof(double));
             dt.Columns.Add("Total Piezas Ajuste", typeof(double));
             dt.Columns.Add("Peso Bruto Kgs", typeof(double));
@@ -100,9 +102,9 @@ namespace Portal_2_0.Models
             //registros , rows
             foreach (view_historico_resultado item in listado)
             {
-                dt.Rows.Add(item.Planta, item.Linea, item.Operador, item.Supervisor, item.SAP_Platina, item.Tipo_de_Material, item.Número_de_Parte__de_cliente, item.SAP_Rollo, item.Material, item.Fecha,
+                dt.Rows.Add(item.Planta, item.Linea, item.Operador, item.Supervisor, item.SAP_Platina, item.SAP_Platina_2, item.Tipo_de_Material, item.Número_de_Parte__de_cliente, item.SAP_Rollo, item.Material, item.Fecha,
                     item.Turno, String.Format("{0:T}", item.Hora), item.Orden_SAP, item.Orden_en_SAP_2, item.Pieza_por_Golpe, item.N__de_Rollo, item.Lote_de_rollo, item.Peso_Etiqueta__Kg_, item.Peso_de_regreso_de_rollo_Real
-                    , item.Peso_de_rollo_usado, item.Peso_Báscula_Kgs, null, null, null, item.Total_de_piezas, item.Peso_de_rollo_consumido, item.Numero_de_golpes, item.Kg_restante_de_rollo, item.Peso_despunte_kgs_,
+                    , item.Peso_de_rollo_usado, item.Peso_Báscula_Kgs,null, null, null, null, item.Total_de_piezas, item.Peso_de_rollo_consumido, item.Numero_de_golpes, item.Kg_restante_de_rollo, item.Peso_despunte_kgs_,
                      item.Peso_cola_Kgs_, item.Porcentaje_de_puntas_y_colas, item.Total_de_piezas_de_Ajustes, item.Peso_Bruto_Kgs, item.Peso_Real_Pieza_Bruto, item.Peso_Real_Pieza_Neto, item.Scrap_Natural
                      , item.Peso_neto_SAP, item.Peso_Bruto_SAP, item.Balance_de_Scrap, item.Ordenes_por_pieza, item.Peso_de_rollo_usado_real__Kg, item.Peso_bruto_Total_piezas_Kg, item.Peso_NetoTotal_piezas_Kg
                      , item.Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg, item.Peso_Neto_total_piezas_de_ajuste_Kgs, item.Peso_puntas_y_colas_reales_Kg, item.Balance_de_Scrap_Real, item.comentario);
@@ -128,9 +130,9 @@ namespace Portal_2_0.Models
                 {
                     foreach (produccion_lotes lote in p.produccion_lotes)
                     {
-                        dt.Rows.Add(null, null, null, null, null, null, null, null, null, null,
+                        dt.Rows.Add(null, null, null, null, null, null, null, null, null, null,null,
                       null, null, null, null, null, null, null, null, null
-                      , null, null, lote.numero_lote_izquierdo, lote.numero_lote_derecho, lote.piezas_paquete.Value, null, null, null, null, null,
+                      , null, null, lote.sap_platina, lote.numero_lote_izquierdo, lote.numero_lote_derecho, lote.piezas_paquete.Value, null, null, null, null, null,
                        null, null, null, null, null, null, null
                        , null, null, null, null, null, null, null
                        , null, null, null, null, null);
@@ -157,9 +159,9 @@ namespace Portal_2_0.Models
 
             if (tipo_turno)
                 //fila para sumatorias
-                dt.Rows.Add(null, null, null, null, null, null, null, null, null, null,
+                dt.Rows.Add(null, null, null, null, null, null, null, null, null, null, null,
                         null, null, null, null, null, null, null, null, null
-                        , sumaRolloUsado, null, null, null, null, null, null, sumaNumGolpes, null, null,
+                        , sumaRolloUsado, null, null, null, null, null, null, null, sumaNumGolpes, null, null,
                          null, null, null, null, null, null, null
                          , null, null, promedioBalanceScrap, null, null, null, null
                          , null, null, null, promedioBalanceScrapReal, null);
@@ -220,14 +222,14 @@ namespace Portal_2_0.Models
             //estilo para fecha
             SLStyle styleShortDate = oSLDocument.CreateStyle();
             styleShortDate.FormatCode = "yyyy/MM/dd";
-            oSLDocument.SetColumnStyle(10, styleShortDate);
+            oSLDocument.SetColumnStyle(11, styleShortDate);
 
             //estilo para porcentanjes
             SLStyle stylePercent = oSLDocument.CreateStyle();
             stylePercent.FormatCode = "0.00%";
-            oSLDocument.SetColumnStyle(31, stylePercent);
-            oSLDocument.SetColumnStyle(39, stylePercent);
-            oSLDocument.SetColumnStyle(47, stylePercent);
+            oSLDocument.SetColumnStyle(33, stylePercent);
+            oSLDocument.SetColumnStyle(41, stylePercent);
+            oSLDocument.SetColumnStyle(49, stylePercent);
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
             styleHeaderFont.Font.FontName = "Calibri";
@@ -250,7 +252,7 @@ namespace Portal_2_0.Models
                 }
                 else
                 {
-                    oSLDocument.SetCellStyle(i + 1, 22, i + 1, 24, styleLoteInfo);
+                    oSLDocument.SetCellStyle(i + 1, 23, i + 1, 26, styleLoteInfo);
                 }
                 //colapsa todas las filas
                 oSLDocument.CollapseRows(i + 1);
@@ -267,8 +269,8 @@ namespace Portal_2_0.Models
             }
 
             //da estilo a los numero
-            oSLDocument.SetColumnStyle(33, 38, styleNumber);
-            oSLDocument.SetColumnStyle(42, 46, styleNumber);
+            oSLDocument.SetColumnStyle(35, 40, styleNumber);
+            oSLDocument.SetColumnStyle(44, 48, styleNumber);
 
             //inmoviliza el encabezado
             oSLDocument.FreezePanes(2, 0);
@@ -283,7 +285,7 @@ namespace Portal_2_0.Models
             //inserta una celda al inicio
             // insert 1 rows at row 1
             oSLDocument.InsertRow(1, 1);
-            oSLDocument.Filter("A2", "AV2");
+            oSLDocument.Filter("A2", "AX2");
             oSLDocument.SetRowHeight(2, filasEncabezados.Count + 1, 15.0);
             oSLDocument.AutoFitColumn(1, dt.Columns.Count);
             oSLDocument.SetRowStyle(1, styleHeader);

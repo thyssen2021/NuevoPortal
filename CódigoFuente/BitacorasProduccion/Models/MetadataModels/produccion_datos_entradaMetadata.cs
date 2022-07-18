@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Foolproof;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -74,6 +75,7 @@ namespace Portal_2_0.Models
         [StringLength(600)]
         public string comentarios { get; set; }
 
+        [RequiredIf("is_required_sap_platina_2", true, ErrorMessage = "Este campo es requerido cuando se indica Orden SAP 2")]
         [Display(Name = "SAP Platina 2")]
         public string sap_platina_2 { get; set; }
     }
@@ -100,6 +102,16 @@ namespace Portal_2_0.Models
                     pesoRegresoRolloReal = this.peso_regreso_rollo_real.Value;
 
                 return pesoEtiqueta - pesoRegresoRolloReal;
+            }
+        }
+
+        //Para foolproof
+        [NotMapped]
+        public bool is_required_sap_platina_2
+        {
+            get
+            {
+                return !String.IsNullOrEmpty(this.orden_sap_2);
             }
         }
 

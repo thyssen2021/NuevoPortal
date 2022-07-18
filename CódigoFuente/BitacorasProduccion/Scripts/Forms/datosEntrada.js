@@ -63,11 +63,17 @@ $(document).ready(function () {
         }
     });
 
+    //carga input mask
+    $('.entero').inputmask({ 'alias': 'integer', 'autoGroup': true, 'autoUnmask': true, 'removeMaskOnSubmit': true });
+
     //calcula los datos la primera vez que carga la página
     calculaDatos();
 
     //llamada al método para asignar el número de lote
     AsignaNumeroLote();
+
+    //Actaliza los combos existentes al cargar la pantalla
+    ActualizaMateriales();
 });
 
 //agranda el tamaño de la barra
@@ -103,7 +109,7 @@ function mostrarModalPass() {
         $('#modalPass').modal('show');
         $('#password').val('');
     }
-    
+
 }
 
 
@@ -136,7 +142,7 @@ function mostrarModal() {
     }
 
 
-   
+
 }
 
 //muestra el modal de captura de peso
@@ -183,8 +189,8 @@ function verificarContraseña(idSupervisor) {
         })
     }
 
-   
-    
+
+
 }
 
 //verifica si está dentro del tiempo autorizado
@@ -476,40 +482,69 @@ function AgregarConcepto() {
     $("#div_lotes").append(
 
         `
-                                                        <div class="form-group row" id="div_lotes_`+ num + `">
-                                                                        <div class="col-md-1">
-                                                                            <input style="text-align:center; background-color:antiquewhite" type="text" class="form-control col-md-12 input-contador-lotes" value="" readonly="readonly">
-                                                                        </div>
-                                                                        <input type="hidden" name="produccion_lotes.Index" id="produccion_lotes.Index" value="`+ num + `" />
-                                                                        <label class="control-label col-md-1" for="produccion_lotes[`+ num + `].numero_lote_izquierdo">
-                                                                            <span class="float-right">Lote Izquierdo</span>
-                                                                        </label>
-                                                                        <div class="col-md-2">
-                                                                            <input style="text-align:right" type="number" min="0" step="1" max="50000" name="produccion_lotes[`+ num + `].numero_lote_izquierdo" id="produccion_lotes[` + num + `].lote_izquierdo" class="form-control col-md-12" value="" autocomplete="off">
-                                                                            <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[` + num + `].numero_lote_izquierdo" data-valmsg-replace="true"></span>
-                                                                        </div>
-                                                                        <label class="control-label col-md-1" for="produccion_lotes[`+ num + `].numero_lote_derecho">
-                                                                            <span class="float-right">Lote Derecho</span>
-                                                                        </label>
-                                                                        <div class="col-md-2">
-                                                                            <input type="number" min="0" step="1" max="50000" name="produccion_lotes[`+ num + `].numero_lote_derecho" id="produccion_lotes[` + num + `].lote_derecho" class="form-control col-md-12" value="" autocomplete="off">
-                                                                            <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[` + num + `].numero_lote_derecho" data-valmsg-replace="true"></span>
-                                                                        </div>
-                                                                        <label class="control-label col-md-2" for="produccion_lotes[`+ num + `].piezas_paquete">
-                                                                             <span class="float-right">Piezas por paquete</span>
-                                                                        </label>
-                                                                        <div class="col-md-2">
-                                                                            <input type="number" min="0" step="1" max="5000" name="produccion_lotes[`+ num + `].piezas_paquete" id="produccion_lotes[` + num + `].piezas_paquete" class="form-control col-md-12 total_piezas" value="" maxlength="10" required>
-                                                                               <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[` + num + `].piezas_paquete" data-valmsg-replace="true"></span>
-                                                                            </div>
-                                                                        <div class="col-md-1">
-                                                                            <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarLote(` + num + `); return false;">
-                                                                        </div>
-                                                                    </div>
+                  <div class="form-group row" id="div_lotes_`+ num + `">
+                        <div class="col-md-1">
+                            <input style="text-align:center; background-color:antiquewhite" type="text" class="form-control col-md-12 input-contador-lotes" value="" readonly="readonly">
+                        </div>
+                    
+                        <input type="hidden" name="produccion_lotes.Index" id="produccion_lotes.Index" value="`+ num + `" />
+                        <div class="col-md-2">
+                            <select name="select_`+ num + `" class="combo-material form-control select2bs4" data-row="`+ num + `" id="combo_material_` + num + `" style="width: 100%" required>
+                               <option value="" selected>-- Sin Definir --</option>
+                              <option value="value1" >SAP Platina 1</option>
+                              <option value="value2">SAP Platina 2</option>
+                            </select>
+                            <span class="field-validation-valid text-danger" data-valmsg-for="select_`+ num + `" data-valmsg-replace="true"></span>
+                        </div>
+                        <div class="col-md-2">
+                            <input style="text-align:right" type="text" maxlenght=30 name="produccion_lotes[`+ num + `].sap_platina" id="produccion_lotes[` + num + `].sap_platina" class="form-control col-md-12 material-lote" value="" readonly required>
+                            <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[` + num + `].sap_platina" data-valmsg-replace="true"></span>
+                        </div>
+                        <label class="control-label col-md-1" for="produccion_lotes[`+ num + `].numero_lote_izquierdo">
+                            <span class="float-right">Lote Izquierdo</span>
+                        </label>
+                        <div class="col-md-1">
+                            <input style="text-align:right" type="text" min="0" step="1" max="50000" name="produccion_lotes[`+ num + `].numero_lote_izquierdo" id="produccion_lotes[` + num + `].lote_izquierdo" class="form-control col-md-12 entero" value="" autocomplete="off">
+                            <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[` + num + `].numero_lote_izquierdo" data-valmsg-replace="true"></span>
+                        </div>
+                        <label class="control-label col-md-1" for="produccion_lotes[`+ num + `].numero_lote_derecho">
+                            <span class="float-right">Lote Derecho</span>
+                        </label>
+                        <div class="col-md-1">
+                            <input type="text" min="0" step="1" max="50000" name="produccion_lotes[`+ num + `].numero_lote_derecho" id="produccion_lotes[` + num + `].lote_derecho" class="form-control col-md-12 entero" value="" autocomplete="off">
+                            <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[` + num + `].numero_lote_derecho" data-valmsg-replace="true"></span>
+                        </div>
+                        <label class="control-label col-md-1" for="produccion_lotes[`+ num + `].piezas_paquete">
+                                <span class="float-right">Piezas por paquete</span>
+                        </label>
+                        <div class="col-md-1">
+                            <input type="text" min="0" step="1" max="5000" name="produccion_lotes[`+ num + `].piezas_paquete" id="produccion_lotes[` + num + `].piezas_paquete" class="form-control col-md-12 total_piezas entero" value="" maxlength="10" autocomplete="off" required>
+                                <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[` + num + `].piezas_paquete" data-valmsg-replace="true"></span>
+                            </div>
+                        <div class="col-md-1">
+                            <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarLote(` + num + `); return false;">
+                        </div>
+        </div>
                                                                 `
     );
     $("#div_lotes_" + num).hide().fadeIn(500);
-    num++;
+   
+
+    // Initialize Select2 Elements (debe ir después de asignar el valor)
+    $('.select2bs4').select2({
+        theme: 'bootstrap4'
+    })
+
+    //aplica el evento a los combos de material
+    $("#combo_material_" + num).change(function () {
+
+        ActualizaMateriales();
+
+    });
+
+
+    //carga input mask
+    $('.entero').inputmask({ 'alias': 'integer', 'autoGroup': true, 'autoUnmask': true, 'removeMaskOnSubmit': true });
 
 
     //vuelve a asigar el evento on a cada input de los lotes
@@ -519,9 +554,75 @@ function AgregarConcepto() {
         });
     });
 
-
+    ActualizaMateriales();
     AsignaNumeroLote();
+
+    num++;
 }
+
+function AplicaEventsMaterial() {
+    //cuando hay cambio de material
+
+    //vuelve a asigar el evento on a cada input de los lotes
+    $('.combo-material').each(function () {
+
+        //importante elimina todos los ecventos asociados a este input, para evitar que el método de evento se ejqcute varias veces
+        //$(this).unbind();
+
+        //asocia un nuevo evento
+        $(this).change(function () {
+
+            ActualizaMateriales();
+
+        });
+
+    });
+}
+
+//Actualiza Inputs y texts de Materiales
+function ActualizaMateriales() {
+
+
+    //vuelve a asigar el evento on a cada input de los lotes
+    $('.combo-material').each(function () {
+
+        let row = $(this).attr("data-row");
+        let selectedIndex = $(this)[0].selectedIndex;
+
+        let sap1 = $("#sap_platina").val();
+
+        var sap2 = $("#produccion_datos_entrada_sap_platina_2 option:selected").val();
+
+        //si material esta vacia
+        if (sap2 == "") {
+            sap2 == "NO DISPONIBLE";
+        }
+        else {
+            sap2 == $("#produccion_datos_entrada_sap_platina_2 option:selected").text();
+        }
+
+        if (!isNaN(row))            
+        switch (selectedIndex) {
+            case 1:
+                document.getElementById("produccion_lotes[" + row + "].sap_platina").value = sap1;
+                break;
+            case 2:
+                document.getElementById("produccion_lotes[" + row + "].sap_platina").value = sap2;
+                break;
+            default:
+                document.getElementById("produccion_lotes[" + row + "].sap_platina").value = "NO DISPONIBLE";
+                break;
+        }
+
+    });
+
+    //// Initialize Select2 Elements (debe ir después de asignar el valor)
+    //$('.select2bs4').select2({
+    //    theme: 'bootstrap4'
+    //})
+
+}
+
 
 //borra un lote
 function borrarLote(id) {

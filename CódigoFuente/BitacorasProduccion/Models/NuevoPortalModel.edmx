@@ -1138,6 +1138,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_historico_resultado' no 
           <Property Name="Operador" Type="nvarchar" MaxLength="767" />
           <Property Name="Supervisor" Type="nvarchar" MaxLength="767" />
           <Property Name="SAP Platina" Type="nvarchar" MaxLength="255" />
+          <Property Name="SAP Platina 2" Type="varchar" MaxLength="30" />
           <Property Name="Tipo de Material" Type="nvarchar" MaxLength="255" />
           <Property Name="Número de Parte  de cliente" Type="nvarchar" MaxLength="255" />
           <Property Name="SAP Rollo" Type="nvarchar" MaxLength="255" />
@@ -2884,6 +2885,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
     [view_historico_resultado].[Operador] AS [Operador], 
     [view_historico_resultado].[Supervisor] AS [Supervisor], 
     [view_historico_resultado].[SAP Platina] AS [SAP Platina], 
+    [view_historico_resultado].[SAP Platina 2] AS [SAP Platina 2], 
     [view_historico_resultado].[Tipo de Material] AS [Tipo de Material], 
     [view_historico_resultado].[Número de Parte  de cliente] AS [Número de Parte  de cliente], 
     [view_historico_resultado].[SAP Rollo] AS [SAP Rollo], 
@@ -6051,6 +6053,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="Peso_puntas_y_colas_reales_Kg" Type="Double" />
           <Property Name="Balance_de_Scrap_Real" Type="Double" />
           <Property Name="comentario" Type="String" MaxLength="600" FixedLength="false" Unicode="false" />
+          <Property Name="SAP_Platina_2" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="log_acceso_email">
           <Key>
@@ -7965,6 +7968,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySetMapping Name="view_historico_resultado">
             <EntityTypeMapping TypeName="Portal_2_0Model.view_historico_resultado">
               <MappingFragment StoreEntitySet="view_historico_resultado">
+                <ScalarProperty Name="SAP_Platina_2" ColumnName="SAP Platina 2" />
                 <ScalarProperty Name="comentario" ColumnName="comentario" />
                 <ScalarProperty Name="Balance_de_Scrap_Real" ColumnName="Balance_de_Scrap_Real" />
                 <ScalarProperty Name="Peso_puntas_y_colas_reales_Kg" ColumnName="Peso puntas y colas reales_Kg" />

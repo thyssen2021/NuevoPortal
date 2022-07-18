@@ -16,6 +16,12 @@
     {
         clavePlanta = paginacionFiltros.ValoresQueryString["clave_planta"].ToString();
     }
+    string numero_parte = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["numero_parte"] != null)
+    {
+        numero_parte = paginacionFiltros.ValoresQueryString["numero_parte"].ToString();
+    }
+
     string idLinea = string.Empty;
     if (paginacionFiltros.ValoresQueryString["id_linea"] != null)
     {
@@ -145,7 +151,13 @@
                                             <div class="form-group row ">
                                                 <label class="control-label col-md-2 col-sm-2" for="linea">L&iacute;nea</label>
                                                 <div class="col-md-6 col-sm-6 ">
-                                                    @Html.DropDownList("id_linea", null, "-- Seleccione un valor --", htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                    @Html.DropDownList("id_linea", null, "-- Todas --", htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group row ">
+                                                <label class="control-label col-md-2 col-sm-2" for="linea">N&uacute;mero de Parte Cliente</label>
+                                                <div class="col-md-6 col-sm-6 ">
+                                                    @Html.DropDownList("numero_parte", null, "-- Todos --", htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                                 </div>
                                             </div>
 
@@ -516,6 +528,7 @@
                                                     fecha_final = filtroFechaFinal,
                                                     tipo_reporte = tipo_reporte,
                                                     fecha_turno = filtroFechaTurno,
+                                                    numero_parte = numero_parte,
                                                     turno = filtroTurno
 
                                                 })" class="btn btn-success btm-sm" target="_blank" title="Reporte">

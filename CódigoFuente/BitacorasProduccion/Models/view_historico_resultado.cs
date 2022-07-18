@@ -63,5 +63,6 @@ namespace Portal_2_0.Models
         public Nullable<double> Peso_puntas_y_colas_reales_Kg { get; set; }
         public Nullable<double> Balance_de_Scrap_Real { get; set; }
         public string comentario { get; set; }
+        public string SAP_Platina_2 { get; set; }
     }
 }
