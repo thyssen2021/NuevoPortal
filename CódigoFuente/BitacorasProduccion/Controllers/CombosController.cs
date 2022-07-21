@@ -310,6 +310,32 @@ namespace Portal_2_0.Controllers
 
             return Json(objeto, JsonRequestBehavior.AllowGet);
         }
+         ///<summary>
+        ///Obtiene datos de la Línea seleccionada
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        [AllowAnonymous]
+        public JsonResult InventoryLineDetails(int id = 0, int id_empleado = 0)
+        {
+
+            //obtiene todos los posibles valores
+            var itemList = db.IT_asignacion_hardware.Where(x=>x.es_asignacion_linea_actual && x.id_cellular_line ==id && x.id_empleado != id_empleado).ToList();
+
+            var objeto = new object[itemList.Count];
+
+            int i = 0;
+            //inicializa la lista de objetos
+            foreach (var item in itemList) {
+                objeto[i++] = new
+                {
+                    id_responsable = item.id_empleado,
+                    nombre_responsable = item.empleados.ConcatNombre
+                };
+            }           
+
+            return Json(objeto, JsonRequestBehavior.AllowGet);
+        }
 
         ///<summary>
         ///Obtiene si un usuario está registrado segun el email

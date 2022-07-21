@@ -392,6 +392,7 @@ namespace Portal_2_0.Controllers
                 //busca registro para saber si debe ser responsable actual (Sólo para cuando el hardware es diferente de accesorio) 
                 var asignacion_previa = db.IT_asignacion_hardware.FirstOrDefault(x =>
                     x.IT_asignacion_hardware_rel_items.Any(y => y.id_it_inventory_item == relItem.id_it_inventory_item)
+                    && relItem.id_it_inventory_item != null
                     && x.es_asignacion_actual == true
                     && x.id_responsable_principal == x.id_empleado);
 
@@ -952,7 +953,7 @@ namespace Portal_2_0.Controllers
                     recibe = item.empleados.ConcatNombre.ToUpper();
                 if (item.empleados.puesto1 != null)
                     recibe += "\n" + item.empleados.puesto1.descripcion.ToUpper();
-                if (item.empleados2.Area != null)
+                if (item.empleados.Area != null)
                     recibe += "\n" + item.empleados.Area.descripcion.ToUpper();
 
                 table.AddCell(new Cell().Add(new Paragraph(elaboro)

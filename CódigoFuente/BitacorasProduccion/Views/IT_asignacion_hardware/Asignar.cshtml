@@ -179,6 +179,9 @@
                                         @Html.DropDownList("id_cellular_line", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
                                         @Html.ValidationMessageFor(model => model.id_cellular_line, "", new { @class = "text-danger" })
                                     </div>
+                                    <div class="col-md-6 col-sm-6 ">
+                                        <button type="button" id="btn-warning-line" onclick="mostrarAdvertenciaLinea(); return false;" class="btn btn-warning btn-sm" style="display:none" title="Ver Detalles"> <i class="fa-solid fa-warning"></i></button>
+                                    </div>
                                 </div>
                             }
 
@@ -264,7 +267,7 @@
                                                         <option value="@item.id" @(itemRel.id_it_inventory_generico == item.id ? "selected" : null )>@item.ConcatInfoGeneral</option>
                                                     }
                                                 }
-                                              
+
                                             </select>
                                             <span class="field-validation-valid text-danger" data-valmsg-for="hardware_generico_@contador" data-valmsg-replace="true"></span>
                                         </div>
@@ -274,7 +277,7 @@
                                         <label id="label_comentario_@contador" class="control-label col-md-1" for="label_comentario_@contador">
                                             <span class="float-right">Comentario:</span>
                                         </label>
-                                        <div class="col-md-3 col-sm-3">
+                                        <div class="col-md-4 col-sm-4">
                                             <textarea class="form-control" name="comentario_@contador" id="comentario@contador" rows="3" cols="1" width="100%" maxlength="250">@itemRel.comments</textarea>
                                             <span class="field-validation-valid text-danger" data-valmsg-for="comentario_@contador" data-valmsg-replace="true"></span>
                                         </div>
@@ -347,6 +350,10 @@
     <!-- iCheck -->
     @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
     <script>
+        //variable global para el id
+        var num = 0;
+        var asignacionesLinea = []; 
+
         $(document).ready(function () {
             // Initialize Select2 Elements (debe ir después de asignar el valor)
             $('.select2bs4').select2({
@@ -438,6 +445,54 @@
             });
 
 
+            //comprueba si el combo de linea de celular ha sido cambiado
+            $("#id_cellular_line").change(function () {
+
+                //llamada ajax para obtener el detalle del item  seleccionado
+                $.ajax({
+                    type: 'POST',
+                    url: '/Combos/InventoryLineDetails',
+                    data: { id: $(this).val(), id_empleado: @Model.id_empleado },
+                    success: function (data) {
+                        try {
+                            let cantidad = data.length;
+                            //vacia el array
+                            asignacionesLinea = [];
+
+                            //completa la variable global con las asignaciones
+                            for (let i = 0; i < cantidad; i++){
+                                asignacionesLinea.push(data[i].nombre_responsable)
+                            }
+
+                            //desaparece button
+                            if (cantidad == 0) {                                
+                                $("#btn-warning-line").prop("disabled", true);
+                                $("#btn-warning-line").hide('explode', 400);
+                            }
+                            else {
+                                $("#btn-warning-line").prop("disabled", false);
+                                $("#btn-warning-line").show('explode', 350);
+
+                            }
+
+                        }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    async: false
+                });
+
+            });
+
+            //carga los responsables de la línea celular al cargar la página
+            $("#id_cellular_line").change();
+
         });
 
         function mostrarDetalles(contador) {
@@ -451,6 +506,26 @@
                 var id_cel = $("#hardware_generico_" + contador + " option:selected").val();
                 window.open('/IT_Inventory_items_genericos/Details/' + id_cel + '', 'popup', "width=" + screen.width * .80 + ",height=" + screen.height * .80 + "");
             }
+        }
+
+        function mostrarAdvertenciaLinea() {
+
+            let mensaje = `<p  style="text-align:justify">La Línea telefónica ya se encuentra actualmente asignada a los siguientes usuarios:</p>
+                                    <ul style="text-align:left">`
+            asignacionesLinea.forEach(function (elemento, indice, array) {
+                mensaje += `<li> ` + elemento + `</li>`
+            });
+
+            mensaje += `</ul>
+                        <p  style="text-align:justify">Si se desea continuar con la asignación, se considerará como una lína de teléfono compartida.</p>
+                        `
+
+
+            Swal.fire({
+                title: 'Advertencia',
+                html: mensaje,
+                confirmButtonText: 'Aceptar',
+            })
         }
 
             function verificaInfo(contador) {
