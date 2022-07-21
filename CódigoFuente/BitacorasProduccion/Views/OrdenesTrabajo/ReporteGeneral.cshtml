@@ -192,6 +192,12 @@
                                                     <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.id })" class="btn btn-secondary " title="Detalles">
                                                         <i class="fa fa-info-circle"></i>
                                                     </a>
+                                                    @if ( User.IsInRole(Clases.Util.TipoRoles.OT_ASIGNACION))
+                                                    {
+                                                        <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = item.id, redirect ="ReporteGeneral" })" class="btn btn-success " title="Editar">
+                                                            <i class="fa-regular fa-pen-to-square"></i>
+                                                        </a>
+                                                    }
                                                 </td>
                                                 <td>
                                                     @Html.DisplayFor(modelItem => item.id)

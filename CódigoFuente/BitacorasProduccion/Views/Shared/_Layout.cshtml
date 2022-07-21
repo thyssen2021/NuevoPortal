@@ -448,7 +448,7 @@
                                     @if (User.IsInRole(TipoRoles.OT_ASIGNACION) || User.IsInRole(TipoRoles.OT_REPORTE) || User.IsInRole(TipoRoles.OT_RESPONSABLE) || User.IsInRole(TipoRoles.OT_SOLICITUD) || User.IsInRole(TipoRoles.OT_CATALOGOS))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "orden_trabajo" ? "active" : null )">
-                                            <a><i class="fa fa-wrench"></i>&Oacute;rdenes de Trabajo<span class="fa fa-chevron-down"></span></a>
+                                            <a><i class="fa fa-screwdriver-wrench"></i>&Oacute;rdenes de Trabajo<span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu">
 
                                                 @if (User.IsInRole(TipoRoles.OT_SOLICITUD))

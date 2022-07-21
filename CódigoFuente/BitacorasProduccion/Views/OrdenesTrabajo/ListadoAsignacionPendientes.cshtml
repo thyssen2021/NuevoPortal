@@ -103,6 +103,9 @@
                                                     <a href="@Url.Action("Asignar", ViewBag.ControllerName, new { id = item.id })" class="btn btn-success boton-verde" title="Asignar">
                                                         <i class="fa fa-user-tag"></i>
                                                     </a>
+                                                    <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = item.id, redirect ="ListadoAsignacionPendientes" })" class="btn btn-success " title="Editar">
+                                                        <i class="fa-regular fa-pen-to-square"></i>
+                                                    </a>
                                                     <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.id })" class="btn btn-secondary " title="Detalles">
                                                         <i class="fa fa-info-circle"></i>
                                                     </a>

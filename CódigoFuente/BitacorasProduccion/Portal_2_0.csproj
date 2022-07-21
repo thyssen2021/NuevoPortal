@@ -7134,6 +7134,7 @@
     <Content Include="Views\IT_inventory_items_genericos\Index.cshtml" />
     <Content Include="Views\IT_inventory_items_genericos\Enable.cshtml" />
     <Content Include="Views\IT_inventory_items_genericos\Disable.cshtml" />
+    <Content Include="Views\OrdenesTrabajo\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
