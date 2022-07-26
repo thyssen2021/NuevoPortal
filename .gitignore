@@ -73,3 +73,5 @@ _[Ss]cripts
 *.nupkg
 *.ncrunchsolution
 *.dot[Cc]over
+/CódigoFuente/.vs/Portal_2_0/FileContentIndex/read.lock
+/CódigoFuente/.vs/Portal_2_0/FileContentIndex
