@@ -329,13 +329,13 @@
 
                             @if (Model.IT_asignacion_software.Count > 0)
                             {
-                                <table id="datatable_3" class="table datatable table-bordered nowrap" cellspacing="0" width="100%">
+                                <table id="datatable_30" class="table datatable table-bordered nowrap" cellspacing="0" width="100%">
                                     <thead>
                                         <tr>
                                             <th width="1%">#</th>
                                             <th>Software</th>
                                             <th>
-                                                Versi&oacute;n
+                                                Usuario
                                             </th>
                                             <th>
                                                 Asign&oacute;
@@ -351,14 +351,7 @@
                                                     @Html.DisplayFor(model => sw.IT_inventory_software.descripcion)
                                                 </th>
                                                 <td>
-                                                    @if (sw.id_inventory_software_version.HasValue)
-                                                    {
-                                                        <span>@sw.IT_inventory_software_versions.version</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span>N/A</span>
-                                                    }
+                                                    @Html.DisplayFor(model => sw.usuario)
 
                                                 </td>
                                                 <td>
@@ -379,8 +372,14 @@
                                 <p>&emsp; No hay asignaciones disponibles.</p>
                             }
 
+                            <div class="col-md-12 col-sm-12">
+                                <a href="@Url.Action( "Asignar", "IT_asignacion_software", new { id_empleado = Model.id})" class="btn btn-success">
+                                    <i class="fa-solid fa-code"></i> Asignar Software
+                                </a>
+                            </div>
                         </div>
                         <div class="ln_solid"></div>
+
 
                         <div class="form-group row">
                             <span style="color:black"><b>&ensp; L&Iacute;NEAS DE CELULAR ASIGNADAS </b></span>
@@ -438,10 +437,10 @@
                             }
 
                             @*<div class="col-md-12 col-sm-12">
-                                    <a href="@Url.Action( "Asignar", "IT_asignacion_cellular_line", new { id_empleado = Model.id})" class="btn btn-success">
-                                        <i class="fa-solid fa-phone-flip"></i> Asignar L&iacute;nea Celular
-                                    </a>
-                                </div>*@
+                <a href="@Url.Action( "Asignar", "IT_asignacion_cellular_line", new { id_empleado = Model.id})" class="btn btn-success">
+                    <i class="fa-solid fa-phone-flip"></i> Asignar L&iacute;nea Celular
+                </a>
+            </div>*@
                         </div>
                         <div class="ln_solid"></div>
 

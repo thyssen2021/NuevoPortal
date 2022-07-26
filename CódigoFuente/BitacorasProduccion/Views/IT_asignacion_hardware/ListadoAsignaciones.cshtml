@@ -368,13 +368,13 @@
 
                             @if (Model.IT_asignacion_software.Count > 0)
                             {
-                                <table id="datatable_3" class="table datatable table-bordered nowrap" cellspacing="0" width="100%">
+                                <table id="datatable_30" class="table datatable table-bordered nowrap" cellspacing="0" width="100%">
                                     <thead>
                                         <tr>
                                             <th width="1%">#</th>
                                             <th>Software</th>
                                             <th>
-                                                Versi&oacute;n
+                                                Usuario
                                             </th>
                                             <th>
                                                 Asign&oacute;
@@ -390,14 +390,7 @@
                                                     @Html.DisplayFor(model => sw.IT_inventory_software.descripcion)
                                                 </th>
                                                 <td>
-                                                    @if (sw.id_inventory_software_version.HasValue)
-                                                    {
-                                                        <span>@sw.IT_inventory_software_versions.version</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span>N/A</span>
-                                                    }
+                                                    @Html.DisplayFor(model => sw.usuario)
 
                                                 </td>
                                                 <td>
@@ -553,7 +546,6 @@
         });
 
         function showDialogDeshabilitarLinea(texto="", id, id_empleado) {
-
            
             Swal.fire({
                 title: 'Confirmación',

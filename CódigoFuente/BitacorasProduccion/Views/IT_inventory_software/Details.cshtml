@@ -34,64 +34,34 @@
                     <div class="x_content">
                         @*Indica que los mensajes de validación son en ingles*@
                         <input type="hidden" id="jquery_val_english" name="jquery_val_english" value="true" />
-                      
 
-                            <div class="form-group row">
-                                <span style="color:black"><b>GENERAL INFORMATION</b></span>
+
+                        <div class="form-group row">
+                            <span style="color:black"><b>GENERAL INFORMATION</b></span>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.descripcion, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-5 col-sm-5 ">
+                                @Html.EditorFor(model => model.descripcion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
                             </div>
-                            <div class="item form-group">
-
-                                @Html.LabelFor(model => model.descripcion, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
-                                <div class="col-md-3 col-sm-3 ">
-                                    @Html.EditorFor(model => model.descripcion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly="readonly" } })
-                                    @Html.ValidationMessageFor(model => model.descripcion, "", new { @class = "text-danger" })
-                                </div>
-                                @Html.LabelFor(model => model.activo, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-3 col-sm-3 ">
-                                    @Html.EditorFor(model => model.activo, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @disabled = "disabled" } })
-                                    @Html.ValidationMessageFor(model => model.activo, "", new { @class = "text-danger" })
-                                </div>
-
+                        </div>
+                        <div class="item form-group">                           
+                            @Html.LabelFor(model => model.activo, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-3 col-sm-3 ">
+                                @Html.EditorFor(model => model.activo, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @disabled = "disabled" } })
                             </div>
+                        </div>
 
-                            <div class="ln_solid"></div>
-                            <div class="form-group row">
-                                <span style="color:black"><b>VERSIONS</b></span>
-                            </div>
-                            <div id="div_versions">
 
-                                @foreach (Portal_2_0.Models.IT_inventory_software_versions item in Model.IT_inventory_software_versions)
-                                {
-
-                                    <div class="form-group row" >
-                                        <input type="hidden"  value="@item.id" />
-                                        <label class="control-label col-md-2" >
-                                            <span class="float-right">Version:</span>
-                                        </label>
-                                        <div class="col-md-5">
-                                            <input type="text" style="text-transform: uppercase; " onkeyup="javascript:this.value=this.value.toUpperCase();" maxlength="50"  class="form-control col-md-12" value="@item.version" autocomplete="off" readonly>       
-                                        </div>
-                                        <label class="control-label col-md-1" >
-                                            <span class="float-right">Active?:</span>
-                                        </label>
-                                        <div class="col-md-1">
-                                            <input type="checkbox" class="form-control" value="true" @(item.activo ? "checked" : String.Empty) disabled>
-                                        </div>
-                                      
-                                    </div>
-
-                                  
-                                }
-                            </div>
-                            <div>
-                                <hr />
-                                <a href="@Url.Action("index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm float-right" title="Volver">
-                                    <i class="fa fa-arrow-circle-left"></i> Volver al listado
-                                </a>
-                            </div>                        
+                        <div>
+                            <hr />
+                            <a href="@Url.Action("index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm float-right" title="Volver">
+                                <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                            </a>
+                        </div>
                     </div>
                 </div>
-               
+
             </div>
         </div>
     </div>
@@ -118,7 +88,7 @@
             });
 
         });
-               
+
 
         window.onload = function () {
             clicMenu(1);

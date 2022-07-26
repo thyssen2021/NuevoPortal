@@ -101,7 +101,7 @@
                                                         @if (ViewBag.CambioEstatus != null && ViewBag.CambioEstatus)
                                                         {
                                                             <a href="@Url.Action("CambiarEstatus", ViewBag.ControllerName, new { id = item.id })" class="btn btn-success" title="Cambiar Estatus">
-                                                                <i class="fa-solid fa-square-check" ></i>
+                                                                <i class="fa-solid fa-square-check"></i>
                                                             </a>
                                                         }
                                                         @if (ViewBag.Cerrar != null && ViewBag.Cerrar)
@@ -116,7 +116,12 @@
                                                                 <i class="fa fa-info-circle"></i>
                                                             </a>
                                                         }
-
+                                                        @if (item.estatus == Bitacoras.Util.OT_Status.CERRADO && User.IsInRole(Clases.Util.TipoRoles.OT_ASIGNACION))
+                                                        {
+                                                            <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = item.id, redirect ="ListadoResponsableTerminadas" })" class="btn btn-success " title="Editar">
+                                                                <i class="fa-regular fa-pen-to-square"></i>
+                                                            </a>
+                                                        }
 
                                                     </td>
                                                     <td>

@@ -324,6 +324,40 @@ namespace Portal_2_0.Models
 
             }
         } 
+     
+        [NotMapped]
+        public string ConcatInfoSearch
+        {
+            get
+            {
+                //string info = "(" + id + ") ";
+                string info = String.Empty;
+                try
+                {
+                    if (this.IT_inventory_hardware_type!= null && !string.IsNullOrEmpty(this.IT_inventory_hardware_type.descripcion))
+                        info += "[" + this.IT_inventory_hardware_type.descripcion + "] - ";
+                    if (!string.IsNullOrEmpty(this.hostname))
+                        info += "(" + hostname + ") - ";
+                    if (this.IT_inventory_tipos_accesorios!=null && !string.IsNullOrEmpty(this.IT_inventory_tipos_accesorios.descripcion))
+                        info += "(" + this.IT_inventory_tipos_accesorios.descripcion + ") - ";
+                    if (this.plantas != null)
+                        info += plantas.descripcion + " ";
+                    if (!string.IsNullOrEmpty(this.brand))
+                        info += " - " + brand + " ";
+                    if (!string.IsNullOrEmpty(this.model))
+                        info += " - " + model + " ";
+                    if (!string.IsNullOrEmpty(this.serial_number))
+                        info += " - " + serial_number + " ";
+
+                    return info;
+                }
+                catch
+                {
+                    return info;
+                }
+
+            }
+        } 
         
         [NotMapped]
         public string ConcatAccesoriesInfo

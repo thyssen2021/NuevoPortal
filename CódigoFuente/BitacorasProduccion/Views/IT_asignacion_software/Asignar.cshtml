@@ -7,7 +7,6 @@
     ViewBag.ControllerName = "IT_asignacion_software";
 
     List<Portal_2_0.Models.IT_inventory_software> listadoSoftware = (List<Portal_2_0.Models.IT_inventory_software>)ViewBag.ListadoSoftware;
-    List<Portal_2_0.Models.IT_inventory_software_versions> listadoSoftwareVersiones = (List<Portal_2_0.Models.IT_inventory_software_versions>)ViewBag.ListadoSoftwareVersiones;
 
     int contador = 100;
 }
@@ -18,6 +17,28 @@
     <!-- Select2 -->
     <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <style>
+
+        dl {
+            border: 3px double #ccc;
+            padding: 0.5em;
+            background-color: #fffdf0
+        }
+
+        dt {
+            font-weight: bold;
+            color: green;
+        }
+
+        dd {
+            font-weight: bold;
+            color: #454545;
+        }
+
+        dt::after {
+            content: ":";
+        }
+    </style>
 }
 
 <div class="right_col" role="main">
@@ -33,7 +54,49 @@
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
+                        <div class="form-group row">
+                            <span style="color:black"><b>DATOS DEL EMPLEADO</b></span>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box ">
 
+                                    <dl class="row">
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.EmpleadoUsuario.nombre)</dt>
+                                        <dd class="col-sm-6">@Html.DisplayFor(model => model.EmpleadoUsuario.ConcatNombre)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.EmpleadoUsuario.numeroEmpleado)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.EmpleadoUsuario.numeroEmpleado)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.EmpleadoUsuario.C8ID)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.EmpleadoUsuario.C8ID)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.EmpleadoUsuario.correo)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.EmpleadoUsuario.correo)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.EmpleadoUsuario.planta_clave)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.EmpleadoUsuario.plantas.descripcion)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.EmpleadoUsuario.id_area)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.EmpleadoUsuario.Area.descripcion)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.EmpleadoUsuario.puesto)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.EmpleadoUsuario.puesto1.descripcion)</dd>
+                                        @foreach (var linea in Model.EmpleadoUsuario.GetIT_Inventory_Cellular_LinesActivas())
+                                        {
+                                            <dt class="col-sm-2">@Html.DisplayNameFor(model => linea.numero_celular)</dt>
+                                            <dd class="col-sm-2">@Html.DisplayFor(model => linea.numero_celular)</dd>
+                                        }
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.EmpleadoUsuario.activo)</dt>
+                                        <dd class="col-sm-2">
+                                            @if (Model.EmpleadoUsuario.activo.HasValue && Model.EmpleadoUsuario.activo.Value)
+                                            {
+                                                <span>Activo</span>
+                                            }
+                                            else
+                                            {
+                                                <span>Inactivo</span>
+                                            }
+                                        </dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ln_solid"></div>
 
                         @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-horizontal form-label-left", @id = "formulario" }))
                         {
@@ -90,20 +153,12 @@
                                             </select>
                                             <span class="field-validation-valid text-danger" data-valmsg-for="software_@contador" data-valmsg-replace="true"></span>
                                         </div>
-                                        <label class="control-label col-md-1" for="version_@contador">
-                                            <span class="float-right">Versi&oacute;n</span>
+                                        <label class="control-label col-md-1" for="usuario_@contador">
+                                            <span class="float-right">Usuario</span>
                                         </label>
-                                        <div class="col-md-4">
-                                            <select name="version_@contador" id="version_@contador" data-version="@contador" class="form-control select2bs4" style="width:100%">
-                                                <option value=''>-- N/A --</option>
-                                                @foreach (var item in listadoSoftwareVersiones)
-                                                {
-                                                    if (item.id_inventory_software==itemSoftware.id_inventory_software) {
-                                                    <option value="@item.id" @(itemSoftware.id_inventory_software_version == item.id ? "selected" : null )>@item.version</option>
-                                                    }
-                                                }
-                                            </select>
-                                            <span class="field-validation-valid text-danger" data-valmsg-for="version_@contador" data-valmsg-replace="true"></span>
+                                        <div class="col-md-3">
+                                           <input class="form-control" type="text" name="usuario_@contador" id="usuario_@contador" maxlength="40" value="@itemSoftware.usuario" autocomplete="off"/>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="usuario_@contador" data-valmsg-replace="true"></span>
                                         </div>
                                         <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarPieza(@contador); return false;">
                                     </div>
@@ -150,15 +205,13 @@
     @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
 
-    <script>
+<script>
         $(document).ready(function () {
             // Initialize Select2 Elements (debe ir después de asignar el valor)
             $('.select2bs4').select2({
                 theme: 'bootstrap4'
             })
 
-            AsignarEvents();
-            
         });
 
         //variable global para el id
@@ -166,49 +219,6 @@
         //variable global de los select
         var textoSelectSoftware = obtieneSelectSoftware();
 
-        function CargaValoresDefault() {
-            //vuelve a asigar el evento on a cada input de los lotes
-            $('.software').each(function () {
-
-                var row = $(this).attr("data-row");
-
-                $.ajax({
-                    type: 'POST',
-                    url: '/Combos/GetSoftwareVersion',
-                    data: { id_inventory_software: $(this).val() },
-                    success: function (data) {
-                        populateDropdown($("#version_" + row), data);
-                    },
-                    async: true
-                });
-
-
-            });
-        }
-
-        function AsignarEvents() {
-
-            //vuelve a asigar el evento on a cada input de los lotes
-            $('.software').each(function () {
-
-
-                $(this).change(function () {
-
-                    var row = $(this).attr("data-row");
-
-                    $.ajax({
-                        type: 'POST',
-                        url: '/Combos/GetSoftwareVersion',
-                        data: { id_inventory_software: $(this).val() },
-                        success: function (data) {
-                            populateDropdown($("#version_" + row), data);
-                        },
-                        async: true
-                    });
-                });
-
-            });
-        }
 
         //agreaga una fila para lotes
         function AgregarConcepto() {
@@ -218,28 +228,26 @@
             $("#div_software").append(
 
                 `
-                    <div class="form-group row" id="div_software_`+ num + `">
-                            <label class="control-label col-md-1" for="software_` + num + `">
-                                <span class="float-right">Software</span>
-                            </label>
-                            <div class="col-md-4">
-                                <select name="software_`+ num + `" id="software_` + num + `" data-row="` + num + `" class="software form-control select2bs4" style="width:100%" required>
-                                    `+ textoSelectSoftware + `
-                                </select>
-                                <span class="field-validation-valid text-danger" data-valmsg-for="software_` + num + `" data-valmsg-replace="true"></span>
-                            </div>
-                            <label class="control-label col-md-1" for="version_` + num + `">
-                                <span class="float-right">Versión</span>
-                            </label>
-                                <div class="col-md-4">
-                                <select name="version_`+ num + `" id="version_` + num + `"  class="form-control select2bs4" style="width:100%">
-                                    <option value=''>-- N/A --</option>
-                                    </select>
-                                <span class="field-validation-valid text-danger" data-valmsg-for="version_` + num + `" data-valmsg-replace="true"></span>
-                            </div>
-                            <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarPieza(`+ num + `); return false;">
-                    </div>
-                    `
+                                <div class="form-group row" id="div_software_`+ num + `">
+                                        <label class="control-label col-md-1" for="software_` + num + `">
+                                            <span class="float-right">Software</span>
+                                        </label>
+                                        <div class="col-md-4">
+                                            <select name="software_`+ num + `" id="software_` + num + `" data-row="` + num + `" class="software form-control select2bs4" style="width:100%" required>
+                                                `+ textoSelectSoftware + `
+                                            </select>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="software_` + num + `" data-valmsg-replace="true"></span>
+                                        </div>
+                                           <label class="control-label col-md-1" for="usuario_`+ num + `">
+                                            <span class="float-right">Usuario</span>
+                                        </label>
+                                        <div class="col-md-3">
+                                           <input class="form-control" type="text" name="usuario_`+ num + `" id="usuario_` + num + `" maxlength="40" autocomplete="off"/>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="usuario_`+ num + `" data-valmsg-replace="true"></span>
+                                        </div>
+                                        <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarPieza(`+ num + `); return false;">
+                                </div>
+                                `
             );
             $("#div_software_" + num).hide().fadeIn(500);
 
@@ -250,7 +258,6 @@
                 theme: 'bootstrap4'
             })
 
-            AsignarEvents();
 
             // Initialize Select2 Elements (debe ir después de asignar el valor)
             $('.select2bs4').select2({
@@ -288,17 +295,10 @@
         }
 
 
-        //completa el selec con los datos recibidos
-        function populateDropdown(select, data) {
-            select.html('');
-            $.each(data, function (id, option) {
-                select.append($('<option></option>').val(option.value).html(option.name));
-            });
-        }
 
         window.onload = function () {
             clicMenu(1);
         }
-    </script>
+</script>
 }
 

@@ -31,7 +31,7 @@ namespace Portal_2_0.Controllers
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
         // GET: IT_asignacion_hardware
-        public ActionResult Index(string nombre, string num_empleado, int planta_clave = 0, int pagina = 1)
+        public ActionResult Index(int? id_empleado, int? id_area, int? planta_clave, int id_cellular_line = 0, int id_asignacion_usuario = 0, int id_software = 0, int id_it_inventory_item = 0, int pagina = 1)
         {
             if (!TieneRol(TipoRoles.IT_ASIGNACION_HARDWARE))
                 return View("../Home/ErrorPermisos");
@@ -44,32 +44,79 @@ namespace Portal_2_0.Controllers
 
             var cantidadRegistrosPorPagina = 20; // parámetro
 
+            //obtiene el inventory item
+            IT_inventory_items item = db.IT_inventory_items.Find(id_it_inventory_item);
+            List<int> idAsignadosHardware = new List<int>();
+
+            if (item != null)
+            {
+                List<IT_asignacion_hardware_rel_items> rels = item.IT_asignacion_hardware_rel_items.ToList();
+                idAsignadosHardware = rels.Where(x => x.IT_asignacion_hardware.es_asignacion_actual).Select(x => x.IT_asignacion_hardware.id_empleado).ToList();
+            }
+
+            //obtiene el software
+            IT_inventory_software sw = db.IT_inventory_software.Find(id_software);
+            List<int> idAsignadosSoftware = new List<int>();
+            if (sw != null)
+            {
+                List<IT_asignacion_software> rels = sw.IT_asignacion_software.ToList();
+                idAsignadosSoftware = rels.Select(x => x.id_empleado).ToList();
+            }
+
+            //obtiene los ids de empleados que tienen determinado usuario
+            IT_asignacion_software swUsuario = db.IT_asignacion_software.Find(id_asignacion_usuario);
+            List<int> idAsignadosUsuarios = new List<int>();
+            if (swUsuario != null)
+                idAsignadosUsuarios.Add(swUsuario.id_empleado);
+
+            //obtiene la línea de telefonía
+            IT_inventory_cellular_line line = db.IT_inventory_cellular_line.Find(id_cellular_line);
+            List<int> idAsignadosLineas = new List<int>();
+            if (line != null)
+            {
+                List<IT_asignacion_hardware> rels = line.IT_asignacion_hardware.ToList();
+                idAsignadosLineas = rels.Select(x => x.id_empleado).ToList();
+            }
+
+
             var listado = db.empleados
                    .Where(x =>
-                   ((x.nombre + " " + x.apellido1 + " " + x.apellido2).Contains(nombre) || String.IsNullOrEmpty(nombre))
-                   && (x.numeroEmpleado.Contains(num_empleado) || String.IsNullOrEmpty(num_empleado))
-                   && (x.planta_clave == planta_clave || planta_clave == 0)
-                   && x.activo == true
+                       (x.id == id_empleado || id_empleado == null)
+                       && (x.planta_clave == planta_clave || planta_clave == null)
+                       && (x.id_area == id_area || id_area == null)
+                       && (idAsignadosHardware.Contains(x.id) || id_it_inventory_item == 0)
+                       && (idAsignadosSoftware.Contains(x.id) || id_software == 0)
+                       && (idAsignadosUsuarios.Contains(x.id) || id_asignacion_usuario == 0)
+                       && (idAsignadosLineas.Contains(x.id) || id_cellular_line == 0)
+                   // && x.activo == true
                    )
                    .OrderBy(x => x.id)
                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                   .Take(cantidadRegistrosPorPagina).ToList();
 
             var totalDeRegistros = db.empleados
-                  .Where(x =>
-                    ((x.nombre + " " + x.apellido1 + " " + x.apellido2).Contains(nombre) || String.IsNullOrEmpty(nombre))
-                      && (x.numeroEmpleado.Contains(num_empleado) || String.IsNullOrEmpty(num_empleado))
-                   && (x.planta_clave == planta_clave || planta_clave == 0)
-                   && x.activo == true
+                    .Where(x =>
+                       (x.id == id_empleado || id_empleado == null)
+                       && (x.planta_clave == planta_clave || planta_clave == null)
+                       && (x.id_area == id_area || id_area == null)
+                       && (idAsignadosHardware.Contains(x.id) || id_it_inventory_item == 0)
+                       && (idAsignadosSoftware.Contains(x.id) || id_software == 0)
+                       && (idAsignadosUsuarios.Contains(x.id) || id_asignacion_usuario == 0)
+                       && (idAsignadosLineas.Contains(x.id) || id_cellular_line == 0)
+                   // && x.activo == true
                    )
                 .Count();
 
             //para paginación
-
             System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
-            routeValues["nombre"] = nombre;
             routeValues["planta_clave"] = planta_clave;
-            routeValues["num_empleado"] = num_empleado;
+            routeValues["id_empleado"] = id_empleado;
+            routeValues["id_area"] = id_area;
+            routeValues["planta_clave"] = planta_clave;
+            routeValues["id_cellular_line"] = id_cellular_line;
+            routeValues["id_asignacion_usuario"] = id_asignacion_usuario;
+            routeValues["id_software"] = id_software;
+            routeValues["id_it_inventory_item"] = id_it_inventory_item;
 
             Paginacion paginacion = new Paginacion
             {
@@ -80,6 +127,93 @@ namespace Portal_2_0.Controllers
             };
 
             ViewBag.planta_clave = AddFirstItem(new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion", planta_clave.ToString()), textoPorDefecto: "-- Todas --");
+            ViewBag.id_area = AddFirstItem(new SelectList(db.Area.Where(x => x.plantaClave == planta_clave), "clave", "descripcion", id_area.ToString()), textoPorDefecto: "-- Seleccione un valor --");
+            ViewBag.id_empleado = AddFirstItem(new SelectList(db.empleados, "id", "ConcatNumEmpleadoNombre"), selected: id_empleado.ToString(), textoPorDefecto: "-- Todos --");
+            ViewBag.id_it_inventory_item = AddFirstItem(new SelectList(db.IT_inventory_items.OrderBy(x => x.id_inventory_type), "id", "ConcatInfoSearch"), selected: id_it_inventory_item.ToString(), textoPorDefecto: "-- Todos --");
+            ViewBag.id_software = AddFirstItem(new SelectList(db.IT_inventory_software.OrderBy(x => x.descripcion), "id", "descripcion"), selected: id_software.ToString(), textoPorDefecto: "-- Todos --");
+            ViewBag.id_asignacion_usuario = AddFirstItem(new SelectList(db.IT_asignacion_software.Where(x => !String.IsNullOrEmpty(x.usuario)), "id", "ConcatSearch"), selected: id_asignacion_usuario.ToString(), textoPorDefecto: "-- Todos --");
+            ViewBag.id_cellular_line = AddFirstItem(new SelectList(db.IT_inventory_cellular_line, "id", "ConcatDetalles"), textoPorDefecto: "-- Todas --", selected: id_cellular_line.ToString());
+
+            ViewBag.Paginacion = paginacion;
+
+            return View(listado);
+        }
+
+        // GET: IT_asignacion_hardware
+        public ActionResult responsivas(int? id_empleado, int? planta_clave, int? id_tipo_hardware, bool? estatus_responsiva, bool? asignacion_actual, int pagina = 1)
+        {
+            if (!TieneRol(TipoRoles.IT_ASIGNACION_HARDWARE))
+                return View("../Home/ErrorPermisos");
+
+            //mensaje en caso de crear, editar, etc
+            if (TempData["Mensaje"] != null)
+            {
+                ViewBag.MensajeAlert = TempData["Mensaje"];
+            }
+
+            var cantidadRegistrosPorPagina = 20; // parámetro
+
+
+            var listado = db.IT_asignacion_hardware_rel_items
+                   .Where(x =>
+                       (x.IT_asignacion_hardware.id_empleado == id_empleado || id_empleado == null)
+                       && (x.IT_asignacion_hardware.empleados.plantas.clave == planta_clave || planta_clave == null)
+                       && (estatus_responsiva ==null ||(x.IT_asignacion_hardware.id_biblioteca_digital.HasValue && estatus_responsiva.Value) || (!x.IT_asignacion_hardware.id_biblioteca_digital.HasValue && !estatus_responsiva.Value) )
+                       && (asignacion_actual == null || (x.IT_asignacion_hardware.es_asignacion_actual == asignacion_actual))
+                        && ((x.IT_inventory_items != null && x.IT_inventory_items.IT_inventory_hardware_type.id == id_tipo_hardware)
+                       || (x.IT_inventory_items_genericos != null && x.IT_inventory_items_genericos.IT_inventory_hardware_type.id == id_tipo_hardware) || id_tipo_hardware == null)
+                   // && x.activo == true
+                   )
+                   .OrderBy(x => x.id)
+                   .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                  .Take(cantidadRegistrosPorPagina).ToList();
+
+            var totalDeRegistros = db.IT_asignacion_hardware_rel_items
+                      .Where(x =>
+                       (x.IT_asignacion_hardware.id_empleado == id_empleado || id_empleado == null)
+                       && (x.IT_asignacion_hardware.empleados.plantas.clave == planta_clave || planta_clave == null)
+                       && (estatus_responsiva == null || (x.IT_asignacion_hardware.id_biblioteca_digital.HasValue && estatus_responsiva.Value) || (!x.IT_asignacion_hardware.id_biblioteca_digital.HasValue && !estatus_responsiva.Value))
+                       && (asignacion_actual == null || (x.IT_asignacion_hardware.es_asignacion_actual == asignacion_actual))
+                        && ((x.IT_inventory_items != null && x.IT_inventory_items.IT_inventory_hardware_type.id == id_tipo_hardware)
+                       || (x.IT_inventory_items_genericos != null && x.IT_inventory_items_genericos.IT_inventory_hardware_type.id == id_tipo_hardware) || id_tipo_hardware == null)
+                   // && x.activo == true
+                   )
+                .Count();
+
+            //para paginación
+            System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+            routeValues["planta_clave"] = planta_clave;
+            routeValues["id_empleado"] = id_empleado;
+            routeValues["id_tipo_hardware"] = id_tipo_hardware;
+            routeValues["estatus_responsiva"] = estatus_responsiva;
+             routeValues["asignacion_actual"] = asignacion_actual;
+
+            Paginacion paginacion = new Paginacion
+            {
+                PaginaActual = pagina,
+                TotalDeRegistros = totalDeRegistros,
+                RegistrosPorPagina = cantidadRegistrosPorPagina,
+                ValoresQueryString = routeValues
+            };
+
+            //select list para responsiva
+            List<SelectListItem> newListStatusResponsiva = new List<SelectListItem>();
+            newListStatusResponsiva.Add(new SelectListItem(){Text ="Subida",Value = "true"});
+            newListStatusResponsiva.Add(new SelectListItem() { Text = "Pendiente", Value = "false" });
+            SelectList selectListStatusResponsiva = new SelectList(newListStatusResponsiva, "Value", "Text");
+            
+            //select list para asignacion actual
+            List<SelectListItem> newListAsignacionActual = new List<SelectListItem>();
+            newListAsignacionActual.Add(new SelectListItem(){Text ="Sí",Value = "true"});
+            newListAsignacionActual.Add(new SelectListItem() { Text = "No", Value = "false" });
+            SelectList selectListAsignacionActual = new SelectList(newListAsignacionActual, "Value", "Text");
+
+            ViewBag.estatus_responsiva = AddFirstItem(selectListStatusResponsiva,selected: estatus_responsiva.ToString(), textoPorDefecto: "-- Todos --");
+            ViewBag.asignacion_actual = AddFirstItem(selectListAsignacionActual, selected: asignacion_actual.ToString(), textoPorDefecto: "-- Todos --");
+            ViewBag.planta_clave = AddFirstItem(new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion", planta_clave.ToString()), textoPorDefecto: "-- Todas --");
+            ViewBag.id_empleado = AddFirstItem(new SelectList(db.empleados.Where(x=> x.planta_clave == planta_clave || planta_clave==null), "id", "ConcatNumEmpleadoNombre"), selected: id_empleado.ToString(), textoPorDefecto: "-- Todos --");
+            ViewBag.id_tipo_hardware = AddFirstItem(new SelectList(db.IT_inventory_hardware_type, "id", nameof(IT_inventory_hardware_type.descripcion)), selected: id_tipo_hardware.ToString(), textoPorDefecto: "-- Todos --");
+
             ViewBag.Paginacion = paginacion;
 
             return View(listado);
@@ -113,6 +247,7 @@ namespace Portal_2_0.Controllers
 
             return View(empleado);
         }
+
 
         // GET: IT_asignacion_hardware/Details/5
         public ActionResult Details(int? id)
@@ -333,13 +468,13 @@ namespace Portal_2_0.Controllers
             {
                 if (listaItems.Where(x =>
                     x.id_it_inventory_item == li.id_it_inventory_item
-                    && x.id_it_inventory_generico == li.id_it_inventory_generico).ToList().Count>1)
+                    && x.id_it_inventory_generico == li.id_it_inventory_generico).ToList().Count > 1)
                 {
                     repetido = true;
                 }
             }
 
-            if(repetido)
+            if (repetido)
                 ModelState.AddModelError("", "Existe Hardware repetido, verifique que cada equipo se indique una sóla vez.");
 
             var relItem = listaItems.FirstOrDefault();
@@ -392,6 +527,7 @@ namespace Portal_2_0.Controllers
                 //busca registro para saber si debe ser responsable actual (Sólo para cuando el hardware es diferente de accesorio) 
                 var asignacion_previa = db.IT_asignacion_hardware.FirstOrDefault(x =>
                     x.IT_asignacion_hardware_rel_items.Any(y => y.id_it_inventory_item == relItem.id_it_inventory_item)
+                    && relItem.id_it_inventory_item != null
                     && x.es_asignacion_actual == true
                     && x.id_responsable_principal == x.id_empleado);
 
@@ -450,7 +586,7 @@ namespace Portal_2_0.Controllers
 
 
                 //si es accesorio, siempre va a ser responsable principal
-                if(Bitacoras.Util.IT_Tipos_Hardware.ACCESSORIES == tipoHardware.descripcion)
+                if (Bitacoras.Util.IT_Tipos_Hardware.ACCESSORIES == tipoHardware.descripcion)
                     iT_asignacion_hardware.id_responsable_principal = iT_asignacion_hardware.id_empleado;
 
 
@@ -952,7 +1088,7 @@ namespace Portal_2_0.Controllers
                     recibe = item.empleados.ConcatNombre.ToUpper();
                 if (item.empleados.puesto1 != null)
                     recibe += "\n" + item.empleados.puesto1.descripcion.ToUpper();
-                if (item.empleados2.Area != null)
+                if (item.empleados.Area != null)
                     recibe += "\n" + item.empleados.Area.descripcion.ToUpper();
 
                 table.AddCell(new Cell().Add(new Paragraph(elaboro)

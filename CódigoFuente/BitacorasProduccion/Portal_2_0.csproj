@@ -431,9 +431,6 @@
     <Compile Include="Models\IT_inventory_software.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\IT_inventory_software_versions.cs">
-      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-    </Compile>
     <Compile Include="Models\IT_inventory_tipos_accesorios.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -7134,6 +7131,8 @@
     <Content Include="Views\IT_inventory_items_genericos\Index.cshtml" />
     <Content Include="Views\IT_inventory_items_genericos\Enable.cshtml" />
     <Content Include="Views\IT_inventory_items_genericos\Disable.cshtml" />
+    <Content Include="Views\OrdenesTrabajo\Edit.cshtml" />
+    <Content Include="Views\IT_asignacion_hardware\responsivas.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

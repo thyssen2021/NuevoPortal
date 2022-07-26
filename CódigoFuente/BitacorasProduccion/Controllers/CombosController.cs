@@ -310,6 +310,32 @@ namespace Portal_2_0.Controllers
 
             return Json(objeto, JsonRequestBehavior.AllowGet);
         }
+         ///<summary>
+        ///Obtiene datos de la Línea seleccionada
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        [AllowAnonymous]
+        public JsonResult InventoryLineDetails(int id = 0, int id_empleado = 0)
+        {
+
+            //obtiene todos los posibles valores
+            var itemList = db.IT_asignacion_hardware.Where(x=>x.es_asignacion_linea_actual && x.id_cellular_line ==id && x.id_empleado != id_empleado).ToList();
+
+            var objeto = new object[itemList.Count];
+
+            int i = 0;
+            //inicializa la lista de objetos
+            foreach (var item in itemList) {
+                objeto[i++] = new
+                {
+                    id_responsable = item.id_empleado,
+                    nombre_responsable = item.empleados.ConcatNombre
+                };
+            }           
+
+            return Json(objeto, JsonRequestBehavior.AllowGet);
+        }
 
         ///<summary>
         ///Obtiene si un usuario está registrado segun el email
@@ -478,37 +504,7 @@ namespace Portal_2_0.Controllers
             return Json(list, JsonRequestBehavior.AllowGet);
         }
 
-        ///<summary>
-        ///Obtiene los las versiones activas según el id de software
-        ///</summary>
-        ///<return>
-        ///retorna un JsonResult con las opciones disponibles
-        public JsonResult GetSoftwareVersion(int id_inventory_software = 0)
-        {
-            //obtiene todos los posibles valores
-            List<IT_inventory_software_versions> listado = db.IT_inventory_software_versions.Where(p => p.id_inventory_software == id_inventory_software && p.activo == true).ToList();
-
-            //inserta el valor por default
-            listado.Insert(0, new IT_inventory_software_versions
-            {
-                id = 0,
-                version = "-- N/A --"
-            });
-
-            //inicializa la lista de objetos
-            var list = new object[listado.Count];
-
-            //completa la lista de objetos
-            for (int i = 0; i < listado.Count; i++)
-            {
-                if (i == 0)//en caso de item por defecto
-                    list[i] = new { value = "", name = listado[i].version };
-                else
-                    list[i] = new { value = listado[i].id, name = listado[i].version };
-            }
-            return Json(list, JsonRequestBehavior.AllowGet);
-        }
-
+        
 
         ///<summary>
         ///Obtiene todas los empleados

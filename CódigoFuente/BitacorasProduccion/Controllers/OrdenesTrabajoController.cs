@@ -437,6 +437,122 @@ namespace Portal_2_0.Controllers
             }
         }
 
+        //// GET: OrdenesTrabajo/Edit
+        public ActionResult Edit(int? id, string redirect = "")
+        {
+
+            if (TieneRol(TipoRoles.OT_ASIGNACION))
+            {
+
+                if (id == null)
+                {
+                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                }
+                orden_trabajo orden_trabajo = db.orden_trabajo.Find(id);
+                if (orden_trabajo == null)
+                {
+                    return HttpNotFound();
+                }
+
+
+                //obtiene los departamentos donde aplica linea de producción
+                List<int> listAreasIds = db.OT_rel_depto_aplica_linea.Where(x => x.id_area > 0).Select(x => x.id_area).Distinct().ToList();
+
+                if (orden_trabajo.empleados2.id_area.HasValue && listAreasIds.Contains(orden_trabajo.empleados2.id_area.Value))
+                    ViewBag.MuestraLineas = true;
+
+                //crea el select list para status
+                List<SelectListItem> selectListUrgencia = obtieneSelectListEstatus();
+
+                ViewBag.redirect = redirect;
+
+                SelectList selectListItemsUrgencia = new SelectList(selectListUrgencia, "Value", "Text");
+                ViewBag.nivel_urgencia = AddFirstItem(selectListItemsUrgencia, textoPorDefecto: "-- Seleccionar --", selected: orden_trabajo.nivel_urgencia);
+                ViewBag.Solicitante = orden_trabajo.empleados2;
+                ViewBag.id_linea = AddFirstItem(new SelectList(db.produccion_lineas.Where(x => x.clave_planta == orden_trabajo.empleados2.planta_clave && x.activo == true), "id", "linea"), selected: orden_trabajo.id_linea.ToString()); ;
+                ViewBag.id_grupo_trabajo = AddFirstItem(new SelectList(db.OT_grupo_trabajo.Where(x => x.activo == true), "id", "descripcion"), selected: orden_trabajo.id_grupo_trabajo.ToString());
+                return View(orden_trabajo);
+
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+        }
+
+        // POST: OrdenesTrabajo/Edit
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
+        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(orden_trabajo orden_trabajo, string redirect = "")
+        {        
+
+            if (ModelState.IsValid)
+            {
+
+                if (!orden_trabajo.tpm)
+                {
+                    orden_trabajo.numero_tarjeta = null;
+                    orden_trabajo.id_grupo_trabajo = null;
+                }
+                //db.orden_trabajo.Add(orden_trabajo);
+                try
+                {
+                    orden_trabajo item = db.orden_trabajo.Find(orden_trabajo.id);
+                    
+                    item.id_linea = orden_trabajo.id_linea;
+                    item.id_grupo_trabajo = orden_trabajo.id_grupo_trabajo;
+                    item.nivel_urgencia = orden_trabajo.nivel_urgencia;
+                    item.titulo = orden_trabajo.titulo;
+                    item.descripcion = orden_trabajo.descripcion;
+                    item.tpm = orden_trabajo.tpm;
+                    item.numero_tarjeta = orden_trabajo.numero_tarjeta;
+
+                    db.Entry(item).State = EntityState.Modified;
+
+                    db.SaveChanges();
+                    TempData["Mensaje"] = new MensajesSweetAlert("Se ha actualizado la Orden de Trabajo correctamente.", TipoMensajesSweetAlerts.SUCCESS);
+
+
+                    //*******VER A DONDE VA REDIRIGIR************
+
+                    if (String.IsNullOrEmpty(redirect))
+                        redirect = "ListadoAsignacionPendientes";
+
+                    return RedirectToAction(redirect);
+                }
+                catch (Exception e)
+                {
+                    TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
+                    return RedirectToAction("ListadoAsignacionPendientes");
+                }
+            }
+
+            //En caso de que el modelo no sea válido
+
+            //obtiene los departamentos donde aplica linea de producción
+            List<int> listAreasIds = db.OT_rel_depto_aplica_linea.Where(x => x.id_area > 0).Select(x => x.id_area).Distinct().ToList();
+
+            orden_trabajo.empleados2 = db.empleados.Find(orden_trabajo.id_solicitante);
+
+            if (orden_trabajo.empleados2.id_area.HasValue && listAreasIds.Contains(orden_trabajo.empleados2.id_area.Value))
+                ViewBag.MuestraLineas = true;
+
+            ViewBag.redirect = redirect;
+
+            //crea el select list para status
+            List<SelectListItem> selectListUrgencia = obtieneSelectListEstatus();
+
+            SelectList selectListItemsUrgencia = new SelectList(selectListUrgencia, "Value", "Text");
+            ViewBag.nivel_urgencia = AddFirstItem(selectListItemsUrgencia, textoPorDefecto: "-- Seleccionar --", selected: orden_trabajo.nivel_urgencia);
+            ViewBag.Solicitante = orden_trabajo.empleados2;
+            ViewBag.id_linea = AddFirstItem(new SelectList(db.produccion_lineas.Where(x => x.clave_planta == orden_trabajo.empleados2.planta_clave && x.activo == true), "id", "linea"), selected: orden_trabajo.id_linea.ToString());
+            ViewBag.id_grupo_trabajo = AddFirstItem(new SelectList(db.OT_grupo_trabajo.Where(x => x.activo == true), "id", "descripcion"), selected: orden_trabajo.id_grupo_trabajo.ToString());
+            return View(orden_trabajo);
+        }
+
+
         #region Listados Responsables
         // GET: ListadoResponsablePendientes
         public ActionResult ListadoResponsablePendientes(int pagina = 1)
