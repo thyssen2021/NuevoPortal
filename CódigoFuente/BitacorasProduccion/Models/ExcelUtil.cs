@@ -2758,8 +2758,8 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Id", typeof(string));
             dt.Columns.Add("Name", typeof(string));
             dt.Columns.Add("Active?", typeof(bool));
-            dt.Columns.Add("Version", typeof(string));
-            dt.Columns.Add("Version Active?", typeof(bool));
+            //dt.Columns.Add("Version", typeof(string));
+            //dt.Columns.Add("Version Active?", typeof(bool));
 
 
             ////registros , rows
@@ -2772,16 +2772,16 @@ namespace Portal_2_0.Models
                 //obtiene la cantidad de fila actual
                 int fila_inicial = filasEncabezados.Count + 1;
 
-                foreach (IT_inventory_software_versions sv in item.IT_inventory_software_versions)
-                {
-                    System.Data.DataRow row = dt.NewRow();
+                //foreach (IT_inventory_software_versions sv in item.IT_inventory_software_versions)
+                //{
+                //    System.Data.DataRow row = dt.NewRow();
 
-                    row["Version"] = sv.version;
-                    row["Version Active?"] = sv.activo;
+                //    row["Version"] = sv.version;
+                //    row["Version Active?"] = sv.activo;
 
-                    dt.Rows.Add(row);
-                    filasEncabezados.Add(false);
-                }
+                //    dt.Rows.Add(row);
+                //    filasEncabezados.Add(false);
+                //}
 
                 //obtiene la fila final
                 int fila_final = filasEncabezados.Count + 1;

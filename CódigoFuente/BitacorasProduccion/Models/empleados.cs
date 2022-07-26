@@ -44,11 +44,11 @@ namespace Portal_2_0.Models
             this.OT_responsables = new HashSet<OT_responsables>();
             this.OT_responsables1 = new HashSet<OT_responsables>();
             this.IT_solicitud_usuarios = new HashSet<IT_solicitud_usuarios>();
-            this.IT_asignacion_software = new HashSet<IT_asignacion_software>();
-            this.IT_asignacion_software1 = new HashSet<IT_asignacion_software>();
             this.IT_asignacion_hardware = new HashSet<IT_asignacion_hardware>();
             this.IT_asignacion_hardware1 = new HashSet<IT_asignacion_hardware>();
             this.IT_asignacion_hardware2 = new HashSet<IT_asignacion_hardware>();
+            this.IT_asignacion_software = new HashSet<IT_asignacion_software>();
+            this.IT_asignacion_software1 = new HashSet<IT_asignacion_software>();
         }
     
         public int id { get; set; }
@@ -131,14 +131,14 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_solicitud_usuarios> IT_solicitud_usuarios { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IT_asignacion_software> IT_asignacion_software { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IT_asignacion_software> IT_asignacion_software1 { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_asignacion_hardware> IT_asignacion_hardware { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_asignacion_hardware> IT_asignacion_hardware1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_asignacion_hardware> IT_asignacion_hardware2 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_asignacion_software> IT_asignacion_software { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_asignacion_software> IT_asignacion_software1 { get; set; }
     }
 }

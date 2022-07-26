@@ -322,6 +322,39 @@ namespace Portal_2_0.Controllers
             return Json(list, JsonRequestBehavior.AllowGet);
         }
 
+         ///<summary>
+        ///Obtiene las areas segun la planta recibida (activas y no activas)
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult obtieneTodasAreas(int clavePlanta = 0)
+        {
+            //obtiene todos los posibles valores
+            var areas = db.Area.Include(a => a.plantas);
+            List<Area> listado = areas.Where(p => p.plantaClave.Value == clavePlanta ).ToList();
+           
+
+            //inserta el valor por default
+            listado.Insert(0, new Area
+            {
+                clave = 0,
+                descripcion = "-- Seleccione un valor --"
+            });
+
+            //inicializa la lista de objetos
+            var list = new object[listado.Count];
+
+            //completa la lista de objetos
+            for (int i = 0; i < listado.Count; i++)
+            {
+                if (i == 0)//en caso de item por defecto
+                    list[i] = new { value = "", name = listado[i].descripcion };
+                else
+                    list[i] = new { value = listado[i].clave, name = listado[i].descripcion };
+            }
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
 
         #endregion
 

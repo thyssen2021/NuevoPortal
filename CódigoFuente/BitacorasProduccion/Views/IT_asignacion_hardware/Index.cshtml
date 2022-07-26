@@ -11,18 +11,9 @@
     //obtiene los filtros
     Portal_2_0.Models.Paginacion paginacionFiltros = (Portal_2_0.Models.Paginacion)ViewBag.Paginacion;
 
-    string nombre = string.Empty;
-    if (paginacionFiltros.ValoresQueryString["nombre"] != null)
-    {
-        nombre = paginacionFiltros.ValoresQueryString["nombre"].ToString();
-    }
-
-    string num_empleado = string.Empty;
-    if (paginacionFiltros.ValoresQueryString["num_empleado"] != null)
-    {
-        num_empleado = paginacionFiltros.ValoresQueryString["num_empleado"].ToString();
-    }
+   
 }
+
 
 @section estilos
 {
@@ -75,30 +66,70 @@
                                     <div class="form-group">
                                         @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
                                         {
-
+                                            <div class="form-group row">
+                                                <span style="color:black"><b>EMPLEADO</b></span>
+                                            </div>
                                             <div class="form-group row ">
-                                                <label class="control-label col-md-1 col-sm-1" for="nombre" style="text-align:right">Nombre:</label>
-                                                <div class="col-md-3 col-sm-3 ">
-                                                    <input type="text" id="nombre" name="nombre" class="form-control" value="@nombre" autocomplete="off" />
-                                                </div>
-                                                <label class="control-label col-md-1 col-sm-1" for="nombre_equipo" style="text-align:right">Planta:</label>
+                                                <label class="control-label col-md-1 col-sm-1" for="planta_clave" style="text-align:right">Planta:</label>
                                                 <div class="col-md-2 col-sm-2 ">
                                                     @Html.DropDownList("planta_clave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                                 </div>
-                                                <label class="control-label col-md-1 col-sm-1" for="num_empleado" style="text-align:right">N&uacute;m. Empleado:</label>
+                                                <label class="control-label col-md-1 col-sm-1" for="id_area" style="text-align:right">&Aacute;rea:</label>
                                                 <div class="col-md-2 col-sm-2 ">
-                                                    <input type="text" id="num_empleado" name="num_empleado" class="form-control" value="@num_empleado" autocomplete="off" />
+                                                    @Html.DropDownList("id_area", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                                 </div>
-                                                <div class="col-md-1 col-sm-1">
-                                                    <a href="@Url.Action( "Index", ViewBag.ControllerName)" class="btn btn-warning">
-                                                        <i class="fa fa-refresh"></i>
-                                                    </a>
-                                                </div>
-                                                <div class="col-md-1 col-sm-1">
-                                                    <input type="submit" value="Buscar" class="btn btn-info float-right" />
+                                                <label class="control-label col-md-1 col-sm-1" for="id_empleado" style="text-align:right">Empleado:</label>
+                                                <div class="col-md-3 col-sm-3 ">
+                                                    @Html.DropDownList("id_empleado", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                                 </div>
                                             </div>
+                                            <div class="ln_solid"></div>
+                                            <div class="form-group row">
+                                                <span style="color:black"><b>HARDWARE</b></span>
+                                            </div>
+                                            <div class="form-group row ">
+                                                <label class="control-label col-md-1 col-sm-1" for="id_it_inventory_item" style="text-align:right">Equipo:</label>
+                                                <div class="col-md-7 col-sm-7">
+                                                    @Html.DropDownList("id_it_inventory_item", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                </div>
+                                            </div>
+                                            <div class="ln_solid"></div>
+                                            <div class="form-group row">
+                                                <span style="color:black"><b>SOFTWARE</b></span>
+                                            </div>
+                                            <div class="form-group row ">
+                                                <label class="control-label col-md-1 col-sm-1" for="id_sofware" style="text-align:right">Software:</label>
+                                                <div class="col-md-3 col-sm-3">
+                                                    @Html.DropDownList("id_software", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                </div>
+                                                <label class="control-label col-md-1 col-sm-1" for="id_asignacion_usuario" style="text-align:right">Usuario:</label>
+                                                <div class="col-md-5 col-sm-5">
+                                                    @Html.DropDownList("id_asignacion_usuario", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                </div>
+                                            </div>
+                                            <div class="ln_solid"></div>
+                                            <div class="form-group row">
+                                                <span style="color:black"><b>L&Iacute;nea Celular </b></span>
+                                            </div>
+                                            <div class="form-group row ">
+                                                <label class="control-label col-md-1 col-sm-1" for="id_cellular_line" style="text-align:right">L&iacute;nea:</label>
+                                                <div class="col-md-4 col-sm-4 ">
+                                                    @Html.DropDownList("id_cellular_line", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col-md-8 col-sm-8">
 
+                                                </div>
+                                                <div class="col-md-2 col-sm-2">
+                                                    <a href="@Url.Action( "Index", ViewBag.ControllerName)" class="btn btn-warning float-right">
+                                                        <i class="fa fa-refresh"></i> Restablecer
+                                                    </a>
+                                                </div>
+                                                <div class="col-md-2 col-sm-2">
+                                                    <button type="submit" class="btn btn-info float-right"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+                                                </div>
+                                            </div>
                                         }
                                         <hr />
 
@@ -140,8 +171,6 @@
                                                         <a href="@Url.Action("ListadoAsignaciones", null, new { id = item.id })" class="btn btn-primary btn-sm" rel="tooltip" data-title="Crear Asignación">
                                                             <i class="fa-solid fa-user-tag"></i>
                                                         </a>
-
-
                                                     </td>
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.numeroEmpleado)
@@ -217,15 +246,39 @@
                 "info": false
             });
 
-
-
             // Initialize Select2 Elements (debe ir después de asignar el valor)
             $('.select2bs4').select2({
                 theme: 'bootstrap4'
             })
 
+            $("#planta_clave").change(function () {
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/Puestos/obtieneTodasAreas',
+                    data: { clavePlanta: $(this).val() },
+                    success: function (data) {
+                        populateDropdown($("#id_area"), data);
+                    },
+                    async: true
+                });
+
+            });
+
+            //Envia el formulario cada vez que se modifica el combo
+            $(".select2bs4").change(function () {
+                $("#buscarForm").submit();
+            });
+
         });
 
+        //completa el select con los datos recibidos
+        function populateDropdown(select, data) {
+            select.html('');
+            $.each(data, function (id, option) {
+                select.append($('<option></option>').val(option.value).html(option.name));
+            });
+        }
 
         //agranda el tamaño de la barra
         window.onload = function () {

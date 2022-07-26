@@ -111,40 +111,6 @@ namespace Portal_2_0.Controllers
         public ActionResult Create(IT_inventory_software iT_inventory_software, FormCollection collection)
         {
 
-            List<IT_inventory_software_versions> versions = new List<IT_inventory_software_versions>();
-            iT_inventory_software.IT_inventory_software_versions = versions; //vacia la lista que viene del form o la inicializa si viene vacia (solo detecta los agregados con js)
-
-            #region obtiene_versiones_del_form
-
-            //obtiene las versiones del form collection
-            foreach (string key in collection.AllKeys.Where(x => x.StartsWith("IT_inventory_software_versions") && x.EndsWith(".version")))
-            {
-                int index = -1;
-                bool active = false;
-
-                Match m = Regex.Match(key, @"\d+");
-
-                if (m.Success) //si tiene un numero
-                {
-                    //obtiene el index
-                    int.TryParse(m.Value, out index);
-
-                    //obtiene los valores del form para el index asociado
-                    string version = collection["IT_inventory_software_versions[" + index + "].version"].ToUpper();
-                    Boolean.TryParse(collection["IT_inventory_software_versions[" + index + "].activo"], out active);
-
-                    //agrega el drive
-                    versions.Add(
-                        new IT_inventory_software_versions
-                        {
-                            version = version,
-                            activo = active,
-                        }
-                    );
-
-                }
-            }
-            #endregion
 
             if (ModelState.IsValid)
             {
@@ -186,64 +152,11 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit(IT_inventory_software iT_inventory_software, FormCollection collection)
         {
-            List<IT_inventory_software_versions> versions = new List<IT_inventory_software_versions>();
-            iT_inventory_software.IT_inventory_software_versions = versions; //vacia la lista que viene del form o la inicializa si viene vacia (solo detecta los agregados con js)
-
-            #region obtiene_versiones_del_form
-
-            //obtiene las versiones del form collection
-            foreach (string key in collection.AllKeys.Where(x => x.StartsWith("IT_inventory_software_versions") && x.EndsWith(".version")))
-            {
-                int index = -1;
-                bool active = false;
-                int id_version = -1;
-
-                Match m = Regex.Match(key, @"\d+");
-
-                if (m.Success) //si tiene un numero
-                {
-                    //obtiene el index
-                    int.TryParse(m.Value, out index);
-
-                    //obtiene los valores del form para el index asociado
-                    string version = collection["IT_inventory_software_versions[" + index + "].version"].ToUpper();
-                    Boolean.TryParse(collection["IT_inventory_software_versions[" + index + "].activo"], out active);
-                    int.TryParse(collection["IT_inventory_software_versions[" + index + "].id"], out id_version);
-
-                    //agrega el drive
-                    versions.Add(
-                        new IT_inventory_software_versions
-                        {
-                            id = id_version,
-                            id_inventory_software = iT_inventory_software.id,
-                            version = version,
-                            activo = active,
-                        }
-                    );
-
-                }
-            }
-            #endregion
+            
             if (ModelState.IsValid)
-            {
-                //obtiene el listado de versiones asociadas a este software
-                var versionsPrevious = db.IT_inventory_software_versions.Where(x => x.id_inventory_software == iT_inventory_software.id);
+            {              
 
-                //recorre el listado de versiones para todas las versiones recibidas en el formulario
-                foreach (var v in versions)
-                {
-                    //si existe es un update
-                    if (versionsPrevious.Any(x => x.id == v.id))
-                    {
-                        db.Entry(versionsPrevious.FirstOrDefault(x => x.id == v.id)).CurrentValues.SetValues(v);
-                    }
-                    else //no existe es un create 
-                    {
-                        db.IT_inventory_software_versions.Add(v);
-                    }
-                    /* NOTA: no se pueden eliminar sólo desactivar*/
-
-                }
+               
                 //guarda en BD
                 db.Entry(db.IT_inventory_software.Find(iT_inventory_software.id)).CurrentValues.SetValues(iT_inventory_software);
                 db.SaveChanges();

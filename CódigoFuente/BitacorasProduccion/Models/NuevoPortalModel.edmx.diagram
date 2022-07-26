@@ -190,19 +190,12 @@
         <AssociationConnector Association="Portal_2_0Model.FK_IT_solicitud_usuarios_id_planta" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_hardware_type" Width="1.875" PointX="0.75" PointY="27.5" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_software" Width="1.5" PointX="28.375" PointY="11" />
-        <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_software_versions" Width="1.5" PointX="30.625" PointY="10.875" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_id_inventory_software" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_cellular_plans" Width="1.5" PointX="3.375" PointY="24.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_hard_drives" Width="1.5" PointX="5.625" PointY="38.875" />
         <EntityTypeShape EntityType="Portal_2_0Model.IATF_documentos" Width="1.5" PointX="3" PointY="30.125" />
         <EntityTypeShape EntityType="Portal_2_0Model.IATF_revisiones" Width="1.5" PointX="5.25" PointY="30.125" />
         <AssociationConnector Association="Portal_2_0Model.FK_IATF_documentos_id_planta" />
         <AssociationConnector Association="Portal_2_0Model.FK_id_iatf_documento" />
-        <EntityTypeShape EntityType="Portal_2_0Model.IT_asignacion_software" Width="1.5" PointX="33.875" PointY="6.5" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_asignacion_software_id_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_asignacion_software_id_sistemas" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_asignacion_software_id_inventory_software" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_asignacion_software_id_inventory_software_version" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_tipos_accesorios" Width="1.5" PointX="8.125" PointY="39" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_items" Width="1.5" PointX="10.375" PointY="28.5" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_item" />
@@ -227,6 +220,10 @@
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_item_id_asignacion_hardware" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_item_id_it_inventory_generico" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_item_id_it_inventory_item" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_asignacion_software" Width="1.5" PointX="31.625" PointY="9.5" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_asignacion_software_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_asignacion_software_id_sistemas" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_asignacion_software_id_inventory_software" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

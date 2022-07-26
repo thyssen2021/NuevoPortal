@@ -57,10 +57,8 @@ namespace Portal_2_0.Controllers
 
             //envia el listado de software activos
             List<IT_inventory_software> listadoSoftware = db.IT_inventory_software.Where(p => p.activo == true).ToList();
-            List<IT_inventory_software_versions> listadoSoftwareVersiones = db.IT_inventory_software_versions.Where(p => p.activo == true).ToList();
-
-            ViewBag.ListadoSoftware = listadoSoftware;
-            ViewBag.ListadoSoftwareVersiones = listadoSoftwareVersiones;
+     
+            ViewBag.ListadoSoftware = listadoSoftware;            
 
             return View(model);
         }
@@ -81,7 +79,7 @@ namespace Portal_2_0.Controllers
                 int index = -1;
                 int id_sofware = 0;
                 int id_version = 0;
-
+                string usuario = null;
                 int? version = null;
 
                 Match m = Regex.Match(key, @"\d+");
@@ -91,6 +89,8 @@ namespace Portal_2_0.Controllers
                     int.TryParse(m.Value, out index);
                     int.TryParse(collection["software_" + index], out id_sofware);
                     int.TryParse(collection["version_" + index], out id_version);
+                    usuario = collection["usuario_" + index];
+
 
                     if (id_version > 0)
                         version = id_version;
@@ -101,7 +101,7 @@ namespace Portal_2_0.Controllers
                         new IT_asignacion_software
                         {
                             id_inventory_software = id_sofware,
-                            id_inventory_software_version = version,
+                            usuario=usuario,
                             id_empleado = model.id_empleado,
                             id_sistemas = model.id_sistemas,
                         }
@@ -114,7 +114,7 @@ namespace Portal_2_0.Controllers
 
             //validar que no se repida la misma conbinacion entre software y versión
             if (listaSoftware.Count != listaSoftware.Distinct().Count())
-                ModelState.AddModelError("", "Verifique que el mismo software y la misma versión no este asignada dos veces.");
+                ModelState.AddModelError("", "Verifique que el mismo software no esté asignado dos veces.");
 
             if (ModelState.IsValid)
             {
@@ -132,10 +132,9 @@ namespace Portal_2_0.Controllers
 
             //envia el listado de software activos
             List<IT_inventory_software> listadoSoftware = db.IT_inventory_software.Where(p => p.activo == true).ToList();
-            List<IT_inventory_software_versions> listadoSoftwareVersiones = db.IT_inventory_software_versions.Where(p => p.activo == true).ToList();
-
+           
             ViewBag.ListadoSoftware = listadoSoftware;
-            ViewBag.ListadoSoftwareVersiones = listadoSoftwareVersiones;
+            
             return View(model);
         }
  

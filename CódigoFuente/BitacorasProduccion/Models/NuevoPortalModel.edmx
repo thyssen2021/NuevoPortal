@@ -334,9 +334,9 @@
           </Key>
           <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="id_inventory_software" Type="int" Nullable="false" />
-          <Property Name="id_inventory_software_version" Type="int" />
           <Property Name="id_sistemas" Type="int" Nullable="false" />
           <Property Name="id_empleado" Type="int" Nullable="false" />
+          <Property Name="usuario" Type="varchar" MaxLength="40" />
         </EntityType>
         <EntityType Name="IT_carpetas_red">
           <Key>
@@ -469,15 +469,6 @@
           </Key>
           <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="descripcion" Type="varchar" MaxLength="40" Nullable="false" />
-          <Property Name="activo" Type="bit" Nullable="false" />
-        </EntityType>
-        <EntityType Name="IT_inventory_software_versions">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="id_inventory_software" Type="int" Nullable="false" />
-          <Property Name="version" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="IT_inventory_tipos_accesorios">
@@ -1138,6 +1129,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_historico_resultado' no 
           <Property Name="Operador" Type="nvarchar" MaxLength="767" />
           <Property Name="Supervisor" Type="nvarchar" MaxLength="767" />
           <Property Name="SAP Platina" Type="nvarchar" MaxLength="255" />
+          <Property Name="SAP Platina 2" Type="varchar" MaxLength="30" />
           <Property Name="Tipo de Material" Type="nvarchar" MaxLength="255" />
           <Property Name="Número de Parte  de cliente" Type="nvarchar" MaxLength="255" />
           <Property Name="SAP Rollo" Type="nvarchar" MaxLength="255" />
@@ -1680,18 +1672,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_IT_asignacion_software_id_inventory_software_version">
-          <End Role="IT_inventory_software_versions" Type="Self.IT_inventory_software_versions" Multiplicity="0..1" />
-          <End Role="IT_asignacion_software" Type="Self.IT_asignacion_software" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="IT_inventory_software_versions">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_asignacion_software">
-              <PropertyRef Name="id_inventory_software_version" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_IT_asignacion_software_id_sistemas">
           <End Role="empleados" Type="Self.empleados" Multiplicity="1" />
           <End Role="IT_asignacion_software" Type="Self.IT_asignacion_software" Multiplicity="*" />
@@ -1713,18 +1693,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Principal>
             <Dependent Role="IT_inventory_cellular_line">
               <PropertyRef Name="id_planta" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_IT_inventory_id_inventory_software">
-          <End Role="IT_inventory_software" Type="Self.IT_inventory_software" Multiplicity="1" />
-          <End Role="IT_inventory_software_versions" Type="Self.IT_inventory_software_versions" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="IT_inventory_software">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_inventory_software_versions">
-              <PropertyRef Name="id_inventory_software" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -2825,7 +2793,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySet Name="IT_inventory_items" EntityType="Self.IT_inventory_items" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_inventory_items_genericos" EntityType="Self.IT_inventory_items_genericos" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_inventory_software" EntityType="Self.IT_inventory_software" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="IT_inventory_software_versions" EntityType="Self.IT_inventory_software_versions" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_inventory_tipos_accesorios" EntityType="Self.IT_inventory_tipos_accesorios" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_matriz_carpetas" EntityType="Self.IT_matriz_carpetas" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_matriz_comunicaciones" EntityType="Self.IT_matriz_comunicaciones" Schema="dbo" store:Type="Tables" />
@@ -2884,6 +2851,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
     [view_historico_resultado].[Operador] AS [Operador], 
     [view_historico_resultado].[Supervisor] AS [Supervisor], 
     [view_historico_resultado].[SAP Platina] AS [SAP Platina], 
+    [view_historico_resultado].[SAP Platina 2] AS [SAP Platina 2], 
     [view_historico_resultado].[Tipo de Material] AS [Tipo de Material], 
     [view_historico_resultado].[Número de Parte  de cliente] AS [Número de Parte  de cliente], 
     [view_historico_resultado].[SAP Rollo] AS [SAP Rollo], 
@@ -3113,10 +3081,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="IT_inventory_software" EntitySet="IT_inventory_software" />
             <End Role="IT_asignacion_software" EntitySet="IT_asignacion_software" />
           </AssociationSet>
-          <AssociationSet Name="FK_IT_asignacion_software_id_inventory_software_version" Association="Self.FK_IT_asignacion_software_id_inventory_software_version">
-            <End Role="IT_inventory_software_versions" EntitySet="IT_inventory_software_versions" />
-            <End Role="IT_asignacion_software" EntitySet="IT_asignacion_software" />
-          </AssociationSet>
           <AssociationSet Name="FK_IT_asignacion_software_id_sistemas" Association="Self.FK_IT_asignacion_software_id_sistemas">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="IT_asignacion_software" EntitySet="IT_asignacion_software" />
@@ -3124,10 +3088,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <AssociationSet Name="FK_IT_inventory_cellular_line_id_planta" Association="Self.FK_IT_inventory_cellular_line_id_planta">
             <End Role="plantas" EntitySet="plantas" />
             <End Role="IT_inventory_cellular_line" EntitySet="IT_inventory_cellular_line" />
-          </AssociationSet>
-          <AssociationSet Name="FK_IT_inventory_id_inventory_software" Association="Self.FK_IT_inventory_id_inventory_software">
-            <End Role="IT_inventory_software" EntitySet="IT_inventory_software" />
-            <End Role="IT_inventory_software_versions" EntitySet="IT_inventory_software_versions" />
           </AssociationSet>
           <AssociationSet Name="FK_IT_inventory_item" Association="Self.FK_IT_inventory_item">
             <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
@@ -4347,11 +4307,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           </AssociationSet>
           <EntitySet Name="IT_inventory_hardware_type" EntityType="Portal_2_0Model.IT_inventory_hardware_type" />
           <EntitySet Name="IT_inventory_software" EntityType="Portal_2_0Model.IT_inventory_software" />
-          <EntitySet Name="IT_inventory_software_versions" EntityType="Portal_2_0Model.IT_inventory_software_versions" />
-          <AssociationSet Name="FK_IT_inventory_id_inventory_software" Association="Portal_2_0Model.FK_IT_inventory_id_inventory_software">
-            <End Role="IT_inventory_software" EntitySet="IT_inventory_software" />
-            <End Role="IT_inventory_software_versions" EntitySet="IT_inventory_software_versions" />
-          </AssociationSet>
           <EntitySet Name="IT_inventory_cellular_plans" EntityType="Portal_2_0Model.IT_inventory_cellular_plans" />
           <EntitySet Name="IT_inventory_hard_drives" EntityType="Portal_2_0Model.IT_inventory_hard_drives" />
           <EntitySet Name="IATF_documentos" EntityType="Portal_2_0Model.IATF_documentos" />
@@ -4363,23 +4318,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <AssociationSet Name="FK_id_iatf_documento" Association="Portal_2_0Model.FK_id_iatf_documento">
             <End Role="IATF_documentos" EntitySet="IATF_documentos" />
             <End Role="IATF_revisiones" EntitySet="IATF_revisiones" />
-          </AssociationSet>
-          <EntitySet Name="IT_asignacion_software" EntityType="Portal_2_0Model.IT_asignacion_software" />
-          <AssociationSet Name="FK_IT_asignacion_software_id_empleado" Association="Portal_2_0Model.FK_IT_asignacion_software_id_empleado">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="IT_asignacion_software" EntitySet="IT_asignacion_software" />
-          </AssociationSet>
-          <AssociationSet Name="FK_IT_asignacion_software_id_sistemas" Association="Portal_2_0Model.FK_IT_asignacion_software_id_sistemas">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="IT_asignacion_software" EntitySet="IT_asignacion_software" />
-          </AssociationSet>
-          <AssociationSet Name="FK_IT_asignacion_software_id_inventory_software" Association="Portal_2_0Model.FK_IT_asignacion_software_id_inventory_software">
-            <End Role="IT_inventory_software" EntitySet="IT_inventory_software" />
-            <End Role="IT_asignacion_software" EntitySet="IT_asignacion_software" />
-          </AssociationSet>
-          <AssociationSet Name="FK_IT_asignacion_software_id_inventory_software_version" Association="Portal_2_0Model.FK_IT_asignacion_software_id_inventory_software_version">
-            <End Role="IT_inventory_software_versions" EntitySet="IT_inventory_software_versions" />
-            <End Role="IT_asignacion_software" EntitySet="IT_asignacion_software" />
           </AssociationSet>
           <EntitySet Name="IT_inventory_tipos_accesorios" EntityType="Portal_2_0Model.IT_inventory_tipos_accesorios" />
           <EntitySet Name="IT_inventory_items" EntityType="Portal_2_0Model.IT_inventory_items" />
@@ -4458,6 +4396,19 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <AssociationSet Name="FK_IT_inventory_item_id_it_inventory_item" Association="Portal_2_0Model.FK_IT_inventory_item_id_it_inventory_item">
             <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
             <End Role="IT_asignacion_hardware_rel_items" EntitySet="IT_asignacion_hardware_rel_items" />
+          </AssociationSet>
+          <EntitySet Name="IT_asignacion_software" EntityType="Portal_2_0Model.IT_asignacion_software" />
+          <AssociationSet Name="FK_IT_asignacion_software_id_empleado" Association="Portal_2_0Model.FK_IT_asignacion_software_id_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IT_asignacion_software" EntitySet="IT_asignacion_software" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_asignacion_software_id_sistemas" Association="Portal_2_0Model.FK_IT_asignacion_software_id_sistemas">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IT_asignacion_software" EntitySet="IT_asignacion_software" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_asignacion_software_id_inventory_software" Association="Portal_2_0Model.FK_IT_asignacion_software_id_inventory_software">
+            <End Role="IT_inventory_software" EntitySet="IT_inventory_software" />
+            <End Role="IT_asignacion_software" EntitySet="IT_asignacion_software" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="PFA_Border_port">
@@ -5512,11 +5463,11 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="OT_responsables" Relationship="Portal_2_0Model.FK_OT_responsables_id_empleado" FromRole="empleados" ToRole="OT_responsables" />
           <NavigationProperty Name="OT_responsables1" Relationship="Portal_2_0Model.FK_OT_responsables_id_supervisor" FromRole="empleados" ToRole="OT_responsables" />
           <NavigationProperty Name="IT_solicitud_usuarios" Relationship="Portal_2_0Model.FK_IT_solicitud_usuarios_id_empleado" FromRole="empleados" ToRole="IT_solicitud_usuarios" />
-          <NavigationProperty Name="IT_asignacion_software" Relationship="Portal_2_0Model.FK_IT_asignacion_software_id_empleado" FromRole="empleados" ToRole="IT_asignacion_software" />
-          <NavigationProperty Name="IT_asignacion_software1" Relationship="Portal_2_0Model.FK_IT_asignacion_software_id_sistemas" FromRole="empleados" ToRole="IT_asignacion_software" />
           <NavigationProperty Name="IT_asignacion_hardware" Relationship="Portal_2_0Model.FK_id_empleado" FromRole="empleados" ToRole="IT_asignacion_hardware" />
           <NavigationProperty Name="IT_asignacion_hardware1" Relationship="Portal_2_0Model.FK_id_responsable_principal" FromRole="empleados" ToRole="IT_asignacion_hardware" />
           <NavigationProperty Name="IT_asignacion_hardware2" Relationship="Portal_2_0Model.FK_id_sistemas" FromRole="empleados" ToRole="IT_asignacion_hardware" />
+          <NavigationProperty Name="IT_asignacion_software" Relationship="Portal_2_0Model.FK_IT_asignacion_software_id_empleado" FromRole="empleados" ToRole="IT_asignacion_software" />
+          <NavigationProperty Name="IT_asignacion_software1" Relationship="Portal_2_0Model.FK_IT_asignacion_software_id_sistemas" FromRole="empleados" ToRole="IT_asignacion_software" />
           </EntityType>
         <Association Name="FK_empleados_area">
           <End Type="Portal_2_0Model.Area" Role="Area" Multiplicity="0..1" />
@@ -6051,6 +6002,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="Peso_puntas_y_colas_reales_Kg" Type="Double" />
           <Property Name="Balance_de_Scrap_Real" Type="Double" />
           <Property Name="comentario" Type="String" MaxLength="600" FixedLength="false" Unicode="false" />
+          <Property Name="SAP_Platina_2" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="log_acceso_email">
           <Key>
@@ -6595,32 +6547,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="descripcion" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
           <Property Name="activo" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="IT_inventory_software_versions" Relationship="Portal_2_0Model.FK_IT_inventory_id_inventory_software" FromRole="IT_inventory_software" ToRole="IT_inventory_software_versions" />
           <NavigationProperty Name="IT_asignacion_software" Relationship="Portal_2_0Model.FK_IT_asignacion_software_id_inventory_software" FromRole="IT_inventory_software" ToRole="IT_asignacion_software" />
         </EntityType>
-        <EntityType Name="IT_inventory_software_versions">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_inventory_software" Type="Int32" Nullable="false" />
-          <Property Name="version" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="activo" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="IT_inventory_software" Relationship="Portal_2_0Model.FK_IT_inventory_id_inventory_software" FromRole="IT_inventory_software_versions" ToRole="IT_inventory_software" />
-          <NavigationProperty Name="IT_asignacion_software" Relationship="Portal_2_0Model.FK_IT_asignacion_software_id_inventory_software_version" FromRole="IT_inventory_software_versions" ToRole="IT_asignacion_software" />
-        </EntityType>
-        <Association Name="FK_IT_inventory_id_inventory_software">
-          <End Type="Portal_2_0Model.IT_inventory_software" Role="IT_inventory_software" Multiplicity="1" />
-          <End Type="Portal_2_0Model.IT_inventory_software_versions" Role="IT_inventory_software_versions" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="IT_inventory_software">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_inventory_software_versions">
-              <PropertyRef Name="id_inventory_software" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityType Name="IT_inventory_cellular_plans">
           <Key>
             <PropertyRef Name="id" />
@@ -6692,68 +6620,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Principal>
             <Dependent Role="IATF_revisiones">
               <PropertyRef Name="id_iatf_documento" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <EntityType Name="IT_asignacion_software">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_inventory_software" Type="Int32" Nullable="false" />
-          <Property Name="id_inventory_software_version" Type="Int32" />
-          <Property Name="id_sistemas" Type="Int32" Nullable="false" />
-          <Property Name="id_empleado" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_IT_asignacion_software_id_empleado" FromRole="IT_asignacion_software" ToRole="empleados" />
-          <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_IT_asignacion_software_id_sistemas" FromRole="IT_asignacion_software" ToRole="empleados" />
-          <NavigationProperty Name="IT_inventory_software" Relationship="Portal_2_0Model.FK_IT_asignacion_software_id_inventory_software" FromRole="IT_asignacion_software" ToRole="IT_inventory_software" />
-          <NavigationProperty Name="IT_inventory_software_versions" Relationship="Portal_2_0Model.FK_IT_asignacion_software_id_inventory_software_version" FromRole="IT_asignacion_software" ToRole="IT_inventory_software_versions" />
-        </EntityType>
-        <Association Name="FK_IT_asignacion_software_id_empleado">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
-          <End Type="Portal_2_0Model.IT_asignacion_software" Role="IT_asignacion_software" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_asignacion_software">
-              <PropertyRef Name="id_empleado" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_IT_asignacion_software_id_sistemas">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
-          <End Type="Portal_2_0Model.IT_asignacion_software" Role="IT_asignacion_software" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_asignacion_software">
-              <PropertyRef Name="id_sistemas" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_IT_asignacion_software_id_inventory_software">
-          <End Type="Portal_2_0Model.IT_inventory_software" Role="IT_inventory_software" Multiplicity="1" />
-          <End Type="Portal_2_0Model.IT_asignacion_software" Role="IT_asignacion_software" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="IT_inventory_software">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_asignacion_software">
-              <PropertyRef Name="id_inventory_software" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_IT_asignacion_software_id_inventory_software_version">
-          <End Type="Portal_2_0Model.IT_inventory_software_versions" Role="IT_inventory_software_versions" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.IT_asignacion_software" Role="IT_asignacion_software" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="IT_inventory_software_versions">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_asignacion_software">
-              <PropertyRef Name="id_inventory_software_version" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -7090,6 +6956,55 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Principal>
             <Dependent Role="IT_asignacion_hardware_rel_items">
               <PropertyRef Name="id_it_inventory_item" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="IT_asignacion_software">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_inventory_software" Type="Int32" Nullable="false" />
+          <Property Name="id_sistemas" Type="Int32" Nullable="false" />
+          <Property Name="id_empleado" Type="Int32" Nullable="false" />
+          <Property Name="usuario" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_IT_asignacion_software_id_empleado" FromRole="IT_asignacion_software" ToRole="empleados" />
+          <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_IT_asignacion_software_id_sistemas" FromRole="IT_asignacion_software" ToRole="empleados" />
+          <NavigationProperty Name="IT_inventory_software" Relationship="Portal_2_0Model.FK_IT_asignacion_software_id_inventory_software" FromRole="IT_asignacion_software" ToRole="IT_inventory_software" />
+        </EntityType>
+        <Association Name="FK_IT_asignacion_software_id_empleado">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_asignacion_software" Role="IT_asignacion_software" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_asignacion_software">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_asignacion_software_id_sistemas">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_asignacion_software" Role="IT_asignacion_software" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_asignacion_software">
+              <PropertyRef Name="id_sistemas" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_asignacion_software_id_inventory_software">
+          <End Type="Portal_2_0Model.IT_inventory_software" Role="IT_inventory_software" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_asignacion_software" Role="IT_asignacion_software" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_inventory_software">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_asignacion_software">
+              <PropertyRef Name="id_inventory_software" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -7965,6 +7880,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySetMapping Name="view_historico_resultado">
             <EntityTypeMapping TypeName="Portal_2_0Model.view_historico_resultado">
               <MappingFragment StoreEntitySet="view_historico_resultado">
+                <ScalarProperty Name="SAP_Platina_2" ColumnName="SAP Platina 2" />
                 <ScalarProperty Name="comentario" ColumnName="comentario" />
                 <ScalarProperty Name="Balance_de_Scrap_Real" ColumnName="Balance_de_Scrap_Real" />
                 <ScalarProperty Name="Peso_puntas_y_colas_reales_Kg" ColumnName="Peso puntas y colas reales_Kg" />
@@ -8228,16 +8144,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="IT_inventory_software_versions">
-            <EntityTypeMapping TypeName="Portal_2_0Model.IT_inventory_software_versions">
-              <MappingFragment StoreEntitySet="IT_inventory_software_versions">
-                <ScalarProperty Name="activo" ColumnName="activo" />
-                <ScalarProperty Name="version" ColumnName="version" />
-                <ScalarProperty Name="id_inventory_software" ColumnName="id_inventory_software" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="IT_inventory_cellular_plans">
             <EntityTypeMapping TypeName="Portal_2_0Model.IT_inventory_cellular_plans">
               <MappingFragment StoreEntitySet="IT_inventory_cellular_plans">
@@ -8282,17 +8188,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
                 <ScalarProperty Name="responsable" ColumnName="responsable" />
                 <ScalarProperty Name="numero_revision" ColumnName="numero_revision" />
                 <ScalarProperty Name="id_iatf_documento" ColumnName="id_iatf_documento" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="IT_asignacion_software">
-            <EntityTypeMapping TypeName="Portal_2_0Model.IT_asignacion_software">
-              <MappingFragment StoreEntitySet="IT_asignacion_software">
-                <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
-                <ScalarProperty Name="id_sistemas" ColumnName="id_sistemas" />
-                <ScalarProperty Name="id_inventory_software_version" ColumnName="id_inventory_software_version" />
-                <ScalarProperty Name="id_inventory_software" ColumnName="id_inventory_software" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
@@ -8394,6 +8289,17 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
                 <ScalarProperty Name="id_it_inventory_generico" ColumnName="id_it_inventory_generico" />
                 <ScalarProperty Name="id_it_inventory_item" ColumnName="id_it_inventory_item" />
                 <ScalarProperty Name="id_asignacion_hardware" ColumnName="id_asignacion_hardware" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IT_asignacion_software">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_asignacion_software">
+              <MappingFragment StoreEntitySet="IT_asignacion_software">
+                <ScalarProperty Name="usuario" ColumnName="usuario" />
+                <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
+                <ScalarProperty Name="id_sistemas" ColumnName="id_sistemas" />
+                <ScalarProperty Name="id_inventory_software" ColumnName="id_inventory_software" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
