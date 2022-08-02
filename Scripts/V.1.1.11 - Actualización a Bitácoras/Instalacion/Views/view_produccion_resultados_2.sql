@@ -1,5 +1,5 @@
 use[Portal_2_0]
-DROP VIEW IF EXISTS dbo.view_produccion_resultados;  
+DROP VIEW IF EXISTS dbo.view_produccion_resultados_2;  
 /*****************************************************************************
 *  Tipo de objeto: View
 *  Funcion: Vista para mostrar los resultados de bitácoras
@@ -12,16 +12,13 @@ DROP VIEW IF EXISTS dbo.view_produccion_resultados;
 ******************************************************************************/
 		
 GO
-CREATE VIEW [dbo].[view_produccion_resultados] AS
-
-SELECT 
-	ISNULL(ROW_NUMBER() OVER (ORDER BY v.Column40), 0) as id,
-	v.* FROM (
-SELECT 		
+CREATE VIEW [dbo].[view_produccion_resultados_2] AS
+(SELECT 
+		--ISNULL(ROW_NUMBER() OVER (ORDER BY s.id), 0) as id,
 		s.Operador
 		,s.Supervisor
-		,s.[SAP Platina]
-		,null as [SAP Platina 2]
+		,'' as [SAP Platina]
+		,s.[SAP Platina 2]
 		,s.[Tipo de Material]
 		,s.[Número de Parte de Cliente]
 		,s.[SAP Rollo]
@@ -29,8 +26,8 @@ SELECT
 		,s.Fecha
 		,s.descripcion AS [Turno]
 		,s.Hora
-		,s.[Orden SAP]
-		,null as [Orden en SAP 2]
+		,'' as [Orden SAP]
+		,s.[Orden en SAP 2]
 		,s.[Pieza por Golpe]
 		,s.[N° de Rollo]
 		,s.[Lote de rollo]
@@ -105,11 +102,11 @@ SELECT
 	(em.nombre+' '+em.apellido1+' '+em.apellido2)as Operador 
 	,(ems.nombre+' '+ems.apellido1+' '+ems.apellido2)as Supervisor
 	,pr.sap_platina AS [SAP Platina]
-	,null AS [SAP Platina 2]
-	,(SELECT TOP (1) [Type of Material] FROM mm_v3 WHERE Material=pr.sap_platina) AS [Tipo de Material]
-	,(SELECT TOP (1) [Customer part number] FROM class_v3 WHERE Object=pr.sap_platina) AS [Número de Parte de Cliente]
+	,pr.sap_platina_2 AS [SAP Platina 2]
+	,(SELECT TOP (1) [Type of Material] FROM mm_v3 WHERE Material=pr.sap_platina_2) AS [Tipo de Material]
+	,(SELECT TOP (1) [Customer part number] FROM class_v3 WHERE Object=pr.sap_platina_2) AS [Número de Parte de Cliente]
 	,pr.sap_rollo AS [SAP Rollo]
-	,(SELECT TOP (1) [Old material no#] FROM mm_v3 WHERE Material=pr.sap_platina) AS [Material]
+	,(SELECT TOP (1) [Old material no#] FROM mm_v3 WHERE Material=pr.sap_platina_2) AS [Material]
 	,pr.fecha AS [Fecha]
 	,pr.id
 	,pt.descripcion
@@ -127,22 +124,22 @@ SELECT
 	,NULL AS [N° Lote derecho] --no representa información relevante
 	,NULL AS [#] --no representa información relevante
 	,NULL AS [Piezas por paquete] --no representa información relevante
-	,ISNULL((SELECT SUM(piezas_paquete) FROM produccion_lotes as l WHERE id_produccion_registro=pr.id AND (l.sap_platina = pr.sap_platina OR l.sap_platina IS NULL )),0) AS [Total de piezas]
+	,ISNULL((SELECT SUM(piezas_paquete) FROM produccion_lotes as l WHERE id_produccion_registro=pr.id AND (l.sap_platina = pr.sap_platina_2 or l.sap_platina IS NULL )),0) AS [Total de piezas]
 	,ISNULL((SELECT SUM(piezas_paquete) FROM produccion_lotes as l WHERE id_produccion_registro=pr.id),0) AS [sum_total_piezas]
 	,NULL AS [Kg restante de rollo] --no disponible en las nuevas bitácoras,
 	,pd.peso_despunte_kgs AS [Peso despunte kgs#]
 	,pd.peso_cola_kgs AS [Peso cola Kgs#]
 	,pd.total_piezas_ajuste AS [Total de piezas de Ajustes]
 	,(SELECT (ISNULL(pd.peso_despunte_kgs,0)+ISNULL(pd.peso_cola_kgs,0))/ NULLIF(CAST(pd.peso_bascula_kgs AS float) ,0) ) AS [Porcentaje de puntas y colas]
-	,pd.peso_real_pieza_neto AS [Peso Real Pieza Neto]
-	,(SELECT TOP (1) [Net weight] FROM mm_v3 WHERE Material=pr.sap_platina) AS [Peso neto SAP]
-	,(SELECT TOP (1) [Gross weight] FROM mm_v3 WHERE Material=pr.sap_platina) AS [Peso Bruto SAP]
+	,pd.peso_real_pieza_neto_platina_2 AS [Peso Real Pieza Neto]
+	,(SELECT TOP (1) [Net weight] FROM mm_v3 WHERE Material=pr.sap_platina_2) AS [Peso neto SAP]
+	,(SELECT TOP (1) [Gross weight] FROM mm_v3 WHERE Material=pr.sap_platina_2) AS [Peso Bruto SAP]
 	,pl.linea AS [Column37]
 	,plt.descripcion AS [Column38]
 	,YEAR(pr.fecha) AS [Column39]
 	,pr.id AS [Column40]
 	,pd.ordenes_por_pieza AS [Ordenes por pieza]
-	,(ISNULL(pd.total_piezas_ajuste, 0) * ISNULL(pd.peso_real_pieza_neto, 0)) AS [Peso Neto_total piezas de ajuste_Kgs]
+	,(ISNULL(pd.total_piezas_ajuste, 0) * ISNULL(pd.peso_real_pieza_neto_platina_2, 0)) AS [Peso Neto_total piezas de ajuste_Kgs]
 FROM
 	[Portal_2_0].[dbo].[produccion_registros] as pr
 	JOIN [Portal_2_0].[dbo].[produccion_operadores] as po ON pr.id_operador = po.id
@@ -154,4 +151,7 @@ FROM
 	JOIN [Portal_2_0].[dbo].produccion_turnos as pt ON pr.id_turno = pt.id
 	JOIN [Portal_2_0].[dbo].produccion_datos_entrada as pd ON pr.id = pd.id_produccion_registro	
 	where pr.activo <>0
-	)t)p)q)r)s UNION ALL select * from view_produccion_resultados_2)v
+	)t)p)q)r)s 
+	where [SAP Platina 2] is not null
+	)
+				

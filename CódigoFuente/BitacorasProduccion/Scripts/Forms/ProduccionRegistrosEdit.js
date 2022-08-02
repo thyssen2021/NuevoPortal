@@ -17,10 +17,45 @@
 
     });
 
-    seleccionaValoresDefault();
+    //inicializa icheck
+    $('input').iCheck({
+        checkboxClass: 'icheckbox_square-green',
+        radioClass: 'iradio_square-green',
+        increaseArea: '20%' // optional
+    });
+
+    //captura evento de icheck
+    $('#segunda_platina').on('ifToggled', function (event) {
+        verificaSegundaPlatina();
+    });
+
+   
+    verificaSegundaPlatina();
+
+   
+    //// Initialize Select2 Elements
+    $('.select2bs4').select2({
+        theme: 'bootstrap4'
+    })
 
 
 });
+
+//activa y desactiva segunda platina
+function verificaSegundaPlatina() {
+
+    if ($('#segunda_platina').prop('checked')) {
+        $('#sap_platina_2').prop('disabled', false);
+    } else {
+        $("#sap_platina_2").val('');
+        $('#sap_platina_2').prop('disabled', 'disabled');
+        // Initialize Select2 Elements
+        $('.select2bs4').select2({
+            theme: 'bootstrap4'
+        })
+    }
+
+}
 
 //activa y desactiva los combos
 function verificaEstadoCombos() {
@@ -37,78 +72,6 @@ function verificaEstadoCombos() {
 
 }
 
-//selecciona los valores que carga por defecto
-function seleccionaValoresDefault() {
-    var c_supervisor = document.getElementById("cIdSupervisor");
-    var c_operador = document.getElementById("cIdOperdor");
-
-    //Si hay valores previos (supervisor)
-    if (c_supervisor != null && c_supervisor.value != 0) {
-        //establece el valor de supervisor
-        if ($("#id_supervisor option[value='" + c_supervisor.value + "']").length > 0) {
-            $("#id_supervisor").val(c_supervisor.value);
-        } else {
-            $("#id_supervisor").val("");
-        }
-    }
-
-    //Si hay valores previos (operador)
-    if (c_operador != null && c_operador.value != 0) {
-        //establece el valor de operador
-        if ($("#id_operador option[value='" + c_operador.value + "']").length > 0) {
-            $("#id_operador").val(c_operador.value);
-        } else {
-            $("#id_operador").val("");
-        }
-    }
-
-
-    var c_platina = document.getElementById("cSapPlatina");
-
-    //Si hay valores previos (EDIT)
-    if (c_platina != null && c_platina.value != 0) {
-
-        //realiza llamada para lineas
-        $.ajax({
-            type: 'POST',
-            url: '/Combos/obtieneRollosBom',
-            data: { material: c_platina.value },
-            success: function (data) {
-                populateDropdown($("#sap_rollo"), data);
-            },
-            async: false
-        });
-
-        //establece el valor de c_platina
-        if ($("#sap_platina option[value='" + c_platina.value + "']").length > 0) {
-            $("#sap_platina").val(c_platina.value);
-        } else {
-            $("#sap_platina").val("");
-        }
-
-
-        var c_rollo = document.getElementById("cSapRollo");
-
-
-        if (c_rollo != null && c_rollo.value != 0) {
-            //establece el valor del segundo select una vez termina la llamada ajax
-            if ($("#sap_rollo option[value='" + c_rollo.value + "']").length > 0) {
-                $("#sap_rollo").val(c_rollo.value);
-            } else {
-                $("#sap_rollo").val("");
-            }
-        }
-
-    } else { //en caso de que no haya valores previos (CREATE)
-        verificaEstadoCombos();
-    }
-
-    // Initialize Select2 Elements
-    $('.select2bs4').select2({
-        theme: 'bootstrap4'
-    })
-
-}
 
 //completa el selec con los datos recibidos
 function populateDropdown(select, data) {

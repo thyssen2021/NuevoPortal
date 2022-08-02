@@ -15,7 +15,7 @@ GO
 CREATE VIEW [dbo].view_historico_resultado AS
 
 SELECT
-	ISNULL(ROW_NUMBER() OVER (ORDER BY v3.fecha), 0) as id,
+	ISNULL(ROW_NUMBER() OVER (ORDER BY v3.fecha, v3.[SAP Platina] desc), 0) as id,
 	v3.*,
 	(SELECT comentarios from dbo.produccion_datos_entrada where v3.Column40>0 AND id_produccion_registro =v3.Column40) as comentario
 	FROM (
@@ -85,7 +85,7 @@ SELECT
 	SELECT  [Operador ] as [Operador]
       ,[Supervisor ] as [Supervisor]
       ,[SAP Platina ] as [SAP Platina]
-	    ,null as [SAP Platina 2]
+	  ,null as [SAP Platina 2]
       ,[Tipo de Material]
       ,[Número de Parte  de cliente]
       ,[SAP Rollo]
@@ -147,7 +147,7 @@ SELECT
 	SELECT [Operador]
       ,[Supervisor]
       ,[SAP Platina]
-	    ,null as [SAP Platina 2]
+	   ,null as [SAP Platina 2]
       ,[Tipo de Material]
       ,[Número de Parte  de cliente]
       ,[SAP Rollo]
@@ -212,7 +212,7 @@ SELECT
 		--[id]
       [Operador]
       ,[Supervisor]
-      ,[SAP Platina]
+      ,[SAP Platina] --NULLIF([SAP Platina],'') AS [SAP Platina]
 	  ,[SAP Platina 2]
       ,[Tipo de Material]
       ,[Número de Parte de Cliente]
@@ -221,7 +221,7 @@ SELECT
       ,[Fecha]
       ,[Turno]
       ,[Hora]
-      ,[Orden SAP]
+      ,NULLIF ([Orden SAP],'') AS [Orden SAP]
       ,[Orden en SAP 2]
       ,[Pieza por Golpe]
       ,[N° de Rollo]
@@ -261,5 +261,5 @@ SELECT
       ,[Peso Neto_total piezas de ajuste_Kgs]
       ,[Peso puntas y colas reales_Kg]
       ,[Balance_de_Scrap_Real]
-  FROM [Portal_2_0].[dbo].[view_produccion_resultados])v2
-	WHERE Fecha is not null)v3 
+  FROM [Portal_2_0].[dbo].[view_produccion_resultados])v2 
+	WHERE Fecha is not null)  v3 

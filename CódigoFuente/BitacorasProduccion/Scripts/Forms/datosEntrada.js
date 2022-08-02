@@ -2,24 +2,13 @@
 $(document).ready(function () {
 
     //inicializa los data table
-    $('#datatable_1').DataTable({
+    $('.table').DataTable({
         "paging": false,
         "ordering": false,
         "searching": false,
         "scrollX": true,
         "info": false
     });
-
-    //inicializa los data table
-    $('#datatable_2').DataTable({
-        "paging": false,
-        "ordering": false,
-        "searching": false,
-        "scrollX": true,
-        "info": false
-    });
-
-
 
 
     //Agrega el evento a todos los input
@@ -63,6 +52,7 @@ $(document).ready(function () {
         }
     });
 
+
     //carga input mask
     $('.entero').inputmask({ 'alias': 'integer', 'autoGroup': true, 'autoUnmask': true, 'removeMaskOnSubmit': true });
 
@@ -72,8 +62,6 @@ $(document).ready(function () {
     //llamada al método para asignar el número de lote
     AsignaNumeroLote();
 
-    //Actaliza los combos existentes al cargar la pantalla
-    ActualizaMateriales();
 });
 
 //agranda el tamaño de la barra
@@ -83,6 +71,8 @@ window.onload = function () {
 
 //variable global para el id
 var num = 0;
+//variable global para saber si se presionó el segundo valor
+var peso_bascula_2 = false;
 
 var Toast = Swal.mixin({
     toast: true,
@@ -100,7 +90,14 @@ var Toast = Swal.mixin({
 });
 
 //muestra el modal de captura de peso
-function mostrarModalPass() {
+function mostrarModalPass(platina) {
+
+    if (platina == 2)
+        peso_bascula_2 = true;
+    else
+        peso_bascula_2 = false;
+
+
     let autorizado = VerificaTiempo();
     if (autorizado) {
         mostrarModal();
@@ -117,6 +114,7 @@ function mostrarModalPass() {
 function mostrarModal() {
 
     try {
+
         document.getElementById("peso_manual").focus();
 
         $('#myModal').modal('show')
@@ -146,7 +144,14 @@ function mostrarModal() {
 }
 
 //muestra el modal de captura de peso
-function muestraModalSocket() {
+function muestraModalSocket(platina) {
+
+    if (platina == 2)
+        peso_bascula_2 = true;
+    else
+        peso_bascula_2 = false;
+
+
     $('#myModalTipoPieza').modal('show')
 }
 
@@ -233,7 +238,13 @@ function ocultarModal(denominador) {
     //verifica si es un numero
     if (!isNaN(peso_etiqueta)) {
         let peso = TryParseFloat(peso_etiqueta, 0);
-        $('#produccion_datos_entrada_peso_real_pieza_neto').val(peso_etiqueta / denominador);
+
+        console.log(peso_bascula_2)
+        if (peso_bascula_2)
+            $('#produccion_datos_entrada_peso_real_pieza_neto_platina_2').val(peso_etiqueta / denominador);
+        else
+            $('#produccion_datos_entrada_peso_real_pieza_neto').val(peso_etiqueta / denominador);
+
         Toast.fire({
             icon: 'success',
             title: 'Se capturó el peso correctamente.'
@@ -262,7 +273,12 @@ function ObtenerPesoBascula(ip, denominador) {
                 console.log(data);
                 if (data[0].Message == "OK") {
                     let peso = TryParseFloat(data[0].Peso, 0);
-                    $('#produccion_datos_entrada_peso_real_pieza_neto').val(peso / denominador);
+
+                    if (peso_bascula_2)
+                        $('#produccion_datos_entrada_peso_real_pieza_neto_platina_2').val(peso / denominador);
+                    else
+                        $('#produccion_datos_entrada_peso_real_pieza_neto').val(peso / denominador);
+
                     Toast.fire({
                         icon: 'success',
                         title: 'Se capturó el peso correctamente.'
@@ -303,11 +319,19 @@ function ObtenerPesoBascula(ip, denominador) {
 //funcion que calcula los datos de lo campos readonly
 function calculaDatos() {
 
+    //obtine el valor de sap platina
+    let sap_platina_2 = $("#sap_platina_2").val();
+    let tiene_platina2 = sap_platina_2 !== "";
+
+
     //Variables
     let peso_etiqueta = TryParseFloat($('#produccion_datos_entrada_peso_etiqueta').val(), 0);
     let peso_despunte = TryParseFloat($('#produccion_datos_entrada_peso_despunte_kgs').val(), 0);
     let peso_cola = TryParseFloat($('#produccion_datos_entrada_peso_cola_kgs').val(), 0);
     let peso_real_pieza_neto = TryParseFloat($('#produccion_datos_entrada_peso_real_pieza_neto').val(), 0);  //valor de la báscula
+    if (tiene_platina2) {
+        var peso_real_pieza_neto_2 = TryParseFloat($('#produccion_datos_entrada_peso_real_pieza_neto_platina_2').val(), 0);  //valor de la báscula
+    }
     let peso_regreso_rollo = TryParseFloat($('#produccion_datos_entrada_peso_regreso_rollo_real').val(), 0);
     let ordenes_por_pieza = TryParseFloat($('#produccion_datos_entrada_ordenes_por_pieza').val(), 0);
     let peso_bascula = TryParseFloat($('#produccion_datos_entrada_peso_bascula_kgs').val(), 0);
@@ -318,20 +342,50 @@ function calculaDatos() {
     let peso_rollo_usado = peso_etiqueta - peso_regreso_rollo;
     let peso_rollo_usado_real = peso_bascula - peso_regreso_rollo;
     let total_piezas = obtieneTotalPiezaLote();
+    let total_piezas_platina_1 = obtieneTotalPiezaLotePlatina1();
+    if (tiene_platina2) {
+        var total_piezas_platina_2 = obtieneTotalPiezaLotePlatina2();
+    }
     let numero_golpes = DivisionPorCero(total_piezas, piezas_por_golpe, 0)
     let peso_real_pieza_bruto = obtienePesoRealPiezaBruto();
     let peso_bruto_kgs = obtienePesoBrutoKgs();
+    if (tiene_platina2) {
+        var peso_bruto_kgs_2 = obtienePesoBrutoKgs2();
+    }
     let peso_bruto_total_piezas = (total_piezas * peso_real_pieza_bruto * ordenes_por_pieza);
+
+    if (tiene_platina2) {
+        var peso_bruto_total_piezas_2 = (total_piezas * obtienePesoRealPiezaBruto2() * ordenes_por_pieza);
+    }
     let peso_neto_total_piezas = (total_piezas * peso_real_pieza_neto * ordenes_por_pieza);
+
+    if (tiene_platina2) {
+        var peso_neto_total_piezas_2 = (total_piezas * peso_real_pieza_neto_2 * ordenes_por_pieza);
+    }
     let scrap_natural = obtieneScrapNatural();
     let scrap_ingenieria_buenas_ajuste = ((peso_bruto_total_piezas - peso_neto_total_piezas) + (total_piezas_ajuste * scrap_natural));
+    if (tiene_platina2) {
+        var scrap_ingenieria_buenas_ajuste_2 = ((peso_bruto_total_piezas_2 - peso_neto_total_piezas_2) + (total_piezas_ajuste * obtieneScrapNatural_2()));
+    }
     let peso_neto_total_piezas_ajuste_kgs = total_piezas_ajuste * peso_real_pieza_neto;
+    if (tiene_platina2) {
+        var peso_neto_total_piezas_ajuste_kgs_2 = total_piezas_ajuste * peso_real_pieza_neto_2;
+    }
     let peso_punta_y_cola_reales = peso_rollo_usado_real - (peso_bruto_total_piezas + peso_bruto_kgs);
     if (peso_punta_y_cola_reales < 0)
         peso_punta_y_cola_reales = 0;
 
+    if (tiene_platina2) {
+        var peso_punta_y_cola_reales_2 = peso_rollo_usado_real - (peso_bruto_total_piezas_2 + peso_bruto_kgs_2);
+        if (peso_punta_y_cola_reales_2 < 0)
+            peso_punta_y_cola_reales_2 = 0;
+    }
+
     let balance_scrap_real = (DivisionPorCero(peso_bruto_kgs + peso_punta_y_cola_reales, peso_rollo_usado_real, 0)) * 100;
 
+    if (tiene_platina2) {
+        var balance_scrap_real_2 = (DivisionPorCero(peso_bruto_kgs_2 + peso_punta_y_cola_reales_2, peso_rollo_usado_real, 0)) * 100;
+    }
     //asigna el peso de rollo usado
     $('#peso_rollo_usado').val(peso_rollo_usado);
     //calcula y asiga punta y colas
@@ -342,27 +396,67 @@ function calculaDatos() {
         $('#porcentaje_punta_cola').val(porcentaje_punta_colas.toFixed(2) + " %");
     }
     //asiga total pieza lotes
+    $('#total_piezas_platina_1').val(total_piezas_platina_1);
+
+    if (tiene_platina2)
+        $('#total_piezas_platina_2').val(total_piezas_platina_2);
+
     $('#total_piezas').val(total_piezas);
+
     //agrega el valor de la bácula a la tabla
     document.getElementById("td_peso_real_pieza_neto").innerHTML = peso_real_pieza_neto.toFixed(3);
-    //asigna el peso real pieza bruto
+
+    if (tiene_platina2)
+        document.getElementById("td_peso_real_pieza_neto_2").innerHTML = peso_real_pieza_neto_2.toFixed(3);
+
+    //agrega el valor de peso bruto kgs
+    document.getElementById("td_peso_bruto_kgs").innerHTML = peso_bruto_kgs.toFixed(3);
+
+    if (tiene_platina2)
+        document.getElementById("td_peso_bruto_kgs_2").innerHTML = peso_bruto_kgs_2.toFixed(3);
+
+    //asigna el peso real pieza bruto PLATINA 1
     let prpb = obtienePesoRealPiezaBruto().toFixed(3);
     document.getElementById("td_peso_real_pieza_bruto").innerHTML = prpb;
     $('#peso_real_pieza_bruto_input').val(prpb);
+
+    if (tiene_platina2) {
+        //asigna el peso real pieza bruto PLATINA 2
+        var prpb2 = obtienePesoRealPiezaBruto2().toFixed(3);
+        document.getElementById("td_peso_real_pieza_bruto_2").innerHTML = prpb2;
+        $('#peso_real_pieza_bruto_input_2').val(prpb2);
+    }
+
     //crear y llamar método para obtener el scrap natural td_scrap_natural
     document.getElementById("td_scrap_natural").innerHTML = obtieneScrapNatural().toFixed(3);
+    //crear y llamar método para obtener el scrap natural td_scrap_natural platina 2
+    if (tiene_platina2)
+        document.getElementById("td_scrap_natural_2").innerHTML = obtieneScrapNatural_2().toFixed(3);
+
     //asiga el valor del peso bruto
-    $('#peso_bruto_kgs').val(obtienePesoBrutoKgs().toFixed(3));
+    // $('#peso_bruto_kgs').val(obtienePesoBrutoKgs().toFixed(3));
+
     //asiga el numero de golpes (VERIFICAR LA FORMULA)
     $('#numero_golpes').val(numero_golpes.toFixed(0));
 
     //completa el balance de scrap
     document.getElementById("td_balance_scrap").innerHTML = obtieneBalanceScrap().toFixed(2) + '%';
+    //completa el balance de scrap platina2
+    if (tiene_platina2)
+        document.getElementById("td_balance_scrap_2").innerHTML = obtieneBalanceScrap2().toFixed(2) + '%';
+
     //cambia el color del fondo de la celda
     cambiaColorCelda('fila_balance_scrap', obtieneBalanceScrap());
+    //cambia el color del fondo de la celda Platina 2
+    if (tiene_platina2)
+        cambiaColorCelda('fila_balance_scrap_2', obtieneBalanceScrap2());
 
     //asigna el valor de las ordenes por pieza
     document.getElementById("td_ordenes_pieza").innerHTML = ordenes_por_pieza;
+    //asigna el valor de las ordenes por pieza platina 2
+    if (tiene_platina2)
+        document.getElementById("td_ordenes_pieza_2").innerHTML = ordenes_por_pieza;
+
     //asiga el valor de peso rollo real usado
     document.getElementById("td_peso_rollo_usado_real").innerHTML = peso_rollo_usado_real.toFixed(3);
     //asigna el valor de peso bruto total pieza kg
@@ -378,16 +472,42 @@ function calculaDatos() {
     //asiga el balance de scrap real
     document.getElementById("td_balance_scrap_reales").innerHTML = balance_scrap_real.toFixed(2) + ' %';
     cambiaColorCelda("fila_balance_scrap_real", balance_scrap_real);
+
+    if (tiene_platina2) {
+        //asiga el valor de peso rollo real usado
+        document.getElementById("td_peso_rollo_usado_real_2").innerHTML = peso_rollo_usado_real.toFixed(3);
+        //asigna el valor de peso bruto total pieza kg
+        document.getElementById("td_peso_bruto_total_piezas_2").innerHTML = peso_bruto_total_piezas_2.toFixed(3);
+        //asigna el valor de peso neto total pieza kg
+        document.getElementById("td_peso_neto_total_piezas_2").innerHTML = peso_neto_total_piezas_2.toFixed(3);
+        //asigna scrap ingenieria buenas + ajuste
+        document.getElementById("td_scrap_ingenieria_2").innerHTML = scrap_ingenieria_buenas_ajuste_2.toFixed(3);
+        //asigna el valor peso neto  total piezas de ajuste
+        document.getElementById("td_peso_neto_total_piezas_ajuste_2").innerHTML = peso_neto_total_piezas_ajuste_kgs_2.toFixed(3);
+        //asiga el valor de peso punta y cola reales
+        document.getElementById("td_peso_punta_colas_reales_2").innerHTML = peso_punta_y_cola_reales_2.toFixed(3);
+        //asiga el balance de scrap real
+        document.getElementById("td_balance_scrap_reales_2").innerHTML = balance_scrap_real_2.toFixed(2) + ' %';
+        cambiaColorCelda("fila_balance_scrap_real_2", balance_scrap_real_2);
+    }
 }
 
 
 
 //---- el valor de Peso real pieza bruto ---
 function obtienePesoRealPiezaBruto() {
-    var peso_neto_sap = TryParseFloat(document.getElementById("td_peso_neto_sap").innerHTML, 0);
-    var peso_bruto_sap = TryParseFloat(document.getElementById("td_peso_bruto_sap").innerHTML, 0);
-    var peso_real_pieza_neto = TryParseFloat($('#produccion_datos_entrada_peso_real_pieza_neto').val(), 0);
+    let peso_neto_sap = TryParseFloat(document.getElementById("td_peso_neto_sap").innerHTML, 0);
+    let peso_bruto_sap = TryParseFloat(document.getElementById("td_peso_bruto_sap").innerHTML, 0);
+    let peso_real_pieza_neto = TryParseFloat($('#produccion_datos_entrada_peso_real_pieza_neto').val(), 0);
+    return peso_real_pieza_bruto = DivisionPorCero(peso_bruto_sap, peso_neto_sap, 0) * peso_real_pieza_neto;
 
+}
+
+//---- el valor de Peso real pieza bruto ---
+function obtienePesoRealPiezaBruto2() {
+    let peso_neto_sap = TryParseFloat(document.getElementById("td_peso_neto_sap_2").innerHTML, 0);
+    let peso_bruto_sap = TryParseFloat(document.getElementById("td_peso_bruto_sap_2").innerHTML, 0);
+    let peso_real_pieza_neto = TryParseFloat($('#produccion_datos_entrada_peso_real_pieza_neto_platina_2').val(), 0);
 
     return peso_real_pieza_bruto = DivisionPorCero(peso_bruto_sap, peso_neto_sap, 0) * peso_real_pieza_neto;
 
@@ -431,6 +551,14 @@ function obtieneScrapNatural() {
     return (peso_bruto - peso_neto);
 
 }
+//---- el valor de Scrap Natural ---
+function obtieneScrapNatural_2() {
+    let peso_bruto = obtienePesoRealPiezaBruto2();
+    let peso_neto = TryParseFloat($('#produccion_datos_entrada_peso_real_pieza_neto_platina_2').val(), 0);
+
+    return (peso_bruto - peso_neto);
+
+}
 
 //---- el valor de Peso Bruto Kgs  ---
 function obtienePesoBrutoKgs() {
@@ -439,6 +567,13 @@ function obtienePesoBrutoKgs() {
 
     return (peso_bruto * total_piezas);
 
+}
+//---- el valor de Peso Bruto Kgs  ---
+function obtienePesoBrutoKgs2() {
+    let peso_bruto = obtienePesoRealPiezaBruto2();
+    let total_piezas = TryParseFloat($('#produccion_datos_entrada_total_piezas_ajuste').val(), 0);
+
+    return (peso_bruto * total_piezas);
 }
 
 //---- obtiene el balance de scrap  ---
@@ -451,9 +586,59 @@ function obtieneBalanceScrap() {
     return balance_scrap = DivisionPorCero((peso_despunte + peso_cola + peso_bruto), peso_etiqueta, 0) * 100;
 
 }
+//---- obtiene el balance de scrap  ---
+function obtieneBalanceScrap2() {
+    let peso_despunte = TryParseFloat($('#produccion_datos_entrada_peso_despunte_kgs').val(), 0);
+    let peso_cola = TryParseFloat($('#produccion_datos_entrada_peso_cola_kgs').val(), 0);
+    let peso_bruto = obtienePesoBrutoKgs2();
+    let peso_etiqueta = TryParseFloat($('#produccion_datos_entrada_peso_etiqueta').val(), 0);
+
+    return balance_scrap = DivisionPorCero((peso_despunte + peso_cola + peso_bruto), peso_etiqueta, 0) * 100;
+
+}
+
+function obtieneTotalPiezaLotePlatina1() {
+    var suma = 0;
+
+    //obtine los valores de lotes
+    let sap_platina_1 = $("#sap_platina").val();
+
+    $('.total_piezas').each(function () {
+        let row = $(this).attr("data-row");
+
+        let select = $('select[name="produccion_lotes[' + row + '].sap_platina"] option:selected').text();
+
+        if (sap_platina_1 !== "" && sap_platina_1 == select) {
+            suma = suma + TryParseFloat($(this).val(), 0)
+        }
+    });
+
+    return suma;
+}
+
+function obtieneTotalPiezaLotePlatina2() {
+    var suma = 0;
+
+    //obtine los valores de lotes
+    let sap_platina_2 = $("#sap_platina_2").val();
+
+    $('.total_piezas').each(function () {
+        let row = $(this).attr("data-row");
+
+        let select = $('select[name="produccion_lotes[' + row + '].sap_platina"] option:selected').text();
+
+        if (sap_platina_2 !== "" && sap_platina_2 == select) {
+            suma = suma + TryParseFloat($(this).val(), 0)
+        }
+    });
+
+    return suma;
+}
+
 
 function obtieneTotalPiezaLote() {
     var suma = 0;
+
     $('.total_piezas').each(function () {
         suma = suma + TryParseFloat($(this).val(), 0)
     });
@@ -461,10 +646,12 @@ function obtieneTotalPiezaLote() {
     return suma;
 }
 
+
 //convierte texto a float
 function TryParseFloat(str, defaultValue) {
+
     var retValue = defaultValue;
-    if (str !== null) {
+    if (str !== undefined && str !== null) {
         if (str.length > 0) {
             if (!isNaN(str)) {
                 retValue = parseFloat(str);
@@ -477,29 +664,34 @@ function TryParseFloat(str, defaultValue) {
 //agreaga una fila para lotes
 function AgregarConcepto() {
     //obtine los valores de lotes
+    let sap_platina_1 = $("#sap_platina").val();
+    let sap_platina_2 = $("#sap_platina_2").val();
 
-
-    $("#div_lotes").append(
-
-        `
+    let cadena = `
                   <div class="form-group row" id="div_lotes_`+ num + `">
                         <div class="col-md-1">
                             <input style="text-align:center; background-color:antiquewhite" type="text" class="form-control col-md-12 input-contador-lotes" value="" readonly="readonly">
                         </div>
                     
                         <input type="hidden" name="produccion_lotes.Index" id="produccion_lotes.Index" value="`+ num + `" />
+                        <label class="control-label col-md-1" for="produccion_lotes[`+ num + `].sap_platina">
+                            <span class="float-right">Platina</span>
+                        </label>
                         <div class="col-md-2">
-                            <select name="select_`+ num + `" class="combo-material form-control select2bs4" data-row="`+ num + `" id="combo_material_` + num + `" style="width: 100%" required>
+                            <select name="produccion_lotes[`+ num + `].sap_platina" name="produccion_lotes[` + num + `].sap_platina"  class="combo-material form-control select2bs4" data-row="` + num + `" id="combo_material_` + num + `" style="width: 100%" required>
                                <option value="" selected>-- Sin Definir --</option>
-                              <option value="value1" >SAP Platina 1</option>
-                              <option value="value2">SAP Platina 2</option>
+                              <option value="`+ sap_platina_1 + `" >` + sap_platina_1 + `</option>
+                        `;
+
+    if (sap_platina_2 !== "") {
+        cadena += `<option value="` + sap_platina_2 + `">` + sap_platina_2 + `</option>`;
+    }
+
+    cadena += `
+                              
                             </select>
                             <span class="field-validation-valid text-danger" data-valmsg-for="select_`+ num + `" data-valmsg-replace="true"></span>
-                        </div>
-                        <div class="col-md-2">
-                            <input style="text-align:right" type="text" maxlenght=30 name="produccion_lotes[`+ num + `].sap_platina" id="produccion_lotes[` + num + `].sap_platina" class="form-control col-md-12 material-lote" value="" readonly required>
-                            <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[` + num + `].sap_platina" data-valmsg-replace="true"></span>
-                        </div>
+                        </div>                      
                         <label class="control-label col-md-1" for="produccion_lotes[`+ num + `].numero_lote_izquierdo">
                             <span class="float-right">Lote Izquierdo</span>
                         </label>
@@ -518,17 +710,19 @@ function AgregarConcepto() {
                                 <span class="float-right">Piezas por paquete</span>
                         </label>
                         <div class="col-md-1">
-                            <input type="text" min="0" step="1" max="5000" name="produccion_lotes[`+ num + `].piezas_paquete" id="produccion_lotes[` + num + `].piezas_paquete" class="form-control col-md-12 total_piezas entero" value="" maxlength="10" autocomplete="off" required>
+                            <input type="text" min="0" step="1" max="5000" name="produccion_lotes[`+ num + `].piezas_paquete" id="produccion_lotes[` + num + `].piezas_paquete" class="form-control col-md-12 total_piezas entero" data-row="` + num + `" value="" maxlength="10" autocomplete="off" required>
                                 <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[` + num + `].piezas_paquete" data-valmsg-replace="true"></span>
                             </div>
                         <div class="col-md-1">
                             <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarLote(` + num + `); return false;">
                         </div>
         </div>
-                                                                `
-    );
+        `;
+
+    $("#div_lotes").append(cadena);
+
     $("#div_lotes_" + num).hide().fadeIn(500);
-   
+
 
     // Initialize Select2 Elements (debe ir después de asignar el valor)
     $('.select2bs4').select2({
@@ -537,15 +731,11 @@ function AgregarConcepto() {
 
     //aplica el evento a los combos de material
     $("#combo_material_" + num).change(function () {
-
-        ActualizaMateriales();
-
+        calculaDatos();
     });
-
 
     //carga input mask
     $('.entero').inputmask({ 'alias': 'integer', 'autoGroup': true, 'autoUnmask': true, 'removeMaskOnSubmit': true });
-
 
     //vuelve a asigar el evento on a cada input de los lotes
     $('.total_piezas').each(function () {
@@ -554,74 +744,13 @@ function AgregarConcepto() {
         });
     });
 
-    ActualizaMateriales();
     AsignaNumeroLote();
 
     num++;
 }
 
-function AplicaEventsMaterial() {
-    //cuando hay cambio de material
-
-    //vuelve a asigar el evento on a cada input de los lotes
-    $('.combo-material').each(function () {
-
-        //importante elimina todos los ecventos asociados a este input, para evitar que el método de evento se ejqcute varias veces
-        //$(this).unbind();
-
-        //asocia un nuevo evento
-        $(this).change(function () {
-
-            ActualizaMateriales();
-
-        });
-
-    });
-}
-
-//Actualiza Inputs y texts de Materiales
-function ActualizaMateriales() {
 
 
-    //vuelve a asigar el evento on a cada input de los lotes
-    $('.combo-material').each(function () {
-
-        let row = $(this).attr("data-row");
-        let selectedIndex = $(this)[0].selectedIndex;
-
-        let sap1 = $("#sap_platina").val();
-
-        var sap2 = $("#produccion_datos_entrada_sap_platina_2 option:selected").val();
-
-        //si material esta vacia
-        if (sap2 == "") {
-            sap2 == "NO DISPONIBLE";
-        }
-        else {
-            sap2 == $("#produccion_datos_entrada_sap_platina_2 option:selected").text();
-        }
-
-        if (!isNaN(row))            
-        switch (selectedIndex) {
-            case 1:
-                document.getElementById("produccion_lotes[" + row + "].sap_platina").value = sap1;
-                break;
-            case 2:
-                document.getElementById("produccion_lotes[" + row + "].sap_platina").value = sap2;
-                break;
-            default:
-                document.getElementById("produccion_lotes[" + row + "].sap_platina").value = "NO DISPONIBLE";
-                break;
-        }
-
-    });
-
-    //// Initialize Select2 Elements (debe ir después de asignar el valor)
-    //$('.select2bs4').select2({
-    //    theme: 'bootstrap4'
-    //})
-
-}
 
 
 //borra un lote

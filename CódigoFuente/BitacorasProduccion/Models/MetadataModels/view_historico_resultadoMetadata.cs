@@ -150,6 +150,9 @@ namespace Portal_2_0.Models
         [Display(Name = "Balance de Scrap Real")]
         public Nullable<double> Balance_de_Scrap_Real { get; set; }
         public string comentario { get; set; }
+
+        [Display(Name = "SAP Platina 2")]
+        public string SAP_Platina_2 { get; set; }
     }
 
     [MetadataType(typeof(view_historico_resultadoMetadata))]

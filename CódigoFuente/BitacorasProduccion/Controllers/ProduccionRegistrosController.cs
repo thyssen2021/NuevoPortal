@@ -158,9 +158,17 @@ namespace Portal_2_0.Controllers
 
                 ViewBag.Planta = plantas;
                 ViewBag.Linea = lineas;
-                ViewBag.sap_platina = ComboSelect.obtieneMaterial_BOM();
-                ViewBag.sap_rollo = ComboSelect.obtieneRollo_BOM();
-                ViewBag.id_supervisor = ComboSelect.obtieneSupervisoresPlanta(planta.Value);
+
+                //crea un select li
+                List<SelectListItem> listadoPlatinas = ComboSelect.obtieneMaterial_BOM();
+                List<SelectListItem> listadoRollos = ComboSelect.obtieneRollo_BOM();
+
+                ViewBag.sap_platina = AddFirstItem(new SelectList(listadoPlatinas, "Value", "Text"), textoPorDefecto: "-- Seleccionar --");
+                ViewBag.sap_platina_2 = AddFirstItem(new SelectList(listadoPlatinas, "Value", "Text"), textoPorDefecto: "-- Seleccionar --");
+                ViewBag.sap_rollo = new SelectList(ComboSelect.obtieneRollo_BOM(), "Value", "Text");
+                ViewBag.id_supervisor = AddFirstItem(new SelectList(db.produccion_supervisores.Where(p => p.activo == true && p.clave_planta == planta.Value),
+                    nameof(produccion_supervisores.id), "empleados." + nameof(produccion_supervisores.empleados.ConcatNombre)),
+                    textoPorDefecto: "-- Seleccionar --");
                 ViewBag.id_operador = ComboSelect.obtieneOperadorPorLinea(emp, linea.Value);
 
                 return View();
@@ -177,27 +185,8 @@ namespace Portal_2_0.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "id,clave_planta,id_linea,id_operador,id_supervisor,id_turno,sap_platina,sap_rollo,fecha,activo")] produccion_registros produccion_registros, FormCollection collection)
-        {
-
-            //valores enviados previamente
-            String c_sap_platina = String.Empty;
-            if (!String.IsNullOrEmpty(collection["sap_platina"]))
-                c_sap_platina = collection["sap_platina"].ToString();
-
-            //valores enviados previamente
-            String c_sap_rollo = String.Empty;
-            if (!String.IsNullOrEmpty(collection["sap_rollo"]))
-                c_sap_rollo = collection["sap_rollo"].ToString();
-
-            //valores enviados previamente
-            int c_id_supervisor = 0;
-            if (!String.IsNullOrEmpty(collection["id_supervisor"]))
-                Int32.TryParse(collection["id_supervisor"].ToString(), out c_id_supervisor);
-
-            int c_id_operador = 0;
-            if (!String.IsNullOrEmpty(collection["id_operador"]))
-                Int32.TryParse(collection["id_operador"].ToString(), out c_id_operador);
+        public ActionResult Create(produccion_registros produccion_registros, FormCollection collection)
+        {   
 
             //si el modelo es válido
             if (ModelState.IsValid)
@@ -243,16 +232,18 @@ namespace Portal_2_0.Controllers
 
             ViewBag.Planta = plantas;
             ViewBag.Linea = lineas;
-            ViewBag.sap_platina = ComboSelect.obtieneMaterial_BOM();
-            ViewBag.sap_rollo = ComboSelect.obtieneRollo_BOM();
-            ViewBag.id_supervisor = ComboSelect.obtieneSupervisoresPlanta(produccion_registros.clave_planta.Value);
-            ViewBag.id_operador = ComboSelect.obtieneOperadorPorLinea(emp, produccion_registros.id_linea.Value);
-            //para completar_valores previos
-            ViewBag.c_sap_platina = c_sap_platina;
-            ViewBag.c_sap_rollo = c_sap_rollo;
-            ViewBag.c_id_supervisor = c_id_supervisor;
-            ViewBag.c_id_operador = c_id_operador;
 
+            //crea un select li
+            List<SelectListItem> listadoPlatinas = ComboSelect.obtieneMaterial_BOM();
+            List<SelectListItem> listadoRollos = ComboSelect.obtieneRollo_BOM(produccion_registros.sap_platina);
+
+            ViewBag.sap_platina = AddFirstItem(new SelectList(listadoPlatinas, "Value", "Text"), textoPorDefecto: "-- Seleccionar --", selected: produccion_registros.sap_platina);
+            ViewBag.sap_platina_2 = AddFirstItem(new SelectList(listadoPlatinas, "Value", "Text"), textoPorDefecto: "-- Seleccionar --", selected: produccion_registros.sap_platina_2);
+            ViewBag.sap_rollo = new SelectList(ComboSelect.obtieneRollo_BOM(produccion_registros.sap_platina), "Value", "Text", selectedValue: produccion_registros.sap_rollo);
+            ViewBag.id_supervisor = AddFirstItem(new SelectList(db.produccion_supervisores.Where(p => p.activo == true && p.clave_planta == produccion_registros.clave_planta),
+                nameof(produccion_supervisores.id), "empleados." + nameof(produccion_supervisores.empleados.ConcatNombre)),
+                textoPorDefecto: "-- Seleccionar --", selected: produccion_registros.id_supervisor.ToString());
+            ViewBag.id_operador = ComboSelect.obtieneOperadorPorLinea(emp, produccion_registros.id_linea.Value);
 
             return View(produccion_registros);
         }
@@ -277,17 +268,26 @@ namespace Portal_2_0.Controllers
                     return RedirectToAction("Index");
                 }
 
+               
+
                 empleados emp = obtieneEmpleadoLogeado();
 
-                ViewBag.sap_platina = ComboSelect.obtieneMaterial_BOM();
-                ViewBag.sap_rollo = ComboSelect.obtieneRollo_BOM();
-                ViewBag.id_supervisor = ComboSelect.obtieneSupervisoresPlanta(produccion.clave_planta.Value);
+                //verifica si tiene segunda platina
+                if (!string.IsNullOrEmpty(produccion.sap_platina_2))
+                    produccion.segunda_platina = true;
+
+                //crea un select li
+                List<SelectListItem> listadoPlatinas = ComboSelect.obtieneMaterial_BOM();
+                List<SelectListItem> listadoRollos= ComboSelect.obtieneRollo_BOM(produccion.sap_platina);
+
+                ViewBag.sap_platina = AddFirstItem(new SelectList(listadoPlatinas, "Value", "Text"), textoPorDefecto: "-- Seleccionar --", selected: produccion.sap_platina);
+                ViewBag.sap_platina_2 = AddFirstItem(new SelectList(listadoPlatinas, "Value", "Text"), textoPorDefecto: "-- Seleccionar --", selected: produccion.sap_platina_2);
+                ViewBag.sap_rollo = new SelectList(ComboSelect.obtieneRollo_BOM(produccion.sap_platina), "Value", "Text", selectedValue: produccion.sap_rollo);
+                ViewBag.id_supervisor = AddFirstItem(new SelectList(db.produccion_supervisores.Where(p => p.activo == true && p.clave_planta == produccion.clave_planta), 
+                    nameof(produccion_supervisores.id), "empleados."+nameof(produccion_supervisores.empleados.ConcatNombre)), 
+                    textoPorDefecto: "-- Seleccionar --", selected: produccion.id_supervisor.ToString());
                 ViewBag.id_operador = ComboSelect.obtieneOperadorPorLinea(emp, produccion.id_linea.Value);
-                //para completar_valores previos
-                ViewBag.c_sap_platina = produccion.sap_platina;
-                ViewBag.c_sap_rollo = produccion.sap_rollo;
-                ViewBag.c_id_supervisor = produccion.id_supervisor;
-                ViewBag.c_id_operador = produccion.id_operador;
+               
 
                 return View(produccion);
             }
@@ -295,7 +295,6 @@ namespace Portal_2_0.Controllers
             {
                 return View("../Home/ErrorPermisos");
             }
-
         }
 
         // POST: ProduccionRegistros/Create
@@ -303,27 +302,8 @@ namespace Portal_2_0.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "id,clave_planta,id_linea,id_operador,id_supervisor,id_turno,sap_platina,sap_rollo,fecha,activo")] produccion_registros produccion_registros, FormCollection collection)
+        public ActionResult Edit(produccion_registros produccion_registros, FormCollection collection)
         {
-
-            //valores enviados previamente
-            String c_sap_platina = String.Empty;
-            if (!String.IsNullOrEmpty(collection["sap_platina"]))
-                c_sap_platina = collection["sap_platina"].ToString();
-
-            //valores enviados previamente
-            String c_sap_rollo = String.Empty;
-            if (!String.IsNullOrEmpty(collection["sap_rollo"]))
-                c_sap_rollo = collection["sap_rollo"].ToString();
-
-            //valores enviados previamente
-            int c_id_supervisor = 0;
-            if (!String.IsNullOrEmpty(collection["id_supervisor"]))
-                Int32.TryParse(collection["id_supervisor"].ToString(), out c_id_supervisor);
-
-            int c_id_operador = 0;
-            if (!String.IsNullOrEmpty(collection["id_operador"]))
-                Int32.TryParse(collection["id_operador"].ToString(), out c_id_operador);
 
             //si el modelo es válido
             if (ModelState.IsValid)
@@ -346,15 +326,19 @@ namespace Portal_2_0.Controllers
             produccion_registros.produccion_lineas = db.produccion_lineas.Find(produccion_registros.id_linea);
             produccion_registros.produccion_turnos = db.produccion_turnos.Find(produccion_registros.id_turno);
 
-            ViewBag.sap_platina = ComboSelect.obtieneMaterial_BOM();
-            ViewBag.sap_rollo = ComboSelect.obtieneRollo_BOM();
-            ViewBag.id_supervisor = ComboSelect.obtieneSupervisoresPlanta(produccion_registros.clave_planta.Value);
+            //crea un select li
+            List<SelectListItem> listadoPlatinas = ComboSelect.obtieneMaterial_BOM();
+            List<SelectListItem> listadoRollos = ComboSelect.obtieneRollo_BOM(produccion_registros.sap_platina);
+
+            ViewBag.sap_platina = AddFirstItem(new SelectList(listadoPlatinas, "Value", "Text"), textoPorDefecto: "-- Seleccionar --", selected: produccion_registros.sap_platina);
+            ViewBag.sap_platina_2 = AddFirstItem(new SelectList(listadoPlatinas, "Value", "Text"), textoPorDefecto: "-- Seleccionar --", selected: produccion_registros.sap_platina_2);
+            ViewBag.sap_rollo = new SelectList(ComboSelect.obtieneRollo_BOM(produccion_registros.sap_platina), "Value", "Text", selectedValue: produccion_registros.sap_rollo);
+            ViewBag.id_supervisor = AddFirstItem(new SelectList(db.produccion_supervisores.Where(p => p.activo == true && p.clave_planta == produccion_registros.clave_planta),
+                nameof(produccion_supervisores.id), "empleados." + nameof(produccion_supervisores.empleados.ConcatNombre)),
+                textoPorDefecto: "-- Seleccionar --", selected: produccion_registros.id_supervisor.ToString());
             ViewBag.id_operador = ComboSelect.obtieneOperadorPorLinea(emp, produccion_registros.id_linea.Value);
-            //para completar_valores previos
-            ViewBag.c_sap_platina = c_sap_platina;
-            ViewBag.c_sap_rollo = c_sap_rollo;
-            ViewBag.c_id_supervisor = c_id_supervisor;
-            ViewBag.c_id_operador = c_id_operador;
+
+
 
 
             return View(produccion_registros);
@@ -408,11 +392,21 @@ namespace Portal_2_0.Controllers
                 if (class_ == null)
                     class_ = new class_v3 { };
 
+                //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina 2
+                mm_v3 mm_2 = db.mm_v3.FirstOrDefault(x => x.Material == produccion.sap_platina_2);
+                if (mm_2 == null)
+                    mm_2 = new mm_v3 { };
+
+                //ENVIAR cLASS SEGUN EL MATERIAL
+                class_v3 class_2 = db.class_v3.FirstOrDefault(x => x.Object == produccion.sap_platina_2);
+                if (class_2 == null)
+                    class_2 = new class_v3 { };
+
                 ViewBag.MM = mm;
                 ViewBag.Class = class_;
+                ViewBag.MM_2 = mm_2;
+                ViewBag.Class_2 = class_2;
 
-                //para agregar sap platina 2
-                ViewBag.produccion_datos_entrada_sap_platina_2 = ComboSelect.obtieneMaterial_BOM();
 
                 return View(produccion);
             }
@@ -431,9 +425,6 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DatosEntradas(produccion_registros produccion_registros)
         {
-
-            if(!String.IsNullOrEmpty(produccion_registros.produccion_datos_entrada.sap_platina_2) && String.IsNullOrEmpty(produccion_registros.produccion_datos_entrada.orden_sap_2))
-                ModelState.AddModelError("", "Para definir Sap Platina 2, es necesario ingresar Orden SAP 2.");
 
             bool error = false;
 
@@ -520,7 +511,6 @@ namespace Portal_2_0.Controllers
             produccion_registros.produccion_lineas = db.produccion_lineas.Find(produccion_registros.id_linea);
             produccion_registros.produccion_turnos = db.produccion_turnos.Find(produccion_registros.id_turno);
 
-            //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina
             mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == produccion_registros.sap_platina);
             if (mm == null)
                 mm = new mm_v3 { };
@@ -530,8 +520,20 @@ namespace Portal_2_0.Controllers
             if (class_ == null)
                 class_ = new class_v3 { };
 
+            //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina 2
+            mm_v3 mm_2 = db.mm_v3.FirstOrDefault(x => x.Material == produccion_registros.sap_platina_2);
+            if (mm_2 == null)
+                mm_2 = new mm_v3 { };
+
+            //ENVIAR cLASS SEGUN EL MATERIAL
+            class_v3 class_2 = db.class_v3.FirstOrDefault(x => x.Object == produccion_registros.sap_platina_2);
+            if (class_2 == null)
+                class_2 = new class_v3 { };
+
             ViewBag.MM = mm;
             ViewBag.Class = class_;
+            ViewBag.MM_2 = mm_2;
+            ViewBag.Class_2 = class_2;
 
             //para agregar sap platina 2
             ViewBag.produccion_datos_entrada_sap_platina_2 = ComboSelect.obtieneMaterial_BOM();
@@ -577,7 +579,6 @@ namespace Portal_2_0.Controllers
                 produccion.produccion_datos_entrada = produccion_datos_entrada;
 
 
-                //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina
                 mm_v3 mm = db.mm_v3.FirstOrDefault(x => x.Material == produccion.sap_platina);
                 if (mm == null)
                     mm = new mm_v3 { };
@@ -587,9 +588,20 @@ namespace Portal_2_0.Controllers
                 if (class_ == null)
                     class_ = new class_v3 { };
 
+                //ENVIAR CLASS V3, SEGÚN EL MATERIAL produccion.sap_platina 2
+                mm_v3 mm_2 = db.mm_v3.FirstOrDefault(x => x.Material == produccion.sap_platina_2);
+                if (mm_2 == null)
+                    mm_2 = new mm_v3 { };
+
+                //ENVIAR cLASS SEGUN EL MATERIAL
+                class_v3 class_2 = db.class_v3.FirstOrDefault(x => x.Object == produccion.sap_platina_2);
+                if (class_2 == null)
+                    class_2 = new class_v3 { };
 
                 ViewBag.MM = mm;
                 ViewBag.Class = class_;
+                ViewBag.MM_2 = mm_2;
+                ViewBag.Class_2 = class_2;
                 return View(produccion);
             }
             else

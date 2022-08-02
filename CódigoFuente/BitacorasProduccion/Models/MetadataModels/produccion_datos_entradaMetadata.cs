@@ -16,11 +16,12 @@ namespace Portal_2_0.Models
         public Nullable<double> peso_real_pieza_neto { get; set; }
 
         [Required(ErrorMessage = "El campo Orden SAP es requerido", AllowEmptyStrings = false)]
-        [StringLength(10, MinimumLength = 8)]
+        [StringLength(8, MinimumLength = 8, ErrorMessage = "El campo {0}, debe tener una longitud de {1} carácteres")]
         [Display(Name = "Orden SAP")]
         public string orden_sap { get; set; }
 
-        [StringLength(10, MinimumLength = 8)]
+        [RequiredIf("tiene_segunda_platina", true, ErrorMessage = "El campo {0} es requerido")]
+        [StringLength(8, MinimumLength = 8, ErrorMessage = "El campo {0}, debe tener una longitud de {1} carácteres")]
         [Display(Name = "Orden SAP 2")]
         public string orden_sap_2 { get; set; }
         [Display(Name = "Piezas por Golpe")]
@@ -75,9 +76,11 @@ namespace Portal_2_0.Models
         [StringLength(600)]
         public string comentarios { get; set; }
 
-        [RequiredIf("is_required_sap_platina_2", true, ErrorMessage = "Este campo es requerido cuando se indica Orden SAP 2")]
-        [Display(Name = "SAP Platina 2")]
-        public string sap_platina_2 { get; set; }
+        [RequiredIf("tiene_segunda_platina", true, ErrorMessage = "El campo {0} es requerido")]
+        [Display(Name = "Peso Real Pieza Neto (platina 2)")]   //viene de la báscula
+        public Nullable<double> peso_real_pieza_neto_platina_2 { get; set; }
+
+
     }
 
     [MetadataType(typeof(produccion_datos_entradaMetadata))]
@@ -107,11 +110,20 @@ namespace Portal_2_0.Models
 
         //Para foolproof
         [NotMapped]
-        public bool is_required_sap_platina_2
+        public bool tiene_segunda_platina
         {
             get
             {
-                return !String.IsNullOrEmpty(this.orden_sap_2);
+                var p = db.produccion_registros.Find(this.id_produccion_registro);
+
+                if (p == null)
+                {
+                    return false;
+                }
+                else {
+                    return !String.IsNullOrEmpty(p.sap_platina_2);
+                }
+                
             }
         }
 

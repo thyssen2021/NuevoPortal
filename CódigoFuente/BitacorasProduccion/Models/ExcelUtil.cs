@@ -128,7 +128,7 @@ namespace Portal_2_0.Models
                 //si tiene registro, agrega los lotes
                 if (p != null)
                 {
-                    foreach (produccion_lotes lote in p.produccion_lotes)
+                    foreach (produccion_lotes lote in p.produccion_lotes.Where(x=>(x.sap_platina == item.SAP_Platina || x.sap_platina == item.SAP_Platina_2 || string.IsNullOrEmpty(x.sap_platina)) ))
                     {
                         dt.Rows.Add(null, null, null, null, null, null, null, null, null, null,null,
                       null, null, null, null, null, null, null, null, null

@@ -13,24 +13,13 @@
     <!-- Select2 -->
     <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/green.css")" rel="stylesheet">
+
+
 }
 
-@if (@ViewBag.c_sap_platina != null)
-{
-    <input type="hidden" value="@ViewBag.c_sap_platina" id="cSapPlatina" />
-}
-@if (@ViewBag.c_sap_rollo != null)
-{
-    <input type="hidden" value="@ViewBag.c_sap_rollo" id="cSapRollo" />
-}
-@if (@ViewBag.c_id_supervisor != null)
-    {
-        <input type="hidden" value="@ViewBag.c_id_supervisor" id="cIdSupervisor" />
-    }
-    @if (@ViewBag.c_id_operador != null)
-    {
-        <input type="hidden" value="@ViewBag.c_id_operador" id="cIdOperdor" />
-    }
+
 <div class="right_col" role="main">
     <div class="">
         <div class="clearfix"></div>
@@ -38,17 +27,20 @@
             <div class="col-md-12 col-sm-12  ">
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2>@ViewBag.Title</h2>
+                        <h2>Datos del registro de Producci&oacute;n</h2>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
-                        <br />                      
+                        <br />
                         @using (Html.BeginForm("Edit", "ProduccionRegistros", FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
                         {
                             @Html.AntiForgeryToken()
-                            <h4>Datos del registro de Producci&oacute;n</h4>
-                            <hr />
-                            @Html.ValidationSummary("", new { @class = "text-danger" })
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", new { @class = "text-white" })
+                                </div>
+                            }
                             @Html.HiddenFor(model => model.id)
                             @Html.HiddenFor(model => model.clave_planta)
                             @Html.HiddenFor(model => model.id_linea)
@@ -59,25 +51,25 @@
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.clave_planta, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                 <div class="col-md-6 col-sm-6 ">
-                                    <input type="text" value="@Model.plantas.descripcion" class="form-control" readonly />
+                                    <input type="text" value="@Html.DisplayFor(model => model.plantas.descripcion)" class="form-control" readonly />
                                 </div>
                             </div>
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.id_linea, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                 <div class="col-md-6 col-sm-6 ">
-                                    <input type="text" value="@Model.produccion_lineas.linea" class="form-control" readonly />
+                                    <input type="text" value="@Html.DisplayFor(model => model.produccion_lineas.linea)" class="form-control" readonly />
                                 </div>
                             </div>
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.id_turno, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                 <div class="col-md-6 col-sm-6 ">
-                                    <input type="text" value="@Model.produccion_turnos.descripcion" class="form-control" readonly />
+                                    <input type="text" value="@Html.DisplayFor(model => model.produccion_turnos.descripcion)" class="form-control" readonly />
                                 </div>
                             </div>
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.fecha, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                 <div class="col-md-6 col-sm-6 ">
-                                    <input type="text" value="@Model.fecha" class="form-control" readonly />
+                                    <input type="text" value="@DateTime.Now" class="form-control" readonly />
                                 </div>
                             </div>
                             <div class="item form-group">
@@ -108,6 +100,22 @@
                                     @Html.ValidationMessageFor(model => model.sap_rollo, "", new { @class = "text-danger" })
                                 </div>
                             </div>
+
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.segunda_platina, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.EditorFor(model => model.segunda_platina, new { htmlAttributes = new { @class = "form-control" } })
+                                </div>
+                            </div>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.sap_platina_2, htmlAttributes: new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.DropDownList("sap_platina_2", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @Html.ValidationMessageFor(model => model.sap_platina_2, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
                             <div class="ln_solid"></div>
                             <div class="item form-group">
                                 <div class="col-md-6 col-sm-6 offset-md-3">
@@ -132,7 +140,11 @@
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
-    @Scripts.Render(Url.Content("~/Scripts/Forms/ProduccionRegistrosEdit.js"))
-   
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+
+    @*@Scripts.Render(Url.Content("~/Scripts/Forms/ProduccionRegistrosCreate.js"))*@
+    <script src="~/Scripts/Forms/ProduccionRegistrosEdit.js?time=@DateTime.Now"></script>
+
 }
 
