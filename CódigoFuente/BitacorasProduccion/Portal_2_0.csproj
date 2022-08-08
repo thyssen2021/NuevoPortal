@@ -304,6 +304,7 @@
     <Compile Include="Controllers\IT_inventory_items_genericosController.cs" />
     <Compile Include="Controllers\IT_inventory_softwareController.cs" />
     <Compile Include="Controllers\IT_inventory_tipos_accesoriosController.cs" />
+    <Compile Include="Controllers\IT_mantenimientosController.cs" />
     <Compile Include="Controllers\IT_matriz_requerimientosController.cs" />
     <Compile Include="Controllers\IT_software_tipoController.cs" />
     <Compile Include="Controllers\IT_solicitud_usuariosController.cs" />
@@ -434,6 +435,18 @@
     <Compile Include="Models\IT_inventory_tipos_accesorios.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\IT_mantenimientos.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_mantenimientos_checklist_categorias.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_mantenimientos_checklist_item.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_mantenimientos_rel_checklist.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\IT_solicitud_usuarios.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -554,6 +567,7 @@
     <Compile Include="Models\MetadataModels\IT_inventory_softwareMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_inventory_cellular_plansMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_inventory_tipos_accesoriosMetadata.cs" />
+    <Compile Include="Models\MetadataModels\IT_mantenimientosMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_software_tipoMetadata.cs" />
     <Compile Include="Models\MetadataModels\class_v3Metadata.cs" />
     <Compile Include="Models\MetadataModels\currencyMetadata.cs" />
@@ -7133,6 +7147,12 @@
     <Content Include="Views\IT_inventory_items_genericos\Disable.cshtml" />
     <Content Include="Views\OrdenesTrabajo\Edit.cshtml" />
     <Content Include="Views\IT_asignacion_hardware\responsivas.cshtml" />
+    <Content Include="Views\IT_mantenimientos\Create.cshtml" />
+    <Content Include="Views\IT_mantenimientos\Delete.cshtml" />
+    <Content Include="Views\IT_mantenimientos\Details.cshtml" />
+    <Content Include="Views\IT_mantenimientos\Edit.cshtml" />
+    <Content Include="Views\IT_mantenimientos\Index.cshtml" />
+    <Content Include="Views\IT_mantenimientos\CerrarMantenimiento.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

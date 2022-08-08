@@ -285,15 +285,15 @@ namespace Portal_2_0.Controllers
 
             //inicializa la lista de objetos
             var objeto = new object[1];
-            
-            bool existe = db.IT_asignacion_hardware.Any(x => x.IT_asignacion_hardware_rel_items.Any(y=>y.id_it_inventory_item == id)  && x.es_asignacion_actual == true);
-            
+
+            bool existe = db.IT_asignacion_hardware.Any(x => x.IT_asignacion_hardware_rel_items.Any(y => y.id_it_inventory_item == id) && x.es_asignacion_actual == true);
+
             int id_responsable = 0;
 
-            string nombre = String.Empty;           
-            
+            string nombre = String.Empty;
+
             var asignacion = db.IT_asignacion_hardware_rel_items.Where(x => x.id_it_inventory_item == id && x.IT_asignacion_hardware.es_asignacion_actual == true && x.IT_asignacion_hardware.id_empleado == x.IT_asignacion_hardware.id_responsable_principal).FirstOrDefault();
-            
+
             if (asignacion != null)
             {
                 nombre = asignacion.IT_asignacion_hardware.empleados.ConcatNombre;
@@ -310,7 +310,44 @@ namespace Portal_2_0.Controllers
 
             return Json(objeto, JsonRequestBehavior.AllowGet);
         }
-         ///<summary>
+
+        ///<summary>
+        ///Obtiene del empleado, según el id recibido
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        [AllowAnonymous]
+        public JsonResult GetDatosEmpleados(int id = 0)
+        {
+
+            //obtiene todos los posibles valores
+            empleados item = db.empleados.Find(id);
+
+            //inicializa la lista de objetos
+            var objeto = new object[1];
+
+            //inicializa objeto principal
+            if (item == null) { 
+                item = new empleados();            
+            }
+
+            objeto[0] = new
+            {
+                nombre = !string.IsNullOrEmpty(item.ConcatNombre) && !string.IsNullOrEmpty(item.nombre) ? item.ConcatNombre: "--",
+                num_empleado = !string.IsNullOrEmpty(item.numeroEmpleado) ? item.numeroEmpleado : "--",
+                correo = !string.IsNullOrEmpty(item.correo) ? item.correo : "--",
+                c8id = !string.IsNullOrEmpty(item.C8ID) ? item.C8ID : "--",
+                planta = item.plantas!=null ?  item.plantas.descripcion: "--",
+                area = item.Area!=null? item.Area.descripcion: "--",
+                puesto = item.puesto1!=null ? item.puesto1.descripcion:"--",
+                activo = item.activo ==true? "Activo":"Inactivo",
+
+            };
+
+            return Json(objeto, JsonRequestBehavior.AllowGet);
+        }
+
+        ///<summary>
         ///Obtiene datos de la Línea seleccionada
         ///</summary>
         ///<return>
@@ -320,19 +357,20 @@ namespace Portal_2_0.Controllers
         {
 
             //obtiene todos los posibles valores
-            var itemList = db.IT_asignacion_hardware.Where(x=>x.es_asignacion_linea_actual && x.id_cellular_line ==id && x.id_empleado != id_empleado).ToList();
+            var itemList = db.IT_asignacion_hardware.Where(x => x.es_asignacion_linea_actual && x.id_cellular_line == id && x.id_empleado != id_empleado).ToList();
 
             var objeto = new object[itemList.Count];
 
             int i = 0;
             //inicializa la lista de objetos
-            foreach (var item in itemList) {
+            foreach (var item in itemList)
+            {
                 objeto[i++] = new
                 {
                     id_responsable = item.id_empleado,
                     nombre_responsable = item.empleados.ConcatNombre
                 };
-            }           
+            }
 
             return Json(objeto, JsonRequestBehavior.AllowGet);
         }
@@ -504,7 +542,7 @@ namespace Portal_2_0.Controllers
             return Json(list, JsonRequestBehavior.AllowGet);
         }
 
-        
+
 
         ///<summary>
         ///Obtiene todas los empleados

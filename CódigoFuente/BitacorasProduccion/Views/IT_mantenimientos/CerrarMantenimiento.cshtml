@@ -1,0 +1,491 @@
+﻿@model Portal_2_0.Models.IT_mantenimientos
+
+@{
+    ViewBag.Title = "Hoja de vida de Equipos de Computo";
+    ViewBag.PrimerNivel = "sistemas";
+    ViewBag.SegundoNivel = "it_mantenimientos";
+    ViewBag.ControllerName = "it_mantenimientos";
+
+    int contador = 0;
+}
+
+
+@section estilos
+{
+
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/green.css")" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+
+
+    <style>
+
+        dl {
+            border: 3px double #ccc;
+            padding: 0.5em;
+            background-color: #fffdf0
+        }
+
+        dt {
+            font-weight: bold;
+            color: green;
+        }
+
+        dd {
+            font-weight: bold;
+            color: #454545;
+        }
+
+        dt::after {
+            content: ":";
+        }
+
+        #myBtnDown {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 30px;
+            z-index: 99;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            font-size: 20px;
+            opacity: 0.9;
+        }
+
+        #myBtn {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 75px;
+            z-index: 99;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            font-size: 20px;
+            opacity: 0.9;
+        }
+    </style>
+}
+
+
+<button onclick="topFunction()" id="myBtn" title="Subir" class="btn btn-success btn-round"><i class="fa-solid fa-arrow-up"></i></button>
+<button onclick="downFunction()" id="myBtnDown" title="Bajar" class="btn btn-success btn-round"><i class="fa-solid fa-arrow-down"></i></button>
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2><i class="fa-solid fa-computer"></i> @ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="form-group row">
+                        <span style="color:black"><b>DATOS DEL USUARIO</b></span>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="card-box ">
+                                <dl class="row">
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.nombre)</dt>
+                                    <dd class="col-sm-6" id="emp_nombre">@Html.DisplayFor(model => model.empleados.ConcatNombre)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.numeroEmpleado)</dt>
+                                    <dd class="col-sm-2" id="emp_num_empleado">@Html.DisplayFor(model => model.empleados.numeroEmpleado)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.C8ID)</dt>
+                                    <dd class="col-sm-2" id="emp_c8id">@Html.DisplayFor(model => model.empleados.C8ID)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.correo)</dt>
+                                    <dd class="col-sm-2" id="emp_correo">@Html.DisplayFor(model => model.empleados.correo)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.planta_clave)</dt>
+                                    <dd class="col-sm-2" id="emp_planta">@Html.DisplayFor(model => model.empleados.plantas.descripcion)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.id_area)</dt>
+                                    <dd class="col-sm-2" id="emp_area">@Html.DisplayFor(model => model.empleados.Area.descripcion)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.puesto)</dt>
+                                    <dd class="col-sm-2" id="emp_puesto">@Html.DisplayFor(model => model.empleados.puesto1.descripcion)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.activo)</dt>
+                                    <dd class="col-sm-2" id="emp_activo">
+                                        @if (Model.empleados != null && Model.empleados.activo.HasValue && Model.empleados.activo.Value)
+                                        {
+                                            <span>Activo</span>
+                                        }
+                                        else
+                                        {
+                                            <span>Inactivo</span>
+                                        }
+                                    </dd>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <span style="color:black"><b>DATOS DEL EQUIPO</b></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="card-box ">
+                                <dl class="row">
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.IT_inventory_items.id_inventory_type)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.IT_inventory_items.IT_inventory_hardware_type.descripcion)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.IT_inventory_items.id_planta)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.IT_inventory_items.plantas.descripcion)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.IT_inventory_items.hostname)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.IT_inventory_items.hostname)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.IT_inventory_items.brand)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.IT_inventory_items.brand)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.IT_inventory_items.model)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.IT_inventory_items.model)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.IT_inventory_items.serial_number)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.IT_inventory_items.serial_number)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.IT_inventory_items.operation_system)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.IT_inventory_items.operation_system)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.IT_inventory_items.total_physical_memory_gb)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.IT_inventory_items.total_physical_memory_gb) @(Model.IT_inventory_items.total_physical_memory_gb.HasValue?"GB":String.Empty)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.IT_inventory_items.TotalDiskSpace)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.IT_inventory_items.TotalDiskSpace) @(Model.IT_inventory_items.TotalDiskSpace.HasValue?"GB":String.Empty)</dd>
+
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- /.col -->
+                    <div class="x_content">
+                        @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-horizontal form-label-left", @id = "formulario" }))
+                        {
+                            //valores ocultos
+                            @Html.HiddenFor(model => model.id_empleado_sistemas)
+                            @Html.HiddenFor(model => model.id_it_inventory_item)
+                            @Html.HiddenFor(model => model.fecha_programada)
+
+                            @Html.AntiForgeryToken()
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>DATOS Generales</b></span>
+                            </div>
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", new { @class = "text-white" })
+                                </div>
+                            }
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id_empleado_sistemas, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-4 col-sm-4 ">
+                                    <input type="text" class="form-control" value="@Model.empleados1.ConcatNombre" readonly />
+                                    @Html.ValidationMessageFor(model => model.id_empleado_sistemas, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.id_empleado_responsable, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                                <div class="col-md-5 col-sm-5 ">
+                                    @Html.DropDownList("id_empleado_responsable", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @Required = "required" })
+                                    @Html.ValidationMessageFor(model => model.id_empleado_responsable, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.fecha_programada, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    <input type="text" class="form-control" value="@Model.fecha_programada.ToShortDateString()" readonly />
+                                </div>
+
+                                @Html.LabelFor(model => model.estatus, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    <input type="text" class="form-control" value="@Bitacoras.Util.IT_matenimiento_Estatus.DescripcionStatus(Model.estatus)" readonly />
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>CHECKLIST MANTENIMIENTO</b></span>
+                            </div>
+
+                            <table id="datatable_1" class="table datatable table-bordered table-striped" cellspacing="0" width="100%">
+                                <thead style="background-color: #009ff5; color: azure; border: #009ff5 2px solid;">
+                                    <tr>
+                                        <th>
+                                            Categoria
+                                        </th>
+                                        <th>
+                                            Actividad
+                                        </th>
+                                        <th width="15%">
+                                            Estado
+                                        </th>
+                                        <th width="50%">
+                                            Comentarios
+                                        </th>
+                                    </tr>
+                                </thead>
+
+                                @{
+                                    int aux_categorias = 0;
+                                    int aux_c_items_categoria = 0;
+
+                                }
+                                @foreach (var cat in Model.IT_mantenimientos_rel_checklist.Select(x => x.IT_mantenimientos_checklist_item.IT_mantenimientos_checklist_categorias).Distinct().ToList())
+                                {
+                                    <tbody style="border: #009ff5 2px solid;">
+
+                                        @{
+                                            aux_categorias = 1;
+                                            aux_c_items_categoria = Model.IT_mantenimientos_rel_checklist.Where(x => x.IT_mantenimientos_checklist_item.id_IT_mantenimientos_checklist_categorias
+                                            == cat.id).Count();
+                                        }
+                                        @foreach (var item in Model.IT_mantenimientos_rel_checklist.Where(x => x.IT_mantenimientos_checklist_item.id_IT_mantenimientos_checklist_categorias == cat.id))
+                                        {
+                                            <input type="hidden" name="IT_mantenimientos_rel_checklist.Index" id="IT_mantenimientos_rel_checklist.Index" value="@contador" />
+                                            <input type="hidden" name="IT_mantenimientos_rel_checklist[@contador].id_item_checklist_mantenimiento" id="IT_mantenimientos_rel_checklist[@contador].id_item_checklist_mantenimiento" value="@item.id_item_checklist_mantenimiento" />
+                                            <input type="hidden" name="IT_mantenimientos_rel_checklist[@contador].id_mantenimiento" id="IT_mantenimientos_rel_checklist[@contador].id_mantenimiento" value="@Model.id" />
+
+                                            <tr>
+                                                @if (aux_categorias++ == 1)
+                                                {
+                                                    <td rowspan="@aux_c_items_categoria" align="center" style="vertical-align:middle; font-weight:bold; border: #009ff5 2px solid;">
+                                                        @Html.DisplayFor(modelItem => item.IT_mantenimientos_checklist_item.IT_mantenimientos_checklist_categorias.descripcion)
+                                                    </td>
+                                                }
+                                                <td id="descipcion_@contador" style="font-weight:bold; @(!item.terminado.HasValue ? "color : #0000FF" :
+                                                item.terminado.HasValue && !item.terminado.Value ? "color : #FF0000" :
+                                                item.terminado.HasValue && item.terminado.Value ? "color : #00A900" :String.Empty)">
+                                                    @Html.DisplayFor(modelItem => item.IT_mantenimientos_checklist_item.descripcion)
+                                                </td>
+                                                <td id="div_opciones_@contador" style=" @(!item.terminado.HasValue ? "color : #0000FF" :
+                                                item.terminado.HasValue && !item.terminado.Value ? "color : #FF0000" :
+                                                item.terminado.HasValue && item.terminado.Value ? "color : #00A900" :String.Empty)">
+                                                    <div>
+                                                        <input class="radio-estatus" type="radio" id="na_@contador" name="IT_mantenimientos_rel_checklist[@contador].terminado" data-row="@contador" value="" @(!item.terminado.HasValue ? "checked" : String.Empty)>
+                                                        <label for="na_@contador">N/A</label>
+                                                    </div>
+                                                    <div>
+                                                        <input class="radio-estatus" type="radio" id="pendiente_@contador" name="IT_mantenimientos_rel_checklist[@contador].terminado" data-row="@contador" value="false" @(item.terminado.HasValue && !item.terminado.Value ? "checked" : String.Empty)>
+                                                        <label for="pendiente_@contador">Pendiente</label>
+                                                    </div>
+
+                                                    <div>
+                                                        <input class="radio-estatus" type="radio" id="terminado_@contador" name="IT_mantenimientos_rel_checklist[@contador].terminado" data-row="@contador" value="true" @(item.terminado.HasValue && item.terminado.Value ? "checked" : String.Empty)>
+                                                        <label for="terminado_@contador">Terminado</label>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <textarea style="font-size: 12px;" type="text" name="IT_mantenimientos_rel_checklist[@contador].comentarios" id="IT_mantenimientos_rel_checklist[@contador].comentarios" class="form-control col-md-12" autocomplete="off" maxlength="300" rows="3">@item.comentarios</textarea>
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="IT_mantenimientos_rel_checklist[@contador].comentarios" data-valmsg-replace="true"></span>
+                                                </td>
+                                            </tr>
+                                            contador++;
+                                        }
+                                    </tbody>
+
+                                }
+                            </table>
+
+                            <div class="ln_solid"></div>
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>DATOS DE CIERRE</b></span>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.finalizar_mantenimiento, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                                <div class="col-md-1 col-sm-1 ">
+                                    @Html.EditorFor(model => model.finalizar_mantenimiento, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
+                                </div>
+                                @Html.LabelFor(model => model.fecha_realizacion, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    <input type="text" class="form-control" value="@DateTime.Now.ToShortDateString()" readonly />
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.comentarios, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align:left" })
+                            </div>
+                            <div class="item form-group">
+                                <div class="col-md-12">
+                                    @Html.TextAreaFor(model => model.comentarios, new { @class = "form-control", @rows = "4", @autocomplete = "off" })
+                                    @Html.ValidationMessageFor(model => model.comentarios, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="ln_solid"></div>
+                            <div class="item form-group">
+                                <div class="col-md-2 col-sm-2 offset-md-10">
+                                    <button type="button" class="btn btn-success btn-lg float-right" onclick="showDialog()"><i class="fa-regular fa-floppy-disk"></i> Guardar</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div>
+                    <br />
+                    <a href="javascript: history.go(-1)" class="btn btn-round btn-info btm-sm float-left" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts
+{
+
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render("~/bundles/dataTables_js")
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render("~/bundles/jqueryval")
+    <script>
+        $(document).ready(function () {
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //detecta el cambio en el usuario responsable
+            $('#@Html.IdFor(model => model.id_empleado_responsable)').change(function (event) {
+                ActualizaDatosEmpleados($(this).val());
+            });
+
+
+            $('.radio-estatus').on('ifChanged', function (event) {
+                var row = $(this).attr("data-row");
+
+                if (row != null) {
+                    var seleccion = $(this).val();
+
+                    var text = $("#descipcion_" + row)
+                    var opciones = $("#div_opciones_" + row)
+
+                    if (seleccion === "") {
+                        text.css("color", "#0000FF");
+                        opciones.css("color", "#0000FF");
+                    } else if (seleccion === "true") {
+                        text.css("color", "#00A900");
+                        opciones.css("color", "#00A900");
+                    } else if (seleccion === "false") {
+                        text.css("color", "#FF0000");
+                        opciones.css("color", "#FF0000");
+                    }
+                }
+            });
+
+            //inicializa icheck
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+                increaseArea: '20%' // optional
+            });
+
+            //ejecuta el evento una vez cargada la página
+            $('#@Html.IdFor(model => model.id_empleado_responsable)').change();
+
+
+        });
+
+
+    function ActualizaDatosEmpleados(idEmpleado) {
+        //llamada ajax para obtener el detalle del item  seleccionado
+        $.ajax({
+            type: 'POST',
+            url: '/Combos/GetDatosEmpleados',
+            data: { id: idEmpleado },
+            success: function (data) {
+                try {
+                    $('#emp_nombre').html(data[0].nombre);
+                    $('#emp_num_empleado').html(data[0].num_empleado);
+                    $('#emp_correo').html(data[0].correo);
+                    $('#emp_c8id').html(data[0].c8id);
+                    $('#emp_planta').html(data[0].planta);
+                    $('#emp_area').html(data[0].area);
+                    $('#emp_puesto').html(data[0].puesto);
+                    $('#emp_activo').html(data[0].activo);
+                }
+                catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ocurrió un error obteniendo la información: ' + error,
+                        confirmButtonText: 'Aceptar',
+                    })
+                }
+            },
+            async: false
+        });
+    }
+
+        function showDialog() {
+
+            let mensaje = "Se guardarán los cambios, pero no se finalizará el mantenimiento. Se podrá continuar con el registro posteriormente.";
+
+            if ($('#@Html.IdFor(model => model.finalizar_mantenimiento)').prop('checked')) {
+                mensaje = "Se finalizará el mantenimiento con los valores actuales y ya NO se podrán hacer cambios."
+            }
+
+            Swal.fire({
+                title: 'Mensaje',
+                html: mensaje+"<br><br><b>¿Desea continuar?</b>",
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Continuar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+
+                if (result.isConfirmed) {
+                    setTimeout(function () {
+                        $('#formulario').submit();
+                    }, 900);
+                    
+                } else if (result.isDismissed) {
+                    Swal.fire('Los cambios no han sido guardados.', '', 'info')
+                }
+            });
+
+        }
+
+        //agranda el tamaño de la barra
+        window.onload = function () {
+            document.getElementById('menu_toggle').click();
+        }
+        ///////////////////////////////////////////////////
+
+
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function () { scrollFunction() };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                $('#myBtn').slideDown(300);
+            } else {
+                $('#myBtn').slideUp(300);
+            }
+
+            if ($(window).scrollTop() +20 > $(document).height() - $(window).height()) {
+                $('#myBtnDown').slideUp(300);
+            } else {
+                $('#myBtnDown').slideDown(300);
+            }
+
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            window.scrollBy(0, -window.innerHeight);
+        }
+        // When the user clicks on the button, scroll to the botton of the document
+        function downFunction() {
+            window.scrollBy(0, window.innerHeight);
+        }
+    </script>
+
+}

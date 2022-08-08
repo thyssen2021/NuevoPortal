@@ -29,7 +29,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<class_v3> class_v3 { get; set; }
         public virtual DbSet<mm_v3> mm_v3 { get; set; }
         public virtual DbSet<plantas> plantas { get; set; }
-        public virtual DbSet<produccion_datos_entrada> produccion_datos_entrada { get; set; }
         public virtual DbSet<produccion_lineas> produccion_lineas { get; set; }
         public virtual DbSet<produccion_lotes> produccion_lotes { get; set; }
         public virtual DbSet<produccion_operadores> produccion_operadores { get; set; }
@@ -118,5 +117,10 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_asignacion_hardware> IT_asignacion_hardware { get; set; }
         public virtual DbSet<IT_asignacion_hardware_rel_items> IT_asignacion_hardware_rel_items { get; set; }
         public virtual DbSet<IT_asignacion_software> IT_asignacion_software { get; set; }
+        public virtual DbSet<IT_mantenimientos_checklist_categorias> IT_mantenimientos_checklist_categorias { get; set; }
+        public virtual DbSet<IT_mantenimientos_checklist_item> IT_mantenimientos_checklist_item { get; set; }
+        public virtual DbSet<IT_mantenimientos_rel_checklist> IT_mantenimientos_rel_checklist { get; set; }
+        public virtual DbSet<produccion_datos_entrada> produccion_datos_entrada { get; set; }
+        public virtual DbSet<IT_mantenimientos> IT_mantenimientos { get; set; }
     }
 }

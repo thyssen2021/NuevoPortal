@@ -49,6 +49,8 @@ namespace Portal_2_0.Models
             this.IT_asignacion_hardware2 = new HashSet<IT_asignacion_hardware>();
             this.IT_asignacion_software = new HashSet<IT_asignacion_software>();
             this.IT_asignacion_software1 = new HashSet<IT_asignacion_software>();
+            this.IT_mantenimientos = new HashSet<IT_mantenimientos>();
+            this.IT_mantenimientos1 = new HashSet<IT_mantenimientos>();
         }
     
         public int id { get; set; }
@@ -140,5 +142,9 @@ namespace Portal_2_0.Models
         public virtual ICollection<IT_asignacion_software> IT_asignacion_software { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_asignacion_software> IT_asignacion_software1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_mantenimientos> IT_mantenimientos { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_mantenimientos> IT_mantenimientos1 { get; set; }
     }
 }

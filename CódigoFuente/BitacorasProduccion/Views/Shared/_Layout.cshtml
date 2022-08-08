@@ -189,6 +189,12 @@
                                                     <li class="@(ViewBag.SegundoNivel == "it_asignacion_hardware" ? "current-page" : null )"><a href="@Url.Action("index", "it_asignacion_hardware")">Asignaci&oacute;n a Usuarios</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "it_asignacion_hardware_responsivas" ? "current-page" : null )"><a href="@Url.Action("responsivas", "it_asignacion_hardware")">Responsivas</a></li>
                                                 }
+                                                @if (User.IsInRole(TipoRoles.IT_MANTENIMIENTO_REGISTRO))
+                                                {
+
+                                                    <h3>Mantenimientos</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "it_mantenimientos" ? "current-page" : null )"><a href="@Url.Action("index", "it_mantenimientos")">Listado de Mantenimientos</a></li>
+                                                }
                                             </ul>
                                         </li>
                                     }

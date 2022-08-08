@@ -480,6 +480,47 @@
           <Property Name="activo" Type="bit" Nullable="false" />
           <Property Name="es_accesorio" Type="bit" Nullable="false" />
         </EntityType>
+        <EntityType Name="IT_mantenimientos">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_it_inventory_item" Type="int" Nullable="false" />
+          <Property Name="id_empleado_responsable" Type="int" />
+          <Property Name="id_empleado_sistemas" Type="int" />
+          <Property Name="id_iatf_version" Type="int" />
+          <Property Name="id_biblioteca_digital" Type="int" />
+          <Property Name="fecha_programada" Type="datetime" Nullable="false" />
+          <Property Name="fecha_realizacion" Type="datetime" />
+          <Property Name="comentarios" Type="varchar" MaxLength="300" />
+        </EntityType>
+        <EntityType Name="IT_mantenimientos_checklist_categorias">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="40" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="IT_mantenimientos_checklist_item">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_IT_mantenimientos_checklist_categorias" Type="int" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="IT_mantenimientos_rel_checklist">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_mantenimiento" Type="int" Nullable="false" />
+          <Property Name="id_item_checklist_mantenimiento" Type="int" Nullable="false" />
+          <Property Name="terminado" Type="bit" />
+          <Property Name="comentarios" Type="varchar" MaxLength="300" />
+        </EntityType>
         <EntityType Name="IT_matriz_carpetas">
           <Key>
             <PropertyRef Name="id" />
@@ -925,7 +966,7 @@
           <Property Name="total_piezas_ajuste" Type="int" />
           <Property Name="ordenes_por_pieza" Type="int" />
           <Property Name="comentarios" Type="varchar" MaxLength="600" />
-          <Property Name="sap_platina_2" Type="varchar" MaxLength="30" />
+          <Property Name="peso_real_pieza_neto_platina_2" Type="float" />
         </EntityType>
         <EntityType Name="produccion_lineas">
           <Key>
@@ -971,6 +1012,7 @@
           <Property Name="sap_rollo" Type="varchar" MaxLength="30" />
           <Property Name="fecha" Type="datetime" />
           <Property Name="activo" Type="bit" />
+          <Property Name="sap_platina_2" Type="varchar" MaxLength="30" />
         </EntityType>
         <EntityType Name="produccion_respaldo">
           <Key>
@@ -1777,6 +1819,102 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Principal>
             <Dependent Role="IT_inventory_items">
               <PropertyRef Name="id_planta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_mantenimientos_checklist_item_id_categoria">
+          <End Role="IT_mantenimientos_checklist_categorias" Type="Self.IT_mantenimientos_checklist_categorias" Multiplicity="1" />
+          <End Role="IT_mantenimientos_checklist_item" Type="Self.IT_mantenimientos_checklist_item" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_mantenimientos_checklist_categorias">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_mantenimientos_checklist_item">
+              <PropertyRef Name="id_IT_mantenimientos_checklist_categorias" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_mantenimientos_id_biblioteca_digital">
+          <End Role="biblioteca_digital" Type="Self.biblioteca_digital" Multiplicity="0..1" />
+          <End Role="IT_mantenimientos" Type="Self.IT_mantenimientos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="biblioteca_digital">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="IT_mantenimientos">
+              <PropertyRef Name="id_biblioteca_digital" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_mantenimientos_id_empleado_responsable">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="0..1" />
+          <End Role="IT_mantenimientos" Type="Self.IT_mantenimientos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_mantenimientos">
+              <PropertyRef Name="id_empleado_responsable" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_mantenimientos_id_empleado_sistemas">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="0..1" />
+          <End Role="IT_mantenimientos" Type="Self.IT_mantenimientos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_mantenimientos">
+              <PropertyRef Name="id_empleado_sistemas" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_mantenimientos_id_iatf_version">
+          <End Role="IATF_revisiones" Type="Self.IATF_revisiones" Multiplicity="0..1" />
+          <End Role="IT_mantenimientos" Type="Self.IT_mantenimientos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IATF_revisiones">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_mantenimientos">
+              <PropertyRef Name="id_iatf_version" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_mantenimientos_id_it_inventory_item">
+          <End Role="IT_inventory_items" Type="Self.IT_inventory_items" Multiplicity="1" />
+          <End Role="IT_mantenimientos" Type="Self.IT_mantenimientos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_inventory_items">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_mantenimientos">
+              <PropertyRef Name="id_it_inventory_item" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_mantenimientos_rel_checklist_id_item_checklist_mantenimiento">
+          <End Role="IT_mantenimientos_checklist_item" Type="Self.IT_mantenimientos_checklist_item" Multiplicity="1" />
+          <End Role="IT_mantenimientos_rel_checklist" Type="Self.IT_mantenimientos_rel_checklist" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_mantenimientos_checklist_item">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_mantenimientos_rel_checklist">
+              <PropertyRef Name="id_item_checklist_mantenimiento" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_mantenimientos_rel_checklist_id_mantenimiento">
+          <End Role="IT_mantenimientos" Type="Self.IT_mantenimientos" Multiplicity="1" />
+          <End Role="IT_mantenimientos_rel_checklist" Type="Self.IT_mantenimientos_rel_checklist" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_mantenimientos">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_mantenimientos_rel_checklist">
+              <PropertyRef Name="id_mantenimiento" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -2794,6 +2932,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySet Name="IT_inventory_items_genericos" EntityType="Self.IT_inventory_items_genericos" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_inventory_software" EntityType="Self.IT_inventory_software" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_inventory_tipos_accesorios" EntityType="Self.IT_inventory_tipos_accesorios" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IT_mantenimientos" EntityType="Self.IT_mantenimientos" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IT_mantenimientos_checklist_categorias" EntityType="Self.IT_mantenimientos_checklist_categorias" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IT_mantenimientos_checklist_item" EntityType="Self.IT_mantenimientos_checklist_item" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IT_mantenimientos_rel_checklist" EntityType="Self.IT_mantenimientos_rel_checklist" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_matriz_carpetas" EntityType="Self.IT_matriz_carpetas" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_matriz_comunicaciones" EntityType="Self.IT_matriz_comunicaciones" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_matriz_hardware" EntityType="Self.IT_matriz_hardware" Schema="dbo" store:Type="Tables" />
@@ -3116,6 +3258,38 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <AssociationSet Name="FK_IT_inventory_items_id_planta" Association="Self.FK_IT_inventory_items_id_planta">
             <End Role="plantas" EntitySet="plantas" />
             <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_mantenimientos_checklist_item_id_categoria" Association="Self.FK_IT_mantenimientos_checklist_item_id_categoria">
+            <End Role="IT_mantenimientos_checklist_categorias" EntitySet="IT_mantenimientos_checklist_categorias" />
+            <End Role="IT_mantenimientos_checklist_item" EntitySet="IT_mantenimientos_checklist_item" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_mantenimientos_id_biblioteca_digital" Association="Self.FK_IT_mantenimientos_id_biblioteca_digital">
+            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
+            <End Role="IT_mantenimientos" EntitySet="IT_mantenimientos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_mantenimientos_id_empleado_responsable" Association="Self.FK_IT_mantenimientos_id_empleado_responsable">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IT_mantenimientos" EntitySet="IT_mantenimientos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_mantenimientos_id_empleado_sistemas" Association="Self.FK_IT_mantenimientos_id_empleado_sistemas">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IT_mantenimientos" EntitySet="IT_mantenimientos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_mantenimientos_id_iatf_version" Association="Self.FK_IT_mantenimientos_id_iatf_version">
+            <End Role="IATF_revisiones" EntitySet="IATF_revisiones" />
+            <End Role="IT_mantenimientos" EntitySet="IT_mantenimientos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_mantenimientos_id_it_inventory_item" Association="Self.FK_IT_mantenimientos_id_it_inventory_item">
+            <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
+            <End Role="IT_mantenimientos" EntitySet="IT_mantenimientos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_mantenimientos_rel_checklist_id_item_checklist_mantenimiento" Association="Self.FK_IT_mantenimientos_rel_checklist_id_item_checklist_mantenimiento">
+            <End Role="IT_mantenimientos_checklist_item" EntitySet="IT_mantenimientos_checklist_item" />
+            <End Role="IT_mantenimientos_rel_checklist" EntitySet="IT_mantenimientos_rel_checklist" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_mantenimientos_rel_checklist_id_mantenimiento" Association="Self.FK_IT_mantenimientos_rel_checklist_id_mantenimiento">
+            <End Role="IT_mantenimientos" EntitySet="IT_mantenimientos" />
+            <End Role="IT_mantenimientos_rel_checklist" EntitySet="IT_mantenimientos_rel_checklist" />
           </AssociationSet>
           <AssociationSet Name="FK_IT_matriz_carpetas_id_it_carpetas" Association="Self.FK_IT_matriz_carpetas_id_it_carpetas">
             <End Role="IT_carpetas_red" EntitySet="IT_carpetas_red" />
@@ -3535,28 +3709,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="IT_inventory_items" Relationship="Portal_2_0Model.FK_IT_inventory_items_id_planta" FromRole="plantas" ToRole="IT_inventory_items" />
           <NavigationProperty Name="IT_inventory_cellular_line" Relationship="Portal_2_0Model.FK_IT_inventory_cellular_line_id_planta" FromRole="plantas" ToRole="IT_inventory_cellular_line" />
         </EntityType>
-        <EntityType Name="produccion_datos_entrada">
-          <Key>
-            <PropertyRef Name="id_produccion_registro" />
-          </Key>
-          <Property Name="id_produccion_registro" Type="Int32" Nullable="false" />
-          <Property Name="peso_real_pieza_neto" Type="Double" />
-          <Property Name="orden_sap" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="orden_sap_2" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="piezas_por_golpe" Type="Int32" />
-          <Property Name="numero_rollo" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="lote_rollo" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="peso_etiqueta" Type="Double" />
-          <Property Name="peso_regreso_rollo_real" Type="Double" />
-          <Property Name="peso_bascula_kgs" Type="Double" />
-          <Property Name="peso_despunte_kgs" Type="Double" />
-          <Property Name="peso_cola_kgs" Type="Double" />
-          <Property Name="total_piezas_ajuste" Type="Int32" />
-          <Property Name="ordenes_por_pieza" Type="Int32" />
-          <Property Name="comentarios" Type="String" MaxLength="600" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="produccion_registros" Relationship="Self.FK_produccion_datos_entrada_id_produccion_registro" FromRole="produccion_datos_entrada" ToRole="produccion_registros" />
-          <Property Name="sap_platina_2" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-        </EntityType>
         <EntityType Name="produccion_lineas">
           <Key>
             <PropertyRef Name="id" />
@@ -3610,7 +3762,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="fecha" Type="DateTime" Precision="3" />
           <Property Name="activo" Type="Boolean" />
           <NavigationProperty Name="plantas" Relationship="Self.FK_produccion_registros_planta_clave" FromRole="produccion_registros" ToRole="plantas" />
-          <NavigationProperty Name="produccion_datos_entrada" Relationship="Self.FK_produccion_datos_entrada_id_produccion_registro" FromRole="produccion_registros" ToRole="produccion_datos_entrada" />
           <NavigationProperty Name="produccion_lineas" Relationship="Self.FK_produccion_registros_linea" FromRole="produccion_registros" ToRole="produccion_lineas" />
           <NavigationProperty Name="produccion_lotes" Relationship="Self.FK_produccion_lotes_id_produccion_registro" FromRole="produccion_registros" ToRole="produccion_lotes" />
           <NavigationProperty Name="produccion_operadores" Relationship="Self.FK_produccion_registros_operador" FromRole="produccion_registros" ToRole="produccion_operadores" />
@@ -3618,6 +3769,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="produccion_turnos" Relationship="Self.FK_produccion_registros_turnos" FromRole="produccion_registros" ToRole="produccion_turnos" />
           <NavigationProperty Name="inspeccion_datos_generales" Relationship="Portal_2_0Model.FK_inspeccion_datos_generales_id_produccion_registro" FromRole="produccion_registros" ToRole="inspeccion_datos_generales" />
           <NavigationProperty Name="inspeccion_pieza_descarte_produccion" Relationship="Portal_2_0Model.FK_inspeccion_pieza_descarte_produccion_id_produccion_registro" FromRole="produccion_registros" ToRole="inspeccion_pieza_descarte_produccion" />
+          <Property Name="sap_platina_2" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="produccion_datos_entrada" Relationship="Portal_2_0Model.FK_produccion_datos_entrada_id_produccion_registro" FromRole="produccion_registros" ToRole="produccion_datos_entrada" />
         </EntityType>
         <EntityType Name="produccion_supervisores">
           <Key>
@@ -3728,18 +3881,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_produccion_datos_entrada_id_produccion_registro">
-          <End Role="produccion_registros" Type="Self.produccion_registros" Multiplicity="1" />
-          <End Role="produccion_datos_entrada" Type="Self.produccion_datos_entrada" Multiplicity="0..1" />
-          <ReferentialConstraint>
-            <Principal Role="produccion_registros">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="produccion_datos_entrada">
-              <PropertyRef Name="id_produccion_registro" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_produccion_operadores_id_linea">
           <End Role="produccion_lineas" Type="Self.produccion_lineas" Multiplicity="1" />
           <End Role="produccion_operadores" Type="Self.produccion_operadores" Multiplicity="*" />
@@ -3817,7 +3958,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySet Name="class_v3" EntityType="Self.class_v3" />
           <EntitySet Name="mm_v3" EntityType="Self.mm_v3" />
           <EntitySet Name="plantas" EntityType="Self.plantas" />
-          <EntitySet Name="produccion_datos_entrada" EntityType="Self.produccion_datos_entrada" />
           <EntitySet Name="produccion_lineas" EntityType="Self.produccion_lineas" />
           <EntitySet Name="produccion_lotes" EntityType="Self.produccion_lotes" />
           <EntitySet Name="produccion_operadores" EntityType="Self.produccion_operadores" />
@@ -3848,10 +3988,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <AssociationSet Name="FK_produccion_turnos_planta_clave" Association="Self.FK_produccion_turnos_planta_clave">
             <End Role="plantas" EntitySet="plantas" />
             <End Role="produccion_turnos" EntitySet="produccion_turnos" />
-          </AssociationSet>
-          <AssociationSet Name="FK_produccion_datos_entrada_id_produccion_registro" Association="Self.FK_produccion_datos_entrada_id_produccion_registro">
-            <End Role="produccion_registros" EntitySet="produccion_registros" />
-            <End Role="produccion_datos_entrada" EntitySet="produccion_datos_entrada" />
           </AssociationSet>
           <AssociationSet Name="FK_produccion_operadores_id_linea" Association="Self.FK_produccion_operadores_id_linea">
             <End Role="produccion_lineas" EntitySet="produccion_lineas" />
@@ -4410,6 +4546,47 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="IT_inventory_software" EntitySet="IT_inventory_software" />
             <End Role="IT_asignacion_software" EntitySet="IT_asignacion_software" />
           </AssociationSet>
+          <EntitySet Name="IT_mantenimientos_checklist_categorias" EntityType="Portal_2_0Model.IT_mantenimientos_checklist_categorias" />
+          <EntitySet Name="IT_mantenimientos_checklist_item" EntityType="Portal_2_0Model.IT_mantenimientos_checklist_item" />
+          <EntitySet Name="IT_mantenimientos_rel_checklist" EntityType="Portal_2_0Model.IT_mantenimientos_rel_checklist" />
+          <AssociationSet Name="FK_IT_mantenimientos_checklist_item_id_categoria" Association="Portal_2_0Model.FK_IT_mantenimientos_checklist_item_id_categoria">
+            <End Role="IT_mantenimientos_checklist_categorias" EntitySet="IT_mantenimientos_checklist_categorias" />
+            <End Role="IT_mantenimientos_checklist_item" EntitySet="IT_mantenimientos_checklist_item" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_mantenimientos_rel_checklist_id_item_checklist_mantenimiento" Association="Portal_2_0Model.FK_IT_mantenimientos_rel_checklist_id_item_checklist_mantenimiento">
+            <End Role="IT_mantenimientos_checklist_item" EntitySet="IT_mantenimientos_checklist_item" />
+            <End Role="IT_mantenimientos_rel_checklist" EntitySet="IT_mantenimientos_rel_checklist" />
+          </AssociationSet>
+          <EntitySet Name="produccion_datos_entrada" EntityType="Portal_2_0Model.produccion_datos_entrada" />
+          <AssociationSet Name="FK_produccion_datos_entrada_id_produccion_registro" Association="Portal_2_0Model.FK_produccion_datos_entrada_id_produccion_registro">
+            <End Role="produccion_registros" EntitySet="produccion_registros" />
+            <End Role="produccion_datos_entrada" EntitySet="produccion_datos_entrada" />
+          </AssociationSet>
+          <EntitySet Name="IT_mantenimientos" EntityType="Portal_2_0Model.IT_mantenimientos" />
+          <AssociationSet Name="FK_IT_mantenimientos_id_biblioteca_digital" Association="Portal_2_0Model.FK_IT_mantenimientos_id_biblioteca_digital">
+            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
+            <End Role="IT_mantenimientos" EntitySet="IT_mantenimientos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_mantenimientos_id_empleado_responsable" Association="Portal_2_0Model.FK_IT_mantenimientos_id_empleado_responsable">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IT_mantenimientos" EntitySet="IT_mantenimientos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_mantenimientos_id_empleado_sistemas" Association="Portal_2_0Model.FK_IT_mantenimientos_id_empleado_sistemas">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IT_mantenimientos" EntitySet="IT_mantenimientos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_mantenimientos_id_iatf_version" Association="Portal_2_0Model.FK_IT_mantenimientos_id_iatf_version">
+            <End Role="IATF_revisiones" EntitySet="IATF_revisiones" />
+            <End Role="IT_mantenimientos" EntitySet="IT_mantenimientos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_mantenimientos_id_it_inventory_item" Association="Portal_2_0Model.FK_IT_mantenimientos_id_it_inventory_item">
+            <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
+            <End Role="IT_mantenimientos" EntitySet="IT_mantenimientos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_mantenimientos_rel_checklist_id_mantenimiento" Association="Portal_2_0Model.FK_IT_mantenimientos_rel_checklist_id_mantenimiento">
+            <End Role="IT_mantenimientos" EntitySet="IT_mantenimientos" />
+            <End Role="IT_mantenimientos_rel_checklist" EntitySet="IT_mantenimientos_rel_checklist" />
+          </AssociationSet>
           </EntityContainer>
         <EntityType Name="PFA_Border_port">
           <Key>
@@ -4558,6 +4735,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="poliza_manual1" Relationship="Portal_2_0Model.FK_poliza_manual_documento_soporte" FromRole="biblioteca_digital" ToRole="poliza_manual" />
           <NavigationProperty Name="OT_rel_archivos" Relationship="Portal_2_0Model.FK_OT_rel_archivos_id_archivo" FromRole="biblioteca_digital" ToRole="OT_rel_archivos" />
           <NavigationProperty Name="IT_asignacion_hardware" Relationship="Portal_2_0Model.FK_id_biblioteca_digital" FromRole="biblioteca_digital" ToRole="IT_asignacion_hardware" />
+          <NavigationProperty Name="IT_mantenimientos" Relationship="Portal_2_0Model.FK_IT_mantenimientos_id_biblioteca_digital" FromRole="biblioteca_digital" ToRole="IT_mantenimientos" />
           </EntityType>
         <EntityType Name="PFA">
           <Key>
@@ -5468,6 +5646,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="IT_asignacion_hardware2" Relationship="Portal_2_0Model.FK_id_sistemas" FromRole="empleados" ToRole="IT_asignacion_hardware" />
           <NavigationProperty Name="IT_asignacion_software" Relationship="Portal_2_0Model.FK_IT_asignacion_software_id_empleado" FromRole="empleados" ToRole="IT_asignacion_software" />
           <NavigationProperty Name="IT_asignacion_software1" Relationship="Portal_2_0Model.FK_IT_asignacion_software_id_sistemas" FromRole="empleados" ToRole="IT_asignacion_software" />
+          <NavigationProperty Name="IT_mantenimientos" Relationship="Portal_2_0Model.FK_IT_mantenimientos_id_empleado_responsable" FromRole="empleados" ToRole="IT_mantenimientos" />
+          <NavigationProperty Name="IT_mantenimientos1" Relationship="Portal_2_0Model.FK_IT_mantenimientos_id_empleado_sistemas" FromRole="empleados" ToRole="IT_mantenimientos" />
           </EntityType>
         <Association Name="FK_empleados_area">
           <End Type="Portal_2_0Model.Area" Role="Area" Multiplicity="0..1" />
@@ -6598,6 +6778,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="IATF_documentos" Relationship="Portal_2_0Model.FK_id_iatf_documento" FromRole="IATF_revisiones" ToRole="IATF_documentos" />
           <Property Name="puesto_responsable" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="IT_asignacion_hardware" Relationship="Portal_2_0Model.FK_id_iatf_version" FromRole="IATF_revisiones" ToRole="IT_asignacion_hardware" />
+          <NavigationProperty Name="IT_mantenimientos" Relationship="Portal_2_0Model.FK_IT_mantenimientos_id_iatf_version" FromRole="IATF_revisiones" ToRole="IT_mantenimientos" />
         </EntityType>
         <Association Name="FK_IATF_documentos_id_planta">
           <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="0..1" />
@@ -6677,6 +6858,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="IT_inventory_items1" Relationship="Portal_2_0Model.FK_notificaciones_virtual_server" FromRole="IT_inventory_items" ToRole="IT_inventory_items1" />
           <NavigationProperty Name="IT_inventory_items2" Relationship="Portal_2_0Model.FK_notificaciones_virtual_server" FromRole="IT_inventory_items1" ToRole="IT_inventory_items" />
           <NavigationProperty Name="IT_asignacion_hardware_rel_items" Relationship="Portal_2_0Model.FK_IT_inventory_item_id_it_inventory_item" FromRole="IT_inventory_items" ToRole="IT_asignacion_hardware_rel_items" />
+          <NavigationProperty Name="IT_mantenimientos" Relationship="Portal_2_0Model.FK_IT_mantenimientos_id_it_inventory_item" FromRole="IT_inventory_items" ToRole="IT_mantenimientos" />
         </EntityType>
         <Association Name="FK_IT_inventory_item">
           <End Type="Portal_2_0Model.IT_inventory_items" Role="IT_inventory_items" Multiplicity="1" />
@@ -7008,6 +7190,188 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="IT_mantenimientos_checklist_categorias">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="IT_mantenimientos_checklist_item" Relationship="Portal_2_0Model.FK_IT_mantenimientos_checklist_item_id_categoria" FromRole="IT_mantenimientos_checklist_categorias" ToRole="IT_mantenimientos_checklist_item" />
+        </EntityType>
+        <EntityType Name="IT_mantenimientos_checklist_item">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_IT_mantenimientos_checklist_categorias" Type="Int32" Nullable="false" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="IT_mantenimientos_checklist_categorias" Relationship="Portal_2_0Model.FK_IT_mantenimientos_checklist_item_id_categoria" FromRole="IT_mantenimientos_checklist_item" ToRole="IT_mantenimientos_checklist_categorias" />
+          <NavigationProperty Name="IT_mantenimientos_rel_checklist" Relationship="Portal_2_0Model.FK_IT_mantenimientos_rel_checklist_id_item_checklist_mantenimiento" FromRole="IT_mantenimientos_checklist_item" ToRole="IT_mantenimientos_rel_checklist" />
+        </EntityType>
+        <EntityType Name="IT_mantenimientos_rel_checklist">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_mantenimiento" Type="Int32" Nullable="false" />
+          <Property Name="id_item_checklist_mantenimiento" Type="Int32" Nullable="false" />
+          <Property Name="terminado" Type="Boolean" />
+          <Property Name="comentarios" Type="String" MaxLength="300" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="IT_mantenimientos_checklist_item" Relationship="Portal_2_0Model.FK_IT_mantenimientos_rel_checklist_id_item_checklist_mantenimiento" FromRole="IT_mantenimientos_rel_checklist" ToRole="IT_mantenimientos_checklist_item" />
+          <NavigationProperty Name="IT_mantenimientos" Relationship="Portal_2_0Model.FK_IT_mantenimientos_rel_checklist_id_mantenimiento" FromRole="IT_mantenimientos_rel_checklist" ToRole="IT_mantenimientos" />
+        </EntityType>
+        <Association Name="FK_IT_mantenimientos_checklist_item_id_categoria">
+          <End Type="Portal_2_0Model.IT_mantenimientos_checklist_categorias" Role="IT_mantenimientos_checklist_categorias" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_mantenimientos_checklist_item" Role="IT_mantenimientos_checklist_item" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_mantenimientos_checklist_categorias">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_mantenimientos_checklist_item">
+              <PropertyRef Name="id_IT_mantenimientos_checklist_categorias" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_mantenimientos_rel_checklist_id_item_checklist_mantenimiento">
+          <End Type="Portal_2_0Model.IT_mantenimientos_checklist_item" Role="IT_mantenimientos_checklist_item" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_mantenimientos_rel_checklist" Role="IT_mantenimientos_rel_checklist" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_mantenimientos_checklist_item">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_mantenimientos_rel_checklist">
+              <PropertyRef Name="id_item_checklist_mantenimiento" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="produccion_datos_entrada">
+          <Key>
+            <PropertyRef Name="id_produccion_registro" />
+          </Key>
+          <Property Name="id_produccion_registro" Type="Int32" Nullable="false" />
+          <Property Name="peso_real_pieza_neto" Type="Double" />
+          <Property Name="orden_sap" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="orden_sap_2" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="piezas_por_golpe" Type="Int32" />
+          <Property Name="numero_rollo" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="lote_rollo" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="peso_etiqueta" Type="Double" />
+          <Property Name="peso_regreso_rollo_real" Type="Double" />
+          <Property Name="peso_bascula_kgs" Type="Double" />
+          <Property Name="peso_despunte_kgs" Type="Double" />
+          <Property Name="peso_cola_kgs" Type="Double" />
+          <Property Name="total_piezas_ajuste" Type="Int32" />
+          <Property Name="ordenes_por_pieza" Type="Int32" />
+          <Property Name="comentarios" Type="String" MaxLength="600" FixedLength="false" Unicode="false" />
+          <Property Name="peso_real_pieza_neto_platina_2" Type="Double" />
+          <NavigationProperty Name="produccion_registros" Relationship="Portal_2_0Model.FK_produccion_datos_entrada_id_produccion_registro" FromRole="produccion_datos_entrada" ToRole="produccion_registros" />
+        </EntityType>
+        <Association Name="FK_produccion_datos_entrada_id_produccion_registro">
+          <End Type="Portal_2_0Model.produccion_registros" Role="produccion_registros" Multiplicity="1" />
+          <End Type="Portal_2_0Model.produccion_datos_entrada" Role="produccion_datos_entrada" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="produccion_registros">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="produccion_datos_entrada">
+              <PropertyRef Name="id_produccion_registro" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="IT_mantenimientos">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_it_inventory_item" Type="Int32" Nullable="false" />
+          <Property Name="id_empleado_responsable" Type="Int32" />
+          <Property Name="id_empleado_sistemas" Type="Int32" />
+          <Property Name="id_iatf_version" Type="Int32" />
+          <Property Name="id_biblioteca_digital" Type="Int32" />
+          <Property Name="fecha_programada" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="fecha_realizacion" Type="DateTime" Precision="3" />
+          <Property Name="comentarios" Type="String" MaxLength="300" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="biblioteca_digital" Relationship="Portal_2_0Model.FK_IT_mantenimientos_id_biblioteca_digital" FromRole="IT_mantenimientos" ToRole="biblioteca_digital" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_IT_mantenimientos_id_empleado_responsable" FromRole="IT_mantenimientos" ToRole="empleados" />
+          <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_IT_mantenimientos_id_empleado_sistemas" FromRole="IT_mantenimientos" ToRole="empleados" />
+          <NavigationProperty Name="IATF_revisiones" Relationship="Portal_2_0Model.FK_IT_mantenimientos_id_iatf_version" FromRole="IT_mantenimientos" ToRole="IATF_revisiones" />
+          <NavigationProperty Name="IT_inventory_items" Relationship="Portal_2_0Model.FK_IT_mantenimientos_id_it_inventory_item" FromRole="IT_mantenimientos" ToRole="IT_inventory_items" />
+          <NavigationProperty Name="IT_mantenimientos_rel_checklist" Relationship="Portal_2_0Model.FK_IT_mantenimientos_rel_checklist_id_mantenimiento" FromRole="IT_mantenimientos" ToRole="IT_mantenimientos_rel_checklist" />
+        </EntityType>
+        <Association Name="FK_IT_mantenimientos_id_biblioteca_digital">
+          <End Type="Portal_2_0Model.biblioteca_digital" Role="biblioteca_digital" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.IT_mantenimientos" Role="IT_mantenimientos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="biblioteca_digital">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="IT_mantenimientos">
+              <PropertyRef Name="id_biblioteca_digital" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_mantenimientos_id_empleado_responsable">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.IT_mantenimientos" Role="IT_mantenimientos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_mantenimientos">
+              <PropertyRef Name="id_empleado_responsable" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_mantenimientos_id_empleado_sistemas">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.IT_mantenimientos" Role="IT_mantenimientos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_mantenimientos">
+              <PropertyRef Name="id_empleado_sistemas" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_mantenimientos_id_iatf_version">
+          <End Type="Portal_2_0Model.IATF_revisiones" Role="IATF_revisiones" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.IT_mantenimientos" Role="IT_mantenimientos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IATF_revisiones">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_mantenimientos">
+              <PropertyRef Name="id_iatf_version" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_mantenimientos_id_it_inventory_item">
+          <End Type="Portal_2_0Model.IT_inventory_items" Role="IT_inventory_items" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_mantenimientos" Role="IT_mantenimientos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_inventory_items">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_mantenimientos">
+              <PropertyRef Name="id_it_inventory_item" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_mantenimientos_rel_checklist_id_mantenimiento">
+          <End Type="Portal_2_0Model.IT_mantenimientos" Role="IT_mantenimientos" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_mantenimientos_rel_checklist" Role="IT_mantenimientos_rel_checklist" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_mantenimientos">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_mantenimientos_rel_checklist">
+              <PropertyRef Name="id_mantenimiento" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -7089,28 +7453,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="produccion_datos_entrada">
-            <EntityTypeMapping TypeName="Portal_2_0Model.produccion_datos_entrada">
-              <MappingFragment StoreEntitySet="produccion_datos_entrada">
-                <ScalarProperty Name="sap_platina_2" ColumnName="sap_platina_2" />
-                <ScalarProperty Name="id_produccion_registro" ColumnName="id_produccion_registro" />
-                <ScalarProperty Name="peso_real_pieza_neto" ColumnName="peso_real_pieza_neto" />
-                <ScalarProperty Name="orden_sap" ColumnName="orden_sap" />
-                <ScalarProperty Name="orden_sap_2" ColumnName="orden_sap_2" />
-                <ScalarProperty Name="piezas_por_golpe" ColumnName="piezas_por_golpe" />
-                <ScalarProperty Name="numero_rollo" ColumnName="numero_rollo" />
-                <ScalarProperty Name="lote_rollo" ColumnName="lote_rollo" />
-                <ScalarProperty Name="peso_etiqueta" ColumnName="peso_etiqueta" />
-                <ScalarProperty Name="peso_regreso_rollo_real" ColumnName="peso_regreso_rollo_real" />
-                <ScalarProperty Name="peso_bascula_kgs" ColumnName="peso_bascula_kgs" />
-                <ScalarProperty Name="peso_despunte_kgs" ColumnName="peso_despunte_kgs" />
-                <ScalarProperty Name="peso_cola_kgs" ColumnName="peso_cola_kgs" />
-                <ScalarProperty Name="total_piezas_ajuste" ColumnName="total_piezas_ajuste" />
-                <ScalarProperty Name="ordenes_por_pieza" ColumnName="ordenes_por_pieza" />
-                <ScalarProperty Name="comentarios" ColumnName="comentarios" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="produccion_lineas">
             <EntityTypeMapping TypeName="Portal_2_0Model.produccion_lineas">
               <MappingFragment StoreEntitySet="produccion_lineas">
@@ -7147,6 +7489,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySetMapping Name="produccion_registros">
             <EntityTypeMapping TypeName="Portal_2_0Model.produccion_registros">
               <MappingFragment StoreEntitySet="produccion_registros">
+                <ScalarProperty Name="sap_platina_2" ColumnName="sap_platina_2" />
                 <ScalarProperty Name="id" ColumnName="id" />
                 <ScalarProperty Name="clave_planta" ColumnName="clave_planta" />
                 <ScalarProperty Name="id_linea" ColumnName="id_linea" />
@@ -8300,6 +8643,73 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
                 <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
                 <ScalarProperty Name="id_sistemas" ColumnName="id_sistemas" />
                 <ScalarProperty Name="id_inventory_software" ColumnName="id_inventory_software" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IT_mantenimientos_checklist_categorias">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_mantenimientos_checklist_categorias">
+              <MappingFragment StoreEntitySet="IT_mantenimientos_checklist_categorias">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IT_mantenimientos_checklist_item">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_mantenimientos_checklist_item">
+              <MappingFragment StoreEntitySet="IT_mantenimientos_checklist_item">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="id_IT_mantenimientos_checklist_categorias" ColumnName="id_IT_mantenimientos_checklist_categorias" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IT_mantenimientos_rel_checklist">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_mantenimientos_rel_checklist">
+              <MappingFragment StoreEntitySet="IT_mantenimientos_rel_checklist">
+                <ScalarProperty Name="comentarios" ColumnName="comentarios" />
+                <ScalarProperty Name="terminado" ColumnName="terminado" />
+                <ScalarProperty Name="id_item_checklist_mantenimiento" ColumnName="id_item_checklist_mantenimiento" />
+                <ScalarProperty Name="id_mantenimiento" ColumnName="id_mantenimiento" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="produccion_datos_entrada">
+            <EntityTypeMapping TypeName="Portal_2_0Model.produccion_datos_entrada">
+              <MappingFragment StoreEntitySet="produccion_datos_entrada">
+                <ScalarProperty Name="peso_real_pieza_neto_platina_2" ColumnName="peso_real_pieza_neto_platina_2" />
+                <ScalarProperty Name="comentarios" ColumnName="comentarios" />
+                <ScalarProperty Name="ordenes_por_pieza" ColumnName="ordenes_por_pieza" />
+                <ScalarProperty Name="total_piezas_ajuste" ColumnName="total_piezas_ajuste" />
+                <ScalarProperty Name="peso_cola_kgs" ColumnName="peso_cola_kgs" />
+                <ScalarProperty Name="peso_despunte_kgs" ColumnName="peso_despunte_kgs" />
+                <ScalarProperty Name="peso_bascula_kgs" ColumnName="peso_bascula_kgs" />
+                <ScalarProperty Name="peso_regreso_rollo_real" ColumnName="peso_regreso_rollo_real" />
+                <ScalarProperty Name="peso_etiqueta" ColumnName="peso_etiqueta" />
+                <ScalarProperty Name="lote_rollo" ColumnName="lote_rollo" />
+                <ScalarProperty Name="numero_rollo" ColumnName="numero_rollo" />
+                <ScalarProperty Name="piezas_por_golpe" ColumnName="piezas_por_golpe" />
+                <ScalarProperty Name="orden_sap_2" ColumnName="orden_sap_2" />
+                <ScalarProperty Name="orden_sap" ColumnName="orden_sap" />
+                <ScalarProperty Name="peso_real_pieza_neto" ColumnName="peso_real_pieza_neto" />
+                <ScalarProperty Name="id_produccion_registro" ColumnName="id_produccion_registro" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IT_mantenimientos">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_mantenimientos">
+              <MappingFragment StoreEntitySet="IT_mantenimientos">
+                <ScalarProperty Name="comentarios" ColumnName="comentarios" />
+                <ScalarProperty Name="fecha_realizacion" ColumnName="fecha_realizacion" />
+                <ScalarProperty Name="fecha_programada" ColumnName="fecha_programada" />
+                <ScalarProperty Name="id_biblioteca_digital" ColumnName="id_biblioteca_digital" />
+                <ScalarProperty Name="id_iatf_version" ColumnName="id_iatf_version" />
+                <ScalarProperty Name="id_empleado_sistemas" ColumnName="id_empleado_sistemas" />
+                <ScalarProperty Name="id_empleado_responsable" ColumnName="id_empleado_responsable" />
+                <ScalarProperty Name="id_it_inventory_item" ColumnName="id_it_inventory_item" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

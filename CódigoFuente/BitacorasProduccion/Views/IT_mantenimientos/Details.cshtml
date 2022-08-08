@@ -1,0 +1,83 @@
+﻿@model Portal_2_0.Models.IT_mantenimientos
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>IT_mantenimientos</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.fecha_programada)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.fecha_programada)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.fecha_realizacion)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.fecha_realizacion)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.comentarios)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.comentarios)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.biblioteca_digital.Nombre)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.biblioteca_digital.Nombre)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.empleados.numeroEmpleado)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.empleados.numeroEmpleado)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.empleados1.numeroEmpleado)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.empleados1.numeroEmpleado)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.IATF_revisiones.responsable)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.IATF_revisiones.responsable)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.IT_inventory_items.comments)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.IT_inventory_items.comments)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
