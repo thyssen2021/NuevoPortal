@@ -88,7 +88,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<notificaciones_correo> notificaciones_correo { get; set; }
         public virtual DbSet<bom_en_sap> bom_en_sap { get; set; }
         public virtual DbSet<OT_rel_depto_aplica_linea> OT_rel_depto_aplica_linea { get; set; }
-        public virtual DbSet<view_historico_resultado> view_historico_resultado { get; set; }
         public virtual DbSet<log_acceso_email> log_acceso_email { get; set; }
         public virtual DbSet<IT_carpetas_red> IT_carpetas_red { get; set; }
         public virtual DbSet<IT_comunicaciones_tipo> IT_comunicaciones_tipo { get; set; }
@@ -118,5 +117,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_asignacion_hardware_rel_items> IT_asignacion_hardware_rel_items { get; set; }
         public virtual DbSet<IT_asignacion_software> IT_asignacion_software { get; set; }
         public virtual DbSet<produccion_datos_entrada> produccion_datos_entrada { get; set; }
+        public virtual DbSet<view_historico_resultado> view_historico_resultado { get; set; }
     }
 }

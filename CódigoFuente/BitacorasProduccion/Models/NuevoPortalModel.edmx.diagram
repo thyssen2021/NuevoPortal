@@ -144,7 +144,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.bom_en_sap" Width="1.5" PointX="8.375" PointY="13.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.OT_rel_depto_aplica_linea" Width="1.5" PointX="5.25" PointY="3.125" />
         <AssociationConnector Association="Portal_2_0Model.FK_OT_rel_depto_aplica_linea_id_area" />
-        <EntityTypeShape EntityType="Portal_2_0Model.view_historico_resultado" Width="1.5" PointX="0.75" PointY="15.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.log_acceso_email" Width="1.5" PointX="8.375" PointY="18.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_carpetas_red" Width="2.5" PointX="29.625" PointY="2.125" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_comunicaciones_tipo" Width="2.5" PointX="25.375" PointY="25.75" />
@@ -224,6 +223,7 @@
         <AssociationConnector Association="Portal_2_0Model.FK_IT_asignacion_software_id_inventory_software" />
         <EntityTypeShape EntityType="Portal_2_0Model.produccion_datos_entrada" Width="1.5" PointX="14.25" PointY="59.5" />
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_datos_entrada_id_produccion_registro" />
+        <EntityTypeShape EntityType="Portal_2_0Model.view_historico_resultado" Width="1.5" PointX="31.375" PointY="30.75" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

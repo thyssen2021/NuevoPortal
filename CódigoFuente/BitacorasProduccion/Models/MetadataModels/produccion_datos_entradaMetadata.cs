@@ -62,9 +62,9 @@ namespace Portal_2_0.Models
         [Display(Name = "Peso Cola Kgs")]
         public Nullable<double> peso_cola_kgs { get; set; }
 
-        [Display(Name = "Total Pieza Ajuste")]
+        [Display(Name = "Pieza Ajuste (platina 1)")]
         //[Required(ErrorMessage = "El campo Total Piezas Ajuste es requerido")]
-        [Range(0, 1000, ErrorMessage = "Ingrese un valor positivo entre 1 y 1000")]
+        [Range(0, 1000, ErrorMessage = "Ingrese un valor positivo entre 0 y 1000")]
         public Nullable<int> total_piezas_ajuste { get; set; }
 
         [Display(Name = "Órdenes por Pieza")]
@@ -80,6 +80,9 @@ namespace Portal_2_0.Models
         [Display(Name = "Peso Real Pieza Neto (platina 2)")]   //viene de la báscula
         public Nullable<double> peso_real_pieza_neto_platina_2 { get; set; }
 
+        [Display(Name = "Pieza Ajuste (platina 2)")]
+        [Range(0, 1000, ErrorMessage = "Ingrese un valor positivo entre 0 y 1000")]
+        public Nullable<int> total_piezas_ajuste_platina_2 { get; set; }
 
     }
 
@@ -108,6 +111,19 @@ namespace Portal_2_0.Models
             }
         }
 
+        //calcula el peso de rollo usado
+        [NotMapped]
+        public int TotalPiezaAjuste
+        {
+            get
+            {
+                int piezas_ajuste_platina_1 = this.total_piezas_ajuste.HasValue == true ? this.total_piezas_ajuste.Value : 0;
+                int piezas_ajuste_platina_2 = this.total_piezas_ajuste_platina_2.HasValue == true ? this.total_piezas_ajuste_platina_2.Value : 0;
+
+                return piezas_ajuste_platina_1 + piezas_ajuste_platina_2;
+            }
+        }
+
         //Para foolproof
         [NotMapped]
         public bool tiene_segunda_platina
@@ -120,10 +136,11 @@ namespace Portal_2_0.Models
                 {
                     return false;
                 }
-                else {
+                else
+                {
                     return !String.IsNullOrEmpty(p.sap_platina_2);
                 }
-                
+
             }
         }
 

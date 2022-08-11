@@ -186,7 +186,7 @@ namespace Portal_2_0.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(produccion_registros produccion_registros, FormCollection collection)
-        {   
+        {
 
             //si el modelo es válido
             if (ModelState.IsValid)
@@ -268,7 +268,7 @@ namespace Portal_2_0.Controllers
                     return RedirectToAction("Index");
                 }
 
-               
+
 
                 empleados emp = obtieneEmpleadoLogeado();
 
@@ -278,16 +278,16 @@ namespace Portal_2_0.Controllers
 
                 //crea un select li
                 List<SelectListItem> listadoPlatinas = ComboSelect.obtieneMaterial_BOM();
-                List<SelectListItem> listadoRollos= ComboSelect.obtieneRollo_BOM(produccion.sap_platina);
+                List<SelectListItem> listadoRollos = ComboSelect.obtieneRollo_BOM(produccion.sap_platina);
 
                 ViewBag.sap_platina = AddFirstItem(new SelectList(listadoPlatinas, "Value", "Text"), textoPorDefecto: "-- Seleccionar --", selected: produccion.sap_platina);
                 ViewBag.sap_platina_2 = AddFirstItem(new SelectList(listadoPlatinas, "Value", "Text"), textoPorDefecto: "-- Seleccionar --", selected: produccion.sap_platina_2);
                 ViewBag.sap_rollo = new SelectList(ComboSelect.obtieneRollo_BOM(produccion.sap_platina), "Value", "Text", selectedValue: produccion.sap_rollo);
-                ViewBag.id_supervisor = AddFirstItem(new SelectList(db.produccion_supervisores.Where(p => p.activo == true && p.clave_planta == produccion.clave_planta), 
-                    nameof(produccion_supervisores.id), "empleados."+nameof(produccion_supervisores.empleados.ConcatNombre)), 
+                ViewBag.id_supervisor = AddFirstItem(new SelectList(db.produccion_supervisores.Where(p => p.activo == true && p.clave_planta == produccion.clave_planta),
+                    nameof(produccion_supervisores.id), "empleados." + nameof(produccion_supervisores.empleados.ConcatNombre)),
                     textoPorDefecto: "-- Seleccionar --", selected: produccion.id_supervisor.ToString());
                 ViewBag.id_operador = ComboSelect.obtieneOperadorPorLinea(emp, produccion.id_linea.Value);
-               
+
 
                 return View(produccion);
             }
@@ -425,6 +425,27 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DatosEntradas(produccion_registros produccion_registros)
         {
+            //comprueba si hay un margen del 3% de toleracnicia
+            try
+            {
+                //sumatoria de ambas
+                double peso_bascula = produccion_registros.produccion_datos_entrada.peso_bascula_kgs.HasValue ? produccion_registros.produccion_datos_entrada.peso_bascula_kgs.Value : 0;
+                double peso_regreso_rollo = produccion_registros.produccion_datos_entrada.peso_regreso_rollo_real.HasValue ? produccion_registros.produccion_datos_entrada.peso_regreso_rollo_real.Value : 0;
+                double peso_etiqueta = produccion_registros.produccion_datos_entrada.peso_etiqueta.HasValue ? produccion_registros.produccion_datos_entrada.peso_etiqueta.Value : 0;
+                double peso_de_rollo_usado_real = peso_bascula - peso_regreso_rollo;
+                double dif_abs = Math.Abs(peso_bascula - peso_de_rollo_usado_real);
+                double porcentaje_dif = (dif_abs / peso_de_rollo_usado_real) * 100;
+
+                if (porcentaje_dif > 3)
+                    ModelState.AddModelError("", "La diferencia entre el Peso de Rollo Usado Real y el Peso de Báscula es mayor al 3%. Favor de verificar los datos.");
+                
+            }
+            catch (Exception e)
+            {
+                //do nothing
+                //ModelState.AddModelError("", "Ocurrió un error al calcular el porcentaje de diferencia: " + e.Message);
+            }
+
 
             bool error = false;
 

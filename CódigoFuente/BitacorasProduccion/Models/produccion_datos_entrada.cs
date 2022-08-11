@@ -30,6 +30,7 @@ namespace Portal_2_0.Models
         public Nullable<int> ordenes_por_pieza { get; set; }
         public string comentarios { get; set; }
         public Nullable<double> peso_real_pieza_neto_platina_2 { get; set; }
+        public Nullable<int> total_piezas_ajuste_platina_2 { get; set; }
     
         public virtual produccion_registros produccion_registros { get; set; }
     }

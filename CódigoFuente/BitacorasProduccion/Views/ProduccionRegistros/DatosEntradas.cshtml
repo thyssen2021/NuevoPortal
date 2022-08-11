@@ -337,13 +337,12 @@
                                             <select name="produccion_lotes[@contador].sap_platina" id="produccion_lotes[@contador].sap_platina" class="form-control select2bs4 combo-material" data-row="@contador" style="width: 100%" required>
                                                 <option value="" selected>-- Sin Definir --</option>
                                                 <option value="@Model.sap_platina" @(Model.sap_platina == lote.sap_platina ? "selected" : String.Empty)>@Model.sap_platina</option>
-                                                Si tiene segunda sap platina
                                                 @if (!String.IsNullOrEmpty(Model.sap_platina_2))
                                                 {
                                                     <option value="@Model.sap_platina_2" @(Model.sap_platina_2 == lote.sap_platina && !string.IsNullOrEmpty(lote.sap_platina) ? "selected" : String.Empty)>@Model.sap_platina_2</option>
                                                 }
                                             </select>
-                                            <span class="field-validation-valid text-danger" data-valmsg-for="select_@contador" data-valmsg-replace="true"></span>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[@contador].sap_platina" data-valmsg-replace="true"></span>
                                         </div>
                                         @*<div class="col-md-2">
                                                 <input style="text-align:right" type="text" maxlenght=30 name="produccion_lotes[@contador].sap_platina" id="produccion_lotes[@contador].sap_platina" class="form-control col-md-12 material-lote" value="@lote.sap_platina" readonly required>
@@ -451,17 +450,34 @@
                             </div>
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.produccion_datos_entrada.total_piezas_ajuste, new { @class = "control-label col-md-1" })
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     @Html.EditorFor(model => model.produccion_datos_entrada.total_piezas_ajuste, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
                                     @Html.ValidationMessageFor(model => model.produccion_datos_entrada.total_piezas_ajuste, "", new { @class = "text-danger" })
                                 </div>
+                                @if (!String.IsNullOrEmpty(Model.sap_platina_2))
+                                {
+                                    @Html.LabelFor(model => model.produccion_datos_entrada.total_piezas_ajuste_platina_2, new { @class = "control-label col-md-1" })
+                                    <div class="col-md-2">
+                                        @Html.EditorFor(model => model.produccion_datos_entrada.total_piezas_ajuste_platina_2, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.produccion_datos_entrada.total_piezas_ajuste_platina_2, "", new { @class = "text-danger" })
+                                    </div>
+                                }
+                                <!--Suma de piezas de ajuste-->
+                                <label class="control-label col-md-1" for="suma_piezas_de_ajuste">
+                                    Suma piezas de Ajuste
+                                </label>
+                                <div class="col-md-2">
+                                    <input type="text" id="suma_piezas_de_ajuste" class="form-control col-md-12" value="" readonly>
+                                </div>
+
+
                                 <!--Peso Bruto Kgs-->
                                 @*<label class="control-label col-md-1" for="peso_bruto_kgs">
-                                        Peso Bruto Kgs
-                                    </label>
-                                    <div class="col-md-3">
-                                        <input type="text" id="peso_bruto_kgs" class="form-control col-md-12" value="" readonly>
-                                    </div>*@
+            Peso Bruto Kgs
+        </label>
+        <div class="col-md-3">
+            <input type="text" id="peso_bruto_kgs" class="form-control col-md-12" value="" readonly>
+        </div>*@
                             </div>
 
                             <div class="ln_solid"></div>
@@ -523,6 +539,9 @@
                                 <thead>
                                     <tr>
                                         <th>
+                                            Piezas de ajuste
+                                        </th>
+                                        <th>
                                             Peso Bruto Kgs
                                         </th>
                                         <th>
@@ -547,6 +566,8 @@
                                 </thead>
                                 <tbody>
                                     <tr id="fila_balance_scrap">
+                                        <td id="td_piezas_de_ajuste">
+                                        </td>
                                         <td id="td_peso_bruto_kgs">
                                         </td>
                                         <td id="td_peso_real_pieza_bruto">
@@ -586,7 +607,7 @@
                                             Peso Bruto Total piezas Kg
                                         </th>
                                         <th>
-                                            Peso bruto Total piezas
+                                            Peso Neto Total piezas
                                             Kg
                                         </th>
                                         <th>
@@ -686,6 +707,9 @@
                                     <thead>
                                         <tr>
                                             <th>
+                                                Piezas de ajuste
+                                            </th>
+                                            <th>
                                                 Peso Bruto Kgs
                                             </th>
                                             <th>
@@ -711,6 +735,8 @@
                                     <tbody>
 
                                         <tr id="fila_balance_scrap_2">
+                                            <td id="td_piezas_de_ajuste_2">
+                                            </td>
                                             <td id="td_peso_bruto_kgs_2">
                                             </td>
                                             <td id="td_peso_real_pieza_bruto_2">
@@ -751,7 +777,7 @@
                                                 Peso Bruto Total piezas Kg
                                             </th>
                                             <th>
-                                                Peso bruto Total piezas
+                                                Peso Neto Total piezas
                                                 Kg
                                             </th>
                                             <th>
@@ -937,10 +963,10 @@
     <!-- input mask -->
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/inputmask/inputmask.extensions.js"))
+@Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/inputmask/inputmask.numeric.extensions.js"))
     @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
     @*<script src="~/Scripts/Forms/datosEntrada.js?time=@DateTime.Now.ToShortDateString()"></script>*@
     <script src="~/Scripts/Forms/datosEntrada.js?time=@DateTime.Now"></script>
-
     <script>
         $(document).ready(function () {
 
@@ -959,7 +985,7 @@
             //inicializa input mask
             $('#@Html.IdFor(model => model.produccion_datos_entrada.orden_sap)').inputmask({ 'alias': 'integer', 'mask': '99999999', 'autoGroup': true, 'autoUnmask': true, 'removeMaskOnSubmit': true });
             $('#@Html.IdFor(model => model.produccion_datos_entrada.orden_sap_2)').inputmask({ 'alias': 'integer', 'mask': '99999999', 'autoGroup': true, 'autoUnmask': true, 'removeMaskOnSubmit': true });
-
+        
 
         });
 

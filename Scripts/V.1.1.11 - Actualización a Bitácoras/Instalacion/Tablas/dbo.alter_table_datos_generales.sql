@@ -21,6 +21,7 @@ BEGIN TRANSACTION
 			--ALTER TABLE produccion_datos_entrada ADD sap_platina_2 VARCHAR(30) NULL
 			ALTER TABLE produccion_datos_entrada DROP COLUMN sap_platina_2;
 			ALTER TABLE produccion_datos_entrada ADD peso_real_pieza_neto_platina_2 FLOAT NULL
+			ALTER TABLE produccion_datos_entrada ADD total_piezas_ajuste_platina_2 INT NULL
 
 			PRINT 'Se ha creado la columna sap_platina_2 en la tabla produccion_datos_entrada'	
 		END
