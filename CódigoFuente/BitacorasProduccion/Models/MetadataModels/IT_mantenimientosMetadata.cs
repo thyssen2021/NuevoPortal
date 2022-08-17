@@ -23,7 +23,7 @@ namespace Portal_2_0.Models
         public Nullable<int> id_empleado_sistemas { get; set; }
         public Nullable<int> id_iatf_version { get; set; }
 
-        [Display(Name = "Documento Soporte")]
+        [Display(Name = "Documento de Aceptación")]
         public Nullable<int> id_biblioteca_digital { get; set; }
 
         [DataType(DataType.Date)]
@@ -36,7 +36,7 @@ namespace Portal_2_0.Models
         public Nullable<System.DateTime> fecha_realizacion { get; set; }
 
         [StringLength(300)]
-        [Display(Name = "Comentarios")]
+        [Display(Name = "Comentarios Generales")]
         public string comentarios { get; set; }
 
     }
@@ -90,5 +90,9 @@ namespace Portal_2_0.Models
             }
 
         }
+
+        [NotMapped]
+        [Display(Name = "Documento de Aceptación")]
+        public HttpPostedFileBase PostedFileDocumentoAceptacion { get; set; }
     }
 }

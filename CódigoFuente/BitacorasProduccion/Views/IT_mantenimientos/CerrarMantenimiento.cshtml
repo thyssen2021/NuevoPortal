@@ -261,17 +261,16 @@
                                                 item.terminado.HasValue && !item.terminado.Value ? "color : #FF0000" :
                                                 item.terminado.HasValue && item.terminado.Value ? "color : #00A900" :String.Empty)">
                                                     <div>
-                                                        <input class="radio-estatus" type="radio" id="na_@contador" name="IT_mantenimientos_rel_checklist[@contador].terminado" data-row="@contador" value="" @(!item.terminado.HasValue ? "checked" : String.Empty)>
-                                                        <label for="na_@contador">N/A</label>
-                                                    </div>
-                                                    <div>
                                                         <input class="radio-estatus" type="radio" id="pendiente_@contador" name="IT_mantenimientos_rel_checklist[@contador].terminado" data-row="@contador" value="false" @(item.terminado.HasValue && !item.terminado.Value ? "checked" : String.Empty)>
                                                         <label for="pendiente_@contador">Pendiente</label>
                                                     </div>
-
                                                     <div>
                                                         <input class="radio-estatus" type="radio" id="terminado_@contador" name="IT_mantenimientos_rel_checklist[@contador].terminado" data-row="@contador" value="true" @(item.terminado.HasValue && item.terminado.Value ? "checked" : String.Empty)>
                                                         <label for="terminado_@contador">Terminado</label>
+                                                    </div>
+                                                    <div>
+                                                        <input class="radio-estatus" type="radio" id="na_@contador" name="IT_mantenimientos_rel_checklist[@contador].terminado" data-row="@contador" value="" @(!item.terminado.HasValue ? "checked" : String.Empty)>
+                                                        <label for="na_@contador">N/A</label>
                                                     </div>
                                                 </td>
                                                 <td>
