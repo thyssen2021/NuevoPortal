@@ -438,7 +438,7 @@ namespace Portal_2_0.Controllers
 
                 if (porcentaje_dif > 3)
                     ModelState.AddModelError("", "La diferencia entre el Peso de Rollo Usado Real y el Peso de Báscula es mayor al 3%. Favor de verificar los datos.");
-                
+
             }
             catch (Exception e)
             {
@@ -448,18 +448,22 @@ namespace Portal_2_0.Controllers
 
 
             bool error = false;
+            bool errorDoble = false;
 
             foreach (produccion_lotes lote in produccion_registros.produccion_lotes)
             {
                 if (lote.numero_lote_derecho == null && lote.numero_lote_izquierdo == null)
                     error = true;
+                if (lote.numero_lote_derecho != null && lote.numero_lote_izquierdo != null)
+                    errorDoble = true;
             }
 
             if (error)
-            {
-                ModelState.AddModelError("", "Verifique que se haya especificado al menos un lote izquierdo o derecho para cada lote.");
-            }
-            else if (ModelState.IsValid)
+                ModelState.AddModelError("", "Verifique que se haya especificado un lote izquierdo o derecho para cada lote.");
+            if (errorDoble)
+                ModelState.AddModelError("", "Verifique que todos los lotes tengan especificado únicamente un lote, ya sea lote izquierdo o lote derecho. No ambos.");
+
+            if (ModelState.IsValid)
             {
                 //verifica que si existe en un registro en datos entrada            
 
