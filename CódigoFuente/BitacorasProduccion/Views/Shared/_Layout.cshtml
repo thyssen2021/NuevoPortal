@@ -203,6 +203,34 @@
                                         </li>
                                     }
 
+                                    @if (User.IsInRole(TipoRoles.GV_REPORTES) || User.IsInRole(TipoRoles.GV_CATALOGOS))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "gastos_viaje" ? "active" : null )">
+                                            <a><i class="fa fa-person-walking-luggage"></i>Gastos de Viaje <span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "gastos_viaje" ? "display:block" : null )">
+                                                <h3>SOLICITUDES</h3>
+                                                <li class="@(ViewBag.SegundoNivel == "GV_solicitud" ? "current-page" : null )"><a href="@Url.Action( "Solicitudes", "GV_solicitud")">Mis Solicitudes</a></li>
+                                                <li class="@(ViewBag.SegundoNivel == "GV_solicitud" ? "current-page" : null )"><a href="@Url.Action( "Solicitudes", "GV_solicitud")">Pendientes</a></li>
+                                                <li class="@(ViewBag.SegundoNivel == "GV_solicitud" ? "current-page" : null )"><a href="@Url.Action( "Solicitudes", "GV_solicitud")">Reportes</a></li>
+
+                                                @if (User.IsInRole(TipoRoles.GV_CATALOGOS))
+                                                {
+                                                    <h3>CAT&Aacute;LOGOS</h3>
+                                                    <li class="link @(ViewBag.SegundoNivel == "GV_catalogos" ? "active" : "" )">
+                                                        <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
+                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "GV_catalogos" ? "display:block" : null )">
+                                                            <li class="@(ViewBag.TercelNivel == "GV_tipo_gastos_viaje" ? "current-page" : null )"><a href="@Url.Action( "Index", "GV_tipo_gastos_viaje")">Tipos de Gastos de Viaje</a></li>
+                                                        </ul>
+                                                    </li>
+                                                }
+
+                                                <h3>MANUAL DE USUARIO</h3>
+                                                <li class="@(ViewBag.SegundoNivel == "GV_manual_usuario" ? "current-page" : null )"><a href="@Url.Action( "Manual", "GV_solicitud")">Manual de Usuario</a></li>
+                                            </ul>
+                                        </li>
+                                    }
+
+
                                     @if (User.IsInRole(TipoRoles.REPORTES_PESADAS))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "reporte_pesos" ? "active" : null )">
@@ -213,6 +241,8 @@
                                             </ul>
                                         </li>
                                     }
+
+
 
                                     @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS) || User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REGISTRO) || User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REPORTE))
                                     {

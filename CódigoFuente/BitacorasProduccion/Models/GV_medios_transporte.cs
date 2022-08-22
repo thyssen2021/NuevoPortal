@@ -12,27 +12,18 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class currency
+    public partial class GV_medios_transporte
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public currency()
+        public GV_medios_transporte()
         {
-            this.poliza_manual = new HashSet<poliza_manual>();
-            this.budget_cantidad = new HashSet<budget_cantidad>();
             this.GV_solicitud = new HashSet<GV_solicitud>();
         }
     
-        public string CurrencyISO { get; set; }
-        public string CurrencyName { get; set; }
-        public string Money { get; set; }
-        public string Symbol { get; set; }
-        public Nullable<decimal> LimitePoliza { get; set; }
+        public int id { get; set; }
+        public string descripcion { get; set; }
         public bool activo { get; set; }
     
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<poliza_manual> poliza_manual { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<budget_cantidad> budget_cantidad { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<GV_solicitud> GV_solicitud { get; set; }
     }

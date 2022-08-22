@@ -31,9 +31,9 @@ namespace Portal_2_0.Models
         public string sap_rollo { get; set; }
         public Nullable<System.DateTime> fecha { get; set; }
         public Nullable<bool> activo { get; set; }
+        public string sap_platina_2 { get; set; }
     
         public virtual plantas plantas { get; set; }
-        public virtual produccion_datos_entrada produccion_datos_entrada { get; set; }
         public virtual produccion_lineas produccion_lineas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<produccion_lotes> produccion_lotes { get; set; }
@@ -43,5 +43,6 @@ namespace Portal_2_0.Models
         public virtual inspeccion_datos_generales inspeccion_datos_generales { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<inspeccion_pieza_descarte_produccion> inspeccion_pieza_descarte_produccion { get; set; }
+        public virtual produccion_datos_entrada produccion_datos_entrada { get; set; }
     }
 }

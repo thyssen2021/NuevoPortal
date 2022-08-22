@@ -9,7 +9,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.class_v3" Width="1.5" PointX="2.75" PointY="0.875" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.mm_v3" Width="1.5" PointX="5.75" PointY="12.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.plantas" Width="1.5" PointX="0.75" PointY="8.5" IsExpanded="true" />
-        <EntityTypeShape EntityType="Portal_2_0Model.produccion_datos_entrada" Width="1.5" PointX="14.25" PointY="7.625" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.produccion_lineas" Width="1.5" PointX="3" PointY="8.625" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.produccion_lotes" Width="1.5" PointX="14.25" PointY="12.375" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.produccion_operadores" Width="1.5" PointX="9.75" PointY="7.5" IsExpanded="true" />
@@ -23,7 +22,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_planta_clave" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_supervisores_clave_planta" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_turnos_planta_clave" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_produccion_datos_entrada_id_produccion_registro" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_operadores_id_linea" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_linea" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_lotes_id_produccion_registro" ManuallyRouted="false" />
@@ -224,6 +222,19 @@
         <AssociationConnector Association="Portal_2_0Model.FK_IT_asignacion_software_id_empleado" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_asignacion_software_id_sistemas" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_asignacion_software_id_inventory_software" />
+        <EntityTypeShape EntityType="Portal_2_0Model.GV_medios_transporte" Width="1.5" PointX="31.875" PointY="16.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.GV_tipo_gastos_viaje" Width="1.5" PointX="3.375" PointY="20.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.produccion_datos_entrada" Width="1.5" PointX="14.25" PointY="59.5" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_datos_entrada_id_produccion_registro" />
+        <EntityTypeShape EntityType="Portal_2_0Model.GV_solicitud" Width="1.5" PointX="34.125" PointY="13.125" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_iso_moneda_extranjera" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_contabilidad" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_controlling" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_jefe_directo" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_nomina" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_solicitante" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_medio_transporte" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

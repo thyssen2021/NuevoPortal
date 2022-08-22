@@ -54,6 +54,15 @@ namespace Clases.Util
         //Módulo IT - Inventory
         public const string IT_INVENTORY = "IT_Inventory";
         public const string IT_ASIGNACION_HARDWARE = "IT_Asignacion_Hardware";
-        
+        //Módulo de Gastos de Viaje
+        public const string GV_SOLICITUD = "GV_SOLICITUD";
+        public const string GV_JEFE_DIRECTO = "GV_JEFE_DIRECTO";
+        public const string GV_CONTROLLING = "GV_CONTROLLING";
+        public const string GV_CONTABILIDAD = "GV_CONTABILIDAD";
+        public const string GV_NOMINA = "GV_NOMINA";
+        public const string GV_REPORTES = "GV_CONTABILIDAD";
+        public const string GV_CATALOGOS = "GV_CATALOGOS";
+
+
     }
 }

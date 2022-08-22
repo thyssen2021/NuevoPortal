@@ -1,0 +1,249 @@
+﻿@model Portal_2_0.Models.GV_solicitud
+
+@{
+    ViewBag.Title = "Delete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>GV_solicitud</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.fecha_solicitud)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.fecha_solicitud)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.tipo_viaje)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.tipo_viaje)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.origen)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.origen)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.destino)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.destino)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.fecha_salida)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.fecha_salida)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.fecha_regreso)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.fecha_regreso)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.medio_transporte_otro)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.medio_transporte_otro)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.moneda_extranjera)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.moneda_extranjera)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.moneda_extranjera_comentarios)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.moneda_extranjera_comentarios)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.moneda_extranjera_monto)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.moneda_extranjera_monto)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.boletos_avion)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.boletos_avion)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.boletos_avion_comentarios)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.boletos_avion_comentarios)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.hospedaje)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.hospedaje)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.hospedaje_comentarios)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.hospedaje_comentarios)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.fecha_aceptacion_jefe_area)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.fecha_aceptacion_jefe_area)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.fecha_aceptacion_controlling)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.fecha_aceptacion_controlling)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.fecha_aceptacion_contabilidad)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.fecha_aceptacion_contabilidad)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.fecha_aceptacion_nomina)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.fecha_aceptacion_nomina)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.comentario_rechazo)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.comentario_rechazo)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.estatus)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.estatus)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.currency.CurrencyName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.currency.CurrencyName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.empleados.numeroEmpleado)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.empleados.numeroEmpleado)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.empleados1.numeroEmpleado)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.empleados1.numeroEmpleado)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.empleados2.numeroEmpleado)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.empleados2.numeroEmpleado)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.empleados3.numeroEmpleado)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.empleados3.numeroEmpleado)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.empleados4.numeroEmpleado)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.empleados4.numeroEmpleado)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.empleados5.numeroEmpleado)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.empleados5.numeroEmpleado)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.GV_medios_transporte.descripcion)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.GV_medios_transporte.descripcion)
+        </dd>
+
+    </dl>
+
+    @using (Html.BeginForm()) {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input type="submit" value="Delete" class="btn btn-default" /> |
+            @Html.ActionLink("Back to List", "Index")
+        </div>
+    }
+</div>

@@ -287,6 +287,7 @@
     <Compile Include="Controllers\EChartsController.cs" />
     <Compile Include="Controllers\empleadosController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
+    <Compile Include="Controllers\GV_solicitudController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InformationController.cs" />
     <Compile Include="Controllers\inspeccionCategoriaFallasController.cs" />
@@ -393,6 +394,15 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\budget_departamentos.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\GV_medios_transporte.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\GV_solicitud.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\GV_tipo_gastos_viaje.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IATF_documentos.cs">
@@ -542,6 +552,7 @@
     <Compile Include="Models\MetadataModels\budget_mappingMetadata.cs" />
     <Compile Include="Models\MetadataModels\budget_mapping_bridge_Metadata.cs" />
     <Compile Include="Models\MetadataModels\budget_plantasMetadata.cs" />
+    <Compile Include="Models\MetadataModels\GV_solicitudMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_asignacion_hardwareMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_asignacion_hardware_rel_itemsMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_asignacion_softwareMetadata.cs" />
@@ -7133,6 +7144,11 @@
     <Content Include="Views\IT_inventory_items_genericos\Disable.cshtml" />
     <Content Include="Views\OrdenesTrabajo\Edit.cshtml" />
     <Content Include="Views\IT_asignacion_hardware\responsivas.cshtml" />
+    <Content Include="Views\GV_solicitud\Create.cshtml" />
+    <Content Include="Views\GV_solicitud\Delete.cshtml" />
+    <Content Include="Views\GV_solicitud\Details.cshtml" />
+    <Content Include="Views\GV_solicitud\Edit.cshtml" />
+    <Content Include="Views\GV_solicitud\Solicitudes.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
