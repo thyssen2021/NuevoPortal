@@ -18,6 +18,7 @@ namespace Portal_2_0.Models
         public string Operador { get; set; }
         public string Supervisor { get; set; }
         public string SAP_Platina { get; set; }
+        public string SAP_Platina_2 { get; set; }
         public string Tipo_de_Material { get; set; }
         public string Número_de_Parte__de_cliente { get; set; }
         public string SAP_Rollo { get; set; }
@@ -63,41 +64,5 @@ namespace Portal_2_0.Models
         public Nullable<double> Peso_puntas_y_colas_reales_Kg { get; set; }
         public Nullable<double> Balance_de_Scrap_Real { get; set; }
         public string comentario { get; set; }
-        public string SAP_Platina_2 { get; set; }
-        public string Tipo_de_Material_platina2 { get; set; }
-        public string Número_de_Parte_de_Cliente_platina2 { get; set; }
-        public string Material_platina2 { get; set; }
-        public Nullable<int> Total_de_piezas_platina1 { get; set; }
-        public Nullable<int> Total_de_piezas_platina2 { get; set; }
-        public Nullable<int> Total_de_piezas_de_Ajustes_platina1 { get; set; }
-        public Nullable<int> Total_de_piezas_de_Ajustes_platina2 { get; set; }
-        public Nullable<double> Peso_Bruto_Kgs_platina2 { get; set; }
-        public Nullable<double> Peso_Real_Pieza_Bruto_platina2 { get; set; }
-        public Nullable<double> Peso_Real_Pieza_Neto_platina2 { get; set; }
-        public Nullable<double> Scrap_Natural_platina2 { get; set; }
-        public Nullable<double> Peso_neto_SAP_platina2 { get; set; }
-        public Nullable<double> Peso_Bruto_SAP_platina2 { get; set; }
-        public Nullable<double> Balance_de_Scrap_platina2 { get; set; }
-        public Nullable<double> Peso_de_rollo_usado_real__Kg_platina2 { get; set; }
-        public Nullable<double> Peso_bruto_Total_piezas_Kg_platina2 { get; set; }
-        public Nullable<double> Peso_NetoTotal_piezas_Kg_platina2 { get; set; }
-        public Nullable<double> Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg_platina2 { get; set; }
-        public Nullable<double> Peso_Neto_total_piezas_de_ajuste_Kgs_platina2 { get; set; }
-        public Nullable<double> Peso_puntas_y_colas_reales_Kg_platina2 { get; set; }
-        public Nullable<double> Balance_de_Scrap_Real_platina2 { get; set; }
-        public Nullable<double> Peso_Bruto_Kgs_general { get; set; }
-        public Nullable<double> Peso_Real_Pieza_Bruto_general { get; set; }
-        public Nullable<double> Peso_Real_Pieza_Neto_general { get; set; }
-        public Nullable<double> Scrap_Natural_general { get; set; }
-        public Nullable<double> Peso_neto_SAP_general { get; set; }
-        public Nullable<double> Peso_Bruto_SAP_general { get; set; }
-        public Nullable<double> Balance_de_Scrap_general { get; set; }
-        public Nullable<double> Peso_de_rollo_usado_real__Kg_general { get; set; }
-        public Nullable<double> Peso_bruto_Total_piezas_Kg_general { get; set; }
-        public Nullable<double> Peso_NetoTotal_piezas_Kg_general { get; set; }
-        public Nullable<double> Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg_general { get; set; }
-        public Nullable<double> Peso_Neto_total_piezas_de_ajuste_Kgs_general { get; set; }
-        public Nullable<double> Peso_puntas_y_colas_reales_Kg_general { get; set; }
-        public Nullable<double> Balance_de_Scrap_Real_general { get; set; }
     }
 }

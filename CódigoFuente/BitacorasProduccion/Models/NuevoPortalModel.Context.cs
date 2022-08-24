@@ -32,7 +32,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<produccion_lineas> produccion_lineas { get; set; }
         public virtual DbSet<produccion_lotes> produccion_lotes { get; set; }
         public virtual DbSet<produccion_operadores> produccion_operadores { get; set; }
-        public virtual DbSet<produccion_registros> produccion_registros { get; set; }
         public virtual DbSet<produccion_supervisores> produccion_supervisores { get; set; }
         public virtual DbSet<produccion_turnos> produccion_turnos { get; set; }
         public virtual DbSet<puesto> puesto { get; set; }
@@ -88,7 +87,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<notificaciones_correo> notificaciones_correo { get; set; }
         public virtual DbSet<bom_en_sap> bom_en_sap { get; set; }
         public virtual DbSet<OT_rel_depto_aplica_linea> OT_rel_depto_aplica_linea { get; set; }
-        public virtual DbSet<view_historico_resultado> view_historico_resultado { get; set; }
         public virtual DbSet<log_acceso_email> log_acceso_email { get; set; }
         public virtual DbSet<IT_carpetas_red> IT_carpetas_red { get; set; }
         public virtual DbSet<IT_comunicaciones_tipo> IT_comunicaciones_tipo { get; set; }
@@ -119,5 +117,7 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_asignacion_software> IT_asignacion_software { get; set; }
         public virtual DbSet<OT_zona_falla> OT_zona_falla { get; set; }
         public virtual DbSet<produccion_datos_entrada> produccion_datos_entrada { get; set; }
+        public virtual DbSet<produccion_registros> produccion_registros { get; set; }
+        public virtual DbSet<view_historico_resultado> view_historico_resultado { get; set; }
     }
 }

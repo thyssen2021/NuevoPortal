@@ -19,7 +19,6 @@ namespace Portal_2_0.Models
         {
             this.Area = new HashSet<Area>();
             this.produccion_lineas = new HashSet<produccion_lineas>();
-            this.produccion_registros = new HashSet<produccion_registros>();
             this.produccion_supervisores = new HashSet<produccion_supervisores>();
             this.produccion_turnos = new HashSet<produccion_turnos>();
             this.poliza_manual = new HashSet<poliza_manual>();
@@ -29,6 +28,7 @@ namespace Portal_2_0.Models
             this.IATF_documentos = new HashSet<IATF_documentos>();
             this.IT_inventory_items = new HashSet<IT_inventory_items>();
             this.IT_inventory_cellular_line = new HashSet<IT_inventory_cellular_line>();
+            this.produccion_registros = new HashSet<produccion_registros>();
         }
     
         public int clave { get; set; }
@@ -40,8 +40,6 @@ namespace Portal_2_0.Models
         public virtual ICollection<Area> Area { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<produccion_lineas> produccion_lineas { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<produccion_registros> produccion_registros { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<produccion_supervisores> produccion_supervisores { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -60,5 +58,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<IT_inventory_items> IT_inventory_items { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_inventory_cellular_line> IT_inventory_cellular_line { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<produccion_registros> produccion_registros { get; set; }
     }
 }
