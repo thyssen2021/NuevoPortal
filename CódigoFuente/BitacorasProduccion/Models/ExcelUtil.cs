@@ -309,7 +309,7 @@ namespace Portal_2_0.Models
             oSLDocument.CopyCellFromWorksheet("Aux", 1, 1, 1, 7, dt.Rows.Count + 6, 2);
 
             //establece la clave del documento
-            oSLDocument.SetCellValue(dt.Rows.Count + 6,8, codigoDoc);
+            oSLDocument.SetCellValue(dt.Rows.Count + 6, 8, codigoDoc);
 
             SLPicture pic = new SLPicture(HttpContext.Current.Server.MapPath("~/Content/images/logo_1.png"));
             // set the top of the picture to be halfway in row 3
@@ -1299,7 +1299,8 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Estatus", typeof(string));
             dt.Columns.Add("Departamento", typeof(string));
             dt.Columns.Add("Nivel de Urgencia", typeof(string));
-            dt.Columns.Add("Línea Producción", typeof(string));
+            dt.Columns.Add("Línea Producción", typeof(string)); //7
+            dt.Columns.Add("Zona de Falla", typeof(string));
             dt.Columns.Add("TPM", typeof(string));
             dt.Columns.Add("No. Tarjeta", typeof(string));
             dt.Columns.Add("Grupo de Trabajo", typeof(string));
@@ -1353,9 +1354,9 @@ namespace Portal_2_0.Models
                     fecha_cierre = item.fecha_cierre.Value;
                 else
                     fecha_cierre = DBNull.Value;
-
+                             
                 dt.Rows.Add(item.id, item.empleados2.ConcatNombre, item.fecha_solicitud, OT_Status.DescripcionStatus(item.estatus), item.Area.descripcion, OT_nivel_urgencia.DescripcionStatus(item.nivel_urgencia),
-                    linea, tPM, noTarjeta, grupoTrabajo, item.titulo, item.descripcion, responsable, fecha_asignacion, fecha_en_proceso, fecha_cierre, null, null, null, null, item.comentario
+                    linea, item.id_zona_falla.HasValue ? item.OT_zona_falla.zona_falla : String.Empty, tPM, noTarjeta, grupoTrabajo, item.titulo, item.descripcion, responsable, fecha_asignacion, fecha_en_proceso, fecha_cierre, null, null, null, null, item.comentario
                     );
 
                 filasEncabezados.Add(true);
@@ -1439,16 +1440,16 @@ namespace Portal_2_0.Models
             styleNumber.FormatCode = "#,##0.00";
 
             //da estilo a los numero
-            oSLDocument.SetColumnStyle(17, styleNumber);
-            oSLDocument.SetColumnStyle(19, styleNumber);
+            oSLDocument.SetColumnStyle(18, styleNumber);
+            oSLDocument.SetColumnStyle(20, styleNumber);
 
             ////estilo para fecha
             SLStyle styleShortDate = oSLDocument.CreateStyle();
             styleShortDate.FormatCode = "yyyy/MM/dd";
             oSLDocument.SetColumnStyle(3, styleShortDate);
-            oSLDocument.SetColumnStyle(14, styleShortDate);
             oSLDocument.SetColumnStyle(15, styleShortDate);
             oSLDocument.SetColumnStyle(16, styleShortDate);
+            oSLDocument.SetColumnStyle(17, styleShortDate);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
@@ -1470,13 +1471,13 @@ namespace Portal_2_0.Models
                 }
                 else
                 {
-                    oSLDocument.SetCellStyle(i + 1, 17, i + 1, 20, styleLoteInfo);
+                    oSLDocument.SetCellStyle(i + 1, 18, i + 1, 21, styleLoteInfo);
                 }
                 //colapsa todas las filas
                 oSLDocument.CollapseRows(i + 2);
             }
 
-            oSLDocument.Filter("A1", "U1");
+            oSLDocument.Filter("A1", "V1");
             oSLDocument.AutoFitColumn(1, dt.Columns.Count);
 
             oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
@@ -1605,7 +1606,7 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Type", typeof(string)); //2
             dt.Columns.Add("Plant", typeof(string));  //3
             dt.Columns.Add("Hostname", typeof(string)); //4
-            if(inventoryType == Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER || inventoryType == Bitacoras.Util.IT_Tipos_Hardware.SERVER)
+            if (inventoryType == Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER || inventoryType == Bitacoras.Util.IT_Tipos_Hardware.SERVER)
                 dt.Columns.Add("Physical Server", typeof(string));    //4.5
             dt.Columns.Add("Brand", typeof(string));    //5
             dt.Columns.Add("Model", typeof(string));    //6
@@ -1633,19 +1634,20 @@ namespace Portal_2_0.Models
             ////registros , rows
             foreach (IT_inventory_items item in listado)
             {
-                if (inventoryType != Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER && inventoryType != Bitacoras.Util.IT_Tipos_Hardware.SERVER )
+                if (inventoryType != Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER && inventoryType != Bitacoras.Util.IT_Tipos_Hardware.SERVER)
                     dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.hostname, item.brand, item.model, item.serial_number,
-                    item.operation_system, item.bits_operation_system,  item.cpu_speed_mhz, item.number_of_cpus, item.processor, item.mac_lan, item.mac_wlan,
-                    item.total_physical_memory_gb, null, null,  null, item.NumberOfHardDrives, item.TotalDiskSpace,  item.maintenance_period_months, 
+                    item.operation_system, item.bits_operation_system, item.cpu_speed_mhz, item.number_of_cpus, item.processor, item.mac_lan, item.mac_wlan,
+                    item.total_physical_memory_gb, null, null, null, item.NumberOfHardDrives, item.TotalDiskSpace, item.maintenance_period_months,
                      item.purchase_date, item.end_warranty,
                      item.active, item.inactive_date, item.comments
                     );
-                else{ //se agrega phyical server{
+                else
+                { //se agrega phyical server{
                     string virtualhost = null;
                     if (item.IT_inventory_items2 != null)
                         virtualhost = item.IT_inventory_items2.hostname;
 
-                    dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.hostname,virtualhost, item.brand, item.model, item.serial_number,
+                    dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.hostname, virtualhost, item.brand, item.model, item.serial_number,
                       item.operation_system, item.bits_operation_system, item.cpu_speed_mhz, item.number_of_cpus, item.processor, item.mac_lan, item.mac_wlan,
                       item.total_physical_memory_gb, null, null, null, item.NumberOfHardDrives, item.TotalDiskSpace, item.maintenance_period_months,
                        item.purchase_date, item.end_warranty,
@@ -1679,10 +1681,10 @@ namespace Portal_2_0.Models
                 //agrega una fila por cada servidor virtual
                 foreach (var vs in item.IT_inventory_items1)
                 {
-                   dt.Rows.Add(vs.id, vs.IT_inventory_hardware_type.descripcion, vs.plantas.descripcion, vs.hostname, vs.IT_inventory_items2.hostname, vs.brand, vs.model
-                    , vs.serial_number, vs.operation_system, vs.bits_operation_system, vs.cpu_speed_mhz, vs.number_of_cpus, vs.processor, vs.mac_lan, vs.mac_wlan,
-                   vs.total_physical_memory_gb, null, null, null, vs.NumberOfHardDrives, vs.TotalDiskSpace, vs.maintenance_period_months,
-                   vs.purchase_date, vs.end_warranty, vs.active, vs.inactive_date, vs.comments);
+                    dt.Rows.Add(vs.id, vs.IT_inventory_hardware_type.descripcion, vs.plantas.descripcion, vs.hostname, vs.IT_inventory_items2.hostname, vs.brand, vs.model
+                     , vs.serial_number, vs.operation_system, vs.bits_operation_system, vs.cpu_speed_mhz, vs.number_of_cpus, vs.processor, vs.mac_lan, vs.mac_wlan,
+                    vs.total_physical_memory_gb, null, null, null, vs.NumberOfHardDrives, vs.TotalDiskSpace, vs.maintenance_period_months,
+                    vs.purchase_date, vs.end_warranty, vs.active, vs.inactive_date, vs.comments);
 
                     filasEncabezados.Add(false);
                     filasServidoresVirtuales.Add(filasEncabezados.Count);
@@ -1729,7 +1731,7 @@ namespace Portal_2_0.Models
             //estilo para el encabezado de cada fila
             SLStyle styleHeaderRow = oSLDocument.CreateStyle();
             styleHeaderRow.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#daeef3"), System.Drawing.ColorTranslator.FromHtml("#daeef3"));
-            
+
             //estilo para el encabezado de cada fila (Virtual server)
             SLStyle styleHeaderRowVS = oSLDocument.CreateStyle();
             styleHeaderRowVS.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#fae6d7"), System.Drawing.ColorTranslator.FromHtml("#fae6d7"));
@@ -1792,7 +1794,7 @@ namespace Portal_2_0.Models
             }
 
             //aplica formato a los encabezados de VS
-            foreach(var i in filasServidoresVirtuales)
+            foreach (var i in filasServidoresVirtuales)
                 oSLDocument.SetCellStyle(i, 1, i, dt.Columns.Count, styleHeaderRowVS);
 
             //da estilo a los numero
@@ -1848,7 +1850,7 @@ namespace Portal_2_0.Models
             foreach (IT_inventory_items item in listado)
             {
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.brand, item.model, item.serial_number, item.inches,
-                    item.purchase_date,  item.end_warranty, item.active, item.inactive_date, item.comments
+                    item.purchase_date, item.end_warranty, item.active, item.inactive_date, item.comments
                     );
             }
 
@@ -1946,7 +1948,7 @@ namespace Portal_2_0.Models
             ////registros , rows
             foreach (IT_inventory_items item in listado)
             {
-                dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.IT_inventory_tipos_accesorios.descripcion,item.brand, item.model, item.serial_number,
+                dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.IT_inventory_tipos_accesorios.descripcion, item.brand, item.model, item.serial_number,
                     item.purchase_date, item.end_warranty, item.active, item.inactive_date, item.comments
                     );
             }
@@ -2047,7 +2049,7 @@ namespace Portal_2_0.Models
             foreach (IT_inventory_items item in listado)
             {
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.brand, item.model, item.serial_number, item.printer_ubication,
-                    item.ip_adress, item.purchase_date,  item.end_warranty,
+                    item.ip_adress, item.purchase_date, item.end_warranty,
                      item.active, item.inactive_date, item.comments
                     );
             }
@@ -2149,7 +2151,7 @@ namespace Portal_2_0.Models
             foreach (IT_inventory_items item in listado)
             {
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.brand, item.model, item.serial_number, item.printer_ubication,
-                    item.ip_adress, item.cost_center, item.purchase_date,  item.end_warranty,
+                    item.ip_adress, item.cost_center, item.purchase_date, item.end_warranty,
                      item.active, item.inactive_date, item.comments
                     );
             }
@@ -2354,7 +2356,7 @@ namespace Portal_2_0.Models
             {
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.brand, item.model, item.serial_number, item.inches,
                     item.processor, item.total_physical_memory_gb, item.movil_device_storage_gb, item.operation_system, item.mac_wlan,
-                    item.purchase_date,  item.end_warranty,
+                    item.purchase_date, item.end_warranty,
                    item.active, item.inactive_date, item.comments
                     );
             }
@@ -2456,7 +2458,7 @@ namespace Portal_2_0.Models
             foreach (IT_inventory_items item in listado)
             {
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.brand, item.model, item.serial_number,
-                    item.purchase_date,  item.end_warranty,
+                    item.purchase_date, item.end_warranty,
                     item.active, item.inactive_date, item.comments
                     );
             }
@@ -2560,7 +2562,7 @@ namespace Portal_2_0.Models
             {
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.hostname, item.brand, item.model, item.serial_number,
                     item.mac_lan, item.mac_wlan, item.ip_adress,
-                    item.purchase_date,  item.end_warranty,
+                    item.purchase_date, item.end_warranty,
                     item.active, item.inactive_date, item.comments
                     );
             }
@@ -2897,19 +2899,19 @@ namespace Portal_2_0.Models
             //columnas          
             dt.Columns.Add("ID", typeof(int));
             dt.Columns.Add("Plan Nombre", typeof(string));
-            dt.Columns.Add("Compañia", typeof(string));       
-            dt.Columns.Add("Precio", typeof(decimal));           
+            dt.Columns.Add("Compañia", typeof(string));
+            dt.Columns.Add("Precio", typeof(decimal));
             dt.Columns.Add("Comentarios", typeof(string));
             dt.Columns.Add("Activo?", typeof(bool));
 
             ////registros , rows
             foreach (IT_inventory_cellular_plans item in listado)
             {
-                dt.Rows.Add(item.id, item.nombre_plan, item.nombre_compania, item.precio,  item.comentarios, item.activo);
+                dt.Rows.Add(item.id, item.nombre_plan, item.nombre_compania, item.precio, item.comentarios, item.activo);
             }
 
 
-          
+
             //crea la hoja de Inventory y la selecciona
             oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Planes Telefonía");
             oSLDocument.ImportDataTable(1, 1, dt, true);

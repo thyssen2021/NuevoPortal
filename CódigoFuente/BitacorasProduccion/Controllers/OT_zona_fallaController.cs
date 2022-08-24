@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using Clases.Util;
@@ -12,20 +13,22 @@ using Portal_2_0.Models;
 namespace Portal_2_0.Controllers
 {
     [Authorize]
-    public class OT_GruposController : BaseController
+    public class OT_zona_fallaController : BaseController
     {
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
-        // GET: OT_grupo_trabajo
+        // GET: OT_zona_falla
         public ActionResult Index()
         {
-            if (TieneRol(TipoRoles.ADMIN))
+            if (TieneRol(TipoRoles.OT_CATALOGOS))
             {
                 //mensaje en caso de crear, editar, etc
                 if (TempData["Mensaje"] != null)
                     ViewBag.MensajeAlert = TempData["Mensaje"];
 
-                return View(db.OT_grupo_trabajo.ToList());
+                empleados emp = obtieneEmpleadoLogeado();
+
+                return View(db.OT_zona_falla.Where(x => x.produccion_lineas.clave_planta == emp.planta_clave));
             }
             else
             {
@@ -33,36 +36,37 @@ namespace Portal_2_0.Controllers
             }
         }
 
-        // GET: OT_grupo_trabajo/Details/5
+        // GET: OT_zona_falla/Details/5
         public ActionResult Details(int? id)
         {
-            if (TieneRol(TipoRoles.ADMIN))
+            if (TieneRol(TipoRoles.OT_CATALOGOS))
             {
                 if (id == null)
                 {
                     return View("../Error/BadRequest");
                 }
-                OT_grupo_trabajo OT_grupo_trabajo = db.OT_grupo_trabajo.Find(id);
-                if (OT_grupo_trabajo == null)
+                OT_zona_falla OT_zona_falla = db.OT_zona_falla.Find(id);
+                if (OT_zona_falla == null)
                 {
                     return View("../Error/NotFound");
                 }
-                return View(OT_grupo_trabajo);
+                return View(OT_zona_falla);
             }
             else
             {
                 return View("../Home/ErrorPermisos");
             }
-
-
         }
 
-        // GET: OT_grupo_trabajo/Create
+        // GET: OT_zona_falla/Create
         public ActionResult Create()
         {
-            if (TieneRol(TipoRoles.ADMIN))
+            if (TieneRol(TipoRoles.OT_CATALOGOS))
             {
-                return View();
+                empleados emp = obtieneEmpleadoLogeado();
+                ViewBag.id_linea = AddFirstItem(new SelectList(db.produccion_lineas.Where(x => x.activo.HasValue && x.activo.Value && x.clave_planta == emp.planta_clave), "id", "linea"));
+                ViewBag.planta = emp.plantas;
+                return View(new OT_zona_falla { });
             }
             else
             {
@@ -70,56 +74,57 @@ namespace Portal_2_0.Controllers
             }
         }
 
-        // POST: OT_grupo_trabajo/Create
+        // POST: OT_zona_falla/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "id,descripcion,activo")] OT_grupo_trabajo OT_grupo_trabajo)
+        public ActionResult Create(OT_zona_falla OT_zona_falla)
         {
+            bool existe = db.OT_zona_falla.Any(x => x.id_linea == OT_zona_falla.id_linea && x.zona_falla.ToUpper() == OT_zona_falla.zona_falla.ToUpper());
+            if (existe)
+                ModelState.AddModelError("", "Esta Zona de Falla ya se encuentra registrada para esta Línea de Producción.");
 
             if (ModelState.IsValid)
             {
-                //busca si existe in departamento con la misma descripcion
-                OT_grupo_trabajo pfa_busca = db.OT_grupo_trabajo.Where(s => s.descripcion.ToUpper() == OT_grupo_trabajo.descripcion.ToUpper() && !String.IsNullOrEmpty(OT_grupo_trabajo.descripcion))
-                                        .FirstOrDefault();
+                OT_zona_falla.zona_falla = OT_zona_falla.zona_falla.ToUpper();
+                db.OT_zona_falla.Add(OT_zona_falla);
+                db.SaveChanges();
 
-                if (pfa_busca == null)
-                { //Si no existe
-                    OT_grupo_trabajo.activo = true;
-                    //OT_grupo_trabajo.descripcion = OT_grupo_trabajo.descripcion.ToUpper();
-                    db.OT_grupo_trabajo.Add(OT_grupo_trabajo);
-                    db.SaveChanges();
+                TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);
 
-                    TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);
-                    return RedirectToAction("Index");
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Ya existe un registro con los mismos valores");
-                    return View(OT_grupo_trabajo);
-                }
+                return RedirectToAction("Index");
             }
-            return View(OT_grupo_trabajo);
 
+            empleados emp = obtieneEmpleadoLogeado();
+
+            ViewBag.id_linea = AddFirstItem(new SelectList(db.produccion_lineas.Where(x => x.activo.HasValue && x.activo.Value && x.clave_planta == emp.planta_clave), "id", "linea"));
+            ViewBag.planta = emp.plantas;
+
+            return View(OT_zona_falla);
         }
 
-        // GET: OT_grupo_trabajo/Edit/5
+        // GET: OT_zona_falla/Edit/5
         public ActionResult Edit(int? id)
         {
 
-            if (TieneRol(TipoRoles.ADMIN))
+            if (TieneRol(TipoRoles.OT_CATALOGOS))
             {
                 if (id == null)
                 {
                     return View("../Error/BadRequest");
                 }
-                OT_grupo_trabajo OT_grupo_trabajo = db.OT_grupo_trabajo.Find(id);
-                if (OT_grupo_trabajo == null)
+                OT_zona_falla OT_zona_falla = db.OT_zona_falla.Find(id);
+                if (OT_zona_falla == null)
                 {
                     return View("../Error/NotFound");
                 }
-                return View(OT_grupo_trabajo);
+
+                empleados emp = obtieneEmpleadoLogeado();
+                ViewBag.id_linea = AddFirstItem(new SelectList(db.produccion_lineas.Where(x => x.activo.HasValue && x.activo.Value && x.clave_planta == emp.planta_clave), "id", "linea"), selected: OT_zona_falla.id_linea.ToString()); ViewBag.planta = emp.plantas;
+                ViewBag.planta = emp.plantas;
+
+                return View(OT_zona_falla);
             }
             else
             {
@@ -128,55 +133,46 @@ namespace Portal_2_0.Controllers
 
         }
 
-        // POST: OT_grupo_trabajo/Edit/5
+        // POST: OT_zona_falla/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "id,descripcion,activo")] OT_grupo_trabajo OT_grupo_trabajo)
+        public ActionResult Edit(OT_zona_falla OT_zona_falla)
         {
+            bool existe = db.OT_zona_falla.Any(x => x.id_linea == OT_zona_falla.id_linea && x.zona_falla.ToUpper() == OT_zona_falla.zona_falla.ToUpper() && x.id != OT_zona_falla.id);
+            if (existe)
+                ModelState.AddModelError("", "Esta Zona de Falla ya se encuentra registrada para esta Línea de Producción.");
+
 
             if (ModelState.IsValid)
             {
+                OT_zona_falla.zona_falla = OT_zona_falla.zona_falla.ToUpper(); 
+                db.Entry(OT_zona_falla).State = EntityState.Modified;
+                db.SaveChanges();
 
-                //busca si existe in departamento con la misma descripcion
-                OT_grupo_trabajo pfa_busca = db.OT_grupo_trabajo.Where(s => s.descripcion.ToUpper() == OT_grupo_trabajo.descripcion.ToUpper() && !String.IsNullOrEmpty(OT_grupo_trabajo.descripcion) && s.id != OT_grupo_trabajo.id)
-                                        .FirstOrDefault();
-
-
-
-                if (pfa_busca == null)
-                { //Si no existe
-                    //OT_grupo_trabajo.descripcion = OT_grupo_trabajo.descripcion.ToUpper();
-                    db.Entry(OT_grupo_trabajo).State = EntityState.Modified;
-                    db.SaveChanges();
-
-                    TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
-                    return RedirectToAction("Index");
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Ya existe un registro con los mismos valores");
-                    return View(OT_grupo_trabajo);
-                }
-
-
+                TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
+                return RedirectToAction("Index");
             }
 
-
-            return View(OT_grupo_trabajo);
+            empleados emp = obtieneEmpleadoLogeado();
+            ViewBag.id_linea = AddFirstItem(new SelectList(db.produccion_lineas.Where(x => x.activo.HasValue && x.activo.Value && x.clave_planta == emp.planta_clave), "id", "linea"),selected: OT_zona_falla.id_linea.ToString());
+            ViewBag.planta = emp.plantas;
+            return View(OT_zona_falla);
         }
 
-        // GET: PFA_Departmet/Disable/5
+
+
+        // GET: OT_zona_falla/Disable/5
         public ActionResult Disable(int? id)
         {
-            if (TieneRol(TipoRoles.ADMIN))
+            if (TieneRol(TipoRoles.OT_CATALOGOS))
             {
                 if (id == null)
                 {
                     return View("../Error/BadRequest");
                 }
-                OT_grupo_trabajo item = db.OT_grupo_trabajo.Find(id);
+                OT_zona_falla item = db.OT_zona_falla.Find(id);
                 if (item == null)
                 {
                     return View("../Error/NotFound");
@@ -194,7 +190,7 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DisableConfirmed(int id)
         {
-            OT_grupo_trabajo item = db.OT_grupo_trabajo.Find(id);
+            OT_zona_falla item = db.OT_zona_falla.Find(id);
             item.activo = false;
 
             db.Entry(item).State = EntityState.Modified;
@@ -231,13 +227,13 @@ namespace Portal_2_0.Controllers
         // GET: Plantas/Enable/5
         public ActionResult Enable(int? id)
         {
-            if (TieneRol(TipoRoles.ADMIN))
+            if (TieneRol(TipoRoles.OT_CATALOGOS))
             {
                 if (id == null)
                 {
                     return View("../Error/BadRequest");
                 }
-                OT_grupo_trabajo item = db.OT_grupo_trabajo.Find(id);
+                OT_zona_falla item = db.OT_zona_falla.Find(id);
                 if (item == null)
                 {
                     return View("../Error/NotFound");
@@ -255,7 +251,7 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult EnableConfirmed(int id)
         {
-            OT_grupo_trabajo item = db.OT_grupo_trabajo.Find(id);
+            OT_zona_falla item = db.OT_zona_falla.Find(id);
             item.activo = true;
 
             db.Entry(item).State = EntityState.Modified;

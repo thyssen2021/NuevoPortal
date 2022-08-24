@@ -78,7 +78,9 @@ namespace Portal_2_0.Models
         [RequiredIf("tpm", true, ErrorMessage = "El número de tarjeta es requerido")]
         public string numero_tarjeta { get; set; }
 
-       
+        [Display(Name = "Zona de Falla")]
+        public Nullable<int> id_zona_falla { get; set; }
+
     }
 
 

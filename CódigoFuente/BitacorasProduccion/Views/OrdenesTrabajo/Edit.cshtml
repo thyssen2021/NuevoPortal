@@ -115,22 +115,6 @@
                                 </div>
                             </div>
 
-                            if (ViewBag.MuestraLineas != null && ViewBag.MuestraLineas)
-                            {
-
-                                <div class="form-group row">
-                                    <!--id linea-->
-                                    @Html.LabelFor(model => model.id_linea, new { @class = "control-label col-md-1 text_derecha" })
-                                    <div class="col-md-4">
-                                        @Html.DropDownList("id_linea", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
-                                        @Html.ValidationMessageFor(model => model.id_linea, "", new { @class = "text-danger" })
-                                    </div>
-                                </div>
-                            }
-
-                            @*<div class="form-group row">
-                                    <span style="color:black"><b>DESCRIPCI&Oacute;N</b></span>
-                                </div>*@
                             <div class="form-group row">
                                 <!--Titulo-->
                                 @Html.LabelFor(model => model.titulo, new { @class = "control-label col-md-1 text_derecha" })
@@ -145,6 +129,25 @@
                                     @Html.ValidationMessageFor(model => model.nivel_urgencia, "", new { @class = "text-danger" })
                                 </div>
                             </div>
+
+                            if (ViewBag.MuestraLineas != null && ViewBag.MuestraLineas)
+                            {
+
+                                <div class="form-group row">
+                                    <!--id linea-->
+                                    @Html.LabelFor(model => model.id_linea, new { @class = "control-label col-md-1 text_derecha" })
+                                    <div class="col-md-4">
+                                        @Html.DropDownList("id_linea", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                        @Html.ValidationMessageFor(model => model.id_linea, "", new { @class = "text-danger" })
+                                    </div>
+                                    <!-- zona de fallas -->
+                                    @Html.LabelFor(model => model.id_zona_falla, new { @class = "control-label col-md-1 text_derecha" })
+                                    <div class="col-md-4">
+                                        @Html.DropDownList("id_zona_falla", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                        @Html.ValidationMessageFor(model => model.id_zona_falla, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            }
 
                             <div class="ln_solid"></div>
                             <div class="form-group row">
@@ -245,7 +248,7 @@
                             </div>
 
                             @*Solo lo muestra si es difente de ot_solicitante*@
-                          if (Model.estatus == Bitacoras.Util.OT_Status.CERRADO && (User.IsInRole(Clases.Util.TipoRoles.OT_RESPONSABLE) || User.IsInRole(Clases.Util.TipoRoles.OT_ASIGNACION) || User.IsInRole(Clases.Util.TipoRoles.OT_REPORTE)))
+                            if (Model.estatus == Bitacoras.Util.OT_Status.CERRADO && (User.IsInRole(Clases.Util.TipoRoles.OT_RESPONSABLE) || User.IsInRole(Clases.Util.TipoRoles.OT_ASIGNACION) || User.IsInRole(Clases.Util.TipoRoles.OT_REPORTE)))
                             {
                                 <div class="ln_solid"></div>
                                 <div class="form-group row">

@@ -39,6 +39,7 @@ namespace Portal_2_0.Models
         public Nullable<System.DateTime> fecha_cierre { get; set; }
         public string estatus { get; set; }
         public string comentario { get; set; }
+        public Nullable<int> id_zona_falla { get; set; }
     
         public virtual Area Area { get; set; }
         public virtual empleados empleados { get; set; }
@@ -50,5 +51,6 @@ namespace Portal_2_0.Models
         public virtual ICollection<OT_refacciones> OT_refacciones { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<OT_rel_archivos> OT_rel_archivos { get; set; }
+        public virtual OT_zona_falla OT_zona_falla { get; set; }
     }
 }

@@ -57,24 +57,51 @@
                         <div class="row">
                             <div class="col-sm-12">
                                 <div class="card-box">
-                                    <div class="form-group">
-
-
-                                        @*@if (ViewBag.Create != null && ViewBag.Create)
+                                    @if (User.IsInRole(Clases.Util.TipoRoles.OT_ADMINISTRADOR)) { 
+                                        <div class="form-group">
+                                            @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
                                             {
-                                                <a href="@Url.Action( "Create", ViewBag.ControllerName)" class="btn btn-success">
-                                                    <i class="fa fa-plus-square"></i>
-                                                    Crear nuevo
-                                                </a>
-                                            }*@
+                                                <div class="form-group row ">
+                                                    <label class="control-label col-md-1 col-sm-1" for="id_responsable" style="text-align:right">Responsable:</label>
+                                                    <div class="col-md-3 col-sm-3 ">
+                                                        @Html.DropDownList("id_responsable", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                    </div>
+                                                    <label class="control-label col-md-1 col-sm-1" for="id_solicitante" style="text-align:right">Solicitante:</label>
+                                                    <div class="col-md-3 col-sm-3 ">
+                                                        @Html.DropDownList("id_solicitante", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row ">
+                                                    <div class="col-md-5 col-sm-5">
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-2 ">
+                                                        <a href="@Url.Action(null, ViewBag.ControllerName)" class="btn btn-warning" title="Restablecer">
+                                                            <i class="fa fa-refresh"></i> Restablecer
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-md-1 col-sm-1">
+                                                        <input type="submit" value="Filtrar" class="btn btn-info" />
+                                                    </div>
+                                                </div>
+                                            }
+                                            <hr />
 
+                                        </div>
+                                    }
+                                    <div class="form-group">
                                     </div>
-                                    <table id="datatable_1" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                    <table id="datatable_1" class="table table-striped table-bordered" cellspacing="0" width="100%">
                                         <thead>
                                             <tr>
                                                 <th width="5%">Acciones</th>
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.id)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.id_responsable)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.id_solicitante)
                                                 </th>
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.titulo)
@@ -97,28 +124,28 @@
                                             @foreach (var item in Model)
                                             {
                                                 <tr>
-                                                    <td>
+                                                    <td nowrap>
                                                         @if (ViewBag.CambioEstatus != null && ViewBag.CambioEstatus)
                                                         {
-                                                            <a href="@Url.Action("CambiarEstatus", ViewBag.ControllerName, new { id = item.id })" class="btn btn-success" title="Cambiar Estatus">
+                                                            <a href="@Url.Action("CambiarEstatus", ViewBag.ControllerName, new { id = item.id })" class="btn btn-success btn-sm" title="Cambiar Estatus">
                                                                 <i class="fa-solid fa-square-check"></i>
                                                             </a>
                                                         }
                                                         @if (ViewBag.Cerrar != null && ViewBag.Cerrar)
                                                         {
-                                                            <a href="@Url.Action("CerrarOrden", ViewBag.ControllerName, new { id = item.id })" class="btn btn-primary" title="Cerrar">
+                                                            <a href="@Url.Action("CerrarOrden", ViewBag.ControllerName, new { id = item.id })" class="btn btn-primary btn-sm" title="Cerrar">
                                                                 <i class="fa fa-sign-out"></i>
                                                             </a>
                                                         }
                                                         @if (ViewBag.Info != null && ViewBag.Info)
                                                         {
-                                                            <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.id })" class="btn btn-secondary " title="Detalles">
+                                                            <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.id })" class="btn btn-secondary btn-sm" title="Detalles">
                                                                 <i class="fa fa-info-circle"></i>
                                                             </a>
                                                         }
-                                                        @if (item.estatus == Bitacoras.Util.OT_Status.CERRADO && User.IsInRole(Clases.Util.TipoRoles.OT_ASIGNACION))
+                                                        @if (item.estatus == Bitacoras.Util.OT_Status.CERRADO && User.IsInRole(Clases.Util.TipoRoles.OT_ADMINISTRADOR))
                                                         {
-                                                            <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = item.id, redirect ="ListadoResponsableTerminadas" })" class="btn btn-success " title="Editar">
+                                                            <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = item.id, redirect ="ListadoResponsableTerminadas" })" class="btn btn-success btn-sm" title="Editar">
                                                                 <i class="fa-regular fa-pen-to-square"></i>
                                                             </a>
                                                         }
@@ -128,12 +155,18 @@
                                                         @Html.DisplayFor(modelItem => item.id)
                                                     </td>
                                                     <td>
+                                                        @Html.DisplayFor(modelItem => item.empleados1.ConcatNombre)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.empleados2.ConcatNombre)
+                                                    </td>
+                                                    <td>
                                                         @Html.DisplayFor(modelItem => item.titulo)
                                                     </td>
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.descripcion)
                                                     </td>
-                                                    <td>
+                                                    <td nowrap>
                                                         @Html.DisplayFor(modelItem => item.fecha_solicitud)
                                                     </td>
                                                     <td>
@@ -189,7 +222,34 @@
                 theme: 'bootstrap4'
             })
 
+
+            //Agrega el evento a todos los input
+            $(":input").each(function () {
+                $(this).on('input', function (e) {
+                    EnviaFormulario();
+                });
+            });
         });
+
+        //Envía el formulario de búsqueda
+        function EnviaFormulario() {
+
+            $("#buscarForm").submit();
+            $.blockUI({
+                css: {
+                    border: 'none',
+                    padding: '15px',
+                    backgroundColor: '#000',
+                    '-webkit-border-radius': '10px',
+                    '-moz-border-radius': '10px',
+                    opacity: .3,
+                    color: '#fff'
+                },
+                message: '<h3>Cargando...</h3>'
+
+            });
+
+        }
 
         //agranda el tamaño de la barra
         window.onload = function () {

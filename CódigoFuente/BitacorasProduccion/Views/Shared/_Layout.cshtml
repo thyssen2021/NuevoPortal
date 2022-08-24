@@ -456,6 +456,7 @@
                                                     <h3>Solicitudes</h3>
                                                     <li class="@(ViewBag.SegundoNivel == "crear_solicitud" ? "current-page" : null )"><a href="@Url.Action("Create", "OrdenesTrabajo")">Crear Solicitud</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "mis_solicitudes" ? "current-page" : null )"><a href="@Url.Action("ListadoUsuario", "OrdenesTrabajo")">Mis Solicitudes</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_departamento" ? "current-page" : null )"><a href="@Url.Action("SolicitudesDepartamento", "OrdenesTrabajo")">Solicitudes por Departamento</a></li>
                                                 }
 
                                                 @if (User.IsInRole(TipoRoles.OT_ASIGNACION))
@@ -464,7 +465,7 @@
                                                     <li class="@(ViewBag.SegundoNivel == "ListadoAsignacionPendientes" ? "current-page" : null )"><a href="@Url.Action("ListadoAsignacionPendientes", "OrdenesTrabajo")">Pendientes por Asignar</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "ListadoAsignacionAsignadas" ? "current-page" : null )"><a href="@Url.Action("ListadoAsignacionAsignadas", "OrdenesTrabajo")">Solicitudes Asignadas</a></li>
                                                 }
-                                                @if (User.IsInRole(TipoRoles.OT_RESPONSABLE))
+                                                @if (User.IsInRole(TipoRoles.OT_RESPONSABLE) || User.IsInRole(TipoRoles.OT_ADMINISTRADOR))
                                                 {
                                                     <h3>Responsable</h3>
                                                     <li class="@(ViewBag.SegundoNivel == "ListadoResponsablePendientes" ? "current-page" : null )"><a href="@Url.Action("ListadoResponsablePendientes", "OrdenesTrabajo")">Responsable - Pendientes</a></li>
@@ -482,12 +483,14 @@
                                                 @if (User.IsInRole(TipoRoles.OT_CATALOGOS))
                                                 {
                                                     <h3>Cat&aacute;logos</h3>
-                                                    <li class="@(ViewBag.SegundoNivel == "OT_Grupos" ? "current-page" : null )"><a href="@Url.Action("Index", "OT_Grupos")">Grupos</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "OT_responsables" ? "current-page" : null )"><a href="@Url.Action("Index", "OT_responsables")">Responsables</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "OT_zona_falla" ? "current-page" : null )"><a href="@Url.Action("Index", "OT_zona_falla")">Zonas de Falla</a></li>
+
                                                 }
                                                 @if (User.IsInRole(TipoRoles.ADMIN))
                                                 {
                                                     <h3>Cat&aacute;logos Admin</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "OT_Grupos" ? "current-page" : null )"><a href="@Url.Action("Index", "OT_Grupos")">Grupos</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "OT_responsables" ? "current-page" : null )"><a href="@Url.Action("Index", "OT_responsables")">Responsables</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "OT_rel_depto_aplica_linea" ? "current-page" : null )"><a href="@Url.Action("Index", "OT_rel_depto_aplica_linea")">Rel Deptos l&iacute;nea</a></li>
                                                 }
                                                 <h3>Manual de Usuario</h3>

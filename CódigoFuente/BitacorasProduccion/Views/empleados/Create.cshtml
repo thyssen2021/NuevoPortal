@@ -63,7 +63,7 @@
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.numeroEmpleado, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                 <div class="col-md-6 col-sm-6 ">
-                                    @Html.EditorFor(model => model.numeroEmpleado, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off"} })
+                                    @Html.EditorFor(model => model.numeroEmpleado, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
                                     @Html.ValidationMessageFor(model => model.numeroEmpleado, "", new { @class = "text-danger" })
                                 </div>
                             </div>
@@ -138,18 +138,26 @@
                                 </div>
                             </div>
                             @*<div class="item form-group">
-                                @Html.LabelFor(model => model.bajaFecha, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
-                                <div class="col-md-6 col-sm-6 ">
-                                    @Html.EditorFor(model => model.bajaFecha, new { htmlAttributes = new { @class = "form-control" } })
-                                    @Html.ValidationMessageFor(model => model.bajaFecha, "", new { @class = "text-danger" })
-                                </div>
-                            </div>*@
+                @Html.LabelFor(model => model.bajaFecha, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                <div class="col-md-6 col-sm-6 ">
+                    @Html.EditorFor(model => model.bajaFecha, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.bajaFecha, "", new { @class = "text-danger" })
+                </div>
+            </div>*@
 
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.planta_clave, htmlAttributes: new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                 <div class="col-md-6 col-sm-6 ">
                                     @Html.DropDownList("planta_clave", null, "-- Seleccione un valor --", htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                     @Html.ValidationMessageFor(model => model.planta_clave, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                <!--id jefe directo -->
+                                @Html.LabelFor(model => model.id_jefe_directo, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.DropDownList("id_jefe_directo", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @Html.ValidationMessageFor(model => model.id_jefe_directo, "", new { @class = "text-danger" })
                                 </div>
                             </div>
 

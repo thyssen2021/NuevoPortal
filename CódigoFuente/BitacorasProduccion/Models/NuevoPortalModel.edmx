@@ -241,6 +241,7 @@
           <Property Name="bajaFecha" Type="date" />
           <Property Name="8ID" Type="varchar" MaxLength="8" />
           <Property Name="id_area" Type="int" />
+          <Property Name="id_jefe_directo" Type="int" />
         </EntityType>
         <EntityType Name="IATF_documentos">
           <Key>
@@ -658,6 +659,7 @@
           <Property Name="fecha_cierre" Type="datetime" />
           <Property Name="estatus" Type="varchar" MaxLength="20" Nullable="false" />
           <Property Name="comentario" Type="varchar" MaxLength="300" />
+          <Property Name="id_zona_falla" Type="int" />
         </EntityType>
         <EntityType Name="OT_grupo_trabajo">
           <Key>
@@ -701,6 +703,15 @@
           <Property Name="id_empleado" Type="int" Nullable="false" />
           <Property Name="supervisor" Type="bit" Nullable="false" />
           <Property Name="id_supervisor" Type="int" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="OT_zona_falla">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_linea" Type="int" Nullable="false" />
+          <Property Name="zona_falla" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="PFA">
@@ -925,7 +936,8 @@
           <Property Name="total_piezas_ajuste" Type="int" />
           <Property Name="ordenes_por_pieza" Type="int" />
           <Property Name="comentarios" Type="varchar" MaxLength="600" />
-          <Property Name="sap_platina_2" Type="varchar" MaxLength="30" />
+          <Property Name="peso_real_pieza_neto_platina_2" Type="float" />
+          <Property Name="total_piezas_ajuste_platina_2" Type="int" />
         </EntityType>
         <EntityType Name="produccion_lineas">
           <Key>
@@ -971,6 +983,7 @@
           <Property Name="sap_rollo" Type="varchar" MaxLength="30" />
           <Property Name="fecha" Type="datetime" />
           <Property Name="activo" Type="bit" />
+          <Property Name="sap_platina_2" Type="varchar" MaxLength="30" />
         </EntityType>
         <EntityType Name="produccion_respaldo">
           <Key>
@@ -1174,6 +1187,41 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_historico_resultado' no 
           <Property Name="Peso Neto_total piezas de ajuste_Kgs" Type="float" />
           <Property Name="Peso puntas y colas reales_Kg" Type="float" />
           <Property Name="Balance_de_Scrap_Real" Type="float" />
+          <Property Name="Tipo de Material_platina2" Type="nvarchar" MaxLength="50" />
+          <Property Name="Número de Parte de Cliente_platina2" Type="nvarchar" MaxLength="255" />
+          <Property Name="Material_platina2" Type="nvarchar" MaxLength="30" />
+          <Property Name="Total de piezas_platina1" Type="int" />
+          <Property Name="Total de piezas_platina2" Type="int" />
+          <Property Name="Total de piezas de Ajustes_platina1" Type="int" />
+          <Property Name="Total de piezas de Ajustes_platina2" Type="int" />
+          <Property Name="Peso Bruto Kgs_platina2" Type="float" />
+          <Property Name="Peso Real Pieza Bruto_platina2" Type="float" />
+          <Property Name="Peso Real Pieza Neto_platina2" Type="float" />
+          <Property Name="Scrap Natural_platina2" Type="float" />
+          <Property Name="Peso neto SAP_platina2" Type="float" />
+          <Property Name="Peso Bruto SAP_platina2" Type="float" />
+          <Property Name="Balance de Scrap_platina2" Type="float" />
+          <Property Name="Peso de rollo usado real _Kg_platina2" Type="float" />
+          <Property Name="Peso bruto Total piezas_Kg_platina2" Type="float" />
+          <Property Name="Peso NetoTotal piezas_Kg_platina2" Type="float" />
+          <Property Name="Scrap de ingeniería (buenas + Ajuste)_Total_Piezas_Kg_platina2" Type="float" />
+          <Property Name="Peso Neto_total piezas de ajuste_Kgs_platina2" Type="float" />
+          <Property Name="Peso puntas y colas reales_Kg_platina2" Type="float" />
+          <Property Name="Balance_de_Scrap_Real_platina2" Type="float" />
+          <Property Name="Peso Bruto Kgs_general" Type="float" />
+          <Property Name="Peso Real Pieza Bruto_general" Type="float" />
+          <Property Name="Peso Real Pieza Neto_general" Type="float" />
+          <Property Name="Scrap Natural_general" Type="float" />
+          <Property Name="Peso neto SAP_general" Type="float" />
+          <Property Name="Peso Bruto SAP_general" Type="float" />
+          <Property Name="Balance de Scrap_general" Type="float" />
+          <Property Name="Peso de rollo usado real _Kg_general" Type="float" />
+          <Property Name="Peso bruto Total piezas_Kg_general" Type="float" />
+          <Property Name="Peso NetoTotal piezas_Kg_general" Type="float" />
+          <Property Name="Scrap de ingeniería (buenas + Ajuste)_Total_Piezas_Kg_general" Type="float" />
+          <Property Name="Peso Neto_total piezas de ajuste_Kgs_general" Type="float" />
+          <Property Name="Peso puntas y colas reales_Kg_general" Type="float" />
+          <Property Name="Balance_de_Scrap_Real_general" Type="float" />
           <Property Name="comentario" Type="varchar" MaxLength="600" />
         </EntityType>
         <!--Errores durante la generación:
@@ -1429,6 +1477,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Principal>
             <Dependent Role="empleados">
               <PropertyRef Name="id_area" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_empleados_jefe_directo">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="0..1" />
+          <End Role="empleados1" Type="Self.empleados" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="empleados1">
+              <PropertyRef Name="id_jefe_directo" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -2020,6 +2080,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_orden_id_zona_falla">
+          <End Role="OT_zona_falla" Type="Self.OT_zona_falla" Multiplicity="0..1" />
+          <End Role="orden_trabajo" Type="Self.orden_trabajo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OT_zona_falla">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="orden_trabajo">
+              <PropertyRef Name="id_zona_falla" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_orden_trabajo_id_area">
           <End Role="Area" Type="Self.Area" Multiplicity="1" />
           <End Role="orden_trabajo" Type="Self.orden_trabajo" Multiplicity="*" />
@@ -2161,6 +2233,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Principal>
             <Dependent Role="OT_responsables">
               <PropertyRef Name="id_supervisor" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OT_zona_falla_id_linea">
+          <End Role="produccion_lineas" Type="Self.produccion_lineas" Multiplicity="1" />
+          <End Role="OT_zona_falla" Type="Self.OT_zona_falla" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="produccion_lineas">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="OT_zona_falla">
+              <PropertyRef Name="id_linea" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -2811,6 +2895,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySet Name="OT_rel_archivos" EntityType="Self.OT_rel_archivos" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="OT_rel_depto_aplica_linea" EntityType="Self.OT_rel_depto_aplica_linea" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="OT_responsables" EntityType="Self.OT_responsables" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OT_zona_falla" EntityType="Self.OT_zona_falla" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PFA" EntityType="Self.PFA" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PFA_Autorizador" EntityType="Self.PFA_Autorizador" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PFA_Border_port" EntityType="Self.PFA_Border_port" Schema="dbo" store:Type="Tables" />
@@ -2896,6 +2981,41 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
     [view_historico_resultado].[Peso Neto_total piezas de ajuste_Kgs] AS [Peso Neto_total piezas de ajuste_Kgs], 
     [view_historico_resultado].[Peso puntas y colas reales_Kg] AS [Peso puntas y colas reales_Kg], 
     [view_historico_resultado].[Balance_de_Scrap_Real] AS [Balance_de_Scrap_Real], 
+    [view_historico_resultado].[Tipo de Material_platina2] AS [Tipo de Material_platina2], 
+    [view_historico_resultado].[Número de Parte de Cliente_platina2] AS [Número de Parte de Cliente_platina2], 
+    [view_historico_resultado].[Material_platina2] AS [Material_platina2], 
+    [view_historico_resultado].[Total de piezas_platina1] AS [Total de piezas_platina1], 
+    [view_historico_resultado].[Total de piezas_platina2] AS [Total de piezas_platina2], 
+    [view_historico_resultado].[Total de piezas de Ajustes_platina1] AS [Total de piezas de Ajustes_platina1], 
+    [view_historico_resultado].[Total de piezas de Ajustes_platina2] AS [Total de piezas de Ajustes_platina2], 
+    [view_historico_resultado].[Peso Bruto Kgs_platina2] AS [Peso Bruto Kgs_platina2], 
+    [view_historico_resultado].[Peso Real Pieza Bruto_platina2] AS [Peso Real Pieza Bruto_platina2], 
+    [view_historico_resultado].[Peso Real Pieza Neto_platina2] AS [Peso Real Pieza Neto_platina2], 
+    [view_historico_resultado].[Scrap Natural_platina2] AS [Scrap Natural_platina2], 
+    [view_historico_resultado].[Peso neto SAP_platina2] AS [Peso neto SAP_platina2], 
+    [view_historico_resultado].[Peso Bruto SAP_platina2] AS [Peso Bruto SAP_platina2], 
+    [view_historico_resultado].[Balance de Scrap_platina2] AS [Balance de Scrap_platina2], 
+    [view_historico_resultado].[Peso de rollo usado real _Kg_platina2] AS [Peso de rollo usado real _Kg_platina2], 
+    [view_historico_resultado].[Peso bruto Total piezas_Kg_platina2] AS [Peso bruto Total piezas_Kg_platina2], 
+    [view_historico_resultado].[Peso NetoTotal piezas_Kg_platina2] AS [Peso NetoTotal piezas_Kg_platina2], 
+    [view_historico_resultado].[Scrap de ingeniería (buenas + Ajuste)_Total_Piezas_Kg_platina2] AS [Scrap de ingeniería (buenas + Ajuste)_Total_Piezas_Kg_platina2], 
+    [view_historico_resultado].[Peso Neto_total piezas de ajuste_Kgs_platina2] AS [Peso Neto_total piezas de ajuste_Kgs_platina2], 
+    [view_historico_resultado].[Peso puntas y colas reales_Kg_platina2] AS [Peso puntas y colas reales_Kg_platina2], 
+    [view_historico_resultado].[Balance_de_Scrap_Real_platina2] AS [Balance_de_Scrap_Real_platina2], 
+    [view_historico_resultado].[Peso Bruto Kgs_general] AS [Peso Bruto Kgs_general], 
+    [view_historico_resultado].[Peso Real Pieza Bruto_general] AS [Peso Real Pieza Bruto_general], 
+    [view_historico_resultado].[Peso Real Pieza Neto_general] AS [Peso Real Pieza Neto_general], 
+    [view_historico_resultado].[Scrap Natural_general] AS [Scrap Natural_general], 
+    [view_historico_resultado].[Peso neto SAP_general] AS [Peso neto SAP_general], 
+    [view_historico_resultado].[Peso Bruto SAP_general] AS [Peso Bruto SAP_general], 
+    [view_historico_resultado].[Balance de Scrap_general] AS [Balance de Scrap_general], 
+    [view_historico_resultado].[Peso de rollo usado real _Kg_general] AS [Peso de rollo usado real _Kg_general], 
+    [view_historico_resultado].[Peso bruto Total piezas_Kg_general] AS [Peso bruto Total piezas_Kg_general], 
+    [view_historico_resultado].[Peso NetoTotal piezas_Kg_general] AS [Peso NetoTotal piezas_Kg_general], 
+    [view_historico_resultado].[Scrap de ingeniería (buenas + Ajuste)_Total_Piezas_Kg_general] AS [Scrap de ingeniería (buenas + Ajuste)_Total_Piezas_Kg_general], 
+    [view_historico_resultado].[Peso Neto_total piezas de ajuste_Kgs_general] AS [Peso Neto_total piezas de ajuste_Kgs_general], 
+    [view_historico_resultado].[Peso puntas y colas reales_Kg_general] AS [Peso puntas y colas reales_Kg_general], 
+    [view_historico_resultado].[Balance_de_Scrap_Real_general] AS [Balance_de_Scrap_Real_general], 
     [view_historico_resultado].[comentario] AS [comentario]
     FROM [dbo].[view_historico_resultado] AS [view_historico_resultado]</DefiningQuery>
           </EntitySet>
@@ -3000,6 +3120,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <AssociationSet Name="FK_empleados_area" Association="Self.FK_empleados_area">
             <End Role="Area" EntitySet="Area" />
             <End Role="empleados" EntitySet="empleados" />
+          </AssociationSet>
+          <AssociationSet Name="FK_empleados_jefe_directo" Association="Self.FK_empleados_jefe_directo">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="empleados1" EntitySet="empleados" />
           </AssociationSet>
           <AssociationSet Name="FK_empleados_planta_clave" Association="Self.FK_empleados_planta_clave">
             <End Role="plantas" EntitySet="plantas" />
@@ -3197,6 +3321,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
             <End Role="IT_inventory_items1" EntitySet="IT_inventory_items" />
           </AssociationSet>
+          <AssociationSet Name="FK_orden_id_zona_falla" Association="Self.FK_orden_id_zona_falla">
+            <End Role="OT_zona_falla" EntitySet="OT_zona_falla" />
+            <End Role="orden_trabajo" EntitySet="orden_trabajo" />
+          </AssociationSet>
           <AssociationSet Name="FK_orden_trabajo_id_area" Association="Self.FK_orden_trabajo_id_area">
             <End Role="Area" EntitySet="Area" />
             <End Role="orden_trabajo" EntitySet="orden_trabajo" />
@@ -3244,6 +3372,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <AssociationSet Name="FK_OT_responsables_id_supervisor" Association="Self.FK_OT_responsables_id_supervisor">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="OT_responsables" EntitySet="OT_responsables" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OT_zona_falla_id_linea" Association="Self.FK_OT_zona_falla_id_linea">
+            <End Role="produccion_lineas" EntitySet="produccion_lineas" />
+            <End Role="OT_zona_falla" EntitySet="OT_zona_falla" />
           </AssociationSet>
           <AssociationSet Name="FK_PFA_autorizador" Association="Self.FK_PFA_autorizador">
             <End Role="empleados" EntitySet="empleados" />
@@ -3535,28 +3667,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="IT_inventory_items" Relationship="Portal_2_0Model.FK_IT_inventory_items_id_planta" FromRole="plantas" ToRole="IT_inventory_items" />
           <NavigationProperty Name="IT_inventory_cellular_line" Relationship="Portal_2_0Model.FK_IT_inventory_cellular_line_id_planta" FromRole="plantas" ToRole="IT_inventory_cellular_line" />
         </EntityType>
-        <EntityType Name="produccion_datos_entrada">
-          <Key>
-            <PropertyRef Name="id_produccion_registro" />
-          </Key>
-          <Property Name="id_produccion_registro" Type="Int32" Nullable="false" />
-          <Property Name="peso_real_pieza_neto" Type="Double" />
-          <Property Name="orden_sap" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="orden_sap_2" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="piezas_por_golpe" Type="Int32" />
-          <Property Name="numero_rollo" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="lote_rollo" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="peso_etiqueta" Type="Double" />
-          <Property Name="peso_regreso_rollo_real" Type="Double" />
-          <Property Name="peso_bascula_kgs" Type="Double" />
-          <Property Name="peso_despunte_kgs" Type="Double" />
-          <Property Name="peso_cola_kgs" Type="Double" />
-          <Property Name="total_piezas_ajuste" Type="Int32" />
-          <Property Name="ordenes_por_pieza" Type="Int32" />
-          <Property Name="comentarios" Type="String" MaxLength="600" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="produccion_registros" Relationship="Self.FK_produccion_datos_entrada_id_produccion_registro" FromRole="produccion_datos_entrada" ToRole="produccion_registros" />
-          <Property Name="sap_platina_2" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-        </EntityType>
         <EntityType Name="produccion_lineas">
           <Key>
             <PropertyRef Name="id" />
@@ -3570,6 +3680,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="produccion_operadores" Relationship="Self.FK_produccion_operadores_id_linea" FromRole="produccion_lineas" ToRole="produccion_operadores" />
           <NavigationProperty Name="produccion_registros" Relationship="Self.FK_produccion_registros_linea" FromRole="produccion_lineas" ToRole="produccion_registros" />
           <NavigationProperty Name="orden_trabajo" Relationship="Portal_2_0Model.FK_orden_trabajo_id_linea" FromRole="produccion_lineas" ToRole="orden_trabajo" />
+          <NavigationProperty Name="OT_zona_falla" Relationship="Portal_2_0Model.FK_OT_zona_falla_id_linea" FromRole="produccion_lineas" ToRole="OT_zona_falla" />
         </EntityType>
         <EntityType Name="produccion_lotes">
           <Key>
@@ -3610,7 +3721,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="fecha" Type="DateTime" Precision="3" />
           <Property Name="activo" Type="Boolean" />
           <NavigationProperty Name="plantas" Relationship="Self.FK_produccion_registros_planta_clave" FromRole="produccion_registros" ToRole="plantas" />
-          <NavigationProperty Name="produccion_datos_entrada" Relationship="Self.FK_produccion_datos_entrada_id_produccion_registro" FromRole="produccion_registros" ToRole="produccion_datos_entrada" />
           <NavigationProperty Name="produccion_lineas" Relationship="Self.FK_produccion_registros_linea" FromRole="produccion_registros" ToRole="produccion_lineas" />
           <NavigationProperty Name="produccion_lotes" Relationship="Self.FK_produccion_lotes_id_produccion_registro" FromRole="produccion_registros" ToRole="produccion_lotes" />
           <NavigationProperty Name="produccion_operadores" Relationship="Self.FK_produccion_registros_operador" FromRole="produccion_registros" ToRole="produccion_operadores" />
@@ -3618,6 +3728,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="produccion_turnos" Relationship="Self.FK_produccion_registros_turnos" FromRole="produccion_registros" ToRole="produccion_turnos" />
           <NavigationProperty Name="inspeccion_datos_generales" Relationship="Portal_2_0Model.FK_inspeccion_datos_generales_id_produccion_registro" FromRole="produccion_registros" ToRole="inspeccion_datos_generales" />
           <NavigationProperty Name="inspeccion_pieza_descarte_produccion" Relationship="Portal_2_0Model.FK_inspeccion_pieza_descarte_produccion_id_produccion_registro" FromRole="produccion_registros" ToRole="inspeccion_pieza_descarte_produccion" />
+          <Property Name="sap_platina_2" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="produccion_datos_entrada" Relationship="Portal_2_0Model.FK_produccion_datos_entrada_id_produccion_registro" FromRole="produccion_registros" ToRole="produccion_datos_entrada" />
         </EntityType>
         <EntityType Name="produccion_supervisores">
           <Key>
@@ -3728,18 +3840,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_produccion_datos_entrada_id_produccion_registro">
-          <End Role="produccion_registros" Type="Self.produccion_registros" Multiplicity="1" />
-          <End Role="produccion_datos_entrada" Type="Self.produccion_datos_entrada" Multiplicity="0..1" />
-          <ReferentialConstraint>
-            <Principal Role="produccion_registros">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="produccion_datos_entrada">
-              <PropertyRef Name="id_produccion_registro" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_produccion_operadores_id_linea">
           <End Role="produccion_lineas" Type="Self.produccion_lineas" Multiplicity="1" />
           <End Role="produccion_operadores" Type="Self.produccion_operadores" Multiplicity="*" />
@@ -3817,7 +3917,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySet Name="class_v3" EntityType="Self.class_v3" />
           <EntitySet Name="mm_v3" EntityType="Self.mm_v3" />
           <EntitySet Name="plantas" EntityType="Self.plantas" />
-          <EntitySet Name="produccion_datos_entrada" EntityType="Self.produccion_datos_entrada" />
           <EntitySet Name="produccion_lineas" EntityType="Self.produccion_lineas" />
           <EntitySet Name="produccion_lotes" EntityType="Self.produccion_lotes" />
           <EntitySet Name="produccion_operadores" EntityType="Self.produccion_operadores" />
@@ -3848,10 +3947,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <AssociationSet Name="FK_produccion_turnos_planta_clave" Association="Self.FK_produccion_turnos_planta_clave">
             <End Role="plantas" EntitySet="plantas" />
             <End Role="produccion_turnos" EntitySet="produccion_turnos" />
-          </AssociationSet>
-          <AssociationSet Name="FK_produccion_datos_entrada_id_produccion_registro" Association="Self.FK_produccion_datos_entrada_id_produccion_registro">
-            <End Role="produccion_registros" EntitySet="produccion_registros" />
-            <End Role="produccion_datos_entrada" EntitySet="produccion_datos_entrada" />
           </AssociationSet>
           <AssociationSet Name="FK_produccion_operadores_id_linea" Association="Self.FK_produccion_operadores_id_linea">
             <End Role="produccion_lineas" EntitySet="produccion_lineas" />
@@ -4409,6 +4504,24 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <AssociationSet Name="FK_IT_asignacion_software_id_inventory_software" Association="Portal_2_0Model.FK_IT_asignacion_software_id_inventory_software">
             <End Role="IT_inventory_software" EntitySet="IT_inventory_software" />
             <End Role="IT_asignacion_software" EntitySet="IT_asignacion_software" />
+          </AssociationSet>
+          <AssociationSet Name="FK_empleados_jefe_directo" Association="Portal_2_0Model.FK_empleados_jefe_directo">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="empleados1" EntitySet="empleados" />
+          </AssociationSet>
+          <EntitySet Name="OT_zona_falla" EntityType="Portal_2_0Model.OT_zona_falla" />
+          <AssociationSet Name="FK_orden_id_zona_falla" Association="Portal_2_0Model.FK_orden_id_zona_falla">
+            <End Role="OT_zona_falla" EntitySet="OT_zona_falla" />
+            <End Role="orden_trabajo" EntitySet="orden_trabajo" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OT_zona_falla_id_linea" Association="Portal_2_0Model.FK_OT_zona_falla_id_linea">
+            <End Role="produccion_lineas" EntitySet="produccion_lineas" />
+            <End Role="OT_zona_falla" EntitySet="OT_zona_falla" />
+          </AssociationSet>
+          <EntitySet Name="produccion_datos_entrada" EntityType="Portal_2_0Model.produccion_datos_entrada" />
+          <AssociationSet Name="FK_produccion_datos_entrada_id_produccion_registro" Association="Portal_2_0Model.FK_produccion_datos_entrada_id_produccion_registro">
+            <End Role="produccion_registros" EntitySet="produccion_registros" />
+            <End Role="produccion_datos_entrada" EntitySet="produccion_datos_entrada" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="PFA_Border_port">
@@ -5468,6 +5581,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="IT_asignacion_hardware2" Relationship="Portal_2_0Model.FK_id_sistemas" FromRole="empleados" ToRole="IT_asignacion_hardware" />
           <NavigationProperty Name="IT_asignacion_software" Relationship="Portal_2_0Model.FK_IT_asignacion_software_id_empleado" FromRole="empleados" ToRole="IT_asignacion_software" />
           <NavigationProperty Name="IT_asignacion_software1" Relationship="Portal_2_0Model.FK_IT_asignacion_software_id_sistemas" FromRole="empleados" ToRole="IT_asignacion_software" />
+          <Property Name="id_jefe_directo" Type="Int32" />
+          <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_empleados_jefe_directo" FromRole="empleados" ToRole="empleados1" />
+          <NavigationProperty Name="empleados2" Relationship="Portal_2_0Model.FK_empleados_jefe_directo" FromRole="empleados1" ToRole="empleados" />
           </EntityType>
         <Association Name="FK_empleados_area">
           <End Type="Portal_2_0Model.Area" Role="Area" Multiplicity="0..1" />
@@ -6003,6 +6119,41 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="Balance_de_Scrap_Real" Type="Double" />
           <Property Name="comentario" Type="String" MaxLength="600" FixedLength="false" Unicode="false" />
           <Property Name="SAP_Platina_2" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="Tipo_de_Material_platina2" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Número_de_Parte_de_Cliente_platina2" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Material_platina2" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="Total_de_piezas_platina1" Type="Int32" />
+          <Property Name="Total_de_piezas_platina2" Type="Int32" />
+          <Property Name="Total_de_piezas_de_Ajustes_platina1" Type="Int32" />
+          <Property Name="Total_de_piezas_de_Ajustes_platina2" Type="Int32" />
+          <Property Name="Peso_Bruto_Kgs_platina2" Type="Double" />
+          <Property Name="Peso_Real_Pieza_Bruto_platina2" Type="Double" />
+          <Property Name="Peso_Real_Pieza_Neto_platina2" Type="Double" />
+          <Property Name="Scrap_Natural_platina2" Type="Double" />
+          <Property Name="Peso_neto_SAP_platina2" Type="Double" />
+          <Property Name="Peso_Bruto_SAP_platina2" Type="Double" />
+          <Property Name="Balance_de_Scrap_platina2" Type="Double" />
+          <Property Name="Peso_de_rollo_usado_real__Kg_platina2" Type="Double" />
+          <Property Name="Peso_bruto_Total_piezas_Kg_platina2" Type="Double" />
+          <Property Name="Peso_NetoTotal_piezas_Kg_platina2" Type="Double" />
+          <Property Name="Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg_platina2" Type="Double" />
+          <Property Name="Peso_Neto_total_piezas_de_ajuste_Kgs_platina2" Type="Double" />
+          <Property Name="Peso_puntas_y_colas_reales_Kg_platina2" Type="Double" />
+          <Property Name="Balance_de_Scrap_Real_platina2" Type="Double" />
+          <Property Name="Peso_Bruto_Kgs_general" Type="Double" />
+          <Property Name="Peso_Real_Pieza_Bruto_general" Type="Double" />
+          <Property Name="Peso_Real_Pieza_Neto_general" Type="Double" />
+          <Property Name="Scrap_Natural_general" Type="Double" />
+          <Property Name="Peso_neto_SAP_general" Type="Double" />
+          <Property Name="Peso_Bruto_SAP_general" Type="Double" />
+          <Property Name="Balance_de_Scrap_general" Type="Double" />
+          <Property Name="Peso_de_rollo_usado_real__Kg_general" Type="Double" />
+          <Property Name="Peso_bruto_Total_piezas_Kg_general" Type="Double" />
+          <Property Name="Peso_NetoTotal_piezas_Kg_general" Type="Double" />
+          <Property Name="Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg_general" Type="Double" />
+          <Property Name="Peso_Neto_total_piezas_de_ajuste_Kgs_general" Type="Double" />
+          <Property Name="Peso_puntas_y_colas_reales_Kg_general" Type="Double" />
+          <Property Name="Balance_de_Scrap_Real_general" Type="Double" />
         </EntityType>
         <EntityType Name="log_acceso_email">
           <Key>
@@ -6350,6 +6501,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="produccion_lineas" Relationship="Portal_2_0Model.FK_orden_trabajo_id_linea" FromRole="orden_trabajo" ToRole="produccion_lineas" />
           <NavigationProperty Name="OT_refacciones" Relationship="Portal_2_0Model.FK_OT_refacciones_id_orden_trabajo" FromRole="orden_trabajo" ToRole="OT_refacciones" />
           <NavigationProperty Name="OT_rel_archivos" Relationship="Portal_2_0Model.FK_OT_rel_archivos_id_orden_trabajo" FromRole="orden_trabajo" ToRole="OT_rel_archivos" />
+          <Property Name="id_zona_falla" Type="Int32" />
+          <NavigationProperty Name="OT_zona_falla" Relationship="Portal_2_0Model.FK_orden_id_zona_falla" FromRole="orden_trabajo" ToRole="OT_zona_falla" />
         </EntityType>
         <Association Name="FK_orden_trabajo_id_area">
           <End Type="Portal_2_0Model.Area" Role="Area" Multiplicity="1" />
@@ -7008,6 +7161,88 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_empleados_jefe_directo">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.empleados" Role="empleados1" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="empleados1">
+              <PropertyRef Name="id_jefe_directo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="OT_zona_falla">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_linea" Type="Int32" Nullable="false" />
+          <Property Name="zona_falla" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="orden_trabajo" Relationship="Portal_2_0Model.FK_orden_id_zona_falla" FromRole="OT_zona_falla" ToRole="orden_trabajo" />
+          <NavigationProperty Name="produccion_lineas" Relationship="Portal_2_0Model.FK_OT_zona_falla_id_linea" FromRole="OT_zona_falla" ToRole="produccion_lineas" />
+        </EntityType>
+        <Association Name="FK_orden_id_zona_falla">
+          <End Type="Portal_2_0Model.OT_zona_falla" Role="OT_zona_falla" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.orden_trabajo" Role="orden_trabajo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="OT_zona_falla">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="orden_trabajo">
+              <PropertyRef Name="id_zona_falla" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OT_zona_falla_id_linea">
+          <End Type="Portal_2_0Model.produccion_lineas" Role="produccion_lineas" Multiplicity="1" />
+          <End Type="Portal_2_0Model.OT_zona_falla" Role="OT_zona_falla" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="produccion_lineas">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="OT_zona_falla">
+              <PropertyRef Name="id_linea" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="produccion_datos_entrada">
+          <Key>
+            <PropertyRef Name="id_produccion_registro" />
+          </Key>
+          <Property Name="id_produccion_registro" Type="Int32" Nullable="false" />
+          <Property Name="peso_real_pieza_neto" Type="Double" />
+          <Property Name="orden_sap" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="orden_sap_2" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="piezas_por_golpe" Type="Int32" />
+          <Property Name="numero_rollo" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="lote_rollo" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="peso_etiqueta" Type="Double" />
+          <Property Name="peso_regreso_rollo_real" Type="Double" />
+          <Property Name="peso_bascula_kgs" Type="Double" />
+          <Property Name="peso_despunte_kgs" Type="Double" />
+          <Property Name="peso_cola_kgs" Type="Double" />
+          <Property Name="total_piezas_ajuste" Type="Int32" />
+          <Property Name="ordenes_por_pieza" Type="Int32" />
+          <Property Name="comentarios" Type="String" MaxLength="600" FixedLength="false" Unicode="false" />
+          <Property Name="peso_real_pieza_neto_platina_2" Type="Double" />
+          <Property Name="total_piezas_ajuste_platina_2" Type="Int32" />
+          <NavigationProperty Name="produccion_registros" Relationship="Portal_2_0Model.FK_produccion_datos_entrada_id_produccion_registro" FromRole="produccion_datos_entrada" ToRole="produccion_registros" />
+        </EntityType>
+        <Association Name="FK_produccion_datos_entrada_id_produccion_registro">
+          <End Type="Portal_2_0Model.produccion_registros" Role="produccion_registros" Multiplicity="1" />
+          <End Type="Portal_2_0Model.produccion_datos_entrada" Role="produccion_datos_entrada" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="produccion_registros">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="produccion_datos_entrada">
+              <PropertyRef Name="id_produccion_registro" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -7089,28 +7324,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="produccion_datos_entrada">
-            <EntityTypeMapping TypeName="Portal_2_0Model.produccion_datos_entrada">
-              <MappingFragment StoreEntitySet="produccion_datos_entrada">
-                <ScalarProperty Name="sap_platina_2" ColumnName="sap_platina_2" />
-                <ScalarProperty Name="id_produccion_registro" ColumnName="id_produccion_registro" />
-                <ScalarProperty Name="peso_real_pieza_neto" ColumnName="peso_real_pieza_neto" />
-                <ScalarProperty Name="orden_sap" ColumnName="orden_sap" />
-                <ScalarProperty Name="orden_sap_2" ColumnName="orden_sap_2" />
-                <ScalarProperty Name="piezas_por_golpe" ColumnName="piezas_por_golpe" />
-                <ScalarProperty Name="numero_rollo" ColumnName="numero_rollo" />
-                <ScalarProperty Name="lote_rollo" ColumnName="lote_rollo" />
-                <ScalarProperty Name="peso_etiqueta" ColumnName="peso_etiqueta" />
-                <ScalarProperty Name="peso_regreso_rollo_real" ColumnName="peso_regreso_rollo_real" />
-                <ScalarProperty Name="peso_bascula_kgs" ColumnName="peso_bascula_kgs" />
-                <ScalarProperty Name="peso_despunte_kgs" ColumnName="peso_despunte_kgs" />
-                <ScalarProperty Name="peso_cola_kgs" ColumnName="peso_cola_kgs" />
-                <ScalarProperty Name="total_piezas_ajuste" ColumnName="total_piezas_ajuste" />
-                <ScalarProperty Name="ordenes_por_pieza" ColumnName="ordenes_por_pieza" />
-                <ScalarProperty Name="comentarios" ColumnName="comentarios" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="produccion_lineas">
             <EntityTypeMapping TypeName="Portal_2_0Model.produccion_lineas">
               <MappingFragment StoreEntitySet="produccion_lineas">
@@ -7147,6 +7360,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySetMapping Name="produccion_registros">
             <EntityTypeMapping TypeName="Portal_2_0Model.produccion_registros">
               <MappingFragment StoreEntitySet="produccion_registros">
+                <ScalarProperty Name="sap_platina_2" ColumnName="sap_platina_2" />
                 <ScalarProperty Name="id" ColumnName="id" />
                 <ScalarProperty Name="clave_planta" ColumnName="clave_planta" />
                 <ScalarProperty Name="id_linea" ColumnName="id_linea" />
@@ -7717,6 +7931,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySetMapping Name="empleados">
             <EntityTypeMapping TypeName="Portal_2_0Model.empleados">
               <MappingFragment StoreEntitySet="empleados">
+                <ScalarProperty Name="id_jefe_directo" ColumnName="id_jefe_directo" />
                 <ScalarProperty Name="id_area" ColumnName="id_area" />
                 <ScalarProperty Name="C8ID" ColumnName="8ID" />
                 <ScalarProperty Name="bajaFecha" ColumnName="bajaFecha" />
@@ -7880,6 +8095,41 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySetMapping Name="view_historico_resultado">
             <EntityTypeMapping TypeName="Portal_2_0Model.view_historico_resultado">
               <MappingFragment StoreEntitySet="view_historico_resultado">
+                <ScalarProperty Name="Balance_de_Scrap_Real_general" ColumnName="Balance_de_Scrap_Real_general" />
+                <ScalarProperty Name="Peso_puntas_y_colas_reales_Kg_general" ColumnName="Peso puntas y colas reales_Kg_general" />
+                <ScalarProperty Name="Peso_Neto_total_piezas_de_ajuste_Kgs_general" ColumnName="Peso Neto_total piezas de ajuste_Kgs_general" />
+                <ScalarProperty Name="Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg_general" ColumnName="Scrap de ingeniería (buenas + Ajuste)_Total_Piezas_Kg_general" />
+                <ScalarProperty Name="Peso_NetoTotal_piezas_Kg_general" ColumnName="Peso NetoTotal piezas_Kg_general" />
+                <ScalarProperty Name="Peso_bruto_Total_piezas_Kg_general" ColumnName="Peso bruto Total piezas_Kg_general" />
+                <ScalarProperty Name="Peso_de_rollo_usado_real__Kg_general" ColumnName="Peso de rollo usado real _Kg_general" />
+                <ScalarProperty Name="Balance_de_Scrap_general" ColumnName="Balance de Scrap_general" />
+                <ScalarProperty Name="Peso_Bruto_SAP_general" ColumnName="Peso Bruto SAP_general" />
+                <ScalarProperty Name="Peso_neto_SAP_general" ColumnName="Peso neto SAP_general" />
+                <ScalarProperty Name="Scrap_Natural_general" ColumnName="Scrap Natural_general" />
+                <ScalarProperty Name="Peso_Real_Pieza_Neto_general" ColumnName="Peso Real Pieza Neto_general" />
+                <ScalarProperty Name="Peso_Real_Pieza_Bruto_general" ColumnName="Peso Real Pieza Bruto_general" />
+                <ScalarProperty Name="Peso_Bruto_Kgs_general" ColumnName="Peso Bruto Kgs_general" />
+                <ScalarProperty Name="Balance_de_Scrap_Real_platina2" ColumnName="Balance_de_Scrap_Real_platina2" />
+                <ScalarProperty Name="Peso_puntas_y_colas_reales_Kg_platina2" ColumnName="Peso puntas y colas reales_Kg_platina2" />
+                <ScalarProperty Name="Peso_Neto_total_piezas_de_ajuste_Kgs_platina2" ColumnName="Peso Neto_total piezas de ajuste_Kgs_platina2" />
+                <ScalarProperty Name="Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg_platina2" ColumnName="Scrap de ingeniería (buenas + Ajuste)_Total_Piezas_Kg_platina2" />
+                <ScalarProperty Name="Peso_NetoTotal_piezas_Kg_platina2" ColumnName="Peso NetoTotal piezas_Kg_platina2" />
+                <ScalarProperty Name="Peso_bruto_Total_piezas_Kg_platina2" ColumnName="Peso bruto Total piezas_Kg_platina2" />
+                <ScalarProperty Name="Peso_de_rollo_usado_real__Kg_platina2" ColumnName="Peso de rollo usado real _Kg_platina2" />
+                <ScalarProperty Name="Balance_de_Scrap_platina2" ColumnName="Balance de Scrap_platina2" />
+                <ScalarProperty Name="Peso_Bruto_SAP_platina2" ColumnName="Peso Bruto SAP_platina2" />
+                <ScalarProperty Name="Peso_neto_SAP_platina2" ColumnName="Peso neto SAP_platina2" />
+                <ScalarProperty Name="Scrap_Natural_platina2" ColumnName="Scrap Natural_platina2" />
+                <ScalarProperty Name="Peso_Real_Pieza_Neto_platina2" ColumnName="Peso Real Pieza Neto_platina2" />
+                <ScalarProperty Name="Peso_Real_Pieza_Bruto_platina2" ColumnName="Peso Real Pieza Bruto_platina2" />
+                <ScalarProperty Name="Peso_Bruto_Kgs_platina2" ColumnName="Peso Bruto Kgs_platina2" />
+                <ScalarProperty Name="Total_de_piezas_de_Ajustes_platina2" ColumnName="Total de piezas de Ajustes_platina2" />
+                <ScalarProperty Name="Total_de_piezas_de_Ajustes_platina1" ColumnName="Total de piezas de Ajustes_platina1" />
+                <ScalarProperty Name="Total_de_piezas_platina2" ColumnName="Total de piezas_platina2" />
+                <ScalarProperty Name="Total_de_piezas_platina1" ColumnName="Total de piezas_platina1" />
+                <ScalarProperty Name="Material_platina2" ColumnName="Material_platina2" />
+                <ScalarProperty Name="Número_de_Parte_de_Cliente_platina2" ColumnName="Número de Parte de Cliente_platina2" />
+                <ScalarProperty Name="Tipo_de_Material_platina2" ColumnName="Tipo de Material_platina2" />
                 <ScalarProperty Name="SAP_Platina_2" ColumnName="SAP Platina 2" />
                 <ScalarProperty Name="comentario" ColumnName="comentario" />
                 <ScalarProperty Name="Balance_de_Scrap_Real" ColumnName="Balance_de_Scrap_Real" />
@@ -8072,6 +8322,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySetMapping Name="orden_trabajo">
             <EntityTypeMapping TypeName="Portal_2_0Model.orden_trabajo">
               <MappingFragment StoreEntitySet="orden_trabajo">
+                <ScalarProperty Name="id_zona_falla" ColumnName="id_zona_falla" />
                 <ScalarProperty Name="comentario" ColumnName="comentario" />
                 <ScalarProperty Name="estatus" ColumnName="estatus" />
                 <ScalarProperty Name="fecha_cierre" ColumnName="fecha_cierre" />
@@ -8301,6 +8552,39 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
                 <ScalarProperty Name="id_sistemas" ColumnName="id_sistemas" />
                 <ScalarProperty Name="id_inventory_software" ColumnName="id_inventory_software" />
                 <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OT_zona_falla">
+            <EntityTypeMapping TypeName="Portal_2_0Model.OT_zona_falla">
+              <MappingFragment StoreEntitySet="OT_zona_falla">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="zona_falla" ColumnName="zona_falla" />
+                <ScalarProperty Name="id_linea" ColumnName="id_linea" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="produccion_datos_entrada">
+            <EntityTypeMapping TypeName="Portal_2_0Model.produccion_datos_entrada">
+              <MappingFragment StoreEntitySet="produccion_datos_entrada">
+                <ScalarProperty Name="total_piezas_ajuste_platina_2" ColumnName="total_piezas_ajuste_platina_2" />
+                <ScalarProperty Name="peso_real_pieza_neto_platina_2" ColumnName="peso_real_pieza_neto_platina_2" />
+                <ScalarProperty Name="comentarios" ColumnName="comentarios" />
+                <ScalarProperty Name="ordenes_por_pieza" ColumnName="ordenes_por_pieza" />
+                <ScalarProperty Name="total_piezas_ajuste" ColumnName="total_piezas_ajuste" />
+                <ScalarProperty Name="peso_cola_kgs" ColumnName="peso_cola_kgs" />
+                <ScalarProperty Name="peso_despunte_kgs" ColumnName="peso_despunte_kgs" />
+                <ScalarProperty Name="peso_bascula_kgs" ColumnName="peso_bascula_kgs" />
+                <ScalarProperty Name="peso_regreso_rollo_real" ColumnName="peso_regreso_rollo_real" />
+                <ScalarProperty Name="peso_etiqueta" ColumnName="peso_etiqueta" />
+                <ScalarProperty Name="lote_rollo" ColumnName="lote_rollo" />
+                <ScalarProperty Name="numero_rollo" ColumnName="numero_rollo" />
+                <ScalarProperty Name="piezas_por_golpe" ColumnName="piezas_por_golpe" />
+                <ScalarProperty Name="orden_sap_2" ColumnName="orden_sap_2" />
+                <ScalarProperty Name="orden_sap" ColumnName="orden_sap" />
+                <ScalarProperty Name="peso_real_pieza_neto" ColumnName="peso_real_pieza_neto" />
+                <ScalarProperty Name="id_produccion_registro" ColumnName="id_produccion_registro" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

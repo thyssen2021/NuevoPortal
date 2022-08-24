@@ -17,28 +17,9 @@ namespace Portal_2_0.Controllers
     {
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
-        //// GET: empleados
-        //public ActionResult Index()
-        //{
-        //    if (TieneRol(TipoRoles.RH))
-        //    {
-        //        //mensaje en caso de crear, editar, etc
-        //        if (TempData["Mensaje"] != null)
-        //        {
-        //            ViewBag.MensajeAlert = TempData["Mensaje"];
-        //        }
-
-        //        var empleados = db.empleados.Include(e => e.plantas).Include(e => e.puesto1);
-        //        return View(empleados.ToList());
-        //    }
-        //    else
-        //    {
-        //        return View("../Home/ErrorPermisos");
-        //    }
-        //}
-
+       
         // GET: empleados
-        public ActionResult Index(string nombre, string num_empleado, int planta_clave = 0, int pagina = 1)
+        public ActionResult Index(string nombre, string num_empleado,int? id_jefe_directo ,int planta_clave = 0, int pagina = 1)
         {
             if (TieneRol(TipoRoles.RH))
             {
@@ -52,10 +33,11 @@ namespace Portal_2_0.Controllers
 
                 var listado = db.empleados
                        .Where(x =>
-                       ((x.nombre + " " + x.apellido1 + " " + x.apellido2).Contains(nombre) || String.IsNullOrEmpty(nombre))
-                       && (x.numeroEmpleado.Contains(num_empleado) || String.IsNullOrEmpty(num_empleado))
-                       && (x.planta_clave == planta_clave || planta_clave == 0)
-                       )
+                           ((x.nombre + " " + x.apellido1 + " " + x.apellido2).Contains(nombre) || String.IsNullOrEmpty(nombre))
+                           && (x.numeroEmpleado.Contains(num_empleado) || String.IsNullOrEmpty(num_empleado))
+                           && (x.planta_clave == planta_clave || planta_clave == 0)
+                           && (id_jefe_directo == null || x.id_jefe_directo == id_jefe_directo)
+                           )
                        .OrderBy(x => x.id)
                        .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                       .Take(cantidadRegistrosPorPagina).ToList();
@@ -63,8 +45,9 @@ namespace Portal_2_0.Controllers
                 var totalDeRegistros = db.empleados
                       .Where(x =>
                         ((x.nombre + " " + x.apellido1 + " " + x.apellido2).Contains(nombre) || String.IsNullOrEmpty(nombre))
-                          && (x.numeroEmpleado.Contains(num_empleado) || String.IsNullOrEmpty(num_empleado))
-                       && (x.planta_clave == planta_clave || planta_clave == 0)
+                        && (x.numeroEmpleado.Contains(num_empleado) || String.IsNullOrEmpty(num_empleado))
+                        && (x.planta_clave == planta_clave || planta_clave == 0)
+                        && (id_jefe_directo == null || x.id_jefe_directo == id_jefe_directo)
                        )
                     .Count();
 
@@ -74,6 +57,7 @@ namespace Portal_2_0.Controllers
                 routeValues["nombre"] = nombre;
                 routeValues["planta_clave"] = planta_clave;
                 routeValues["num_empleado"] = num_empleado;
+                routeValues["id_jefe_directo"] = id_jefe_directo;
 
                 Paginacion paginacion = new Paginacion
                 {
@@ -85,6 +69,9 @@ namespace Portal_2_0.Controllers
 
                 ViewBag.planta_clave = AddFirstItem(new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion", planta_clave.ToString()), textoPorDefecto: "-- Todas --");
                 ViewBag.Paginacion = paginacion;
+
+                ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true), nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)),
+               textoPorDefecto: "-- Seleccione un valor --", selected: id_jefe_directo.ToString());
 
                 return View(listado);
             }
@@ -126,6 +113,8 @@ namespace Portal_2_0.Controllers
                 ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
                 ViewBag.id_area = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
                 ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion");
+                ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true), nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)),
+                    textoPorDefecto: "-- Seleccione un valor --");
                 return View();
             }
             else
@@ -215,6 +204,9 @@ namespace Portal_2_0.Controllers
             ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
             ViewBag.id_area = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
             ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion");
+            ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true), nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)),
+                  textoPorDefecto: "-- Seleccione un valor --", selected: empleados.id_jefe_directo.ToString());
+
             //claves seleccionadas
             ViewBag.c_planta = c_planta;
             ViewBag.c_area = c_area;
@@ -241,10 +233,15 @@ namespace Portal_2_0.Controllers
                 ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
                 ViewBag.id_area = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
                 ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion");
+                ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true), nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)),
+                textoPorDefecto: "-- Seleccione un valor --", selected: empleados.id_jefe_directo.ToString());
+
+
                 //claves seleccionadas
                 ViewBag.c_planta = empleados.planta_clave;
                 ViewBag.c_area = empleados.id_area;
                 ViewBag.c_puesto = empleados.puesto;
+
                 return View(empleados);
             }
             else
@@ -320,6 +317,10 @@ namespace Portal_2_0.Controllers
                         ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
                         ViewBag.id_area = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
                         ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion");
+                        ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true), nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)),
+                        textoPorDefecto: "-- Seleccione un valor --", selected: empleados.id_jefe_directo.ToString());
+
+
                         //claves seleccionadas
                         ViewBag.c_planta = c_planta;
                         ViewBag.c_area = c_area;
@@ -352,7 +353,7 @@ namespace Portal_2_0.Controllers
             return View(empleados);
         }
 
-        
+
 
         // GET: Empleados/Disable/5
         public ActionResult Disable(int? id)

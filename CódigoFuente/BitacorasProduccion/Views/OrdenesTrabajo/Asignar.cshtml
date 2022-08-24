@@ -155,9 +155,29 @@
                         </div>
 
                         <div class="form-group row">
+                            @if (Model.produccion_lineas != null)
+                            {
+                                <!--id linea-->
+                                @Html.LabelFor(model => model.id_linea, new { @class = "control-label col-md-1 text_derecha" })
+                                <div class="col-md-3">
+                                    <input type="text" class="form-control " value="@Model.produccion_lineas.linea" readonly>
+                                </div>
+                                <!--Zona Falla-->
+                                @Html.LabelFor(model => model.id_zona_falla, new { @class = "control-label col-md-1 text_derecha" })
+                                <div class="col-md-3">
+                                    @if (Model.id_zona_falla != null)
+                                    {
+                                        <input type="text" class="form-control " value="@Html.DisplayFor(model => model.OT_zona_falla.zona_falla)" readonly>
+                                    }
+                                    else
+                                    {
+                                        <input type="text" class="form-control " value="N/A" readonly>
+                                    }
+                                </div>
+                            }
                             <!--Correo-->
                             @Html.LabelFor(model => model.empleados2.correo, new { @class = "control-label col-md-1 text_derecha" })
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 @if (Model.empleados2 != null && !String.IsNullOrEmpty(Model.empleados2.correo))
                                 {
                                     <input type="text" class="form-control " value="@Model.empleados2.correo" readonly>
@@ -168,14 +188,6 @@
                                 }
 
                             </div>
-                            @if (Model.produccion_lineas != null)
-                            {
-                                <!--id linea-->
-                                @Html.LabelFor(model => model.id_linea, new { @class = "control-label col-md-1 text_derecha" })
-                                <div class="col-md-3">
-                                    <input type="text" class="form-control " value="@Model.produccion_lineas.linea" readonly>
-                                </div>
-                            }
                         </div>
 
 
@@ -353,7 +365,7 @@
 
             Swal.fire({
                 title: 'Confirmación',
-                text: "¿Realmente desea "+text+" esta solicitud?",
+                text: "¿Realmente desea " + text + " esta solicitud?",
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',

@@ -173,6 +173,36 @@ namespace Portal_2_0.Controllers
             }
             return Json(list, JsonRequestBehavior.AllowGet);
         }
+        ///<summary>
+        ///Obtiene las fallas según la línea de produccion recibida
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult ObtieneZonaFalla(int id_linea = 0)
+        {
+            //obtiene todos los posibles valores
+            List<OT_zona_falla> listado = db.OT_zona_falla.Where(p => p.id_linea == id_linea && p.activo == true).ToList();
+
+            //inserta el valor por default
+            listado.Insert(0, new OT_zona_falla
+            {
+                id = 0,
+                zona_falla = "-- N/A --"
+            });
+
+            //inicializa la lista de objetos
+            var list = new object[listado.Count];
+
+            //completa la lista de objetos
+            for (int i = 0; i < listado.Count; i++)
+            {
+                if (i == 0)//en caso de item por defecto
+                    list[i] = new { value = "", name = listado[i].zona_falla };
+                else
+                    list[i] = new { value = listado[i].id, name = listado[i].zona_falla };
+            }
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
 
         ///<summary>
         ///Obtiene los puestos segun el área recibida

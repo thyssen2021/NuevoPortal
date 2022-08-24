@@ -95,6 +95,99 @@ namespace Portal_2_0.Controllers
             }
         }
 
+        // GET: SolicitudesDepartamento
+        public ActionResult SolicitudesDepartamento(string estatus, int? id_solicitante, int pagina = 1)
+        {
+            if (TieneRol(TipoRoles.OT_SOLICITUD))
+            {
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
+                var cantidadRegistrosPorPagina = 20; // parámetro
+
+                //obtiene el usuario logeado
+                empleados empleado = obtieneEmpleadoLogeado();
+
+                var listado = db.orden_trabajo
+                    .Where(
+                        x => (
+                            x.id_area == empleado.id_area //todas las solicitudes del área
+                            || x.empleados2.id_jefe_directo == empleado.id  //todas donde el solicitante es subordinado
+                        )
+                        && (id_solicitante == null || x.id_solicitante == id_solicitante)
+                        && (String.IsNullOrEmpty(estatus) || x.estatus.Contains(estatus))
+                    )
+                    .OrderByDescending(x => x.fecha_solicitud)
+                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                   .Take(cantidadRegistrosPorPagina).ToList();
+
+                var totalDeRegistros = db.orden_trabajo
+                    .Where(
+                        x => (
+                            x.id_area == empleado.id_area //todas las solicitudes del área
+                            || x.empleados2.id_jefe_directo == empleado.id  //todas donde el solicitante es subordinado
+                        )
+                        && (id_solicitante == null || x.id_solicitante == id_solicitante)
+                        && (String.IsNullOrEmpty(estatus) || x.estatus.Contains(estatus))
+                    )
+                    .Count();
+
+                //para paginación
+
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                routeValues["id_solicitante"] = id_solicitante;
+                routeValues["estatus"] = estatus;
+
+                Paginacion paginacion = new Paginacion
+                {
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                List<string> estatusList = db.orden_trabajo.Select(x => x.estatus).Distinct().ToList();
+                //crea un Select  list para el estatus
+                List<SelectListItem> newList = new List<SelectListItem>();
+
+                foreach (string statusItem in estatusList)
+                {
+                    newList.Add(new SelectListItem()
+                    {
+                        Text = OT_Status.DescripcionStatus(statusItem),
+                        Value = statusItem
+                    });
+                }
+
+                SelectList selectListItemsStatus = new SelectList(newList, "Value", "Text", estatus);
+                ViewBag.estatus = AddFirstItem(selectListItemsStatus, textoPorDefecto: "-- Todos --");
+
+                //List Solicitante
+                List<empleados> solicitanteList = db.empleados.Where(x =>
+                x.orden_trabajo2.Any(y =>
+                    y.id_area == empleado.id_area
+                    || y.empleados2.id_jefe_directo == empleado.id))
+                .ToList();
+                ViewBag.id_solicitante = AddFirstItem(new SelectList(solicitanteList, nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)), textoPorDefecto: "-- Todos --", selected: id_solicitante.ToString());
+
+
+                ViewBag.Paginacion = paginacion;
+                //Viewbags para los botones               
+                ViewBag.Title = "Listado Solicitudes Creadas Por Departamento";
+                ViewBag.SegundoNivel = "solicitudes_departamento";
+                // ViewBag.Create = true;
+
+                return View(listado);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+        }
+
         // GET: OrdenesTrabajo/Details/5
         public ActionResult Details(int? id)
         {
@@ -115,8 +208,21 @@ namespace Portal_2_0.Controllers
                 //obtiene el usuario logeado
                 empleados empleado = obtieneEmpleadoLogeado();
 
-                //verifica si se puede asignar
-                if (orden_trabajo.empleados2.planta_clave != empleado.planta_clave)
+                //verifica si la OT no pertenece al depto ni es jefe directo ni si tiene alguno de los roles suguientes
+                if (orden_trabajo.id_area != empleado.id_area && orden_trabajo.empleados2.id_jefe_directo != empleado.id 
+                    && !TieneRol(TipoRoles.OT_REPORTE)
+                    && !TieneRol(TipoRoles.OT_CATALOGOS)
+                    && !TieneRol(TipoRoles.OT_ASIGNACION)
+                    && !TieneRol(TipoRoles.OT_RESPONSABLE)
+                    ) {
+                    ViewBag.Titulo = "¡Lo sentimos!¡No se puede visualizar esta solicitud!";
+                    ViewBag.Descripcion = "No se puede visualizar esta orden de trabajo ya que pertenece a un departemento distinto.";
+
+                    return View("../Home/ErrorGenerico");
+                }
+
+                //verifica si se puede visualizar
+                if (orden_trabajo.Area.plantaClave != empleado.planta_clave && orden_trabajo.empleados2.id_jefe_directo != empleado.id)
                 {
                     ViewBag.Titulo = "¡Lo sentimos!¡No se puede visualizar esta solicitud!";
                     ViewBag.Descripcion = "No se puede visualizar una orden de trabajo de otra planta.";
@@ -155,6 +261,8 @@ namespace Portal_2_0.Controllers
                 ViewBag.nivel_urgencia = AddFirstItem(selectListItemsUrgencia, textoPorDefecto: "-- Seleccionar --");
                 ViewBag.Solicitante = empleado;
                 ViewBag.id_linea = AddFirstItem(new SelectList(db.produccion_lineas.Where(x => x.clave_planta == empleado.planta_clave && x.activo == true), "id", "linea"));
+                // GET: OrdenesTrabajo/Create encia list de zona vacío
+                ViewBag.id_zona_falla = AddFirstItem(new SelectList(db.OT_zona_falla.Where(x => false), "id", "zona_falla"), textoPorDefecto: "-- N/A --");
                 ViewBag.id_grupo_trabajo = AddFirstItem(new SelectList(db.OT_grupo_trabajo.Where(x => x.activo == true), "id", "descripcion"));
                 return View();
 
@@ -323,6 +431,7 @@ namespace Portal_2_0.Controllers
             ViewBag.Solicitante = empleado;
             ViewBag.id_linea = AddFirstItem(new SelectList(db.produccion_lineas.Where(x => x.clave_planta == empleado.planta_clave && x.activo == true), "id", "linea"), selected: orden_trabajo.id_linea.ToString());
             ViewBag.id_grupo_trabajo = AddFirstItem(new SelectList(db.OT_grupo_trabajo.Where(x => x.activo == true), "id", "descripcion"));
+            ViewBag.id_zona_falla = AddFirstItem(new SelectList(db.OT_zona_falla.Where(x => x.id_linea == orden_trabajo.id_linea && x.activo), "id", "zona_falla"), textoPorDefecto: "-- N/A --", selected: orden_trabajo.id_zona_falla.ToString());
             return View(orden_trabajo);
         }
 
@@ -382,7 +491,7 @@ namespace Portal_2_0.Controllers
         }
 
         // GET: ListadoAsignacionAsignadas
-        public ActionResult ListadoAsignacionAsignadas(int pagina = 1)
+        public ActionResult ListadoAsignacionAsignadas(string estatus, string prioridad, int? id_responsable, int? id_solicitante, int pagina = 1)
         {
             if (TieneRol(TipoRoles.OT_ASIGNACION))
             {
@@ -401,6 +510,10 @@ namespace Portal_2_0.Controllers
                 var listado = db.orden_trabajo
                     .Where(x => x.estatus != OT_Status.ABIERTO
                     && x.empleados2.planta_clave == empleado.planta_clave
+                    && (String.IsNullOrEmpty(estatus) || x.estatus.Contains(estatus))
+                    && (String.IsNullOrEmpty(prioridad) || x.nivel_urgencia.Contains(prioridad))
+                    && (id_responsable == null || x.id_responsable == id_responsable)
+                    && (id_solicitante == null || x.id_solicitante == id_solicitante)
                     )
                     .OrderByDescending(x => x.fecha_solicitud)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
@@ -409,14 +522,20 @@ namespace Portal_2_0.Controllers
                 var totalDeRegistros = db.orden_trabajo
                      .Where(x => x.estatus != OT_Status.ABIERTO
                      && x.empleados2.planta_clave == empleado.planta_clave
+                     && (String.IsNullOrEmpty(estatus) || x.estatus.Contains(estatus))
+                    && (String.IsNullOrEmpty(prioridad) || x.nivel_urgencia.Contains(prioridad))
+                    && (id_responsable == null || x.id_responsable == id_responsable)
+                    && (id_solicitante == null || x.id_solicitante == id_solicitante)
                     )
                     .Count();
 
                 //para paginación
 
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
-                //routeValues["id"] = id;
-                //routeValues["estatus"] = estatus;
+                routeValues["estatus"] = estatus;
+                routeValues["prioridad"] = prioridad;
+                routeValues["id_responsable"] = id_responsable;
+                routeValues["id_solicitante"] = id_solicitante;
 
                 Paginacion paginacion = new Paginacion
                 {
@@ -428,6 +547,47 @@ namespace Portal_2_0.Controllers
 
                 ViewBag.Paginacion = paginacion;
 
+                //List Estatus
+                List<string> estatusList = db.orden_trabajo.Select(x => x.estatus).Distinct().ToList();
+                //crea un Select  list para el estatus
+                List<SelectListItem> newListEstatus = new List<SelectListItem>();
+
+                foreach (string statusItem in estatusList)
+                {
+                    newListEstatus.Add(new SelectListItem()
+                    {
+                        Text = OT_Status.DescripcionStatus(statusItem),
+                        Value = statusItem
+                    });
+                }
+
+                //List Prioridad
+                List<string> prioridadList = db.orden_trabajo.Select(x => x.nivel_urgencia).Distinct().ToList();
+                List<SelectListItem> newListPrioridad = new List<SelectListItem>();
+
+                foreach (string pr in prioridadList)
+                {
+                    newListPrioridad.Add(new SelectListItem()
+                    {
+                        Text = OT_nivel_urgencia.DescripcionStatus(pr),
+                        Value = pr
+                    });
+                }
+
+                //List Solicitante
+                List<empleados> solicitanteList = db.empleados.Where(x => x.orden_trabajo2.Any(y => y.estatus != Bitacoras.Util.OT_Status.ABIERTO) && x.planta_clave == empleado.planta_clave).ToList();
+                //List Responsable
+                List<empleados> reponsableList = db.empleados.Where(x => x.orden_trabajo1.Any(y => y.estatus != Bitacoras.Util.OT_Status.ABIERTO) && x.planta_clave == empleado.planta_clave).ToList();
+
+                //creación de selectList
+                SelectList selectListItemsStatus = new SelectList(newListEstatus, "Value", "Text", estatus);
+                SelectList selectListItemsPrioridad = new SelectList(newListPrioridad, "Value", "Text", prioridad);
+
+                //ViewBags
+                ViewBag.estatus = AddFirstItem(selectListItemsStatus, textoPorDefecto: "-- Todos --");
+                ViewBag.prioridad = AddFirstItem(selectListItemsPrioridad, textoPorDefecto: "-- Todos --");
+                ViewBag.id_solicitante = AddFirstItem(new SelectList(solicitanteList, nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)), textoPorDefecto: "-- Todos --", selected: id_solicitante.ToString());
+                ViewBag.id_responsable = AddFirstItem(new SelectList(reponsableList, nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)), textoPorDefecto: "-- Todos --", selected: id_responsable.ToString());
 
                 return View(listado);
             }
@@ -441,7 +601,7 @@ namespace Portal_2_0.Controllers
         public ActionResult Edit(int? id, string redirect = "")
         {
 
-            if (TieneRol(TipoRoles.OT_ASIGNACION))
+            if (TieneRol(TipoRoles.OT_ASIGNACION)|| TieneRol(TipoRoles.OT_ADMINISTRADOR))
             {
 
                 if (id == null)
@@ -452,6 +612,18 @@ namespace Portal_2_0.Controllers
                 if (orden_trabajo == null)
                 {
                     return HttpNotFound();
+                }
+
+                //obtiene el usuario logeado
+                empleados empleado = obtieneEmpleadoLogeado();
+
+                //verifica si se puede visualizar
+                if (orden_trabajo.Area.plantaClave != empleado.planta_clave)
+                {
+                    ViewBag.Titulo = "¡Lo sentimos!¡No se puede visualizar esta solicitud!";
+                    ViewBag.Descripcion = "No se puede editar una orden de trabajo de otra planta.";
+
+                    return View("../Home/ErrorGenerico");
                 }
 
 
@@ -471,6 +643,7 @@ namespace Portal_2_0.Controllers
                 ViewBag.Solicitante = orden_trabajo.empleados2;
                 ViewBag.id_linea = AddFirstItem(new SelectList(db.produccion_lineas.Where(x => x.clave_planta == orden_trabajo.empleados2.planta_clave && x.activo == true), "id", "linea"), selected: orden_trabajo.id_linea.ToString()); ;
                 ViewBag.id_grupo_trabajo = AddFirstItem(new SelectList(db.OT_grupo_trabajo.Where(x => x.activo == true), "id", "descripcion"), selected: orden_trabajo.id_grupo_trabajo.ToString());
+                ViewBag.id_zona_falla = AddFirstItem(new SelectList(db.OT_zona_falla.Where(x => x.id_linea == orden_trabajo.id_linea && x.activo), "id", "zona_falla"), textoPorDefecto: "-- N/A --", selected: orden_trabajo.id_zona_falla.ToString());
                 return View(orden_trabajo);
 
             }
@@ -486,7 +659,7 @@ namespace Portal_2_0.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(orden_trabajo orden_trabajo, string redirect = "")
-        {        
+        {
 
             if (ModelState.IsValid)
             {
@@ -500,7 +673,7 @@ namespace Portal_2_0.Controllers
                 try
                 {
                     orden_trabajo item = db.orden_trabajo.Find(orden_trabajo.id);
-                    
+
                     item.id_linea = orden_trabajo.id_linea;
                     item.id_grupo_trabajo = orden_trabajo.id_grupo_trabajo;
                     item.nivel_urgencia = orden_trabajo.nivel_urgencia;
@@ -508,14 +681,12 @@ namespace Portal_2_0.Controllers
                     item.descripcion = orden_trabajo.descripcion;
                     item.tpm = orden_trabajo.tpm;
                     item.numero_tarjeta = orden_trabajo.numero_tarjeta;
+                    item.id_zona_falla = orden_trabajo.id_zona_falla;
 
                     db.Entry(item).State = EntityState.Modified;
 
                     db.SaveChanges();
                     TempData["Mensaje"] = new MensajesSweetAlert("Se ha actualizado la Orden de Trabajo correctamente.", TipoMensajesSweetAlerts.SUCCESS);
-
-
-                    //*******VER A DONDE VA REDIRIGIR************
 
                     if (String.IsNullOrEmpty(redirect))
                         redirect = "ListadoAsignacionPendientes";
@@ -549,15 +720,16 @@ namespace Portal_2_0.Controllers
             ViewBag.Solicitante = orden_trabajo.empleados2;
             ViewBag.id_linea = AddFirstItem(new SelectList(db.produccion_lineas.Where(x => x.clave_planta == orden_trabajo.empleados2.planta_clave && x.activo == true), "id", "linea"), selected: orden_trabajo.id_linea.ToString());
             ViewBag.id_grupo_trabajo = AddFirstItem(new SelectList(db.OT_grupo_trabajo.Where(x => x.activo == true), "id", "descripcion"), selected: orden_trabajo.id_grupo_trabajo.ToString());
+            ViewBag.id_zona_falla = AddFirstItem(new SelectList(db.OT_zona_falla.Where(x => x.id_linea == orden_trabajo.id_linea && x.activo), "id", "zona_falla"), textoPorDefecto: "-- N/A --", selected: orden_trabajo.id_zona_falla.ToString());
             return View(orden_trabajo);
         }
 
 
         #region Listados Responsables
         // GET: ListadoResponsablePendientes
-        public ActionResult ListadoResponsablePendientes(int pagina = 1)
+        public ActionResult ListadoResponsablePendientes(int? id_responsable, int? id_solicitante, int pagina = 1)
         {
-            if (TieneRol(TipoRoles.OT_RESPONSABLE))
+            if (TieneRol(TipoRoles.OT_RESPONSABLE) || TieneRol(TipoRoles.OT_ADMINISTRADOR))
             {
                 //mensaje en caso de crear, editar, etc
                 if (TempData["Mensaje"] != null)
@@ -573,29 +745,57 @@ namespace Portal_2_0.Controllers
                 //obtiene el id de supervisor y tecnicos
                 var responsable = db.OT_responsables.Where(x => x.id_empleado == empleado.id).FirstOrDefault();
 
-                List<int> idsResponsables = db.OT_responsables.Where(x =>
-                    (x.id_empleado == responsable.id_empleado || (x.id_empleado == responsable.id_supervisor && responsable.id_supervisor.HasValue) ||
-                    x.id_supervisor == responsable.id_empleado || (x.id_supervisor == responsable.id_supervisor && responsable.id_supervisor.HasValue)
-                    )).Select(x => x.id_empleado).Distinct().ToList();
+                List<int> idsResponsables = new List<int>();
+
+                if (responsable != null)
+                    idsResponsables = db.OT_responsables.Where(x =>
+                        (x.id_empleado == responsable.id_empleado || (x.id_empleado == responsable.id_supervisor && responsable.id_supervisor.HasValue) ||
+                        x.id_supervisor == responsable.id_empleado || (x.id_supervisor == responsable.id_supervisor && responsable.id_supervisor.HasValue)
+                        )).Select(x => x.id_empleado).Distinct().ToList();
 
 
                 var listado = db.orden_trabajo
-                    .Where(x => x.estatus == OT_Status.ASIGNADO && idsResponsables.Contains(x.id_responsable.Value)
+                    .Where(x => x.estatus == OT_Status.ASIGNADO
+                    && idsResponsables.Contains(x.id_responsable.Value)
                     )
                     .OrderByDescending(x => x.fecha_solicitud)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
                 var totalDeRegistros = db.orden_trabajo
-                     .Where(x => x.estatus == OT_Status.ASIGNADO && idsResponsables.Contains(x.id_responsable.Value)
+                     .Where(x => x.estatus == OT_Status.ASIGNADO
+                     && idsResponsables.Contains(x.id_responsable.Value)
                     )
                     .Count();
+
+                //realiza nuevamente la búsqueda sí es Administrador
+                if (TieneRol(TipoRoles.OT_ADMINISTRADOR))
+                {
+                    listado = db.orden_trabajo
+                     .Where(x => x.estatus == OT_Status.ASIGNADO
+                     && (id_responsable == null || x.id_responsable == id_responsable)
+                     && (id_solicitante == null || x.id_solicitante == id_solicitante)
+                     && x.empleados2.planta_clave == empleado.planta_clave
+                     )
+                     .OrderByDescending(x => x.fecha_solicitud)
+                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                    .Take(cantidadRegistrosPorPagina).ToList();
+
+                    totalDeRegistros = db.orden_trabajo
+                     .Where(x => x.estatus == OT_Status.ASIGNADO
+                     && (id_responsable == null || x.id_responsable == id_responsable)
+                     && (id_solicitante == null || x.id_solicitante == id_solicitante)
+                     && x.empleados2.planta_clave == empleado.planta_clave
+                     )
+                     .Count();
+
+                }
 
                 //para paginación
 
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
-                //routeValues["id"] = id;
-                //routeValues["estatus"] = estatus;
+                routeValues["id_responsable"] = id_responsable;
+                routeValues["id_solicitante"] = id_solicitante;
 
                 Paginacion paginacion = new Paginacion
                 {
@@ -604,6 +804,14 @@ namespace Portal_2_0.Controllers
                     RegistrosPorPagina = cantidadRegistrosPorPagina,
                     ValoresQueryString = routeValues
                 };
+
+                //List Solicitante
+                List<empleados> solicitanteList = db.empleados.Where(x => x.orden_trabajo2.Any(y => y.estatus == Bitacoras.Util.OT_Status.ASIGNADO) && x.planta_clave == empleado.planta_clave).ToList();
+                //List Responsable
+                List<empleados> reponsableList = db.empleados.Where(x => x.orden_trabajo1.Any(y => y.estatus == Bitacoras.Util.OT_Status.ASIGNADO) && x.planta_clave == empleado.planta_clave).ToList();
+
+                ViewBag.id_solicitante = AddFirstItem(new SelectList(solicitanteList, nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)), textoPorDefecto: "-- Todos --", selected: id_solicitante.ToString());
+                ViewBag.id_responsable = AddFirstItem(new SelectList(reponsableList, nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)), textoPorDefecto: "-- Todos --", selected: id_responsable.ToString());
 
                 ViewBag.Title = "Listado de Solicitudes Asignadas";
                 ViewBag.SegundoNivel = "ListadoAginacionPendientes";
@@ -622,9 +830,9 @@ namespace Portal_2_0.Controllers
 
 
         // GET: ListadoResponsableEnProceso
-        public ActionResult ListadoResponsableEnProceso(int pagina = 1)
+        public ActionResult ListadoResponsableEnProceso(int? id_responsable, int? id_solicitante, int pagina = 1)
         {
-            if (TieneRol(TipoRoles.OT_RESPONSABLE))
+            if (TieneRol(TipoRoles.OT_RESPONSABLE) || TieneRol(TipoRoles.OT_ADMINISTRADOR))
             {
                 //mensaje en caso de crear, editar, etc
                 if (TempData["Mensaje"] != null)
@@ -640,10 +848,13 @@ namespace Portal_2_0.Controllers
                 //obtiene el id de supervisor y tecnicos
                 var responsable = db.OT_responsables.Where(x => x.id_empleado == empleado.id).FirstOrDefault();
 
-                List<int> idsResponsables = db.OT_responsables.Where(x =>
-                    (x.id_empleado == responsable.id_empleado || (x.id_empleado == responsable.id_supervisor && responsable.id_supervisor.HasValue) ||
-                    x.id_supervisor == responsable.id_empleado || (x.id_supervisor == responsable.id_supervisor && responsable.id_supervisor.HasValue)
-                    )).Select(x => x.id_empleado).Distinct().ToList();
+                List<int> idsResponsables = new List<int>();
+
+                if (responsable != null)
+                    idsResponsables = db.OT_responsables.Where(x =>
+                        (x.id_empleado == responsable.id_empleado || (x.id_empleado == responsable.id_supervisor && responsable.id_supervisor.HasValue) ||
+                        x.id_supervisor == responsable.id_empleado || (x.id_supervisor == responsable.id_supervisor && responsable.id_supervisor.HasValue)
+                        )).Select(x => x.id_empleado).Distinct().ToList();
 
                 var listado = db.orden_trabajo
                     .Where(x => x.estatus == OT_Status.EN_PROCESO && idsResponsables.Contains(x.id_responsable.Value)
@@ -653,15 +864,37 @@ namespace Portal_2_0.Controllers
                    .Take(cantidadRegistrosPorPagina).ToList();
 
                 var totalDeRegistros = db.orden_trabajo
-                     .Where(x => x.estatus == OT_Status.EN_PROCESO && idsResponsables.Contains(x.id_responsable.Value)
-                    )
-                    .Count();
+                 .Where(x => x.estatus == OT_Status.EN_PROCESO && idsResponsables.Contains(x.id_responsable.Value)
+                )
+                .Count();
+
+                //realiza nuevamente la búsqueda sí es Administrador
+                if (TieneRol(TipoRoles.OT_ADMINISTRADOR))
+                {
+                    listado = db.orden_trabajo
+                     .Where(x => x.estatus == OT_Status.EN_PROCESO
+                     && (id_responsable == null || x.id_responsable == id_responsable)
+                     && (id_solicitante == null || x.id_solicitante == id_solicitante)
+                     && x.empleados2.planta_clave == empleado.planta_clave
+                     )
+                     .OrderByDescending(x => x.fecha_solicitud)
+                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                    .Take(cantidadRegistrosPorPagina).ToList();
+
+                    totalDeRegistros = db.orden_trabajo
+                     .Where(x => x.estatus == OT_Status.EN_PROCESO
+                     && (id_responsable == null || x.id_responsable == id_responsable)
+                     && (id_solicitante == null || x.id_solicitante == id_solicitante)
+                     && x.empleados2.planta_clave == empleado.planta_clave
+                     )
+                     .Count();
+
+                }
 
                 //para paginación
-
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
-                //routeValues["id"] = id;
-                //routeValues["estatus"] = estatus;
+                routeValues["id_responsable"] = id_responsable;
+                routeValues["id_solicitante"] = id_solicitante;
 
                 Paginacion paginacion = new Paginacion
                 {
@@ -670,6 +903,14 @@ namespace Portal_2_0.Controllers
                     RegistrosPorPagina = cantidadRegistrosPorPagina,
                     ValoresQueryString = routeValues
                 };
+
+                //List Solicitante
+                List<empleados> solicitanteList = db.empleados.Where(x => x.orden_trabajo2.Any(y => y.estatus == Bitacoras.Util.OT_Status.EN_PROCESO) && x.planta_clave == empleado.planta_clave).ToList();
+                //List Responsable
+                List<empleados> reponsableList = db.empleados.Where(x => x.orden_trabajo1.Any(y => y.estatus == Bitacoras.Util.OT_Status.EN_PROCESO) && x.planta_clave == empleado.planta_clave).ToList();
+
+                ViewBag.id_solicitante = AddFirstItem(new SelectList(solicitanteList, nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)), textoPorDefecto: "-- Todos --", selected: id_solicitante.ToString());
+                ViewBag.id_responsable = AddFirstItem(new SelectList(reponsableList, nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)), textoPorDefecto: "-- Todos --", selected: id_responsable.ToString());
 
                 ViewBag.Title = "Listado de Solicitudes en Proceso";
                 ViewBag.SegundoNivel = "ListadoResponsableEnProceso";
@@ -686,9 +927,9 @@ namespace Portal_2_0.Controllers
         }
 
         // GET: ListadoResponsableTerminadas
-        public ActionResult ListadoResponsableTerminadas(int pagina = 1)
+        public ActionResult ListadoResponsableTerminadas(int? id_responsable, int? id_solicitante, int pagina = 1)
         {
-            if (TieneRol(TipoRoles.OT_RESPONSABLE))
+            if (TieneRol(TipoRoles.OT_RESPONSABLE) || TieneRol(TipoRoles.OT_ADMINISTRADOR))
             {
                 //mensaje en caso de crear, editar, etc
                 if (TempData["Mensaje"] != null)
@@ -704,11 +945,13 @@ namespace Portal_2_0.Controllers
                 //obtiene el id de supervisor y tecnicos
                 var responsable = db.OT_responsables.Where(x => x.id_empleado == empleado.id).FirstOrDefault();
 
-                List<int> idsResponsables = db.OT_responsables.Where(x =>
-                    (x.id_empleado == responsable.id_empleado || (x.id_empleado == responsable.id_supervisor && responsable.id_supervisor.HasValue) ||
-                    x.id_supervisor == responsable.id_empleado || (x.id_supervisor == responsable.id_supervisor && responsable.id_supervisor.HasValue)
-                    )).Select(x => x.id_empleado).Distinct().ToList();
+                List<int> idsResponsables = new List<int>();
 
+                if (responsable != null)
+                    idsResponsables = db.OT_responsables.Where(x =>
+                        (x.id_empleado == responsable.id_empleado || (x.id_empleado == responsable.id_supervisor && responsable.id_supervisor.HasValue) ||
+                        x.id_supervisor == responsable.id_empleado || (x.id_supervisor == responsable.id_supervisor && responsable.id_supervisor.HasValue)
+                        )).Select(x => x.id_empleado).Distinct().ToList();
 
                 var listado = db.orden_trabajo
                     .Where(x => x.estatus == OT_Status.CERRADO && idsResponsables.Contains(x.id_responsable.Value)
@@ -722,11 +965,35 @@ namespace Portal_2_0.Controllers
                     )
                     .Count();
 
+                //realiza nuevamente la búsqueda sí es Administrador
+                if (TieneRol(TipoRoles.OT_ADMINISTRADOR))
+                {
+                    listado = db.orden_trabajo
+                     .Where(x => x.estatus == OT_Status.CERRADO
+                     && (id_responsable == null || x.id_responsable == id_responsable)
+                     && (id_solicitante == null || x.id_solicitante == id_solicitante)
+                     && x.empleados2.planta_clave == empleado.planta_clave
+                     )
+                     .OrderByDescending(x => x.fecha_solicitud)
+                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                    .Take(cantidadRegistrosPorPagina).ToList();
+
+                    totalDeRegistros = db.orden_trabajo
+                     .Where(x => x.estatus == OT_Status.CERRADO
+                     && (id_responsable == null || x.id_responsable == id_responsable)
+                     && (id_solicitante == null || x.id_solicitante == id_solicitante)
+                     && x.empleados2.planta_clave == empleado.planta_clave
+                     )
+                     .Count();
+
+                }
+
                 //para paginación
 
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
-                //routeValues["id"] = id;
-                //routeValues["estatus"] = estatus;
+                routeValues["id_responsable"] = id_responsable;
+                routeValues["id_solicitante"] = id_solicitante;
+
 
                 Paginacion paginacion = new Paginacion
                 {
@@ -735,6 +1002,15 @@ namespace Portal_2_0.Controllers
                     RegistrosPorPagina = cantidadRegistrosPorPagina,
                     ValoresQueryString = routeValues
                 };
+
+                //List Solicitante
+                List<empleados> solicitanteList = db.empleados.Where(x => x.orden_trabajo2.Any(y => y.estatus == Bitacoras.Util.OT_Status.EN_PROCESO) && x.planta_clave == empleado.planta_clave).ToList();
+                //List Responsable
+                List<empleados> reponsableList = db.empleados.Where(x => x.orden_trabajo1.Any(y => y.estatus == Bitacoras.Util.OT_Status.EN_PROCESO) && x.planta_clave == empleado.planta_clave).ToList();
+
+                ViewBag.id_solicitante = AddFirstItem(new SelectList(solicitanteList, nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)), textoPorDefecto: "-- Todos --", selected: id_solicitante.ToString());
+                ViewBag.id_responsable = AddFirstItem(new SelectList(reponsableList, nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)), textoPorDefecto: "-- Todos --", selected: id_responsable.ToString());
+
 
                 ViewBag.Title = "Listado de Solicitudes Terminadas";
                 ViewBag.SegundoNivel = "ListadoResponsableTerminadas";
@@ -754,7 +1030,7 @@ namespace Portal_2_0.Controllers
         #region reportes
 
         // GET: ReporteGeneral
-        public ActionResult ReporteGeneral(string estatus, string nivel_urgencia, string fecha_inicial, string fecha_final, bool? tpm, int? id, int pagina = 1)
+        public ActionResult ReporteGeneral(string estatus, string nivel_urgencia, string fecha_inicial, string fecha_final, bool? tpm, int? id, int? id_responsable, int? id_solicitante, int pagina = 1)
         {
             if (TieneRol(TipoRoles.OT_REPORTE))
             {
@@ -800,11 +1076,13 @@ namespace Portal_2_0.Controllers
                 var listado = db.orden_trabajo
                     .Where(x =>
                        (id == null || x.id == id)
-                       && (x.empleados2.planta_clave == empleado.planta_clave) //filtra por planta
-                      && (String.IsNullOrEmpty(estatus) || x.estatus.Contains(estatus))
-                      && (x.tpm == tpm || tpm.HasValue == false)
-                      && (String.IsNullOrEmpty(nivel_urgencia) || x.nivel_urgencia.Contains(nivel_urgencia))
-                        && x.fecha_solicitud >= dateInicial && x.fecha_solicitud <= dateFinal
+                            && (x.empleados2.planta_clave == empleado.planta_clave) //filtra por planta
+                            && (String.IsNullOrEmpty(estatus) || x.estatus.Contains(estatus))
+                            && (x.tpm == tpm || tpm.HasValue == false)
+                            && (id_responsable == null || x.id_responsable == id_responsable)
+                            && (id_solicitante == null || x.id_solicitante == id_solicitante)
+                            && (String.IsNullOrEmpty(nivel_urgencia) || x.nivel_urgencia.Contains(nivel_urgencia))
+                            && x.fecha_solicitud >= dateInicial && x.fecha_solicitud <= dateFinal
                     )
                     .OrderByDescending(x => x.fecha_solicitud)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
@@ -813,11 +1091,13 @@ namespace Portal_2_0.Controllers
                 var totalDeRegistros = db.orden_trabajo
                    .Where(x =>
                        (id == null || x.id == id)
-                       && (x.empleados2.planta_clave == empleado.planta_clave) //filtra por planta
-                      && (String.IsNullOrEmpty(estatus) || x.estatus.Contains(estatus))
-                      && (x.tpm == tpm || tpm.HasValue == false)
-                        && (String.IsNullOrEmpty(nivel_urgencia) || x.nivel_urgencia.Contains(nivel_urgencia))
-                         && x.fecha_solicitud >= dateInicial && x.fecha_solicitud <= dateFinal
+                            && (x.empleados2.planta_clave == empleado.planta_clave) //filtra por planta
+                            && (String.IsNullOrEmpty(estatus) || x.estatus.Contains(estatus))
+                            && (x.tpm == tpm || tpm.HasValue == false)
+                            && (id_responsable == null || x.id_responsable == id_responsable)
+                            && (id_solicitante == null || x.id_solicitante == id_solicitante)
+                            && (String.IsNullOrEmpty(nivel_urgencia) || x.nivel_urgencia.Contains(nivel_urgencia))
+                            && x.fecha_solicitud >= dateInicial && x.fecha_solicitud <= dateFinal
                     )
                     .Count();
 
@@ -830,6 +1110,8 @@ namespace Portal_2_0.Controllers
                 routeValues["nivel_urgencia"] = nivel_urgencia;
                 routeValues["fecha_inicial"] = fecha_inicial;
                 routeValues["fecha_final"] = fecha_final;
+                routeValues["id_responsable"] = id_responsable;
+                routeValues["id_solicitante"] = id_solicitante;
 
 
                 Paginacion paginacion = new Paginacion
@@ -880,6 +1162,13 @@ namespace Portal_2_0.Controllers
                     Value = "false"
                 });
 
+                //List Solicitante
+                List<empleados> solicitanteList = db.empleados.Where(x => x.orden_trabajo2.Any() && x.planta_clave == empleado.planta_clave).ToList();
+                //List Responsable
+                List<empleados> reponsableList = db.empleados.Where(x => x.orden_trabajo1.Any() && x.planta_clave == empleado.planta_clave).ToList();
+
+
+
                 SelectList selectListItemsStatus = new SelectList(newList, "Value", "Text", estatus);
                 SelectList selectListItemsNivelUrgencia = new SelectList(newListUrgencia, "Value", "Text", nivel_urgencia);
                 SelectList selectListItemsTPM = new SelectList(newListTpm, "Value", "Text", tpm);
@@ -887,6 +1176,9 @@ namespace Portal_2_0.Controllers
                 ViewBag.estatus = AddFirstItem(selectListItemsStatus, textoPorDefecto: "-- Todos --");
                 ViewBag.nivel_urgencia = AddFirstItem(selectListItemsNivelUrgencia, textoPorDefecto: "-- Todos --");
                 ViewBag.tpm = AddFirstItem(selectListItemsTPM, textoPorDefecto: "-- Todos --");
+                ViewBag.id_solicitante = AddFirstItem(new SelectList(solicitanteList, nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)), textoPorDefecto: "-- Todos --", selected: id_solicitante.ToString());
+                ViewBag.id_responsable = AddFirstItem(new SelectList(reponsableList, nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)), textoPorDefecto: "-- Todos --", selected: id_responsable.ToString());
+
                 ViewBag.Paginacion = paginacion;
                 //Viewbags para los botones               
                 ViewBag.Title = "Reporte de Órdenes de Trabajo";
@@ -904,7 +1196,7 @@ namespace Portal_2_0.Controllers
         }
 
 
-        public ActionResult Exportar(string estatus, string nivel_urgencia, string fecha_inicial, string fecha_final, bool? tpm, int? id, int pagina = 1)
+        public ActionResult Exportar(string estatus, string nivel_urgencia, string fecha_inicial, string fecha_final, bool? tpm, int? id, int? id_responsable, int? id_solicitante)
         {
             if (TieneRol(TipoRoles.OT_REPORTE))
             {
@@ -941,11 +1233,13 @@ namespace Portal_2_0.Controllers
                 var listado = db.orden_trabajo
                    .Where(x =>
                       (id == null || x.id == id)
-                      && (x.empleados2.planta_clave == empleado.planta_clave) //filtra por planta
-                     && (String.IsNullOrEmpty(estatus) || x.estatus.Contains(estatus))
-                     && (x.tpm == tpm || tpm.HasValue == false)
-                     && (String.IsNullOrEmpty(nivel_urgencia) || x.nivel_urgencia.Contains(nivel_urgencia))
-                       && x.fecha_solicitud >= dateInicial && x.fecha_solicitud <= dateFinal
+                        && (x.empleados2.planta_clave == empleado.planta_clave) //filtra por planta
+                        && (String.IsNullOrEmpty(estatus) || x.estatus.Contains(estatus))
+                        && (x.tpm == tpm || tpm.HasValue == false)
+                        && (id_responsable == null || x.id_responsable == id_responsable)
+                        && (id_solicitante == null || x.id_solicitante == id_solicitante)
+                        && (String.IsNullOrEmpty(nivel_urgencia) || x.nivel_urgencia.Contains(nivel_urgencia))
+                        && x.fecha_solicitud >= dateInicial && x.fecha_solicitud <= dateFinal
                    )
                    .ToList();
 
@@ -1120,7 +1414,7 @@ namespace Portal_2_0.Controllers
         // GET: OrdenesTrabajo/CambiarEstatus/5
         public ActionResult CambiarEstatus(int? id)
         {
-            if (TieneRol(TipoRoles.OT_RESPONSABLE))
+            if (TieneRol(TipoRoles.OT_RESPONSABLE) || TieneRol(TipoRoles.OT_ADMINISTRADOR))
             {
                 if (id == null)
                 {
@@ -1147,12 +1441,15 @@ namespace Portal_2_0.Controllers
                 //obtiene el id de supervisor y tecnicos
                 var responsable = db.OT_responsables.Where(x => x.id_empleado == empleado.id).FirstOrDefault();
 
-                List<int> idsResponsables = db.OT_responsables.Where(x =>
-                    (x.id_empleado == responsable.id_empleado || (x.id_empleado == responsable.id_supervisor && responsable.id_supervisor.HasValue) ||
-                    x.id_supervisor == responsable.id_empleado || (x.id_supervisor == responsable.id_supervisor && responsable.id_supervisor.HasValue)
-                    )).Select(x => x.id_empleado).Distinct().ToList();
+                List<int> idsResponsables = new List<int>();
 
-                if (!idsResponsables.Contains(empleado.id))
+                if (responsable != null)
+                    idsResponsables = db.OT_responsables.Where(x =>
+                        (x.id_empleado == responsable.id_empleado || (x.id_empleado == responsable.id_supervisor && responsable.id_supervisor.HasValue) ||
+                        x.id_supervisor == responsable.id_empleado || (x.id_supervisor == responsable.id_supervisor && responsable.id_supervisor.HasValue)
+                        )).Select(x => x.id_empleado).Distinct().ToList();
+
+                if ((!idsResponsables.Contains(empleado.id) && !TieneRol(TipoRoles.OT_ADMINISTRADOR)) || empleado.planta_clave != orden_trabajo.empleados2.planta_clave)
                 {
                     ViewBag.Titulo = "¡Lo sentimos!¡Esta solicitud se encuentra asignada a otro usuario o supervisor!";
                     ViewBag.Descripcion = "No se puede modificar una solicitud que ha sido asignada a otro usuario o supervisor.";
@@ -1235,7 +1532,7 @@ namespace Portal_2_0.Controllers
         // GET: OrdenesTrabajo/CerrarOrden/5
         public ActionResult CerrarOrden(int? id)
         {
-            if (TieneRol(TipoRoles.OT_RESPONSABLE))
+            if (TieneRol(TipoRoles.OT_RESPONSABLE) || TieneRol(TipoRoles.OT_ADMINISTRADOR))
             {
                 if (id == null)
                 {
@@ -1262,12 +1559,15 @@ namespace Portal_2_0.Controllers
                 //obtiene el id de supervisor y tecnicos
                 var responsable = db.OT_responsables.Where(x => x.id_empleado == empleado.id).FirstOrDefault();
 
-                List<int> idsResponsables = db.OT_responsables.Where(x =>
-                    (x.id_empleado == responsable.id_empleado || (x.id_empleado == responsable.id_supervisor && responsable.id_supervisor.HasValue) ||
-                    x.id_supervisor == responsable.id_empleado || (x.id_supervisor == responsable.id_supervisor && responsable.id_supervisor.HasValue)
-                    )).Select(x => x.id_empleado).Distinct().ToList();
+                List<int> idsResponsables = new List<int>();
 
-                if (!idsResponsables.Contains(empleado.id))
+                if (responsable != null)
+                    idsResponsables = db.OT_responsables.Where(x =>
+                        (x.id_empleado == responsable.id_empleado || (x.id_empleado == responsable.id_supervisor && responsable.id_supervisor.HasValue) ||
+                        x.id_supervisor == responsable.id_empleado || (x.id_supervisor == responsable.id_supervisor && responsable.id_supervisor.HasValue)
+                        )).Select(x => x.id_empleado).Distinct().ToList();
+
+                if ((!idsResponsables.Contains(empleado.id) && !TieneRol(TipoRoles.OT_ADMINISTRADOR)) || empleado.planta_clave != orden_trabajo.empleados2.planta_clave)
                 {
                     ViewBag.Titulo = "¡Lo sentimos!¡Esta solicitud se encuentra asignada a otro usuario!";
                     ViewBag.Descripcion = "No se puede modificar una solicitud que ha sido asignada a otro usuario.";
@@ -1363,8 +1663,6 @@ namespace Portal_2_0.Controllers
                 }
             }
             #endregion
-
-
 
 
             //agrega los refacciones

@@ -85,6 +85,10 @@ namespace Portal_2_0.Models
         [Display(Name = "Área")]
         [Required]
         public Nullable<int> id_area { get; set; }
+
+        [Required]
+        [Display(Name = "Jefe Directo")]
+        public Nullable<int> id_jefe_directo { get; set; }
     }
 
     [MetadataType(typeof(empleadosMetadata))]

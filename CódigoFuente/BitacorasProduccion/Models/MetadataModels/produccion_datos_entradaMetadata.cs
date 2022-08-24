@@ -74,8 +74,8 @@ namespace Portal_2_0.Models
         [StringLength(600)]
         public string comentarios { get; set; }
 
-        [Display(Name = "SAP Platina 2")]
-        public string sap_platina_2 { get; set; }
+        //[Display(Name = "SAP Platina 2")]
+        //public string sap_platina_2 { get; set; }
     }
 
     [MetadataType(typeof(produccion_datos_entradaMetadata))]

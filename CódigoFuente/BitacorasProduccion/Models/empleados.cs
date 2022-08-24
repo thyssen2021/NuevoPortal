@@ -49,6 +49,7 @@ namespace Portal_2_0.Models
             this.IT_asignacion_hardware2 = new HashSet<IT_asignacion_hardware>();
             this.IT_asignacion_software = new HashSet<IT_asignacion_software>();
             this.IT_asignacion_software1 = new HashSet<IT_asignacion_software>();
+            this.empleados1 = new HashSet<empleados>();
         }
     
         public int id { get; set; }
@@ -72,6 +73,7 @@ namespace Portal_2_0.Models
         public Nullable<System.DateTime> bajaFecha { get; set; }
         public string C8ID { get; set; }
         public Nullable<int> id_area { get; set; }
+        public Nullable<int> id_jefe_directo { get; set; }
     
         public virtual Area Area { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -140,5 +142,8 @@ namespace Portal_2_0.Models
         public virtual ICollection<IT_asignacion_software> IT_asignacion_software { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_asignacion_software> IT_asignacion_software1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<empleados> empleados1 { get; set; }
+        public virtual empleados empleados2 { get; set; }
     }
 }

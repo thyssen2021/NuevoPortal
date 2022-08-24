@@ -81,11 +81,15 @@
                                                 <div class="col-md-3 col-sm-3 ">
                                                     @Html.DropDownList("estatus", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                                 </div>
-                                                <label class="control-label col-md-1 col-sm-1" for="id" style="text-align:right">Id:</label>
-                                                <div class="col-md-3 col-sm-3">
-                                                    <input type="text" class="form-control" name="id" id="id" value="@id" autocomplete="off">
+                                                <label class="control-label col-md-1 col-sm-1" for="id_solicitante" style="text-align:right">Solicitante:</label>
+                                                <div class="col-md-3 col-sm-3 ">
+                                                    @Html.DropDownList("id_solicitante", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                                 </div>
-
+                                                <div class="col-md-1 col-sm-1">
+                                                    <a href="@Url.Action( "SolicitudesDepartamento", ViewBag.ControllerName)" class="btn btn-warning">
+                                                        <i class="fa fa-refresh"></i>
+                                                    </a>
+                                                </div>
                                                 <div class="col-md-1 col-sm-1">
                                                     <input type="submit" value="Filtrar" class="btn btn-info float-right" />
                                                 </div>
@@ -108,6 +112,9 @@
                                                 <th>Acciones</th>
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.id)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.id_solicitante)
                                                 </th>
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.titulo)
@@ -137,6 +144,9 @@
                                                 </td>
                                                 <td>
                                                     @Html.DisplayFor(modelItem => item.id)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.empleados2.ConcatNombre)
                                                 </td>
                                                 <td>
                                                     @Html.DisplayFor(modelItem => item.titulo)
@@ -200,7 +210,34 @@
                 theme: 'bootstrap4'
             })
 
+            //Agrega el evento a todos los input
+            $(".select2bs4").each(function () {
+                $(this).on('input', function (e) {
+                    EnviaFormulario();
+                });
+            });
+
         });
+
+        //Envía el formulario de búsqueda
+        function EnviaFormulario() {
+
+            $("#buscarForm").submit();
+            $.blockUI({
+                css: {
+                    border: 'none',
+                    padding: '15px',
+                    backgroundColor: '#000',
+                    '-webkit-border-radius': '10px',
+                    '-moz-border-radius': '10px',
+                    opacity: .3,
+                    color: '#fff'
+                },
+                message: '<h3>Cargando...</h3>'
+
+            });
+
+        }
 
         //agranda el tamaño de la barra
         window.onload = function () {
