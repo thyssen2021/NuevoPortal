@@ -10,10 +10,16 @@
 
     Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
 
+    int c = 1;
+
     //obtiene los filtros
     Portal_2_0.Models.Paginacion paginacionFiltros = (Portal_2_0.Models.Paginacion)ViewBag.Paginacion;
 
-    int c = 1;
+    string mes = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["mes"] != null)
+    {
+        mes = paginacionFiltros.ValoresQueryString["mes"].ToString();
+    }
 
 }
 
@@ -111,6 +117,13 @@
                                                     @Html.DropDownList("estatus_mantenimiento", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                                 </div>
                                             </div>
+                                              <div class="form-group row ">
+                                                <label class="control-label col-md-1 col-sm-1" for="mes" style="text-align:right">Mes:</label>
+                                                <div class="col-md-2 col-sm-2">
+                                                    <input type="month" id="mes" name="mes" class="form-control" value="@mes">
+                                                </div>
+                                               
+                                            </div>
                                             <div class="ln_solid"></div>
                                             <div class="form-group row">
                                                 <div class="col-md-6 col-sm-6">
@@ -197,7 +210,7 @@
                                                         @Html.DisplayFor(modelItem => item.IT_inventory_items.ConcatInfoGeneral)
                                                     </td>
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.fecha_programada)
+                                                        @(item.fecha_programada_texto.ToUpper())
                                                     </td>
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.fecha_realizacion)

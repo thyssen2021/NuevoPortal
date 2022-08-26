@@ -290,15 +290,34 @@
                             <div class="form-group row">
                                 <span style="color:black"><b>DATOS DE CIERRE</b></span>
                             </div>
+                            if (Model.EsPrimerMantenimieento)
+                            {
+                                <div class="alert alert-info" role="alert">
+                                    <i class="fa-solid fa-circle-info"></i> En caso de ser el primer mantenimiento el campo <b>@Html.DisplayNameFor(model => model.fecha_realizacion)</b> es un campo abierto.
+                                </div>
+                            }
+
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.finalizar_mantenimiento, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
                                 <div class="col-md-1 col-sm-1 ">
                                     @Html.EditorFor(model => model.finalizar_mantenimiento, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
                                 </div>
                                 @Html.LabelFor(model => model.fecha_realizacion, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-3 col-sm-3 ">
-                                    <input type="text" class="form-control" value="@DateTime.Now.ToShortDateString()" readonly />
-                                </div>
+
+                                @if (Model.EsPrimerMantenimieento)
+                                {
+                                    <div class="col-md-3 col-sm-3 ">
+                                        @Html.EditorFor(model => model.fecha_realizacion, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off", @required = "required" } })
+                                        @Html.ValidationMessageFor(model => model.fecha_realizacion, "", new { @class = "text-danger" })
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="col-md-3 col-sm-3 ">
+                                        <input type="text" class="form-control" value="@DateTime.Now.ToShortDateString()" readonly />
+                                    </div>
+                                }
+
                             </div>
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.comentarios, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align:left" })

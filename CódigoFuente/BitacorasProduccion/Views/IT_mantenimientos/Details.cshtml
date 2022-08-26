@@ -159,147 +159,147 @@
 
                     <!-- /.col -->
                     <div class="x_content">
-                       
 
-                            @Html.AntiForgeryToken()
-                            <div class="ln_solid"></div>
-                            <div class="form-group row">
-                                <span style="color:black"><b>DATOS Generales</b></span>
+
+                        @Html.AntiForgeryToken()
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>Datos Generales</b></span>
+                        </div>
+                        @if (!Html.ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                @Html.ValidationSummary("", new { @class = "text-white" })
                             </div>
-                            @if (!Html.ViewData.ModelState.IsValid)
-                            {
-                                <div class="alert alert-danger" role="alert">
-                                    @Html.ValidationSummary("", new { @class = "text-white" })
-                                </div>
+                        }
+
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.id_empleado_sistemas, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            <div class="col-md-4 col-sm-4 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.empleados1.ConcatNombre)" readonly />
+                            </div>
+                            @Html.LabelFor(model => model.id_empleado_responsable, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                            <div class="col-md-5 col-sm-5 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.empleados.ConcatNombre)" readonly />
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.fecha_programada, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            <div class="col-md-3 col-sm-3 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.fecha_programada)" readonly />
+                            </div>
+                            @Html.LabelFor(model => model.fecha_realizacion, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            <div class="col-md-3 col-sm-3 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.fecha_realizacion)" readonly />
+                            </div>
+                            @Html.LabelFor(model => model.estatus, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            <div class="col-md-3 col-sm-3 ">
+                                <input type="text" class="form-control" value="@Bitacoras.Util.IT_matenimiento_Estatus.DescripcionStatus(Model.estatus)" readonly />
+                            </div>
+
+                        </div>
+
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>CHECKLIST MANTENIMIENTO</b></span>
+                        </div>
+
+                        <table id="datatable_1" class="table datatable table-bordered table-striped" cellspacing="0" width="100%">
+                            <thead style="background-color: #009ff5; color: azure; border: #009ff5 2px solid;">
+                                <tr>
+                                    <th>
+                                        Categoria
+                                    </th>
+                                    <th>
+                                        Actividad
+                                    </th>
+                                    <th width="15%">
+                                        Estado
+                                    </th>
+                                    <th width="50%">
+                                        Comentarios
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            @{
+                                int aux_categorias = 0;
+                                int aux_c_items_categoria = 0;
+
                             }
+                            @foreach (var cat in Model.IT_mantenimientos_rel_checklist.Select(x => x.IT_mantenimientos_checklist_item.IT_mantenimientos_checklist_categorias).Distinct().ToList())
+                            {
+                                <tbody style="border: #009ff5 2px solid;">
 
-                            <div class="item form-group">
-                                @Html.LabelFor(model => model.id_empleado_sistemas, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-4 col-sm-4 ">
-                                    <input type="text" class="form-control" value="@Model.empleados1.ConcatNombre" readonly />
-                                </div>
-                                @Html.LabelFor(model => model.id_empleado_responsable, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
-                                <div class="col-md-5 col-sm-5 ">
-                                    <input type="text" class="form-control" value="@Model.empleados.ConcatNombre" readonly />
-                                </div>
-                            </div>
-                            <div class="item form-group">
-                                @Html.LabelFor(model => model.fecha_programada, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-3 col-sm-3 ">
-                                    <input type="text" class="form-control" value="@Html.DisplayFor(model => model.fecha_programada)" readonly />
-                                </div>
-                                @Html.LabelFor(model => model.fecha_realizacion, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-3 col-sm-3 ">
-                                    <input type="text" class="form-control" value="@Html.DisplayFor(model => model.fecha_realizacion)" readonly />
-                                </div>
-                                @Html.LabelFor(model => model.estatus, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-3 col-sm-3 ">
-                                    <input type="text" class="form-control" value="@Bitacoras.Util.IT_matenimiento_Estatus.DescripcionStatus(Model.estatus)" readonly />
-                                </div>
+                                    @{
+                                        aux_categorias = 1;
+                                        aux_c_items_categoria = Model.IT_mantenimientos_rel_checklist.Where(x => x.IT_mantenimientos_checklist_item.id_IT_mantenimientos_checklist_categorias
+                                        == cat.id).Count();
+                                    }
+                                    @foreach (var item in Model.IT_mantenimientos_rel_checklist.Where(x => x.IT_mantenimientos_checklist_item.id_IT_mantenimientos_checklist_categorias == cat.id))
+                                    {
+                                        <input type="hidden" name="IT_mantenimientos_rel_checklist.Index" id="IT_mantenimientos_rel_checklist.Index" value="@contador" />
+                                        <input type="hidden" name="IT_mantenimientos_rel_checklist[@contador].id_item_checklist_mantenimiento" id="IT_mantenimientos_rel_checklist[@contador].id_item_checklist_mantenimiento" value="@item.id_item_checklist_mantenimiento" />
+                                        <input type="hidden" name="IT_mantenimientos_rel_checklist[@contador].id_mantenimiento" id="IT_mantenimientos_rel_checklist[@contador].id_mantenimiento" value="@Model.id" />
 
-                            </div>
-
-                            <div class="ln_solid"></div>
-                            <div class="form-group row">
-                                <span style="color:black"><b>CHECKLIST MANTENIMIENTO</b></span>
-                            </div>
-
-                            <table id="datatable_1" class="table datatable table-bordered table-striped" cellspacing="0" width="100%">
-                                <thead style="background-color: #009ff5; color: azure; border: #009ff5 2px solid;">
-                                    <tr>
-                                        <th>
-                                            Categoria
-                                        </th>
-                                        <th>
-                                            Actividad
-                                        </th>
-                                        <th width="15%">
-                                            Estado
-                                        </th>
-                                        <th width="50%">
-                                            Comentarios
-                                        </th>
-                                    </tr>
-                                </thead>
-
-                                @{
-                                    int aux_categorias = 0;
-                                    int aux_c_items_categoria = 0;
-
-                                }
-                                @foreach (var cat in Model.IT_mantenimientos_rel_checklist.Select(x => x.IT_mantenimientos_checklist_item.IT_mantenimientos_checklist_categorias).Distinct().ToList())
-                                {
-                                    <tbody style="border: #009ff5 2px solid;">
-
-                                        @{
-                                            aux_categorias = 1;
-                                            aux_c_items_categoria = Model.IT_mantenimientos_rel_checklist.Where(x => x.IT_mantenimientos_checklist_item.id_IT_mantenimientos_checklist_categorias
-                                            == cat.id).Count();
-                                        }
-                                        @foreach (var item in Model.IT_mantenimientos_rel_checklist.Where(x => x.IT_mantenimientos_checklist_item.id_IT_mantenimientos_checklist_categorias == cat.id))
-                                        {
-                                            <input type="hidden" name="IT_mantenimientos_rel_checklist.Index" id="IT_mantenimientos_rel_checklist.Index" value="@contador" />
-                                            <input type="hidden" name="IT_mantenimientos_rel_checklist[@contador].id_item_checklist_mantenimiento" id="IT_mantenimientos_rel_checklist[@contador].id_item_checklist_mantenimiento" value="@item.id_item_checklist_mantenimiento" />
-                                            <input type="hidden" name="IT_mantenimientos_rel_checklist[@contador].id_mantenimiento" id="IT_mantenimientos_rel_checklist[@contador].id_mantenimiento" value="@Model.id" />
-
-                                            <tr>
-                                                @if (aux_categorias++ == 1)
-                                                {
-                                                    <td rowspan="@aux_c_items_categoria" align="center" style="vertical-align:middle; font-weight:bold; border: #009ff5 2px solid;">
-                                                        @Html.DisplayFor(modelItem => item.IT_mantenimientos_checklist_item.IT_mantenimientos_checklist_categorias.descripcion)
-                                                    </td>
-                                                }
-                                                <td id="descipcion_@contador" style="font-weight:bold; @(!item.terminado.HasValue ? "color : #0000FF" :
+                                        <tr>
+                                            @if (aux_categorias++ == 1)
+                                            {
+                                                <td rowspan="@aux_c_items_categoria" align="center" style="vertical-align:middle; font-weight:bold; border: #009ff5 2px solid;">
+                                                    @Html.DisplayFor(modelItem => item.IT_mantenimientos_checklist_item.IT_mantenimientos_checklist_categorias.descripcion)
+                                                </td>
+                                            }
+                                            <td id="descipcion_@contador" style="font-weight:bold; @(!item.terminado.HasValue ? "color : #0000FF" :
                                                 item.terminado.HasValue && !item.terminado.Value ? "color : #FF0000" :
                                                 item.terminado.HasValue && item.terminado.Value ? "color : #00A900" :String.Empty)">
-                                                    @Html.DisplayFor(modelItem => item.IT_mantenimientos_checklist_item.descripcion)
-                                                </td>
-                                                <td id="div_opciones_@contador" style=" @(!item.terminado.HasValue ? "color : #0000FF" :
+                                                @Html.DisplayFor(modelItem => item.IT_mantenimientos_checklist_item.descripcion)
+                                            </td>
+                                            <td id="div_opciones_@contador" style=" @(!item.terminado.HasValue ? "color : #0000FF" :
                                                 item.terminado.HasValue && !item.terminado.Value ? "color : #FF0000" :
                                                 item.terminado.HasValue && item.terminado.Value ? "color : #00A900" :String.Empty)">
-                                                    <div>
-                                                        <input class="radio-estatus" type="radio" id="pendiente_@contador" name="IT_mantenimientos_rel_checklist[@contador].terminado" data-row="@contador" value="false" @(item.terminado.HasValue && !item.terminado.Value ? "checked" : String.Empty) disabled>
-                                                        <label for="pendiente_@contador">Pendiente</label>
-                                                    </div>
-                                                    <div>
-                                                        <input class="radio-estatus" type="radio" id="terminado_@contador" name="IT_mantenimientos_rel_checklist[@contador].terminado" data-row="@contador" value="true" @(item.terminado.HasValue && item.terminado.Value ? "checked" : String.Empty) disabled>
-                                                        <label for="terminado_@contador">Terminado</label>
-                                                    </div>
-                                                    <div>
-                                                        <input class="radio-estatus" type="radio" id="na_@contador" name="IT_mantenimientos_rel_checklist[@contador].terminado" data-row="@contador" value="" @(!item.terminado.HasValue ? "checked" : String.Empty) disabled>
-                                                        <label for="na_@contador">N/A</label>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <textarea style="font-size: 12px;" type="text" name="IT_mantenimientos_rel_checklist[@contador].comentarios" id="IT_mantenimientos_rel_checklist[@contador].comentarios" class="form-control col-md-12" readonly maxlength="300" rows="3">@item.comentarios</textarea>
-                                                    <span class="field-validation-valid text-danger" data-valmsg-for="IT_mantenimientos_rel_checklist[@contador].comentarios" data-valmsg-replace="true"></span>
-                                                </td>
-                                            </tr>
-                                            contador++;
-                                        }
-                                    </tbody>
+                                                <div>
+                                                    <input class="radio-estatus" type="radio" id="pendiente_@contador" name="IT_mantenimientos_rel_checklist[@contador].terminado" data-row="@contador" value="false" @(item.terminado.HasValue && !item.terminado.Value ? "checked" : String.Empty) disabled>
+                                                    <label for="pendiente_@contador">Pendiente</label>
+                                                </div>
+                                                <div>
+                                                    <input class="radio-estatus" type="radio" id="terminado_@contador" name="IT_mantenimientos_rel_checklist[@contador].terminado" data-row="@contador" value="true" @(item.terminado.HasValue && item.terminado.Value ? "checked" : String.Empty) disabled>
+                                                    <label for="terminado_@contador">Terminado</label>
+                                                </div>
+                                                <div>
+                                                    <input class="radio-estatus" type="radio" id="na_@contador" name="IT_mantenimientos_rel_checklist[@contador].terminado" data-row="@contador" value="" @(!item.terminado.HasValue ? "checked" : String.Empty) disabled>
+                                                    <label for="na_@contador">N/A</label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <textarea style="font-size: 12px;" type="text" name="IT_mantenimientos_rel_checklist[@contador].comentarios" id="IT_mantenimientos_rel_checklist[@contador].comentarios" class="form-control col-md-12" readonly maxlength="300" rows="3">@item.comentarios</textarea>
+                                                <span class="field-validation-valid text-danger" data-valmsg-for="IT_mantenimientos_rel_checklist[@contador].comentarios" data-valmsg-replace="true"></span>
+                                            </td>
+                                        </tr>
+                                        contador++;
+                                    }
+                                </tbody>
 
-                                }
-                            </table>
+                            }
+                        </table>
 
-                            <div class="ln_solid"></div>
+                        <div class="ln_solid"></div>
 
-                            <div class="form-group row">
-                                <span style="color:black"><b>DATOS DE CIERRE</b></span>
+                        <div class="form-group row">
+                            <span style="color:black"><b>DATOS DE CIERRE</b></span>
+                        </div>
+                        <div class="item form-group">
+
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.comentarios, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align:left" })
+                        </div>
+                        <div class="item form-group">
+                            <div class="col-md-12">
+                                @Html.TextAreaFor(model => model.comentarios, new { @class = "form-control", @rows = "4", @readonly = "readonly" })
+                                @Html.ValidationMessageFor(model => model.comentarios, "", new { @class = "text-danger" })
                             </div>
-                            <div class="item form-group">
-                          
-                            </div>
-                            <div class="item form-group">
-                                @Html.LabelFor(model => model.comentarios, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align:left" })
-                            </div>
-                            <div class="item form-group">
-                                <div class="col-md-12">
-                                    @Html.TextAreaFor(model => model.comentarios, new { @class = "form-control", @rows = "4", @readonly = "readonly" })
-                                    @Html.ValidationMessageFor(model => model.comentarios, "", new { @class = "text-danger" })
-                                </div>
-                            </div>                     
-                        
+                        </div>
+
                     </div>
                 </div>
 
@@ -366,10 +366,10 @@
                 checkboxClass: 'icheckbox_square-green',
                 radioClass: 'iradio_square-green',
                 increaseArea: '20%' // optional
-            });        
+            });
 
         });
-   
+
 
         //agranda el tamaño de la barra
         window.onload = function () {

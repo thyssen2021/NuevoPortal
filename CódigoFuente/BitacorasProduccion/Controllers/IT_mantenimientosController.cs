@@ -30,7 +30,7 @@ namespace Portal_2_0.Controllers
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
         // GET: IT_mantenimientos
-        public ActionResult Index(int? id_empleado, int? planta_clave, bool? documento, string estatus_mantenimiento = "", int id_it_inventory_item = 0, int pagina = 1)
+        public ActionResult Index(int? id_empleado, int? planta_clave, bool? documento, DateTime? mes, string estatus_mantenimiento = "", int id_it_inventory_item = 0, int pagina = 1)
         {
             if (!TieneRol(TipoRoles.IT_MANTENIMIENTO_REGISTRO))
                 return View("../Home/ErrorPermisos");
@@ -54,6 +54,7 @@ namespace Portal_2_0.Controllers
                         )
                         && (x.id_it_inventory_item == id_it_inventory_item || id_it_inventory_item == 0)
                         && (documento == null || x.id_biblioteca_digital.HasValue == documento)
+                        && (mes == null || (x.fecha_programada.Year == mes.Value.Year && x.fecha_programada.Month == mes.Value.Month))
                         && (
                         (estatus_mantenimiento == IT_matenimiento_Estatus.REALIZADO && x.fecha_realizacion.HasValue)
                         || (estatus_mantenimiento == IT_matenimiento_Estatus.VENCIDO && x.fecha_programada < DateTime.Now && x.fecha_realizacion == null)
@@ -76,6 +77,7 @@ namespace Portal_2_0.Controllers
                         )
                         && (x.id_it_inventory_item == id_it_inventory_item || id_it_inventory_item == 0)
                         && (documento == null || x.id_biblioteca_digital.HasValue == documento)
+                        && (mes == null || (x.fecha_programada.Year == mes.Value.Year && x.fecha_programada.Month == mes.Value.Month))
                         && (
                         (estatus_mantenimiento == IT_matenimiento_Estatus.REALIZADO && x.fecha_realizacion.HasValue)
                         || (estatus_mantenimiento == IT_matenimiento_Estatus.VENCIDO && x.fecha_programada < DateTime.Now && x.fecha_realizacion == null)
@@ -94,6 +96,8 @@ namespace Portal_2_0.Controllers
             routeValues["estatus_mantenimiento"] = estatus_mantenimiento;
             routeValues["documento"] = documento;
 
+            if (mes != null)
+                routeValues["mes"] = mes.Value.ToString("yyyy-MM");
 
             Paginacion paginacion = new Paginacion
             {
@@ -122,7 +126,7 @@ namespace Portal_2_0.Controllers
             ViewBag.planta_clave = AddFirstItem(new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion", planta_clave.ToString()), textoPorDefecto: "-- Todas --");
             ViewBag.id_empleado = AddFirstItem(new SelectList(db.empleados, "id", "ConcatNumEmpleadoNombre"), selected: id_empleado.ToString(), textoPorDefecto: "-- Todos --");
             ViewBag.id_it_inventory_item = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x =>
-               x.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.LAPTOP 
+               x.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.LAPTOP
                || x.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.DESKTOP
             ).OrderBy(x => x.id_inventory_type), "id", "ConcatInfoSearch"), selected: id_it_inventory_item.ToString(), textoPorDefecto: "-- Todos --");
 
@@ -218,8 +222,10 @@ namespace Portal_2_0.Controllers
                     //asigna la versión de IATF
                     iT_mantenimientos.id_iatf_version = id_version_iatf;
                 }
-                //asigna la fecha de realización
-                iT_mantenimientos.fecha_realizacion = DateTime.Now;
+
+                //asigna la fecha de realización en caso de que sea null
+                if (iT_mantenimientos.fecha_realizacion == null)
+                    iT_mantenimientos.fecha_realizacion = DateTime.Now;
             }
 
             if (ModelState.IsValid)
@@ -241,11 +247,17 @@ namespace Portal_2_0.Controllers
                 {
                     var inventory_item = db.IT_inventory_items.Find(iT_mantenimientos.id_it_inventory_item);
 
+                    DateTime next = iT_mantenimientos.fecha_realizacion.Value.AddMonths(inventory_item.maintenance_period_months.HasValue
+                        ? inventory_item.maintenance_period_months.Value : 6); //seis meses por defecto
+
+                    //proximo manto al último día del mes actual
+                    next = new DateTime(next.Year, next.Month, 1); //primer día del mes actual
+                    next = next.AddMonths(1).AddDays(-1); //último día del mes
+
                     var nuevo_manto = new IT_mantenimientos
                     {
                         id_it_inventory_item = inventory_item.id,
-                        fecha_programada = DateTime.Now.AddMonths(inventory_item.maintenance_period_months.HasValue
-                        ? inventory_item.maintenance_period_months.Value : 6), //seis meses por defecto
+                        fecha_programada = next
                     };
 
                     db.IT_mantenimientos.Add(nuevo_manto);
@@ -270,6 +282,8 @@ namespace Portal_2_0.Controllers
             }
 
             ViewBag.id_empleado_responsable = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true && x.planta_clave == iT_mantenimientos.IT_inventory_items.id_planta), "id", "ConcatNumEmpleadoNombre"), selected: iT_mantenimientos.id_empleado_responsable.ToString(), textoPorDefecto: "-- Seleccionar --");
+
+            DateTime date1 = new DateTime(2008, 1, 2, 6, 30, 15);
 
             return View(iT_mantenimientos);
         }

@@ -1,5 +1,3 @@
-select * from IT_inventory_items
-
 --establece en 6 meses el periodo de mantenimiento para todos las pcs y laptos
 update IT_inventory_items set maintenance_period_months = 6 where id_inventory_type in (1,2) 
 

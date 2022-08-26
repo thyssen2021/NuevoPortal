@@ -91,6 +91,37 @@ namespace Portal_2_0.Models
 
         }
 
+
+
+        // obtiene si es el prim mantenimiento
+        [NotMapped]
+        [Display(Name = "Primer mantenimiento")]
+        public bool EsPrimerMantenimieento
+        {
+            get
+            {
+                using (var db = new Portal_2_0Entities())
+                {
+                    var asignacion_principal = db.IT_mantenimientos.Any(x => x.fecha_programada.Year == 2000 && x.id == this.id);
+                     
+                   return asignacion_principal;
+                }
+            }
+
+        }
+
+        // obtiene si es el prim mantenimiento
+        [NotMapped]
+        [Display(Name = "Fecha Programada Mes")]
+        public string fecha_programada_texto
+        {
+            get
+            {
+                return this.fecha_programada.ToString("MMMM yyyy", System.Globalization.CultureInfo.CreateSpecificCulture("es-MX"));
+            }
+
+        }
+
         [NotMapped]
         [Display(Name = "Documento de Aceptación")]
         public HttpPostedFileBase PostedFileDocumentoAceptacion { get; set; }

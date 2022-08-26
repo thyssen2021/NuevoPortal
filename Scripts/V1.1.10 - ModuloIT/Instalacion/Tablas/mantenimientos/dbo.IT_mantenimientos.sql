@@ -21,13 +21,13 @@ GO
 CREATE TABLE [dbo].[IT_mantenimientos](
 	[id] [int] IDENTITY(1,1) NOT NULL,
 	[id_it_inventory_item] [int] NOT NULL,
-	[id_empleado_responsable] [int] NOT NULL,
-	[id_empleado_sistemas] [int] NOT NULL,
-	[id_iatf_version] [int] NOT NULL,
+	[id_empleado_responsable] [int] NULL,
+	[id_empleado_sistemas] [int] NULL,
+	[id_iatf_version] [int] NULL,
 	[id_biblioteca_digital] [int] NULL,
 	[fecha_programada] [datetime] NOT NULL,   --con las fechas se obtiene el estatus = PROXIMO, PENDIENTE FINALIZADO
 	[fecha_realizacion] [datetime] NULL,
-	[comentarios][varchar](300) NOT NULL,
+	[comentarios][varchar](300)  NULL,
  CONSTRAINT [PK_IT_mantenimientos] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC

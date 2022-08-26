@@ -47,6 +47,9 @@
     if (paginacionFiltros.ValoresQueryString["tipo_hardware"] != null)
     {
         tipo_hardware = paginacionFiltros.ValoresQueryString["tipo_hardware"].ToString();
+        if (tipo_hardware == "256") {
+            tipo_hardware = "1";     //POR DEFECTO laptop
+        }
     }
 
     bool? active = null;

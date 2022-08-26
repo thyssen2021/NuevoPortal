@@ -17,7 +17,7 @@ namespace Portal_2_0.Controllers
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
         // GET: IT_inventory_cellular_line
-        public ActionResult Index()
+        public ActionResult Index(bool? activo, int? id_planta, int? id_linea, int? id_plan, int? id_empleado, int pagina = 1)
         {
             if (TieneRol(TipoRoles.IT_INVENTORY))
             {
@@ -25,13 +25,118 @@ namespace Portal_2_0.Controllers
                 if (TempData["Mensaje"] != null)
                     ViewBag.MensajeAlert = TempData["Mensaje"];
 
-                return View(db.IT_inventory_cellular_line.ToList());
+                var cantidadRegistrosPorPagina = 20; // parámetro
+             
+                var listado = db.IT_inventory_cellular_line.ToList()
+                    .Where(x =>
+                        (activo == null || x.activo == activo)
+                       && (id_planta == null || x.id_planta == id_planta)
+                       && (id_linea == null || x.id == id_linea)
+                       && (id_empleado == null || x.IT_asignacion_hardware.Any(y => y.es_asignacion_linea_actual && y.id_cellular_line == x.id && y.id_responsable_principal == y.id_empleado && y.id_empleado==id_empleado))
+                       && (id_plan == null || x.id_inventory_celullar_plan == id_plan)
+                    )
+                    .OrderByDescending(x => x.id_planta)
+                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                   .Take(cantidadRegistrosPorPagina).ToList();
+
+                var totalDeRegistros = db.IT_inventory_cellular_line.ToList()
+                    .Where(x =>
+                        (activo == null || x.activo == activo)
+                       && (id_planta == null || x.id_planta == id_planta)
+                       && (id_linea == null || x.id == id_linea)
+                       && (id_empleado == null || x.IT_asignacion_hardware.Any(y => y.es_asignacion_linea_actual && y.id_cellular_line == x.id && y.id_responsable_principal == y.id_empleado && y.id_empleado == id_empleado))
+                       && (id_plan == null || x.id_inventory_celullar_plan == id_plan)
+                    )
+                    .Count();
+
+                //para paginación
+
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                routeValues["activo"] = activo;
+                routeValues["id_planta"] = id_planta;
+                routeValues["id_linea"] = id_linea;
+                routeValues["id_plan"] = id_plan;
+                routeValues["id_empleado"] = id_empleado;
+
+                Paginacion paginacion = new Paginacion
+                {
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                //crea un Select  list para el estatus
+                List<SelectListItem> activoList = new List<SelectListItem>();
+                activoList.Add(new SelectListItem()
+                {
+                    Text = "Activo",
+                    Value = "true"
+                });
+                activoList.Add(new SelectListItem()
+                {
+                    Text = "Inactivo",
+                    Value = "false"
+                });
+
+                SelectList selectListItemsActivo = new SelectList(activoList, "Value", "Text", activo.ToString());
+                ViewBag.activo = AddFirstItem(selectListItemsActivo, textoPorDefecto: "-- Todos --");
+                ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas, nameof(plantas.clave), nameof(plantas.descripcion)), textoPorDefecto: "-- Todos --");
+                ViewBag.id_linea = AddFirstItem(new SelectList(db.IT_inventory_cellular_line, nameof(IT_inventory_cellular_line.id), nameof(IT_inventory_cellular_line.numero_celular)), textoPorDefecto: "-- Todos --");
+                ViewBag.id_area = AddFirstItem(new SelectList(db.Area, nameof(Area.clave), nameof(Area.descripcion)), textoPorDefecto: "-- Todos --");
+                ViewBag.id_plan = AddFirstItem(new SelectList(db.IT_inventory_cellular_plans, nameof(IT_inventory_cellular_plans.id), nameof(IT_inventory_cellular_plans.nombre_plan)), textoPorDefecto: "-- Todos --");
+                ViewBag.id_empleado = AddFirstItem(new SelectList(db.empleados.Where(x=>x.activo.HasValue && x.activo.Value), nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)), textoPorDefecto: "-- Todos --");
+                ViewBag.Paginacion = paginacion;
+
+                return View(listado);
             }
             else
             {
                 return View("../Home/ErrorPermisos");
             }
         }
+
+        public ActionResult Exportar(bool? activo, int? id_planta, int? id_linea, int? id_plan, int? id_empleado)
+        {
+            if (TieneRol(TipoRoles.IT_INVENTORY))
+            {
+
+                var listado = db.IT_inventory_cellular_line.ToList()
+                   .Where(x =>
+                        (activo == null || x.activo == activo)
+                       && (id_planta == null || x.id_planta == id_planta)
+                       && (id_linea == null || x.id == id_linea)
+                       && (id_empleado == null || x.IT_asignacion_hardware.Any(y => y.es_asignacion_linea_actual && y.id_cellular_line == x.id && y.id_responsable_principal == y.id_empleado && y.id_empleado == id_empleado))
+                       && (id_plan == null || x.id_inventory_celullar_plan == id_plan)
+                    )
+                   .OrderByDescending(x => x.id_planta)
+                   .ToList();
+
+                byte[] stream = ExcelUtil.GeneraReporteBitacorasExcel(listado);
+
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+
+                    // for example foo.bak
+                    //FileName = planta.descripcion + "_" + produccion_Lineas.linea + "_" + fecha_inicial + "_" + dateFinal.ToString("yyyy-MM-dd") + ".xlsx",
+                    FileName = Server.UrlEncode("ListadoLineasCelular_" + DateTime.Now.ToShortDateString() + ".xlsx"),
+
+                    // always prompt the user for downloading, set to true if you want 
+                    // the browser to try to show the file inline
+                    Inline = false,
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                return File(stream, "application/vnd.ms-excel");
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
 
         // GET: IT_inventory_cellular_line/Details/5
         public ActionResult Details(int? id)
@@ -145,7 +250,7 @@ namespace Portal_2_0.Controllers
             }
             ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas.Where(x => x.activo), nameof(plantas.clave), nameof(plantas.descripcion)), textoPorDefecto: "-- Seleccionar --", selected: item.id_planta.ToString());
             ViewBag.id_inventory_celullar_plan = AddFirstItem(new SelectList(db.IT_inventory_cellular_plans.Where(x => x.activo), nameof(IT_inventory_cellular_plans.id), nameof(IT_inventory_cellular_plans.nombre_plan)), textoPorDefecto: "-- Seleccionar --", selected: item.id_inventory_celullar_plan.ToString());
-          
+
             return View(item);
         }
 

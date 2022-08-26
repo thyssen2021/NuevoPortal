@@ -40,7 +40,7 @@ namespace Portal_2_0.Controllers
                     && (x.model.Contains(model) || String.IsNullOrEmpty(model))
                     && (x.id_tipo_accesorio == id_tipo_accesorio || id_tipo_accesorio == null)
                     && (x.active == active || active == null)
-                    && (x.id_inventory_type == tipo_hardware && tipo_hardware.HasValue)
+                    && (x.id_inventory_type == tipo_hardware && tipo_hardware.HasValue || (tipo_hardware == 256 && (x.id_inventory_type == 1 || x.id_inventory_type == 2)))
                     )
                   .OrderByDescending(x => x.id_planta)
                   .Skip((pagina - 1) * cantidadRegistrosPorPagina)
@@ -54,7 +54,7 @@ namespace Portal_2_0.Controllers
                     && (x.model.Contains(model) || String.IsNullOrEmpty(model))
                     && (x.id_tipo_accesorio == id_tipo_accesorio || id_tipo_accesorio == null)
                     && (x.active == active || active == null)
-                    && (x.id_inventory_type == tipo_hardware && tipo_hardware.HasValue)
+                     && (x.id_inventory_type == tipo_hardware && tipo_hardware.HasValue || (tipo_hardware == 256 && (x.id_inventory_type == 1 || x.id_inventory_type == 2)))
                     )
                          .Count();
 
@@ -76,8 +76,16 @@ namespace Portal_2_0.Controllers
                 };
 
                 ViewBag.Paginacion = paginacion;
+
                 //quita de la lista el tipo Virtual server (se incluiye en el formulario de server)
-                ViewBag.tipo_hardware = AddFirstItem(new SelectList(db.IT_inventory_hardware_type.Where(x => x.activo && x.descripcion != Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER), "id", "descripcion"), textoPorDefecto: "-- Select --", selected: tipo_hardware.ToString());
+                List<IT_inventory_hardware_type> listTipoHardware = db.IT_inventory_hardware_type.Where(x => x.activo && x.descripcion != Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER).ToList();
+                listTipoHardware.Insert(2,new IT_inventory_hardware_type
+                {
+                    id = 256,   //id para laptop y desktop
+                    descripcion = "Laptop/Desktop"
+                });
+
+                ViewBag.tipo_hardware = AddFirstItem(new SelectList(listTipoHardware, "id", "descripcion"), textoPorDefecto: "-- Select --", selected: tipo_hardware.ToString());
                 ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas.Where(x => x.activo), "clave", "descripcion"), textoPorDefecto: "-- All --", selected: id_planta.ToString());
                 ViewBag.id_tipo_accesorio = AddFirstItem(new SelectList(db.IT_inventory_tipos_accesorios, "id", "descripcion"), textoPorDefecto: "-- All --", selected: id_tipo_accesorio.ToString());
 
