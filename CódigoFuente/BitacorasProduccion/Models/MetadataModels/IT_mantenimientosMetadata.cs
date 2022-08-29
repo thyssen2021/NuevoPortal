@@ -51,14 +51,22 @@ namespace Portal_2_0.Models
         {
             get
             {
+                if (this.fecha_realizacion.HasValue && this.id_biblioteca_digital.HasValue)
+                    return IT_matenimiento_Estatus.REALIZADO_CON_DOCUMENTO;
+
                 if (this.fecha_realizacion.HasValue)
-                    return IT_matenimiento_Estatus.REALIZADO;
+                    return IT_matenimiento_Estatus.REALIZADO;  
+
+                if (this.IT_mantenimientos_rel_checklist != null && this.IT_mantenimientos_rel_checklist.Count > 0)
+                    return IT_matenimiento_Estatus.EN_PROCESO;
 
                 if (this.fecha_programada < DateTime.Now && this.fecha_realizacion == null)
                     return IT_matenimiento_Estatus.VENCIDO;
 
                 if (this.fecha_programada > DateTime.Now && this.fecha_realizacion == null)
                     return IT_matenimiento_Estatus.PROXIMO;
+
+                
 
                 //valor por defecto
                 return string.Empty;

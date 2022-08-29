@@ -7153,10 +7153,7 @@
     <Content Include="Views\IT_inventory_items_genericos\Disable.cshtml" />
     <Content Include="Views\OrdenesTrabajo\Edit.cshtml" />
     <Content Include="Views\IT_asignacion_hardware\responsivas.cshtml" />
-    <Content Include="Views\IT_mantenimientos\Create.cshtml" />
-    <Content Include="Views\IT_mantenimientos\Delete.cshtml" />
     <Content Include="Views\IT_mantenimientos\Details.cshtml" />
-    <Content Include="Views\IT_mantenimientos\Edit.cshtml" />
     <Content Include="Views\IT_mantenimientos\Index.cshtml" />
     <Content Include="Views\IT_mantenimientos\CerrarMantenimiento.cshtml" />
     <Content Include="Views\IT_mantenimientos\CargarDocumento.cshtml" />

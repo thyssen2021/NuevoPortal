@@ -40,12 +40,20 @@
             background-color: #e1ffe1;
         }
 
+        .fondo-verde-documento {
+            background-color: #b6d9b6;
+        }
+
         .fondo-amarillo {
             background-color: #fadebd;
         }
 
         .fondo-rojo {
             background-color: #ffc8c8;
+        }
+
+        .fondo-azul {
+            background-color: #d0edf8;
         }
 
         .fondo-gris {
@@ -117,12 +125,12 @@
                                                     @Html.DropDownList("estatus_mantenimiento", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                                 </div>
                                             </div>
-                                              <div class="form-group row ">
+                                            <div class="form-group row ">
                                                 <label class="control-label col-md-1 col-sm-1" for="mes" style="text-align:right">Mes:</label>
                                                 <div class="col-md-2 col-sm-2">
                                                     <input type="month" id="mes" name="mes" class="form-control" value="@mes">
                                                 </div>
-                                               
+
                                             </div>
                                             <div class="ln_solid"></div>
                                             <div class="form-group row">
@@ -142,6 +150,46 @@
                                         <hr />
 
                                     </div>
+
+                                    <!-- Inicia código de colores -->
+                                    <div class="x_panel">
+                                        <div class="x_title">
+                                            <span style="color:#686767; font-size:16px">C&oacute;digo de colores</span>
+                                            <ul class="nav navbar-right panel_toolbox">
+                                                @*Utilizado para mover a la derecha los iconos del card*@
+                                                <span style="visibility:hidden">_______</span>
+                                                <li>
+                                                    <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                                </li>
+                                            </ul>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <div class="x_content">
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <div class="form-group row">
+                                                        <div class="col-md-2 col-sm-2">
+                                                            <button type="button" class="btn fondo-amarillo btn-block">Pr&oacute;ximo</button>
+                                                        </div>
+                                                        <div class="col-md-2 col-sm-2">
+                                                            <button type="button" class="btn fondo-rojo btn-block">Vencido</button>
+                                                        </div>
+                                                        <div class="col-md-2 col-sm-2">
+                                                            <button type="button" class="btn fondo-azul btn-block">En proceso</button>
+                                                        </div>
+                                                        <div class="col-md-2 col-sm-2">
+                                                            <button type="button" class="btn fondo-verde btn-block">Realizado</button>
+                                                        </div>
+                                                        <div class="col-md-2 col-sm-2">
+                                                            <button type="button" class="btn fondo-verde-documento btn-block">Realizado con Documento</button>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Fin código de colores -->
                                     <table id="datatable_1" class="table datatable table-bordered nowrap" cellspacing="0" width="100%">
                                         <thead>
                                             <tr>
@@ -178,8 +226,10 @@
                                             @foreach (var item in Model)
                                             {
                                                 <tr class="@(item.estatus == Bitacoras.Util.IT_matenimiento_Estatus.REALIZADO ? "fondo-verde"
+                                                    : item.estatus == Bitacoras.Util.IT_matenimiento_Estatus.REALIZADO_CON_DOCUMENTO ? "fondo-verde-documento"
                                                     : item.estatus == Bitacoras.Util.IT_matenimiento_Estatus.PROXIMO ? "fondo-amarillo"
                                                     : item.estatus == Bitacoras.Util.IT_matenimiento_Estatus.VENCIDO ? "fondo-rojo"
+                                                    : item.estatus == Bitacoras.Util.IT_matenimiento_Estatus.EN_PROCESO ? "fondo-azul"
                                                     : String.Empty
                                                     )">
                                                     <td>

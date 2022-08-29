@@ -163,6 +163,7 @@ namespace Portal_2_0.Controllers
             //Asigna los valores del empleado de sistemas 
             iT_mantenimientos.id_empleado_sistemas = sistemas.id;
             iT_mantenimientos.empleados1 = sistemas;
+            iT_mantenimientos.fecha_realizacion = DateTime.Now;
 
             //id responsable por defecto
             int id_responsable_default = 0;
@@ -222,10 +223,7 @@ namespace Portal_2_0.Controllers
                     //asigna la versión de IATF
                     iT_mantenimientos.id_iatf_version = id_version_iatf;
                 }
-
-                //asigna la fecha de realización en caso de que sea null
-                if (iT_mantenimientos.fecha_realizacion == null)
-                    iT_mantenimientos.fecha_realizacion = DateTime.Now;
+              
             }
 
             if (ModelState.IsValid)
@@ -261,6 +259,10 @@ namespace Portal_2_0.Controllers
                     };
 
                     db.IT_mantenimientos.Add(nuevo_manto);
+                }
+                else {
+                    //si no es finalizar, la fecha de realización es null
+                    iT_mantenimientos.fecha_realizacion = null;
                 }
 
                 db.SaveChanges();
