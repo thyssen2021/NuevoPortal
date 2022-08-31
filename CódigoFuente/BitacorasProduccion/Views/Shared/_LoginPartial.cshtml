@@ -1,13 +1,23 @@
 ﻿@using Microsoft.AspNet.Identity
 
 
-
 <!-- top navigation -->
 <div class="top_nav">
     <div class="nav_menu">
         <div class="nav toggle">
             <a id="menu_toggle"><i class="fa fa-bars" style="color:#ddd"></i></a>
         </div>
+        @if (!@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":9010")
+      && !@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains("localhost")
+      )
+        {
+            <div class="nav tooltip_class" style="color: white; float: left; margin: 0; width: 300px; padding: 15px 15px 0; " data-toggle="tooltip" data-placement="bottom" data-html="true" 
+                 title="Este Portal es de Calidad y su único fin es probar la funcionalidad del mismo. Una vez aprobado se liberará en Productivo.">
+                <b>
+                   <i class="fa-solid fa-triangle-exclamation fa-beat"></i> SITIO PARA PRUEBAS DE DESAROLLO <i class="fa-solid fa-triangle-exclamation fa-beat"></i>
+                </b>
+            </div>
+        }
         <nav class="nav navbar-nav">
             <ul class=" navbar-right">
                 @if (Request.IsAuthenticated)

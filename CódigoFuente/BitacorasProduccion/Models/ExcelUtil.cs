@@ -44,68 +44,143 @@ namespace Portal_2_0.Models
             //para llevar el control de si es encabezado o no
             List<bool> filasEncabezados = new List<bool>();
             List<bool> filasTemporales = new List<bool>();
+            //agrega tres para el encabezadoprincipal
+            filasEncabezados.Add(false); //es el encabezado principal
+            filasTemporales.Add(false);
+            filasEncabezados.Add(false); //es el encabezado principal
+            filasTemporales.Add(false);
             filasEncabezados.Add(false); //es el encabezado principal
             filasTemporales.Add(false);
 
             //columnas
-            dt.Columns.Add("Planta", typeof(string));
-            dt.Columns.Add("Linea", typeof(string));
-            dt.Columns.Add("Operador", typeof(string));
-            dt.Columns.Add("Supervisor", typeof(string));
-            dt.Columns.Add("SAP Platina", typeof(string));
-            dt.Columns.Add("Tipo de Material", typeof(string));
-            dt.Columns.Add("Número Parte Cliente", typeof(string));
-            dt.Columns.Add("SAP Rollo", typeof(string));
-            dt.Columns.Add("Material", typeof(string));
-            dt.Columns.Add("Fecha", typeof(DateTime));
-            dt.Columns.Add("Turno", typeof(string));
-            dt.Columns.Add("Hora", typeof(string));
-            dt.Columns.Add("Orden SAP", typeof(string));
-            dt.Columns.Add("Orden SAP 2", typeof(string));
-            dt.Columns.Add("Pieza por Golpe", typeof(int));
-            dt.Columns.Add("Número de Rollo", typeof(string));
-            dt.Columns.Add("Lote de Rollo", typeof(string));
-            dt.Columns.Add("Peso Etiqueta (kg)", typeof(string));
-            dt.Columns.Add("Peso Regreso Rollo Real", typeof(string));
-            dt.Columns.Add("Peso Rollo Usado", typeof(double));
-            dt.Columns.Add("Peso Báscula", typeof(double));
-            dt.Columns.Add("No. Lote Izquierdo", typeof(double));
-            dt.Columns.Add("No. Lote Derecho", typeof(double));
-            dt.Columns.Add("Piezas por Paquete", typeof(double));
-            dt.Columns.Add("Total Piezas", typeof(double));
-            dt.Columns.Add("Peso de Rollo Consumido", typeof(double));
-            dt.Columns.Add("Número de Golpes", typeof(double));
-            dt.Columns.Add("Kg Restante de Rollo", typeof(double));
-            dt.Columns.Add("Peso Despunte Kgs", typeof(double));
-            dt.Columns.Add("Peso Cola Kgs", typeof(double));
-            dt.Columns.Add("% Punta y colas", typeof(double));
-            dt.Columns.Add("Total Piezas Ajuste", typeof(double));
-            dt.Columns.Add("Peso Bruto Kgs", typeof(double));
-            dt.Columns.Add("Peso Real Pieza Bruto", typeof(double));
-            dt.Columns.Add("Peso Real Pieza Neto", typeof(double));
-            dt.Columns.Add("Scrap Natural", typeof(double));
-            dt.Columns.Add("Peso Neto SAP", typeof(double));
-            dt.Columns.Add("Peso Bruto SAP", typeof(double));
-            dt.Columns.Add("Balance de Scrap", typeof(double));
-            dt.Columns.Add("Órdenes por Pieza", typeof(double));
-            dt.Columns.Add("Peso Rollo Usado Real", typeof(double));
-            dt.Columns.Add("Peso Bruto Total Piezas Kgs", typeof(double));
-            dt.Columns.Add("Peso Neto Total Piezas Kgs", typeof(double));
-            dt.Columns.Add("Scrap de Ingeniería (buenas + ajuste) Total piezas", typeof(double));
-            dt.Columns.Add("Peso Neto Total Piezas de Ajuste Kgs", typeof(double));
-            dt.Columns.Add("Peso Punta y Colas Reales kgs", typeof(double));
-            dt.Columns.Add("Balance de Scrap Real", typeof(double));
-            dt.Columns.Add("comentario", typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Planta), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Linea), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Operador), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Supervisor), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Fecha), typeof(DateTime));
+            dt.Columns.Add(nameof(view_historico_resultado.Hora), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Turno), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Orden_SAP), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.SAP_Platina), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Tipo_de_Material), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Número_de_Parte__de_cliente), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Material), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Orden_en_SAP_2), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.SAP_Platina_2), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Tipo_de_Material_platina2), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Número_de_Parte_de_Cliente_platina2), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Material_platina2), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.SAP_Rollo), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.N__de_Rollo), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Lote_de_rollo), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Etiqueta__Kg_), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_de_regreso_de_rollo_Real), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_de_rollo_usado), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Báscula_Kgs), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Pieza_por_Golpe), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Ordenes_por_pieza), typeof(double));
+            dt.Columns.Add("Lote_Material", typeof(string));
+            dt.Columns.Add("No_lote_izq", typeof(int));
+            dt.Columns.Add("No_lote_der", typeof(int));
+            dt.Columns.Add("Lote_piezas_por_paquete", typeof(int));
+            dt.Columns.Add(nameof(view_historico_resultado.Total_de_piezas_platina1), typeof(int));
+            dt.Columns.Add(nameof(view_historico_resultado.Total_de_piezas_platina2), typeof(int));
+            dt.Columns.Add(nameof(view_historico_resultado.Total_de_piezas), typeof(int));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_de_rollo_consumido), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Numero_de_golpes), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Kg_restante_de_rollo), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_despunte_kgs_), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_cola_Kgs_), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Porcentaje_de_puntas_y_colas), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Total_de_piezas_de_Ajustes_platina1), typeof(int));
+            dt.Columns.Add(nameof(view_historico_resultado.Total_de_piezas_de_Ajustes_platina2), typeof(int));
+            dt.Columns.Add(nameof(view_historico_resultado.Total_de_piezas_de_Ajustes), typeof(double));
+
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Bruto_Kgs), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Real_Pieza_Bruto), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Real_Pieza_Neto), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Scrap_Natural), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_neto_SAP), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Bruto_SAP), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Balance_de_Scrap), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_de_rollo_usado_real__Kg), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_bruto_Total_piezas_Kg), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_NetoTotal_piezas_Kg), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Neto_total_piezas_de_ajuste_Kgs), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_puntas_y_colas_reales_Kg), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Balance_de_Scrap_Real), typeof(double));
+
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Bruto_Kgs_platina2), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Real_Pieza_Bruto_platina2), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Real_Pieza_Neto_platina2), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Scrap_Natural_platina2), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_neto_SAP_platina2), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Bruto_SAP_platina2), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Balance_de_Scrap_platina2), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_de_rollo_usado_real__Kg_platina2), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_bruto_Total_piezas_Kg_platina2), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_NetoTotal_piezas_Kg_platina2), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg_platina2), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Neto_total_piezas_de_ajuste_Kgs_platina2), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_puntas_y_colas_reales_Kg_platina2), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Balance_de_Scrap_Real_platina2), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Bruto_Kgs_general), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Real_Pieza_Bruto_general), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Real_Pieza_Neto_general), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Scrap_Natural_general), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_neto_SAP_general), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Bruto_SAP_general), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Balance_de_Scrap_general), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_de_rollo_usado_real__Kg_general), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_bruto_Total_piezas_Kg_general), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_NetoTotal_piezas_Kg_general), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg_general), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Neto_total_piezas_de_ajuste_Kgs_general), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_puntas_y_colas_reales_Kg_general), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Balance_de_Scrap_Real_general), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.comentario), typeof(string));
+
+
 
             //registros , rows
             foreach (view_historico_resultado item in listado)
             {
-                dt.Rows.Add(item.Planta, item.Linea, item.Operador, item.Supervisor, item.SAP_Platina, item.Tipo_de_Material, item.Número_de_Parte__de_cliente, item.SAP_Rollo, item.Material, item.Fecha,
-                    item.Turno, String.Format("{0:T}", item.Hora), item.Orden_SAP, item.Orden_en_SAP_2, item.Pieza_por_Golpe, item.N__de_Rollo, item.Lote_de_rollo, item.Peso_Etiqueta__Kg_, item.Peso_de_regreso_de_rollo_Real
-                    , item.Peso_de_rollo_usado, item.Peso_Báscula_Kgs, null, null, null, item.Total_de_piezas, item.Peso_de_rollo_consumido, item.Numero_de_golpes, item.Kg_restante_de_rollo, item.Peso_despunte_kgs_,
-                     item.Peso_cola_Kgs_, item.Porcentaje_de_puntas_y_colas, item.Total_de_piezas_de_Ajustes, item.Peso_Bruto_Kgs, item.Peso_Real_Pieza_Bruto, item.Peso_Real_Pieza_Neto, item.Scrap_Natural
-                     , item.Peso_neto_SAP, item.Peso_Bruto_SAP, item.Balance_de_Scrap, item.Ordenes_por_pieza, item.Peso_de_rollo_usado_real__Kg, item.Peso_bruto_Total_piezas_Kg, item.Peso_NetoTotal_piezas_Kg
-                     , item.Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg, item.Peso_Neto_total_piezas_de_ajuste_Kgs, item.Peso_puntas_y_colas_reales_Kg, item.Balance_de_Scrap_Real, item.comentario);
+                if (String.IsNullOrEmpty(item.SAP_Platina_2))
+                {
+                    item.Peso_Bruto_Kgs_platina2 = null;
+                    item.Peso_Real_Pieza_Bruto_platina2 = null;
+                    item.Peso_Real_Pieza_Neto_platina2 = null;
+                    item.Scrap_Natural_platina2 = null;
+                    item.Peso_neto_SAP_platina2 = null;
+                    item.Peso_Bruto_SAP_platina2 = null;
+                    item.Balance_de_Scrap_platina2 = null;
+                    item.Peso_de_rollo_usado_real__Kg_platina2 = null;
+                    item.Peso_bruto_Total_piezas_Kg_platina2 = null;
+                    item.Peso_NetoTotal_piezas_Kg_platina2 = null;
+                    item.Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg_platina2 = null;
+                    item.Peso_Neto_total_piezas_de_ajuste_Kgs_platina2 = null;
+                    item.Peso_puntas_y_colas_reales_Kg_platina2 = null;
+                    item.Balance_de_Scrap_Real_platina2 = null;
+                }
+
+                dt.Rows.Add(item.Planta, item.Linea, item.Operador, item.Supervisor, item.Fecha, String.Format("{0:T}", item.Hora), item.Turno, item.Orden_SAP, item.SAP_Platina,
+                    item.Tipo_de_Material, item.Número_de_Parte__de_cliente, item.Material, item.Orden_en_SAP_2, item.SAP_Platina_2, item.Tipo_de_Material_platina2, item.Número_de_Parte_de_Cliente_platina2,
+                    item.Material_platina2, item.SAP_Rollo, item.N__de_Rollo, item.Lote_de_rollo, item.Peso_Etiqueta__Kg_, item.Peso_de_regreso_de_rollo_Real,
+                    item.Peso_de_rollo_usado, item.Peso_Báscula_Kgs, item.Pieza_por_Golpe, item.Ordenes_por_pieza, null, null, null, null, item.Total_de_piezas_platina1, item.Total_de_piezas_platina2, item.Total_de_piezas,
+                    item.Peso_de_rollo_consumido, item.Numero_de_golpes, item.Kg_restante_de_rollo, item.Peso_despunte_kgs_, item.Peso_cola_Kgs_, item.Porcentaje_de_puntas_y_colas,
+                    item.Total_de_piezas_de_Ajustes_platina1, item.Total_de_piezas_de_Ajustes_platina2, item.Total_de_piezas_de_Ajustes,
+                    item.Peso_Bruto_Kgs, item.Peso_Real_Pieza_Bruto, item.Peso_Real_Pieza_Neto, item.Scrap_Natural, item.Peso_neto_SAP, item.Peso_Bruto_SAP, item.Balance_de_Scrap,
+                    item.Peso_de_rollo_usado_real__Kg, item.Peso_bruto_Total_piezas_Kg, item.Peso_NetoTotal_piezas_Kg, item.Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg,
+                    item.Peso_Neto_total_piezas_de_ajuste_Kgs, item.Peso_puntas_y_colas_reales_Kg, item.Balance_de_Scrap_Real,
+                    item.Peso_Bruto_Kgs_platina2, item.Peso_Real_Pieza_Bruto_platina2, item.Peso_Real_Pieza_Neto_platina2, item.Scrap_Natural_platina2, item.Peso_neto_SAP_platina2, item.Peso_Bruto_SAP_platina2, item.Balance_de_Scrap_platina2,
+                    item.Peso_de_rollo_usado_real__Kg_platina2, item.Peso_bruto_Total_piezas_Kg_platina2, item.Peso_NetoTotal_piezas_Kg_platina2, item.Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg_platina2,
+                    item.Peso_Neto_total_piezas_de_ajuste_Kgs_platina2, item.Peso_puntas_y_colas_reales_Kg_platina2, item.Balance_de_Scrap_Real_platina2,
+                    item.Peso_Bruto_Kgs_general, item.Peso_Real_Pieza_Bruto_general, item.Peso_Real_Pieza_Neto_general, item.Scrap_Natural_general, item.Peso_neto_SAP_general, item.Peso_Bruto_SAP_general, item.Balance_de_Scrap_general,
+                    item.Peso_de_rollo_usado_real__Kg_general, item.Peso_bruto_Total_piezas_Kg_general, item.Peso_NetoTotal_piezas_Kg_general, item.Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg_general,
+                    item.Peso_Neto_total_piezas_de_ajuste_Kgs_general, item.Peso_puntas_y_colas_reales_Kg_general, item.Balance_de_Scrap_Real_general,
+                    item.comentario
+                 );
 
                 filasEncabezados.Add(true);
 
@@ -126,19 +201,39 @@ namespace Portal_2_0.Models
                 //si tiene registro, agrega los lotes
                 if (p != null)
                 {
-                    foreach (produccion_lotes lote in p.produccion_lotes)
+                    foreach (produccion_lotes lote in p.produccion_lotes.Where(x => (x.sap_platina == item.SAP_Platina || x.sap_platina == item.SAP_Platina_2 || string.IsNullOrEmpty(x.sap_platina))))
                     {
-                        dt.Rows.Add(null, null, null, null, null, null, null, null, null, null,
-                      null, null, null, null, null, null, null, null, null
-                      , null, null, lote.numero_lote_izquierdo, lote.numero_lote_derecho, lote.piezas_paquete.Value, null, null, null, null, null,
-                       null, null, null, null, null, null, null
-                       , null, null, null, null, null, null, null
-                       , null, null, null, null, null);
+
+
+                        System.Data.DataRow row = dt.NewRow();
+
+                        if (!String.IsNullOrEmpty(lote.sap_platina))
+                            row["Lote_Material"] = lote.sap_platina;
+                        else
+                            row["Lote_Material"] = DBNull.Value;
+
+                        if (lote.numero_lote_izquierdo.HasValue)
+                            row["No_lote_izq"] = lote.numero_lote_izquierdo.Value;
+                        else
+                            row["No_lote_izq"] = DBNull.Value;
+
+                        if (lote.numero_lote_derecho.HasValue)
+                            row["No_lote_der"] = lote.numero_lote_derecho.Value;
+                        else
+                            row["No_lote_der"] = DBNull.Value;
+
+                        if (lote.piezas_paquete.HasValue)
+                            row["Lote_piezas_por_paquete"] = lote.piezas_paquete.Value;
+                        else
+                            row["Lote_piezas_por_paquete"] = DBNull.Value;
+
+
+                        dt.Rows.Add(row);
+
                         filasEncabezados.Add(false);
                         filasTemporales.Add(false);
                     }
                 }
-
                 //obtiene la fila final
                 int fila_final = filasEncabezados.Count + 1;
 
@@ -146,38 +241,44 @@ namespace Portal_2_0.Models
                 if (fila_inicial != fila_final)
                 {
                     oSLDocument.GroupRows(fila_inicial, fila_final - 1);
-
                 }
             }
 
             double sumaRolloUsado = listado.Sum(item => item.Peso_de_rollo_usado.HasValue ? item.Peso_de_rollo_usado.Value : 0);
             double sumaNumGolpes = listado.Sum(item => item.Numero_de_golpes.HasValue ? item.Numero_de_golpes.Value : 0);
-            double promedioBalanceScrap = listado.Average(item => item.Balance_de_Scrap.HasValue ? item.Balance_de_Scrap.Value : 0);
-            double promedioBalanceScrapReal = listado.Average(item => item.Balance_de_Scrap_Real.HasValue ? item.Balance_de_Scrap_Real.Value : 0);
+            //double promedioBalanceScrap = listado.Average(item => item.Balance_de_Scrap.HasValue ? item.Balance_de_Scrap.Value : 0);
+            //double promedioBalanceScrapReal = listado.Average(item => item.Balance_de_Scrap_Real.HasValue ? item.Balance_de_Scrap_Real.Value : 0);
+            //double promedioBalanceScrapPlatina2 = listado.Average(item => item.Balance_de_Scrap_platina2.HasValue ? item.Balance_de_Scrap_platina2.Value : 0);
+            //double promedioBalanceScrapRealPlatina2 = listado.Average(item => item.Balance_de_Scrap_Real_platina2.HasValue ? item.Balance_de_Scrap_Real_platina2.Value : 0);
+            double promedioBalanceScrapGeneral = listado.Average(item => item.Balance_de_Scrap_general.HasValue ? item.Balance_de_Scrap_general.Value : 0);
+            double promedioBalanceScrapRealGeneral = listado.Average(item => item.Balance_de_Scrap_Real_general.HasValue ? item.Balance_de_Scrap_Real_general.Value : 0);
 
             if (tipo_turno)
+            {
                 //fila para sumatorias
-                dt.Rows.Add(null, null, null, null, null, null, null, null, null, null,
-                        null, null, null, null, null, null, null, null, null
-                        , sumaRolloUsado, null, null, null, null, null, null, sumaNumGolpes, null, null,
-                         null, null, null, null, null, null, null
-                         , null, null, promedioBalanceScrap, null, null, null, null
-                         , null, null, null, promedioBalanceScrapReal, null);
+                System.Data.DataRow row = dt.NewRow();
+                row[nameof(view_historico_resultado.Peso_de_rollo_usado)] = sumaRolloUsado;
+                row[nameof(view_historico_resultado.Numero_de_golpes)] = sumaNumGolpes;
+                //row[nameof(view_historico_resultado.Balance_de_Scrap)] = promedioBalanceScrap;
+                //row[nameof(view_historico_resultado.Balance_de_Scrap_Real)] = promedioBalanceScrapReal;
+                //row[nameof(view_historico_resultado.Balance_de_Scrap_platina2)] = promedioBalanceScrapPlatina2;
+                //row[nameof(view_historico_resultado.Balance_de_Scrap_Real_platina2)] = promedioBalanceScrapRealPlatina2;
+                row[nameof(view_historico_resultado.Balance_de_Scrap_general)] = promedioBalanceScrapGeneral;
+                row[nameof(view_historico_resultado.Balance_de_Scrap_Real_general)] = promedioBalanceScrapRealGeneral;
+                dt.Rows.Add(row);
+
+            }
 
 
             //crea la hoja de FACTURAS y la selecciona
             oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Bitácora Producción");
-            oSLDocument.ImportDataTable(1, 1, dt, true);
+            oSLDocument.ImportDataTable(4, 1, dt, false); //fase omite el encabezado
 
             //estilo para ajustar al texto
             SLStyle styleWrap = oSLDocument.CreateStyle();
             styleWrap.SetWrapText(true);
             styleWrap.Alignment.Vertical = VerticalAlignmentValues.Top;
 
-            //estilo para el encabezado
-            SLStyle styleHeader = oSLDocument.CreateStyle();
-            styleHeader.Font.Bold = true;
-            styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
 
             //estilo para el encabezado de cada fila
             SLStyle styleHeaderRow = oSLDocument.CreateStyle();
@@ -186,12 +287,6 @@ namespace Portal_2_0.Models
             //estilo para el encabezado de cada fila
             SLStyle styleHeaderRowTemporal = oSLDocument.CreateStyle();
             styleHeaderRowTemporal.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffa0a2"), System.Drawing.ColorTranslator.FromHtml("#ffa0a2"));
-
-            //estilo para centrar y agrandar el texto
-            SLStyle styleEncabezado = oSLDocument.CreateStyle();
-            styleEncabezado.Alignment.Horizontal = HorizontalAlignmentValues.Center;
-            styleEncabezado.Alignment.Vertical = VerticalAlignmentValues.Top;
-            styleEncabezado.Font.FontSize = 13;
 
 
             //estilo para cada lote
@@ -214,32 +309,8 @@ namespace Portal_2_0.Models
                 styleFooter.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#c6efce"), System.Drawing.ColorTranslator.FromHtml("#c6efce"));
                 styleFooter.Font.Bold = true;
                 styleFooter.Font.FontColor = System.Drawing.ColorTranslator.FromHtml("#006100");
-                oSLDocument.SetRowStyle(filasEncabezados.Count + 1, styleFooter);
+                oSLDocument.SetCellStyle(filasEncabezados.Count + 1, 1, filasEncabezados.Count, dt.Columns.Count, styleFooter);
             }
-
-            //estilo para fecha
-            SLStyle styleShortDate = oSLDocument.CreateStyle();
-            styleShortDate.FormatCode = "yyyy/MM/dd";
-            oSLDocument.SetColumnStyle(10, styleShortDate);
-
-            //estilo para porcentanjes
-            SLStyle stylePercent = oSLDocument.CreateStyle();
-            stylePercent.FormatCode = "0.00%";
-            oSLDocument.SetColumnStyle(31, stylePercent);
-            oSLDocument.SetColumnStyle(39, stylePercent);
-            oSLDocument.SetColumnStyle(47, stylePercent);
-
-            SLStyle styleHeaderFont = oSLDocument.CreateStyle();
-            styleHeaderFont.Font.FontName = "Calibri";
-            styleHeaderFont.Font.FontSize = 11;
-            styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
-            styleHeaderFont.Font.Bold = true;
-
-            //estilo para numeros
-            SLStyle styleNumber = oSLDocument.CreateStyle();
-            styleNumber.FormatCode = "#,##0.000";
-
-            //da estilo a la hoja de excel
 
             //aplica formato a las filas de encabezado
             for (int i = 0; i < filasEncabezados.Count; i++)
@@ -248,12 +319,12 @@ namespace Portal_2_0.Models
                 {
                     oSLDocument.SetCellStyle(i + 1, 1, i + 1, dt.Columns.Count, styleHeaderRow);
                 }
-                else
+                else if (i >= 3)
                 {
-                    oSLDocument.SetCellStyle(i + 1, 22, i + 1, 24, styleLoteInfo);
+                    oSLDocument.SetCellStyle(i + 1, 27, i + 1, 30, styleLoteInfo);
                 }
                 //colapsa todas las filas
-                oSLDocument.CollapseRows(i + 1);
+                oSLDocument.CollapseRows(i + 3);
             }
 
             //Aplica formato a los temporales
@@ -266,39 +337,18 @@ namespace Portal_2_0.Models
 
             }
 
-            //da estilo a los numero
-            oSLDocument.SetColumnStyle(33, 38, styleNumber);
-            oSLDocument.SetColumnStyle(42, 46, styleNumber);
-
-            //inmoviliza el encabezado
-            oSLDocument.FreezePanes(2, 0);
+            ////inmoviliza el encabezado
+            oSLDocument.FreezePanes(3, 0);
 
 
-            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
-            oSLDocument.SetRowStyle(1, styleHeader);
-            oSLDocument.SetRowStyle(1, styleHeaderFont);
+            oSLDocument.SetRowHeight(4, filasEncabezados.Count + 1, 15.0);
 
-            oSLDocument.CollapseRows(filasEncabezados.Count + 1);
-
-            //inserta una celda al inicio
-            // insert 1 rows at row 1
-            oSLDocument.InsertRow(1, 1);
-            oSLDocument.Filter("A2", "AV2");
-            oSLDocument.SetRowHeight(2, filasEncabezados.Count + 1, 15.0);
-            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
-            oSLDocument.SetRowStyle(1, styleHeader);
-            oSLDocument.SetRowStyle(1, styleHeaderFont);
+            //inserta una celda al inicio                    
+            oSLDocument.AutoFitColumn(1, 17);
 
             //combina las celdas
-
-            oSLDocument.MergeWorksheetCells(1, 1, 1, 2);
-            oSLDocument.SetCellValue("G1", codigoDoc);
-            oSLDocument.MergeWorksheetCells(1, 3, 1, 6);
-            oSLDocument.SetCellValue("C1", "thyssenkrupp Materials de México S.A de C.V.");
+            oSLDocument.SetCellValue("J1", codigoDoc);
             oSLDocument.SetCellValue("A1", DateTime.Now.ToShortDateString());
-
-            oSLDocument.SetRowStyle(1, styleEncabezado);
-            oSLDocument.SetRowHeight(1, 32.0);
 
             //Inserta pie de página
             oSLDocument.MergeWorksheetCells(dt.Rows.Count + 6, 3, dt.Rows.Count + 6, 4);
@@ -3183,7 +3233,7 @@ namespace Portal_2_0.Models
         {
             Portal_2_0Entities db = new Portal_2_0Entities();
 
-            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_piezas_descarte.xlsx"), "Sheet1");
 
             System.Data.DataTable dt = new System.Data.DataTable();
 
@@ -3362,18 +3412,18 @@ namespace Portal_2_0.Models
                 }
 
                 //crea una fila
-                System.Data.DataRow row = dt.NewRow();
-                row["fecha"] = item.fecha;
-                row["turno"] = item.produccion_turnos.valor;
-                row["supervisor"] = item.produccion_supervisores.empleados.ConcatNombre;
-                row["operador"] = item.produccion_operadores.empleados.ConcatNombre;
-                row["inspector"] = inspectorName;
-                row["Número de parte"] = item.Class_asociado.Customer_part_number;
-                row["Número SAP rollo"] = item.sap_rollo;
-                row["Número SAP platina"] = item.sap_platina;
-                row["Lote"] = loteRollo;
-                row["Observaciones"] = comentariosInspeccion;
-                row["Total Piezas"] = item.TotalPiezasProduccion();
+                System.Data.DataRow row1 = dt.NewRow();
+                row1["fecha"] = item.fecha;
+                row1["turno"] = item.produccion_turnos.valor;
+                row1["supervisor"] = item.produccion_supervisores.empleados.ConcatNombre;
+                row1["operador"] = item.produccion_operadores.empleados.ConcatNombre;
+                row1["inspector"] = inspectorName;
+                row1["Número de parte"] = item.Class_asociado.Customer_part_number;
+                row1["Número SAP rollo"] = item.sap_rollo;
+                row1["Número SAP platina"] = item.sap_platina;
+                row1["Lote"] = loteRollo;
+                row1["Observaciones"] = comentariosInspeccion;
+                row1["Total Piezas"] = item.TotalPiezasProduccion();
 
 
                 foreach (inspeccion_categoria_fallas falla_c in listadoFallas)
@@ -3382,34 +3432,34 @@ namespace Portal_2_0.Models
                         //verifica si tiene alguna pieza de descarte falla con ese id
                         inspeccion_pieza_descarte_produccion pza_descarte = item.inspeccion_pieza_descarte_produccion.FirstOrDefault(x => x.id_falla == falla.id);
                         if (pza_descarte != null)
-                            row[falla.descripcion] = pza_descarte.cantidad;
+                            row1[falla.descripcion] = pza_descarte.cantidad;
                         else
-                            row[falla.descripcion] = DBNull.Value;
+                            row1[falla.descripcion] = DBNull.Value;
                     }
                 if (pesoNetoUnitario.HasValue)
-                    row["Peso Neto Unitario"] = pesoNetoUnitario;
+                    row1["Peso Neto Unitario"] = pesoNetoUnitario;
                 else
-                    row["Peso Neto Unitario"] = DBNull.Value;
+                    row1["Peso Neto Unitario"] = DBNull.Value;
 
-                row["Subtotal Piezas Daño Interno"] = item.NumPiezasDescarteDanoInterno();
-                row["Total de Kg NG internos"] = item.produccion_datos_entrada.TotalKgNGInterno();
+                row1["Subtotal Piezas Daño Interno"] = item.NumPiezasDescarteDanoInterno();
+                row1["Total de Kg NG internos"] = item.produccion_datos_entrada.TotalKgNGInterno();
 
                 if (totalPiezasOk.HasValue)
-                    row["Peso Total Piezas OK"] = totalPiezasOk;
+                    row1["Peso Total Piezas OK"] = totalPiezasOk;
                 else
-                    row["Peso Total Piezas OK"] = DBNull.Value;
+                    row1["Peso Total Piezas OK"] = DBNull.Value;
 
                 if (pesoPuntas.HasValue)
-                    row["Peso Puntas"] = pesoPuntas;
+                    row1["Peso Puntas"] = pesoPuntas;
                 else
-                    row["Peso Puntas"] = DBNull.Value;
+                    row1["Peso Puntas"] = DBNull.Value;
 
                 if (pesoColas.HasValue)
-                    row["Peso Colas"] = pesoColas;
+                    row1["Peso Colas"] = pesoColas;
                 else
-                    row["Peso Colas"] = DBNull.Value;
+                    row1["Peso Colas"] = DBNull.Value;
 
-                dt.Rows.Add(row);
+                dt.Rows.Add(row1);
             }
 
 
@@ -3525,70 +3575,153 @@ namespace Portal_2_0.Models
 
             //para llevar el control de si es encabezado o no
             List<bool> filasEncabezados = new List<bool>();
+            List<bool> filasTemporales = new List<bool>();
+            //agrega tres para el encabezadoprincipal
             filasEncabezados.Add(false); //es el encabezado principal
+            filasTemporales.Add(false);
+            filasEncabezados.Add(false); //es el encabezado principal
+            filasTemporales.Add(false);
+            filasEncabezados.Add(false); //es el encabezado principal
+            filasTemporales.Add(false);
 
             //columnas
-            dt.Columns.Add("Planta", typeof(string));
-            dt.Columns.Add("Linea", typeof(string));
-            dt.Columns.Add("Operador", typeof(string));
-            dt.Columns.Add("Supervisor", typeof(string));
-            dt.Columns.Add("SAP Platina", typeof(string));
-            dt.Columns.Add("Tipo de Material", typeof(string));
-            dt.Columns.Add("Número Parte Cliente", typeof(string));
-            dt.Columns.Add("SAP Rollo", typeof(string));
-            dt.Columns.Add("Material", typeof(string));
-            dt.Columns.Add("Fecha", typeof(DateTime));
-            dt.Columns.Add("Turno", typeof(string));
-            dt.Columns.Add("Hora", typeof(string));
-            dt.Columns.Add("Orden SAP", typeof(string));
-            dt.Columns.Add("Orden SAP 2", typeof(string));
-            dt.Columns.Add("Pieza por Golpe", typeof(int));
-            dt.Columns.Add("Número de Rollo", typeof(string));
-            dt.Columns.Add("Lote de Rollo", typeof(string));
-            dt.Columns.Add("Peso Etiqueta (kg)", typeof(string));
-            dt.Columns.Add("Peso Regreso Rollo Real", typeof(string));
-            dt.Columns.Add("Peso Rollo Usado", typeof(double));
-            dt.Columns.Add("Peso Báscula", typeof(double));
-            dt.Columns.Add("No. Lote Izquierdo", typeof(double));
-            dt.Columns.Add("No. Lote Derecho", typeof(double));
-            dt.Columns.Add("Piezas por Paquete", typeof(double));
-            dt.Columns.Add("Total Piezas", typeof(double));
-            dt.Columns.Add("Peso de Rollo Consumido", typeof(double));
-            dt.Columns.Add("Número de Golpes", typeof(double));
-            dt.Columns.Add("Kg Restante de Rollo", typeof(double));
-            dt.Columns.Add("Peso Despunte Kgs", typeof(double));
-            dt.Columns.Add("Peso Cola Kgs", typeof(double));
-            dt.Columns.Add("% Punta y colas", typeof(double));
-            dt.Columns.Add("Total Piezas Ajuste", typeof(double));
-            dt.Columns.Add("Peso Bruto Kgs", typeof(double));
-            dt.Columns.Add("Peso Real Pieza Bruto", typeof(double));
-            dt.Columns.Add("Peso Real Pieza Neto", typeof(double));
-            dt.Columns.Add("Scrap Natural", typeof(double));
-            dt.Columns.Add("Peso Neto SAP", typeof(double));
-            dt.Columns.Add("Peso Bruto SAP", typeof(double));
-            dt.Columns.Add("Balance de Scrap", typeof(double));
-            dt.Columns.Add("Órdenes por Pieza", typeof(double));
-            dt.Columns.Add("Peso Rollo Usado Real", typeof(double));
-            dt.Columns.Add("Peso Bruto Total Piezas Kgs", typeof(double));
-            dt.Columns.Add("Peso Neto Total Piezas Kgs", typeof(double));
-            dt.Columns.Add("Scrap de Ingeniería (buenas + ajuste) Total piezas", typeof(double));
-            dt.Columns.Add("Peso Neto Total Piezas de Ajuste Kgs", typeof(double));
-            dt.Columns.Add("Peso Punta y Colas Reales kgs", typeof(double));
-            dt.Columns.Add("Balance de Scrap Real", typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Planta), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Linea), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Operador), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Supervisor), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Fecha), typeof(DateTime));
+            dt.Columns.Add(nameof(view_historico_resultado.Hora), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Turno), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Orden_SAP), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.SAP_Platina), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Tipo_de_Material), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Número_de_Parte__de_cliente), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Material), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Orden_en_SAP_2), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.SAP_Platina_2), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Tipo_de_Material_platina2), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Número_de_Parte_de_Cliente_platina2), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Material_platina2), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.SAP_Rollo), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.N__de_Rollo), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Lote_de_rollo), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Etiqueta__Kg_), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_de_regreso_de_rollo_Real), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_de_rollo_usado), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Báscula_Kgs), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Pieza_por_Golpe), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Ordenes_por_pieza), typeof(double));
+            dt.Columns.Add("Lote_Material", typeof(string));
+            dt.Columns.Add("No_lote_izq", typeof(int));
+            dt.Columns.Add("No_lote_der", typeof(int));
+            dt.Columns.Add("Lote_piezas_por_paquete", typeof(int));
+            dt.Columns.Add(nameof(view_historico_resultado.Total_de_piezas_platina1), typeof(int));
+            dt.Columns.Add(nameof(view_historico_resultado.Total_de_piezas_platina2), typeof(int));
+            dt.Columns.Add(nameof(view_historico_resultado.Total_de_piezas), typeof(int));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_de_rollo_consumido), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Numero_de_golpes), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Kg_restante_de_rollo), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_despunte_kgs_), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_cola_Kgs_), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Porcentaje_de_puntas_y_colas), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Total_de_piezas_de_Ajustes_platina1), typeof(int));
+            dt.Columns.Add(nameof(view_historico_resultado.Total_de_piezas_de_Ajustes_platina2), typeof(int));
+            dt.Columns.Add(nameof(view_historico_resultado.Total_de_piezas_de_Ajustes), typeof(double));
+
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Bruto_Kgs), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Real_Pieza_Bruto), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Real_Pieza_Neto), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Scrap_Natural), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_neto_SAP), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Bruto_SAP), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Balance_de_Scrap), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_de_rollo_usado_real__Kg), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_bruto_Total_piezas_Kg), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_NetoTotal_piezas_Kg), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Neto_total_piezas_de_ajuste_Kgs), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_puntas_y_colas_reales_Kg), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Balance_de_Scrap_Real), typeof(double));
+
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Bruto_Kgs_platina2), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Real_Pieza_Bruto_platina2), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Real_Pieza_Neto_platina2), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Scrap_Natural_platina2), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_neto_SAP_platina2), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Bruto_SAP_platina2), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Balance_de_Scrap_platina2), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_de_rollo_usado_real__Kg_platina2), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_bruto_Total_piezas_Kg_platina2), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_NetoTotal_piezas_Kg_platina2), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg_platina2), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Neto_total_piezas_de_ajuste_Kgs_platina2), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_puntas_y_colas_reales_Kg_platina2), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Balance_de_Scrap_Real_platina2), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Bruto_Kgs_general), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Real_Pieza_Bruto_general), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Real_Pieza_Neto_general), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Scrap_Natural_general), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_neto_SAP_general), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Bruto_SAP_general), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Balance_de_Scrap_general), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_de_rollo_usado_real__Kg_general), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_bruto_Total_piezas_Kg_general), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_NetoTotal_piezas_Kg_general), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg_general), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_Neto_total_piezas_de_ajuste_Kgs_general), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Peso_puntas_y_colas_reales_Kg_general), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.Balance_de_Scrap_Real_general), typeof(double));
+            dt.Columns.Add(nameof(view_historico_resultado.comentario), typeof(string));
+
 
 
 
             //registros , rows
             foreach (view_historico_resultado item in listadoHistorico)
             {
-                dt.Rows.Add(item.Planta, item.Linea, item.Operador, item.Supervisor, item.SAP_Platina, item.Tipo_de_Material, item.Número_de_Parte__de_cliente, item.SAP_Rollo, item.Material, item.Fecha,
-                    item.Turno, String.Format("{0:T}", item.Hora), item.Orden_SAP, item.Orden_en_SAP_2, item.Pieza_por_Golpe, item.N__de_Rollo, item.Lote_de_rollo, item.Peso_Etiqueta__Kg_, item.Peso_de_regreso_de_rollo_Real
-                    , item.Peso_de_rollo_usado, item.Peso_Báscula_Kgs, null, null, null, item.Total_de_piezas, item.Peso_de_rollo_consumido, item.Numero_de_golpes, item.Kg_restante_de_rollo, item.Peso_despunte_kgs_,
-                     item.Peso_cola_Kgs_, item.Porcentaje_de_puntas_y_colas, item.Total_de_piezas_de_Ajustes, item.Peso_Bruto_Kgs, item.Peso_Real_Pieza_Bruto, item.Peso_Real_Pieza_Neto, item.Scrap_Natural
-                     , item.Peso_neto_SAP, item.Peso_Bruto_SAP, item.Balance_de_Scrap, item.Ordenes_por_pieza, item.Peso_de_rollo_usado_real__Kg, item.Peso_bruto_Total_piezas_Kg, item.Peso_NetoTotal_piezas_Kg
-                     , item.Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg, item.Peso_Neto_total_piezas_de_ajuste_Kgs, item.Peso_puntas_y_colas_reales_Kg, item.Balance_de_Scrap_Real);
+                if (String.IsNullOrEmpty(item.SAP_Platina_2))
+                {
+                    item.Peso_Bruto_Kgs_platina2 = null;
+                    item.Peso_Real_Pieza_Bruto_platina2 = null;
+                    item.Peso_Real_Pieza_Neto_platina2 = null;
+                    item.Scrap_Natural_platina2 = null;
+                    item.Peso_neto_SAP_platina2 = null;
+                    item.Peso_Bruto_SAP_platina2 = null;
+                    item.Balance_de_Scrap_platina2 = null;
+                    item.Peso_de_rollo_usado_real__Kg_platina2 = null;
+                    item.Peso_bruto_Total_piezas_Kg_platina2 = null;
+                    item.Peso_NetoTotal_piezas_Kg_platina2 = null;
+                    item.Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg_platina2 = null;
+                    item.Peso_Neto_total_piezas_de_ajuste_Kgs_platina2 = null;
+                    item.Peso_puntas_y_colas_reales_Kg_platina2 = null;
+                    item.Balance_de_Scrap_Real_platina2 = null;
+                }
+
+                dt.Rows.Add(item.Planta, item.Linea, item.Operador, item.Supervisor, item.Fecha, String.Format("{0:T}", item.Hora), item.Turno, item.Orden_SAP, item.SAP_Platina,
+                    item.Tipo_de_Material, item.Número_de_Parte__de_cliente, item.Material, item.Orden_en_SAP_2, item.SAP_Platina_2, item.Tipo_de_Material_platina2, item.Número_de_Parte_de_Cliente_platina2,
+                    item.Material_platina2, item.SAP_Rollo, item.N__de_Rollo, item.Lote_de_rollo, item.Peso_Etiqueta__Kg_, item.Peso_de_regreso_de_rollo_Real,
+                    item.Peso_de_rollo_usado, item.Peso_Báscula_Kgs, item.Pieza_por_Golpe, item.Ordenes_por_pieza, null, null, null, null, item.Total_de_piezas_platina1, item.Total_de_piezas_platina2, item.Total_de_piezas,
+                    item.Peso_de_rollo_consumido, item.Numero_de_golpes, item.Kg_restante_de_rollo, item.Peso_despunte_kgs_, item.Peso_cola_Kgs_, item.Porcentaje_de_puntas_y_colas,
+                    item.Total_de_piezas_de_Ajustes_platina1, item.Total_de_piezas_de_Ajustes_platina2, item.Total_de_piezas_de_Ajustes,
+                    item.Peso_Bruto_Kgs, item.Peso_Real_Pieza_Bruto, item.Peso_Real_Pieza_Neto, item.Scrap_Natural, item.Peso_neto_SAP, item.Peso_Bruto_SAP, item.Balance_de_Scrap,
+                    item.Peso_de_rollo_usado_real__Kg, item.Peso_bruto_Total_piezas_Kg, item.Peso_NetoTotal_piezas_Kg, item.Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg,
+                    item.Peso_Neto_total_piezas_de_ajuste_Kgs, item.Peso_puntas_y_colas_reales_Kg, item.Balance_de_Scrap_Real,
+                    item.Peso_Bruto_Kgs_platina2, item.Peso_Real_Pieza_Bruto_platina2, item.Peso_Real_Pieza_Neto_platina2, item.Scrap_Natural_platina2, item.Peso_neto_SAP_platina2, item.Peso_Bruto_SAP_platina2, item.Balance_de_Scrap_platina2,
+                    item.Peso_de_rollo_usado_real__Kg_platina2, item.Peso_bruto_Total_piezas_Kg_platina2, item.Peso_NetoTotal_piezas_Kg_platina2, item.Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg_platina2,
+                    item.Peso_Neto_total_piezas_de_ajuste_Kgs_platina2, item.Peso_puntas_y_colas_reales_Kg_platina2, item.Balance_de_Scrap_Real_platina2,
+                    item.Peso_Bruto_Kgs_general, item.Peso_Real_Pieza_Bruto_general, item.Peso_Real_Pieza_Neto_general, item.Scrap_Natural_general, item.Peso_neto_SAP_general, item.Peso_Bruto_SAP_general, item.Balance_de_Scrap_general,
+                    item.Peso_de_rollo_usado_real__Kg_general, item.Peso_bruto_Total_piezas_Kg_general, item.Peso_NetoTotal_piezas_Kg_general, item.Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg_general,
+                    item.Peso_Neto_total_piezas_de_ajuste_Kgs_general, item.Peso_puntas_y_colas_reales_Kg_general, item.Balance_de_Scrap_Real_general,
+                    item.comentario
+                 );
 
                 filasEncabezados.Add(true);
+
+                //verifica es una fila temporal
+                if (item.SAP_Platina.ToUpper().Contains("TEMPORAL") || item.SAP_Rollo.ToUpper().Contains("TEMPORAL"))
+                    filasTemporales.Add(true);
+                else
+                    filasTemporales.Add(false);
 
                 produccion_registros p = null;
                 //busca si tiene registro en el nuevo sistema
@@ -3601,18 +3734,39 @@ namespace Portal_2_0.Models
                 //si tiene registro, agrega los lotes
                 if (p != null)
                 {
-                    foreach (produccion_lotes lote in p.produccion_lotes)
+                    foreach (produccion_lotes lote in p.produccion_lotes.Where(x => (x.sap_platina == item.SAP_Platina || x.sap_platina == item.SAP_Platina_2 || string.IsNullOrEmpty(x.sap_platina))))
                     {
-                        dt.Rows.Add(null, null, null, null, null, null, null, null, null, null,
-                      null, null, null, null, null, null, null, null, null
-                      , null, null, lote.numero_lote_izquierdo, lote.numero_lote_derecho, lote.piezas_paquete.Value, null, null, null, null, null,
-                       null, null, null, null, null, null, null
-                       , null, null, null, null, null, null, null
-                       , null, null, null, null);
+
+
+                        System.Data.DataRow row1 = dt.NewRow();
+
+                        if (!String.IsNullOrEmpty(lote.sap_platina))
+                            row1["Lote_Material"] = lote.sap_platina;
+                        else
+                            row1["Lote_Material"] = DBNull.Value;
+
+                        if (lote.numero_lote_izquierdo.HasValue)
+                            row1["No_lote_izq"] = lote.numero_lote_izquierdo.Value;
+                        else
+                            row1["No_lote_izq"] = DBNull.Value;
+
+                        if (lote.numero_lote_derecho.HasValue)
+                            row1["No_lote_der"] = lote.numero_lote_derecho.Value;
+                        else
+                            row1["No_lote_der"] = DBNull.Value;
+
+                        if (lote.piezas_paquete.HasValue)
+                            row1["Lote_piezas_por_paquete"] = lote.piezas_paquete.Value;
+                        else
+                            row1["Lote_piezas_por_paquete"] = DBNull.Value;
+
+
+                        dt.Rows.Add(row1);
+
                         filasEncabezados.Add(false);
+                        filasTemporales.Add(false);
                     }
                 }
-
                 //obtiene la fila final
                 int fila_final = filasEncabezados.Count + 1;
 
@@ -3620,30 +3774,40 @@ namespace Portal_2_0.Models
                 if (fila_inicial != fila_final)
                 {
                     oSLDocument.GroupRows(fila_inicial, fila_final - 1);
-
                 }
             }
 
             double sumaRolloUsado = listadoHistorico.Sum(item => item.Peso_de_rollo_usado.HasValue ? item.Peso_de_rollo_usado.Value : 0);
             double sumaNumGolpes = listadoHistorico.Sum(item => item.Numero_de_golpes.HasValue ? item.Numero_de_golpes.Value : 0);
-            double promedioBalanceScrap = listadoHistorico.Average(item => item.Balance_de_Scrap.HasValue ? item.Balance_de_Scrap.Value : 0);
-            double promedioBalanceScrapReal = listadoHistorico.Average(item => item.Balance_de_Scrap_Real.HasValue ? item.Balance_de_Scrap_Real.Value : 0);
-            double sumaPesoCola = listadoHistorico.Sum(item => item.Peso_cola_Kgs_.HasValue ? item.Peso_cola_Kgs_.Value : 0);
-            double sumaPesoDespunte = listadoHistorico.Sum(item => item.Peso_despunte_kgs_.HasValue ? item.Peso_despunte_kgs_.Value : 0);
+            //double promedioBalanceScrap = listado.Average(item => item.Balance_de_Scrap.HasValue ? item.Balance_de_Scrap.Value : 0);
+            //double promedioBalanceScrapReal = listado.Average(item => item.Balance_de_Scrap_Real.HasValue ? item.Balance_de_Scrap_Real.Value : 0);
+            //double promedioBalanceScrapPlatina2 = listado.Average(item => item.Balance_de_Scrap_platina2.HasValue ? item.Balance_de_Scrap_platina2.Value : 0);
+            //double promedioBalanceScrapRealPlatina2 = listado.Average(item => item.Balance_de_Scrap_Real_platina2.HasValue ? item.Balance_de_Scrap_Real_platina2.Value : 0);
+            double promedioBalanceScrapGeneral = listadoHistorico.Average(item => item.Balance_de_Scrap_general.HasValue ? item.Balance_de_Scrap_general.Value : 0);
+            double promedioBalanceScrapRealGeneral = listadoHistorico.Average(item => item.Balance_de_Scrap_Real_general.HasValue ? item.Balance_de_Scrap_Real_general.Value : 0);
 
             //fila para sumatorias
-            dt.Rows.Add(null, null, null, null, null, null, null, null, null, null,
-                    null, null, null, null, null, null, null, null, null
-                    , sumaRolloUsado, null, null, null, null, null, null, sumaNumGolpes, null, sumaPesoDespunte, sumaPesoCola,
-                      null, null, null, null, null, null
-                     , null, null, promedioBalanceScrap, null, null, null, null
-                     , null, null, null, promedioBalanceScrapReal);
+            System.Data.DataRow row = dt.NewRow();
+            row[nameof(view_historico_resultado.Peso_de_rollo_usado)] = sumaRolloUsado;
+            row[nameof(view_historico_resultado.Numero_de_golpes)] = sumaNumGolpes;
+            //row[nameof(view_historico_resultado.Balance_de_Scrap)] = promedioBalanceScrap;
+            //row[nameof(view_historico_resultado.Balance_de_Scrap_Real)] = promedioBalanceScrapReal;
+            //row[nameof(view_historico_resultado.Balance_de_Scrap_platina2)] = promedioBalanceScrapPlatina2;
+            //row[nameof(view_historico_resultado.Balance_de_Scrap_Real_platina2)] = promedioBalanceScrapRealPlatina2;
+            row[nameof(view_historico_resultado.Balance_de_Scrap_general)] = promedioBalanceScrapGeneral;
+            row[nameof(view_historico_resultado.Balance_de_Scrap_Real_general)] = promedioBalanceScrapRealGeneral;
+            dt.Rows.Add(row);
 
-            oSLDocument.ImportDataTable(1, 1, dt, true);
+            oSLDocument.ImportDataTable(4, 1, dt, false); //fase omite el encabezado
 
             //estilo para el encabezado de cada fila
             SLStyle styleHeaderRow = oSLDocument.CreateStyle();
             styleHeaderRow.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#daeef3"), System.Drawing.ColorTranslator.FromHtml("#daeef3"));
+
+            //estilo para el encabezado de cada fila
+            SLStyle styleHeaderRowTemporal = oSLDocument.CreateStyle();
+            styleHeaderRowTemporal.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffa0a2"), System.Drawing.ColorTranslator.FromHtml("#ffa0a2"));
+
 
             //estilo para cada lote
             SLStyle styleLoteInfo = oSLDocument.CreateStyle();
@@ -3658,62 +3822,44 @@ namespace Portal_2_0.Models
             styleLoteInfo.Border.RightBorder.Color = System.Drawing.Color.LightGray;
 
 
-            //estilo para sumatorias
 
             SLStyle styleFooter = oSLDocument.CreateStyle();
             styleFooter.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#c6efce"), System.Drawing.ColorTranslator.FromHtml("#c6efce"));
             styleFooter.Font.Bold = true;
             styleFooter.Font.FontColor = System.Drawing.ColorTranslator.FromHtml("#006100");
-            oSLDocument.SetRowStyle(filasEncabezados.Count + 1, styleFooter);
-
-            //estilo para fecha
-
-            oSLDocument.SetColumnStyle(10, styleShortDate);
-
-            //estilo para porcentanjes
-            SLStyle stylePercent = oSLDocument.CreateStyle();
-            stylePercent.FormatCode = "0.00%";
-            oSLDocument.SetColumnStyle(31, stylePercent);
-            oSLDocument.SetColumnStyle(39, stylePercent);
-            oSLDocument.SetColumnStyle(47, stylePercent);
-
-            //da estilo a la hoja de excel
+            oSLDocument.SetCellStyle(filasEncabezados.Count + 1, 1, filasEncabezados.Count, dt.Columns.Count, styleFooter);
 
             //aplica formato a las filas de encabezado
             for (int i = 0; i < filasEncabezados.Count; i++)
             {
                 if (filasEncabezados[i])
                 {
-                    oSLDocument.SetRowStyle(i + 1, styleHeaderRow);
+                    oSLDocument.SetCellStyle(i + 1, 1, i + 1, dt.Columns.Count, styleHeaderRow);
                 }
-                else
+                else if (i >= 3)
                 {
-                    oSLDocument.SetCellStyle(i + 1, 22, i + 1, 24, styleLoteInfo);
+                    oSLDocument.SetCellStyle(i + 1, 27, i + 1, 30, styleLoteInfo);
                 }
                 //colapsa todas las filas
-                oSLDocument.CollapseRows(i + 1);
+                oSLDocument.CollapseRows(i + 3);
             }
 
-            styleHeaderFont.Alignment.TextRotation = 0;
+            //Aplica formato a los temporales
+            for (int i = 0; i < filasTemporales.Count; i++)
+            {
+                if (filasTemporales[i])
+                {
+                    oSLDocument.SetCellStyle(i + 1, 1, i + 1, dt.Columns.Count, styleHeaderRowTemporal);
+                }
 
-            //da estilo a los numero
-            oSLDocument.SetColumnStyle(33, 38, styleNumber);
-            oSLDocument.SetColumnStyle(42, 46, styleNumber);
+            }
 
-            //inmoviliza el encabezado
-            oSLDocument.FreezePanes(1, 0);
+            ////inmoviliza el encabezado
+            oSLDocument.FreezePanes(3, 0);
+            oSLDocument.SetRowHeight(4, filasEncabezados.Count + 1, 15.0);
 
-            oSLDocument.Filter("A1", "AU1");
-            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
-
-            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
-            oSLDocument.SetRowStyle(1, styleHeader);
-            oSLDocument.SetRowStyle(1, styleHeaderFont);
-
-
-            oSLDocument.CollapseRows(filasEncabezados.Count + 1);
-
-            oSLDocument.SetRowHeight(1, filasEncabezados.Count + 1, 15.0);
+            //inserta una celda al inicio                    
+            oSLDocument.AutoFitColumn(1, 17);
 
             oSLDocument.SelectWorksheet(hojaReportePorDia);
 

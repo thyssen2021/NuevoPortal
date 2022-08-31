@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Foolproof;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -15,11 +16,12 @@ namespace Portal_2_0.Models
         public Nullable<double> peso_real_pieza_neto { get; set; }
 
         [Required(ErrorMessage = "El campo Orden SAP es requerido", AllowEmptyStrings = false)]
-        [StringLength(10, MinimumLength = 8)]
+        [StringLength(8, MinimumLength = 8, ErrorMessage = "El campo {0}, debe tener una longitud de {1} carácteres")]
         [Display(Name = "Orden SAP")]
         public string orden_sap { get; set; }
 
-        [StringLength(10, MinimumLength = 8)]
+        [RequiredIf("tiene_segunda_platina", true, ErrorMessage = "El campo {0} es requerido")]
+        [StringLength(8, MinimumLength = 8, ErrorMessage = "El campo {0}, debe tener una longitud de {1} carácteres")]
         [Display(Name = "Orden SAP 2")]
         public string orden_sap_2 { get; set; }
         [Display(Name = "Piezas por Golpe")]
@@ -60,9 +62,9 @@ namespace Portal_2_0.Models
         [Display(Name = "Peso Cola Kgs")]
         public Nullable<double> peso_cola_kgs { get; set; }
 
-        [Display(Name = "Total Pieza Ajuste")]
+        [Display(Name = "Pieza Ajuste (platina 1)")]
         //[Required(ErrorMessage = "El campo Total Piezas Ajuste es requerido")]
-        [Range(0, 1000, ErrorMessage = "Ingrese un valor positivo entre 1 y 1000")]
+        [Range(0, 1000, ErrorMessage = "Ingrese un valor positivo entre 0 y 1000")]
         public Nullable<int> total_piezas_ajuste { get; set; }
 
         [Display(Name = "Órdenes por Pieza")]
@@ -74,8 +76,14 @@ namespace Portal_2_0.Models
         [StringLength(600)]
         public string comentarios { get; set; }
 
-        //[Display(Name = "SAP Platina 2")]
-        //public string sap_platina_2 { get; set; }
+        [RequiredIf("tiene_segunda_platina", true, ErrorMessage = "El campo {0} es requerido")]
+        [Display(Name = "Peso Real Pieza Neto (platina 2)")]   //viene de la báscula
+        public Nullable<double> peso_real_pieza_neto_platina_2 { get; set; }
+
+        [Display(Name = "Pieza Ajuste (platina 2)")]
+        [Range(0, 1000, ErrorMessage = "Ingrese un valor positivo entre 0 y 1000")]
+        public Nullable<int> total_piezas_ajuste_platina_2 { get; set; }
+
     }
 
     [MetadataType(typeof(produccion_datos_entradaMetadata))]
@@ -100,6 +108,39 @@ namespace Portal_2_0.Models
                     pesoRegresoRolloReal = this.peso_regreso_rollo_real.Value;
 
                 return pesoEtiqueta - pesoRegresoRolloReal;
+            }
+        }
+
+        //calcula el peso de rollo usado
+        [NotMapped]
+        public int TotalPiezaAjuste
+        {
+            get
+            {
+                int piezas_ajuste_platina_1 = this.total_piezas_ajuste.HasValue == true ? this.total_piezas_ajuste.Value : 0;
+                int piezas_ajuste_platina_2 = this.total_piezas_ajuste_platina_2.HasValue == true ? this.total_piezas_ajuste_platina_2.Value : 0;
+
+                return piezas_ajuste_platina_1 + piezas_ajuste_platina_2;
+            }
+        }
+
+        //Para foolproof
+        [NotMapped]
+        public bool tiene_segunda_platina
+        {
+            get
+            {
+                var p = db.produccion_registros.Find(this.id_produccion_registro);
+
+                if (p == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    return !String.IsNullOrEmpty(p.sap_platina_2);
+                }
+
             }
         }
 

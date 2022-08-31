@@ -5796,7 +5796,6 @@
     <Content Include="Scripts\Forms\PFA_create.js" />
     <Content Include="Scripts\Forms\PFA_edit.js" />
     <Content Include="Scripts\Forms\PolizasModeloCreateEdit.js" />
-    <Content Include="Scripts\Forms\ProduccionRegistrosCreate.js" />
     <Content Include="Scripts\Forms\ProduccionRegistrosEdit.js" />
     <Content Include="Scripts\Forms\ProduccionRegistrosIndex.js" />
     <Content Include="Scripts\Forms\puestos.js" />

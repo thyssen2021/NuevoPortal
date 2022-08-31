@@ -157,7 +157,7 @@ namespace Portal_2_0.Controllers
             listado.Insert(0, new produccion_lineas
             {
                 id = 0,
-                linea = "-- Seleccione un valor --"
+                linea = "-- Todas --"
             });
 
             //inicializa la lista de objetos

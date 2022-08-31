@@ -23,7 +23,9 @@
     <!-- Custom Theme Style -->
     <link href="@Url.Content("~/Content/build/css/custom.css")" rel="stylesheet">
 
-    @if (@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":9040"))
+    @if (!@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":9010")
+        && !@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":localhost")
+        )
     {
         <!-- Toastr -->
         <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.css" rel="stylesheet">
@@ -53,7 +55,7 @@
         }
 
         .text-thyssen-color {
-            color: #009ff5
+            color: #009ff7
         }
 
         .tooltip {
@@ -64,6 +66,22 @@
             color: azure;
         }
     </style>
+
+    @if (!@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":9010")
+     && !@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains("localhost")
+     )
+    {
+        <style>
+            .nav_menu {
+                float: left;
+                background: #fa4b10;
+                border-bottom: 1px solid #0073b0;
+                margin-bottom: 10px;
+                width: 100%;
+                position: relative;
+            }
+        </style>
+    }
 
     @RenderSection("estilos", required: false)
 
@@ -599,7 +617,6 @@
             </div>
 
             <!-- top navigation -->
-
             @Html.Partial("_LoginPartial")
 
             <!-- /top navigation -->

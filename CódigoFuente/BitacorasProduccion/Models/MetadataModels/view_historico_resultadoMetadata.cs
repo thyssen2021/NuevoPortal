@@ -93,7 +93,7 @@ namespace Portal_2_0.Models
         [Display(Name = "Total Piezas Ajuste")]
         public Nullable<double> Total_de_piezas_de_Ajustes { get; set; }
 
-        [Display(Name = "Peso Bruto kgs")]
+        [Display(Name = "Peso Bruto kgs (Piezas Ajuste - Platina 1)")]
         public Nullable<double> Peso_Bruto_Kgs { get; set; }
 
         [Display(Name = "Peso Real Pieza Bruto")]
@@ -123,7 +123,7 @@ namespace Portal_2_0.Models
         [Display(Name = "Año")]
         public Nullable<int> Anio { get; set; }
 
-        [Display(Name = "id_produccion_registro")]
+        [Display(Name = "Id")]
         public Nullable<double> Column40 { get; set; }
 
         [Display(Name = "Órdenes por piezas")]
@@ -150,6 +150,116 @@ namespace Portal_2_0.Models
         [Display(Name = "Balance de Scrap Real")]
         public Nullable<double> Balance_de_Scrap_Real { get; set; }
         public string comentario { get; set; }
+
+        [Display(Name = "SAP Platina 2")]
+        public string SAP_Platina_2 { get; set; }
+
+        //nuevos campos
+        [Display(Name = "Tipo de Material (platina 2)")]
+        public string Tipo_de_Material_platina2 { get; set; }
+
+        [Display(Name = "Número de Parte Cliente (platina 2)")]
+        public string Número_de_Parte_de_Cliente_platina2 { get; set; }
+
+        [Display(Name = "Material (platina 2)")]
+        public string Material_platina2 { get; set; }
+
+        [Display(Name = "Total Piezas Platina 1")]
+        public Nullable<int> Total_de_piezas_platina1 { get; set; }
+
+        [Display(Name = "Total Piezas Platina 2")]
+        public Nullable<int> Total_de_piezas_platina2 { get; set; }
+
+        [Display(Name = "Total Piezas Ajuste (Platina 1)")]
+        public Nullable<int> Total_de_piezas_de_Ajustes_platina1 { get; set; }
+
+        [Display(Name = "Total Piezas Ajuste (Platina 2)")]
+        public Nullable<int> Total_de_piezas_de_Ajustes_platina2 { get; set; }
+
+        [Display(Name = "Peso Bruto kgs (Piezas Ajuste - Platina 2)")]
+        public Nullable<double> Peso_Bruto_Kgs_platina2 { get; set; }
+
+        [Display(Name = "Peso Real Pieza Bruto (Platina 2)")]
+        public Nullable<double> Peso_Real_Pieza_Bruto_platina2 { get; set; }
+
+        [Display(Name = "Peso Real Pieza Neto (Platina 2)")]
+        public Nullable<double> Peso_Real_Pieza_Neto_platina2 { get; set; }
+
+        [Display(Name = "Scrap Natural (Platina 2)")]
+        public Nullable<double> Scrap_Natural_platina2 { get; set; }
+
+        [Display(Name = "Peso Neto SAP (Platina 2)")]
+        public Nullable<double> Peso_neto_SAP_platina2 { get; set; }
+
+        [Display(Name = "Peso Bruto SAP (Platina 2)")]
+        public Nullable<double> Peso_Bruto_SAP_platina2 { get; set; }
+
+        [Display(Name = "Balance de Scrap (Platina 2)")]
+        public Nullable<double> Balance_de_Scrap_platina2 { get; set; }
+
+        [Display(Name = "Peso de Rollo Usado Real (Platina 2)")]
+        public Nullable<double> Peso_de_rollo_usado_real__Kg_platina2 { get; set; }
+
+        [Display(Name = "Peso Bruto Total Piezas Kg (Platina 2)")]
+        public Nullable<double> Peso_bruto_Total_piezas_Kg_platina2 { get; set; }
+
+        [Display(Name = "Peso Neto Total Piezas (Platina 2)")]
+        public Nullable<double> Peso_NetoTotal_piezas_Kg_platina2 { get; set; }
+
+        [Display(Name = "Scrap de Ingieniería (buenas + ajuste) Total Piezas (Platina 2)")]
+        public Nullable<double> Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg_platina2 { get; set; }
+
+        [Display(Name = "Peso Neto Total Piezas de Ajuste Kgs (Platina 2)")]
+        public Nullable<double> Peso_Neto_total_piezas_de_ajuste_Kgs_platina2 { get; set; }
+
+        [Display(Name = "Peso Punta y Colas Reales Kgs (Platina 2)")]
+        public Nullable<double> Peso_puntas_y_colas_reales_Kg_platina2 { get; set; }
+
+        [Display(Name = "Balance de Scrap Real (Platina 2)")]
+        public Nullable<double> Balance_de_Scrap_Real_platina2 { get; set; }
+
+        [Display(Name = "Peso Bruto kgs (Piezas Ajuste - General)")]
+        public Nullable<double> Peso_Bruto_Kgs_general { get; set; }
+
+        [Display(Name = "Peso Real Pieza Bruto (General)")]
+        public Nullable<double> Peso_Real_Pieza_Bruto_general { get; set; }
+
+        [Display(Name = "Peso Real Pieza Neto (General)")]
+        public Nullable<double> Peso_Real_Pieza_Neto_general { get; set; }
+
+        [Display(Name = "Scrap Natural (General)")]
+        public Nullable<double> Scrap_Natural_general { get; set; }
+
+        [Display(Name = "Peso Neto SAP (General)")]
+        public Nullable<double> Peso_neto_SAP_general { get; set; }
+
+        [Display(Name = "Peso Bruto SAP (General)")]
+        public Nullable<double> Peso_Bruto_SAP_general { get; set; }
+
+        [Display(Name = "Balance de Scrap (General)")]
+        public Nullable<double> Balance_de_Scrap_general { get; set; }
+
+        [Display(Name = "Peso de Rollo Usado Real (General)")]
+        public Nullable<double> Peso_de_rollo_usado_real__Kg_general { get; set; }
+
+        [Display(Name = "Peso Bruto Total Piezas Kg (General)")]
+        public Nullable<double> Peso_bruto_Total_piezas_Kg_general { get; set; }
+
+        [Display(Name = "Peso Neto Total Piezas (General)")]
+        public Nullable<double> Peso_NetoTotal_piezas_Kg_general { get; set; }
+
+        [Display(Name = "Scrap de Ingieniería (buenas + ajuste) Total Piezas (General)")]
+        public Nullable<double> Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg_general { get; set; }
+
+        [Display(Name = "Peso Neto Total Piezas de Ajuste Kgs (General)")]
+        public Nullable<double> Peso_Neto_total_piezas_de_ajuste_Kgs_general { get; set; }
+
+        [Display(Name = "Peso Punta y Colas Reales Kgs (General)")]
+        public Nullable<double> Peso_puntas_y_colas_reales_Kg_general { get; set; }
+
+        [Display(Name = "Balance de Scrap Real (General)")]
+        public Nullable<double> Balance_de_Scrap_Real_general { get; set; }
+
     }
 
     [MetadataType(typeof(view_historico_resultadoMetadata))]
