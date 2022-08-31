@@ -12,27 +12,19 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class IATF_revisiones
+    public partial class IT_mantenimientos_checklist_categorias
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public IATF_revisiones()
+        public IT_mantenimientos_checklist_categorias()
         {
-            this.IT_asignacion_hardware = new HashSet<IT_asignacion_hardware>();
-            this.IT_mantenimientos = new HashSet<IT_mantenimientos>();
+            this.IT_mantenimientos_checklist_item = new HashSet<IT_mantenimientos_checklist_item>();
         }
     
         public int id { get; set; }
-        public int id_iatf_documento { get; set; }
-        public int numero_revision { get; set; }
-        public string responsable { get; set; }
-        public System.DateTime fecha_revision { get; set; }
         public string descripcion { get; set; }
-        public string puesto_responsable { get; set; }
+        public bool activo { get; set; }
     
-        public virtual IATF_documentos IATF_documentos { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IT_asignacion_hardware> IT_asignacion_hardware { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IT_mantenimientos> IT_mantenimientos { get; set; }
+        public virtual ICollection<IT_mantenimientos_checklist_item> IT_mantenimientos_checklist_item { get; set; }
     }
 }

@@ -189,6 +189,19 @@
                                                     <li class="@(ViewBag.SegundoNivel == "it_asignacion_hardware" ? "current-page" : null )"><a href="@Url.Action("index", "it_asignacion_hardware")">Asignaci&oacute;n a Usuarios</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "it_asignacion_hardware_responsivas" ? "current-page" : null )"><a href="@Url.Action("responsivas", "it_asignacion_hardware")">Responsivas</a></li>
                                                 }
+                                                @if (User.IsInRole(TipoRoles.IT_MANTENIMIENTO_REGISTRO))
+                                                {
+
+                                                    <h3>Mantenimientos</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "it_mantenimientos" ? "current-page" : null )"><a href="@Url.Action("index", "it_mantenimientos")">Listado de Mantenimientos</a></li>
+                                                    <li class="link @(ViewBag.SegundoNivel == "it_mantenimientos_catalogos" ? "active" : null )">
+                                                        <a>Cat&aacute;logos Manto. <span class="fa fa-chevron-down"></span></a>
+                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "it_mantenimientos_catalogos" ? "display:block" : null )">
+                                                            <li class="@(ViewBag.TercelNivel == "IT_mantenimientos_checklist_categorias" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_mantenimientos_checklist_categorias")">Categor&iacute;as</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "IT_mantenimientos_checklist_item" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_mantenimientos_checklist_item")">Actividades </a></li>
+                                                        </ul>
+                                                    </li>
+                                                }
                                             </ul>
                                         </li>
                                     }

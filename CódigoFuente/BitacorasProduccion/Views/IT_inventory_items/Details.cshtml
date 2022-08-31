@@ -35,6 +35,10 @@
         .fondo-gris {
             background-color: #f2f2f2;
         }
+
+        .fondo-rojo {
+            background-color: #ffc8c8;
+        }
     </style>
 }
 
@@ -532,6 +536,104 @@
                         </div>
                     </div>
                 </div>
+
+                @*HISTORIAL DE MANTENIMIENTOS*@
+                @if (Model.IT_mantenimientos.Count > 0)
+                {
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>Historial de Mantenimientos</h2>
+                            <ul class="nav navbar-right panel_toolbox">
+                                @*Utilizado para mover a la derecha los iconos del card*@
+                                <span style="visibility:hidden">_______</span>
+                                <li>
+                                    <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="card-box ">
+
+                                        <div class="form-group row">
+                                            @{ c = 1;}
+
+
+                                            <table id="datatable_2" class="table datatable table-bordered" cellspacing="0" width="100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th width="1%">Acciones</th>
+                                                        <th>Fecha Programada</th>
+                                                        <th>Fecha Realizaci&oacute;n</th>
+                                                        <th>Estatus</th>
+                                                        <th>Realizó</th>
+                                                        <th>Firma Aceptaci&oacute;n</th>
+                                                        <th>Documento</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var item in Model.IT_mantenimientos.OrderByDescending(x => x.fecha_programada))
+                                                    {
+                                                        <tr class="@(item.estatus == Bitacoras.Util.IT_matenimiento_Estatus.REALIZADO ? "fondo-verde"
+                                                            : item.estatus == Bitacoras.Util.IT_matenimiento_Estatus.PROXIMO ? "fondo-amarillo"
+                                                            : item.estatus == Bitacoras.Util.IT_matenimiento_Estatus.VENCIDO ? "fondo-rojo"
+                                                            : String.Empty
+                                                            )">
+                                                            <td>
+                                                                <a style="color:white" onclick="mostrarDetallesMantenimiento(@item.id); return false;" class="btn btn-secondary btn-sm" title="Detalles">
+                                                                    <i class="fa-solid fa-circle-info"></i>
+                                                                </a>
+                                                            </td>
+                                                            <td>
+                                                                @(item.fecha_programada_texto.ToUpper())
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.fecha_realizacion)
+                                                            </td>
+                                                            <td>
+                                                                @Bitacoras.Util.IT_matenimiento_Estatus.DescripcionStatus(item.estatus)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.empleados1.ConcatNombre)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.empleados.ConcatNombre)
+                                                            </td>
+                                                            <td>
+                                                                @if (item.id_biblioteca_digital.HasValue)
+                                                                {
+                                                                    <a href="@Url.Action("DownloadFile", "Combos", new { idDocumento = item.id_biblioteca_digital, inline = true })" class="btn btn-info btn-sm" target="_blank" title="Ver">
+                                                                        <i class="fa-regular fa-eye"></i>
+                                                                    </a>
+                                                                    <a href="@Url.Action("DownloadFile", "Combos", new { idDocumento = item.id_biblioteca_digital })" class="btn btn-success btn-sm" title="Descargar">
+                                                                        <i class="fa fa-download"></i>
+                                                                    </a>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span style="font-weight:bold; color:red">PENDIENTE</span>
+                                                                }
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                            <div class="col-md-12 col-sm-12">
+                                                <br />
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                    <br />
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
                 <div>
                     <br />
                     <a onclick="volverAtras()" class="btn btn-round btn-info btm-sm" title="Volver" style="color:white">
@@ -597,6 +699,10 @@
 
 
         });
+
+        function mostrarDetallesMantenimiento(id) {              
+                window.open('/it_mantenimientos/Details/' + id + '', 'popup', "width=" + screen.width * .80 + ",height=" + screen.height * .80 + "");
+        }
 
         window.onload = function () {
             clicMenu(1);

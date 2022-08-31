@@ -55,6 +55,7 @@ namespace Clases.Util
         //Módulo IT - Inventory
         public const string IT_INVENTORY = "IT_Inventory";
         public const string IT_ASIGNACION_HARDWARE = "IT_Asignacion_Hardware";
-        
+        //Módulo IT - Mantenimiento
+        public const string IT_MANTENIMIENTO_REGISTRO = "IT_Mantenimento_registro";
     }
 }

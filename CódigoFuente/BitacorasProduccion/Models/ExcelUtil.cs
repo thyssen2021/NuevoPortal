@@ -1494,6 +1494,91 @@ namespace Portal_2_0.Models
 
             return (array);
         }
+        /// <summary>
+        /// Genera reporte de IT_inventory_lines
+        /// </summary>
+        /// <param name="listado"></param>
+        /// <returns></returns>
+        public static byte[] GeneraReporteBitacorasExcel(List<IT_inventory_cellular_line> listado)
+        {
+
+            SLDocument oSLDocument = new SLDocument();
+
+
+            System.Data.DataTable dt = new System.Data.DataTable();
+
+            //columnas          
+            dt.Columns.Add("Planta", typeof(string));
+            dt.Columns.Add("Número Celular", typeof(string));
+            dt.Columns.Add("Compañia", typeof(string));
+            dt.Columns.Add("Plan Celular", typeof(string));
+            dt.Columns.Add("Fecha de Corte", typeof(DateTime));
+            dt.Columns.Add("Asignación (Responsable)", typeof(string));
+            dt.Columns.Add("Departamento", typeof(string));
+            dt.Columns.Add("Estado", typeof(string));          
+
+            ////registros , rows
+            foreach (IT_inventory_cellular_line item in listado)
+            {
+                string nombreAsignacion = String.Empty, departamentoAsignacion = String.Empty;
+
+                var asignacion = item.IT_asignacion_hardware.Where(x => x.es_asignacion_linea_actual && x.id_cellular_line == item.id && x.id_responsable_principal == x.id_empleado).FirstOrDefault();
+
+                if (asignacion != null && asignacion.empleados != null)
+                    nombreAsignacion = asignacion.empleados.ConcatNombre;
+                if (asignacion != null && asignacion.empleados != null && asignacion.empleados.Area != null)
+                    departamentoAsignacion = asignacion.empleados.Area.descripcion;
+
+                dt.Rows.Add(item.plantas.descripcion,item.numero_celular, item.IT_inventory_cellular_plans.nombre_compania, item.IT_inventory_cellular_plans.nombre_plan,
+                    item.fecha_corte, nombreAsignacion, departamentoAsignacion, item.activo? "Activo":"Inactivo"
+                    );
+            }
+
+            //crea la hoja de FACTURAS y la selecciona
+            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Líneas de Celular");
+            oSLDocument.ImportDataTable(1, 1, dt, true);
+
+            //estilo para ajustar al texto
+            SLStyle styleWrap = oSLDocument.CreateStyle();
+            styleWrap.SetWrapText(true);
+
+            //estilo para el encabezado
+            SLStyle styleHeader = oSLDocument.CreateStyle();
+            styleHeader.Font.Bold = true;
+            styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
+
+            ////estilo para fecha
+            SLStyle styleShortDate = oSLDocument.CreateStyle();
+            styleShortDate.FormatCode = "yyyy/MM/dd";
+            oSLDocument.SetColumnStyle(5, styleShortDate);
+
+            SLStyle styleHeaderFont = oSLDocument.CreateStyle();
+            styleHeaderFont.Font.FontName = "Calibri";
+            styleHeaderFont.Font.FontSize = 11;
+            styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
+            styleHeaderFont.Font.Bold = true;
+
+            //da estilo a la hoja de excel
+            //inmoviliza el encabezado
+            oSLDocument.FreezePanes(1, 0);
+
+            oSLDocument.Filter("A1", "H1");
+            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+
+            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
+            oSLDocument.SetRowStyle(1, styleHeader);
+            oSLDocument.SetRowStyle(1, styleHeaderFont);
+
+            oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
+
+            System.IO.Stream stream = new System.IO.MemoryStream();
+
+            oSLDocument.SaveAs(stream);
+
+            byte[] array = Bitacoras.Util.StreamUtil.ToByteArray(stream);
+
+            return (array);
+        } 
         public static byte[] GeneraReportePFAExcel(List<PFA> listado)
         {
 

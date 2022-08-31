@@ -30,17 +30,17 @@ namespace Portal_2_0.Controllers
                 }
 
                 var cantidadRegistrosPorPagina = 20; // parámetro
-                             
+
 
                 var listado = db.IT_inventory_items
                     .Where(x =>
                    (x.id_planta == id_planta || id_planta == null)
                     && ((x.hostname.Contains(hostname) || String.IsNullOrEmpty(hostname))
-                    || (x.IT_inventory_items1.Any(y=>y.hostname.Contains(hostname))))
+                    || (x.IT_inventory_items1.Any(y => y.hostname.Contains(hostname))))
                     && (x.model.Contains(model) || String.IsNullOrEmpty(model))
                     && (x.id_tipo_accesorio == id_tipo_accesorio || id_tipo_accesorio == null)
                     && (x.active == active || active == null)
-                    && (x.id_inventory_type == tipo_hardware && tipo_hardware.HasValue)
+                    && (x.id_inventory_type == tipo_hardware && tipo_hardware.HasValue || (tipo_hardware == 256 && (x.id_inventory_type == 1 || x.id_inventory_type == 2)))
                     )
                   .OrderByDescending(x => x.id_planta)
                   .Skip((pagina - 1) * cantidadRegistrosPorPagina)
@@ -54,7 +54,7 @@ namespace Portal_2_0.Controllers
                     && (x.model.Contains(model) || String.IsNullOrEmpty(model))
                     && (x.id_tipo_accesorio == id_tipo_accesorio || id_tipo_accesorio == null)
                     && (x.active == active || active == null)
-                    && (x.id_inventory_type == tipo_hardware && tipo_hardware.HasValue)
+                     && (x.id_inventory_type == tipo_hardware && tipo_hardware.HasValue || (tipo_hardware == 256 && (x.id_inventory_type == 1 || x.id_inventory_type == 2)))
                     )
                          .Count();
 
@@ -76,8 +76,16 @@ namespace Portal_2_0.Controllers
                 };
 
                 ViewBag.Paginacion = paginacion;
+
                 //quita de la lista el tipo Virtual server (se incluiye en el formulario de server)
-                ViewBag.tipo_hardware = AddFirstItem(new SelectList(db.IT_inventory_hardware_type.Where(x => x.activo && x.descripcion != Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER), "id", "descripcion"), textoPorDefecto: "-- Select --", selected: tipo_hardware.ToString());
+                List<IT_inventory_hardware_type> listTipoHardware = db.IT_inventory_hardware_type.Where(x => x.activo && x.descripcion != Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER).ToList();
+                listTipoHardware.Insert(2,new IT_inventory_hardware_type
+                {
+                    id = 256,   //id para laptop y desktop
+                    descripcion = "Laptop/Desktop"
+                });
+
+                ViewBag.tipo_hardware = AddFirstItem(new SelectList(listTipoHardware, "id", "descripcion"), textoPorDefecto: "-- Select --", selected: tipo_hardware.ToString());
                 ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas.Where(x => x.activo), "clave", "descripcion"), textoPorDefecto: "-- All --", selected: id_planta.ToString());
                 ViewBag.id_tipo_accesorio = AddFirstItem(new SelectList(db.IT_inventory_tipos_accesorios, "id", "descripcion"), textoPorDefecto: "-- All --", selected: id_tipo_accesorio.ToString());
 
@@ -122,7 +130,8 @@ namespace Portal_2_0.Controllers
                 filtro_id_planta = _id_planta,
                 filtro_model = _model,
                 filtro_pagina = pagina,
-                brand = brand
+                brand = brand,
+                maintenance_period_months = 6
             };
 
             //en caso de ser un clon copia los valores y deja hostname vacio
@@ -228,6 +237,21 @@ namespace Portal_2_0.Controllers
 
                 if (iT_inventory_items.es_servidor_virtual)
                     iT_inventory_items.id_inventory_type = db.IT_inventory_hardware_type.Where(x => x.descripcion == IT_Tipos_Hardware.VIRTUAL_SERVER).Select(x => x.id).FirstOrDefault();
+
+                //agrega una nueva entrada para periodo de mantenimiento
+                var tipo = db.IT_inventory_hardware_type.Find(id_inventory);
+                if (tipo != null && (tipo.descripcion == IT_Tipos_Hardware.LAPTOP || tipo.descripcion == IT_Tipos_Hardware.DESKTOP))
+                {
+                   
+                    var nuevo_manto = new IT_mantenimientos
+                    {
+                       // id_it_inventory_item = inventory_item.id,
+                        fecha_programada = DateTime.Now.AddMonths(iT_inventory_items.maintenance_period_months.HasValue
+                        ? iT_inventory_items.maintenance_period_months.Value : 6), //seis meses por defecto
+                    };
+
+                    iT_inventory_items.IT_mantenimientos.Add(nuevo_manto);
+                }
 
                 //guarda en BD
                 db.IT_inventory_items.Add(iT_inventory_items);
@@ -378,7 +402,7 @@ namespace Portal_2_0.Controllers
                 foreach (IT_inventory_hard_drives drive in iT_inventory_items.IT_inventory_hard_drives)
                     db.IT_inventory_hard_drives.Add(drive);
 
-                
+
                 int tipo_hardware = iT_inventory_items.id_inventory_type;
                 int id_tipo_v_s = db.IT_inventory_hardware_type.Where(x => x.descripcion == IT_Tipos_Hardware.VIRTUAL_SERVER).Select(x => x.id).FirstOrDefault();
                 int id_tipo_server = db.IT_inventory_hardware_type.Where(x => x.descripcion == IT_Tipos_Hardware.SERVER).Select(x => x.id).FirstOrDefault();
@@ -391,14 +415,15 @@ namespace Portal_2_0.Controllers
                     //tipo harware se establece con id de SERVER (para pantalla de retorono)
                     tipo_hardware = id_tipo_server;
                 }
-                else if (iT_inventory_items.id_inventory_type == id_tipo_v_s) {
+                else if (iT_inventory_items.id_inventory_type == id_tipo_v_s)
+                {
                     //el tipo vuelve a ser server
                     iT_inventory_items.id_inventory_type = id_tipo_server;
                     //tipo harware se establece con id de SERVER (para pantalla de retorono)
                     tipo_hardware = id_tipo_server;
                 }
 
-              
+
                 // Activity already exist in database and modify it
                 db.Entry(db.IT_inventory_items.Find(iT_inventory_items.id)).CurrentValues.SetValues(iT_inventory_items);
                 db.SaveChanges();
