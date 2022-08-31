@@ -29,8 +29,8 @@ namespace Portal_2_0.Models
         public virtual budget_anio_fiscal budget_anio_fiscal { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_cantidad> budget_cantidad { get; set; }
+        public virtual budget_centro_costo budget_centro_costo { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_rel_comentarios> budget_rel_comentarios { get; set; }
-        public virtual budget_centro_costo budget_centro_costo { get; set; }
     }
 }

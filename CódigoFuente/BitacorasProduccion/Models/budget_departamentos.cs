@@ -25,8 +25,8 @@ namespace Portal_2_0.Models
         public string descripcion { get; set; }
         public bool activo { get; set; }
     
-        public virtual budget_plantas budget_plantas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_centro_costo> budget_centro_costo { get; set; }
+        public virtual budget_plantas budget_plantas { get; set; }
     }
 }

@@ -46,6 +46,8 @@ namespace Portal_2_0.Models
         public Nullable<bool> is_recovered { get; set; }
     
         public virtual biblioteca_digital biblioteca_digital { get; set; }
+        public virtual empleados empleados { get; set; }
+        public virtual empleados empleados1 { get; set; }
         public virtual PFA_Recovered_cost PFA_Recovered_cost { get; set; }
         public virtual PFA_Border_port PFA_Border_port { get; set; }
         public virtual PFA_Department PFA_Department { get; set; }
@@ -54,7 +56,5 @@ namespace Portal_2_0.Models
         public virtual PFA_Responsible_cost PFA_Responsible_cost { get; set; }
         public virtual PFA_Type_shipment PFA_Type_shipment { get; set; }
         public virtual PFA_Volume PFA_Volume { get; set; }
-        public virtual empleados empleados { get; set; }
-        public virtual empleados empleados1 { get; set; }
     }
 }

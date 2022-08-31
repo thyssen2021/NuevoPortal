@@ -19,16 +19,16 @@ namespace Portal_2_0.Models
         public Nullable<int> id_planta { get; set; }
         public System.DateTime fecha_solicitud { get; set; }
         public Nullable<System.DateTime> fecha_cierre { get; set; }
-        public string area { get; set; }
-        public string puesto { get; set; }
-        public string C8ID { get; set; }
-        public string correo { get; set; }
-        public string comentario { get; set; }
-        public string estatus { get; set; }
         public string nombre { get; set; }
         public string apellido1 { get; set; }
         public string apellido2 { get; set; }
+        public string area { get; set; }
+        public string puesto { get; set; }
+        public string C8ID { get; set; }
         public string numero_empleado { get; set; }
+        public string correo { get; set; }
+        public string comentario { get; set; }
+        public string estatus { get; set; }
     
         public virtual empleados empleados { get; set; }
         public virtual plantas plantas { get; set; }

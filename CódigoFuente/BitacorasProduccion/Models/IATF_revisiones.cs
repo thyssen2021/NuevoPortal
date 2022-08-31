@@ -25,9 +25,9 @@ namespace Portal_2_0.Models
         public int id_iatf_documento { get; set; }
         public int numero_revision { get; set; }
         public string responsable { get; set; }
+        public string puesto_responsable { get; set; }
         public System.DateTime fecha_revision { get; set; }
         public string descripcion { get; set; }
-        public string puesto_responsable { get; set; }
     
         public virtual IATF_documentos IATF_documentos { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

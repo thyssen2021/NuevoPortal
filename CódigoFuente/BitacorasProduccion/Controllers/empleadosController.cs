@@ -17,9 +17,9 @@ namespace Portal_2_0.Controllers
     {
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
-       
+
         // GET: empleados
-        public ActionResult Index(string nombre, string num_empleado,int? id_jefe_directo ,int planta_clave = 0, int pagina = 1)
+        public ActionResult Index(string nombre, string num_empleado, int? id_jefe_directo, int planta_clave = 0, int pagina = 1)
         {
             if (TieneRol(TipoRoles.RH))
             {
@@ -334,6 +334,9 @@ namespace Portal_2_0.Controllers
                     ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
                     ViewBag.id_area = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
                     ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion");
+                    ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true), nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)),
+                    textoPorDefecto: "-- Seleccione un valor --", selected: empleados.id_jefe_directo.ToString());
+
                     //claves seleccionadas
                     ViewBag.c_planta = c_planta;
                     ViewBag.c_area = c_area;
@@ -346,6 +349,9 @@ namespace Portal_2_0.Controllers
             ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
             ViewBag.id_area = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
             ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion");
+            ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true), nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)),
+            textoPorDefecto: "-- Seleccione un valor --", selected: empleados.id_jefe_directo.ToString());
+
             //claves seleccionadas
             ViewBag.c_planta = c_planta;
             ViewBag.c_area = c_area;
