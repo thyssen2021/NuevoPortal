@@ -194,7 +194,7 @@
                                                                             || (y.IT_inventory_items_genericos != null && y.IT_inventory_items_genericos.id_inventory_type == tipoHardware.id)
                                                                     )).Count() > 0)
                                     {
-                                        <table id="datatable_@listaTipos.Where(x => x.puede_asignarse).ToList().IndexOf(tipoHardware)" class="table datatable table-bordered nowrap" cellspacing="0" width="100%">
+                                        <table id="datatable_@listaTipos.Where(x => x.puede_asignarse).ToList().IndexOf(tipoHardware)" class="table datatable table-bordered" cellspacing="0" width="100%">
                                             <thead>
                                                 <tr>
                                                     <th width="1%">#</th>
@@ -252,7 +252,7 @@
                                                     {
                                                         <tr class="@(item.es_asignacion_actual ? item.id_biblioteca_digital.HasValue ? "registro-actual fondo-verde" : "registro-actual fondo-amarillo" : "registro-pasado fondo-gris" ) ">
                                                             <td>@(c++)</td>
-                                                            <td>
+                                                            <td nowrap>
                                                                 <a href="@Url.Action("Details", null, new { id = item.id })" class="btn btn-info btn-sm" rel="tooltip" data-title="Detalles" data-placement="right">
                                                                     <i class="fa-solid fa-circle-info"></i>
                                                                 </a>
@@ -271,6 +271,9 @@
                                                                         <i class="fa-solid fa-user-xmark"></i>
                                                                     </a>
                                                                 }
+                                                                <a href="@Url.Action("EditarResponsiva", null, new { id = item.id })" class="btn btn-primary btn-sm" rel="tooltip" data-title="Editar Responsiva" data-placement="right">
+                                                                    <i class="fa-regular fa-pen-to-square"></i>
+                                                                </a>
                                                             </td>
                                                             @if (tipoHardware.descripcion == Bitacoras.Util.IT_Tipos_Hardware.LAPTOP
                                                             || tipoHardware.descripcion == Bitacoras.Util.IT_Tipos_Hardware.DESKTOP)

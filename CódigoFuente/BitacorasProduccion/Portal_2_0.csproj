@@ -7143,6 +7143,7 @@
     <Content Include="Views\OT_zona_falla\Enable.cshtml" />
     <Content Include="Views\OT_zona_falla\Index.cshtml" />
     <Content Include="Views\OrdenesTrabajo\SolicitudesDepartamento.cshtml" />
+    <Content Include="Views\IT_asignacion_hardware\EditarResponsiva.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

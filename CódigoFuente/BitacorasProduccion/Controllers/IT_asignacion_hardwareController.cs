@@ -158,7 +158,7 @@ namespace Portal_2_0.Controllers
                    .Where(x =>
                        (x.IT_asignacion_hardware.id_empleado == id_empleado || id_empleado == null)
                        && (x.IT_asignacion_hardware.empleados.plantas.clave == planta_clave || planta_clave == null)
-                       && (estatus_responsiva ==null ||(x.IT_asignacion_hardware.id_biblioteca_digital.HasValue && estatus_responsiva.Value) || (!x.IT_asignacion_hardware.id_biblioteca_digital.HasValue && !estatus_responsiva.Value) )
+                       && (estatus_responsiva == null || (x.IT_asignacion_hardware.id_biblioteca_digital.HasValue && estatus_responsiva.Value) || (!x.IT_asignacion_hardware.id_biblioteca_digital.HasValue && !estatus_responsiva.Value))
                        && (asignacion_actual == null || (x.IT_asignacion_hardware.es_asignacion_actual == asignacion_actual))
                         && ((x.IT_inventory_items != null && x.IT_inventory_items.IT_inventory_hardware_type.id == id_tipo_hardware)
                        || (x.IT_inventory_items_genericos != null && x.IT_inventory_items_genericos.IT_inventory_hardware_type.id == id_tipo_hardware) || id_tipo_hardware == null)
@@ -186,7 +186,7 @@ namespace Portal_2_0.Controllers
             routeValues["id_empleado"] = id_empleado;
             routeValues["id_tipo_hardware"] = id_tipo_hardware;
             routeValues["estatus_responsiva"] = estatus_responsiva;
-             routeValues["asignacion_actual"] = asignacion_actual;
+            routeValues["asignacion_actual"] = asignacion_actual;
 
             Paginacion paginacion = new Paginacion
             {
@@ -198,20 +198,20 @@ namespace Portal_2_0.Controllers
 
             //select list para responsiva
             List<SelectListItem> newListStatusResponsiva = new List<SelectListItem>();
-            newListStatusResponsiva.Add(new SelectListItem(){Text ="Subida",Value = "true"});
+            newListStatusResponsiva.Add(new SelectListItem() { Text = "Subida", Value = "true" });
             newListStatusResponsiva.Add(new SelectListItem() { Text = "Pendiente", Value = "false" });
             SelectList selectListStatusResponsiva = new SelectList(newListStatusResponsiva, "Value", "Text");
-            
+
             //select list para asignacion actual
             List<SelectListItem> newListAsignacionActual = new List<SelectListItem>();
-            newListAsignacionActual.Add(new SelectListItem(){Text ="Sí",Value = "true"});
+            newListAsignacionActual.Add(new SelectListItem() { Text = "Sí", Value = "true" });
             newListAsignacionActual.Add(new SelectListItem() { Text = "No", Value = "false" });
             SelectList selectListAsignacionActual = new SelectList(newListAsignacionActual, "Value", "Text");
 
-            ViewBag.estatus_responsiva = AddFirstItem(selectListStatusResponsiva,selected: estatus_responsiva.ToString(), textoPorDefecto: "-- Todos --");
+            ViewBag.estatus_responsiva = AddFirstItem(selectListStatusResponsiva, selected: estatus_responsiva.ToString(), textoPorDefecto: "-- Todos --");
             ViewBag.asignacion_actual = AddFirstItem(selectListAsignacionActual, selected: asignacion_actual.ToString(), textoPorDefecto: "-- Todos --");
             ViewBag.planta_clave = AddFirstItem(new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion", planta_clave.ToString()), textoPorDefecto: "-- Todas --");
-            ViewBag.id_empleado = AddFirstItem(new SelectList(db.empleados.Where(x=> x.planta_clave == planta_clave || planta_clave==null), "id", "ConcatNumEmpleadoNombre"), selected: id_empleado.ToString(), textoPorDefecto: "-- Todos --");
+            ViewBag.id_empleado = AddFirstItem(new SelectList(db.empleados.Where(x => x.planta_clave == planta_clave || planta_clave == null), "id", "ConcatNumEmpleadoNombre"), selected: id_empleado.ToString(), textoPorDefecto: "-- Todos --");
             ViewBag.id_tipo_hardware = AddFirstItem(new SelectList(db.IT_inventory_hardware_type, "id", nameof(IT_inventory_hardware_type.descripcion)), selected: id_tipo_hardware.ToString(), textoPorDefecto: "-- Todos --");
 
             ViewBag.Paginacion = paginacion;
@@ -637,6 +637,80 @@ namespace Portal_2_0.Controllers
             return View(iT_asignacion_hardware);
         }
 
+        // GET: EditarResponsiva/Asignar
+        public ActionResult EditarResponsiva(int? id)
+        {
+
+            if (!TieneRol(TipoRoles.IT_ASIGNACION_HARDWARE))
+                return View("../Home/ErrorPermisos");
+
+            if (id == null)
+            {
+                return View("../Error/BadRequest");
+            }
+            IT_asignacion_hardware model = db.IT_asignacion_hardware.Find(id);
+            if (model == null)
+            {
+                return View("../Error/NotFound");
+            }
+
+            return View(model);
+        }
+
+        // POST: IT_asignacion_hardware/EditarResponsiva
+        // Para protegerse de ataques de publicación excesiva, habilite las propiedades específicas a las que quiere enlazarse. Para obtener 
+        // más detalles, vea https://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditarResponsiva(IT_asignacion_hardware iT_asignacion_hardware)
+        {
+
+            IT_asignacion_hardware item = db.IT_asignacion_hardware.Find(iT_asignacion_hardware.id);
+
+            if (ModelState.IsValid)
+            {
+                //para cada valor en rel items, asigna el nuevo valor de comments
+                foreach (var rel in iT_asignacion_hardware.IT_asignacion_hardware_rel_items)
+                {
+                    var relBD = db.IT_asignacion_hardware_rel_items.Find(rel.id);
+                    relBD.comments = rel.comments;
+                    db.Entry(relBD).State = EntityState.Modified;
+
+                }
+
+                try
+                {
+                    //guarda los cambios en BD
+                    db.SaveChanges();
+
+                    TempData["Mensaje"] = new MensajesSweetAlert("Se ha actualizado la responsiva correctamente.", TipoMensajesSweetAlerts.SUCCESS);
+                    return RedirectToAction("ListadoAsignaciones", new { id = iT_asignacion_hardware.id_empleado });
+                }
+                catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+                {
+                    // Retrieve the error messages as a list of strings.
+                    var errorMessages = ex.EntityValidationErrors
+                            .SelectMany(x => x.ValidationErrors)
+                            .Select(x => x.ErrorMessage);
+
+                    // Join the list to a single string.
+                    var fullErrorMessage = string.Join("; ", errorMessages);
+
+                    // Combine the original exception message with the new one.
+                    var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
+
+                    TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
+                    return RedirectToAction("ListadoAsignaciones", new { id = iT_asignacion_hardware.id_empleado });
+
+                }
+                catch (Exception e)
+                {
+                    TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
+                    return RedirectToAction("ListadoAsignaciones", new { id = iT_asignacion_hardware.id_empleado });
+                }
+            }
+            return View(item);
+        }
 
         // GET: IT_asignacion_hardware/CargarResponsiva
         public ActionResult CargarResponsiva(int? id)
@@ -1026,14 +1100,17 @@ namespace Portal_2_0.Controllers
                     table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(_item.brand) ? _item.brand : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
                     table.AddCell(new Cell().Add(new Paragraph("Modelo:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
                     table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(_item.model) ? _item.model : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
-                    table.AddCell(new Cell().Add(new Paragraph("Núm. Serie:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
-                    table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(_item.serial_number) ? _item.serial_number : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
+
+                    if (!String.IsNullOrEmpty(_item.serial_number))
+                    {
+                        table.AddCell(new Cell().Add(new Paragraph("Núm. Serie:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
+                        table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(_item.serial_number) ? _item.serial_number : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
+                    }
 
                     if (_item.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.SMARTPHONE)
                     {
                         table.AddCell(new Cell().Add(new Paragraph("Imei:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
                         table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(_item.imei_1) ? _item.imei_1 : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
-
 
                         table.AddCell(new Cell().Add(new Paragraph("Número de Teléfono:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
                         table.AddCell(new Cell().Add(new Paragraph(item.IT_inventory_cellular_line != null ? item.IT_inventory_cellular_line.numero_celular : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
@@ -1044,8 +1121,11 @@ namespace Portal_2_0.Controllers
                     }
 
                     //agrega comentarios
-                    table.AddCell(new Cell().Add(new Paragraph("Comentarios:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
-                    table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(relItem.comments) ? relItem.comments : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
+                    if (!String.IsNullOrEmpty(relItem.comments))
+                    {
+                        table.AddCell(new Cell().Add(new Paragraph("Comentarios:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
+                        table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(relItem.comments) ? relItem.comments : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
+                    }
                     doc.Add(table);
 
                 }

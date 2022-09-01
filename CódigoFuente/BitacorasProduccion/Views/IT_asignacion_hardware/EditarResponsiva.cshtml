@@ -5,6 +5,7 @@
     ViewBag.PrimerNivel = "sistemas";
     ViewBag.SegundoNivel = "it_asignacion_hardware";
     ViewBag.ControllerName = "IT_asignacion_hardware";
+    int contador = 0;
 }
 
 @section estilos
@@ -164,7 +165,9 @@
                             {
                                 var generic = item.GetGenericObject();
 
-
+                                @* Necesario para auto binding *@
+                                <input type="hidden" name="IT_asignacion_hardware_rel_items.Index" id="IT_asignacion_hardware_rel_items.Index" value="@contador" />
+                                <input type="hidden" name="IT_asignacion_hardware_rel_items[@contador].id" id="IT_asignacion_hardware_rel_items[@contador].id" value="@item.id" />
 
                                 <div class="item form-group">
                                     <label class="col-form-label col-md-1 col-sm-1 label-align">Origen</label>
@@ -187,10 +190,11 @@
                                 <div class="item form-group">
                                     <label class="col-form-label col-md-1 col-sm-1 label-align">Comentario</label>
                                     <div class="col-md-9">
-                                        @Html.TextAreaFor(model => item.comments, new { @class = "form-control", @rows = "2", @autocomplete = "off", @readonly = "readonly" })
-                                        @Html.ValidationMessageFor(model => item.comments, "", new { @class = "text-danger" })
+                                        <textarea class="form-control" name="IT_asignacion_hardware_rel_items[@contador].comments" id="IT_asignacion_hardware_rel_items[@contador].comments" rows="3" cols="1" width="100%" maxlength="250">@item.comments</textarea>
+                                        <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[@contador].numero_lote_izquierdo" data-valmsg-replace="true"></span>
                                     </div>
                                 </div>
+                                contador++;
                             }
 
                             <div class="ln_solid"></div>
@@ -205,6 +209,10 @@
                                 </div>
                             }
 
+
+
+
+
                             if (Model != null && Model.id_biblioteca_digital > 0)
                             {
                                 <div class="form-group row" id="div_document_support_info">
@@ -213,10 +221,10 @@
                                         <input type="text" class="form-control col-md-12" style="text-align: right;" value="@Model.biblioteca_digital.Nombre" readonly>
                                     </div>
                                     <div class="col-md-4">
-                                        <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = Model.id_biblioteca_digital})" class="btn btn-success btm-sm" title="Descargar">
+                                        <a href="@Url.Action("DownloadFile", "Combos", new { idDocumento = Model.id_biblioteca_digital })" class="btn btn-success btm-sm" title="Descargar">
                                             <i class="fa fa-download"></i>
                                         </a>
-                                        <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = Model.id_biblioteca_digital, inline=true})" class="btn btn-info btm-sm" target="_blank" title="Ver">
+                                        <a href="@Url.Action("DownloadFile", "Combos", new { idDocumento = Model.id_biblioteca_digital, inline = true })" class="btn btn-info btm-sm" target="_blank" title="Ver">
                                             <i class="fa-regular fa-eye"></i>
                                         </a>
                                         <a onclick="muestraFileInput()" class="btn btn-danger btm-sm" title="Reemplazar" style="color:white">
@@ -226,36 +234,16 @@
 
                                 </div>
                             }
-
-                            <div class="form-group row" id="div_document_support_input" style="@(Model.id_biblioteca_digital.HasValue ? "display:none" : "" )">
-                                @Html.LabelFor(model => model.id_biblioteca_digital, new { @class = "control-label col-md-2" })
-                                <div class="col-md-6">
-
-                                    <div class="input-group">
-                                        <div class="custom-file">
-                                            @Html.TextBoxFor(m => m.PostedFileResponsiva, new { @class = "custom-file-input", type = "file", @accept = ".xls,.xlsx,.png, .jpeg, .jpg, .pdf, .doc, .docx, .rar, .zip, .eml", @required = "required" })
-                                            <label class="custom-file-label" for="PostedFileSoporte" style="text-align:left">Seleccione un archivo...</label>
-                                        </div>
-                                    </div>
-                                    @Html.ValidationMessageFor(m => m.PostedFileResponsiva, "", new { @class = "text-danger" })
-                                </div>
-                                <div class="col-md-1">
-                                    <div class="input-group">
-                                        @if (Model.id_biblioteca_digital.HasValue)
-                                        {
-                                            <a onclick="ocultaFileInput()" class="btn btn-warning btm-sm" title="Deshacer" style="color:white">
-                                                <i class="fa fa-refresh"></i>
-                                            </a>
-                                        }
-                                    </div>
-                                </div>
-                            </div>
+                            else
+                            {
+                                <p>No disponible</p>
+                            }
 
                             <div class="ln_solid"></div>
 
                             <div class="item form-group">
                                 <div class="col-md-12 col-sm-12 offset-md-12">
-                                    <button id="btn-submit" type="button" class="btn btn-success float-right" style="display: @(Model.id_biblioteca_digital>0? "none":"block")" onclick="showDialog()"><i class="fa-regular fa-floppy-disk"></i> Guardar</button>
+                                    <button id="btn-submit" type="button" class="btn btn-success btn-lg float-right" onclick="showDialog()"><i class="fa-regular fa-floppy-disk"></i> Guardar</button>
                                 </div>
                             </div>
                         }
@@ -290,15 +278,7 @@
                 theme: 'bootstrap4'
             })
 
-            //inicializa en input file
-            bsCustomFileInput.init()
 
-            //aumenta en uso cada vez que se hace un cambio en el archivo de soporte
-            $("#@Html.IdFor(model => model.PostedFileResponsiva)").on("change", function () {
-                document.getElementById('cambio_documento').value = ++documento_soporte_cambios;
-            });
-
-           
         });
 
         function MuestraDetalles(inventario, id) {
@@ -316,7 +296,7 @@
 
             Swal.fire({
                 title: 'Confirmación',
-                html: "La responsiva seleccionada se asociará a la asignación actual. <br>¿Desea continuar?",
+                html: "Se guardarán los cambios actuales. <br>¿Desea continuar?",
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
@@ -333,35 +313,9 @@
                 }
             });
 
-    }
-
-    //muestra el formulario de carga de archivo
-    function muestraFileInput() {
-        $("#div_document_support_info").hide('clip',150, function () {
-            $("#@Html.IdFor(model => model.PostedFileResponsiva)").val('');
-            $('#@Html.IdFor(model => model.PostedFileResponsiva)').next('label').html('Seleccione un archivo...');
-        });
-        $("#div_document_support_input").show('clip',400);
-
-        document.getElementById('cambio_documento').value = ++documento_soporte_cambios;
-        $("#btn-submit").show('blind', 300);
+        }
 
 
-    }
-
-    //oculta el formulario de carga de archivo
-    function ocultaFileInput() {
-        $("#div_document_support_info").show('clip',400, function () {
-            $("#@Html.IdFor(model => model.PostedFileResponsiva)").val('');
-            $('#@Html.IdFor(model => model.PostedFileResponsiva)').next('label').html('Seleccione un archivo...');
-        });
-        $("#div_document_support_input").hide('clip',150);
-
-        document.getElementById('cambio_documento').value = ++documento_soporte_cambios;
-
-        $("#btn-submit").hide('blind', 300);
-
-    }
         window.onload = function () {
             clicMenu(1);
         }
