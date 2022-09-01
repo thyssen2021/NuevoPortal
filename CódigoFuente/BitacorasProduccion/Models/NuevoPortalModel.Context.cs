@@ -105,11 +105,9 @@ namespace Portal_2_0.Models
         public virtual DbSet<PM_tipo_poliza> PM_tipo_poliza { get; set; }
         public virtual DbSet<PM_usuarios_capturistas> PM_usuarios_capturistas { get; set; }
         public virtual DbSet<poliza_manual> poliza_manual { get; set; }
-        public virtual DbSet<produccion_datos_entrada> produccion_datos_entrada { get; set; }
         public virtual DbSet<produccion_lineas> produccion_lineas { get; set; }
         public virtual DbSet<produccion_lotes> produccion_lotes { get; set; }
         public virtual DbSet<produccion_operadores> produccion_operadores { get; set; }
-        public virtual DbSet<produccion_registros> produccion_registros { get; set; }
         public virtual DbSet<produccion_respaldo> produccion_respaldo { get; set; }
         public virtual DbSet<produccion_supervisores> produccion_supervisores { get; set; }
         public virtual DbSet<produccion_turnos> produccion_turnos { get; set; }
@@ -121,7 +119,9 @@ namespace Portal_2_0.Models
         public virtual DbSet<upgrade_usuarios> upgrade_usuarios { get; set; }
         public virtual DbSet<upgrade_values_checklist> upgrade_values_checklist { get; set; }
         public virtual DbSet<upgrade_values_transaccion> upgrade_values_transaccion { get; set; }
-        public virtual DbSet<view_historico_resultado> view_historico_resultado { get; set; }
         public virtual DbSet<view_valores_fiscal_year> view_valores_fiscal_year { get; set; }
+        public virtual DbSet<produccion_datos_entrada> produccion_datos_entrada { get; set; }
+        public virtual DbSet<produccion_registros> produccion_registros { get; set; }
+        public virtual DbSet<view_historico_resultado> view_historico_resultado { get; set; }
     }
 }

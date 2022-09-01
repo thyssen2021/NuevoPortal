@@ -31,6 +31,7 @@ namespace Portal_2_0.Models
         public string sap_rollo { get; set; }
         public Nullable<System.DateTime> fecha { get; set; }
         public Nullable<bool> activo { get; set; }
+        public string sap_platina_2 { get; set; }
     
         public virtual inspeccion_datos_generales inspeccion_datos_generales { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
