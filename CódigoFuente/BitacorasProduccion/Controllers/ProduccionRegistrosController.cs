@@ -426,25 +426,25 @@ namespace Portal_2_0.Controllers
         public ActionResult DatosEntradas(produccion_registros produccion_registros)
         {
             //comprueba si hay un margen del 3% de toleracnicia
-            try
-            {
-                //sumatoria de ambas
-                double peso_bascula = produccion_registros.produccion_datos_entrada.peso_bascula_kgs.HasValue ? produccion_registros.produccion_datos_entrada.peso_bascula_kgs.Value : 0;
-                double peso_regreso_rollo = produccion_registros.produccion_datos_entrada.peso_regreso_rollo_real.HasValue ? produccion_registros.produccion_datos_entrada.peso_regreso_rollo_real.Value : 0;
-                double peso_etiqueta = produccion_registros.produccion_datos_entrada.peso_etiqueta.HasValue ? produccion_registros.produccion_datos_entrada.peso_etiqueta.Value : 0;
-                double peso_de_rollo_usado_real = peso_bascula - peso_regreso_rollo;
-                double dif_abs = Math.Abs(peso_bascula - peso_de_rollo_usado_real);
-                double porcentaje_dif = (dif_abs / peso_de_rollo_usado_real) * 100;
+            //try
+            //{
+            //    //sumatoria de ambas
+            //    double peso_bascula = produccion_registros.produccion_datos_entrada.peso_bascula_kgs.HasValue ? produccion_registros.produccion_datos_entrada.peso_bascula_kgs.Value : 0;
+            //    double peso_regreso_rollo = produccion_registros.produccion_datos_entrada.peso_regreso_rollo_real.HasValue ? produccion_registros.produccion_datos_entrada.peso_regreso_rollo_real.Value : 0;
+            //    double peso_etiqueta = produccion_registros.produccion_datos_entrada.peso_etiqueta.HasValue ? produccion_registros.produccion_datos_entrada.peso_etiqueta.Value : 0;
+            //    double peso_de_rollo_usado_real = peso_bascula - peso_regreso_rollo;
+            //    double dif_abs = Math.Abs(peso_bascula - peso_de_rollo_usado_real);
+            //    double porcentaje_dif = (dif_abs / peso_de_rollo_usado_real) * 100;
 
-                if (porcentaje_dif > 3)
-                    ModelState.AddModelError("", "La diferencia entre el Peso de Rollo Usado Real y el Peso de Báscula es mayor al 3%. Favor de verificar los datos.");
+            //    if (porcentaje_dif > 3)
+            //        ModelState.AddModelError("", "La diferencia entre el Peso de Rollo Usado Real y el Peso de Báscula es mayor al 3%. Favor de verificar los datos.");
 
-            }
-            catch (Exception e)
-            {
-                //do nothing
-                //ModelState.AddModelError("", "Ocurrió un error al calcular el porcentaje de diferencia: " + e.Message);
-            }
+            //}
+            //catch (Exception e)
+            //{
+            //    //do nothing
+            //    //ModelState.AddModelError("", "Ocurrió un error al calcular el porcentaje de diferencia: " + e.Message);
+            //}
 
 
             bool error = false;

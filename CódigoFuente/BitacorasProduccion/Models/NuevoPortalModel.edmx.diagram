@@ -9,7 +9,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.AspNetRoles" Width="1.5" PointX="0.75" PointY="2.375" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.AspNetUsers" Width="1.5" PointX="3" PointY="1" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.biblioteca_digital" Width="1.5" PointX="10.5" PointY="64.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="Portal_2_0Model.bom_en_sap" Width="1.5" PointX="0.75" PointY="6.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_anio_fiscal" Width="1.5" PointX="7.5" PointY="101" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_cantidad" Width="1.5" PointX="20.75" PointY="87.5" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_centro_costo" Width="1.5" PointX="7.5" PointY="96.75" IsExpanded="true" />
@@ -240,6 +239,7 @@
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_operador" />
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_supervisor" />
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_turnos" />
+        <EntityTypeShape EntityType="Portal_2_0Model.bom_en_sap" Width="1.5" PointX="0.75" PointY="10.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

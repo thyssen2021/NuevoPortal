@@ -54,8 +54,8 @@ namespace Portal_2_0.Models
                         }
 
                         //verifica que la estrura del archivo sea válida
-                        if (!encabezados.Contains("MATERIAL") || !encabezados.Contains("PLNT") || !encabezados.Contains("BOM")
-                            || !encabezados.Contains("ALTBOM") || !encabezados.Contains("ITEM") || !encabezados.Contains("COMPONENT"))
+                        if (!encabezados.Contains("MATERIAL NO.") || !encabezados.Contains("PLANT") || !encabezados.Contains("BOM NO.")
+                            || !encabezados.Contains("ALTERNATIVE BOM") || !encabezados.Contains("ITEM NO") || !encabezados.Contains("BOM COMPONENT"))
                         {
                             valido = false;
                             return lista;
@@ -73,12 +73,10 @@ namespace Portal_2_0.Models
                                 string AltBOM = String.Empty;
                                 string Item = String.Empty;
                                 string Component = String.Empty;
-                                string Created_by = String.Empty;
-                                string BOM1 = String.Empty;
-                                string Node = String.Empty;
                                 Nullable<double> Quantity = null;
                                 string Un = string.Empty;
                                 Nullable<System.DateTime> Created = null;
+                                Nullable<System.DateTime> LastUsed = null;
 
                                 //recorre todas los encabezados
                                 for (int j = 0; j < encabezados.Count; j++)
@@ -87,40 +85,38 @@ namespace Portal_2_0.Models
                                     switch (encabezados[j])
                                     {
                                         //obligatorios
-                                        case "MATERIAL":
+                                        case "MATERIAL NO.":
                                             material = table.Rows[i][j].ToString();
                                             break;
-                                        case "PLNT":
+                                        case "PLANT":
                                             Plnt = table.Rows[i][j].ToString();
                                             break;
-                                        case "BOM":
+                                        case "BOM NO.":
                                             BOM = table.Rows[i][j].ToString();
                                             break;
-                                        case "ALTBOM":
+                                        case "ALTERNATIVE BOM":
                                             AltBOM = table.Rows[i][j].ToString();
                                             break;
-                                        case "ITEM":
+                                        case "ITEM NO":
                                             Item = table.Rows[i][j].ToString();
                                             break;
-                                        case "COMPONENT":
+                                        case "BOM COMPONENT":
                                             Component = table.Rows[i][j].ToString();
                                             break;
-                                        case "CREATED BY":
-                                            Created_by = table.Rows[i][j].ToString();
-                                            break;
-                                        case "NODE":
-                                            Node = table.Rows[i][j].ToString();
-                                            break;
-                                        case "QUANTITY":
+                                        case "COMPONENT QTY":
                                             if (Double.TryParse(table.Rows[i][j].ToString(), out double q))
                                                 Quantity = q;
                                             break;
-                                        case "UN":
+                                        case "UNIT OF MEASURE":
                                             Un = table.Rows[i][j].ToString();
                                             break;
-                                        case "CREATED":
+                                        case "DATE CREATED":
                                             if (!String.IsNullOrEmpty(table.Rows[i][j].ToString()))
                                                 Created = Convert.ToDateTime(table.Rows[i][j].ToString());
+                                            break;
+                                        case "LAST DATE USED":
+                                            if (!String.IsNullOrEmpty(table.Rows[i][j].ToString()))
+                                                LastUsed = Convert.ToDateTime(table.Rows[i][j].ToString());
                                             break;
                                     }
                                 }
@@ -135,13 +131,11 @@ namespace Portal_2_0.Models
                                     AltBOM = AltBOM,
                                     Item = Item,
                                     Component = Component,
-                                    Created_by = Created_by,
-                                    BOM1 = BOM,
-                                    Node = Node,
                                     Un = Un,
                                     Quantity = Quantity,
                                     Created = Created,
-                                    activo = true
+                                    LastDateUsed = LastUsed
+
                                 });
                             }
                             catch (Exception e)
@@ -651,6 +645,12 @@ namespace Portal_2_0.Models
         public static List<mm_v3> LeeMM(HttpPostedFileBase streamPostedFile, ref bool valido)
         {
             List<mm_v3> lista = new List<mm_v3>();
+            List<bom_en_sap> listadoBOM = new List<bom_en_sap>();
+
+            using (var db = new Portal_2_0Entities())
+            {
+               listadoBOM = db.bom_en_sap.ToList();
+            }
 
             //crea el reader del archivo
             using (var reader = ExcelReaderFactory.CreateReader(streamPostedFile.InputStream))
@@ -712,9 +712,7 @@ namespace Portal_2_0.Models
                                 string IHS_number_5 = String.Empty;
                                 string Type_of_Selling = String.Empty;
                                 string Package_Pieces = String.Empty;
-                                Nullable<double> Gross_weight = null;
                                 string Un_ = String.Empty;
-                                Nullable<double> Net_weight = null;
                                 string Un_1 = String.Empty;
                                 Nullable<double> Thickness = null;
                                 Nullable<double> Width = null;
@@ -784,17 +782,17 @@ namespace Portal_2_0.Models
                                         case "PACKAGE PIECES":
                                             Package_Pieces = table.Rows[i][j].ToString();
                                             break;
-                                        case "GROSS WEIGHT":
-                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double gross))
-                                                Gross_weight = gross;
-                                            break;
+                                        //case "GROSS WEIGHT":
+                                        //    if (Double.TryParse(table.Rows[i][j].ToString(), out double gross))
+                                        //        Gross_weight = gross;
+                                        //    break;
                                         case "UN.":
                                             Un_ = table.Rows[i][j].ToString();
                                             break;
-                                        case "NET WEIGHT":
-                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double net))
-                                                Net_weight = net;
-                                            break;
+                                        //case "NET WEIGHT":
+                                        //    if (Double.TryParse(table.Rows[i][j].ToString(), out double net))
+                                        //        Net_weight = net;
+                                        //    break;
                                         case "THICKNESS":
                                             if (Double.TryParse(table.Rows[i][j].ToString(), out double thick))
                                                 Thickness = thick;
@@ -831,6 +829,34 @@ namespace Portal_2_0.Models
                                     }
                                 }
 
+                                //obtiene el valor de peso neto y bruto de BOM
+                                #region PesosDeBOM
+                                List<bom_en_sap> listTemporalBOM = listadoBOM.Where(x => x.Plnt == Plnt && x.Material == material).ToList();
+
+                                DateTime? fechaCreacion = null, fechaUso = null;
+                                double? peso_neto;
+                                double? peso_bruto;
+
+                                if (listTemporalBOM.Count > 0)
+                                {
+                                    fechaCreacion = listTemporalBOM.OrderByDescending(x => x.Created).FirstOrDefault().Created;
+                                    fechaUso = listTemporalBOM.OrderByDescending(x => x.LastDateUsed).FirstOrDefault().LastDateUsed;
+                                }
+
+                                if (fechaUso.HasValue)
+                                {                                    
+                                    peso_bruto = listTemporalBOM.Where(x => x.LastDateUsed == fechaUso).Max(x => x.Quantity);
+                                    //peso bruto + los negativos
+                                    peso_neto = peso_bruto + listTemporalBOM.Where(x => x.LastDateUsed == fechaUso && x.Quantity < (-0.001) ).Sum(x => x.Quantity);
+                                }
+                                else
+                                {
+                                    peso_bruto = listTemporalBOM.Where(x => x.Created == fechaCreacion).Max(x => x.Quantity);
+                                    //peso bruto + los negativos
+                                    peso_neto = peso_bruto + listTemporalBOM.Where(x => x.Created == fechaCreacion && x.Quantity < (-0.001)).Sum(x => x.Quantity);
+                                }
+
+                                #endregion
 
                                 //agrega a la lista con los datos leidos
                                 lista.Add(new mm_v3()
@@ -853,9 +879,9 @@ namespace Portal_2_0.Models
                                     IHS_number_5 = IHS_number_5,
                                     Type_of_Selling = Type_of_Selling,
                                     Package_Pieces = Package_Pieces,
-                                    Gross_weight = Gross_weight,
+                                    Gross_weight = peso_bruto,
                                     Un_ = Un_,
-                                    Net_weight = Net_weight,
+                                    Net_weight = peso_neto,
                                     Un_1 = Un_,
                                     Thickness = Thickness,
                                     Width = Width,
@@ -882,6 +908,8 @@ namespace Portal_2_0.Models
 
             return lista;
         }
+
+      
 
         /// <summary>
         /// Lee un archivo y obtiene un List de budget_cantidad con los valores leidos
@@ -1018,7 +1046,7 @@ namespace Portal_2_0.Models
                             try
                             {
                                 //variables
-                                string sap_account = table.Rows[i][1].ToString();                               
+                                string sap_account = table.Rows[i][1].ToString();
 
                                 //obtiene la cuenta
                                 budget_cuenta_sap cuenta = listCuentas.Where(x => x.sap_account == sap_account).FirstOrDefault();
@@ -1056,36 +1084,36 @@ namespace Portal_2_0.Models
                                     //busca por un comentario
                                     else if (encabezados[j].ToUpper().Contains("COMENTARIO") && cuenta != null)
                                     {
-                                        string comentarios = UsoStrings.RecortaString(table.Rows[i][j].ToString(),100);
+                                        string comentarios = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 100);
 
-                                        if(!String.IsNullOrEmpty(comentarios))
-                                        switch (j)
-                                        {
-                                            case int k when k > 22 && k <= 27:
+                                        if (!String.IsNullOrEmpty(comentarios))
+                                            switch (j)
+                                            {
+                                                case int k when k > 22 && k <= 27:
                                                     listComentarios.Add(new budget_rel_comentarios
                                                     {
                                                         id_budget_rel_fy_centro = ListObjectEncabezados[0].rel_fy.id, //id correspondiente al primer año de la plantilla
                                                         id_cuenta_sap = cuenta.id,
                                                         comentarios = comentarios
                                                     });
-                                                break;
-                                            case int k when k > 35 && k <= 40:                                                
+                                                    break;
+                                                case int k when k > 35 && k <= 40:
                                                     listComentarios.Add(new budget_rel_comentarios
                                                     {
                                                         id_budget_rel_fy_centro = ListObjectEncabezados[12].rel_fy.id, //id correspondiente al segundo año de la plantilla
                                                         id_cuenta_sap = cuenta.id,
                                                         comentarios = comentarios
-                                                    }) ;
-                                                break;
-                                            case int k when k > 50 && k <= 55:
+                                                    });
+                                                    break;
+                                                case int k when k > 50 && k <= 55:
                                                     listComentarios.Add(new budget_rel_comentarios
                                                     {
                                                         id_budget_rel_fy_centro = ListObjectEncabezados[24].rel_fy.id, //id correspondiente al terver año de la plantilla
                                                         id_cuenta_sap = cuenta.id,
                                                         comentarios = comentarios
                                                     });
-                                                break;
-                                        }
+                                                    break;
+                                            }
 
                                     }
 

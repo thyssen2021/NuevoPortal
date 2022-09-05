@@ -439,7 +439,7 @@ namespace Portal_2_0.Controllers
         public JsonResult obtieneRollosBom(string material = "")
         {
             //obtiene todos los posibles valores
-            List<bom_en_sap> listado = db.bom_en_sap.Where(p => p.activo == true && p.Quantity > 0 && !p.Material.StartsWith("sm") && p.Material == material).ToList();
+            List<bom_en_sap> listado = db.bom_en_sap.Where(p =>  p.Quantity > 0 && !p.Material.StartsWith("sm") && p.Material == material).ToList();
 
             //realiza un distict de los materiales
             List<string> distinctList = listado.Where(m => m.Material == material).Select(m => m.Component).Distinct().ToList();

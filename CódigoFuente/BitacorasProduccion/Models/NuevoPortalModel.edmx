@@ -67,7 +67,6 @@
             <PropertyRef Name="AltBOM" />
             <PropertyRef Name="Item" />
             <PropertyRef Name="Component" />
-            <PropertyRef Name="Node" />
           </Key>
           <Property Name="Material" Type="nvarchar" MaxLength="30" Nullable="false" />
           <Property Name="Plnt" Type="nvarchar" MaxLength="20" Nullable="false" />
@@ -75,13 +74,10 @@
           <Property Name="AltBOM" Type="nvarchar" MaxLength="10" Nullable="false" />
           <Property Name="Item" Type="nvarchar" MaxLength="10" Nullable="false" />
           <Property Name="Component" Type="nvarchar" MaxLength="30" Nullable="false" />
-          <Property Name="Created by" Type="nvarchar" MaxLength="50" />
-          <Property Name="BOM1" Type="nvarchar" MaxLength="30" />
-          <Property Name="Node" Type="nvarchar" MaxLength="30" Nullable="false" />
           <Property Name="Quantity" Type="float" />
           <Property Name="Un" Type="nvarchar" MaxLength="20" />
           <Property Name="Created" Type="datetime" />
-          <Property Name="activo" Type="bit" Nullable="false" />
+          <Property Name="LastDateUsed" Type="datetime" />
         </EntityType>
         <EntityType Name="budget_anio_fiscal">
           <Key>
@@ -1521,18 +1517,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_empleados_inventory_type">
-          <End Role="IT_inventory_hardware_type" Type="Self.IT_inventory_hardware_type" Multiplicity="1" />
-          <End Role="IT_inventory_items" Type="Self.IT_inventory_items" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="IT_inventory_hardware_type">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_inventory_items">
-              <PropertyRef Name="id_inventory_type" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_empleados_jefe_directo">
           <End Role="empleados" Type="Self.empleados" Multiplicity="0..1" />
           <End Role="empleados1" Type="Self.empleados" Multiplicity="*" />
@@ -1865,6 +1849,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
               <PropertyRef Name="id" />
             </Principal>
             <Dependent Role="IT_inventory_items_genericos">
+              <PropertyRef Name="id_inventory_type" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_inventory_items_id_inventory_type">
+          <End Role="IT_inventory_hardware_type" Type="Self.IT_inventory_hardware_type" Multiplicity="1" />
+          <End Role="IT_inventory_items" Type="Self.IT_inventory_items" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_inventory_hardware_type">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_inventory_items">
               <PropertyRef Name="id_inventory_type" />
             </Dependent>
           </ReferentialConstraint>
@@ -3262,10 +3258,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="Area" EntitySet="Area" />
             <End Role="empleados" EntitySet="empleados" />
           </AssociationSet>
-          <AssociationSet Name="FK_empleados_inventory_type" Association="Self.FK_empleados_inventory_type">
-            <End Role="IT_inventory_hardware_type" EntitySet="IT_inventory_hardware_type" />
-            <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
-          </AssociationSet>
           <AssociationSet Name="FK_empleados_jefe_directo" Association="Self.FK_empleados_jefe_directo">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="empleados1" EntitySet="empleados" />
@@ -3377,6 +3369,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <AssociationSet Name="FK_IT_inventory_items_genericos_id_inventory_type" Association="Self.FK_IT_inventory_items_genericos_id_inventory_type">
             <End Role="IT_inventory_hardware_type" EntitySet="IT_inventory_hardware_type" />
             <End Role="IT_inventory_items_genericos" EntitySet="IT_inventory_items_genericos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_inventory_items_id_inventory_type" Association="Self.FK_IT_inventory_items_id_inventory_type">
+            <End Role="IT_inventory_hardware_type" EntitySet="IT_inventory_hardware_type" />
+            <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
           </AssociationSet>
           <AssociationSet Name="FK_IT_inventory_items_id_planta" Association="Self.FK_IT_inventory_items_id_planta">
             <End Role="plantas" EntitySet="plantas" />
@@ -3810,30 +3806,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="PFA" Relationship="Self.FK_PFA_documento" FromRole="biblioteca_digital" ToRole="PFA" />
           <NavigationProperty Name="poliza_manual" Relationship="Self.FK_poliza_manual_documento_registro" FromRole="biblioteca_digital" ToRole="poliza_manual" />
           <NavigationProperty Name="poliza_manual1" Relationship="Self.FK_poliza_manual_documento_soporte" FromRole="biblioteca_digital" ToRole="poliza_manual" />
-        </EntityType>
-        <EntityType Name="bom_en_sap">
-          <Key>
-            <PropertyRef Name="Material" />
-            <PropertyRef Name="Plnt" />
-            <PropertyRef Name="BOM" />
-            <PropertyRef Name="AltBOM" />
-            <PropertyRef Name="Item" />
-            <PropertyRef Name="Component" />
-            <PropertyRef Name="Node" />
-          </Key>
-          <Property Name="Material" Type="String" MaxLength="30" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Plnt" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="BOM" Type="String" MaxLength="30" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="AltBOM" Type="String" MaxLength="10" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Item" Type="String" MaxLength="10" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Component" Type="String" MaxLength="30" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Created_by" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="BOM1" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
-          <Property Name="Node" Type="String" MaxLength="30" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Quantity" Type="Double" />
-          <Property Name="Un" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
-          <Property Name="Created" Type="DateTime" Precision="3" />
-          <Property Name="activo" Type="Boolean" Nullable="false" />
         </EntityType>
         <EntityType Name="budget_anio_fiscal">
           <Key>
@@ -6716,7 +6688,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySet Name="AspNetRoles" EntityType="Self.AspNetRoles" />
           <EntitySet Name="AspNetUsers" EntityType="Self.AspNetUsers" />
           <EntitySet Name="biblioteca_digital" EntityType="Self.biblioteca_digital" />
-          <EntitySet Name="bom_en_sap" EntityType="Self.bom_en_sap" />
           <EntitySet Name="budget_anio_fiscal" EntityType="Self.budget_anio_fiscal" />
           <EntitySet Name="budget_cantidad" EntityType="Self.budget_cantidad" />
           <EntitySet Name="budget_centro_costo" EntityType="Self.budget_centro_costo" />
@@ -7358,6 +7329,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="produccion_turnos" EntitySet="produccion_turnos" />
             <End Role="produccion_registros" EntitySet="produccion_registros" />
           </AssociationSet>
+          <EntitySet Name="bom_en_sap" EntityType="Portal_2_0Model.bom_en_sap" />
         </EntityContainer>
         <EntityType Name="produccion_datos_entrada">
           <Key>
@@ -7605,6 +7577,26 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="bom_en_sap">
+          <Key>
+            <PropertyRef Name="Material" />
+            <PropertyRef Name="Plnt" />
+            <PropertyRef Name="BOM" />
+            <PropertyRef Name="AltBOM" />
+            <PropertyRef Name="Item" />
+            <PropertyRef Name="Component" />
+          </Key>
+          <Property Name="Material" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="Plnt" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="BOM" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="AltBOM" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="Item" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="Component" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="Quantity" Type="Double" />
+          <Property Name="Un" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="Created" Type="DateTime" Precision="3" />
+          <Property Name="LastDateUsed" Type="DateTime" Precision="3" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -7658,25 +7650,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
                 <ScalarProperty Name="Nombre" ColumnName="Nombre" />
                 <ScalarProperty Name="MimeType" ColumnName="MimeType" />
                 <ScalarProperty Name="Datos" ColumnName="Datos" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="bom_en_sap">
-            <EntityTypeMapping TypeName="Portal_2_0Model.bom_en_sap">
-              <MappingFragment StoreEntitySet="bom_en_sap">
-                <ScalarProperty Name="Material" ColumnName="Material" />
-                <ScalarProperty Name="Plnt" ColumnName="Plnt" />
-                <ScalarProperty Name="BOM" ColumnName="BOM" />
-                <ScalarProperty Name="AltBOM" ColumnName="AltBOM" />
-                <ScalarProperty Name="Item" ColumnName="Item" />
-                <ScalarProperty Name="Component" ColumnName="Component" />
-                <ScalarProperty Name="Created_by" ColumnName="Created by" />
-                <ScalarProperty Name="BOM1" ColumnName="BOM1" />
-                <ScalarProperty Name="Node" ColumnName="Node" />
-                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
-                <ScalarProperty Name="Un" ColumnName="Un" />
-                <ScalarProperty Name="Created" ColumnName="Created" />
-                <ScalarProperty Name="activo" ColumnName="activo" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -8992,6 +8965,22 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
                 <ScalarProperty Name="Supervisor" ColumnName="Supervisor" />
                 <ScalarProperty Name="Operador" ColumnName="Operador" />
                 <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="bom_en_sap">
+            <EntityTypeMapping TypeName="Portal_2_0Model.bom_en_sap">
+              <MappingFragment StoreEntitySet="bom_en_sap">
+                <ScalarProperty Name="LastDateUsed" ColumnName="LastDateUsed" />
+                <ScalarProperty Name="Created" ColumnName="Created" />
+                <ScalarProperty Name="Un" ColumnName="Un" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="Component" ColumnName="Component" />
+                <ScalarProperty Name="Item" ColumnName="Item" />
+                <ScalarProperty Name="AltBOM" ColumnName="AltBOM" />
+                <ScalarProperty Name="BOM" ColumnName="BOM" />
+                <ScalarProperty Name="Plnt" ColumnName="Plnt" />
+                <ScalarProperty Name="Material" ColumnName="Material" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

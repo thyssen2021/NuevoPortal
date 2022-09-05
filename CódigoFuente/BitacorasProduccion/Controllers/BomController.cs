@@ -30,7 +30,7 @@ namespace Portal_2_0.Controllers
 
                 var cantidadRegistrosPorPagina = 20; // parámetro
 
-            
+
                 var listaBom = db.bom_en_sap.Where(x => String.IsNullOrEmpty(material) || x.Material.Contains(material)).OrderBy(x => x.Material)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                     .Take(cantidadRegistrosPorPagina).ToList();
@@ -56,14 +56,14 @@ namespace Portal_2_0.Controllers
             {
                 return View("../Home/ErrorPermisos");
             }
-            
+
         }
 
         // GET: Bom/CargaBom/5
         public ActionResult CargaBom()
         {
             if (TieneRol(TipoRoles.ADMIN))
-            {   
+            {
                 return View();
             }
             else
@@ -80,7 +80,7 @@ namespace Portal_2_0.Controllers
         {
             if (ModelState.IsValid)
             {
-            
+
 
                 string msjError = "No se ha podido leer el archivo seleccionado.";
 
@@ -95,7 +95,8 @@ namespace Portal_2_0.Controllers
                         msjError = "Sólo se permiten archivos con peso menor a 8 MB.";
                         throw new Exception(msjError);
                     }
-                    else {
+                    else
+                    {
                         string extension = Path.GetExtension(excelViewModel.PostedFile.FileName);
                         if (extension.ToUpper() != ".XLS" && extension.ToUpper() != ".XLSX")
                         {
@@ -114,12 +115,13 @@ namespace Portal_2_0.Controllers
                         msjError = "No cumple con la estructura válida.";
                         throw new Exception(msjError);
                     }
-                    else {
+                    else
+                    {
                         int actualizados = 0;
                         int creados = 0;
                         int error = 0;
                         int eliminados = 0;
-                        
+
 
                         List<bom_en_sap> listAnterior = db.bom_en_sap.ToList();
 
@@ -132,29 +134,30 @@ namespace Portal_2_0.Controllers
                             {
                                 //obtiene el elemento de BD
                                 bom_en_sap item = listAnterior.FirstOrDefault(x => x.Material == bom.Material && x.Plnt == bom.Plnt && x.BOM == bom.BOM && x.AltBOM == bom.AltBOM && x.Item == bom.Item
-                                 && x.Component == bom.Component && x.Node == bom.Node
+                                 && x.Component == bom.Component
                                 );
 
                                 //si existe actualiza
                                 if (item != null)
                                 {
                                     db.Entry(item).CurrentValues.SetValues(bom);
-                                    db.SaveChanges();
+
                                     actualizados++;
                                 }
-                                else {
+                                else
+                                {
                                     //crea un nuevo registro
                                     db.bom_en_sap.Add(bom);
-                                    db.SaveChanges();
+
                                     creados++;
                                 }
-
+                                db.SaveChanges();
                             }
                             catch (Exception e)
                             {
                                 error++;
                             }
-                            
+
                         }
                         //obtiene nuevamente la lista de BD
                         listAnterior = db.bom_en_sap.ToList();
@@ -168,17 +171,16 @@ namespace Portal_2_0.Controllers
                             {
                                 //obtiene el elemento de BD
                                 bom_en_sap item = listAnterior.FirstOrDefault(x => x.Material == bom.Material && x.Plnt == bom.Plnt && x.BOM == bom.BOM && x.AltBOM == bom.AltBOM && x.Item == bom.Item
-                                && x.Component == bom.Component && x.Node == bom.Node
+                                && x.Component == bom.Component
                                 );
 
                                 //si existe elimina
                                 if (item != null)
                                 {
                                     db.Entry(item).State = EntityState.Deleted;
-                                    db.SaveChanges();
                                     eliminados++;
-                                }                              
-
+                                }
+                                db.SaveChanges();
                             }
                             catch (Exception e)
                             {
@@ -188,9 +190,11 @@ namespace Portal_2_0.Controllers
                         }
 
 
-                        TempData["Mensaje"] = new MensajesSweetAlert("Actualizados: "+actualizados+" -> Creados: "+creados+" -> Errores: "+error+" -> Eliminados: "+eliminados, TipoMensajesSweetAlerts.INFO);
+                        //llamada a metodo que calcula y actualiza los valores de neto y bruto sap                     
+
+                        TempData["Mensaje"] = new MensajesSweetAlert("Actualizados: " + actualizados + " -> Creados: " + creados + " -> Errores: " + error + " -> Eliminados: " + eliminados, TipoMensajesSweetAlerts.INFO);
                         return RedirectToAction("index");
-                    }                    
+                    }
 
                 }
                 catch (Exception e)
@@ -201,9 +205,7 @@ namespace Portal_2_0.Controllers
 
             }
             return View(excelViewModel);
-        }
-
-
+        }   
 
         protected override void Dispose(bool disposing)
         {
