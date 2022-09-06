@@ -17,12 +17,12 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public biblioteca_digital()
         {
-            this.IT_asignacion_hardware = new HashSet<IT_asignacion_hardware>();
             this.IT_mantenimientos = new HashSet<IT_mantenimientos>();
             this.OT_rel_archivos = new HashSet<OT_rel_archivos>();
             this.PFA = new HashSet<PFA>();
             this.poliza_manual = new HashSet<poliza_manual>();
             this.poliza_manual1 = new HashSet<poliza_manual>();
+            this.IT_asignacion_hardware = new HashSet<IT_asignacion_hardware>();
         }
     
         public int Id { get; set; }
@@ -30,8 +30,6 @@ namespace Portal_2_0.Models
         public string MimeType { get; set; }
         public byte[] Datos { get; set; }
     
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IT_asignacion_hardware> IT_asignacion_hardware { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_mantenimientos> IT_mantenimientos { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -42,5 +40,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<poliza_manual> poliza_manual { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<poliza_manual> poliza_manual1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_asignacion_hardware> IT_asignacion_hardware { get; set; }
     }
 }

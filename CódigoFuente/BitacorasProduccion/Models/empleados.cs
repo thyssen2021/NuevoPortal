@@ -19,9 +19,6 @@ namespace Portal_2_0.Models
         {
             this.budget_responsables = new HashSet<budget_responsables>();
             this.empleados1 = new HashSet<empleados>();
-            this.IT_asignacion_hardware = new HashSet<IT_asignacion_hardware>();
-            this.IT_asignacion_hardware1 = new HashSet<IT_asignacion_hardware>();
-            this.IT_asignacion_hardware2 = new HashSet<IT_asignacion_hardware>();
             this.inspeccion_datos_generales = new HashSet<inspeccion_datos_generales>();
             this.IT_asignacion_software = new HashSet<IT_asignacion_software>();
             this.IT_asignacion_software1 = new HashSet<IT_asignacion_software>();
@@ -52,6 +49,9 @@ namespace Portal_2_0.Models
             this.produccion_respaldo = new HashSet<produccion_respaldo>();
             this.produccion_supervisores = new HashSet<produccion_supervisores>();
             this.upgrade_usuarios = new HashSet<upgrade_usuarios>();
+            this.IT_asignacion_hardware = new HashSet<IT_asignacion_hardware>();
+            this.IT_asignacion_hardware1 = new HashSet<IT_asignacion_hardware>();
+            this.IT_asignacion_hardware2 = new HashSet<IT_asignacion_hardware>();
         }
     
         public int id { get; set; }
@@ -85,12 +85,6 @@ namespace Portal_2_0.Models
         public virtual empleados empleados2 { get; set; }
         public virtual plantas plantas { get; set; }
         public virtual puesto puesto1 { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IT_asignacion_hardware> IT_asignacion_hardware { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IT_asignacion_hardware> IT_asignacion_hardware1 { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IT_asignacion_hardware> IT_asignacion_hardware2 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<inspeccion_datos_generales> inspeccion_datos_generales { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -151,5 +145,11 @@ namespace Portal_2_0.Models
         public virtual ICollection<produccion_supervisores> produccion_supervisores { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<upgrade_usuarios> upgrade_usuarios { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_asignacion_hardware> IT_asignacion_hardware { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_asignacion_hardware> IT_asignacion_hardware1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_asignacion_hardware> IT_asignacion_hardware2 { get; set; }
     }
 }

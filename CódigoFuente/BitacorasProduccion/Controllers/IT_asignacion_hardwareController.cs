@@ -929,6 +929,7 @@ namespace Portal_2_0.Controllers
             IT_asignacion_hardware iT_asignacion_hardware_old = db.IT_asignacion_hardware.Find(iT_asignacion_hardware.id);
             iT_asignacion_hardware_old.fecha_desasignacion = iT_asignacion_hardware.fecha_desasignacion;
             iT_asignacion_hardware_old.es_asignacion_actual = false;
+            iT_asignacion_hardware_old.comentario_desasignacion = iT_asignacion_hardware.comentario_desasignacion;
 
             //si se leccionó la opcion de desasociar lineas
             if (iT_asignacion_hardware.desasociar_linea)

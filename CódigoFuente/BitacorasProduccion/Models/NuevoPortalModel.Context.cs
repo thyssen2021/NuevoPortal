@@ -49,7 +49,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<inspeccion_datos_generales> inspeccion_datos_generales { get; set; }
         public virtual DbSet<inspeccion_fallas> inspeccion_fallas { get; set; }
         public virtual DbSet<inspeccion_pieza_descarte_produccion> inspeccion_pieza_descarte_produccion { get; set; }
-        public virtual DbSet<IT_asignacion_hardware> IT_asignacion_hardware { get; set; }
         public virtual DbSet<IT_asignacion_hardware_rel_items> IT_asignacion_hardware_rel_items { get; set; }
         public virtual DbSet<IT_asignacion_software> IT_asignacion_software { get; set; }
         public virtual DbSet<IT_carpetas_red> IT_carpetas_red { get; set; }
@@ -123,5 +122,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<produccion_registros> produccion_registros { get; set; }
         public virtual DbSet<view_historico_resultado> view_historico_resultado { get; set; }
         public virtual DbSet<bom_en_sap> bom_en_sap { get; set; }
+        public virtual DbSet<IT_asignacion_hardware> IT_asignacion_hardware { get; set; }
     }
 }

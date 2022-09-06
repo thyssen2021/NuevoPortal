@@ -31,6 +31,7 @@ namespace Portal_2_0.Models
         public Nullable<int> id_responsable_principal { get; set; }
         public Nullable<int> id_cellular_line { get; set; }
         public bool es_asignacion_linea_actual { get; set; }
+        public string comentario_desasignacion { get; set; }
     
         public virtual biblioteca_digital biblioteca_digital { get; set; }
         public virtual empleados empleados { get; set; }

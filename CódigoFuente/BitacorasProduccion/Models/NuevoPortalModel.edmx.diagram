@@ -29,7 +29,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.inspeccion_datos_generales" Width="1.5" PointX="9.75" PointY="77.125" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.inspeccion_fallas" Width="1.5" PointX="21" PointY="92.625" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.inspeccion_pieza_descarte_produccion" Width="1.5" PointX="23.25" PointY="79.875" IsExpanded="true" />
-        <EntityTypeShape EntityType="Portal_2_0Model.IT_asignacion_hardware" Width="1.5" PointX="12.75" PointY="75.625" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_asignacion_hardware_rel_items" Width="1.5" PointX="21" PointY="71.5" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_asignacion_software" Width="1.5" PointX="12.75" PointY="80.875" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_carpetas_red" Width="1.5" PointX="15.75" PointY="97.125" IsExpanded="true" />
@@ -105,7 +104,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_OT_rel_depto_aplica_linea_id_area" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_puestos_area_clave" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_log_inicio_sesion_id_usuario" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_id_biblioteca_digital" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_mantenimientos_id_biblioteca_digital" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_OT_rel_archivos_id_archivo" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_PFA_documento" ManuallyRouted="false" />
@@ -128,9 +126,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_empleados_jefe_directo" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_empleados_planta_clave" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_empleados_puesto" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_id_empleado" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_id_responsable_principal" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_id_sistemas" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_inspeccion_datos_generales_id_empleado_inspector" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_asignacion_software_id_empleado" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_asignacion_software_id_sistemas" ManuallyRouted="false" />
@@ -163,12 +158,9 @@
         <AssociationConnector Association="Portal_2_0Model.FK_upgrade_usuarios_empleado" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_IATF_documentos_id_planta" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_id_iatf_documento" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_id_iatf_version" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_mantenimientos_id_iatf_version" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_inspeccion_fallas_id_categoria" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_inspeccion_pieza_descarte_produccion_id_falla" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_id_cellular_line" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_item_id_asignacion_hardware" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_item_id_it_inventory_generico" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_item_id_it_inventory_item" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_asignacion_software_id_inventory_software" ManuallyRouted="false" />
@@ -240,6 +232,14 @@
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_supervisor" />
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_turnos" />
         <EntityTypeShape EntityType="Portal_2_0Model.bom_en_sap" Width="1.5" PointX="0.75" PointY="10.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_asignacion_hardware" Width="1.5" PointX="21.75" PointY="65.75" />
+        <AssociationConnector Association="Portal_2_0Model.FK_id_biblioteca_digital" />
+        <AssociationConnector Association="Portal_2_0Model.FK_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_id_responsable_principal" />
+        <AssociationConnector Association="Portal_2_0Model.FK_id_sistemas" />
+        <AssociationConnector Association="Portal_2_0Model.FK_id_iatf_version" />
+        <AssociationConnector Association="Portal_2_0Model.FK_id_cellular_line" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_item_id_asignacion_hardware" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
