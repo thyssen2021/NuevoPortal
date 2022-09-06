@@ -454,14 +454,14 @@ namespace Portal_2_0.Controllers
             {
                 if (lote.numero_lote_derecho == null && lote.numero_lote_izquierdo == null)
                     error = true;
-                //if (lote.numero_lote_derecho != null && lote.numero_lote_izquierdo != null)
-                //    errorDoble = true;
+                if (lote.numero_lote_derecho != null && lote.numero_lote_izquierdo != null)
+                    errorDoble = true;
             }
 
             if (error)
                 ModelState.AddModelError("", "Verifique que se haya especificado un lote izquierdo o derecho para cada lote.");
-            //if (errorDoble)
-            //    ModelState.AddModelError("", "Verifique que todos los lotes tengan especificado únicamente un lote, ya sea lote izquierdo o lote derecho. No ambos.");
+            if (errorDoble)
+                ModelState.AddModelError("", "Verifique que todos los lotes tengan especificado únicamente un lote, ya sea lote izquierdo o lote derecho. No ambos.");
 
             if (ModelState.IsValid)
             {
