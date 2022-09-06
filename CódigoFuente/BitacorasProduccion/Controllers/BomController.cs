@@ -109,6 +109,8 @@ namespace Portal_2_0.Controllers
                     //el archivo es válido
                     List<bom_en_sap> lista = UtilExcel.LeeBom(excelViewModel.PostedFile, ref estructuraValida);
 
+                    //quita los repetidos
+                    lista = lista.Distinct().ToList();
 
                     if (!estructuraValida)
                     {

@@ -856,6 +856,25 @@ namespace Portal_2_0.Models
                                     peso_neto = peso_bruto + listTemporalBOM.Where(x => x.Created == fechaCreacion && x.Quantity < (-0.001)).Sum(x => x.Quantity);
                                 }
 
+                              
+                                //actualiza el peso de todos los demas mm que tengan null
+                                foreach (var item in lista.Where(x=>x.Material == material && !x.Net_weight.HasValue && !x.Gross_weight.HasValue))
+                                {
+                                    item.Net_weight = peso_neto;
+                                    item.Gross_weight = peso_bruto;
+                                }
+                                //si peso neto y bruto es null toma el valor de mm donde no sea null
+                                if (!peso_neto.HasValue && !peso_bruto.HasValue) {
+                                    var item = lista.Where(x => x.Material == material && x.Net_weight.HasValue && x.Gross_weight.HasValue).FirstOrDefault();
+
+                                    if (item != null) {
+                                        peso_neto = item.Net_weight;
+                                        peso_bruto = item.Gross_weight;
+                                    }
+                                    
+                                }
+
+
                                 #endregion
 
                                 //agrega a la lista con los datos leidos
