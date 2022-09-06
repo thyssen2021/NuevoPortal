@@ -425,7 +425,7 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DatosEntradas(produccion_registros produccion_registros)
         {
-            ////comprueba si hay un margen del 3% de toleracnicia
+            //comprueba si hay un margen del 3% de toleracnicia
             //try
             //{
             //    //sumatoria de ambas

@@ -137,7 +137,7 @@ namespace Portal_2_0.Controllers
                             try
                             {
                                 //obtiene el elemento de BD
-                                mm_v3 item = db.mm_v3.FirstOrDefault(x => x.Material == mm.Material && x.Plnt == mm.Plnt );
+                                mm_v3 item = listAnterior.FirstOrDefault(x => x.Material == mm.Material && x.Plnt == mm.Plnt );
 
                                 //si existe actualiza
                                 if (item != null)
@@ -153,7 +153,6 @@ namespace Portal_2_0.Controllers
                                     db.SaveChanges();
                                     creados++;
                                 }
-
                             }
                             catch (Exception e)
                             {

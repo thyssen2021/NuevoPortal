@@ -29,7 +29,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<AspNetRoles> AspNetRoles { get; set; }
         public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
         public virtual DbSet<biblioteca_digital> biblioteca_digital { get; set; }
-        public virtual DbSet<bom_en_sap> bom_en_sap { get; set; }
         public virtual DbSet<budget_anio_fiscal> budget_anio_fiscal { get; set; }
         public virtual DbSet<budget_cantidad> budget_cantidad { get; set; }
         public virtual DbSet<budget_centro_costo> budget_centro_costo { get; set; }
@@ -123,5 +122,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<produccion_datos_entrada> produccion_datos_entrada { get; set; }
         public virtual DbSet<produccion_registros> produccion_registros { get; set; }
         public virtual DbSet<view_historico_resultado> view_historico_resultado { get; set; }
+        public virtual DbSet<bom_en_sap> bom_en_sap { get; set; }
     }
 }
