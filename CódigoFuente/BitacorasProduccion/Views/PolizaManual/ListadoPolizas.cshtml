@@ -69,7 +69,7 @@
                                         }
                                     </div>
 
-                                    <table id="datatable_1" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                    <table id="datatable_1" class="table table-striped table-bordered" cellspacing="0" width="100%">
                                         <thead>
                                             <tr>
                                                 <th>Acciones</th>
@@ -109,7 +109,7 @@
                                             {
                                                 <tr>
 
-                                                    <td>
+                                                    <td nowrap>
                                                         @if (ViewBag.Autorizar != null && ViewBag.Autorizar)
                                                         {
                                                             <a href="@Url.Action("AutorizarControlling", ViewBag.ControllerName, new { id = item.id })" class="btn btn-info " title="Autorizar/Rechazar">

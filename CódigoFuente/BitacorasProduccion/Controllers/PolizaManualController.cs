@@ -164,13 +164,13 @@ namespace Portal_2_0.Controllers
                 empleados empleado = obtieneEmpleadoLogeado();
 
                 var listado = db.poliza_manual
-                    .Where(x => x.id_elaborador == empleado.id && (x.estatus == PM_Status.RECHAZADO_VALIDADOR || x.estatus == PM_Status.RECHAZADO_AUTORIZADOR || x.estatus == PM_Status.RECHAZADO_DIRECCION))
+                    .Where(x => x.id_elaborador == empleado.id && (x.estatus == PM_Status.RECHAZADO_VALIDADOR || x.estatus == PM_Status.RECHAZADO_AUTORIZADOR || x.estatus == PM_Status.RECHAZADO_DIRECCION || x.estatus == PM_Status.RECHAZADO_CONTABILIDAD))
                     .OrderByDescending(x => x.fecha_creacion)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
                 var totalDeRegistros = db.poliza_manual
-                    .Where(x => x.id_elaborador == empleado.id && (x.estatus == PM_Status.RECHAZADO_VALIDADOR || x.estatus == PM_Status.RECHAZADO_AUTORIZADOR || x.estatus == PM_Status.RECHAZADO_DIRECCION))
+                    .Where(x => x.id_elaborador == empleado.id && (x.estatus == PM_Status.RECHAZADO_VALIDADOR || x.estatus == PM_Status.RECHAZADO_AUTORIZADOR || x.estatus == PM_Status.RECHAZADO_DIRECCION || x.estatus == PM_Status.RECHAZADO_CONTABILIDAD))
                     .Count();
                 //para paginación
 
@@ -352,13 +352,13 @@ namespace Portal_2_0.Controllers
                 //int idValidador = validador == null ? 0 : validador.id;
 
                 var listado = db.poliza_manual
-                    .Where(x => (x.estatus == PM_Status.RECHAZADO_VALIDADOR || x.estatus == PM_Status.RECHAZADO_AUTORIZADOR || x.estatus == PM_Status.RECHAZADO_DIRECCION) && x.id_validador == empleado.id)
+                    .Where(x => (x.estatus == PM_Status.RECHAZADO_VALIDADOR || x.estatus == PM_Status.RECHAZADO_AUTORIZADOR || x.estatus == PM_Status.RECHAZADO_DIRECCION) && x.id_validador == empleado.id || x.estatus == PM_Status.RECHAZADO_CONTABILIDAD)
                     .OrderByDescending(x => x.fecha_creacion)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
                 var totalDeRegistros = db.poliza_manual
-                    .Where(x => (x.estatus == PM_Status.RECHAZADO_VALIDADOR || x.estatus == PM_Status.RECHAZADO_AUTORIZADOR || x.estatus == PM_Status.RECHAZADO_DIRECCION) && x.id_validador == empleado.id)
+                    .Where(x => (x.estatus == PM_Status.RECHAZADO_VALIDADOR || x.estatus == PM_Status.RECHAZADO_AUTORIZADOR || x.estatus == PM_Status.RECHAZADO_DIRECCION) && x.id_validador == empleado.id || x.estatus == PM_Status.RECHAZADO_CONTABILIDAD)
                     .Count();
                 //para paginación
 
@@ -1082,7 +1082,10 @@ namespace Portal_2_0.Controllers
                 }
 
                 //verifica si se puede enviar para validacion
-                if (poliza_manual.estatus != PM_Status.CREADO && poliza_manual.estatus != PM_Status.RECHAZADO_VALIDADOR && poliza_manual.estatus != PM_Status.RECHAZADO_AUTORIZADOR && poliza_manual.estatus != PM_Status.RECHAZADO_DIRECCION)
+                if (poliza_manual.estatus != PM_Status.CREADO && poliza_manual.estatus != PM_Status.RECHAZADO_VALIDADOR
+                    && poliza_manual.estatus != PM_Status.RECHAZADO_AUTORIZADOR && poliza_manual.estatus != PM_Status.RECHAZADO_DIRECCION
+                    && poliza_manual.estatus != PM_Status.RECHAZADO_CONTABILIDAD
+                    )
                 {
                     ViewBag.Titulo = "¡Lo sentimos!¡No se puede enviar esta Póliza!";
                     ViewBag.Descripcion = "No se puede enviar una póliza que ya ha sido enviada, aprobada o finalizada.";
@@ -1143,7 +1146,8 @@ namespace Portal_2_0.Controllers
                 var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
 
                 TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
-                if (estatusAnterior == PM_Status.RECHAZADO_VALIDADOR || estatusAnterior == PM_Status.RECHAZADO_AUTORIZADOR)
+                if (estatusAnterior == PM_Status.RECHAZADO_VALIDADOR || estatusAnterior == PM_Status.RECHAZADO_AUTORIZADOR 
+                    || estatusAnterior == PM_Status.RECHAZADO_DIRECCION|| estatusAnterior == PM_Status.RECHAZADO_CONTABILIDAD )
                     return RedirectToAction("CapturistaRechazadas");
                 return RedirectToAction("CapturistaCreadas");
 
@@ -1156,7 +1160,8 @@ namespace Portal_2_0.Controllers
 
             TempData["Mensaje"] = new MensajesSweetAlert("La Póliza Manual ha sido enviada", TipoMensajesSweetAlerts.SUCCESS);
 
-            if (estatusAnterior == PM_Status.RECHAZADO_VALIDADOR)
+            if (estatusAnterior == PM_Status.RECHAZADO_VALIDADOR || estatusAnterior == PM_Status.RECHAZADO_AUTORIZADOR
+                  || estatusAnterior == PM_Status.RECHAZADO_DIRECCION || estatusAnterior == PM_Status.RECHAZADO_CONTABILIDAD)
                 return RedirectToAction("CapturistaRechazadas");
 
             return RedirectToAction("CapturistaCreadas");
@@ -1415,6 +1420,79 @@ namespace Portal_2_0.Controllers
             //asigna el id de empleado del autorizador
             if (empleado.id > 0)
                 poliza.id_autorizador = empleado.id;
+
+
+            db.Entry(poliza).State = EntityState.Modified;
+            try
+            {
+                db.SaveChanges();
+
+                //envia correo electronico
+                EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+
+                List<String> correos = new List<string>(); //correos TO
+
+                //correos.Add("alfredo.xochitemol@lagermex.com.mx");
+
+                if (!String.IsNullOrEmpty(poliza.empleados3.correo))
+                    correos.Add(poliza.empleados3.correo); //agrega correo de elaborador
+
+                envioCorreo.SendEmailAsync(correos, "La Póliza Manual #" + poliza.id + " ha sido Rechazada.", envioCorreo.getBodyPMRechazada(poliza, empleado.ConcatNombre));
+
+            }
+            catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+            {
+                // Retrieve the error messages as a list of strings.
+                var errorMessages = ex.EntityValidationErrors
+                        .SelectMany(x => x.ValidationErrors)
+                        .Select(x => x.ErrorMessage);
+
+                // Join the list to a single string.
+                var fullErrorMessage = string.Join("; ", errorMessages);
+
+                // Combine the original exception message with the new one.
+                var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
+
+                TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
+                return RedirectToAction("AutorizadorPendientes");
+
+            }
+            catch (Exception e)
+            {
+                TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
+                return RedirectToAction("AutorizadorPendientes");
+            }
+            TempData["Mensaje"] = new MensajesSweetAlert("La Poliza ha sido rechazada correctamente.", TipoMensajesSweetAlerts.SUCCESS);
+            return RedirectToAction("AutorizadorPendientes");
+        }
+
+          // POST: PremiumFreightAproval/Rechazar/5
+        [HttpPost, ActionName("RechazarContabilidad")]
+        [ValidateAntiForgeryToken]
+        public ActionResult RechazarContabilidadConfirmed(FormCollection collection)
+        {
+
+            int id = 0;
+            if (!String.IsNullOrEmpty(collection["id"]))
+                Int32.TryParse(collection["id"], out id);
+
+            String razonRechazo = collection["comentario_rechazo"];
+
+
+            poliza_manual poliza = db.poliza_manual.Find(id);
+            poliza.estatus = PM_Status.RECHAZADO_CONTABILIDAD;
+            poliza.comentario_rechazo = razonRechazo;
+            //borra las fechas 
+            poliza.fecha_validacion = null;
+            poliza.fecha_autorizacion = null;
+            poliza.fecha_direccion = null;
+
+            //obtiene el usuario logeado
+            empleados empleado = obtieneEmpleadoLogeado();
+
+            //asigna el id de empleado del autorizador
+            //if (empleado.id > 0)
+            //    poliza.id_contabilidad = empleado.id;
 
 
             db.Entry(poliza).State = EntityState.Modified;
@@ -2395,7 +2473,7 @@ namespace Portal_2_0.Controllers
                 }
 
                 //verifica si se puede editar
-                if (poliza_manual.estatus != PM_Status.CREADO && poliza_manual.estatus != PM_Status.RECHAZADO_VALIDADOR && poliza_manual.estatus != PM_Status.RECHAZADO_AUTORIZADOR && poliza_manual.estatus != PM_Status.RECHAZADO_DIRECCION)
+                if (poliza_manual.estatus != PM_Status.CREADO && poliza_manual.estatus != PM_Status.RECHAZADO_VALIDADOR && poliza_manual.estatus != PM_Status.RECHAZADO_AUTORIZADOR && poliza_manual.estatus != PM_Status.RECHAZADO_DIRECCION && poliza_manual.estatus != PM_Status.RECHAZADO_CONTABILIDAD)
                 {
                     ViewBag.Titulo = "¡Lo sentimos!¡No se puede modificar esta Póliza!";
                     ViewBag.Descripcion = "No se puede modificar una póliza que ha sido enviada, aprobada o finalizada.";
@@ -2595,7 +2673,7 @@ namespace Portal_2_0.Controllers
                 TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
 
                 if (poliza.estatus == PM_Status.RECHAZADO_VALIDADOR || poliza.estatus == PM_Status.RECHAZADO_AUTORIZADOR
-                    || poliza.estatus == PM_Status.RECHAZADO_DIRECCION)
+                    || poliza.estatus == PM_Status.RECHAZADO_DIRECCION || poliza.estatus == PM_Status.RECHAZADO_CONTABILIDAD )
                     return RedirectToAction("CapturistaRechazadas");
 
                 return RedirectToAction("CapturistaCreadas");

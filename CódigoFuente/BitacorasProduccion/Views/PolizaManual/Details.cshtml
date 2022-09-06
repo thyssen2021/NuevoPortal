@@ -350,31 +350,31 @@
                         </div>
                         @if (Model.id_direccion.HasValue)
                         {
-                        <div class="form-group row">
-                            <!-- Dirección -->
-                            @Html.LabelFor(model => model.id_direccion, new { @class = "control-label col-md-1" })
+                            <div class="form-group row">
+                                <!-- Dirección -->
+                                @Html.LabelFor(model => model.id_direccion, new { @class = "control-label col-md-1" })
 
-                            <input type="text" class="form-control col-md-5" value="@Model.empleados2.ConcatNombre" readonly>
-                           
+                                <input type="text" class="form-control col-md-5" value="@Model.empleados2.ConcatNombre" readonly>
 
-                            <!-- Fecha registro -->
-                            @Html.LabelFor(model => model.fecha_direccion, new { @class = "control-label col-md-2 float-right" })
 
-                        <div class="col-md-4">
-                            @if (Model.fecha_direccion.HasValue)
-                            {
-                                <input type="text" class="form-control col-md-12" value="@Model.fecha_direccion.Value" readonly>
-                            }
-                            else if (Model.id_direccion.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_DIRECCION)
-                            {
-                                <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
-                            }
-                            else
-                            {
-                                <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
-                            }
-                        </div>
-                        </div>
+                                <!-- Fecha registro -->
+                                @Html.LabelFor(model => model.fecha_direccion, new { @class = "control-label col-md-2 float-right" })
+
+                                <div class="col-md-4">
+                                    @if (Model.fecha_direccion.HasValue)
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="@Model.fecha_direccion.Value" readonly>
+                                    }
+                                    else if (Model.id_direccion.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_DIRECCION)
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
+                                    }
+                                    else
+                                    {
+                                        <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
+                                    }
+                                </div>
+                            </div>
                         }
                         <div class="form-group row">
                             <!-- Contabilidad -->
@@ -397,7 +397,10 @@
                                 {
                                     <input type="text" class="form-control col-md-12" value="@Model.fecha_registro.Value" readonly>
                                 }
-
+                                else if (Model.id_contabilidad.HasValue && Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_CONTABILIDAD)
+                                {
+                                    <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
+                                }
                                 else
                                 {
                                     <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
