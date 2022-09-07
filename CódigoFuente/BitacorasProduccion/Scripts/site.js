@@ -70,6 +70,22 @@ function ConvierteAFloat(str, defaultValue) {
     return retValue;
 }
 
+//bloquea la pantalla
+function BloqueaPantalla() {
+    $.blockUI({
+        css: {
+            border: 'none',
+            padding: '15px',
+            backgroundColor: '#000',
+            '-webkit-border-radius': '10px',
+            '-moz-border-radius': '10px',
+            opacity: .3,
+            color: '#fff'
+        },
+        message: '<h3>Cargando...</h3>'
+    });
+}
+
 
 //Convierte jqueryval a espalo
 

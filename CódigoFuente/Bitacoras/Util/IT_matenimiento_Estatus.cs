@@ -14,6 +14,8 @@ namespace Bitacoras.Util
         public const string REALIZADO = "REALIZADO";
         public const string EN_PROCESO = "EN_PROCESO";
         public const string REALIZADO_CON_DOCUMENTO = "REALIZADO_CON_DOCUMENTO";
+
+        public const string TODOS = "TODOS"; //utilizado unicamente para filtros
         public static string DescripcionStatus(String status)
         {
 
@@ -28,7 +30,8 @@ namespace Bitacoras.Util
                     return "Realizado";
                 case IT_matenimiento_Estatus.EN_PROCESO:
                     return "En proceso";
-              
+                case IT_matenimiento_Estatus.TODOS: //utilizado unicamente para filtros
+                    return "Todos";
                 default:
                     return "No Disponible";
             }

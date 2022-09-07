@@ -1527,16 +1527,16 @@ namespace Portal_2_0.Controllers
                 var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
 
                 TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
-                return RedirectToAction("AutorizadorPendientes");
+                return RedirectToAction("ContabilidadPendientes");
 
             }
             catch (Exception e)
             {
                 TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
-                return RedirectToAction("AutorizadorPendientes");
+                return RedirectToAction("ContabilidadPendientes");
             }
             TempData["Mensaje"] = new MensajesSweetAlert("La Poliza ha sido rechazada correctamente.", TipoMensajesSweetAlerts.SUCCESS);
-            return RedirectToAction("AutorizadorPendientes");
+            return RedirectToAction("ContabilidadPendientes");
         }
 
         // POST: PremiumFreightAproval/ValidarAreaPM/5

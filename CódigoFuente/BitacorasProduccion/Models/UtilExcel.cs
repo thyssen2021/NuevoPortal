@@ -38,7 +38,7 @@ namespace Portal_2_0.Models
                 foreach (DataTable table in result.Tables)
                 {
                     //busca si existe una hoja llamada "dante"
-                    if (table.TableName.ToUpper() == "SHEET1")
+                    if (table.TableName.ToUpper() == "SHEET1"|| table.TableName.ToUpper() == "HOJA1")
                     {
                         valido = true;
 
@@ -521,7 +521,7 @@ namespace Portal_2_0.Models
                 foreach (DataTable table in result.Tables)
                 {
                     //busca si existe una hoja llamada "dante"
-                    if (table.TableName.ToUpper() == "SHEET1")
+                    if (table.TableName.ToUpper() == "SHEET1" || table.TableName.ToUpper() == "HOJA1")
                     {
                         valido = true;
 
@@ -665,7 +665,7 @@ namespace Portal_2_0.Models
                 foreach (DataTable table in result.Tables)
                 {
                     //busca si existe una hoja llamada "dante"
-                    if (table.TableName.ToUpper() == "SHEET1")
+                    if (table.TableName.ToUpper() == "SHEET1" || table.TableName.ToUpper() == "HOJA1")
                     {
                         valido = true;
 

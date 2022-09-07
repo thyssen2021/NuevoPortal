@@ -56,11 +56,12 @@ namespace Portal_2_0.Controllers
                         && (documento == null || x.id_biblioteca_digital.HasValue == documento)
                         && (mes == null || (x.fecha_programada.Year == mes.Value.Year && x.fecha_programada.Month == mes.Value.Month))
                         && (
-                        (estatus_mantenimiento == IT_matenimiento_Estatus.REALIZADO && x.fecha_realizacion.HasValue)
-                        || (estatus_mantenimiento == IT_matenimiento_Estatus.VENCIDO && x.fecha_programada < DateTime.Now && x.fecha_realizacion == null)
+                        ((estatus_mantenimiento == IT_matenimiento_Estatus.REALIZADO || estatus_mantenimiento == IT_matenimiento_Estatus.REALIZADO_CON_DOCUMENTO)  && x.fecha_realizacion.HasValue)
+                        || (estatus_mantenimiento == IT_matenimiento_Estatus.VENCIDO && x.fecha_programada < DateTime.Now && x.fecha_realizacion == null && !x.IT_mantenimientos_rel_checklist.Any())
+                        || (estatus_mantenimiento == IT_matenimiento_Estatus.EN_PROCESO && x.IT_mantenimientos_rel_checklist.Any() && !x.fecha_realizacion.HasValue)
                         || (estatus_mantenimiento == IT_matenimiento_Estatus.PROXIMO && x.fecha_programada > DateTime.Now && x.fecha_realizacion == null)
-                        || String.IsNullOrEmpty(estatus_mantenimiento)
-
+                        || (estatus_mantenimiento == IT_matenimiento_Estatus.TODOS)
+                        //|| String.IsNullOrEmpty(estatus_mantenimiento)
                         )
                 )
                    .OrderByDescending(x => x.id)
@@ -79,11 +80,12 @@ namespace Portal_2_0.Controllers
                         && (documento == null || x.id_biblioteca_digital.HasValue == documento)
                         && (mes == null || (x.fecha_programada.Year == mes.Value.Year && x.fecha_programada.Month == mes.Value.Month))
                         && (
-                        (estatus_mantenimiento == IT_matenimiento_Estatus.REALIZADO && x.fecha_realizacion.HasValue)
-                        || (estatus_mantenimiento == IT_matenimiento_Estatus.VENCIDO && x.fecha_programada < DateTime.Now && x.fecha_realizacion == null)
+                        ((estatus_mantenimiento == IT_matenimiento_Estatus.REALIZADO || estatus_mantenimiento == IT_matenimiento_Estatus.REALIZADO_CON_DOCUMENTO) && x.fecha_realizacion.HasValue)
+                        || (estatus_mantenimiento == IT_matenimiento_Estatus.VENCIDO && x.fecha_programada < DateTime.Now && x.fecha_realizacion == null && !x.IT_mantenimientos_rel_checklist.Any())
+                        || (estatus_mantenimiento == IT_matenimiento_Estatus.EN_PROCESO && x.IT_mantenimientos_rel_checklist.Any() && !x.fecha_realizacion.HasValue)
                         || (estatus_mantenimiento == IT_matenimiento_Estatus.PROXIMO && x.fecha_programada > DateTime.Now && x.fecha_realizacion == null)
-                        || String.IsNullOrEmpty(estatus_mantenimiento)
-
+                        || (estatus_mantenimiento == IT_matenimiento_Estatus.TODOS)
+                        //|| String.IsNullOrEmpty(estatus_mantenimiento)
                         )
                 )
                 .Count();
@@ -109,7 +111,9 @@ namespace Portal_2_0.Controllers
 
             //select list para responsiva
             List<SelectListItem> newListStatusMantenimiento = new List<SelectListItem>();
+            newListStatusMantenimiento.Add(new SelectListItem() { Text = IT_matenimiento_Estatus.DescripcionStatus(IT_matenimiento_Estatus.TODOS), Value = IT_matenimiento_Estatus.TODOS });
             newListStatusMantenimiento.Add(new SelectListItem() { Text = IT_matenimiento_Estatus.DescripcionStatus(IT_matenimiento_Estatus.PROXIMO), Value = IT_matenimiento_Estatus.PROXIMO });
+            newListStatusMantenimiento.Add(new SelectListItem() { Text = IT_matenimiento_Estatus.DescripcionStatus(IT_matenimiento_Estatus.EN_PROCESO), Value = IT_matenimiento_Estatus.EN_PROCESO });
             newListStatusMantenimiento.Add(new SelectListItem() { Text = IT_matenimiento_Estatus.DescripcionStatus(IT_matenimiento_Estatus.REALIZADO), Value = IT_matenimiento_Estatus.REALIZADO });
             newListStatusMantenimiento.Add(new SelectListItem() { Text = IT_matenimiento_Estatus.DescripcionStatus(IT_matenimiento_Estatus.VENCIDO), Value = IT_matenimiento_Estatus.VENCIDO });
             SelectList selectListStatusResponsiva = new SelectList(newListStatusMantenimiento, "Value", "Text");
@@ -121,7 +125,7 @@ namespace Portal_2_0.Controllers
             SelectList selectListStatusDocumentoResponsiva = new SelectList(newListStatusDocumento, "Value", "Text");
 
             ViewBag.Paginacion = paginacion;
-            ViewBag.estatus_mantenimiento = AddFirstItem(selectListStatusResponsiva, selected: estatus_mantenimiento.ToString(), textoPorDefecto: "-- Todos --");
+            ViewBag.estatus_mantenimiento = AddFirstItem(selectListStatusResponsiva, selected: estatus_mantenimiento.ToString(), textoPorDefecto: "-- Seleccionar --");
             ViewBag.documento = AddFirstItem(selectListStatusDocumentoResponsiva, selected: documento.ToString(), textoPorDefecto: "-- Todos --");
             ViewBag.planta_clave = AddFirstItem(new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion", planta_clave.ToString()), textoPorDefecto: "-- Todas --");
             ViewBag.id_empleado = AddFirstItem(new SelectList(db.empleados, "id", "ConcatNumEmpleadoNombre"), selected: id_empleado.ToString(), textoPorDefecto: "-- Todos --");
@@ -160,6 +164,8 @@ namespace Portal_2_0.Controllers
             }
             var sistemas = obtieneEmpleadoLogeado();
 
+            string estatus_inicial = Bitacoras.Util.IT_matenimiento_Estatus.DescripcionStatus(iT_mantenimientos.estatus);
+
             //Asigna los valores del empleado de sistemas 
             iT_mantenimientos.id_empleado_sistemas = sistemas.id;
             iT_mantenimientos.empleados1 = sistemas;
@@ -194,6 +200,7 @@ namespace Portal_2_0.Controllers
             }
 
             ViewBag.id_empleado_responsable = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true && x.planta_clave == iT_mantenimientos.IT_inventory_items.id_planta), "id", "ConcatNumEmpleadoNombre"), selected: id_responsable_default.ToString(), textoPorDefecto: "-- Seleccionar --");
+            ViewBag.estatus_inicial = estatus_inicial;
 
             return View(iT_mantenimientos);
         }
@@ -462,7 +469,7 @@ namespace Portal_2_0.Controllers
                 doc.Add(newline);
                 pTitle.Add(" 4.- Comentarios Adicionales").AddStyle(encabezado);
                 doc.Add(pTitle);
-                doc.Add(new Paragraph(!string.IsNullOrEmpty(item.comentarios) ? item.comentarios : "---").AddStyle(fuenteThyssen).SetTextAlignment(TextAlignment.JUSTIFIED));
+                doc.Add(new Paragraph(!string.IsNullOrEmpty(item.comentarios) ? item.comentarios : String.Empty).AddStyle(fuenteThyssen).SetTextAlignment(TextAlignment.JUSTIFIED));
                 //---> Cierre Comentarios Adicionales <-------               
 
                 //---> Tabla de firmas <-------               

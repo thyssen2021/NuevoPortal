@@ -7,6 +7,8 @@
     ViewBag.ControllerName = "it_mantenimientos";
 
     int contador = 0;
+
+    string status = (string)ViewBag.estatus_inicial;
 }
 
 
@@ -197,8 +199,8 @@
                                 </div>
 
                                 @Html.LabelFor(model => model.estatus, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-3 col-sm-3 ">
-                                    <input type="text" class="form-control" value="@Bitacoras.Util.IT_matenimiento_Estatus.DescripcionStatus(Model.estatus)" readonly />
+                                <div class="col-md-3 col-sm-3 ">                                  
+                                    <input type="text" class="form-control" value="@status" readonly />
                                 </div>
                             </div>
 

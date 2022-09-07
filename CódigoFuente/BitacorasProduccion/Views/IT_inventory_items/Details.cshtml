@@ -24,20 +24,29 @@
     @Styles.Render("~/Content/dataTables_css")
 
     <style>
+
         .fondo-verde {
             background-color: #e1ffe1;
+        }
+
+        .fondo-verde-documento {
+            background-color: #b6d9b6;
         }
 
         .fondo-amarillo {
             background-color: #fadebd;
         }
 
-        .fondo-gris {
-            background-color: #f2f2f2;
-        }
-
         .fondo-rojo {
             background-color: #ffc8c8;
+        }
+
+        .fondo-azul {
+            background-color: #d0edf8;
+        }
+
+        .fondo-gris {
+            background-color: #f2f2f2;
         }
     </style>
 }
@@ -583,10 +592,12 @@
                                                     @foreach (var item in Model.IT_mantenimientos.OrderByDescending(x => x.fecha_programada))
                                                     {
                                                         <tr class="@(item.estatus == Bitacoras.Util.IT_matenimiento_Estatus.REALIZADO ? "fondo-verde"
-                                                            : item.estatus == Bitacoras.Util.IT_matenimiento_Estatus.PROXIMO ? "fondo-amarillo"
-                                                            : item.estatus == Bitacoras.Util.IT_matenimiento_Estatus.VENCIDO ? "fondo-rojo"
-                                                            : String.Empty
-                                                            )">
+                                                              : item.estatus == Bitacoras.Util.IT_matenimiento_Estatus.REALIZADO_CON_DOCUMENTO ? "fondo-verde-documento"
+                                                              : item.estatus == Bitacoras.Util.IT_matenimiento_Estatus.PROXIMO ? "fondo-amarillo"
+                                                              : item.estatus == Bitacoras.Util.IT_matenimiento_Estatus.VENCIDO ? "fondo-rojo"
+                                                              : item.estatus == Bitacoras.Util.IT_matenimiento_Estatus.EN_PROCESO ? "fondo-azul"
+                                                              : String.Empty
+                                                             )">
                                                             <td>
                                                                 <a style="color:white" onclick="mostrarDetallesMantenimiento(@item.id); return false;" class="btn btn-secondary btn-sm" title="Detalles">
                                                                     <i class="fa-solid fa-circle-info"></i>
