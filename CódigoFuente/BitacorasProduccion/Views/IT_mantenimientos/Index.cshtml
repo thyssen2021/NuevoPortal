@@ -247,7 +247,7 @@
                                                         <td>
                                                             @if (item.estatus != Bitacoras.Util.IT_matenimiento_Estatus.REALIZADO)
                                                             {
-                                                                <a href="@Url.Action("CerrarMantenimiento", null, new { id = item.id })" class="btn btn-success btn-sm" title="Cerrar Mantenimiento">
+                                                                <a href="@Url.Action("CerrarMantenimiento", null, new { id = item.id, estatus_mantenimiento = estatus_mantenimiento })" class="btn btn-success btn-sm" title="Cerrar Mantenimiento">
                                                                     <i class="fa-solid fa-screwdriver-wrench"></i>
                                                                 </a>
                                                             }
@@ -257,12 +257,12 @@
                                                                 <a href="@Url.Action("GenerarPDF", null, new { id = item.id })" class="btn btn-danger btn-sm" title="Generar Plantilla" target="_blank">
                                                                     <i class="fa-solid fa-file-pdf"></i>
                                                                 </a>
-                                                                <a href="@Url.Action("CargarDocumento", null, new { id = item.id })" class="btn btn-primary btn-sm" title="Cargar Documento Firmado">
+                                                                <a href="@Url.Action("CargarDocumento", null, new { id = item.id, estatus_mantenimiento = estatus_mantenimiento })" class="btn btn-primary btn-sm" title="Cargar Documento Firmado">
                                                                     <i class="fa-solid fa-arrow-up-from-bracket"></i>
                                                                 </a>
                                                             }
 
-                                                            <a href="@Url.Action("Details", null, new { id = item.id })" class="btn btn-secondary btn-sm" title="Detalles">
+                                                            <a href="@Url.Action("Details", null, new { id = item.id, estatus_mantenimiento = estatus_mantenimiento })" class="btn btn-secondary btn-sm" title="Detalles">
                                                                 <i class="fa-solid fa-circle-info"></i>
                                                             </a>
 

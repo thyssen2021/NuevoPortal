@@ -146,6 +146,9 @@
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.fecha_corte)
                                                 </th>
+                                                 <th>
+                                                    @Html.DisplayNameFor(model => model.fecha_renovacion)
+                                                </th>
                                                 <th>
                                                     Asignaci&oacute;n
                                                 </th>
@@ -173,6 +176,9 @@
                                                     </td>
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.fecha_corte)
+                                                    </td>
+                                                   <td>
+                                                        @Html.DisplayFor(modelItem => item.fecha_renovacion)
                                                     </td>
                                                     @{ var asignacion = item.IT_asignacion_hardware.Where(x => x.es_asignacion_linea_actual && x.id_cellular_line == item.id && x.id_responsable_principal == x.id_empleado).FirstOrDefault();}
 
@@ -202,7 +208,7 @@
                                                             <span>Inactivo</span>
                                                         }
                                                     </td>
-                                                    <td>
+                                                    <td nowrap>
                                                         <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = item.id})" class="btn btn-success " title="Editar">
                                                             <i class="fa-regular fa-pen-to-square"></i>
                                                         </a>

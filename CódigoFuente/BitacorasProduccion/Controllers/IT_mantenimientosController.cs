@@ -140,7 +140,7 @@ namespace Portal_2_0.Controllers
 
 
         // GET: IT_mantenimientos/CerrarMantenimiento/5
-        public ActionResult CerrarMantenimiento(int? id)
+        public ActionResult CerrarMantenimiento(int? id, string estatus_mantenimiento = "")
         {
             if (!TieneRol(TipoRoles.IT_MANTENIMIENTO_REGISTRO))
                 return View("../Home/ErrorPermisos");
@@ -201,6 +201,7 @@ namespace Portal_2_0.Controllers
 
             ViewBag.id_empleado_responsable = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true && x.planta_clave == iT_mantenimientos.IT_inventory_items.id_planta), "id", "ConcatNumEmpleadoNombre"), selected: id_responsable_default.ToString(), textoPorDefecto: "-- Seleccionar --");
             ViewBag.estatus_inicial = estatus_inicial;
+            ViewBag.estatus_mantenimiento = estatus_mantenimiento;
 
             return View(iT_mantenimientos);
         }
@@ -210,7 +211,7 @@ namespace Portal_2_0.Controllers
         // más detalles, vea https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult CerrarMantenimiento(IT_mantenimientos iT_mantenimientos)
+        public ActionResult CerrarMantenimiento(IT_mantenimientos iT_mantenimientos, string estatus_mantenimiento = "")
         {
             //si es finalizar asocia docto iatf
             if (iT_mantenimientos.finalizar_mantenimiento)
@@ -276,7 +277,7 @@ namespace Portal_2_0.Controllers
 
                 TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
 
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { estatus_mantenimiento = estatus_mantenimiento });
             }
 
             //asigna propiedades previas
@@ -290,7 +291,25 @@ namespace Portal_2_0.Controllers
                 rel.IT_mantenimientos_checklist_item = db.IT_mantenimientos_checklist_item.Find(rel.id_item_checklist_mantenimiento);
             }
 
-            ViewBag.id_empleado_responsable = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true && x.planta_clave == iT_mantenimientos.IT_inventory_items.id_planta), "id", "ConcatNumEmpleadoNombre"), selected: iT_mantenimientos.id_empleado_responsable.ToString(), textoPorDefecto: "-- Seleccionar --");
+            var actualBD = db.IT_mantenimientos.Find(iT_mantenimientos.id);
+            string estatus_inicial = Bitacoras.Util.IT_matenimiento_Estatus.DescripcionStatus(actualBD.estatus);
+
+            //id responsable por defecto
+            int id_responsable_default = 0;
+
+            if (actualBD.id_empleado_responsable.HasValue)
+                id_responsable_default = actualBD.id_empleado_responsable.Value;
+            else
+            {
+                //obtiene el valor del responsable principal
+                var asignacion = db.IT_asignacion_hardware_rel_items.Where(x => x.id_it_inventory_item == actualBD.id_it_inventory_item && x.IT_asignacion_hardware.es_asignacion_actual == true && x.IT_asignacion_hardware.id_empleado == x.IT_asignacion_hardware.id_responsable_principal).FirstOrDefault();
+                if (asignacion != null)
+                    id_responsable_default = asignacion.IT_asignacion_hardware.id_empleado;
+            }
+
+            ViewBag.id_empleado_responsable = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true && x.planta_clave == iT_mantenimientos.IT_inventory_items.id_planta), "id", "ConcatNumEmpleadoNombre"), selected: id_responsable_default.ToString(), textoPorDefecto: "-- Seleccionar --");
+            ViewBag.estatus_inicial = estatus_inicial;
+            ViewBag.estatus_mantenimiento = estatus_mantenimiento;
 
             DateTime date1 = new DateTime(2008, 1, 2, 6, 30, 15);
 
@@ -595,7 +614,7 @@ namespace Portal_2_0.Controllers
         }
 
         // GET: IT_mantenimientos/CargarDocumento/5
-        public ActionResult CargarDocumento(int? id)
+        public ActionResult CargarDocumento(int? id, string estatus_mantenimiento = "")
         {
             if (!TieneRol(TipoRoles.IT_MANTENIMIENTO_REGISTRO))
                 return View("../Home/ErrorPermisos");
@@ -609,6 +628,7 @@ namespace Portal_2_0.Controllers
             {
                 return HttpNotFound();
             }
+            ViewBag.estatus_mantenimiento = estatus_mantenimiento;
             return View(iT_mantenimientos);
         }
 
@@ -617,7 +637,7 @@ namespace Portal_2_0.Controllers
         // más detalles, vea https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult CargarDocumento(IT_mantenimientos it_mantenimiento)
+        public ActionResult CargarDocumento(IT_mantenimientos it_mantenimiento, string estatus_mantenimiento = "")
         {
 
             IT_mantenimientos item = db.IT_mantenimientos.Find(it_mantenimiento.id);
@@ -685,7 +705,7 @@ namespace Portal_2_0.Controllers
                     db.SaveChanges();
 
                     TempData["Mensaje"] = new MensajesSweetAlert("Se ha subido el documento de aceptación correctamente.", TipoMensajesSweetAlerts.SUCCESS);
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Index", new { estatus_mantenimiento = estatus_mantenimiento });
                 }
                 catch (System.Data.Entity.Validation.DbEntityValidationException ex)
                 {
@@ -701,15 +721,16 @@ namespace Portal_2_0.Controllers
                     var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
 
                     TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Index", new { estatus_mantenimiento = estatus_mantenimiento });
 
                 }
                 catch (Exception e)
                 {
                     TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Index", new { estatus_mantenimiento = estatus_mantenimiento });
                 }
             }
+            ViewBag.estatus_mantenimiento = estatus_mantenimiento;
             return View(item);
         }
 

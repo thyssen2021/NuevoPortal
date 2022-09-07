@@ -9,6 +9,7 @@
     int contador = 0;
 
     string status = (string)ViewBag.estatus_inicial;
+    string estatus_mantenimiento = (string)ViewBag.estatus_mantenimiento;
 }
 
 
@@ -167,6 +168,7 @@
                             @Html.HiddenFor(model => model.id_empleado_sistemas)
                             @Html.HiddenFor(model => model.id_it_inventory_item)
                             @Html.HiddenFor(model => model.fecha_programada)
+                            <input type="hidden" name="estatus_mantenimiento" id="estatus_mantenimiento" value="@estatus_mantenimiento" />
 
                             @Html.AntiForgeryToken()
                             <div class="ln_solid"></div>
@@ -199,7 +201,7 @@
                                 </div>
 
                                 @Html.LabelFor(model => model.estatus, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-3 col-sm-3 ">                                  
+                                <div class="col-md-3 col-sm-3 ">
                                     <input type="text" class="form-control" value="@status" readonly />
                                 </div>
                             </div>

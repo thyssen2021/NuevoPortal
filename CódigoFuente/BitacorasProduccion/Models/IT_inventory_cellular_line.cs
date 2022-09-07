@@ -26,10 +26,11 @@ namespace Portal_2_0.Models
         public string numero_celular { get; set; }
         public Nullable<System.DateTime> fecha_corte { get; set; }
         public bool activo { get; set; }
+        public Nullable<System.DateTime> fecha_renovacion { get; set; }
     
-        public virtual IT_inventory_cellular_plans IT_inventory_cellular_plans { get; set; }
-        public virtual plantas plantas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_asignacion_hardware> IT_asignacion_hardware { get; set; }
+        public virtual IT_inventory_cellular_plans IT_inventory_cellular_plans { get; set; }
+        public virtual plantas plantas { get; set; }
     }
 }

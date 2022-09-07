@@ -1562,7 +1562,8 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Número Celular", typeof(string));
             dt.Columns.Add("Compañia", typeof(string));
             dt.Columns.Add("Plan Celular", typeof(string));
-            dt.Columns.Add("Fecha de Corte", typeof(DateTime));
+            dt.Columns.Add("Fecha de Corte", typeof(DateTime)); 
+            dt.Columns.Add("Fecha de Renovación", typeof(DateTime));
             dt.Columns.Add("Asignación (Responsable)", typeof(string));
             dt.Columns.Add("Departamento", typeof(string));
             dt.Columns.Add("Estado", typeof(string));          
@@ -1580,7 +1581,7 @@ namespace Portal_2_0.Models
                     departamentoAsignacion = asignacion.empleados.Area.descripcion;
 
                 dt.Rows.Add(item.plantas.descripcion,item.numero_celular, item.IT_inventory_cellular_plans.nombre_compania, item.IT_inventory_cellular_plans.nombre_plan,
-                    item.fecha_corte, nombreAsignacion, departamentoAsignacion, item.activo? "Activo":"Inactivo"
+                    item.fecha_corte, item.fecha_renovacion, nombreAsignacion, departamentoAsignacion, item.activo? "Activo":"Inactivo"
                     );
             }
 
@@ -1601,6 +1602,7 @@ namespace Portal_2_0.Models
             SLStyle styleShortDate = oSLDocument.CreateStyle();
             styleShortDate.FormatCode = "yyyy/MM/dd";
             oSLDocument.SetColumnStyle(5, styleShortDate);
+            oSLDocument.SetColumnStyle(6, styleShortDate);
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
             styleHeaderFont.Font.FontName = "Calibri";
@@ -1612,7 +1614,7 @@ namespace Portal_2_0.Models
             //inmoviliza el encabezado
             oSLDocument.FreezePanes(1, 0);
 
-            oSLDocument.Filter("A1", "H1");
+            oSLDocument.Filter(1,1,1,dt.Columns.Count);
             oSLDocument.AutoFitColumn(1, dt.Columns.Count);
 
             oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);

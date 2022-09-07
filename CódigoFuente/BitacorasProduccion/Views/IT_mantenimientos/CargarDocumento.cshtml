@@ -6,6 +6,8 @@
     ViewBag.SegundoNivel = "it_mantenimientos";
     ViewBag.ControllerName = "it_mantenimientos";
 
+    string estatus_mantenimiento = (string)ViewBag.estatus_mantenimiento;
+
     int contador = 0;
 }
 
@@ -160,7 +162,6 @@
                     <!-- /.col -->
                     <div class="x_content">
 
-
                         @Html.AntiForgeryToken()
                         <div class="ln_solid"></div>
                         <div class="form-group row">
@@ -311,6 +312,8 @@
 
                             @Html.HiddenFor(model => model.id)
                             <input type="hidden" name="cambio_documento_soporte" id="cambio_documento" value="0" />
+                            <input type="hidden" name="estatus_mantenimiento" id="estatus_mantenimiento" value="@estatus_mantenimiento" />
+
 
                             if (!Html.ViewData.ModelState.IsValid)
                             {
@@ -363,7 +366,7 @@
                                         }
                                     </div>
                                 </div>
-                            </div> 
+                            </div>
 
                             <div class="item form-group">
                                 <div class="col-md-12 col-sm-12 offset-md-12">
