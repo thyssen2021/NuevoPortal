@@ -1089,7 +1089,27 @@ namespace Portal_2_0.Controllers
             list[0] = new { Message = "Error: Se recibe mensaje, pero no hubo macth" };
             string patron = @"(?:- *)?\d+(?:\.\d+)?";
 
-            //conecta con la báscula
+            
+            ServiceReferenceBasculas.WebServiceBasculasSoapClient cliente = new ServiceReferenceBasculas.WebServiceBasculasSoapClient();
+
+            //primero trata de obtener el peso desde webservice
+            try
+            {
+                string peso = String.Empty;
+                peso = cliente.PesoBascula(ip);
+
+                if (Double.TryParse(peso,out double result)) {
+
+                    list[0] = new { Message = "OK", Peso = peso };
+                    //si recibe peso, retorna la respuiesta
+                    return Json(list, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception e) {
+                list[0] = new { Message = "Error: " + e.Message };
+            }
+
+            //conecta con la báscula (en caso de que no funcionará el webservice)
             try
             {
                 Socket miPrimerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
