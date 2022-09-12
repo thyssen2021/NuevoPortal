@@ -490,9 +490,12 @@ namespace Portal_2_0.Controllers
                 return View("../Error/BadRequest");
             }
 
+            if(tipo_hardware == 256)
+                return RedirectToAction("ExportarComputo", new { id_planta = id_planta, hostname = hostname, active = active });
+
             IT_inventory_hardware_type type = db.IT_inventory_hardware_type.Find(tipo_hardware);
             if (type == null)
-            {
+            {               
                 return View("../Error/NotFound");
             }
 
@@ -547,6 +550,54 @@ namespace Portal_2_0.Controllers
         }
 
         #region ExportacionExcel
+
+        public ActionResult ExportarComputo(int? id_planta, string hostname, bool? active)
+        {
+            if (TieneRol(TipoRoles.IT_INVENTORY))
+            {
+                //busca el tipo inventario para desktop
+                var type = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion.Contains("desktop"));
+                //busca el tipo inventario para laptop
+                var type2 = db.IT_inventory_hardware_type.FirstOrDefault(x => x.descripcion.Contains("laptop"));
+
+                //si es nulo inicializa un objeto vacio
+                if (type == null || type2 ==null)
+                    type = new IT_inventory_hardware_type();
+
+                var listado = db.IT_inventory_items
+                    .Where(x =>
+                    (x.id_inventory_type == type.id || x.id_inventory_type == type2.id)
+                    && (x.id_planta == id_planta || id_planta == null)
+                    && (x.hostname.Contains(hostname) || String.IsNullOrEmpty(hostname))
+                    && (x.active == active || active == null)
+                    )
+                  .OrderByDescending(x => x.id_planta)
+               .ToList();
+
+
+                byte[] stream = ExcelUtil.GeneraReporteITDesktopExcel(listado, type.descripcion);
+
+
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+                    // for example foo.bak
+                    FileName = "Inventory_Desktop_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+                    // always prompt the user for downloading, set to true if you want 
+                    // the browser to try to show the file inline
+                    Inline = false,
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                return File(stream, "application/vnd.ms-excel");
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
 
         public ActionResult ExportarDesktop(int? id_planta, string hostname, bool? active)
         {

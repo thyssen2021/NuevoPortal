@@ -44,9 +44,12 @@
     }
 
     string tipo_hardware = string.Empty;
+    string tipo_hardware_export = string.Empty;
+
     if (paginacionFiltros.ValoresQueryString["tipo_hardware"] != null)
     {
         tipo_hardware = paginacionFiltros.ValoresQueryString["tipo_hardware"].ToString();
+        tipo_hardware_export = tipo_hardware;
         if (tipo_hardware == "256") {
             tipo_hardware = "1";     //POR DEFECTO laptop
         }
@@ -571,7 +574,7 @@
 
                                         <a href="@Url.Action("Export", ViewBag.ControllerName, new
                                                 {
-                                                    tipo_hardware = tipo_hardware,
+                                                    tipo_hardware = tipo_hardware_export,
                                                     id_planta = id_planta,
                                                     hostname = hostname,
                                                     model = model_,
