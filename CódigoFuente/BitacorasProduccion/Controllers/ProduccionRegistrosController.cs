@@ -1222,8 +1222,6 @@ namespace Portal_2_0.Controllers
 
             empleados e = obtieneEmpleadoLogeado();
 
-
-
             DateTime autorizacion = DateTime.Now.AddDays(-1);
             if (Session["TiempoAutorizado"] != null)
                 autorizacion = Convert.ToDateTime(Session["TiempoAutorizado"]);
@@ -1231,7 +1229,9 @@ namespace Portal_2_0.Controllers
             int estado = DateTime.Compare(autorizacion, DateTime.Now);
 
             //si el tiempo de autorizacion es mayor al tiempo actual
-            if (estado >= 1)
+            if (estado >= 1
+                ||(e.planta_clave ==2) //si es Silao no se necesita autorizacion
+                )
             {
                 list[0] = new { Status = "OK", Message = "Está autorizado" };
 
