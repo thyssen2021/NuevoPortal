@@ -228,6 +228,7 @@
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_datos_entrada_id_produccion_registro" />
         <EntityTypeShape EntityType="Portal_2_0Model.GV_solicitud" Width="1.5" PointX="34.125" PointY="13.125" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_iso_moneda_extranjera" />
+        <AssociationConnector Association="Portal_2_0Model.FK_empleados_jefe_directo" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_contabilidad" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_controlling" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_empleado" />

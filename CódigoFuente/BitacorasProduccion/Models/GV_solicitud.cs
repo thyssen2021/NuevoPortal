@@ -42,6 +42,7 @@ namespace Portal_2_0.Models
         public Nullable<System.DateTime> fecha_aceptacion_contabilidad { get; set; }
         public Nullable<System.DateTime> fecha_aceptacion_nomina { get; set; }
         public string comentario_rechazo { get; set; }
+        public string comentario_adicional { get; set; }
         public string estatus { get; set; }
     
         public virtual currency currency { get; set; }

@@ -39,6 +39,7 @@ namespace Portal_2_0.Models
         public Nullable<System.DateTime> fecha_cierre { get; set; }
         public string estatus { get; set; }
         public string comentario { get; set; }
+        public Nullable<int> id_zona_falla { get; set; }
     
         public virtual Area Area { get; set; }
         public virtual empleados empleados { get; set; }

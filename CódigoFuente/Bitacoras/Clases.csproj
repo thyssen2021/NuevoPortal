@@ -63,6 +63,7 @@
     <Compile Include="Util\BgPlantillaUtil.cs" />
     <Compile Include="Util\BG_Status.cs" />
     <Compile Include="Util\DocumentosProcesos.cs" />
+    <Compile Include="Util\GV_tipo_viaje.cs" />
     <Compile Include="Util\IT_MR_Status.cs" />
     <Compile Include="Util\IT_solicitud_usuario_Status.cs" />
     <Compile Include="Util\IT_Tipos_Hardware.cs" />

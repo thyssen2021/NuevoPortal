@@ -67,7 +67,6 @@
             <PropertyRef Name="AltBOM" />
             <PropertyRef Name="Item" />
             <PropertyRef Name="Component" />
-            <PropertyRef Name="Node" />
           </Key>
           <Property Name="Material" Type="nvarchar" MaxLength="30" Nullable="false" />
           <Property Name="Plnt" Type="nvarchar" MaxLength="20" Nullable="false" />
@@ -75,13 +74,10 @@
           <Property Name="AltBOM" Type="nvarchar" MaxLength="10" Nullable="false" />
           <Property Name="Item" Type="nvarchar" MaxLength="10" Nullable="false" />
           <Property Name="Component" Type="nvarchar" MaxLength="30" Nullable="false" />
-          <Property Name="Created by" Type="nvarchar" MaxLength="50" />
-          <Property Name="BOM1" Type="nvarchar" MaxLength="30" />
-          <Property Name="Node" Type="nvarchar" MaxLength="30" Nullable="false" />
           <Property Name="Quantity" Type="float" />
           <Property Name="Un" Type="nvarchar" MaxLength="20" />
           <Property Name="Created" Type="datetime" />
-          <Property Name="activo" Type="bit" Nullable="false" />
+          <Property Name="LastDateUsed" Type="datetime" />
         </EntityType>
         <EntityType Name="budget_anio_fiscal">
           <Key>
@@ -241,6 +237,7 @@
           <Property Name="bajaFecha" Type="date" />
           <Property Name="8ID" Type="varchar" MaxLength="8" />
           <Property Name="id_area" Type="int" />
+          <Property Name="id_jefe_directo" Type="int" />
         </EntityType>
         <EntityType Name="GV_medios_transporte">
           <Key>
@@ -282,6 +279,7 @@
           <Property Name="fecha_aceptacion_contabilidad" Type="datetime" />
           <Property Name="fecha_aceptacion_nomina" Type="datetime" />
           <Property Name="comentario_rechazo" Type="varchar" MaxLength="355" />
+          <Property Name="comentario_adicional" Type="varchar" MaxLength="355" />
           <Property Name="estatus" Type="varchar" MaxLength="30" Nullable="false" />
         </EntityType>
         <EntityType Name="GV_tipo_gastos_viaje">
@@ -367,6 +365,7 @@
           <Property Name="id_responsable_principal" Type="int" />
           <Property Name="id_cellular_line" Type="int" />
           <Property Name="es_asignacion_linea_actual" Type="bit" Nullable="false" />
+          <Property Name="comentario_desasignacion" Type="varchar" MaxLength="255" />
         </EntityType>
         <EntityType Name="IT_asignacion_hardware_rel_items">
           <Key>
@@ -433,6 +432,7 @@
           <Property Name="numero_celular" Type="varchar" MaxLength="15" Nullable="false" />
           <Property Name="fecha_corte" Type="datetime" />
           <Property Name="activo" Type="bit" Nullable="false" />
+          <Property Name="fecha_renovacion" Type="datetime" />
         </EntityType>
         <EntityType Name="IT_inventory_cellular_plans">
           <Key>
@@ -708,6 +708,7 @@
           <Property Name="fecha_cierre" Type="datetime" />
           <Property Name="estatus" Type="varchar" MaxLength="20" Nullable="false" />
           <Property Name="comentario" Type="varchar" MaxLength="300" />
+          <Property Name="id_zona_falla" Type="int" />
         </EntityType>
         <EntityType Name="OT_grupo_trabajo">
           <Key>
@@ -1516,6 +1517,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Principal>
             <Dependent Role="empleados">
               <PropertyRef Name="id_area" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_empleados_jefe_directo">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="0..1" />
+          <End Role="empleados1" Type="Self.empleados" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="empleados1">
+              <PropertyRef Name="id_jefe_directo" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -3222,6 +3235,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="Area" EntitySet="Area" />
             <End Role="empleados" EntitySet="empleados" />
           </AssociationSet>
+          <AssociationSet Name="FK_empleados_jefe_directo" Association="Self.FK_empleados_jefe_directo">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="empleados1" EntitySet="empleados" />
+          </AssociationSet>
           <AssociationSet Name="FK_empleados_planta_clave" Association="Self.FK_empleados_planta_clave">
             <End Role="plantas" EntitySet="plantas" />
             <End Role="empleados" EntitySet="empleados" />
@@ -4637,6 +4654,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="currency" EntitySet="currency" />
             <End Role="GV_solicitud" EntitySet="GV_solicitud" />
           </AssociationSet>
+          <AssociationSet Name="FK_empleados_jefe_directo" Association="Portal_2_0Model.FK_empleados_jefe_directo">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="empleados1" EntitySet="empleados" />
+          </AssociationSet>
           <AssociationSet Name="FK_GV_solicitud_contabilidad" Association="Portal_2_0Model.FK_GV_solicitud_contabilidad">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="GV_solicitud" EntitySet="GV_solicitud" />
@@ -5724,6 +5745,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="IT_asignacion_hardware2" Relationship="Portal_2_0Model.FK_id_sistemas" FromRole="empleados" ToRole="IT_asignacion_hardware" />
           <NavigationProperty Name="IT_asignacion_software" Relationship="Portal_2_0Model.FK_IT_asignacion_software_id_empleado" FromRole="empleados" ToRole="IT_asignacion_software" />
           <NavigationProperty Name="IT_asignacion_software1" Relationship="Portal_2_0Model.FK_IT_asignacion_software_id_sistemas" FromRole="empleados" ToRole="IT_asignacion_software" />
+          <Property Name="id_jefe_directo" Type="Int32" />
+          <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_empleados_jefe_directo" FromRole="empleados" ToRole="empleados1" />
+          <NavigationProperty Name="empleados2" Relationship="Portal_2_0Model.FK_empleados_jefe_directo" FromRole="empleados1" ToRole="empleados" />
           <NavigationProperty Name="GV_solicitud" Relationship="Portal_2_0Model.FK_GV_solicitud_contabilidad" FromRole="empleados" ToRole="GV_solicitud" />
           <NavigationProperty Name="GV_solicitud1" Relationship="Portal_2_0Model.FK_GV_solicitud_id_controlling" FromRole="empleados" ToRole="GV_solicitud" />
           <NavigationProperty Name="GV_solicitud2" Relationship="Portal_2_0Model.FK_GV_solicitud_id_empleado" FromRole="empleados" ToRole="GV_solicitud" />
@@ -6190,6 +6214,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="Un" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
           <Property Name="Created" Type="DateTime" Precision="3" />
           <Property Name="activo" Type="Boolean" Nullable="false" />
+          <Property Name="LastDateUsed" Type="DateTime" Precision="3" />
         </EntityType>
         <EntityType Name="OT_rel_depto_aplica_linea">
           <Key>
@@ -6647,6 +6672,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="produccion_lineas" Relationship="Portal_2_0Model.FK_orden_trabajo_id_linea" FromRole="orden_trabajo" ToRole="produccion_lineas" />
           <NavigationProperty Name="OT_refacciones" Relationship="Portal_2_0Model.FK_OT_refacciones_id_orden_trabajo" FromRole="orden_trabajo" ToRole="OT_refacciones" />
           <NavigationProperty Name="OT_rel_archivos" Relationship="Portal_2_0Model.FK_OT_rel_archivos_id_orden_trabajo" FromRole="orden_trabajo" ToRole="OT_rel_archivos" />
+          <Property Name="id_zona_falla" Type="Int32" />
         </EntityType>
         <Association Name="FK_orden_trabajo_id_area">
           <End Type="Portal_2_0Model.Area" Role="Area" Multiplicity="1" />
@@ -7048,6 +7074,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="IT_inventory_cellular_plans" Relationship="Portal_2_0Model.FK_IATF_documentos_id_inventory_celullar_plan" FromRole="IT_inventory_cellular_line" ToRole="IT_inventory_cellular_plans" />
           <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_IT_inventory_cellular_line_id_planta" FromRole="IT_inventory_cellular_line" ToRole="plantas" />
           <NavigationProperty Name="IT_asignacion_hardware" Relationship="Portal_2_0Model.FK_id_cellular_line" FromRole="IT_inventory_cellular_line" ToRole="IT_asignacion_hardware" />
+          <Property Name="fecha_renovacion" Type="DateTime" Precision="3" />
         </EntityType>
         <Association Name="FK_IATF_documentos_id_inventory_celullar_plan">
           <End Type="Portal_2_0Model.IT_inventory_cellular_plans" Role="IT_inventory_cellular_plans" Multiplicity="1" />
@@ -7134,6 +7161,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="IATF_revisiones" Relationship="Portal_2_0Model.FK_id_iatf_version" FromRole="IT_asignacion_hardware" ToRole="IATF_revisiones" />
           <NavigationProperty Name="IT_inventory_cellular_line" Relationship="Portal_2_0Model.FK_id_cellular_line" FromRole="IT_asignacion_hardware" ToRole="IT_inventory_cellular_line" />
           <NavigationProperty Name="IT_asignacion_hardware_rel_items" Relationship="Portal_2_0Model.FK_IT_inventory_item_id_asignacion_hardware" FromRole="IT_asignacion_hardware" ToRole="IT_asignacion_hardware_rel_items" />
+          <Property Name="comentario_desasignacion" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="IT_asignacion_hardware_rel_items">
           <Key>
@@ -7389,6 +7417,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="fecha_aceptacion_contabilidad" Type="DateTime" Precision="3" />
           <Property Name="fecha_aceptacion_nomina" Type="DateTime" Precision="3" />
           <Property Name="comentario_rechazo" Type="String" MaxLength="355" FixedLength="false" Unicode="false" />
+          <Property Name="comentario_adicional" Type="String" MaxLength="355" FixedLength="false" Unicode="false" />
           <Property Name="estatus" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="currency" Relationship="Portal_2_0Model.FK_GV_solicitud_iso_moneda_extranjera" FromRole="GV_solicitud" ToRole="currency" />
           <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_GV_solicitud_contabilidad" FromRole="GV_solicitud" ToRole="empleados" />
@@ -7408,6 +7437,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Principal>
             <Dependent Role="GV_solicitud">
               <PropertyRef Name="iso_moneda_extranjera" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_empleados_jefe_directo">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.empleados" Role="empleados1" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="empleados1">
+              <PropertyRef Name="id_jefe_directo" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -8183,6 +8224,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySetMapping Name="empleados">
             <EntityTypeMapping TypeName="Portal_2_0Model.empleados">
               <MappingFragment StoreEntitySet="empleados">
+                <ScalarProperty Name="id_jefe_directo" ColumnName="id_jefe_directo" />
                 <ScalarProperty Name="id_area" ColumnName="id_area" />
                 <ScalarProperty Name="C8ID" ColumnName="8ID" />
                 <ScalarProperty Name="bajaFecha" ColumnName="bajaFecha" />
@@ -8319,13 +8361,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySetMapping Name="bom_en_sap">
             <EntityTypeMapping TypeName="Portal_2_0Model.bom_en_sap">
               <MappingFragment StoreEntitySet="bom_en_sap">
-                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="LastDateUsed" ColumnName="LastDateUsed" />
                 <ScalarProperty Name="Created" ColumnName="Created" />
                 <ScalarProperty Name="Un" ColumnName="Un" />
                 <ScalarProperty Name="Quantity" ColumnName="Quantity" />
-                <ScalarProperty Name="Node" ColumnName="Node" />
-                <ScalarProperty Name="BOM1" ColumnName="BOM1" />
-                <ScalarProperty Name="Created_by" ColumnName="Created by" />
                 <ScalarProperty Name="Component" ColumnName="Component" />
                 <ScalarProperty Name="Item" ColumnName="Item" />
                 <ScalarProperty Name="AltBOM" ColumnName="AltBOM" />
@@ -8573,6 +8612,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySetMapping Name="orden_trabajo">
             <EntityTypeMapping TypeName="Portal_2_0Model.orden_trabajo">
               <MappingFragment StoreEntitySet="orden_trabajo">
+                <ScalarProperty Name="id_zona_falla" ColumnName="id_zona_falla" />
                 <ScalarProperty Name="comentario" ColumnName="comentario" />
                 <ScalarProperty Name="estatus" ColumnName="estatus" />
                 <ScalarProperty Name="fecha_cierre" ColumnName="fecha_cierre" />
@@ -8744,6 +8784,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySetMapping Name="IT_inventory_cellular_line">
             <EntityTypeMapping TypeName="Portal_2_0Model.IT_inventory_cellular_line">
               <MappingFragment StoreEntitySet="IT_inventory_cellular_line">
+                <ScalarProperty Name="fecha_renovacion" ColumnName="fecha_renovacion" />
                 <ScalarProperty Name="activo" ColumnName="activo" />
                 <ScalarProperty Name="fecha_corte" ColumnName="fecha_corte" />
                 <ScalarProperty Name="numero_celular" ColumnName="numero_celular" />
@@ -8769,6 +8810,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySetMapping Name="IT_asignacion_hardware">
             <EntityTypeMapping TypeName="Portal_2_0Model.IT_asignacion_hardware">
               <MappingFragment StoreEntitySet="IT_asignacion_hardware">
+                <ScalarProperty Name="comentario_desasignacion" ColumnName="comentario_desasignacion" />
                 <ScalarProperty Name="es_asignacion_linea_actual" ColumnName="es_asignacion_linea_actual" />
                 <ScalarProperty Name="id_cellular_line" ColumnName="id_cellular_line" />
                 <ScalarProperty Name="id_responsable_principal" ColumnName="id_responsable_principal" />
@@ -8850,6 +8892,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <EntityTypeMapping TypeName="Portal_2_0Model.GV_solicitud">
               <MappingFragment StoreEntitySet="GV_solicitud">
                 <ScalarProperty Name="estatus" ColumnName="estatus" />
+                <ScalarProperty Name="comentario_adicional" ColumnName="comentario_adicional" />
                 <ScalarProperty Name="comentario_rechazo" ColumnName="comentario_rechazo" />
                 <ScalarProperty Name="fecha_aceptacion_nomina" ColumnName="fecha_aceptacion_nomina" />
                 <ScalarProperty Name="fecha_aceptacion_contabilidad" ColumnName="fecha_aceptacion_contabilidad" />

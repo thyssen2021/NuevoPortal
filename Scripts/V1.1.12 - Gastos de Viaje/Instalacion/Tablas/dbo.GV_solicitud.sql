@@ -49,6 +49,7 @@ CREATE TABLE [GV_solicitud](
 	[fecha_aceptacion_contabilidad][datetime]  NULL,
 	[fecha_aceptacion_nomina][datetime]  NULL,
 	[comentario_rechazo][varchar](355) NULL,
+	[comentario_adicional][varchar](355) NULL,
 	[estatus][varchar](30) NOT NULL,
  CONSTRAINT [PK_GV_solicitud] PRIMARY KEY CLUSTERED 
 (

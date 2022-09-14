@@ -65,9 +65,7 @@ namespace Portal_2_0.Controllers
 
             //obtiene el usuario logeado
             empleados solicitante = obtieneEmpleadoLogeado();
-            ViewBag.Solicitante = solicitante;
-
-
+          
             GV_solicitud solicitud = new GV_solicitud { 
                 id_solicitante = solicitante.id,
                 empleados5 = solicitante,
@@ -87,7 +85,7 @@ namespace Portal_2_0.Controllers
         // más detalles, vea https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "id,id_solicitante,id_empleado,id_jefe_directo,id_controlling,id_contabilidad,id_nomina,fecha_solicitud,tipo_viaje,origen,destino,fecha_salida,fecha_regreso,id_medio_transporte,medio_transporte_otro,moneda_extranjera,moneda_extranjera_comentarios,moneda_extranjera_monto,iso_moneda_extranjera,boletos_avion,boletos_avion_comentarios,hospedaje,hospedaje_comentarios,fecha_aceptacion_jefe_area,fecha_aceptacion_controlling,fecha_aceptacion_contabilidad,fecha_aceptacion_nomina,comentario_rechazo,estatus")] GV_solicitud gV_solicitud)
+        public ActionResult Create(GV_solicitud gV_solicitud)
         {
             if (ModelState.IsValid)
             {

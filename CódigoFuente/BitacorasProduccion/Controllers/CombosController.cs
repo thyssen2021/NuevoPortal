@@ -310,7 +310,45 @@ namespace Portal_2_0.Controllers
 
             return Json(objeto, JsonRequestBehavior.AllowGet);
         }
-         ///<summary>
+
+        ///<summary>
+        ///Obtiene del empleado, según el id recibido
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        [AllowAnonymous]
+        public JsonResult GetDatosEmpleados(int id = 0)
+        {
+
+            //obtiene todos los posibles valores
+            empleados item = db.empleados.Find(id);
+
+            //inicializa la lista de objetos
+            var objeto = new object[1];
+
+            //inicializa objeto principal
+            if (item == null)
+            {
+                item = new empleados();
+            }
+
+            objeto[0] = new
+            {
+                nombre = !string.IsNullOrEmpty(item.ConcatNombre) && !string.IsNullOrEmpty(item.nombre) ? item.ConcatNombre : "--",
+                num_empleado = !string.IsNullOrEmpty(item.numeroEmpleado) ? item.numeroEmpleado : "--",
+                correo = !string.IsNullOrEmpty(item.correo) ? item.correo : "--",
+                c8id = !string.IsNullOrEmpty(item.C8ID) ? item.C8ID : "--",
+                planta = item.plantas != null ? item.plantas.descripcion : "--",
+                area = item.Area != null ? item.Area.descripcion : "--",
+                puesto = item.puesto1 != null ? item.puesto1.descripcion : "--",
+                activo = item.activo == true ? "Activo" : "Inactivo",
+
+            };
+
+            return Json(objeto, JsonRequestBehavior.AllowGet);
+        }
+
+        ///<summary>
         ///Obtiene datos de la Línea seleccionada
         ///</summary>
         ///<return>

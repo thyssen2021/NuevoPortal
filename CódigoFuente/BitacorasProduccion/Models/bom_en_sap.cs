@@ -27,5 +27,6 @@ namespace Portal_2_0.Models
         public string Un { get; set; }
         public Nullable<System.DateTime> Created { get; set; }
         public bool activo { get; set; }
+        public Nullable<System.DateTime> LastDateUsed { get; set; }
     }
 }
