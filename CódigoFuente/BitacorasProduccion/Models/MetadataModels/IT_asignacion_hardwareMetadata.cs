@@ -53,7 +53,10 @@ namespace Portal_2_0.Models
 
         [Display(Name = "¿Línea Actual?")]
         public bool es_asignacion_linea_actual { get; set; }
-
+        
+        [MaxLength(255)]
+        [Display(Name = "Observaciones")]
+        public string comentario_desasignacion { get; set; }
     }
 
     [MetadataType(typeof(IT_asignacion_hardwareMetadata))]

@@ -19,24 +19,12 @@
     <!-- Select2 -->
     <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/green.css")" rel="stylesheet">
 }
 
-@if (@ViewBag.c_sap_platina != null)
-{
-    <input type="hidden" value="@ViewBag.c_sap_platina" id="cSapPlatina" />
-}
-@if (@ViewBag.c_sap_rollo != null)
-{
-    <input type="hidden" value="@ViewBag.c_sap_rollo" id="cSapRollo" />
-}
-@*@if (@ViewBag.id_supervisor != null)
-    {
-        <input type="hidden" value="@ViewBag.id_supervisor" id="cIdSupervisor" />
-    }
-    @if (@ViewBag.id_operador != null)
-    {
-        <input type="hidden" value="@ViewBag.id_operador" id="cIdOperdor" />
-    }*@
+
+
 <div class="right_col" role="main">
     <div class="">
 
@@ -47,7 +35,7 @@
             <div class="col-md-12 col-sm-12  ">
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2>@ViewBag.Title</h2>
+                        <h2>Datos del registro de Producci&oacute;n</h2>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
@@ -55,9 +43,14 @@
                         @using (Html.BeginForm("Create", "ProduccionRegistros", FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
                         {
                             @Html.AntiForgeryToken()
-                            <h4>Datos del registro de Producci&oacute;n</h4>
-                            <hr />
-                            @Html.ValidationSummary("", new { @class = "text-danger" })
+                            @*<h4>Datos del registro de Producci&oacute;n</h4>
+                                <hr />*@
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", new { @class = "text-white" })
+                                </div>
+                            }
                             <input type="hidden" value="@plantaVB.clave" id="clave_planta" name="clave_planta" />
                             <input type="hidden" value="@lineaVB.id" id="id_linea" name="id_linea" />
                             <input type="hidden" value="@turnoVB.id" id="id_turno" name="id_turno" />
@@ -114,6 +107,23 @@
                                     @Html.ValidationMessageFor(model => model.sap_rollo, "", new { @class = "text-danger" })
                                 </div>
                             </div>
+
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.segunda_platina, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.EditorFor(model => model.segunda_platina, new { htmlAttributes = new { @class = "form-control" } })
+                                </div>
+                            </div>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.sap_platina_2, htmlAttributes: new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.DropDownList("sap_platina_2", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @Html.ValidationMessageFor(model => model.sap_platina_2, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
                             <div class="ln_solid"></div>
                             <div class="item form-group">
                                 <div class="col-md-6 col-sm-6 offset-md-3">
@@ -138,7 +148,10 @@
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
 
-    @Scripts.Render(Url.Content("~/Scripts/Forms/ProduccionRegistrosCreate.js"))
+    @*@Scripts.Render(Url.Content("~/Scripts/Forms/ProduccionRegistrosCreate.js"))*@
+    <script src="~/Scripts/Forms/ProduccionRegistrosEdit.js?time=@DateTime.Now"></script>
 }
 

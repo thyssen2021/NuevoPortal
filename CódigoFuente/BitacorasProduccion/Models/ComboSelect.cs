@@ -215,7 +215,7 @@ namespace Portal_2_0.Models
             Portal_2_0Entities db = new Portal_2_0Entities();
 
             //obtiene todos los posibles valores
-            List<bom_en_sap> listado = db.bom_en_sap.Where(p => p.activo == true && p.Quantity>0 && !p.Material.StartsWith("sm")).ToList();
+            List<bom_en_sap> listado = db.bom_en_sap.Where(p => p.Quantity>0 && !p.Material.StartsWith("sm")).ToList();
  
             //realiza un distict de los materiales
             List<string> distinctList = listado.Select(m => m.Material).Distinct().ToList();
@@ -230,12 +230,12 @@ namespace Portal_2_0.Models
                                 Value = s
                             }).ToList();
 
-            //agrega valor vacio
-            items.Insert(0, new SelectListItem()
-            {
-                Text = "-- Seleccione un valor --",
-                Value = ""
-            });
+            ////agrega valor vacio
+            //items.Insert(0, new SelectListItem()
+            //{
+            //    Text = "-- Seleccione un valor --",
+            //    Value = ""
+            //});
 
             //agrega valores al final 
             items.Add( new SelectListItem()
@@ -257,10 +257,10 @@ namespace Portal_2_0.Models
             Portal_2_0Entities db = new Portal_2_0Entities();
 
             //obtiene todos los posibles valores
-            List<bom_en_sap> listado = db.bom_en_sap.Where(p => p.activo == true && p.Quantity > 0 && !p.Material.StartsWith("sm")).ToList();
+            List<bom_en_sap> listado = db.bom_en_sap.Where(p => p.Quantity > 0 && !p.Material.StartsWith("sm") && p.Material == material).ToList();
 
             //realiza un distict de los materiales
-            List<string> distinctList = listado.Where(m=>m.Material==material).Select(m => m.Component).Distinct().ToList();
+            List<string> distinctList = listado.Select(m => m.Component).Distinct().ToList();
 
             var items = new List<SelectListItem>();
 

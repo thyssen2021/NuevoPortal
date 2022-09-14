@@ -165,12 +165,25 @@
     @Scripts.Render(Url.Content("~/Scripts/Forms/ThemeEcharts.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/moment/moment.js"))
 
-    <script>
+    <script>        
 
         $(document).ready(function () {
-
-
         });
+
+        //paleta de colores para las graficas (variable global)
+        var colores = [
+            '#ff0010',
+            '#1a2bcc',
+            '#ffc426',
+            '#22c426',
+            '#ea7e53',
+            '#eedd78',
+            '#73a373',
+            '#73b9bc',
+            '#7289ab',
+            '#91ca8c',
+            '#f49f42'
+        ];
 
         function actualizaValores() {
 
@@ -215,7 +228,7 @@
 
             var chartDom = document.getElementById('grafica1');
             var grafica1 = echarts.init(chartDom, getTheme());
-            var option;
+            var option;            
 
             $.ajax({
                 type: "post",
@@ -247,6 +260,7 @@
                             legend: {
 
                             },
+                            color: colores,
                             toolbox: {
                                 show: true,
                                 feature: {
@@ -365,6 +379,7 @@
                                 orient: 'horizontal',
                                 top: 'bottom'
                             },
+                            color: colores,
                             toolbox: {
                                 show: true,
                                 feature: {
@@ -580,6 +595,7 @@
                                 orient: 'horizontal',
                                 top: 'top'
                             },
+                            color: colores,
                             toolbox: {
                                 show: true,
                                 feature: {

@@ -99,16 +99,7 @@
                                                 </th>
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.Component)
-                                                </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.Created_by)
-                                                </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.BOM1)
-                                                </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.Node)
-                                                </th>
+                                                </th>                                              
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.Quantity)
                                                 </th>
@@ -118,9 +109,10 @@
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.Created)
                                                 </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.activo)
+                                             <th>
+                                                    @Html.DisplayNameFor(model => model.LastDateUsed)
                                                 </th>
+                                             
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -142,15 +134,7 @@
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.Component)
                                                     </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.Created_by)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.BOM1)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.Node)
-                                                    </td>
+                                                   
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.Quantity)
                                                     </td>
@@ -161,15 +145,8 @@
                                                         @Html.DisplayFor(modelItem => item.Created)
                                                     </td>
                                                     <td>
-                                                        @if (item.activo)
-                                                        {
-                                                            <span>Activo</span>
-                                                        }
-                                                        else
-                                                        {
-                                                            <span>Inactivo</span>
-                                                        }
-                                                    </td>
+                                                        @Html.DisplayFor(modelItem => item.LastDateUsed)
+                                                    </td>                                                   
                                                 </tr>
                                             }
                                         </tbody>

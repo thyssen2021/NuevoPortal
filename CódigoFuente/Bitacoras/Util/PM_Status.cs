@@ -19,6 +19,7 @@ namespace Bitacoras.Util
         public const string FINALIZADO = "FINALIZADO";
         public const string ENVIADO_A_DIRECCION = "ENVIADO_A_DIRECCION";
         public const string RECHAZADO_DIRECCION = "RECHAZADO_DIRECCION";
+        public const string RECHAZADO_CONTABILIDAD = "RECHAZADO_CONTABILIDAD";
 
         public static string DescripcionStatus(String status) {
 
@@ -45,6 +46,8 @@ namespace Bitacoras.Util
                     return "Enviado a Dirección";
                 case PM_Status.RECHAZADO_DIRECCION:
                     return "Rechazado por Dirección";
+                case PM_Status.RECHAZADO_CONTABILIDAD:
+                    return "Rechazado por Contabilidad";
                 default:
                     return "No Disponible";
             }

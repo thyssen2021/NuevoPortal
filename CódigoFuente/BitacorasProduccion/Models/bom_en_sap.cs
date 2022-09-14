@@ -20,13 +20,9 @@ namespace Portal_2_0.Models
         public string AltBOM { get; set; }
         public string Item { get; set; }
         public string Component { get; set; }
-        public string Created_by { get; set; }
-        public string BOM1 { get; set; }
-        public string Node { get; set; }
         public Nullable<double> Quantity { get; set; }
         public string Un { get; set; }
         public Nullable<System.DateTime> Created { get; set; }
-        public bool activo { get; set; }
         public Nullable<System.DateTime> LastDateUsed { get; set; }
     }
 }

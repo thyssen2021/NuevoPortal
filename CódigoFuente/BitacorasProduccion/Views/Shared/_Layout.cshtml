@@ -23,7 +23,9 @@
     <!-- Custom Theme Style -->
     <link href="@Url.Content("~/Content/build/css/custom.css")" rel="stylesheet">
 
-    @if (@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":9040"))
+    @if (!@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":9010")
+        && !@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":localhost")
+        )
     {
         <!-- Toastr -->
         <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.css" rel="stylesheet">
@@ -53,7 +55,7 @@
         }
 
         .text-thyssen-color {
-            color: #009ff5
+            color: #009ff7
         }
 
         .tooltip {
@@ -64,6 +66,22 @@
             color: azure;
         }
     </style>
+
+    @if (!@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":9010")
+     && !@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains("localhost")
+     )
+    {
+        <style>
+            .nav_menu {
+                float: left;
+                background: #fa4b10;
+                border-bottom: 1px solid #0073b0;
+                margin-bottom: 10px;
+                width: 100%;
+                position: relative;
+            }
+        </style>
+    }
 
     @RenderSection("estilos", required: false)
 
@@ -189,6 +207,19 @@
                                                     <li class="@(ViewBag.SegundoNivel == "it_asignacion_hardware" ? "current-page" : null )"><a href="@Url.Action("index", "it_asignacion_hardware")">Asignaci&oacute;n a Usuarios</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "it_asignacion_hardware_responsivas" ? "current-page" : null )"><a href="@Url.Action("responsivas", "it_asignacion_hardware")">Responsivas</a></li>
                                                 }
+                                                @if (User.IsInRole(TipoRoles.IT_MANTENIMIENTO_REGISTRO))
+                                                {
+
+                                                    <h3>Mantenimientos</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "it_mantenimientos" ? "current-page" : null )"><a href="@Url.Action("index", "it_mantenimientos")">Listado de Mantenimientos</a></li>
+                                                    <li class="link @(ViewBag.SegundoNivel == "it_mantenimientos_catalogos" ? "active" : null )">
+                                                        <a>Cat&aacute;logos Manto. <span class="fa fa-chevron-down"></span></a>
+                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "it_mantenimientos_catalogos" ? "display:block" : null )">
+                                                            <li class="@(ViewBag.TercelNivel == "IT_mantenimientos_checklist_categorias" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_mantenimientos_checklist_categorias")">Categor&iacute;as</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "IT_mantenimientos_checklist_item" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_mantenimientos_checklist_item")">Actividades </a></li>
+                                                        </ul>
+                                                    </li>
+                                                }
                                             </ul>
                                         </li>
                                     }
@@ -274,9 +305,9 @@
                                                             <li class="@(ViewBag.TercelNivel == "produccion_operadores" ? "current-page" : null )"><a href="@Url.Action( "Index", "ProduccionOperadores")">Operadores</a></li>
                                                             @if (User.IsInRole(TipoRoles.ADMIN))
                                                             {
-                                                                <li class="@(ViewBag.TercelNivel == "produccion_bom" ? "current-page" : null )"><a href="@Url.Action( "Index", "Bom")">BOM</a></li>
-                                                                <li class="@(ViewBag.TercelNivel == "produccion_class_v3" ? "current-page" : null )"><a href="@Url.Action( "Index", "class_v3")">Class V3</a></li>
-                                                                <li class="@(ViewBag.TercelNivel == "produccion_mm_v3" ? "current-page" : null )"><a href="@Url.Action( "Index", "mm_v3")">MM V3</a></li>
+                                                                <li class="@(ViewBag.TercelNivel == "produccion_bom" ? "current-page" : null )"><a href="@Url.Action( "Index", "Bom")">1.- BOM</a></li>
+                                                                <li class="@(ViewBag.TercelNivel == "produccion_class_v3" ? "current-page" : null )"><a href="@Url.Action( "Index", "class_v3")">2.- Class V3</a></li>
+                                                                <li class="@(ViewBag.TercelNivel == "produccion_mm_v3" ? "current-page" : null )"><a href="@Url.Action( "Index", "mm_v3")">3.- MM V3</a></li>
                                                             }
                                                         </ul>
                                                     </li>
@@ -486,6 +517,7 @@
                                                     <h3>Solicitudes</h3>
                                                     <li class="@(ViewBag.SegundoNivel == "crear_solicitud" ? "current-page" : null )"><a href="@Url.Action("Create", "OrdenesTrabajo")">Crear Solicitud</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "mis_solicitudes" ? "current-page" : null )"><a href="@Url.Action("ListadoUsuario", "OrdenesTrabajo")">Mis Solicitudes</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_departamento" ? "current-page" : null )"><a href="@Url.Action("SolicitudesDepartamento", "OrdenesTrabajo")">Solicitudes por Departamento</a></li>
                                                 }
 
                                                 @if (User.IsInRole(TipoRoles.OT_ASIGNACION))
@@ -494,7 +526,7 @@
                                                     <li class="@(ViewBag.SegundoNivel == "ListadoAsignacionPendientes" ? "current-page" : null )"><a href="@Url.Action("ListadoAsignacionPendientes", "OrdenesTrabajo")">Pendientes por Asignar</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "ListadoAsignacionAsignadas" ? "current-page" : null )"><a href="@Url.Action("ListadoAsignacionAsignadas", "OrdenesTrabajo")">Solicitudes Asignadas</a></li>
                                                 }
-                                                @if (User.IsInRole(TipoRoles.OT_RESPONSABLE))
+                                                @if (User.IsInRole(TipoRoles.OT_RESPONSABLE) || User.IsInRole(TipoRoles.OT_ADMINISTRADOR))
                                                 {
                                                     <h3>Responsable</h3>
                                                     <li class="@(ViewBag.SegundoNivel == "ListadoResponsablePendientes" ? "current-page" : null )"><a href="@Url.Action("ListadoResponsablePendientes", "OrdenesTrabajo")">Responsable - Pendientes</a></li>
@@ -512,12 +544,14 @@
                                                 @if (User.IsInRole(TipoRoles.OT_CATALOGOS))
                                                 {
                                                     <h3>Cat&aacute;logos</h3>
-                                                    <li class="@(ViewBag.SegundoNivel == "OT_Grupos" ? "current-page" : null )"><a href="@Url.Action("Index", "OT_Grupos")">Grupos</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "OT_responsables" ? "current-page" : null )"><a href="@Url.Action("Index", "OT_responsables")">Responsables</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "OT_zona_falla" ? "current-page" : null )"><a href="@Url.Action("Index", "OT_zona_falla")">Zonas de Falla</a></li>
+
                                                 }
                                                 @if (User.IsInRole(TipoRoles.ADMIN))
                                                 {
                                                     <h3>Cat&aacute;logos Admin</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "OT_Grupos" ? "current-page" : null )"><a href="@Url.Action("Index", "OT_Grupos")">Grupos</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "OT_responsables" ? "current-page" : null )"><a href="@Url.Action("Index", "OT_responsables")">Responsables</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "OT_rel_depto_aplica_linea" ? "current-page" : null )"><a href="@Url.Action("Index", "OT_rel_depto_aplica_linea")">Rel Deptos l&iacute;nea</a></li>
                                                 }
                                                 <h3>Manual de Usuario</h3>
@@ -613,7 +647,6 @@
             </div>
 
             <!-- top navigation -->
-
             @Html.Partial("_LoginPartial")
 
             <!-- /top navigation -->

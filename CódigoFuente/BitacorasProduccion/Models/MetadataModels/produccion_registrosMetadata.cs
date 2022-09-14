@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Foolproof;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -29,6 +30,11 @@ namespace Portal_2_0.Models
         [Display(Name = "SAP Platina")]
         public string sap_platina { get; set; }
 
+        [RequiredIf("segunda_platina", true, ErrorMessage = "El campo SAP platina 2 es requerido")]
+        [Display(Name = "SAP Platina 2")]
+        public string sap_platina_2 { get; set; }
+
+
         [Required]
         [Display(Name = "SAP Rollo")]
         public string sap_rollo { get; set; }
@@ -46,6 +52,12 @@ namespace Portal_2_0.Models
     {
         [NotMapped]
         private Portal_2_0Entities db = new Portal_2_0Entities();
+
+
+        [NotMapped]
+        [Display(Name = "¿Segunda Platina?")]
+        public bool segunda_platina { get; set; }
+        
 
         //retorna el objeto mm y el cobjeto class asociado
         [NotMapped]

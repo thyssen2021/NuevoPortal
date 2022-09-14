@@ -30,6 +30,11 @@ namespace Portal_2_0.Models
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public Nullable<System.DateTime> fecha_corte { get; set; }
 
+        [Display(Name = "Fecha de Renovación")]
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        public Nullable<System.DateTime> fecha_renovacion { get; set; }
+
         [Display(Name = "Estado")]
         public bool activo { get; set; }
     }

@@ -19,7 +19,7 @@ namespace Portal_2_0.Controllers
         // GET: OT_grupo_trabajo
         public ActionResult Index()
         {
-            if (TieneRol(TipoRoles.OT_CATALOGOS))
+            if (TieneRol(TipoRoles.ADMIN))
             {
                 //mensaje en caso de crear, editar, etc
                 if (TempData["Mensaje"] != null)
@@ -36,7 +36,7 @@ namespace Portal_2_0.Controllers
         // GET: OT_grupo_trabajo/Details/5
         public ActionResult Details(int? id)
         {
-            if (TieneRol(TipoRoles.OT_CATALOGOS))
+            if (TieneRol(TipoRoles.ADMIN))
             {
                 if (id == null)
                 {
@@ -60,7 +60,7 @@ namespace Portal_2_0.Controllers
         // GET: OT_grupo_trabajo/Create
         public ActionResult Create()
         {
-            if (TieneRol(TipoRoles.OT_CATALOGOS))
+            if (TieneRol(TipoRoles.ADMIN))
             {
                 return View();
             }
@@ -108,7 +108,7 @@ namespace Portal_2_0.Controllers
         public ActionResult Edit(int? id)
         {
 
-            if (TieneRol(TipoRoles.OT_CATALOGOS))
+            if (TieneRol(TipoRoles.ADMIN))
             {
                 if (id == null)
                 {
@@ -170,7 +170,7 @@ namespace Portal_2_0.Controllers
         // GET: PFA_Departmet/Disable/5
         public ActionResult Disable(int? id)
         {
-            if (TieneRol(TipoRoles.OT_CATALOGOS))
+            if (TieneRol(TipoRoles.ADMIN))
             {
                 if (id == null)
                 {
@@ -231,7 +231,7 @@ namespace Portal_2_0.Controllers
         // GET: Plantas/Enable/5
         public ActionResult Enable(int? id)
         {
-            if (TieneRol(TipoRoles.OT_CATALOGOS))
+            if (TieneRol(TipoRoles.ADMIN))
             {
                 if (id == null)
                 {

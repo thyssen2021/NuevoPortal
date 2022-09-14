@@ -423,7 +423,7 @@
                                 <div class="item form-group">
                                     @Html.LabelFor(model => model.maintenance_period_months, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                                     <div class="col-md-1 col-sm-1 ">
-                                        @Html.EditorFor(model => model.maintenance_period_months, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.EditorFor(model => model.maintenance_period_months, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @required="required" } })
                                         @Html.ValidationMessageFor(model => model.maintenance_period_months, "", new { @class = "text-danger" })
                                     </div>
                                 </div>

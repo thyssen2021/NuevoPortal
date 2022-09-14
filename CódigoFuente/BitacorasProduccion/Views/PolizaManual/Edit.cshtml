@@ -97,7 +97,7 @@
 
                             //@Html.HiddenFor(model => model.id_planta)
                             <div class="form-group row">
-                                @if ((Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_VALIDADOR || Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_AUTORIZADOR) && !String.IsNullOrEmpty(Model.comentario_rechazo))
+                                @if ((Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_VALIDADOR || Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_AUTORIZADOR || Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_DIRECCION || Model.estatus == Bitacoras.Util.PM_Status.RECHAZADO_CONTABILIDAD) && !String.IsNullOrEmpty(Model.comentario_rechazo))
                                 {
                                     <div class="alert alert-danger col-md-12" role="alert">
                                         <i class="fa fa-exclamation-triangle" style="color:yellow"></i> @Model.comentario_rechazo
@@ -460,7 +460,7 @@
 
                             <div class="item form-group">
                                 <div class="col-md-12 col-sm-12 offset-md-12">
-                                    <button type="submit" class="btn btn-success btn-lg float-lg-right"> <i class="fa-regular fa-floppy-disk"></i>&nbsp;Guardar</button>
+                                    <button type="submit" class="btn btn-success btn-lg float-lg-right"> <i class="fa-regular fa-floppy-disk"></i>&nbsp; Guardar</button>
                                 </div>
                             </div>
                         }

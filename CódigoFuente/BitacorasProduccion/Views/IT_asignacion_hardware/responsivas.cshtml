@@ -200,6 +200,9 @@
                                                                 <i class="fa-solid fa-user-xmark"></i>
                                                             </a>
                                                         }
+                                                        <a href="@Url.Action("EditarResponsiva", null, new { id = item.IT_asignacion_hardware.id })" class="btn btn-primary btn-sm" rel="tooltip" data-title="Editar Responsiva" data-placement="right">
+                                                            <i class="fa-regular fa-pen-to-square"></i>
+                                                        </a>
                                                     </td>
                                                     <td>
                                                         @if (item.IT_asignacion_hardware.es_asignacion_actual)

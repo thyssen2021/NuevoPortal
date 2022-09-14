@@ -18,6 +18,7 @@ namespace Portal_2_0.Models
         public string Operador { get; set; }
         public string Supervisor { get; set; }
         public string SAP_Platina { get; set; }
+        public string SAP_Platina_2 { get; set; }
         public string Tipo_de_Material { get; set; }
         public string Número_de_Parte__de_cliente { get; set; }
         public string SAP_Rollo { get; set; }
@@ -62,8 +63,6 @@ namespace Portal_2_0.Models
         public Nullable<double> Peso_Neto_total_piezas_de_ajuste_Kgs { get; set; }
         public Nullable<double> Peso_puntas_y_colas_reales_Kg { get; set; }
         public Nullable<double> Balance_de_Scrap_Real { get; set; }
-        public string comentario { get; set; }
-        public string SAP_Platina_2 { get; set; }
         public string Tipo_de_Material_platina2 { get; set; }
         public string Número_de_Parte_de_Cliente_platina2 { get; set; }
         public string Material_platina2 { get; set; }
@@ -99,5 +98,6 @@ namespace Portal_2_0.Models
         public Nullable<double> Peso_Neto_total_piezas_de_ajuste_Kgs_general { get; set; }
         public Nullable<double> Peso_puntas_y_colas_reales_Kg_general { get; set; }
         public Nullable<double> Balance_de_Scrap_Real_general { get; set; }
+        public string comentario { get; set; }
     }
 }

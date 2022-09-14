@@ -157,7 +157,7 @@ namespace Portal_2_0.Controllers
             listado.Insert(0, new produccion_lineas
             {
                 id = 0,
-                linea = "-- Seleccione un valor --"
+                linea = "-- Todas --"
             });
 
             //inicializa la lista de objetos
@@ -170,6 +170,36 @@ namespace Portal_2_0.Controllers
                     list[i] = new { value = "", name = listado[i].linea };
                 else
                     list[i] = new { value = listado[i].id, name = listado[i].linea };
+            }
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+        ///<summary>
+        ///Obtiene las fallas según la línea de produccion recibida
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult ObtieneZonaFalla(int id_linea = 0)
+        {
+            //obtiene todos los posibles valores
+            List<OT_zona_falla> listado = db.OT_zona_falla.Where(p => p.id_linea == id_linea && p.activo == true).ToList();
+
+            //inserta el valor por default
+            listado.Insert(0, new OT_zona_falla
+            {
+                id = 0,
+                zona_falla = "-- N/A --"
+            });
+
+            //inicializa la lista de objetos
+            var list = new object[listado.Count];
+
+            //completa la lista de objetos
+            for (int i = 0; i < listado.Count; i++)
+            {
+                if (i == 0)//en caso de item por defecto
+                    list[i] = new { value = "", name = listado[i].zona_falla };
+                else
+                    list[i] = new { value = listado[i].id, name = listado[i].zona_falla };
             }
             return Json(list, JsonRequestBehavior.AllowGet);
         }
@@ -285,15 +315,15 @@ namespace Portal_2_0.Controllers
 
             //inicializa la lista de objetos
             var objeto = new object[1];
-            
-            bool existe = db.IT_asignacion_hardware.Any(x => x.IT_asignacion_hardware_rel_items.Any(y=>y.id_it_inventory_item == id)  && x.es_asignacion_actual == true);
-            
+
+            bool existe = db.IT_asignacion_hardware.Any(x => x.IT_asignacion_hardware_rel_items.Any(y => y.id_it_inventory_item == id) && x.es_asignacion_actual == true);
+
             int id_responsable = 0;
 
-            string nombre = String.Empty;           
-            
+            string nombre = String.Empty;
+
             var asignacion = db.IT_asignacion_hardware_rel_items.Where(x => x.id_it_inventory_item == id && x.IT_asignacion_hardware.es_asignacion_actual == true && x.IT_asignacion_hardware.id_empleado == x.IT_asignacion_hardware.id_responsable_principal).FirstOrDefault();
-            
+
             if (asignacion != null)
             {
                 nombre = asignacion.IT_asignacion_hardware.empleados.ConcatNombre;
@@ -327,21 +357,20 @@ namespace Portal_2_0.Controllers
             var objeto = new object[1];
 
             //inicializa objeto principal
-            if (item == null)
-            {
-                item = new empleados();
+            if (item == null) { 
+                item = new empleados();            
             }
 
             objeto[0] = new
             {
-                nombre = !string.IsNullOrEmpty(item.ConcatNombre) && !string.IsNullOrEmpty(item.nombre) ? item.ConcatNombre : "--",
+                nombre = !string.IsNullOrEmpty(item.ConcatNombre) && !string.IsNullOrEmpty(item.nombre) ? item.ConcatNombre: "--",
                 num_empleado = !string.IsNullOrEmpty(item.numeroEmpleado) ? item.numeroEmpleado : "--",
                 correo = !string.IsNullOrEmpty(item.correo) ? item.correo : "--",
                 c8id = !string.IsNullOrEmpty(item.C8ID) ? item.C8ID : "--",
-                planta = item.plantas != null ? item.plantas.descripcion : "--",
-                area = item.Area != null ? item.Area.descripcion : "--",
-                puesto = item.puesto1 != null ? item.puesto1.descripcion : "--",
-                activo = item.activo == true ? "Activo" : "Inactivo",
+                planta = item.plantas!=null ?  item.plantas.descripcion: "--",
+                area = item.Area!=null? item.Area.descripcion: "--",
+                puesto = item.puesto1!=null ? item.puesto1.descripcion:"--",
+                activo = item.activo ==true? "Activo":"Inactivo",
 
             };
 
@@ -358,19 +387,20 @@ namespace Portal_2_0.Controllers
         {
 
             //obtiene todos los posibles valores
-            var itemList = db.IT_asignacion_hardware.Where(x=>x.es_asignacion_linea_actual && x.id_cellular_line ==id && x.id_empleado != id_empleado).ToList();
+            var itemList = db.IT_asignacion_hardware.Where(x => x.es_asignacion_linea_actual && x.id_cellular_line == id && x.id_empleado != id_empleado).ToList();
 
             var objeto = new object[itemList.Count];
 
             int i = 0;
             //inicializa la lista de objetos
-            foreach (var item in itemList) {
+            foreach (var item in itemList)
+            {
                 objeto[i++] = new
                 {
                     id_responsable = item.id_empleado,
                     nombre_responsable = item.empleados.ConcatNombre
                 };
-            }           
+            }
 
             return Json(objeto, JsonRequestBehavior.AllowGet);
         }
@@ -409,7 +439,7 @@ namespace Portal_2_0.Controllers
         public JsonResult obtieneRollosBom(string material = "")
         {
             //obtiene todos los posibles valores
-            List<bom_en_sap> listado = db.bom_en_sap.Where(p => p.activo == true && p.Quantity > 0 && !p.Material.StartsWith("sm") && p.Material == material).ToList();
+            List<bom_en_sap> listado = db.bom_en_sap.Where(p =>  p.Quantity > 0 && !p.Material.StartsWith("sm") && p.Material == material).ToList();
 
             //realiza un distict de los materiales
             List<string> distinctList = listado.Where(m => m.Material == material).Select(m => m.Component).Distinct().ToList();
@@ -542,7 +572,7 @@ namespace Portal_2_0.Controllers
             return Json(list, JsonRequestBehavior.AllowGet);
         }
 
-        
+
 
         ///<summary>
         ///Obtiene todas los empleados

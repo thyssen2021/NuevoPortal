@@ -188,6 +188,7 @@
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
     </Reference>
@@ -272,6 +273,11 @@
     <Compile Include="App_Start\IdentityConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
+    <Compile Include="Connected Services\ServiceReferenceBasculas\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AreasController.cs" />
     <Compile Include="Controllers\BG_CentroCostoController.cs" />
@@ -305,6 +311,9 @@
     <Compile Include="Controllers\IT_inventory_items_genericosController.cs" />
     <Compile Include="Controllers\IT_inventory_softwareController.cs" />
     <Compile Include="Controllers\IT_inventory_tipos_accesoriosController.cs" />
+    <Compile Include="Controllers\IT_mantenimientosController.cs" />
+    <Compile Include="Controllers\IT_mantenimientos_checklist_categoriasController.cs" />
+    <Compile Include="Controllers\IT_mantenimientos_checklist_itemController.cs" />
     <Compile Include="Controllers\IT_matriz_requerimientosController.cs" />
     <Compile Include="Controllers\IT_software_tipoController.cs" />
     <Compile Include="Controllers\IT_solicitud_usuariosController.cs" />
@@ -315,6 +324,7 @@
     <Compile Include="Controllers\OT_GruposController.cs" />
     <Compile Include="Controllers\OT_rel_depto_aplica_lineaController.cs" />
     <Compile Include="Controllers\OT_responsablesController.cs" />
+    <Compile Include="Controllers\OT_zona_fallaController.cs" />
     <Compile Include="Controllers\PFA_Border_portController.cs" />
     <Compile Include="Controllers\PFA_DepartmentController.cs" />
     <Compile Include="Controllers\PFA_Destination_plantController.cs" />
@@ -396,19 +406,61 @@
     <Compile Include="Models\budget_departamentos.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\GV_medios_transporte.cs">
+	  <Compile Include="Models\GV_medios_transporte.cs">
+		  <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+	  </Compile>
+	  <Compile Include="Models\GV_solicitud.cs">
+		  <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+	  </Compile>
+	  <Compile Include="Models\GV_tipo_gastos_viaje.cs">
+		  <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+	  </Compile>
+	  <Compile Include="Models\IATF_documentos.cs">
+		  <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+	  </Compile>
+    <Compile Include="Models\budget_mapping.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\GV_solicitud.cs">
+    <Compile Include="Models\budget_mapping_bridge.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\GV_tipo_gastos_viaje.cs">
+    <Compile Include="Models\budget_plantas.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\budget_rel_comentarios.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\budget_rel_fy_centro.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\budget_responsables.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\class_v3.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\currency.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\empleados.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IATF_documentos.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IATF_revisiones.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\inspeccion_categoria_fallas.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\inspeccion_datos_generales.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\inspeccion_fallas.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\inspeccion_pieza_descarte_produccion.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IT_asignacion_hardware.cs">
@@ -418,6 +470,18 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IT_asignacion_software.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_carpetas_red.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_comunicaciones_tipo.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_hardware_tipo.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_internet_tipo.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IT_inventory_cellular_line.cs">
@@ -444,79 +508,16 @@
     <Compile Include="Models\IT_inventory_tipos_accesorios.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\IT_solicitud_usuarios.cs">
+    <Compile Include="Models\IT_mantenimientos.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\MetadataModels\budget_departamentosMetadata.cs" />
-    <Compile Include="Models\budget_mapping.cs">
+    <Compile Include="Models\IT_mantenimientos_checklist_categorias.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\budget_mapping_bridge.cs">
+    <Compile Include="Models\IT_mantenimientos_checklist_item.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\budget_plantas.cs">
-      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\budget_rel_comentarios.cs">
-      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\budget_rel_fy_centro.cs">
-      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\budget_responsables.cs">
-      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\class_v3.cs">
-      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\ComboSelect.cs" />
-    <Compile Include="Models\Cube_tkmmModel.Context.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Cube_tkmmModel.Context.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\Cube_tkmmModel.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Cube_tkmmModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\Cube_tkmmModel.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Cube_tkmmModel.edmx</DependentUpon>
-    </Compile>
-    <Compile Include="Models\currency.cs">
-      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\empleados.cs">
-      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\EncabezadoExcelBudget.cs" />
-    <Compile Include="Models\EnvioCorreoElectronico.cs" />
-    <Compile Include="Models\ExcelUtil.cs" />
-    <Compile Include="Models\IdentityModels.cs" />
-    <Compile Include="Models\inspeccion_categoria_fallas.cs">
-      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\inspeccion_datos_generales.cs">
-      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\inspeccion_fallas.cs">
-      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\inspeccion_pieza_descarte_produccion.cs">
-      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\IT_carpetas_red.cs">
-      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\IT_comunicaciones_tipo.cs">
-      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\IT_hardware_tipo.cs">
-      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\IT_internet_tipo.cs">
+    <Compile Include="Models\IT_mantenimientos_rel_checklist.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IT_matriz_carpetas.cs">
@@ -537,12 +538,21 @@
     <Compile Include="Models\IT_software_tipo.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\IT_solicitud_usuarios.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\log_acceso_email.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\log_inicio_sesion.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\MetadataModels\budget_departamentosMetadata.cs" />
+    <Compile Include="Models\ComboSelect.cs" />
+    <Compile Include="Models\EncabezadoExcelBudget.cs" />
+    <Compile Include="Models\EnvioCorreoElectronico.cs" />
+    <Compile Include="Models\ExcelUtil.cs" />
+    <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\MetadataModels\AreaMetada.cs" />
     <Compile Include="Models\MetadataModels\bom_en_sapMetadata.cs" />
@@ -565,6 +575,9 @@
     <Compile Include="Models\MetadataModels\IT_inventory_softwareMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_inventory_cellular_plansMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_inventory_tipos_accesoriosMetadata.cs" />
+    <Compile Include="Models\MetadataModels\IT_mantenimientosMetadata.cs" />
+    <Compile Include="Models\MetadataModels\IT_mantenimientos_checklist_categoriasMetadata.cs" />
+    <Compile Include="Models\MetadataModels\IT_mantenimientos_checklist_itemMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_software_tipoMetadata.cs" />
     <Compile Include="Models\MetadataModels\class_v3Metadata.cs" />
     <Compile Include="Models\MetadataModels\currencyMetadata.cs" />
@@ -584,6 +597,7 @@
     <Compile Include="Models\MetadataModels\OT_refraccionesMetadata.cs" />
     <Compile Include="Models\MetadataModels\OT_rel_depto_aplica_lineaMetadata.cs" />
     <Compile Include="Models\MetadataModels\OT_responsablesMetadata.cs" />
+    <Compile Include="Models\MetadataModels\OT_zona_fallaMetadata.cs" />
     <Compile Include="Models\MetadataModels\PFAMetadata.cs" />
     <Compile Include="Models\MetadataModels\PFA_Border_portMetadata.cs" />
     <Compile Include="Models\MetadataModels\PFA_DepartmentMetadata.cs" />
@@ -632,11 +646,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
     </Compile>
-    <Compile Include="Models\NuevoPortalModel1.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-    </Compile>
     <Compile Include="Models\orden_trabajo.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -655,8 +664,13 @@
     <Compile Include="Models\OT_responsables.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\OT_zona_falla.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\Paginacion.cs" />
+    <Compile Include="Models\PDFHandlers\FooterEventHandlerPDF_IT_Mantenimiento.cs" />
     <Compile Include="Models\PDFHandlers\FooterEventHandlerPDF_Responsiva.cs" />
+    <Compile Include="Models\PDFHandlers\HeaderEventHandlerPDF_Responsiva_IT_Mantenimiento.cs" />
     <Compile Include="Models\PDFHandlers\HeaderEventHandlerPDF_Responsiva.cs" />
     <Compile Include="Models\PFA.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
@@ -778,6 +792,16 @@
     <Content Include="Client Scripts\MvcFoolproofJQueryValidation.min.js" />
     <Content Include="Client Scripts\MvcFoolproofValidation.js" />
     <Content Include="Client Scripts\MvcFoolproofValidation.min.js" />
+    <Content Include="Connected Services\ServiceReferenceBasculas\Portal_2_0.ServiceReferenceBasculas.PesoBasculaResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <None Include="Connected Services\ServiceReferenceBasculas\WebServiceBasculas.disco" />
+    <None Include="Connected Services\ServiceReferenceBasculas\configuration91.svcinfo" />
+    <None Include="Connected Services\ServiceReferenceBasculas\configuration.svcinfo" />
+    <None Include="Connected Services\ServiceReferenceBasculas\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
     <Content Include="Content\acceso_email.css" />
     <Content Include="Content\bootstrap-grid.css" />
     <Content Include="Content\bootstrap-grid.min.css" />
@@ -5772,16 +5796,6 @@
     <Content Include="fonts\fontawesome-webfont.woff" />
     <Content Include="fonts\fontawesome-webfont.woff2" />
     <Content Include="fonts\FontAwesome.otf" />
-    <Content Include="Models\Cube_tkmmModel.Context.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>Cube_tkmmModel.edmx</DependentUpon>
-      <LastGenOutput>Cube_tkmmModel.Context.cs</LastGenOutput>
-    </Content>
-    <Content Include="Models\Cube_tkmmModel.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>Cube_tkmmModel.edmx</DependentUpon>
-      <LastGenOutput>Cube_tkmmModel.cs</LastGenOutput>
-    </Content>
     <Content Include="Models\NuevoPortalModel.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
@@ -5790,7 +5804,7 @@
     <Content Include="Models\NuevoPortalModel.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
-      <LastGenOutput>NuevoPortalModel1.cs</LastGenOutput>
+      <LastGenOutput>NuevoPortalModel.cs</LastGenOutput>
     </Content>
     <Content Include="Scripts\AlertasSweetAlert.js" />
     <Content Include="Scripts\bootstrap.bundle.js" />
@@ -5812,7 +5826,6 @@
     <Content Include="Scripts\Forms\PFA_create.js" />
     <Content Include="Scripts\Forms\PFA_edit.js" />
     <Content Include="Scripts\Forms\PolizasModeloCreateEdit.js" />
-    <Content Include="Scripts\Forms\ProduccionRegistrosCreate.js" />
     <Content Include="Scripts\Forms\ProduccionRegistrosEdit.js" />
     <Content Include="Scripts\Forms\ProduccionRegistrosIndex.js" />
     <Content Include="Scripts\Forms\puestos.js" />
@@ -6593,20 +6606,6 @@
     <Content Include="Content\vendors\validator\.bower.json" />
     <Content Include="Content\vendors\validator\package.json" />
     <Content Include="Content\vendors\validator\README.md" />
-    <EntityDeploy Include="Models\Cube_tkmmModel.edmx">
-      <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>Cube_tkmmModel.Designer.cs</LastGenOutput>
-    </EntityDeploy>
-    <Content Include="Models\Cube_tkmmModel.edmx.diagram">
-      <DependentUpon>Cube_tkmmModel.edmx</DependentUpon>
-    </Content>
-    <EntityDeploy Include="Models\NuevoPortalModel.edmx">
-      <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>NuevoPortalModel.Designer.cs</LastGenOutput>
-    </EntityDeploy>
-    <Content Include="Models\NuevoPortalModel.edmx.diagram">
-      <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
-    </Content>
     <Content Include="Content\plantillas_excel\plantilla_reporte_produccion.xlsx" />
     <Content Include="Content\manuales\Manual_Usuario_PM.pdf" />
     <Content Include="Content\plantillas_excel\plantilla_reporte.xlsx" />
@@ -6671,6 +6670,15 @@
     <Content Include="fonts\tkmm\TK_SerifMedium_V1_15.ttf" />
     <Content Include="fonts\tkmm\TK_Serif_V1_15.ttf" />
     <Content Include="Content\plantillas_excel\plantilla_reporte_produccion_historial_cambios_silao.xlsx" />
+    <EntityDeploy Include="Models\NuevoPortalModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>NuevoPortalModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <Content Include="Models\NuevoPortalModel.edmx.diagram">
+      <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
+    </Content>
+    <Content Include="Content\plantillas_excel\plantilla_reporte_piezas_descarte.xlsx" />
+    <None Include="Connected Services\ServiceReferenceBasculas\WebServiceBasculas.wsdl" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
     <Content Include="Scripts\jquery-3.4.1.min.js" />
@@ -7144,11 +7152,35 @@
     <Content Include="Views\IT_inventory_items_genericos\Disable.cshtml" />
     <Content Include="Views\OrdenesTrabajo\Edit.cshtml" />
     <Content Include="Views\IT_asignacion_hardware\responsivas.cshtml" />
-    <Content Include="Views\GV_solicitud\Create.cshtml" />
-    <Content Include="Views\GV_solicitud\Delete.cshtml" />
-    <Content Include="Views\GV_solicitud\Details.cshtml" />
-    <Content Include="Views\GV_solicitud\Edit.cshtml" />
-    <Content Include="Views\GV_solicitud\Solicitudes.cshtml" />
+    <Content Include="Views\IT_mantenimientos\Details.cshtml" />
+    <Content Include="Views\IT_mantenimientos\Index.cshtml" />
+    <Content Include="Views\IT_mantenimientos\CerrarMantenimiento.cshtml" />
+    <Content Include="Views\IT_mantenimientos\CargarDocumento.cshtml" />
+    <Content Include="Views\IT_mantenimientos_checklist_categorias\Create.cshtml" />
+    <Content Include="Views\IT_mantenimientos_checklist_categorias\Details.cshtml" />
+    <Content Include="Views\IT_mantenimientos_checklist_categorias\Disable.cshtml" />
+    <Content Include="Views\IT_mantenimientos_checklist_categorias\Edit.cshtml" />
+    <Content Include="Views\IT_mantenimientos_checklist_categorias\Enable.cshtml" />
+    <Content Include="Views\IT_mantenimientos_checklist_categorias\Index.cshtml" />
+    <Content Include="Views\IT_mantenimientos_checklist_item\Create.cshtml" />
+    <Content Include="Views\IT_mantenimientos_checklist_item\Details.cshtml" />
+    <Content Include="Views\IT_mantenimientos_checklist_item\Disable.cshtml" />
+    <Content Include="Views\IT_mantenimientos_checklist_item\Edit.cshtml" />
+    <Content Include="Views\IT_mantenimientos_checklist_item\Enable.cshtml" />
+    <Content Include="Views\IT_mantenimientos_checklist_item\Index.cshtml" />
+    <Content Include="Views\OT_zona_falla\Create.cshtml" />
+    <Content Include="Views\OT_zona_falla\Details.cshtml" />
+    <Content Include="Views\OT_zona_falla\Disable.cshtml" />
+    <Content Include="Views\OT_zona_falla\Edit.cshtml" />
+    <Content Include="Views\OT_zona_falla\Enable.cshtml" />
+    <Content Include="Views\OT_zona_falla\Index.cshtml" />
+    <Content Include="Views\OrdenesTrabajo\SolicitudesDepartamento.cshtml" />
+    <Content Include="Views\IT_asignacion_hardware\EditarResponsiva.cshtml" />
+	  <Content Include="Views\GV_solicitud\Create.cshtml" />
+	  <Content Include="Views\GV_solicitud\Delete.cshtml" />
+	  <Content Include="Views\GV_solicitud\Details.cshtml" />
+	  <Content Include="Views\GV_solicitud\Edit.cshtml" />
+	  <Content Include="Views\GV_solicitud\Solicitudes.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -7192,6 +7224,12 @@
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Connected Services\ServiceReferenceBasculas\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

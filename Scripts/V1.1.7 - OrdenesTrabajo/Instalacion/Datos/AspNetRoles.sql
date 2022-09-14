@@ -42,6 +42,11 @@ BEGIN
 	BEGIN
 		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'OrdenesTrabajo_Catalogos')
 	END
+	-- Administrador de Órdenes de trabajo
+	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='OrdenesTrabajo_Administrador' )
+	BEGIN
+		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'OrdenesTrabajo_Administrador')
+	END
 PRINT '<<<CORRECTO: La TABLA dbo.AspNetRoles ha sido INICIALIZADA en la Base de Datos: ' + db_name() + ' en el Servidor: ' + @@servername + '  >>>'     	
 
 END

@@ -20,7 +20,7 @@ namespace Portal_2_0.Controllers
         // GET: OT_responsables
         public ActionResult Index()
         {
-            if (TieneRol(TipoRoles.OT_CATALOGOS))
+            if (TieneRol(TipoRoles.ADMIN))
             {
                 //mensaje en caso de crear, editar, etc
                 if (TempData["Mensaje"] != null)
@@ -40,7 +40,7 @@ namespace Portal_2_0.Controllers
         // GET: OT_responsables/Create
         public ActionResult Create()
         {
-            if (TieneRol(TipoRoles.OT_CATALOGOS))
+            if (TieneRol(TipoRoles.ADMIN))
             {
                 empleados emp = obtieneEmpleadoLogeado();
 
@@ -120,7 +120,7 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> DeleteConfirmed(int id)
         {
-            if (TieneRol(TipoRoles.OT_CATALOGOS))
+            if (TieneRol(TipoRoles.ADMIN))
             {
                 //obtiene el empleado
                 var responsable = db.OT_responsables.Find(id);

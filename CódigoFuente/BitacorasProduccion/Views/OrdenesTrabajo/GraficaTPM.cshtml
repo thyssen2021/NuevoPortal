@@ -203,10 +203,23 @@
 
     <script>
 
-        $(document).ready(function () {
-            
-
+        $(document).ready(function () {          
         });
+
+        //paleta de colores para las graficas (variable global)
+        var colores = [
+            '#ff0010',
+            '#1a2bcc',
+            '#ffc426',
+            '#22c426',
+            '#ea7e53',
+            '#eedd78',
+            '#73a373',
+            '#73b9bc',
+            '#7289ab',
+            '#91ca8c',
+            '#f49f42'
+        ];
 
         function actualizaValores() {
 
@@ -621,7 +634,7 @@
                             legend: {
                                 orient: 'horizontal',
                                 top: 'bottom'
-                            },
+                            },                            
                             toolbox: {
                                 show: true,
                                 feature: {
@@ -846,6 +859,7 @@
                                 orient: 'horizontal',
                                 top: 'top'
                             },
+                            color: colores,
                             toolbox: {
                                 show: true,
                                 feature: {

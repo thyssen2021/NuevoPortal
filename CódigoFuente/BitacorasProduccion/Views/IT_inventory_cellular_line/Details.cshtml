@@ -38,12 +38,12 @@
                             </div>
                         </div>
                         @*<div class="item form-group">
-                            <label class="col-form-label col-md-3 col-sm-3 label-align">Asignado</label>
-                            <div class="col-md-6 col-sm-6">
-                                <input type="text" class="form-control" value="@(Model.IT_asignacion_cellular_line.Count>0 ?
-                                                        Model.IT_asignacion_cellular_line.First().empleados.ConcatNumEmpleadoNombre : "NO ASIGNADO" )" readonly>
-                            </div>
-                        </div>*@
+                                <label class="col-form-label col-md-3 col-sm-3 label-align">Asignado</label>
+                                <div class="col-md-6 col-sm-6">
+                                    <input type="text" class="form-control" value="@(Model.IT_asignacion_cellular_line.Count>0 ?
+                                                            Model.IT_asignacion_cellular_line.First().empleados.ConcatNumEmpleadoNombre : "NO ASIGNADO" )" readonly>
+                                </div>
+                            </div>*@
                         <div class="item form-group">
                             @Html.LabelFor(model => model.numero_celular, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                             <div class="col-md-6 col-sm-6 ">
@@ -54,6 +54,12 @@
                             @Html.LabelFor(model => model.fecha_corte, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                             <div class="col-md-6 col-sm-6 ">
                                 @Html.EditorFor(model => model.fecha_corte, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.fecha_renovacion, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                @Html.EditorFor(model => model.fecha_renovacion, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                             </div>
                         </div>
 
@@ -70,7 +76,7 @@
     </div>
 </div>
 
-@section Scripts {  
+@section Scripts {
     <!-- input mask -->
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/inputmask/inputmask.extensions.js"))
@@ -79,7 +85,7 @@
     <script>
         $(document).ready(function () {
              //inicializa input mask
-           $('#@Html.IdFor(model => model.numero_celular)').inputmask({ "mask": "(999) 999-9999", 'autoUnmask': true, 'removeMaskOnSubmit': true });          
+           $('#@Html.IdFor(model => model.numero_celular)').inputmask({ "mask": "(999) 999-9999", 'autoUnmask': true, 'removeMaskOnSubmit': true });
 
         });
 

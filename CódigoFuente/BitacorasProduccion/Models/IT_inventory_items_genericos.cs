@@ -28,9 +28,9 @@ namespace Portal_2_0.Models
         public string comments { get; set; }
         public bool active { get; set; }
     
-        public virtual IT_inventory_hardware_type IT_inventory_hardware_type { get; set; }
-        public virtual IT_inventory_tipos_accesorios IT_inventory_tipos_accesorios { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_asignacion_hardware_rel_items> IT_asignacion_hardware_rel_items { get; set; }
+        public virtual IT_inventory_hardware_type IT_inventory_hardware_type { get; set; }
+        public virtual IT_inventory_tipos_accesorios IT_inventory_tipos_accesorios { get; set; }
     }
 }
