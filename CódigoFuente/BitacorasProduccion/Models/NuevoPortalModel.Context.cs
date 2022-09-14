@@ -29,6 +29,7 @@ namespace Portal_2_0.Models
         public virtual DbSet<AspNetRoles> AspNetRoles { get; set; }
         public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
         public virtual DbSet<biblioteca_digital> biblioteca_digital { get; set; }
+        public virtual DbSet<bom_en_sap> bom_en_sap { get; set; }
         public virtual DbSet<budget_anio_fiscal> budget_anio_fiscal { get; set; }
         public virtual DbSet<budget_cantidad> budget_cantidad { get; set; }
         public virtual DbSet<budget_centro_costo> budget_centro_costo { get; set; }
@@ -43,18 +44,24 @@ namespace Portal_2_0.Models
         public virtual DbSet<class_v3> class_v3 { get; set; }
         public virtual DbSet<currency> currency { get; set; }
         public virtual DbSet<empleados> empleados { get; set; }
+        public virtual DbSet<GV_medios_transporte> GV_medios_transporte { get; set; }
+        public virtual DbSet<GV_rel_gastos_solicitud> GV_rel_gastos_solicitud { get; set; }
+        public virtual DbSet<GV_solicitud> GV_solicitud { get; set; }
+        public virtual DbSet<GV_tipo_gastos_viaje> GV_tipo_gastos_viaje { get; set; }
         public virtual DbSet<IATF_documentos> IATF_documentos { get; set; }
         public virtual DbSet<IATF_revisiones> IATF_revisiones { get; set; }
         public virtual DbSet<inspeccion_categoria_fallas> inspeccion_categoria_fallas { get; set; }
         public virtual DbSet<inspeccion_datos_generales> inspeccion_datos_generales { get; set; }
         public virtual DbSet<inspeccion_fallas> inspeccion_fallas { get; set; }
         public virtual DbSet<inspeccion_pieza_descarte_produccion> inspeccion_pieza_descarte_produccion { get; set; }
+        public virtual DbSet<IT_asignacion_hardware> IT_asignacion_hardware { get; set; }
         public virtual DbSet<IT_asignacion_hardware_rel_items> IT_asignacion_hardware_rel_items { get; set; }
         public virtual DbSet<IT_asignacion_software> IT_asignacion_software { get; set; }
         public virtual DbSet<IT_carpetas_red> IT_carpetas_red { get; set; }
         public virtual DbSet<IT_comunicaciones_tipo> IT_comunicaciones_tipo { get; set; }
         public virtual DbSet<IT_hardware_tipo> IT_hardware_tipo { get; set; }
         public virtual DbSet<IT_internet_tipo> IT_internet_tipo { get; set; }
+        public virtual DbSet<IT_inventory_cellular_line> IT_inventory_cellular_line { get; set; }
         public virtual DbSet<IT_inventory_cellular_plans> IT_inventory_cellular_plans { get; set; }
         public virtual DbSet<IT_inventory_hard_drives> IT_inventory_hard_drives { get; set; }
         public virtual DbSet<IT_inventory_hardware_type> IT_inventory_hardware_type { get; set; }
@@ -102,9 +109,11 @@ namespace Portal_2_0.Models
         public virtual DbSet<PM_tipo_poliza> PM_tipo_poliza { get; set; }
         public virtual DbSet<PM_usuarios_capturistas> PM_usuarios_capturistas { get; set; }
         public virtual DbSet<poliza_manual> poliza_manual { get; set; }
+        public virtual DbSet<produccion_datos_entrada> produccion_datos_entrada { get; set; }
         public virtual DbSet<produccion_lineas> produccion_lineas { get; set; }
         public virtual DbSet<produccion_lotes> produccion_lotes { get; set; }
         public virtual DbSet<produccion_operadores> produccion_operadores { get; set; }
+        public virtual DbSet<produccion_registros> produccion_registros { get; set; }
         public virtual DbSet<produccion_respaldo> produccion_respaldo { get; set; }
         public virtual DbSet<produccion_supervisores> produccion_supervisores { get; set; }
         public virtual DbSet<produccion_turnos> produccion_turnos { get; set; }
@@ -116,12 +125,7 @@ namespace Portal_2_0.Models
         public virtual DbSet<upgrade_usuarios> upgrade_usuarios { get; set; }
         public virtual DbSet<upgrade_values_checklist> upgrade_values_checklist { get; set; }
         public virtual DbSet<upgrade_values_transaccion> upgrade_values_transaccion { get; set; }
-        public virtual DbSet<view_valores_fiscal_year> view_valores_fiscal_year { get; set; }
-        public virtual DbSet<produccion_datos_entrada> produccion_datos_entrada { get; set; }
-        public virtual DbSet<produccion_registros> produccion_registros { get; set; }
         public virtual DbSet<view_historico_resultado> view_historico_resultado { get; set; }
-        public virtual DbSet<bom_en_sap> bom_en_sap { get; set; }
-        public virtual DbSet<IT_asignacion_hardware> IT_asignacion_hardware { get; set; }
-        public virtual DbSet<IT_inventory_cellular_line> IT_inventory_cellular_line { get; set; }
+        public virtual DbSet<view_valores_fiscal_year> view_valores_fiscal_year { get; set; }
     }
 }

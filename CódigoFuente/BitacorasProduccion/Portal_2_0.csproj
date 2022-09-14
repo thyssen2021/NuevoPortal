@@ -406,18 +406,6 @@
     <Compile Include="Models\budget_departamentos.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
-	  <Compile Include="Models\GV_medios_transporte.cs">
-		  <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-	  </Compile>
-	  <Compile Include="Models\GV_solicitud.cs">
-		  <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-	  </Compile>
-	  <Compile Include="Models\GV_tipo_gastos_viaje.cs">
-		  <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-	  </Compile>
-	  <Compile Include="Models\IATF_documentos.cs">
-		  <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-	  </Compile>
     <Compile Include="Models\budget_mapping.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -443,6 +431,18 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\empleados.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\GV_medios_transporte.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\GV_rel_gastos_solicitud.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\GV_solicitud.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\GV_tipo_gastos_viaje.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IATF_documentos.cs">
@@ -6670,6 +6670,8 @@
     <Content Include="fonts\tkmm\TK_SerifMedium_V1_15.ttf" />
     <Content Include="fonts\tkmm\TK_Serif_V1_15.ttf" />
     <Content Include="Content\plantillas_excel\plantilla_reporte_produccion_historial_cambios_silao.xlsx" />
+    <Content Include="Content\plantillas_excel\plantilla_reporte_piezas_descarte.xlsx" />
+    <None Include="Connected Services\ServiceReferenceBasculas\WebServiceBasculas.wsdl" />
     <EntityDeploy Include="Models\NuevoPortalModel.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
       <LastGenOutput>NuevoPortalModel.Designer.cs</LastGenOutput>
@@ -6677,8 +6679,6 @@
     <Content Include="Models\NuevoPortalModel.edmx.diagram">
       <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
     </Content>
-    <Content Include="Content\plantillas_excel\plantilla_reporte_piezas_descarte.xlsx" />
-    <None Include="Connected Services\ServiceReferenceBasculas\WebServiceBasculas.wsdl" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
     <Content Include="Scripts\jquery-3.4.1.min.js" />
@@ -7176,11 +7176,11 @@
     <Content Include="Views\OT_zona_falla\Index.cshtml" />
     <Content Include="Views\OrdenesTrabajo\SolicitudesDepartamento.cshtml" />
     <Content Include="Views\IT_asignacion_hardware\EditarResponsiva.cshtml" />
-	  <Content Include="Views\GV_solicitud\Create.cshtml" />
-	  <Content Include="Views\GV_solicitud\Delete.cshtml" />
-	  <Content Include="Views\GV_solicitud\Details.cshtml" />
-	  <Content Include="Views\GV_solicitud\Edit.cshtml" />
-	  <Content Include="Views\GV_solicitud\Solicitudes.cshtml" />
+    <Content Include="Views\GV_solicitud\Create.cshtml" />
+    <Content Include="Views\GV_solicitud\Delete.cshtml" />
+    <Content Include="Views\GV_solicitud\Details.cshtml" />
+    <Content Include="Views\GV_solicitud\Edit.cshtml" />
+    <Content Include="Views\GV_solicitud\Solicitudes.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

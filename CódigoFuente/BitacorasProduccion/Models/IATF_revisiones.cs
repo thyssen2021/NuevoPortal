@@ -17,8 +17,8 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public IATF_revisiones()
         {
-            this.IT_mantenimientos = new HashSet<IT_mantenimientos>();
             this.IT_asignacion_hardware = new HashSet<IT_asignacion_hardware>();
+            this.IT_mantenimientos = new HashSet<IT_mantenimientos>();
         }
     
         public int id { get; set; }
@@ -31,8 +31,8 @@ namespace Portal_2_0.Models
     
         public virtual IATF_documentos IATF_documentos { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IT_mantenimientos> IT_mantenimientos { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_asignacion_hardware> IT_asignacion_hardware { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_mantenimientos> IT_mantenimientos { get; set; }
     }
 }

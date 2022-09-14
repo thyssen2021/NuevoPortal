@@ -12,16 +12,18 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class IT_asignacion_hardware_rel_items
+    public partial class GV_rel_gastos_solicitud
     {
         public int id { get; set; }
-        public int id_asignacion_hardware { get; set; }
-        public Nullable<int> id_it_inventory_item { get; set; }
-        public Nullable<int> id_it_inventory_generico { get; set; }
-        public string comments { get; set; }
+        public int id_gv_solicitud { get; set; }
+        public int id_tipo_gastos_viaje { get; set; }
+        public decimal importe { get; set; }
+        public string currency_iso { get; set; }
+        public decimal cantidad { get; set; }
+        public string comentarios { get; set; }
     
-        public virtual IT_asignacion_hardware IT_asignacion_hardware { get; set; }
-        public virtual IT_inventory_items_genericos IT_inventory_items_genericos { get; set; }
-        public virtual IT_inventory_items IT_inventory_items { get; set; }
+        public virtual currency currency { get; set; }
+        public virtual GV_solicitud GV_solicitud { get; set; }
+        public virtual GV_tipo_gastos_viaje GV_tipo_gastos_viaje { get; set; }
     }
 }

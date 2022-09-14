@@ -14,8 +14,17 @@ namespace Portal_2_0.Models
     
     public partial class GV_tipo_gastos_viaje
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public GV_tipo_gastos_viaje()
+        {
+            this.GV_rel_gastos_solicitud = new HashSet<GV_rel_gastos_solicitud>();
+        }
+    
         public int id { get; set; }
         public string descripcion { get; set; }
         public bool activo { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<GV_rel_gastos_solicitud> GV_rel_gastos_solicitud { get; set; }
     }
 }
