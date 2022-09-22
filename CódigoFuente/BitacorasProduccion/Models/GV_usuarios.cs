@@ -12,18 +12,12 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class GV_rel_gastos_solicitud
+    public partial class GV_usuarios
     {
         public int id { get; set; }
-        public int id_gv_solicitud { get; set; }
-        public int id_tipo_gastos_viaje { get; set; }
-        public decimal importe { get; set; }
-        public string currency_iso { get; set; }
-        public decimal cantidad { get; set; }
-        public string comentarios { get; set; }
+        public int id_empleado { get; set; }
+        public string departamento { get; set; }
     
-        public virtual currency currency { get; set; }
-        public virtual GV_tipo_gastos_viaje GV_tipo_gastos_viaje { get; set; }
-        public virtual GV_solicitud GV_solicitud { get; set; }
+        public virtual empleados empleados { get; set; }
     }
 }

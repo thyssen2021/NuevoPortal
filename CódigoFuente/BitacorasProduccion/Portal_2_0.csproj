@@ -293,7 +293,10 @@
     <Compile Include="Controllers\EChartsController.cs" />
     <Compile Include="Controllers\empleadosController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
+    <Compile Include="Controllers\GV_medios_transporteController.cs" />
     <Compile Include="Controllers\GV_solicitudController.cs" />
+    <Compile Include="Controllers\GV_tipo_gastos_viajeController.cs" />
+    <Compile Include="Controllers\GV_usuariosController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InformationController.cs" />
     <Compile Include="Controllers\inspeccionCategoriaFallasController.cs" />
@@ -445,6 +448,9 @@
     <Compile Include="Models\GV_tipo_gastos_viaje.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\GV_usuarios.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\IATF_documentos.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -562,7 +568,11 @@
     <Compile Include="Models\MetadataModels\budget_mappingMetadata.cs" />
     <Compile Include="Models\MetadataModels\budget_mapping_bridge_Metadata.cs" />
     <Compile Include="Models\MetadataModels\budget_plantasMetadata.cs" />
+    <Compile Include="Models\MetadataModels\GV_medios_transporteMetadata.cs" />
+    <Compile Include="Models\MetadataModels\GV_rel_gastos_solicitudMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_solicitudMetadata.cs" />
+    <Compile Include="Models\MetadataModels\GV_tipo_gastos_viajeMetadata.cs" />
+    <Compile Include="Models\MetadataModels\GV_usuariosMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_asignacion_hardwareMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_asignacion_hardware_rel_itemsMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_asignacion_softwareMetadata.cs" />
@@ -839,6 +849,7 @@
     <Content Include="Content\emails_plantillas\PM_confirmacion_registro.html" />
     <Content Include="Content\emails_plantillas\PM_autorizacion_controlling.html" />
     <Content Include="Content\emails_plantillas\PM_autorizacion_validador.html" />
+    <Content Include="Content\emails_plantillas\Notificacion_solicitud_generica.html" />
     <Content Include="Content\emails_plantillas\PM_envio_a_direccion.html" />
     <Content Include="Content\emails_plantillas\PM_envio_a_contabilidad.html" />
     <Content Include="Content\emails_plantillas\PM_envio_a_autorizador.html" />
@@ -7177,10 +7188,32 @@
     <Content Include="Views\OrdenesTrabajo\SolicitudesDepartamento.cshtml" />
     <Content Include="Views\IT_asignacion_hardware\EditarResponsiva.cshtml" />
     <Content Include="Views\GV_solicitud\Create.cshtml" />
-    <Content Include="Views\GV_solicitud\Delete.cshtml" />
     <Content Include="Views\GV_solicitud\Details.cshtml" />
     <Content Include="Views\GV_solicitud\Edit.cshtml" />
     <Content Include="Views\GV_solicitud\Solicitudes.cshtml" />
+    <Content Include="Views\GV_solicitud\EnviarAJefeDirecto.cshtml" />
+    <Content Include="Views\GV_solicitud\AutorizarJefeDirecto.cshtml" />
+    <Content Include="Views\GV_solicitud\AutorizarControlling.cshtml" />
+    <Content Include="Views\GV_solicitud\AutorizarNomina.cshtml" />
+    <Content Include="Views\GV_solicitud\AutorizarContabilidad.cshtml" />
+    <Content Include="Views\GV_solicitud\ConfirmarUsuario.cshtml" />
+    <Content Include="Views\GV_tipo_gastos_viaje\Create.cshtml" />
+    <Content Include="Views\GV_tipo_gastos_viaje\Details.cshtml" />
+    <Content Include="Views\GV_tipo_gastos_viaje\Disable.cshtml" />
+    <Content Include="Views\GV_tipo_gastos_viaje\Edit.cshtml" />
+    <Content Include="Views\GV_tipo_gastos_viaje\Enable.cshtml" />
+    <Content Include="Views\GV_tipo_gastos_viaje\Index.cshtml" />
+    <Content Include="Views\GV_medios_transporte\Create.cshtml" />
+    <Content Include="Views\GV_medios_transporte\Details.cshtml" />
+    <Content Include="Views\GV_medios_transporte\Disable.cshtml" />
+    <Content Include="Views\GV_medios_transporte\Edit.cshtml" />
+    <Content Include="Views\GV_medios_transporte\Enable.cshtml" />
+    <Content Include="Views\GV_medios_transporte\Index.cshtml" />
+    <Content Include="Views\GV_usuarios\Create.cshtml" />
+    <Content Include="Views\GV_usuarios\Details.cshtml" />
+    <Content Include="Views\GV_usuarios\Disable.cshtml" />
+    <Content Include="Views\GV_usuarios\Edit.cshtml" />
+    <Content Include="Views\GV_usuarios\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

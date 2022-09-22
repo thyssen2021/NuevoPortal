@@ -234,23 +234,58 @@
                                         </li>
                                     }
 
-                                    @if (User.IsInRole(TipoRoles.GV_REPORTES) || User.IsInRole(TipoRoles.GV_CATALOGOS))
+                                    @if (User.IsInRole(TipoRoles.GV_REPORTES) || User.IsInRole(TipoRoles.GV_CATALOGOS) || User.IsInRole(TipoRoles.GV_SOLICITUD) ||
+                                        User.IsInRole(TipoRoles.GV_JEFE_DIRECTO) || User.IsInRole(TipoRoles.GV_CONTROLLING) || User.IsInRole(TipoRoles.GV_CONTABILIDAD)
+                                        || User.IsInRole(TipoRoles.GV_NOMINA)
+                                        )
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "gastos_viaje" ? "active" : null )">
                                             <a><i class="fa fa-person-walking-luggage"></i>Gastos de Viaje <span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "gastos_viaje" ? "display:block" : null )">
-                                                <h3>SOLICITUDES</h3>
-                                                <li class="@(ViewBag.SegundoNivel == "GV_solicitud" ? "current-page" : null )"><a href="@Url.Action( "Solicitudes", "GV_solicitud")">Mis Solicitudes</a></li>
-                                                <li class="@(ViewBag.SegundoNivel == "GV_solicitud" ? "current-page" : null )"><a href="@Url.Action( "Solicitudes", "GV_solicitud")">Pendientes</a></li>
-                                                <li class="@(ViewBag.SegundoNivel == "GV_solicitud" ? "current-page" : null )"><a href="@Url.Action( "Solicitudes", "GV_solicitud")">Reportes</a></li>
+                                                @if (User.IsInRole(TipoRoles.GV_SOLICITUD))
+                                                {
+                                                    <h3>SOLICITUDES</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "GV_solicitud" ? "current-page" : null )"><a href="@Url.Action( "Solicitudes", "GV_solicitud")">Mis Solicitudes</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.GV_JEFE_DIRECTO))
+                                                {
+                                                    <h3>JEFE DIRECTO</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_jefe_directo" ? "current-page" : null )"><a href="@Url.Action( "SolicitudesJefeDirecto", "GV_solicitud")">(Jefe Directo) Solicitudes</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.GV_CONTROLLING))
+                                                {
+                                                    <h3>CONTROLLING</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_controlling" ? "current-page" : null )"><a href="@Url.Action( "SolicitudesControlling", "GV_solicitud")">(Controlling) Solicitudes</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.GV_NOMINA))
+                                                {
+                                                    <h3>N&Oacute;MINA</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_nomina" ? "current-page" : null )"><a href="@Url.Action( "SolicitudesNomina", "GV_solicitud")">(N&oacute;mina) Solicitudes</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.GV_CONTABILIDAD))
+                                                {
+                                                    <h3>CUENTAS POR PAGAR</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_contabilidad" ? "current-page" : null )"><a href="@Url.Action( "SolicitudesContabilidad", "GV_solicitud")">(Ctas. por pagar) Solicitudes</a></li>
+                                                }
 
-                                                @if (User.IsInRole(TipoRoles.GV_CATALOGOS))
+                                                @if (User.IsInRole(TipoRoles.GV_REPORTES))
+                                                {
+                                                    <h3>REPORTES</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "gv_reportes" ? "current-page" : null )"><a href="@Url.Action( "Reportes", "GV_solicitud")">Reportes</a></li>
+                                                }
+
+                                                @if (User.IsInRole(TipoRoles.GV_CATALOGOS) || User.IsInRole(TipoRoles.ADMIN))
                                                 {
                                                     <h3>CAT&Aacute;LOGOS</h3>
                                                     <li class="link @(ViewBag.SegundoNivel == "GV_catalogos" ? "active" : "" )">
                                                         <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
                                                         <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "GV_catalogos" ? "display:block" : null )">
                                                             <li class="@(ViewBag.TercelNivel == "GV_tipo_gastos_viaje" ? "current-page" : null )"><a href="@Url.Action( "Index", "GV_tipo_gastos_viaje")">Tipos de Gastos de Viaje</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "GV_medios_transporte" ? "current-page" : null )"><a href="@Url.Action( "Index", "GV_medios_transporte")">Medios de Transporte</a></li>
+                                                            @if (User.IsInRole(TipoRoles.ADMIN))
+                                                            {
+                                                                <li class="@(ViewBag.TercelNivel == "GV_usuarios" ? "current-page" : null )"><a href="@Url.Action( "Index", "GV_usuarios")">Usuarios - Deptos</a></li>
+                                                            }
                                                         </ul>
                                                     </li>
                                                 }

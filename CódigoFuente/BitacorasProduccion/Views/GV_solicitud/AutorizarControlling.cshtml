@@ -2,9 +2,9 @@
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewBag.Title = "Detalles Solicitud de Gastos de Viaje";
+    ViewBag.Title = "Autorizar Solicitud de Gastos de Viaje";
     ViewBag.PrimerNivel = "gastos_viaje";
-    ViewBag.SegundoNivel = "GV_solicitud";
+    ViewBag.SegundoNivel = "solicitudes_controlling";
     ViewBag.ControllerName = "GV_solicitud";
 
     int contador = 0;
@@ -79,19 +79,9 @@
                         <div class="ln_solid"></div>
 
                         <div class="form-group row">
-                            @if ((Model.estatus == Bitacoras.Util.GV_solicitud_estatus.RECHAZADO_JEFE || Model.estatus == Bitacoras.Util.GV_solicitud_estatus.RECHAZADO_CONTROLLING
-                                || Model.estatus == Bitacoras.Util.GV_solicitud_estatus.RECHAZADO_CONTABILIDAD || Model.estatus == Bitacoras.Util.GV_solicitud_estatus.RECHAZADO_NOMINA)
-                                && !String.IsNullOrEmpty(Model.comentario_rechazo))
-                            {
-                                <div class="alert alert-danger col-md-12" role="alert">
-                                    <i class="fa fa-exclamation-triangle" style="color:yellow"></i> @Model.comentario_rechazo
-                                </div>
-                            }
-                        </div>
-
-                        <div class="form-group row">
                             <span style="color:black"><b>DATOS GENERALES</b></span>
                         </div>
+
                         <div class="form-group row">
                             <!--Folio-->
                             <div class="col-md-10">
@@ -402,6 +392,7 @@
                         <div class="form-group row">
 
                         </div>
+
                         @if (!String.IsNullOrEmpty(Model.comentario_rechazo))
                         {
                             <div class="ln_solid"></div>
@@ -416,6 +407,8 @@
 
                             </div>
                         }
+
+
                         <div class="ln_solid"></div>
                         <div class="form-group row">
                             <span style="color:black"><b>MOVIMIENTOS</b></span>
@@ -544,6 +537,17 @@
                                 }
                             </div>
                         </div>
+                        <div class="ln_solid"></div>
+
+                        <div class="item form-group">
+                            <div class="col-md-6 col-sm-6 ">
+                                <button type="submit" class="btn btn-danger btn-lg" onclick="mostrarModalRechazar()">Rechazar</button>
+                            </div>
+                            <div class="col-md-6 col-sm-6 ">
+                                <button type="submit" class="btn btn-success btn-lg float-lg-right" onclick="mostrarModalAutorizar()">Autorizar</button>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
                 <div>
@@ -553,6 +557,90 @@
                     </a>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal Autorizar -->
+<div class="modal fade" id="modalAutorizar" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Autorizar</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("AutorizarControlling", null, FormMethod.Post, new { }))
+            {
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <h6>¿Desea autorizar esta Solicitud de Gastos de Viaje y enviarla a N&oacute;minas para su autorizaci&oacute;n?</h6>
+                    </div>
+                    <br />
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(model => model.id)
+                    <input type="hidden" id="s_estatus" name="s_estatus" value="@Model.s_estatus" />
+
+                    <div class="form-group row">
+                        <!-- Empleado -->
+                        <div class="col-md-12">
+                            @Html.LabelFor(model => model.id_nomina, new { @class = "control-label col-md-12", @style = "text-align:left" })
+                        </div>
+                        <div class="col-md-12">
+                            @Html.DropDownList("id_nomina", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                            @Html.ValidationMessageFor(model => model.id_nomina, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Autorizar</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal Rechazar -->
+<div class="modal fade" id="modalRechazar" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Rechazar</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("RechazarControlling", null, FormMethod.Post, new { }))
+            {
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <h6>¿Realmente desea rechazar esta solicitud?</h6>
+                        <br />
+                        <div class="col-md-12">
+                            <h6>Raz&oacute;n de Rechazo:</h6>
+                        </div>
+                        <div class="col-md-12">
+
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(model => model.id)
+                            <input type="hidden" id="s_estatus" name="s_estatus" value="@Model.s_estatus" />
+                            @Html.TextAreaFor(model => model.comentario_rechazo, new { @class = "form-control", @rows = "4", @autocomplete = "off", @required = "required" })
+                            @Html.ValidationMessageFor(model => model.comentario_rechazo, "", new { @class = "text-danger" })
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning">Rechazar</button>
+                </div>
+            }
         </div>
     </div>
 </div>
@@ -585,10 +673,8 @@
                 increaseArea: '20%' // optional
             });
 
-
             //agrega evento para cambio de empleado
-            calculaDias();
-
+            calculaDias();            
 
             //input mask
             $('.precio').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'allowMinus': false, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
@@ -601,6 +687,16 @@
             currency: 'USD'
         });
 
+        //muestra el modal de autorizar
+        function mostrarModalAutorizar() {
+            $('#modalAutorizar').modal('show')
+
+        }
+
+        //muestra el modal de rechazar
+        function mostrarModalRechazar() {
+            $('#modalRechazar').modal('show')
+        }
 
     //Calcula los dias del viaje
         function calculaDias() {

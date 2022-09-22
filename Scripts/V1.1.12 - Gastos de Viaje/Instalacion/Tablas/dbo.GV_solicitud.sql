@@ -48,6 +48,7 @@ CREATE TABLE [GV_solicitud](
 	[fecha_aceptacion_controlling][datetime]  NULL,
 	[fecha_aceptacion_contabilidad][datetime]  NULL,
 	[fecha_aceptacion_nomina][datetime]  NULL,
+	[fecha_confirmacion_usuario][datetime]  NULL,
 	[comentario_rechazo][varchar](355) NULL,
 	[comentario_adicional][varchar](355) NULL,
 	[estatus][varchar](30) NOT NULL,
@@ -120,8 +121,8 @@ ALTER TABLE [GV_solicitud] ADD CONSTRAINT CK_GV_solicitud_tipo_viaje CHECK ([tip
 -- restricion check
 ALTER TABLE [GV_solicitud] ADD CONSTRAINT CK_GV_solicitud_Estatus CHECK ([estatus] IN 
 ('CREADO', 'ENVIADO_A_JEFE', 'RECHAZADO_JEFE', 'ENVIADO_CONTROLLING', 'RECHAZADO_CONTROLLING',
-'ENVIADO_CONTABILIDAD', 'RECHAZADO_CONTABILIDAD', 'ENVIADO_NOMINA',
-'RECHAZADO_NOMINA','FINALIZADO')
+'ENVIADO_NOMINA','RECHAZADO_NOMINA', 'CONFIRMADO_NOMINA', 'RECHAZADO_CONTABILIDAD', 'CONFIRMADO_CONTABILIDAD', 'CONFIRMADO_USUARIO','RECHAZADO_USUARIO', 
+'FINALIZADO')
 )
 GO
 

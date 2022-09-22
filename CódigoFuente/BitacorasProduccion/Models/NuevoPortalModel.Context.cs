@@ -46,7 +46,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<empleados> empleados { get; set; }
         public virtual DbSet<GV_medios_transporte> GV_medios_transporte { get; set; }
         public virtual DbSet<GV_rel_gastos_solicitud> GV_rel_gastos_solicitud { get; set; }
-        public virtual DbSet<GV_solicitud> GV_solicitud { get; set; }
         public virtual DbSet<GV_tipo_gastos_viaje> GV_tipo_gastos_viaje { get; set; }
         public virtual DbSet<IATF_documentos> IATF_documentos { get; set; }
         public virtual DbSet<IATF_revisiones> IATF_revisiones { get; set; }
@@ -127,5 +126,7 @@ namespace Portal_2_0.Models
         public virtual DbSet<upgrade_values_transaccion> upgrade_values_transaccion { get; set; }
         public virtual DbSet<view_historico_resultado> view_historico_resultado { get; set; }
         public virtual DbSet<view_valores_fiscal_year> view_valores_fiscal_year { get; set; }
+        public virtual DbSet<GV_usuarios> GV_usuarios { get; set; }
+        public virtual DbSet<GV_solicitud> GV_solicitud { get; set; }
     }
 }

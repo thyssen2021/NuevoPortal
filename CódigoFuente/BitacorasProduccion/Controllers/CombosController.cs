@@ -371,6 +371,8 @@ namespace Portal_2_0.Controllers
                 area = item.Area!=null? item.Area.descripcion: "--",
                 puesto = item.puesto1!=null ? item.puesto1.descripcion:"--",
                 activo = item.activo ==true? "Activo":"Inactivo",
+                id_jefe_directo = item.empleados2 != null ? item.empleados2.id.ToString() : "--",
+                nombre_jefe_directo = item.empleados2 != null ? item.empleados2.ConcatNombre : "--",
 
             };
 

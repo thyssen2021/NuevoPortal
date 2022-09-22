@@ -2,9 +2,9 @@
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewBag.Title = "Detalles Solicitud de Gastos de Viaje";
+    ViewBag.Title = "Enviar Solicitud de Gastos de Viaje";
     ViewBag.PrimerNivel = "gastos_viaje";
-    ViewBag.SegundoNivel = "GV_solicitud";
+    ViewBag.SegundoNivel = "solicitudes_jefe_directo";
     ViewBag.ControllerName = "GV_solicitud";
 
     int contador = 0;
@@ -76,6 +76,7 @@
                                 <span class="green" style="font-size:x-large"><i class="fa-solid fa-plane-departure"></i> SOLICITUD DE GASTOS DE VIAJE</span>
                             </div>
                         </div>
+
                         <div class="ln_solid"></div>
 
                         <div class="form-group row">
@@ -92,6 +93,7 @@
                         <div class="form-group row">
                             <span style="color:black"><b>DATOS GENERALES</b></span>
                         </div>
+
                         <div class="form-group row">
                             <!--Folio-->
                             <div class="col-md-10">
@@ -402,148 +404,23 @@
                         <div class="form-group row">
 
                         </div>
-                        @if (!String.IsNullOrEmpty(Model.comentario_rechazo))
-                        {
-                            <div class="ln_solid"></div>
-                            <div class="form-group row">
-                                <span style="color:red"><b>RAZ&Oacute;N ANTERIOR DE RECHAZO</b></span>
-                            </div>
 
-                            <div class="item form-group">
-                                <div class="col-md-12">
-                                    @Html.TextAreaFor(model => model.comentario_rechazo, new { @class = "form-control", @rows = "4", @autocomplete = "off", @readonly = "readonly" })
-                                </div>
-
-                            </div>
-                        }
                         <div class="ln_solid"></div>
                         <div class="form-group row">
-                            <span style="color:black"><b>MOVIMIENTOS</b></span>
+
+                        </div>
+                        <div class="col-md-12">
+                            <p class="float-md-left">
+                                <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = Model.id})" class="btn btn-info" title="Editar">
+                                    <i class="fa-regular fa-pen-to-square"></i> Editar
+                                </a>
+                            </p>
+                            <p class="float-md-right">
+                                <button type="submit" class="btn btn-success float-lg-right" onclick="mostrarModalEnviar()"><i class="fa-regular fa-paper-plane"></i>  Enviar</button>
+                            </p>
                         </div>
 
-                        <div class="form-group row">
-                            <!-- Solicitante -->
-                            @Html.LabelFor(model => model.id_solicitante, new { @class = "control-label col-md-1" })
-                            <input type="text" class="form-control col-md-5" value="@Html.DisplayFor(model => model.empleados5.ConcatNombre)" readonly>
-                            <!-- Fecha validadcion -->
-                            @Html.LabelFor(model => model.fecha_solicitud, new { @class = "control-label col-md-2 float-right" })
-                            <div class="col-md-4">
-                                <input type="text" class="form-control col-md-12" value="@(Model.fecha_solicitud.Year > 2000 ? Model.fecha_solicitud.ToString() : "NO DISPONIBLE" )" readonly>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <!-- JEFE DIRECTO -->
-                            @Html.LabelFor(model => model.id_jefe_directo, new { @class = "control-label col-md-1" })
-                            <input type="text" class="form-control col-md-5" value="@Html.DisplayFor(model => model.empleados3.ConcatNombre)" readonly>
 
-                            <!-- Fecha validacion -->
-                            @Html.LabelFor(model => model.fecha_aceptacion_jefe_area, new { @class = "control-label col-md-2 float-right" })
-
-                            <div class="col-md-4">
-                                @if (Model.fecha_aceptacion_jefe_area.HasValue)
-                                {
-                                    <input type="text" class="form-control col-md-12" value="@Model.fecha_aceptacion_jefe_area.Value" readonly>
-                                }
-                                else if (Model.estatus == Bitacoras.Util.GV_solicitud_estatus.RECHAZADO_JEFE)
-                                {
-                                    <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
-                                }
-                                else
-                                {
-                                    <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
-                                }
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <!-- CONTROLLING -->
-                            @Html.LabelFor(model => model.id_controlling, new { @class = "control-label col-md-1" })
-                            <input type="text" class="form-control col-md-5" value="@Html.DisplayFor(model => model.empleados1.ConcatNombre)" readonly>
-
-                            <!-- Fecha validacion -->
-                            @Html.LabelFor(model => model.fecha_aceptacion_controlling, new { @class = "control-label col-md-2 float-right" })
-
-                            <div class="col-md-4">
-                                @if (Model.fecha_aceptacion_controlling.HasValue)
-                                {
-                                    <input type="text" class="form-control col-md-12" value="@Model.fecha_aceptacion_controlling.Value" readonly>
-                                }
-                                else if (Model.id_controlling.HasValue && Model.estatus == Bitacoras.Util.GV_solicitud_estatus.RECHAZADO_CONTROLLING)
-                                {
-                                    <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
-                                }
-                                else
-                                {
-                                    <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
-                                }
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <!-- NOMINA -->
-                            @Html.LabelFor(model => model.id_nomina, new { @class = "control-label col-md-1" })
-                            <input type="text" class="form-control col-md-5" value="@Html.DisplayFor(model => model.empleados4.ConcatNombre)" readonly>
-
-                            <!-- Fecha validacion -->
-                            @Html.LabelFor(model => model.fecha_aceptacion_nomina, new { @class = "control-label col-md-2 float-right" })
-                            <div class="col-md-4">
-                                @if (Model.fecha_aceptacion_nomina.HasValue)
-                                {
-                                    <input type="text" class="form-control col-md-12" value="@Model.fecha_aceptacion_nomina.Value" readonly>
-                                }
-                                else if (Model.id_nomina.HasValue && Model.estatus == Bitacoras.Util.GV_solicitud_estatus.RECHAZADO_NOMINA)
-                                {
-                                    <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
-                                }
-                                else
-                                {
-                                    <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
-                                }
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <!-- CONTABILIDAD -->
-                            @Html.LabelFor(model => model.id_contabilidad, new { @class = "control-label col-md-1" })
-                            <input type="text" class="form-control col-md-5" value="@Html.DisplayFor(model => model.empleados.ConcatNombre)" readonly>
-
-                            <!-- Fecha validacion -->
-                            @Html.LabelFor(model => model.fecha_aceptacion_contabilidad, new { @class = "control-label col-md-2 float-right" })
-                            <div class="col-md-4">
-                                @if (Model.fecha_aceptacion_contabilidad.HasValue)
-                                {
-                                    <input type="text" class="form-control col-md-12" value="@Model.fecha_aceptacion_contabilidad.Value" readonly>
-                                }
-                                else if (Model.id_contabilidad.HasValue && Model.estatus == Bitacoras.Util.GV_solicitud_estatus.RECHAZADO_CONTABILIDAD)
-                                {
-                                    <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
-                                }
-                                else
-                                {
-                                    <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
-                                }
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <!-- Usuario -->
-                            @Html.LabelFor(model => model.id_solicitante, new { @class = "control-label col-md-1" })
-                            <input type="text" class="form-control col-md-5" value="@Html.DisplayFor(model => model.empleados5.ConcatNombre)" readonly>
-
-                            <!-- Fecha validacion -->
-                            @Html.LabelFor(model => model.fecha_confirmacion_usuario, new { @class = "control-label col-md-2 float-right" })
-                            <div class="col-md-4">
-                                @if (Model.fecha_confirmacion_usuario.HasValue)
-                                {
-                                    <input type="text" class="form-control col-md-12" value="@Model.fecha_confirmacion_usuario.Value" readonly>
-                                }
-                                else if (Model.estatus == Bitacoras.Util.GV_solicitud_estatus.RECHAZADO_USUARIO)
-                                {
-                                    <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
-                                }
-                                else
-                                {
-                                    <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
-                                }
-                            </div>
-                        </div>
                     </div>
                 </div>
                 <div>
@@ -552,6 +429,40 @@
                         <i class="fa fa-arrow-circle-left"></i> Volver
                     </a>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal Confirmación -->
+<div class="modal fade" id="modalConfirmacion" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Enviar Solicitud de Gastos de Viaje</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <h6>Se enviar&aacute; la solicitud a @Model.empleados3.ConcatNombre para su autorizaci&oacute;n. ¿Desea continuar?</h6>  
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" id="s_estatus" name="s_estatus" value="@Model.s_estatus"/>
+                    <div class="form-actions no-color float-md-right">
+                        <input type="submit" value="Enviar" class="btn btn-success" />
+                    </div>
+                }
+
             </div>
         </div>
     </div>
@@ -585,10 +496,9 @@
                 increaseArea: '20%' // optional
             });
 
-
             //agrega evento para cambio de empleado
             calculaDias();
-
+           
 
             //input mask
             $('.precio').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'allowMinus': false, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
@@ -600,6 +510,12 @@
             style: 'currency',
             currency: 'USD'
         });
+
+        //muestra el modal para enviar
+        function mostrarModalEnviar() {
+            $('#modalConfirmacion').modal('show')
+
+        }
 
 
     //Calcula los dias del viaje

@@ -29,7 +29,7 @@ namespace Portal_2_0.Models
         [Display(Name = "Controlling")]
         public Nullable<int> id_controlling { get; set; }
 
-        [Display(Name = "Contabilidad")]
+        [Display(Name = "Cuentas por Pagar")]
         public Nullable<int> id_contabilidad { get; set; }
 
         [Display(Name = "Nóminas")]
@@ -64,12 +64,13 @@ namespace Portal_2_0.Models
         [Required]
         [DataType(DataType.Date)]
         [Display(Name = "Fecha de Regreso")]
-        [GreaterThanOrEqualTo("fecha_salida", ErrorMessage = "La fecha de regreso debe ser porterior a la fecha de salida.")]
+        [GreaterThanOrEqualTo("fecha_salida", ErrorMessage = "La fecha de regreso debe ser posterior a la fecha de salida.")]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public System.DateTime fecha_regreso { get; set; }
 
         //agregar requided if
         [Display(Name = "Medio de Transporte")]
+        [RequiredIf("medio_transporte_aplica_otro", false, ErrorMessage = "El campo {0} es obligatorio.")]
         public Nullable<int> id_medio_transporte { get; set; }
 
         [MaxLength(80)]
@@ -78,6 +79,7 @@ namespace Portal_2_0.Models
         public string medio_transporte_otro { get; set; }
 
         [MaxLength(350)]
+        [Required]
         [Display(Name = "Motivo de Viaje")]
         public string motivo_viaje { get; set; }
 
@@ -113,11 +115,14 @@ namespace Portal_2_0.Models
         public Nullable<System.DateTime> fecha_aceptacion_controlling { get; set; }
 
 
-        [Display(Name = "Aceptación Contabilidad")]
+        [Display(Name = "Confirmación Cuentas por Pagar")]
         public Nullable<System.DateTime> fecha_aceptacion_contabilidad { get; set; }
 
-        [Display(Name = "Aceptación Nómina")]
+        [Display(Name = "Confirmación Nóminas")]
         public Nullable<System.DateTime> fecha_aceptacion_nomina { get; set; }
+
+        [Display(Name = "Confirmación Solicitante")]
+        public Nullable<System.DateTime> fecha_confirmacion_usuario { get; set; }
 
         [MaxLength(355)]
         [Display(Name = "Comentario rechazo")]
@@ -137,17 +142,19 @@ namespace Portal_2_0.Models
 
         [NotMapped]
         [Display(Name = "Otro")]
-        public bool medio_transporte_aplica_otro
-        {
-            get
-            {
-                if (id_medio_transporte != null && !String.IsNullOrEmpty(medio_transporte_otro)) {
-                    return true;
-                }
-                return false;
-            }
-
+        public bool medio_transporte_aplica_otro { get; set; }
+       
+        [NotMapped]
+        [Display(Name = "Suma Gastos Nacional")]
+        public decimal sumaGastosNacional {
+            get {
+                return this.GV_rel_gastos_solicitud.Sum(x => x.total);            
+            }        
         }
+
+        //para filtros de búsqueda
+        [NotMapped]
+        public string s_estatus { get; set; }
 
 
     }
