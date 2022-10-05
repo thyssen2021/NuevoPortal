@@ -97,6 +97,12 @@
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.estatus)
                                                 </th>
+                                                @if (ViewBag.Rechazada != null && ViewBag.Rechazada)
+                                                {
+                                                    <th>
+                                                        Raz&oacute;n de Rechazo
+                                                    </th>
+                                                }
 
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.id_elaborador)
@@ -186,6 +192,12 @@
                                                     <td>
                                                         @Bitacoras.Util.PM_Status.DescripcionStatus(item.estatus)
                                                     </td>
+                                                    @if (ViewBag.Rechazada != null && ViewBag.Rechazada)
+                                                    {
+                                                        <td style="color:red; font-weight:bold">
+                                                            @Html.DisplayFor(modelItem => item.comentario_rechazo)
+                                                        </td>
+                                                    }
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.empleados3.ConcatNombre)
                                                     </td>

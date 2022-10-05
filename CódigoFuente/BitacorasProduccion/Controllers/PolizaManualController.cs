@@ -188,6 +188,7 @@ namespace Portal_2_0.Controllers
                 ViewBag.Paginacion = paginacion;
                 //Viewbags para los botones
                 ViewBag.Edit = true;
+                ViewBag.Rechazada = true;
                 ViewBag.Details = true;
                 ViewBag.EnviarValidacion = true;
                 ViewBag.Title = "Listado Pólizas Rechazadas";
