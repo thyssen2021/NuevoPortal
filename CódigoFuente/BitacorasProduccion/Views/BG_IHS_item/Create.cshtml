@@ -1,0 +1,502 @@
+﻿@model Portal_2_0.Models.BG_IHS_item
+@{
+    ViewBag.Title = "Creación de Registro de IHS";
+    ViewBag.PrimerNivel = "budget_ihs";
+    ViewBag.SegundoNivel = "listado_ihs";
+    ViewBag.ControllerName = "BG_IHS_item";
+    int contador = 1;
+}
+
+
+@section estilos
+{
+    <style>
+        .numero-positivo::placeholder {
+            color: #c8c8c8;
+        }
+    </style>
+}
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="form-group row">
+                            <span style="color:black"><b>DATOS GENERALES</b></span>
+                        </div>
+                        <div class="ln_solid"></div>
+                        @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                        {
+                            @Html.AntiForgeryToken()
+
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", new { @class = "text-white" })
+                                </div>
+                            }
+
+                            <input type="hidden" name="origen" id="origen" value="@Bitacoras.Util.BG_IHS_Origen.USER" />
+
+                            <div class="item form-group row">
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.core_nameplate_region_mnemonic)
+                                        @Html.EditorFor(model => model.core_nameplate_region_mnemonic, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.core_nameplate_region_mnemonic, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.core_nameplate_plant_mnemonic)
+                                        @Html.EditorFor(model => model.core_nameplate_plant_mnemonic, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.core_nameplate_plant_mnemonic, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.mnemonic_vehicle)
+                                        @Html.EditorFor(model => model.mnemonic_vehicle, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.mnemonic_vehicle, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.mnemonic_vehicle_plant)
+                                        @Html.EditorFor(model => model.mnemonic_vehicle_plant, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.mnemonic_vehicle_plant, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.mnemonic_platform)
+                                        @Html.EditorFor(model => model.mnemonic_platform, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.mnemonic_platform, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.mnemonic_plant)
+                                        @Html.EditorFor(model => model.mnemonic_plant, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.mnemonic_plant, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.region)
+                                        @Html.EditorFor(model => model.region, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.region, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.market)
+                                        @Html.EditorFor(model => model.market, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.market, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.country_territory)
+                                        @Html.EditorFor(model => model.country_territory, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.country_territory, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.production_plant)
+                                        @Html.EditorFor(model => model.production_plant, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.production_plant, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.city)
+                                        @Html.EditorFor(model => model.city, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.city, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.plant_state_province)
+                                        @Html.EditorFor(model => model.plant_state_province, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.plant_state_province, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.source_plant)
+                                        @Html.EditorFor(model => model.source_plant, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.source_plant, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.source_plant_country_territory)
+                                        @Html.EditorFor(model => model.source_plant_country_territory, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.source_plant_country_territory, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.source_plant_region)
+                                        @Html.EditorFor(model => model.source_plant_region, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.source_plant_region, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.design_parent)
+                                        @Html.EditorFor(model => model.design_parent, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.design_parent, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.engineering_group)
+                                        @Html.EditorFor(model => model.engineering_group, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.engineering_group, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.manufacturer_group)
+                                        @Html.EditorFor(model => model.manufacturer_group, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.manufacturer_group, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.manufacturer)
+                                        @Html.EditorFor(model => model.manufacturer, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.manufacturer, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.sales_parent)
+                                        @Html.EditorFor(model => model.sales_parent, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.sales_parent, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.production_brand)
+                                        @Html.EditorFor(model => model.production_brand, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.production_brand, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.platform_design_owner)
+                                        @Html.EditorFor(model => model.platform_design_owner, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.platform_design_owner, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.architecture)
+                                        @Html.EditorFor(model => model.architecture, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.architecture, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.platform)
+                                        @Html.EditorFor(model => model.platform, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.platform, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.program)
+                                        @Html.EditorFor(model => model.program, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.program, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.production_nameplate)
+                                        @Html.EditorFor(model => model.production_nameplate, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.production_nameplate, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.sop_start_of_production)
+                                        <input type="month" id="sop_start_of_production" name="sop_start_of_production" class="form-control" value="@(Model.sop_start_of_production.HasValue? Model.sop_start_of_production.Value.ToString("yyyy-MM") : String.Empty )" />
+                                        @Html.ValidationMessageFor(model => model.sop_start_of_production, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.eop_end_of_production)
+                                        <input type="month" id="eop_end_of_production" name="eop_end_of_production" class="form-control" value="@(Model.eop_end_of_production.HasValue? Model.eop_end_of_production.Value.ToString("yyyy-MM") : String.Empty )" />
+                                        @Html.ValidationMessageFor(model => model.eop_end_of_production, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.lifecycle_time)
+                                        @Html.EditorFor(model => model.lifecycle_time, new { htmlAttributes = new { @class = "form-control numero-positivo", @type = "text", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.lifecycle_time, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.vehicle)
+                                        @Html.EditorFor(model => model.vehicle, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.vehicle, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.assembly_type)
+                                        @Html.EditorFor(model => model.assembly_type, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.assembly_type, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.strategic_group)
+                                        @Html.EditorFor(model => model.strategic_group, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.strategic_group, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.sales_group)
+                                        @Html.EditorFor(model => model.sales_group, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.sales_group, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.global_nameplate)
+                                        @Html.EditorFor(model => model.global_nameplate, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.global_nameplate, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.primary_design_center)
+                                        @Html.EditorFor(model => model.primary_design_center, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.primary_design_center, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.primary_design_country_territory)
+                                        @Html.EditorFor(model => model.primary_design_country_territory, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.primary_design_country_territory, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.primary_design_region)
+                                        @Html.EditorFor(model => model.primary_design_region, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.primary_design_region, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.secondary_design_center)
+                                        @Html.EditorFor(model => model.secondary_design_center, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.secondary_design_center, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.secondary_design_country_territory)
+                                        @Html.EditorFor(model => model.secondary_design_country_territory, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.secondary_design_country_territory, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.secondary_design_region)
+                                        @Html.EditorFor(model => model.secondary_design_region, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.secondary_design_region, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.gvw_rating)
+                                        @Html.EditorFor(model => model.gvw_rating, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.gvw_rating, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.gvw_class)
+                                        @Html.EditorFor(model => model.gvw_class, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.gvw_class, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.car_truck)
+                                        @Html.EditorFor(model => model.car_truck, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.car_truck, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.production_type)
+                                        @Html.EditorFor(model => model.production_type, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.production_type, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.global_production_segment)
+                                        @Html.EditorFor(model => model.global_production_segment, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.global_production_segment, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.regional_sales_segment)
+                                        @Html.EditorFor(model => model.regional_sales_segment, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.regional_sales_segment, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.global_production_price_class)
+                                        @Html.EditorFor(model => model.global_production_price_class, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.global_production_price_class, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.global_sales_segment)
+                                        @Html.EditorFor(model => model.global_sales_segment, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.global_sales_segment, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.global_sales_sub_segment)
+                                        @Html.EditorFor(model => model.global_sales_sub_segment, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.global_sales_sub_segment, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.global_sales_price_class)
+                                        @Html.EditorFor(model => model.global_sales_price_class, new { htmlAttributes = new { @class = "form-control numero-positivo", @type = "text", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.global_sales_price_class, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.short_term_risk_rating)
+                                        @Html.EditorFor(model => model.short_term_risk_rating, new { htmlAttributes = new { @class = "form-control numero-positivo", @type = "text", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.short_term_risk_rating, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.long_term_risk_rating)
+                                        @Html.EditorFor(model => model.long_term_risk_rating, new { htmlAttributes = new { @class = "form-control numero-positivo", @type = "text", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.long_term_risk_rating, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.porcentaje_scrap)
+                                        @Html.EditorFor(model => model.porcentaje_scrap, new { htmlAttributes = new { @class = "form-control porcentaje", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.porcentaje_scrap, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="ln_solid"></div>
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>DEMANDA (CUSTOMER)</b></span>
+                            </div>
+
+                            <div class="item form-group row">
+                                @foreach (var rel in Model.BG_IHS_rel_demanda.Where(x => x.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER))
+                                {
+
+                                    if (contador % 12 == 1)
+                                    {
+                                        <div class="col-md-12">
+                                            <span style="color:#052796"><b>@rel.fecha.Year</b></span>
+                                        </div>
+                                    }
+
+                                    <input type="hidden" name="BG_IHS_rel_demanda.Index" id="BG_IHS_rel_demanda.Index" value="@contador" />
+                                    <input type="hidden" name="BG_IHS_rel_demanda[@contador].fecha" id="BG_IHS_rel_demanda[@contador].fecha" value="@rel.fecha" />
+                                    <input type="hidden" name="BG_IHS_rel_demanda[@contador].tipo" id="BG_IHS_rel_demanda[@contador].tipo" value="@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER" />
+
+                                    <div class="col-md-1 col-sm-2">
+                                        <div class="form-group row">
+                                            <label for="BG_IHS_rel_demanda[@contador].cantidad">@rel.fecha.ToString("MMM yyyy").ToUpper()</label>
+                                            <input type="text" class="form-control numero-positivo" name="BG_IHS_rel_demanda[@contador].cantidad" id="BG_IHS_rel_demanda[@contador].cantidad" placeholder="0" value="@rel.cantidad" autocomplete="off" />
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="BG_IHS_rel_demanda[@contador].cantidad" data-valmsg-replace="true"></span>
+                                        </div>
+                                    </div>
+                                    if (contador % 12 == 0 && contador != Model.BG_IHS_rel_demanda.Where(x => x.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER).Count())
+                                    {
+                                        <div class="col-md-12">
+                                            <hr />
+                                        </div>
+                                    }
+                                    contador++;
+
+                                }
+                            </div>
+                            <div class="ln_solid"></div>
+
+                            <div class="item form-group">
+                                <div class="col-md-2 col-sm-2 offset-md-10">
+                                    <button type="submit" class="btn btn-success">Guardar</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+
+
+    <script>
+        $(document).ready(function () {
+            //input mask
+            $('.porcentaje').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'suffix': ' %', 'allowMinus': false, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
+            $('.numero-positivo').inputmask({ 'alias': 'integer', 'groupSeparator': ',', 'autoGroup': true, 'allowMinus': false, 'autoUnmask': true, 'removeMaskOnSubmit': true });
+        });
+        window.onload = function () {
+            clicMenu(1);
+        }
+    </script>
+}
+
+

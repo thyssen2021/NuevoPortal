@@ -308,6 +308,17 @@
                                         </li>
                                     }
 
+                                    @if (User.IsInRole(TipoRoles.BUDGET_IHS))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "budget_ihs" ? "active" : null )">
+                                            <a><i class="fa fa-chart-column"></i>IHS <span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "budget_ihs" ? "display:block" : null )">
+                                                <li class="@(ViewBag.SegundoNivel == "listado_ihs" ? "current-page" : null )"><a href="@Url.Action( "listadoIHS", "BG_IHS_item")">Listado IHS</a></li>
+                                               
+                                            </ul>
+                                        </li>
+                                    }
+
 
 
                                     @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS) || User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REGISTRO) || User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REPORTE))

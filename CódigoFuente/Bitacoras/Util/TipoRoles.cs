@@ -65,6 +65,8 @@ namespace Clases.Util
         public const string GV_CATALOGOS = "GV_CATALOGOS";
         //Módulo IT - Mantenimiento
         public const string IT_MANTENIMIENTO_REGISTRO = "IT_Mantenimento_registro";
+        //budget - Arlett
+        public const string BUDGET_IHS = "BUDGET_IHS";
 
 
     }

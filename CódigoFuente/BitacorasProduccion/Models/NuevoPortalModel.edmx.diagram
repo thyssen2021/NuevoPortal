@@ -257,6 +257,13 @@
         <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_solicitante" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_medio_transporte" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_rel_gastos_solicitud_id_gv_solicitud" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_item" Width="1.5" PointX="11.375" PointY="1.25" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_rel_demanda" Width="1.5" PointX="14" PointY="6" />
+        <EntityTypeShape EntityType="Portal_2_0Model.view_produccion_resultados" Width="1.5" PointX="0.75" PointY="10.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.view_produccion_resultados_2" Width="1.5" PointX="13.75" PointY="9.75" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_demanda_id_ihs_item" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_rel_cuartos" Width="1.5" PointX="13.625" PointY="2" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_cuartos_id_ihs_item" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -1,0 +1,449 @@
+﻿@model Portal_2_0.Models.BG_IHS_item
+
+@{
+    ViewBag.Title = "Delete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>BG_IHS_item</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.core_nameplate_region_mnemonic)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.core_nameplate_region_mnemonic)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.core_nameplate_plant_mnemonic)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.core_nameplate_plant_mnemonic)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.mnemonic_vehicle)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.mnemonic_vehicle)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.mnemonic_vehicle_plant)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.mnemonic_vehicle_plant)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.mnemonic_platform)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.mnemonic_platform)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.mnemonic_plant)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.mnemonic_plant)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.region)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.region)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.market)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.market)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.country_territory)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.country_territory)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.production_plant)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.production_plant)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.city)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.city)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.plant_state_province)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.plant_state_province)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.source_plant)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.source_plant)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.source_plant_country_territory)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.source_plant_country_territory)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.source_plant_region)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.source_plant_region)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.design_parent)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.design_parent)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.engineering_group)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.engineering_group)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.manufacturer_group)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.manufacturer_group)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.manufacturer)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.manufacturer)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.sales_parent)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.sales_parent)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.production_brand)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.production_brand)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.platform_design_owner)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.platform_design_owner)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.architecture)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.architecture)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.platform)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.platform)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.program)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.program)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.production_nameplate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.production_nameplate)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.sop_start_of_production)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.sop_start_of_production)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.eop_end_of_production)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.eop_end_of_production)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.lifecycle_time)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.lifecycle_time)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.vehicle)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.vehicle)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.assembly_type)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.assembly_type)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.strategic_group)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.strategic_group)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.sales_group)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.sales_group)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.global_nameplate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.global_nameplate)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.primary_design_center)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.primary_design_center)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.primary_design_country_territory)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.primary_design_country_territory)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.primary_design_region)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.primary_design_region)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.secondary_design_center)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.secondary_design_center)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.secondary_design_country_territory)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.secondary_design_country_territory)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.secondary_design_region)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.secondary_design_region)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.gvw_rating)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.gvw_rating)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.gvw_class)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.gvw_class)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.car_truck)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.car_truck)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.production_type)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.production_type)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.global_production_segment)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.global_production_segment)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.regional_sales_segment)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.regional_sales_segment)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.global_production_price_class)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.global_production_price_class)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.global_sales_segment)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.global_sales_segment)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.global_sales_sub_segment)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.global_sales_sub_segment)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.global_sales_price_class)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.global_sales_price_class)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.short_term_risk_rating)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.short_term_risk_rating)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.long_term_risk_rating)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.long_term_risk_rating)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.origen)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.origen)
+        </dd>
+
+    </dl>
+
+    @using (Html.BeginForm()) {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input type="submit" value="Delete" class="btn btn-default" /> |
+            @Html.ActionLink("Back to List", "Index")
+        </div>
+    }
+</div>

@@ -282,6 +282,7 @@
     <Compile Include="Controllers\AreasController.cs" />
     <Compile Include="Controllers\BG_CentroCostoController.cs" />
     <Compile Include="Controllers\BG_CuentasSAPController.cs" />
+    <Compile Include="Controllers\BG_IHS_itemController.cs" />
     <Compile Include="Controllers\BG_MappingBridgeController.cs" />
     <Compile Include="Controllers\BG_MappingController.cs" />
     <Compile Include="Controllers\BG_PlantsController.cs" />
@@ -388,6 +389,15 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\BaseController.cs" />
+    <Compile Include="Models\BG_IHS_item.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_IHS_rel_cuartos.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_IHS_rel_demanda.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\biblioteca_digital.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -553,6 +563,9 @@
     <Compile Include="Models\log_inicio_sesion.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\MetadataModels\BG_IHS_itemMetadata.cs" />
+    <Compile Include="Models\MetadataModels\BG_IHS_rel_cuartosMetadata.cs" />
+    <Compile Include="Models\MetadataModels\BG_IHS_rel_demandaMetadata.cs" />
     <Compile Include="Models\MetadataModels\budget_departamentosMetadata.cs" />
     <Compile Include="Models\ComboSelect.cs" />
     <Compile Include="Models\EncabezadoExcelBudget.cs" />
@@ -787,6 +800,12 @@
     </Compile>
     <Compile Include="Models\UtilExcel.cs" />
     <Compile Include="Models\view_historico_resultado.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\view_produccion_resultados.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\view_produccion_resultados_2.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\view_valores_fiscal_year.cs">
@@ -7214,6 +7233,12 @@
     <Content Include="Views\GV_usuarios\Disable.cshtml" />
     <Content Include="Views\GV_usuarios\Edit.cshtml" />
     <Content Include="Views\GV_usuarios\Index.cshtml" />
+    <Content Include="Views\BG_IHS_item\Create.cshtml" />
+    <Content Include="Views\BG_IHS_item\Delete.cshtml" />
+    <Content Include="Views\BG_IHS_item\Details.cshtml" />
+    <Content Include="Views\BG_IHS_item\Edit.cshtml" />
+    <Content Include="Views\BG_IHS_item\ListadoIHS.cshtml" />
+    <Content Include="Views\BG_IHS_item\CargaIHS.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
