@@ -27,14 +27,14 @@ namespace Portal_2_0.Models
                 && this.AltBOM == other.AltBOM
                 && this.Item == other.Item
                 && this.Component == other.Component           
-                //&& this.Quantity == other.Quantity
-                //&& this.Un == other.Un
-                //&& this.Created == other.Created
-                //&& this.LastDateUsed == other.LastDateUsed
+                && this.Quantity == other.Quantity
+                && this.Un == other.Un
+                && this.Created == other.Created
+                && this.LastDateUsed == other.LastDateUsed
                 ;
         }
 
         public override bool Equals(object obj) => Equals(obj as bom_en_sap);
-        public override int GetHashCode() => (Material, Plnt, BOM, AltBOM, Item, Component/*, Quantity, Un, Created, LastDateUsed*/).GetHashCode();
+        public override int GetHashCode() => (Material, Plnt, BOM, AltBOM, Item, Component, Quantity, Un, Created, LastDateUsed).GetHashCode();
     }
 }
