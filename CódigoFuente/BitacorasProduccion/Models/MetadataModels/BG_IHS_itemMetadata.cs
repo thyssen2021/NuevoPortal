@@ -234,6 +234,7 @@ namespace Portal_2_0.Models
 
         [Required]
         [Display(Name = "Porcentaje scrap")]
+        [DisplayFormat(DataFormatString = "{0:P2}", ApplyFormatInEditMode = true)]
         [Range(0, 100)]
         public decimal porcentaje_scrap { get; set; }
     }
@@ -241,6 +242,50 @@ namespace Portal_2_0.Models
     [MetadataType(typeof(BG_IHS_itemMetadata))]
     public partial class BG_IHS_item : IEquatable<BG_IHS_item>
     {
+        //obtiene el segmento asociado o null en caso de no existir
+        [NotMapped]
+        [Display(Name = "Rel Segmento")]
+        public BG_IHS_rel_segmentos RelSegmento
+        {
+            get
+            {
+                BG_IHS_rel_segmentos item = null;
+                using (var db = new Portal_2_0Entities())
+                {
+                    item = db.BG_IHS_rel_segmentos.Where(x => x.global_production_segment == this.global_production_segment && x.flat_rolled_steel_usage.HasValue).FirstOrDefault();
+                }
+
+                return item;
+            }
+        }
+
+        //obtiene la region asociada o null en caso de no existir
+        [NotMapped]
+        [Display(Name = "Región")]
+        public BG_IHS_regiones Region
+        {
+            get
+            {
+                BG_IHS_regiones item = null;
+                using (var db = new Portal_2_0Entities())
+                {
+                    item = db.BG_IHS_regiones.Where(x => x.BG_IHS_rel_regiones.Any(y => y.production_plant == this.production_plant && y.id_bg_ihs_region.HasValue)).FirstOrDefault();
+                }
+
+                return item;
+            }
+        }
+
+
+        //concatena el nombre
+        [NotMapped]
+        public string ConcatCodigo
+        {
+            get
+            {
+                return string.Format("{0}_{1}{2}{3}", mnemonic_vehicle_plant, vehicle, "{" + production_plant + "}", sop_start_of_production.HasValue ? sop_start_of_production.Value.ToString("yyyy-MM") : String.Empty).ToUpper();
+            }
+        }
 
         /// <summary>
         /// Retorna la demanda del un objeto de IHS según los parámetros recibidos
@@ -291,7 +336,7 @@ namespace Portal_2_0.Models
         /// </summary>
         /// <param name="demanda"></param>
         /// <returns></returns>        
-        public List<BG_IHS_rel_cuartos> GetCuartos(List<BG_IHS_cabecera_cuartos> cabeceraTabla, String demanda)
+        public List<BG_IHS_rel_cuartos> GetCuartos(List<BG_IHS_rel_demanda> meses, List<BG_IHS_cabecera_cuartos> cabeceraTabla, String demanda)
         {
             List<BG_IHS_rel_cuartos> list = new List<BG_IHS_rel_cuartos>();
 
@@ -300,119 +345,131 @@ namespace Portal_2_0.Models
                 DateTime fechaInicial = new DateTime(item.anio, item.quarter * 3 - 2, 1);
                 DateTime fechaFinal = new DateTime(item.anio, item.quarter * 3, 1).AddMonths(1).AddDays(-1);
 
-                //determina el numero de rel demanda 
-                int elementosCustomer = BG_IHS_rel_demanda.Where(x => x.fecha >= fechaInicial && x.fecha <= fechaFinal && x.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER && x.cantidad != null).Count();
-                int elementosOriginal = BG_IHS_rel_demanda.Where(x => x.fecha >= fechaInicial && x.fecha <= fechaFinal && x.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL && x.cantidad != null).Count();
-
                 var rel = new Models.BG_IHS_rel_cuartos
                 {
                     cuarto = item.quarter,
                     anio = item.anio,
+                    //origen 
+                    //cantidad
                 };
 
-                // si hay elementos en el item de IHS 
-                if (elementosCustomer != 0 || elementosOriginal != 0)
+                //obtiene los items que abarca el periodo
+                List<BG_IHS_rel_demanda> mesesPeriodo = meses.Where(x => x != null && x.fecha >= fechaInicial && x.fecha <= fechaFinal).ToList();
+
+                //verifica si tiene meses en el periodo
+                if (mesesPeriodo.Count > 0)
                 {
-                    if (demanda == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER && elementosCustomer != 0)
-                    {
-                        rel.cantidad = BG_IHS_rel_demanda.Where(x => x.fecha >= fechaInicial && x.fecha <= fechaFinal && x.tipo == demanda).Sum(x => x.cantidad);
-                        rel.origen_datos = Enum_BG_origen_cuartos.Calculado;
-                    }
-                    else if (demanda == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER && elementosCustomer == 0)
-                    {
-                        rel.cantidad = BG_IHS_rel_demanda.Where(x => x.fecha >= fechaInicial && x.fecha <= fechaFinal && x.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL).Sum(x => x.cantidad);
-                        rel.origen_datos = Enum_BG_origen_cuartos.Calculado;
-                    }
-                    else if (demanda == Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL && elementosOriginal == 0) // si es original toma los valores de dos datos donde es original
-                    {
-                        var cuarto = this.BG_IHS_rel_cuartos.FirstOrDefault(x => x.anio == item.anio && x.cuarto == item.quarter);
-                        if (cuarto != null)
-                            cuarto.origen_datos = Enum_BG_origen_cuartos.IHS;
-
-                        rel = cuarto;
-                    }
-                    else if (demanda == Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL && elementosOriginal != 0) // si es original toma los valores de dos datos donde es original
-                    {
-                        rel.cantidad = BG_IHS_rel_demanda.Where(x => x.fecha >= fechaInicial && x.fecha <= fechaFinal && x.tipo == demanda).Sum(x => x.cantidad);
-                        rel.origen_datos = Enum_BG_origen_cuartos.Calculado;
-                    }
-
-                    //Agrega el item creado
-                    list.Add(rel);
+                    rel.cantidad = mesesPeriodo.Sum(x => x.cantidad);
+                    rel.origen_datos = Enum_BG_origen_cuartos.Calculado;
                 }
-                else
-                { //si no hay elementos
-                    //retorna el cuarto obtenido directamente de BD
-                    var cuarto = this.BG_IHS_rel_cuartos.FirstOrDefault(x => x.anio == item.anio && x.cuarto == item.quarter);
+                else //si no tiene meses lo toma directamente de la tabla cuartos
+                {
+                    var cuarto = this.BG_IHS_rel_cuartos.Where(x => x.anio == item.anio && x.cuarto == item.quarter).FirstOrDefault();
+
                     if (cuarto != null)
-                        cuarto.origen_datos = Enum_BG_origen_cuartos.IHS;
+                    {
+                        rel = cuarto;
+                        rel.origen_datos = Enum_BG_origen_cuartos.IHS;
+                    }
 
-                    list.Add(cuarto);
                 }
+                list.Add(rel);
             }
-
-
             return list;
         }
-         /// <summary>
+        /// <summary>
         /// Retorna los años del un objeto de IHS según los parámetros recibidos
         /// </summary>
         /// <param name="demanda"></param>
         /// <returns></returns>        
-        public List<BG_IHS_item_anios> GetAnios(List<BG_IHS_cabecera_anios> cabeceraTabla, String demanda)
+        public List<BG_IHS_item_anios> GetAnios(List<BG_IHS_rel_demanda> meses, List<BG_IHS_cabecera_anios> cabeceraTabla, String demanda)
         {
             List<BG_IHS_item_anios> list = new List<BG_IHS_item_anios>();
+
 
             foreach (var item in cabeceraTabla)
             {
                 DateTime fechaInicial = new DateTime(item.anio, 1, 1);
                 DateTime fechaFinal = fechaInicial.AddYears(1).AddDays(-1);
 
-                //determina el numero de rel demanda 
-                int elementosCustomer = BG_IHS_rel_demanda.Where(x => x.fecha >= fechaInicial && x.fecha <= fechaFinal && x.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER && x.cantidad != null).Count();
-                int elementosOriginal = BG_IHS_rel_demanda.Where(x => x.fecha >= fechaInicial && x.fecha <= fechaFinal && x.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL && x.cantidad != null).Count();
-
                 var rel = new Models.BG_IHS_item_anios
-                {  
+                {
                     anio = item.anio,
+                    //origen 
+                    //cantidad
                 };
 
-                // si hay elementos en el item de IHS 
-                if (elementosCustomer != 0 || elementosOriginal != 0)
+                //obtiene los items que abarca el periodo
+
+                List<BG_IHS_rel_demanda> mesesPeriodo = meses.Where(x => x != null && x.fecha >= fechaInicial && x.fecha <= fechaFinal).ToList();
+
+                //verifica si tiene meses en el periodo
+                if (mesesPeriodo.Count > 0)
                 {
-                    if (demanda == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER && elementosCustomer != 0)
+                    rel.cantidad = mesesPeriodo.Sum(x => x.cantidad);
+                    rel.origen_datos = Enum_BG_origen_anios.Calculado;
+                }
+                else //si no tiene meses lo toma directamente de la tabla cuartos
+                {
+                    var cuartos = this.BG_IHS_rel_cuartos.Where(x => x.anio == item.anio).ToList();
+
+                    if (cuartos.Count > 0)
                     {
-                        rel.cantidad = BG_IHS_rel_demanda.Where(x => x.fecha >= fechaInicial && x.fecha <= fechaFinal && x.tipo == demanda).Sum(x => x.cantidad);
-                        
-                        rel.origen_datos = Enum_BG_origen_anios.Calculado;
-                    }
-                    else if (demanda == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER && elementosCustomer == 0)
-                    {
-                        rel.cantidad = BG_IHS_rel_demanda.Where(x => x.fecha >= fechaInicial && x.fecha <= fechaFinal && x.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL).Sum(x => x.cantidad);
-                        rel.origen_datos = Enum_BG_origen_anios.Calculado;
-                    }
-                    else if (demanda == Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL && elementosOriginal == 0) // si es original toma los valores de dos datos donde es original
-                    {
-                        rel.cantidad = this.BG_IHS_rel_cuartos.Where(x => x.anio == item.anio).Sum(x=>x.cantidad);
+                        rel.cantidad = cuartos.Sum(x => x.cantidad);
                         rel.origen_datos = Enum_BG_origen_anios.IHS;
                     }
-                    else if (demanda == Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL && elementosOriginal != 0) // si es original toma los valores de dos datos donde es original
-                    {
-                        rel.cantidad = BG_IHS_rel_demanda.Where(x => x.fecha >= fechaInicial && x.fecha <= fechaFinal && x.tipo == demanda).Sum(x => x.cantidad);
-                        rel.origen_datos = Enum_BG_origen_anios.Calculado;
-                    }
 
-                    //Agrega el item creado
-                    list.Add(rel);
                 }
-                else
-                { //si no hay elementos
-                    rel.cantidad = this.BG_IHS_rel_cuartos.Where(x => x.anio == item.anio).Sum(x => x.cantidad);
-                    rel.origen_datos = Enum_BG_origen_anios.IHS;
-                    list.Add(rel);
-                }
+                list.Add(rel);
             }
 
+            return list;
+        }
+        /// <summary>
+        /// Retorna los años del un objeto de IHS según los parámetros recibidos
+        /// </summary>
+        /// <param name="demanda"></param>
+        /// <returns></returns>        
+        public List<BG_IHS_item_anios> GetAniosFY(List<BG_IHS_rel_demanda> meses, List<BG_IHS_cabecera_anios> cabeceraTabla, String demanda)
+        {
+            List<BG_IHS_item_anios> list = new List<BG_IHS_item_anios>();
+
+
+            foreach (var item in cabeceraTabla)
+            {
+                DateTime fechaInicial = new DateTime(item.anio-1, 10, 1);
+                DateTime fechaFinal = fechaInicial.AddYears(1).AddDays(-1);
+
+                var rel = new Models.BG_IHS_item_anios
+                {
+                    anio = item.anio-1,
+                    //origen 
+                    //cantidad
+                };
+
+                //obtiene los items que abarca el periodo
+
+                List<BG_IHS_rel_demanda> mesesPeriodo = meses.Where(x => x != null && x.fecha >= fechaInicial && x.fecha <= fechaFinal).ToList();
+
+                //verifica si tiene meses en el periodo
+                if (mesesPeriodo.Count > 0)
+                {
+                    rel.cantidad = mesesPeriodo.Sum(x => x.cantidad);
+                    rel.origen_datos = Enum_BG_origen_anios.Calculado;
+                }
+                else //si no tiene meses lo toma directamente de la tabla cuartos
+                {
+                    var cuartos = this.BG_IHS_rel_cuartos.Where(x => x.anio == item.anio).ToList();
+
+                    if (cuartos.Count > 0)
+                    {
+                        rel.cantidad = cuartos.Sum(x => x.cantidad);
+                        rel.origen_datos = Enum_BG_origen_anios.IHS;
+                    }
+
+                }
+                list.Add(rel);
+            }
 
             return list;
         }
@@ -542,6 +599,9 @@ namespace Portal_2_0.Models
     /// </summary>
     public static class BG_IHS_UTIL
     {
+
+
+
         public static List<BG_IHS_cabecera> GetCabecera()
         {
             List<BG_IHS_cabecera> list = new List<BG_IHS_cabecera>();
@@ -647,8 +707,47 @@ namespace Portal_2_0.Models
                     list.Add(
                         new BG_IHS_cabecera_anios()
                         {
-                            text = "FY " + i,
+                            text = i.ToString(),
                             anio = i,
+                        });
+
+                }
+
+            }
+            return list;
+        }
+        /// <summary>
+        /// Obtiene los titulos de las cabeceras para los anios FY
+        /// </summary>
+        /// <returns></returns>
+        public static List<BG_IHS_cabecera_anios> GetCabeceraAniosFY()
+        {
+            List<BG_IHS_cabecera_anios> list = new List<BG_IHS_cabecera_anios>();
+            using (var db = new Portal_2_0Entities())
+            {
+                //obtiene el menor año de los archivos cargados para los cuartos
+                int anoInicioDemanda, anioInicioCuartos, anoFinDemanda, anioFinCuartos;
+                int anioMenor = 2019, anioMayor = 2030;
+                try
+                {
+                    anoInicioDemanda = db.BG_IHS_rel_demanda.OrderBy(x => x.fecha).Select(x => x.fecha).FirstOrDefault().Year;
+                    anioInicioCuartos = db.BG_IHS_rel_cuartos.OrderBy(x => x.anio).Select(x => x.anio).FirstOrDefault();
+                    anoFinDemanda = db.BG_IHS_rel_demanda.OrderByDescending(x => x.fecha).Select(x => x.fecha).FirstOrDefault().Year;
+                    anioFinCuartos = db.BG_IHS_rel_cuartos.OrderByDescending(x => x.anio).Select(x => x.anio).FirstOrDefault();
+
+                    anioMenor = anoInicioDemanda < anioInicioCuartos ? anoInicioDemanda : anioInicioCuartos;
+                    anioMayor = anoFinDemanda > anioFinCuartos ? anoFinDemanda : anioFinCuartos;
+                }
+                catch (Exception) { /* do nothing */ }
+
+                for (int i = anioMenor; i <= anioMayor; i++)
+                {
+
+                    list.Add(
+                        new BG_IHS_cabecera_anios()
+                        {
+                            text = "FY " + (i - 1).ToString().Substring(2, 2) + "-" + i.ToString().Substring(2, 2),
+                            anio = i-1,
                         });
 
                 }
@@ -680,7 +779,7 @@ namespace Portal_2_0.Models
     //clase para retorna valores a la tabla
     public class BG_IHS_item_anios
     {
-        public int?  cantidad { get; set; }
+        public int? cantidad { get; set; }
         public int anio { get; set; }
 
         public Enum_BG_origen_anios origen_datos { get; set; }

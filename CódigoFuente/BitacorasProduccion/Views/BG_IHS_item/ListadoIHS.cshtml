@@ -45,6 +45,10 @@
     var cabeceraDemanda = Portal_2_0.Models.BG_IHS_UTIL.GetCabecera();
     var cabeceraCuartos = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraCuartos();
     var cabeceraAnios = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAnios();
+    var cabeceraAniosFY = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAniosFY();
+
+
+    List<String> listRegiones = (List<String>)ViewBag.ListRegiones;
 }
 
 @section estilos
@@ -72,11 +76,27 @@
         }
 
         .fondo-user {
-            background-color: #b0fbf6 !important;
+            background-color: #d6c6ea !important;
         }
 
         .fondo-original {
             background-color: #faff6b !important;
+        }
+
+        .fondo-customer {
+            background-color: #6afcf3 !important;
+        }
+
+        .texto-verde {
+            font-weight: bold;
+            color: darkgreen;
+            background-color: #b8f6f3 !important;
+        }
+
+        .texto-rojo {
+            font-weight: bold;
+            color: red;
+            background-color: #b8f6f3 !important;
         }
 
         .fondo-customer {
@@ -191,51 +211,93 @@
 
                                         }
                                         <hr />
-
                                     </div>
 
                                     <div class="form-group">
-                                        @if (!String.IsNullOrEmpty(origen) && origen == Bitacoras.Util.BG_IHS_Origen.IHS)
+                                        @if (!String.IsNullOrEmpty(origen))
                                         {
                                             <a href="@Url.Action("CargaIHS", ViewBag.ControllerName)" class="btn btn-success">
                                                 <i class="fa fa-file-excel"></i>
                                                 Cargar Documento
                                             </a>
-                                        }
-                                        else if (!String.IsNullOrEmpty(origen) && origen == Bitacoras.Util.BG_IHS_Origen.USER)
-                                        {
                                             <a href="@Url.Action("Create", ViewBag.ControllerName)" class="btn btn-success">
                                                 <i class="fa-solid fa-circle-plus"></i>
                                                 Crear Registro
                                             </a>
                                         }
+
                                     </div>
+                                    @if (!String.IsNullOrEmpty(origen))
+                                    {
+                                        <!-- Inicia código de colores -->
+                                        <div class="x_panel">
+                                            <div class="x_title">
+                                                <span style="color:#686767; font-size:16px">C&oacute;digo de colores</span>
+                                                <ul class="nav navbar-right panel_toolbox">
+                                                    @*Utilizado para mover a la derecha los iconos del card*@
+                                                    <span style="visibility:hidden">_______</span>
+                                                    <li>
+                                                        <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                                    </li>
+                                                </ul>
+                                                <div class="clearfix"></div>
+                                            </div>
+                                            <div class="x_content">
+                                                <div class="row">
+                                                    <div class="col-sm-12">
+                                                        <div class="form-group row">
+                                                            <div class="col-md-2 col-sm-2">
+                                                                <button type="button" class="btn fondo-ihs btn-block" style="cursor:default">Origen IHS</button>
+                                                            </div>
+                                                            <div class="col-md-2 col-sm-2">
+                                                                <button type="button" class="btn fondo-user btn-block" style="cursor:default">Origen Usuario</button>
+                                                            </div>
+                                                            <div class="col-md-2 col-sm-2">
+                                                                <button type="button" class="btn fondo-original btn-block" style="cursor:default">Demanda Original-IHS)</button>
+                                                            </div>
+                                                            <div class="col-md-2 col-sm-2">
+                                                                <button type="button" class="btn fondo-customer btn-block" style="cursor:default">Demanda Customer</button>
+                                                            </div>
+                                                            <div class="col-md-2 col-sm-2">
+                                                                <button type="button" class="btn fondo-cuarto-calculado btn-block" style="cursor:default">Valor calculado</button>
+                                                            </div>
+                                                            <div class="col-md-2 col-sm-2">
+                                                                <button type="button" class="btn fondo-cuarto-ihs btn-block" style="cursor:default">Valor IHS</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
 
                                     @* COMIENZA Tablas por pestañas *@
                                     @if (!String.IsNullOrEmpty(origen))
                                     {
-
-                                        <div class="col-md-12 col-sm-12  ">
+                                        <div class="col-md-12 col-sm-12">
                                             <div class="x_content">
                                                 <ul class="nav nav-tabs bar_tabs" id="myTab" role="tablist">
                                                     <li class="nav-item">
-                                                        <a class="nav-link" id="home-tab" data-toggle="tab" href="#completa" role="tab" aria-controls="completa" aria-selected="true" onclick="ReiniciaTablaTimer()">Completa</a>
+                                                        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#completa" role="tab" aria-controls="completa" aria-selected="true" onclick="ReiniciaTablaTimer()">Completa</a>
                                                     </li>
                                                     <li class="nav-item">
                                                         <a class="nav-link" id="home-tab" data-toggle="tab" href="#general" role="tab" aria-controls="general" aria-selected="true" onclick="ReiniciaTablaTimer()">Info General</a>
                                                     </li>
                                                     <li class="nav-item">
-                                                        <a class="nav-link active" id="profile-tab" data-toggle="tab" href="#meses" role="tab" aria-controls="meses" aria-selected="false" onclick="ReiniciaTablaTimer()">Meses</a>
+                                                        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#meses" role="tab" aria-controls="meses" aria-selected="false" onclick="ReiniciaTablaTimer()">Meses</a>
                                                     </li>
                                                     <li class="nav-item">
                                                         <a class="nav-link" id="contact-tab" data-toggle="tab" href="#cuartos" role="tab" aria-controls="años" aria-selected="false" onclick="ReiniciaTablaTimer()">Cuartos</a>
                                                     </li>
                                                     <li class="nav-item">
-                                                        <a class="nav-link" id="contact-tab" data-toggle="tab" href="#anios" role="tab" aria-controls="anios" aria-selected="false" onclick="ReiniciaTablaTimer()">A&ntilde;os</a>
+                                                        <a class="nav-link" id="contact-tab" data-toggle="tab" href="#anios" role="tab" aria-controls="anios" aria-selected="false" onclick="ReiniciaTablaTimer()">A&ntilde;os (Ene-Dic)</a>
+                                                    </li>
+                                                    <li class="nav-item">
+                                                        <a class="nav-link" id="contact-tab" data-toggle="tab" href="#aniosFY" role="tab" aria-controls="aniosFY" aria-selected="false" onclick="ReiniciaTablaTimer()">A&ntilde;os (FY)</a>
                                                     </li>
                                                 </ul>
                                                 <div class="tab-content" id="myTabContent">
-                                                    <div class="tab-pane fade" id="completa" role="tabpanel" aria-labelledby="home-tab">
+                                                    <div class="tab-pane fade show active" id="completa" role="tabpanel" aria-labelledby="home-tab">
                                                         <div class="form-group row">
 
                                                             <table id="datatable_1" class="table data-table table-bordered nowrap" cellspacing="0" width="100%">
@@ -277,6 +339,9 @@
                                                                         </th>
                                                                         <th>
                                                                             @Html.DisplayNameFor(model => model.production_plant)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.Region.descripcion)
                                                                         </th>
                                                                         <th>
                                                                             @Html.DisplayNameFor(model => model.city)
@@ -381,6 +446,9 @@
                                                                             @Html.DisplayNameFor(model => model.global_production_segment)
                                                                         </th>
                                                                         <th>
+                                                                            @Html.DisplayNameFor(model => model.RelSegmento.flat_rolled_steel_usage)
+                                                                        </th>
+                                                                        <th>
                                                                             @Html.DisplayNameFor(model => model.regional_sales_segment)
                                                                         </th>
                                                                         <th>
@@ -416,6 +484,12 @@
                                                                                 @cabecera.text
                                                                             </th>
                                                                         }
+                                                                        @foreach (var cabecera in cabeceraAnios)
+                                                                        {
+                                                                            <th>
+                                                                                @cabecera.text
+                                                                            </th>
+                                                                        }
                                                                     </tr>
                                                                 </thead>
                                                                 <tbody>
@@ -433,19 +507,17 @@
                                                                                 <a href="@Url.Action("Edit", null, new
                                                                                 {
                                                                                     id = item.id,
-                                                                                    s_origen = origen
-                                 ,
+                                                                                    s_origen = origen,
                                                                                     s_manufacturer = manufacturer,
-                                                                                    s_production_plant = production_plant
-                                 ,
+                                                                                    s_production_plant = production_plant,
                                                                                     s_vehicle = vehicle,
                                                                                     s_country_territory = country_territory,
                                                                                     s_demanda = demanda
                                                                                 })" class="btn btn-success btn-sm" title="Editar">
                                                                                     <i class="fa-solid fa-pen-to-square"></i>
                                                                                 </a>
-                                                                                <a href="@Url.Action("Enable", null, new { id = item.id })" class="btn btn-danger btn-sm" title="Deshabilitar">
-                                                                                    <i class="fa-regular fa-trash-can"></i>
+                                                                                <a href="@Url.Action("Create", null, new { id = item.id })" class="btn btn-primary btn-sm" title="Clonar">
+                                                                                    <i class="fa-regular fa-clone"></i>
                                                                                 </a>
                                                                             </td>
                                                                             <td class="@clase_celda" style="font-weight:bold">
@@ -483,6 +555,16 @@
                                                                             </td>
                                                                             <td class="@clase_celda">
                                                                                 @Html.DisplayFor(modelItem => item.production_plant)
+                                                                            </td>
+                                                                            <td class="@(item.Region!=null?"texto-verde":"texto-rojo")">
+                                                                                @if (item.Region != null)
+                                                                                {
+                                                                                    @Html.DisplayFor(modelItem => item.Region.descripcion)
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    @("NO DISPONIBLE")
+                                                                                }
                                                                             </td>
                                                                             <td class="@clase_celda">
                                                                                 @Html.DisplayFor(modelItem => item.city)
@@ -586,6 +668,16 @@
                                                                             <td class="@clase_celda">
                                                                                 @Html.DisplayFor(modelItem => item.global_production_segment)
                                                                             </td>
+                                                                            <td class="@(item.RelSegmento!=null?"texto-verde":"texto-rojo")">
+                                                                                @if (item.RelSegmento != null)
+                                                                                {
+                                                                                    @Html.DisplayFor(modelItem => item.RelSegmento.flat_rolled_steel_usage)
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    @("NO DISPONIBLE")
+                                                                                }
+                                                                            </td>
                                                                             <td class="@clase_celda">
                                                                                 @Html.DisplayFor(modelItem => item.regional_sales_segment)
                                                                             </td>
@@ -623,7 +715,7 @@
                                                                                 </td>
                                                                             }
 
-                                                                            @foreach (var item_cuarto in item.GetCuartos(cabeceraCuartos, demanda))
+                                                                            @foreach (var item_cuarto in item.GetCuartos(item.GetDemanda(cabeceraDemanda, demanda), cabeceraCuartos, demanda))
                                                                             {
                                                                                 <td class="@(
                                                                                item_cuarto != null ? item_cuarto.origen_datos == Portal_2_0.Models.Enum_BG_origen_cuartos.Calculado ? "fondo-cuarto-calculado"
@@ -632,6 +724,18 @@
                                                                                : "fondo-default"
                                                                             )">
                                                                                     @Html.DisplayFor(modelItem => item_cuarto.cantidad)
+                                                                                </td>
+                                                                            }
+
+                                                                            @foreach (var item_anio in item.GetAnios(item.GetDemanda(cabeceraDemanda, demanda), cabeceraAnios, demanda))
+                                                                            {
+                                                                                <td class="@(
+                                                                               item_anio != null ? item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.Calculado ? "fondo-cuarto-calculado"
+                                                                               : item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.IHS ? "fondo-cuarto-ihs"
+                                                                               : "fondo-default"
+                                                                               : "fondo-default"
+                                                                        )">
+                                                                                    @Html.DisplayFor(modelItem => item_anio.cantidad)
                                                                                 </td>
                                                                             }
                                                                         </tr>
@@ -686,6 +790,9 @@
                                                                             @Html.DisplayNameFor(model => model.production_plant)
                                                                         </th>
                                                                         <th>
+                                                                            @Html.DisplayNameFor(model => model.Region.descripcion)
+                                                                        </th>
+                                                                        <th>
                                                                             @Html.DisplayNameFor(model => model.city)
                                                                         </th>
                                                                         <th>
@@ -788,6 +895,9 @@
                                                                             @Html.DisplayNameFor(model => model.global_production_segment)
                                                                         </th>
                                                                         <th>
+                                                                            @Html.DisplayNameFor(model => model.RelSegmento.flat_rolled_steel_usage)
+                                                                        </th>
+                                                                        <th>
                                                                             @Html.DisplayNameFor(model => model.regional_sales_segment)
                                                                         </th>
                                                                         <th>
@@ -828,19 +938,17 @@
                                                                                 <a href="@Url.Action("Edit", null, new
                                                                                 {
                                                                                     id = item.id,
-                                                                                    s_origen = origen
-                                 ,
+                                                                                    s_origen = origen,
                                                                                     s_manufacturer = manufacturer,
-                                                                                    s_production_plant = production_plant
-                                 ,
+                                                                                    s_production_plant = production_plant,
                                                                                     s_vehicle = vehicle,
                                                                                     s_country_territory = country_territory,
                                                                                     s_demanda = demanda
                                                                                 })" class="btn btn-success btn-sm" title="Editar">
                                                                                     <i class="fa-solid fa-pen-to-square"></i>
                                                                                 </a>
-                                                                                <a href="@Url.Action("Enable", null, new { id = item.id })" class="btn btn-danger btn-sm" title="Deshabilitar">
-                                                                                    <i class="fa-regular fa-trash-can"></i>
+                                                                                <a href="@Url.Action("Create", null, new { id = item.id })" class="btn btn-primary btn-sm" title="Clonar">
+                                                                                    <i class="fa-regular fa-clone"></i>
                                                                                 </a>
                                                                             </td>
                                                                             <td class="@clase_celda" style="font-weight:bold">
@@ -878,6 +986,16 @@
                                                                             </td>
                                                                             <td class="@clase_celda">
                                                                                 @Html.DisplayFor(modelItem => item.production_plant)
+                                                                            </td>
+                                                                            <td class="@(item.Region!=null?"texto-verde":"texto-rojo")">
+                                                                                @if (item.Region != null)
+                                                                                {
+                                                                                    @Html.DisplayFor(modelItem => item.Region.descripcion)
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    @("NO DISPONIBLE")
+                                                                                }
                                                                             </td>
                                                                             <td class="@clase_celda">
                                                                                 @Html.DisplayFor(modelItem => item.city)
@@ -981,6 +1099,16 @@
                                                                             <td class="@clase_celda">
                                                                                 @Html.DisplayFor(modelItem => item.global_production_segment)
                                                                             </td>
+                                                                            <td class="@(item.RelSegmento!=null?"texto-verde":"texto-rojo")">
+                                                                                @if (item.RelSegmento != null)
+                                                                                {
+                                                                                    @Html.DisplayFor(modelItem => item.RelSegmento.flat_rolled_steel_usage)
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    @("NO DISPONIBLE")
+                                                                                }
+                                                                            </td>
                                                                             <td class="@clase_celda">
                                                                                 @Html.DisplayFor(modelItem => item.regional_sales_segment)
                                                                             </td>
@@ -1013,7 +1141,7 @@
                                                             </table>
                                                         </div>
                                                     </div>
-                                                    <div class="tab-pane fade show active" id="meses" role="tabpanel" aria-labelledby="profile-tab">
+                                                    <div class="tab-pane fade" id="meses" role="tabpanel" aria-labelledby="profile-tab">
 
                                                         <div class="form-group row">
 
@@ -1158,13 +1286,13 @@
                                                                         @Html.DisplayFor(modelItem => item.vehicle)
                                                                     </td>
 
-                                                                    @foreach (var item_cuarto in item.GetCuartos(cabeceraCuartos, demanda))
+                                                                    @foreach (var item_cuarto in item.GetCuartos(item.GetDemanda(cabeceraDemanda, demanda), cabeceraCuartos, demanda))
                                                                     {
                                                                         <td class="@(
-                               item_cuarto != null ? item_cuarto.origen_datos == Portal_2_0.Models.Enum_BG_origen_cuartos.Calculado ? "fondo-cuarto-calculado"
-                               : item_cuarto.origen_datos == Portal_2_0.Models.Enum_BG_origen_cuartos.IHS ? "fondo-cuarto-ihs"
-                               : "fondo-default"
-                               : "fondo-default"
+                                                                               item_cuarto != null ? item_cuarto.origen_datos == Portal_2_0.Models.Enum_BG_origen_cuartos.Calculado ? "fondo-cuarto-calculado"
+                                                                               : item_cuarto.origen_datos == Portal_2_0.Models.Enum_BG_origen_cuartos.IHS ? "fondo-cuarto-ihs"
+                                                                               : "fondo-default"
+                                                                               : "fondo-default"
                                                                         )">
                                                                             @Html.DisplayFor(modelItem => item_cuarto.cantidad)
                                                                         </td>
@@ -1239,7 +1367,86 @@
                                                                         @Html.DisplayFor(modelItem => item.vehicle)
                                                                     </td>
 
-                                                                    @foreach (var item_anio in item.GetAnios(cabeceraAnios, demanda))
+                                                                    @foreach (var item_anio in item.GetAnios(item.GetDemanda(cabeceraDemanda, demanda), cabeceraAnios, demanda))
+                                                                    {
+                                                                        <td class="@(
+                                                                               item_anio != null ? item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.Calculado ? "fondo-cuarto-calculado"
+                                                                               : item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.IHS ? "fondo-cuarto-ihs"
+                                                                               : "fondo-default"
+                                                                               : "fondo-default"
+                                                                        )">
+                                                                            @Html.DisplayFor(modelItem => item_anio.cantidad)
+                                                                        </td>
+                                                                    }
+                                                                </tr>
+
+                                                            }
+                                                                </tbody>
+
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                    <div class="tab-pane fade" id="aniosFY" role="tabpanel" aria-labelledby="contact-tab">
+                                                        <div class="form-group row">
+
+                                                            <table id="datatable_6" class="table data-table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                                                <thead>
+                                                                    <tr style=" background-color: #0094ff; color: azure;" !important>
+                                                                        <th>Acciones</th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.origen)
+                                                                        </th>
+                                                                        <th>
+                                                                            @Html.DisplayNameFor(model => model.vehicle)
+                                                                        </th>
+                                                                        @foreach (var cabecera in cabeceraAniosFY)
+                                                                        {
+                                                                            <th>
+                                                                                @cabecera.text
+                                                                            </th>
+                                                                        }
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @foreach (var item in Model)
+                                                                    {
+
+                                                                        string clase_celda = (item.origen == Bitacoras.Util.BG_IHS_Origen.IHS ? "fondo-ihs"
+                                                                 : item.origen == Bitacoras.Util.BG_IHS_Origen.USER ? "fondo-user"
+                                                                 : String.Empty);
+
+                                                                <tr class="@(item.origen == Bitacoras.Util.BG_IHS_Origen.IHS ? "fondo-ihs"
+                                : item.origen == Bitacoras.Util.BG_IHS_Origen.USER ? "fondo-user"
+                                : String.Empty
+                                                    )">
+                                                                    <td class="@clase_celda" nowrap>
+                                                                        <a href="@Url.Action("Details", null, new { id = item.id })" class="btn btn-info btn-sm" title="Detalles">
+                                                                            <i class="fa-solid fa-circle-info"></i>
+                                                                        </a>
+                                                                        <a href="@Url.Action("Edit", null, new
+                                                                                {
+                                                                                    id = item.id,
+                                                                                    s_origen = origen,
+                                                                                    s_manufacturer = manufacturer,
+                                                                                    s_production_plant = production_plant,
+                                                                                    s_vehicle = vehicle,
+                                                                                    s_country_territory = country_territory,
+                                                                                    s_demanda = demanda
+                                                                                })" class="btn btn-success btn-sm" title="Editar">
+                                                                            <i class="fa-solid fa-pen-to-square"></i>
+                                                                        </a>
+                                                                        <a href="@Url.Action("Enable", null, new { id = item.id })" class="btn btn-danger btn-sm" title="Deshabilitar">
+                                                                            <i class="fa-regular fa-trash-can"></i>
+                                                                        </a>
+                                                                    </td>
+                                                                    <td class="@clase_celda" style="font-weight:bold">
+                                                                        @Html.DisplayFor(modelItem => item.origen)
+                                                                    </td>
+                                                                    <td class="@clase_celda">
+                                                                        @Html.DisplayFor(modelItem => item.vehicle)
+                                                                    </td>
+
+                                                                    @foreach (var item_anio in item.GetAniosFY(item.GetDemanda(cabeceraDemanda, demanda), cabeceraAnios, demanda))
                                                                     {
                                                                         <td class="@(
                                                                                item_anio != null ? item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.Calculado ? "fondo-cuarto-calculado"
@@ -1262,9 +1469,7 @@
                                             </div>
                                         </div>
                                     }
-
                                 </div>
-
                                 <br />
                                 @if (Model.Count() > 0)
                                 {
@@ -1272,6 +1477,68 @@
                                         @{Html.RenderPartial("_Paginacion", Model);}
                                     </nav>
                                 }
+
+                                <br />
+                                <div class="item form-group">
+                                    <div class="col-md-12 col-sm-12">
+                                        <button type="button" class="btn btn-success"> <i class="fa-regular fa-file-excel"></i>&ensp;Exportar</button>
+                                    </div>
+                                </div>
+
+
+                                <div class="ln_solid"></div>
+                                <!-- #region Tabla Regiones -->
+                                <div class="col-md-12 col-sm-12">
+                                    <div class="form-group row">
+                                        <h4><b>Gr&aacute;ficas por Regi&oacute;n</b></h4>
+                                    </div>
+                                </div>
+                                <!-- #endregion -->
+                                <!-- #region Gráficas -->
+                                <div class="col-md-12 col-sm-12">
+                                    <div class="x_panel">
+                                        <div class="x_title">
+                                            <h2>Total por Regi&oacute;n</h2>
+                                            <ul class="nav navbar-right panel_toolbox">
+                                                <span style="visibility:hidden">_______</span>
+                                                <li>
+                                                    <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                                </li>
+                                            </ul>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <div class="x_content table-responsive">
+                                            <div id="graficaGeneralCargando"> <h4>Cargando <i class="fa-solid fa-spinner fa-spin"></i></h4></div>
+                                            <div id="graficaGeneral" style="height:450px;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @foreach (var region in listRegiones)
+                                {
+                                    <div class="col-md-6 col-sm-6">
+                                        <div class="x_panel">
+                                            <div class="x_title">
+                                                <h2>@region</h2>
+                                                <ul class="nav navbar-right panel_toolbox">
+                                                    <span style="visibility:hidden">_______</span>
+                                                    <li>
+                                                        <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                                    </li>
+                                                </ul>
+                                                <div class="clearfix"></div>
+                                            </div>
+                                            <div class="x_content table-responsive">
+                                                <div id="@("grafica"+region+"Cargando")"> <h4>Cargando <i class="fa-solid fa-spinner fa-spin"></i></h4></div>
+                                                <div id="@("grafica"+region)" style="height:450px;" class="grafica-region" data-region="@region"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+
+
+
+                                <!-- #endregion -->
 
                             </div>
                         </div>
@@ -1289,12 +1556,13 @@
     @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
     @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/echarts/echarts.js"))
+    @Scripts.Render(Url.Content("~/Scripts/Forms/ThemeEcharts.js"))
     @Scripts.Render("~/bundles/dataTables_js")
 
     <script>
 
         $(document).ready(function () {
-
             //inicializa los data table
             var tabla = $('.data-table').DataTable({
                 "paging": false,
@@ -1319,7 +1587,269 @@
                 BloqueaPantalla();
             });
 
+            //carga la graficas
+            CargarGraficas();
+
         });
+
+        //paleta de colores para las graficas (variable global)
+        var colores = [
+            '#ff0010',
+            '#1a2bcc',
+            '#ffc426',
+            '#22c426',
+            '#ea7e53',
+            '#eedd78',
+            '#73a373',
+            '#73b9bc',
+            '#7289ab',
+            '#91ca8c',
+            '#f49f42'
+        ];
+
+        function CargarGraficas() {          
+            CargaRegionesFY();
+
+            //agrega los eventos para el cambio de importe
+            $(".grafica-region").each(function () {
+                let reg = $(this).attr("data-region");
+
+                CargaRegion(reg);
+
+            });           
+
+        }
+
+        function CargaRegionesFY() {
+
+            let option;
+            let series = [];
+
+
+            $.ajax({
+                type: "post",
+                async: true,
+                url: '/ECharts/GetChartRegiones',
+                dataType: "json",
+                data: {},
+                success: function (result) {
+                    try {
+
+                        //obtine el numero de barras
+                        for (let i = 1; i < result.name.length; i++) {
+                            series.push({ type: 'bar' });
+                        }
+
+                        var objsx = [];
+                        var objsy = [];
+
+                        for (var i = 0; i < result.name.length; i++) {
+                            objsx[i] = JSON.stringify(result.name[i]);//Receiving strings as JSON
+                        }
+
+                        option = {
+                            title: {
+                                text: 'FY Regines',
+                                subtext: 'Gráfica por regiones y por FY'
+                            },
+                            tooltip: {
+                                trigger: 'axis'
+                            },
+                            legend: {
+
+                            },
+                            color: colores,
+                            toolbox: {
+                                show: true,
+                                feature: {
+                                    magicType: {
+                                        show: true,
+                                        title: {
+                                            line: 'Lineas',
+                                            bar: 'Barras',
+                                            stack: 'Stack',
+                                            tiled: 'Tiled'
+                                        },
+                                        type: ['line', 'bar', 'stack', 'tiled']
+                                    },
+                                    dataView: {
+                                        show: true,
+                                        title: "Datos",
+                                        lang: [
+                                            "Datos",
+                                            "Cerrar",
+                                            "Actualizar",
+                                        ],
+                                        readOnly: false
+                                    },
+                                    restore: {
+                                        show: true,
+                                        title: "Restablecer"
+                                    },
+                                    saveAsImage: {
+                                        show: true,
+                                        title: "Guardar"
+                                    }
+                                }
+                            },
+                            calculable: true,
+                            dataset: {
+                                dimensions: result.name,
+                                source: result.num
+                            },
+                            xAxis: { type: 'category', axisLabel: { interval: 0, rotate: 30 } },
+                            yAxis: {},
+
+
+                            // Declare several bar series, each will be mapped
+                            // to a column of dataset.source by default.
+                            //una serie por cada valor en dimensions
+                            series: series
+                        };
+
+                        // Use the configuration items and data just specified to display the chart.
+                        graficaRegiones.setOption(option, true);
+
+                        //oculta el cargando
+                        $('#graficaGeneralCargando').hide();
+
+                    } catch (error) {
+                        console.log(error);
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Ocurrió un error al obtener la información de la gráfica "Regiones-FY": ' + error,
+                        })
+
+                    }
+
+                },
+                error: function (errorMsg) {
+                    console.log(errorMsg);
+                    //Execute this function when the request fails
+                    Swal.fire({
+                        icon: 'error',
+                        text: 'Ocurrió un error al obtener la información.',
+                    })
+                    graficaRegiones.hideLoading();
+                }
+
+            });     
+        }
+
+
+          function CargaRegion(region) {
+
+            var graficaNorth = echarts.init(document.getElementById('grafica' + region));
+            let option;
+            let series = [];
+
+            $.ajax({
+                type: "post",
+                async: true,
+                url: '/ECharts/GetChartRegion',
+                dataType: "json",
+                data: {region:region},
+                success: function (result) {
+                    try {
+
+                        //obtine el numero de barras
+                        for (let i = 1; i < result.name.length; i++) {
+                            series.push({ type: 'bar' });
+                        }
+
+                        var objsx = [];
+                        var objsy = [];
+
+                        for (var i = 0; i < result.name.length; i++) {
+                            objsx[i] = JSON.stringify(result.name[i]);//Receiving strings as JSON
+                        }
+
+                        option = {
+                            title: {
+                                text: 'Región ' + region,
+                                subtext: 'Información del subtext'
+                            },
+                            tooltip: {
+                                trigger: 'axis'
+                            },
+                            legend: {
+
+                            },
+                            color: colores,
+                            toolbox: {
+                                show: true,
+                                feature: {
+                                    magicType: {
+                                        show: true,
+                                        title: {
+                                            line: 'Lineas',
+                                            bar: 'Barras',
+                                            stack: 'Stack',
+                                            tiled: 'Tiled'
+                                        },
+                                        type: ['line', 'bar', 'stack', 'tiled']
+                                    },
+                                    dataView: {
+                                        show: true,
+                                        title: "Datos",
+                                        lang: [
+                                            "Datos",
+                                            "Cerrar",
+                                            "Actualizar",
+                                        ],
+                                        readOnly: false
+                                    },
+                                    restore: {
+                                        show: true,
+                                        title: "Restablecer"
+                                    },
+                                    saveAsImage: {
+                                        show: true,
+                                        title: "Guardar"
+                                    }
+                                }
+                            },
+                            calculable: true,
+                            dataset: {
+                                dimensions: result.name,
+                                source: result.num
+                            },
+                            xAxis: { type: 'category', axisLabel: { interval: 0, rotate: 30 } },
+                            yAxis: {},
+                            // Declare several bar series, each will be mapped
+                            // to a column of dataset.source by default.
+                            //una serie por cada valor en dimensions
+                            series: series
+                        };
+
+                        // Use the configuration items and data just specified to display the chart.
+                        graficaNorth.setOption(option, true);
+
+                        //oculta el cargando
+                        $('#grafica' + region + 'Cargando').hide();
+
+                    } catch (error) {
+                        console.log(error);
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Ocurrió un error al obtener la información de la gráfica Regiones "'+region+'" : ' + error,
+                        })
+
+                    }
+
+                },
+                error: function (errorMsg) {
+                    console.log(errorMsg);
+                    //Execute this function when the request fails
+                    Swal.fire({
+                        icon: 'error',
+                        text: 'Ocurrió un error al obtener la información.',
+                    })
+                    graficaRegiones.hideLoading();
+                }
+
+            });     
+        }
 
         function ReiniciaTablaTimer() {
             setTimeout(ReiniciaTablas, 150);
@@ -1337,6 +1867,14 @@
             clicMenu(1); //dos veces para acomodar la tabla
         }
 
+
+        var graficaRegiones = echarts.init(document.getElementById('graficaGeneral'));
+        
+
+        window.onresize = function () {
+            graficaRegiones.resize();
+            graficaNorth.resize();
+        };
 
     </script>
 

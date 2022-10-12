@@ -142,6 +142,9 @@ namespace Portal_2_0.Controllers
             selectListDemanda.Add(new SelectListItem() { Text = Bitacoras.Util.BG_IHS_tipo_demanda.DescripcionStatus(Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER), Value = Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER });
             ViewBag.demanda = new SelectList(selectListDemanda, "Value", "Text", demanda);
 
+            //obtiene la lista de regiones
+            List<String> listRegiones = db.BG_IHS_regiones.Select(x => x.descripcion).Distinct().ToList();
+            ViewBag.ListRegiones = listRegiones;
 
             //Envia el titulo para la vista
             if (!String.IsNullOrEmpty(origen) && origen == Bitacoras.Util.BG_IHS_Origen.IHS)
@@ -221,7 +224,7 @@ namespace Portal_2_0.Controllers
                         //obtiene el listado actual de la BD rels demanda
                         List<BG_IHS_rel_demanda> listAnteriorRelDemanda = db.BG_IHS_rel_demanda.ToList();
                         //obtiene el listado actual de la BD rels cuartos
-                        List<BG_IHS_rel_cuartos> listAnteriorRelCuartos = db.BG_IHS_rel_cuartos.ToList();
+                        List<BG_IHS_rel_cuartos> listAnteriorRelCuartos = db.BG_IHS_rel_cuartos.ToList();                     
 
                         //obtiene el listado de diferencias
                         //List<BG_IHS_item> listDiferencias = lista.Except(listAnterior).ToList();
@@ -306,6 +309,21 @@ namespace Portal_2_0.Controllers
                                     db.BG_IHS_item.Add(ihs);
                                     creados++;
                                 }
+
+                                //busca si existe un rel region para la planta de producción actual
+                                if (!db.BG_IHS_rel_regiones.Any(x => x.production_plant == ihs.production_plant)) {
+                                    db.BG_IHS_rel_regiones.Add(new BG_IHS_rel_regiones { 
+                                        production_plant = ihs.production_plant,
+                                    });                                    
+                                }
+                                  //busca si existe un rel segemento para el global segment actual
+                                if (!db.BG_IHS_rel_segmentos.Any(x => x.global_production_segment == ihs.global_production_segment)) {
+                                    db.BG_IHS_rel_segmentos.Add(new BG_IHS_rel_segmentos
+                                    { 
+                                        global_production_segment = ihs.global_production_segment,
+                                    });                                    
+                                }
+
                                 db.SaveChanges();
                             }
                             catch (Exception e)
@@ -315,8 +333,8 @@ namespace Portal_2_0.Controllers
 
                         }
 
-                        TempData["Mensaje"] = new MensajesSweetAlert("Actualizados: " + actualizados + "; Creados: " + creados 
-                            + "; DemandasActualizadas: " + demandaAct + "; DemandasCrea: " + demandaCreate 
+                        TempData["Mensaje"] = new MensajesSweetAlert("Actualizados: " + actualizados + "; Creados: " + creados
+                            + "; DemandasActualizadas: " + demandaAct + "; DemandasCrea: " + demandaCreate
                             + "; CuartosActualizados: " + quarterAct + "; CuartosCreados: " + quarterCreate + "; Errores: " + error, TipoMensajesSweetAlerts.INFO);
                         return RedirectToAction("ListadoIHS", new { origen = Bitacoras.Util.BG_IHS_Origen.IHS });
                     }
@@ -351,13 +369,12 @@ namespace Portal_2_0.Controllers
         }
 
         // GET: BG_IHS_item/Create
-        public ActionResult Create()
+        public ActionResult Create(int? id)
         {
             if (!TieneRol(TipoRoles.BUDGET_IHS))
                 return View("../Home/ErrorPermisos");
 
-
-            BG_IHS_item model = new BG_IHS_item { porcentaje_scrap = 3.0M };
+            BG_IHS_item model;
 
             //obtiene el menor año de los archivos cargados de ihs
             int anoInicio = 2019, anoFin = 2030;
@@ -368,18 +385,77 @@ namespace Portal_2_0.Controllers
             }
             catch (Exception) { /* do nothing */ }
 
-            for (int i = anoInicio; i <= anoFin; i++)
+
+            if (id == null) //si no hay id, crea un nuevo modelo
             {
-                for (int j = 1; j <= 12; j++)
+                model = new BG_IHS_item { porcentaje_scrap = 3.0M };
+
+                //crea un rel para cada año existente en la bd
+                for (int i = anoInicio; i <= anoFin; i++)
                 {
-                    model.BG_IHS_rel_demanda.Add(new BG_IHS_rel_demanda
+                    for (int j = 1; j <= 12; j++)
                     {
-                        //cantidad = 0,
-                        fecha = new DateTime(i, j, 1),
-                        tipo = Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER
-                    });
+                        model.BG_IHS_rel_demanda.Add(new BG_IHS_rel_demanda
+                        {
+                            //cantidad = 0,
+                            fecha = new DateTime(i, j, 1),
+                            tipo = Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER
+                        });
+                    }
                 }
             }
+            else
+            {
+                //si hay id crea una copia del modelo
+                var m = db.BG_IHS_item.Find(id);
+
+                //si hay coincidencia de modelo
+                if (m != null)
+                {
+                    model = m;
+                    //model.mnemonic_vehicle_plant = String.Empty;
+                    model.vehicle = String.Empty;
+
+                    List<BG_IHS_rel_demanda> nuevaLista = new List<BG_IHS_rel_demanda>();
+                    //recorre los rel demanda y agrega un item si es necesario
+                    for (int i = anoInicio; i <= anoFin; i++)
+                    {
+                        for (int j = 1; j <= 12; j++)
+                        {
+                            DateTime fecha = new DateTime(i, j, 1);
+
+                            var item = model.BG_IHS_rel_demanda.Where(x => x.fecha == fecha && x.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER).FirstOrDefault();
+
+                            //existe un rel
+                            if (item != null)
+                            {
+                                nuevaLista.Add(item);
+                            }
+                            else
+                            { //no existe item
+                                nuevaLista.Add(new BG_IHS_rel_demanda
+                                {
+                                    //cantidad = 0,
+                                    fecha = fecha,
+                                    tipo = Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER
+                                });
+
+                            }
+                        }
+                    }
+
+                    //reemplaza los rel con la nueva lista
+                    model.BG_IHS_rel_demanda = nuevaLista;
+
+                }
+                else
+                { //si no hay modelo
+                    return View("../Error/BadRequest");
+                }
+
+            }
+
+
 
             return View(model);
         }
@@ -391,14 +467,32 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(BG_IHS_item bG_IHS_item)
         {
-            if (db.BG_IHS_item.Any(x => x.mnemonic_vehicle_plant == bG_IHS_item.mnemonic_vehicle_plant))
+            if (db.BG_IHS_item.Any(x => x.mnemonic_vehicle_plant == bG_IHS_item.mnemonic_vehicle_plant && x.vehicle == bG_IHS_item.vehicle && x.sop_start_of_production == bG_IHS_item.sop_start_of_production))
                 ModelState.AddModelError("", "Ya existe un registro con los mismos valores para Mnemonic-Vehicle/Plant, Vehicle y SOP " + bG_IHS_item.mnemonic_vehicle_plant);
 
             if (ModelState.IsValid)
             {
                 //coloca el porcentaje en decimales
-                bG_IHS_item.porcentaje_scrap = bG_IHS_item.porcentaje_scrap / 100; 
+                bG_IHS_item.porcentaje_scrap = bG_IHS_item.porcentaje_scrap / 100;
                 db.BG_IHS_item.Add(bG_IHS_item);
+
+                //busca si existe un rel region para la planta de producción actual
+                if (!db.BG_IHS_rel_regiones.Any(x => x.production_plant == bG_IHS_item.production_plant))
+                {
+                    db.BG_IHS_rel_regiones.Add(new BG_IHS_rel_regiones
+                    {
+                        production_plant = bG_IHS_item.production_plant,
+                    });
+                }
+                //busca si existe un rel segmento para el global segment actual
+                if (!db.BG_IHS_rel_segmentos.Any(x => x.global_production_segment == bG_IHS_item.global_production_segment))
+                {
+                    db.BG_IHS_rel_segmentos.Add(new BG_IHS_rel_segmentos
+                    {
+                        global_production_segment = bG_IHS_item.global_production_segment,
+                    });
+                }
+
                 db.SaveChanges();
 
                 TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);
@@ -472,11 +566,16 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit(BG_IHS_item bG_IHS_item, string s_country_territory, string s_manufacturer, string s_production_plant, string s_vehicle, string s_origen, string s_demanda)
         {
+
+            if (db.BG_IHS_item.Any(x => x.mnemonic_vehicle_plant == bG_IHS_item.mnemonic_vehicle_plant && x.vehicle == bG_IHS_item.vehicle
+                            && x.sop_start_of_production == bG_IHS_item.sop_start_of_production && x.id != bG_IHS_item.id))
+                ModelState.AddModelError("", "Ya existe un registro con los mismos valores para Mnemonic-Vehicle/Plant, Vehicle y SOP " + bG_IHS_item.mnemonic_vehicle_plant);
+
             if (ModelState.IsValid)
             {
                 var rels = bG_IHS_item.BG_IHS_rel_demanda;
 
-                bG_IHS_item.BG_IHS_rel_demanda =new List<BG_IHS_rel_demanda>();
+                bG_IHS_item.BG_IHS_rel_demanda = new List<BG_IHS_rel_demanda>();
                 //coloca el porcentaje en decimales
                 bG_IHS_item.porcentaje_scrap = bG_IHS_item.porcentaje_scrap / 100;
 
@@ -490,25 +589,46 @@ namespace Portal_2_0.Controllers
                     //recorre los rels y los actualiza o crea
                     foreach (var rel in rels)
                     {
-                        
+
                         //busca el elemento
                         var item = rels_demanda_customer.Where(x => x.fecha == rel.fecha).FirstOrDefault();
 
-                        if (item !=null)//si ya existe lo actualiza
+                        if (item != null)//si ya existe lo actualiza
                         {
                             rel.id = item.id;
                             db.Entry(item).CurrentValues.SetValues(rel);
                         }
-                        else { //si no existe, lo crea
+                        else
+                        { //si no existe, lo crea
                             db.BG_IHS_rel_demanda.Add(rel);
                         }
                     }
-                    db.SaveChanges();                    
+
+                    //busca si existe un rel region para la planta de producción actual
+                    if (!db.BG_IHS_rel_regiones.Any(x => x.production_plant == bG_IHS_item.production_plant))
+                    {
+                        db.BG_IHS_rel_regiones.Add(new BG_IHS_rel_regiones
+                        {
+                            production_plant = bG_IHS_item.production_plant,
+                        });
+                    }
+
+                    //busca si existe un rel segmento para el global segment actual
+                    if (!db.BG_IHS_rel_segmentos.Any(x => x.global_production_segment == bG_IHS_item.global_production_segment))
+                    {
+                        db.BG_IHS_rel_segmentos.Add(new BG_IHS_rel_segmentos
+                        {
+                            global_production_segment = bG_IHS_item.global_production_segment,
+                        });
+                    }
+
+                    db.SaveChanges();
 
                     TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
-                    return RedirectToAction("ListadoIHS", new { origen = s_origen, country_territory = s_country_territory, manufacturer= s_manufacturer, production_plant = s_production_plant, vehicle = s_vehicle, demanda= s_demanda });
+                    return RedirectToAction("ListadoIHS", new { origen = s_origen, country_territory = s_country_territory, manufacturer = s_manufacturer, production_plant = s_production_plant, vehicle = s_vehicle, demanda = s_demanda });
                 }
-                catch(Exception e) {
+                catch (Exception e)
+                {
                     TempData["Mensaje"] = new MensajesSweetAlert(e.Message, TipoMensajesSweetAlerts.ERROR);
                     return RedirectToAction("ListadoIHS", new { origen = s_origen, country_territory = s_country_territory, manufacturer = s_manufacturer, production_plant = s_production_plant, vehicle = s_vehicle, demanda = s_demanda });
                 }

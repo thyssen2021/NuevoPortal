@@ -283,6 +283,9 @@
     <Compile Include="Controllers\BG_CentroCostoController.cs" />
     <Compile Include="Controllers\BG_CuentasSAPController.cs" />
     <Compile Include="Controllers\BG_IHS_itemController.cs" />
+    <Compile Include="Controllers\BG_IHS_regionesController.cs" />
+    <Compile Include="Controllers\BG_IHS_rel_regionesController.cs" />
+    <Compile Include="Controllers\BG_IHS_rel_segmentosController.cs" />
     <Compile Include="Controllers\BG_MappingBridgeController.cs" />
     <Compile Include="Controllers\BG_MappingController.cs" />
     <Compile Include="Controllers\BG_PlantsController.cs" />
@@ -392,10 +395,19 @@
     <Compile Include="Models\BG_IHS_item.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\BG_IHS_regiones.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\BG_IHS_rel_cuartos.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\BG_IHS_rel_demanda.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_IHS_rel_regiones.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_IHS_rel_segmentos.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\biblioteca_digital.cs">
@@ -564,8 +576,11 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\MetadataModels\BG_IHS_itemMetadata.cs" />
+    <Compile Include="Models\MetadataModels\BG_IHS_regionesMetadata.cs" />
     <Compile Include="Models\MetadataModels\BG_IHS_rel_cuartosMetadata.cs" />
     <Compile Include="Models\MetadataModels\BG_IHS_rel_demandaMetadata.cs" />
+    <Compile Include="Models\MetadataModels\BG_IHS_rel_regionesMetadata.cs" />
+    <Compile Include="Models\MetadataModels\BG_IHS_rel_segmentosMetadata.cs" />
     <Compile Include="Models\MetadataModels\budget_departamentosMetadata.cs" />
     <Compile Include="Models\ComboSelect.cs" />
     <Compile Include="Models\EncabezadoExcelBudget.cs" />
@@ -7239,6 +7254,18 @@
     <Content Include="Views\BG_IHS_item\Edit.cshtml" />
     <Content Include="Views\BG_IHS_item\ListadoIHS.cshtml" />
     <Content Include="Views\BG_IHS_item\CargaIHS.cshtml" />
+    <Content Include="Views\BG_IHS_regiones\Create.cshtml" />
+    <Content Include="Views\BG_IHS_regiones\Details.cshtml" />
+    <Content Include="Views\BG_IHS_regiones\Disable.cshtml" />
+    <Content Include="Views\BG_IHS_regiones\Edit.cshtml" />
+    <Content Include="Views\BG_IHS_regiones\Enable.cshtml" />
+    <Content Include="Views\BG_IHS_regiones\Index.cshtml" />
+    <Content Include="Views\BG_IHS_rel_regiones\Details.cshtml" />
+    <Content Include="Views\BG_IHS_rel_regiones\Edit.cshtml" />
+    <Content Include="Views\BG_IHS_rel_regiones\Index.cshtml" />
+    <Content Include="Views\BG_IHS_rel_segmentos\Details.cshtml" />
+    <Content Include="Views\BG_IHS_rel_segmentos\Edit.cshtml" />
+    <Content Include="Views\BG_IHS_rel_segmentos\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

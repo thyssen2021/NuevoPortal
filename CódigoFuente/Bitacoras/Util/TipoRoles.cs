@@ -67,7 +67,7 @@ namespace Clases.Util
         public const string IT_MANTENIMIENTO_REGISTRO = "IT_Mantenimento_registro";
         //budget - Arlett
         public const string BUDGET_IHS = "BUDGET_IHS";
-
+        public const string BUDGET_IHS_CATALOGOS = "BUDGET_IHS_CATALOGOS";
 
     }
 }

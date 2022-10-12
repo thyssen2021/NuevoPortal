@@ -133,5 +133,8 @@ namespace Portal_2_0.Models
         public virtual DbSet<view_produccion_resultados> view_produccion_resultados { get; set; }
         public virtual DbSet<view_produccion_resultados_2> view_produccion_resultados_2 { get; set; }
         public virtual DbSet<BG_IHS_rel_cuartos> BG_IHS_rel_cuartos { get; set; }
+        public virtual DbSet<BG_IHS_regiones> BG_IHS_regiones { get; set; }
+        public virtual DbSet<BG_IHS_rel_regiones> BG_IHS_rel_regiones { get; set; }
+        public virtual DbSet<BG_IHS_rel_segmentos> BG_IHS_rel_segmentos { get; set; }
     }
 }

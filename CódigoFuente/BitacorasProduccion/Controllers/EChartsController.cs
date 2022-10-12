@@ -55,7 +55,7 @@ namespace Portal_2_0.Controllers
             List<empleados> listEmpleados = listaOT.Where(x => x.id_responsable > 0).Select(x => x.empleados1).Distinct().ToList();
 
             //inicializa la lista de objetos
-            var list = new object[listEmpleados.Count+1];
+            var list = new object[listEmpleados.Count + 1];
 
             //muetra las ot sin asignar
             int abiertas = listaOT.Where(x => x.estatus == OT_Status.ABIERTO).Count();
@@ -63,12 +63,12 @@ namespace Portal_2_0.Controllers
 
             for (int i = 0; i < listEmpleados.Count; i++)
             {
-           
+
                 int asignadas = listaOT.Where(x => x.id_responsable == listEmpleados[i].id && x.estatus == OT_Status.ASIGNADO).Count();
                 int proceso = listaOT.Where(x => x.id_responsable == listEmpleados[i].id && x.estatus == OT_Status.EN_PROCESO).Count();
                 int cerradas = listaOT.Where(x => x.id_responsable == listEmpleados[i].id && x.estatus == OT_Status.CERRADO).Count();
 
-                list[i+1] = new { Empleado = listEmpleados[i].nombre + " " + listEmpleados[i].apellido1, Abierto = 0, Asignado = asignadas, Proceso = proceso, Cerradas = cerradas };
+                list[i + 1] = new { Empleado = listEmpleados[i].nombre + " " + listEmpleados[i].apellido1, Abierto = 0, Asignado = asignadas, Proceso = proceso, Cerradas = cerradas };
             }
 
 
@@ -327,7 +327,7 @@ namespace Portal_2_0.Controllers
 
             for (int i = 0; i < listAreas.Count; i++)
             {
-                int cantidad = listaOT.Where(x => x.id_area == listAreas[i].clave && x.tpm==true).Count();
+                int cantidad = listaOT.Where(x => x.id_area == listAreas[i].clave && x.tpm == true).Count();
 
                 list[i] = new { Departamento = listAreas[i].descripcion, Cantidad = cantidad };
             }
@@ -368,7 +368,7 @@ namespace Portal_2_0.Controllers
             ).ToList();
 
             //obtiene todos los solicitante de las OT
-            List<empleados> listSolicitantes= listaOT.Where(x => x.id_solicitante > 0).Select(x => x.empleados2).Distinct().ToList();
+            List<empleados> listSolicitantes = listaOT.Where(x => x.id_solicitante > 0).Select(x => x.empleados2).Distinct().ToList();
 
             //inicializa la lista de objetos
             var list = new object[listSolicitantes.Count];
@@ -376,7 +376,7 @@ namespace Portal_2_0.Controllers
             for (int i = 0; i < listSolicitantes.Count; i++)
             {
                 //obtine la suma de solicitudes creadas donde hay tpm
-                int cantidad = listaOT.Where(x => x.id_solicitante == listSolicitantes[i].id && x.tpm==true).Count();
+                int cantidad = listaOT.Where(x => x.id_solicitante == listSolicitantes[i].id && x.tpm == true).Count();
 
                 list[i] = new { Empleado = listSolicitantes[i].nombre + " " + listSolicitantes[i].apellido1, Cantidad = cantidad };
             }
@@ -524,7 +524,8 @@ namespace Portal_2_0.Controllers
 
             listMeses.Add(mesInicial);
 
-            while (mesInicial<mesFinal) {
+            while (mesInicial < mesFinal)
+            {
                 mesInicial = mesInicial.AddMonths(1);
                 listMeses.Add(mesInicial);
             }
@@ -537,13 +538,141 @@ namespace Portal_2_0.Controllers
                 DateTime finMes = listMeses[i].AddMonths(1).AddDays(-1).AddHours(23).AddMinutes(59).AddSeconds(59);
 
                 //obtine la suma de solicitudes creadas donde hay tpm
-                int cantidad = listaOT.Where(x =>  x.tpm == true && x.estatus == OT_Status.CERRADO && x.fecha_solicitud >= listMeses[i] && x.fecha_solicitud <= finMes).Count();
+                int cantidad = listaOT.Where(x => x.tpm == true && x.estatus == OT_Status.CERRADO && x.fecha_solicitud >= listMeses[i] && x.fecha_solicitud <= finMes).Count();
 
-                list[i] = new { Mes = MesesUtil.getMes(listMeses[i].Month).Abreviatura +" "+listMeses[i].Year, Cantidad = cantidad };
+                list[i] = new { Mes = MesesUtil.getMes(listMeses[i].Month).Abreviatura + " " + listMeses[i].Year, Cantidad = cantidad };
             }
 
             var result = new { name = titulos, num = list };//Design JSON format
             return Json(result);//Return JSON data
         }
+
+
+        /// <summary>
+        /// Obtiene el total por región
+        /// </summary>
+        public ContentResult GetChartRegiones()
+        {
+
+            //obtiene todos los datos relacionados
+            var datos = db.BG_IHS_item;
+
+            //obtiene la lista de regiones
+            List<String> listRegiones = db.BG_IHS_regiones.Select(x => x.descripcion).Distinct().ToList();
+
+            //obtiene los años 
+            var cabeceraAnios = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAnios();
+
+            //obtiene los datos
+            List<BG_IHS_rel_demanda> listDatos = new List<BG_IHS_rel_demanda>();
+            var cabeceraDemanda = Portal_2_0.Models.BG_IHS_UTIL.GetCabecera();
+
+            foreach (var ihs in db.BG_IHS_item)
+            {
+                listDatos.AddRange(ihs.GetDemanda(cabeceraDemanda, "CUSTOMER"));
+            }
+            string jsonString = @"{""name"":[""Region""";
+            foreach (var r in listRegiones)
+            {
+                jsonString += ",\"" + r + "\"";
+            }
+
+            jsonString += @"],
+                 ""num"":[
+            ";
+
+            for (int i = 0; i < cabeceraAnios.Count; i++)
+            {
+                DateTime fechaInicial = new DateTime(cabeceraAnios[i].anio, 1, 1);
+                DateTime fechaFinal = fechaInicial.AddYears(1).AddDays(-1);
+
+                if (i != 0)
+                    jsonString += ", ";
+
+                jsonString += "{ \"Region\":" + "\"FY " + cabeceraAnios[i].anio + "\",";
+
+                for (int j = 0; j < listRegiones.Count; j++) //region
+                {
+                    int? cantidad = listDatos.Where(x => x != null && x.fecha >= fechaInicial && x.fecha <= fechaFinal
+                                                 && x.BG_IHS_item.Region != null && x.BG_IHS_item.Region.descripcion == listRegiones[j]
+                                                 ).Sum(x => x.cantidad);
+
+                    if (j != 0)
+                        jsonString += ", ";
+                    //Se obtiene el valor de c
+                    jsonString += "\"" + listRegiones[j] + "\":";
+                    jsonString += cantidad != null ? cantidad.Value : 0;
+                }
+
+                jsonString += "}";
+
+            }
+
+            jsonString += @"]
+                }";
+
+            System.Diagnostics.Debug.Print(jsonString);
+
+            return new ContentResult { Content = jsonString, ContentType = "application/json" };
+        }
+        /// <summary>
+        /// Obtiene el total por región
+        /// </summary>
+        public ContentResult GetChartRegion(String region)
+        {
+
+            //obtiene todos los datos relacionados
+            var datos = db.BG_IHS_item;
+
+            //obtiene los años 
+            var cabeceraAnios = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAnios();
+
+            //obtiene los datos
+            List<BG_IHS_rel_demanda> listDatos = new List<BG_IHS_rel_demanda>();
+            var cabeceraDemanda = Portal_2_0.Models.BG_IHS_UTIL.GetCabecera();
+
+            foreach (var ihs in db.BG_IHS_item)
+            {
+                listDatos.AddRange(ihs.GetDemanda(cabeceraDemanda, "CUSTOMER"));
+            }
+            string jsonString = @"{""name"":[""Region""";
+
+            jsonString += ",\"" + region + "\"";
+
+            jsonString += @"],
+                 ""num"":[
+            ";
+
+            for (int i = 0; i < cabeceraAnios.Count; i++)
+            {
+                DateTime fechaInicial = new DateTime(cabeceraAnios[i].anio, 1, 1);
+                DateTime fechaFinal = fechaInicial.AddYears(1).AddDays(-1);
+
+                if (i != 0)
+                    jsonString += ", ";
+
+                jsonString += "{ \"Region\":" + "\"FY " + cabeceraAnios[i].anio + "\",";
+
+              
+                    int? cantidad = listDatos.Where(x => x != null && x.fecha >= fechaInicial && x.fecha <= fechaFinal
+                                                 && x.BG_IHS_item.Region != null && x.BG_IHS_item.Region.descripcion == region
+                                                 ).Sum(x => x.cantidad);
+                    
+                    //Se obtiene el valor de c
+                    jsonString += "\"" + region + "\":";
+                    jsonString += cantidad != null ? cantidad.Value : 0;
+               
+                jsonString += "}";
+
+            }
+
+            jsonString += @"]
+                }";
+
+            System.Diagnostics.Debug.Print(jsonString);
+
+            return new ContentResult { Content = jsonString, ContentType = "application/json" };
+        }
     }
+
 }

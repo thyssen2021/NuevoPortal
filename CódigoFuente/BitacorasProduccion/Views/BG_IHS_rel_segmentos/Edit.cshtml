@@ -1,0 +1,140 @@
+﻿@model Portal_2_0.Models.BG_IHS_rel_segmentos
+
+@{
+    ViewBag.Title = "Editar Segmento";
+    ViewBag.PrimerNivel = "budget_ihs";
+    ViewBag.SegundoNivel = "budget_ihs_catalogos";
+    ViewBag.TercelNivel = "BG_IHS_rel_segmentos";
+    ViewBag.ControllerName = "BG_IHS_rel_segmentos";
+}
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+
+    <style>
+        input {
+            text-align:right;
+        }
+
+    </style>
+}
+
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                        {
+                            @Html.AntiForgeryToken()
+
+                            @Html.HiddenFor(model => model.id)
+                            @Html.HiddenFor(model => model.global_production_segment)
+
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", new { @class = "text-white" })
+                                </div>
+                            }
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-4 col-sm-4 ">
+                                    <input type="text" class="form-control" value="@Html.DisplayFor(model => model.id)" readonly />
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.global_production_segment, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-4 col-sm-4 ">
+                                    @Html.EditorFor(model => model.global_production_segment, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                    @Html.ValidationMessageFor(model => model.global_production_segment, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.flat_rolled_steel_usage, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-4 col-sm-4 ">
+                                    @Html.EditorFor(model => model.flat_rolled_steel_usage, new { htmlAttributes = new { @class = "form-control numero-positivo", @type = "text", @required = "required" } })
+                                    @Html.ValidationMessageFor(model => model.flat_rolled_steel_usage, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.blanks_usage_percent, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-4 col-sm-4 ">
+                                    @Html.EditorFor(model => model.blanks_usage_percent, new { htmlAttributes = new { @class = "form-control porcentaje", @required = "required" } })
+                                    @Html.ValidationMessageFor(model => model.blanks_usage_percent, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                <label class="col-form-label col-md-3 col-sm-3 label-align">Blank Usage</label>                              
+                                <div class="col-md-4 col-sm-4 ">
+                                    <input type="text" id="calculo" class="form-control" value="@Html.DisplayFor(model => model.BlanksUsage)" readonly />
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="item form-group">
+                                <div class="col-md-4 col-sm-4 offset-md-3">
+                                    <button type="submit" class="btn btn-success">Guardar</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+<script>
+        $(document).ready(function () {
+            // Initialize Select2 Elements
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //input mask
+            $('.porcentaje').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'suffix': ' %', 'allowMinus': false, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
+            $('.numero-positivo').inputmask({ 'alias': 'integer', 'groupSeparator': ',', 'autoGroup': true, 'allowMinus': false, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
+
+            $('input').on('input', function (e) {
+                calculaDatos();
+            });
+
+        });
+
+        function calculaDatos() {
+            let flat_rolled_steel_usage = ConvierteAFloat($('#@Html.IdFor(model => model.flat_rolled_steel_usage)').val(), 0);
+            let blanks_usage_percent = ConvierteAFloat($('#@Html.IdFor(model => model.blanks_usage_percent)').val(), 0);
+
+            let result = flat_rolled_steel_usage * (blanks_usage_percent/100);
+            $('#calculo').val(result.toFixed(2));
+
+        }
+
+</script>
+}

@@ -16,12 +16,17 @@ SET QUOTED_IDENTIFIER ON
 IF object_id(N'AspNetRoles','U') IS NOT NULL
 BEGIN
 
-	-- Reportes de Póliza
+	-- budget arlett
 	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='BUDGET_IHS' )
 	BEGIN
 		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'BUDGET_IHS')
 	END	
+		IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='BUDGET_IHS_CATALOGOS' )
+	BEGIN
+		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'BUDGET_IHS_CATALOGOS')
+	END	
 	
+
 PRINT '<<<CORRECTO: La TABLA dbo.AspNetRoles ha sido INICIALIZADA en la Base de Datos: ' + db_name() + ' en el Servidor: ' + @@servername + '  >>>'     	
 
 END
