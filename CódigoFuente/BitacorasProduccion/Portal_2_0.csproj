@@ -7249,7 +7249,6 @@
     <Content Include="Views\GV_usuarios\Edit.cshtml" />
     <Content Include="Views\GV_usuarios\Index.cshtml" />
     <Content Include="Views\BG_IHS_item\Create.cshtml" />
-    <Content Include="Views\BG_IHS_item\Delete.cshtml" />
     <Content Include="Views\BG_IHS_item\Details.cshtml" />
     <Content Include="Views\BG_IHS_item\Edit.cshtml" />
     <Content Include="Views\BG_IHS_item\ListadoIHS.cshtml" />

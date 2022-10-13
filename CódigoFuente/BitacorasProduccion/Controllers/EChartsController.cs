@@ -551,25 +551,54 @@ namespace Portal_2_0.Controllers
         /// <summary>
         /// Obtiene el total por región
         /// </summary>
-        public ContentResult GetChartRegiones()
+        public ContentResult GetChartRegiones(string country_territory, string manufacturer, string production_plant, string vehicle, string origen, string demanda = Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER)
         {
 
-            //obtiene todos los datos relacionados
-            var datos = db.BG_IHS_item;
+            //verifica que el elemento este relacionado con el elmento anterior
+            if (
+                !db.BG_IHS_item.Any(x => (country_territory == x.country_territory || String.IsNullOrEmpty(country_territory) && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)) && x.manufacturer == manufacturer))
+                manufacturer = String.Empty;
 
+            if (
+                !db.BG_IHS_item.Any(x => (country_territory == x.country_territory || String.IsNullOrEmpty(country_territory))
+                                            && (x.manufacturer == manufacturer || String.IsNullOrEmpty(manufacturer))
+                                            && x.production_plant == production_plant
+                                            && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
+                                            ))
+                production_plant = String.Empty;
+
+            if (
+                !db.BG_IHS_item.Any(x => (country_territory == x.country_territory || String.IsNullOrEmpty(country_territory))
+                                            && (x.manufacturer == manufacturer || String.IsNullOrEmpty(manufacturer))
+                                            && (x.production_plant == production_plant || String.IsNullOrEmpty(production_plant))
+                                            && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
+                                            && vehicle == x.vehicle))
+                vehicle = String.Empty;
+
+            var datos = db.BG_IHS_item
+                .Where(x =>
+                    (x.country_territory == country_territory || String.IsNullOrEmpty(country_territory))
+                    && (x.manufacturer == manufacturer || String.IsNullOrEmpty(manufacturer))
+                    && (x.production_plant == production_plant || String.IsNullOrEmpty(production_plant))
+                    && (x.vehicle == vehicle || String.IsNullOrEmpty(vehicle))
+                    && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
+                    );
+              
             //obtiene la lista de regiones
             List<String> listRegiones = db.BG_IHS_regiones.Select(x => x.descripcion).Distinct().ToList();
+            listRegiones.Add("SIN DEFINIR");
 
             //obtiene los años 
             var cabeceraAnios = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAnios();
 
             //obtiene los datos
-            List<BG_IHS_rel_demanda> listDatos = new List<BG_IHS_rel_demanda>();
+            List<BG_IHS_item_anios> listDatos = new List<BG_IHS_item_anios>();
             var cabeceraDemanda = Portal_2_0.Models.BG_IHS_UTIL.GetCabecera();
+            
 
-            foreach (var ihs in db.BG_IHS_item)
+            foreach (var ihs in datos)
             {
-                listDatos.AddRange(ihs.GetDemanda(cabeceraDemanda, "CUSTOMER"));
+                listDatos.AddRange(ihs.GetAniosFY(ihs.GetDemanda(cabeceraDemanda, demanda), cabeceraAnios, demanda));
             }
             string jsonString = @"{""name"":[""Region""";
             foreach (var r in listRegiones)
@@ -583,19 +612,21 @@ namespace Portal_2_0.Controllers
 
             for (int i = 0; i < cabeceraAnios.Count; i++)
             {
-                DateTime fechaInicial = new DateTime(cabeceraAnios[i].anio, 1, 1);
-                DateTime fechaFinal = fechaInicial.AddYears(1).AddDays(-1);
+                //DateTime fechaInicial = new DateTime(cabeceraAnios[i].anio, 1, 1);
+                //DateTime fechaFinal = fechaInicial.AddYears(1).AddDays(-1);
 
                 if (i != 0)
                     jsonString += ", ";
 
-                jsonString += "{ \"Region\":" + "\"FY " + cabeceraAnios[i].anio + "\",";
+                jsonString += "{ \"Region\":" + "\"FY " + (cabeceraAnios[i].anio-1).ToString().Substring(2, 2) + "-" + (cabeceraAnios[i].anio).ToString().Substring(2, 2) + "\",";
 
                 for (int j = 0; j < listRegiones.Count; j++) //region
                 {
-                    int? cantidad = listDatos.Where(x => x != null && x.fecha >= fechaInicial && x.fecha <= fechaFinal
-                                                 && x.BG_IHS_item.Region != null && x.BG_IHS_item.Region.descripcion == listRegiones[j]
-                                                 ).Sum(x => x.cantidad);
+                    int? cantidad = listDatos.Where(x => x.anio == (cabeceraAnios[i].anio-1) && x.region== listRegiones[j]).Sum(x => x.cantidad);
+
+                     //int? cantidad = listDatos.Where(x => x != null && x.fecha >= fechaInicial && x.fecha <= fechaFinal
+                     //                            && x.BG_IHS_item.Region != null && x.BG_IHS_item.Region.descripcion == listRegiones[j]
+                     //                            ).Sum(x => x.cantidad);
 
                     if (j != 0)
                         jsonString += ", ";
@@ -618,22 +649,49 @@ namespace Portal_2_0.Controllers
         /// <summary>
         /// Obtiene el total por región
         /// </summary>
-        public ContentResult GetChartRegion(String region)
+        public ContentResult GetChartRegion(String region, string country_territory, string manufacturer, string production_plant, string vehicle, string origen, string demanda = Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER)
         {
 
-            //obtiene todos los datos relacionados
-            var datos = db.BG_IHS_item;
+            //verifica que el elemento este relacionado con el elmento anterior
+            if (
+                !db.BG_IHS_item.Any(x => (country_territory == x.country_territory || String.IsNullOrEmpty(country_territory) && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)) && x.manufacturer == manufacturer))
+                manufacturer = String.Empty;
+
+            if (
+                !db.BG_IHS_item.Any(x => (country_territory == x.country_territory || String.IsNullOrEmpty(country_territory))
+                                            && (x.manufacturer == manufacturer || String.IsNullOrEmpty(manufacturer))
+                                            && x.production_plant == production_plant
+                                            && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
+                                            ))
+                production_plant = String.Empty;
+
+            if (
+                !db.BG_IHS_item.Any(x => (country_territory == x.country_territory || String.IsNullOrEmpty(country_territory))
+                                            && (x.manufacturer == manufacturer || String.IsNullOrEmpty(manufacturer))
+                                            && (x.production_plant == production_plant || String.IsNullOrEmpty(production_plant))
+                                            && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
+                                            && vehicle == x.vehicle))
+                vehicle = String.Empty;
+
+            var datos = db.BG_IHS_item
+                .Where(x =>
+                    (x.country_territory == country_territory || String.IsNullOrEmpty(country_territory))
+                    && (x.manufacturer == manufacturer || String.IsNullOrEmpty(manufacturer))
+                    && (x.production_plant == production_plant || String.IsNullOrEmpty(production_plant))
+                    && (x.vehicle == vehicle || String.IsNullOrEmpty(vehicle))
+                    && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
+                    );
 
             //obtiene los años 
             var cabeceraAnios = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAnios();
 
             //obtiene los datos
-            List<BG_IHS_rel_demanda> listDatos = new List<BG_IHS_rel_demanda>();
+            List<BG_IHS_item_anios> listDatos = new List<BG_IHS_item_anios>();
             var cabeceraDemanda = Portal_2_0.Models.BG_IHS_UTIL.GetCabecera();
 
-            foreach (var ihs in db.BG_IHS_item)
+            foreach (var ihs in datos)
             {
-                listDatos.AddRange(ihs.GetDemanda(cabeceraDemanda, "CUSTOMER"));
+                listDatos.AddRange(ihs.GetAniosFY(ihs.GetDemanda(cabeceraDemanda, demanda), cabeceraAnios, demanda));
             }
             string jsonString = @"{""name"":[""Region""";
 
@@ -651,16 +709,17 @@ namespace Portal_2_0.Controllers
                 if (i != 0)
                     jsonString += ", ";
 
-                jsonString += "{ \"Region\":" + "\"FY " + cabeceraAnios[i].anio + "\",";
+                jsonString += "{ \"Region\":" + "\"FY " + (cabeceraAnios[i].anio - 1).ToString().Substring(2, 2) + "-" + (cabeceraAnios[i].anio).ToString().Substring(2, 2) + "\",";
 
-              
-                    int? cantidad = listDatos.Where(x => x != null && x.fecha >= fechaInicial && x.fecha <= fechaFinal
-                                                 && x.BG_IHS_item.Region != null && x.BG_IHS_item.Region.descripcion == region
-                                                 ).Sum(x => x.cantidad);
-                    
-                    //Se obtiene el valor de c
-                    jsonString += "\"" + region + "\":";
-                    jsonString += cantidad != null ? cantidad.Value : 0;
+                int? cantidad = listDatos.Where(x => x.anio == (cabeceraAnios[i].anio - 1) && x.region == region).Sum(x => x.cantidad);
+
+                //int? cantidad = listDatos.Where(x => x != null && x.fecha >= fechaInicial && x.fecha <= fechaFinal
+                //                             && x.BG_IHS_item.Region != null && x.BG_IHS_item.Region.descripcion == region
+                //                             ).Sum(x => x.cantidad);
+
+                //Se obtiene el valor de c
+                jsonString += "\"" + region + "\":";
+                    jsonString += cantidad != null ? (Math.Round(cantidad.Value/1000000f,3)): 0;
                
                 jsonString += "}";
 

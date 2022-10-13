@@ -22,6 +22,10 @@ namespace Portal_2_0.Models
             if (!TieneRol(TipoRoles.GV_CATALOGOS))
                 return View("../Home/ErrorPermisos");
 
+            //mensaje en caso de crear, editar, etc
+            if (TempData["Mensaje"] != null)
+                ViewBag.MensajeAlert = TempData["Mensaje"];
+
             var bG_IHS_rel_regiones = db.BG_IHS_rel_regiones.Where(x => String.IsNullOrEmpty(estado)
                                                             || (estado == "PENDIENTE" && !x.id_bg_ihs_region.HasValue)
                                                             || (estado == "ASIGNADO" && x.id_bg_ihs_region.HasValue)

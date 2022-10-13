@@ -341,7 +341,7 @@
                                                                             @Html.DisplayNameFor(model => model.production_plant)
                                                                         </th>
                                                                         <th>
-                                                                            @Html.DisplayNameFor(model => model.Region.descripcion)
+                                                                            Regi&oacute;n
                                                                         </th>
                                                                         <th>
                                                                             @Html.DisplayNameFor(model => model.city)
@@ -895,7 +895,7 @@
                                                                             @Html.DisplayNameFor(model => model.global_production_segment)
                                                                         </th>
                                                                         <th>
-                                                                            @Html.DisplayNameFor(model => model.RelSegmento.flat_rolled_steel_usage)
+                                                                            Regi&oacute;n
                                                                         </th>
                                                                         <th>
                                                                             @Html.DisplayNameFor(model => model.regional_sales_segment)
@@ -1181,11 +1181,9 @@
                                                                         <a href="@Url.Action("Edit", null, new
                                                                                 {
                                                                                     id = item.id,
-                                                                                    s_origen = origen
-                                 ,
+                                                                                    s_origen = origen ,
                                                                                     s_manufacturer = manufacturer,
-                                                                                    s_production_plant = production_plant
-                                 ,
+                                                                                    s_production_plant = production_plant,
                                                                                     s_vehicle = vehicle,
                                                                                     s_country_territory = country_territory,
                                                                                     s_demanda = demanda
@@ -1476,50 +1474,44 @@
                                     <nav id="nav_paginacion" aria-label="...">
                                         @{Html.RenderPartial("_Paginacion", Model);}
                                     </nav>
+
+                                    <div class="form-group">
+
+                                        <a href="@Url.Action("Exportar", ViewBag.ControllerName, new
+                                                {
+                                                    origen = origen ,
+                                                    manufacturer = manufacturer,
+                                                    production_plant = production_plant,
+                                                    vehicle = vehicle,
+                                                    country_territory = country_territory,
+                                                    demanda = demanda
+
+                                                })" class="btn btn-success btm-sm" target="_blank" title="Reporte">
+                                            <i class="fa-regular fa-file-excel"></i> Exportar Excel
+                                        </a>
+
+                                    </div>
                                 }
 
-                                <br />
-                                <div class="item form-group">
-                                    <div class="col-md-12 col-sm-12">
-                                        <button type="button" class="btn btn-success"> <i class="fa-regular fa-file-excel"></i>&ensp;Exportar</button>
-                                    </div>
-                                </div>
 
 
-                                <div class="ln_solid"></div>
-                                <!-- #region Tabla Regiones -->
-                                <div class="col-md-12 col-sm-12">
-                                    <div class="form-group row">
-                                        <h4><b>Gr&aacute;ficas por Regi&oacute;n</b></h4>
-                                    </div>
-                                </div>
-                                <!-- #endregion -->
-                                <!-- #region Gráficas -->
-                                <div class="col-md-12 col-sm-12">
-                                    <div class="x_panel">
-                                        <div class="x_title">
-                                            <h2>Total por Regi&oacute;n</h2>
-                                            <ul class="nav navbar-right panel_toolbox">
-                                                <span style="visibility:hidden">_______</span>
-                                                <li>
-                                                    <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                                                </li>
-                                            </ul>
-                                            <div class="clearfix"></div>
-                                        </div>
-                                        <div class="x_content table-responsive">
-                                            <div id="graficaGeneralCargando"> <h4>Cargando <i class="fa-solid fa-spinner fa-spin"></i></h4></div>
-                                            <div id="graficaGeneral" style="height:450px;"></div>
-                                        </div>
-                                    </div>
-                                </div>
 
-                                @foreach (var region in listRegiones)
+                                @if (!String.IsNullOrEmpty(origen))
                                 {
-                                    <div class="col-md-6 col-sm-6">
+
+                                    <div class="ln_solid"></div>
+                                    <!-- #region Titulo Regiones -->
+                                    <div class="col-md-12 col-sm-12">
+                                        <div class="form-group row">
+                                            <h4><b>Gr&aacute;ficas por Regi&oacute;n</b></h4>
+                                        </div>
+                                    </div>
+                                    <!-- #endregion -->
+                                    <!-- #region Gráficas -->
+                                    <div class="col-md-12 col-sm-12">
                                         <div class="x_panel">
                                             <div class="x_title">
-                                                <h2>@region</h2>
+                                                <h2>Total por Regi&oacute;n</h2>
                                                 <ul class="nav navbar-right panel_toolbox">
                                                     <span style="visibility:hidden">_______</span>
                                                     <li>
@@ -1529,17 +1521,38 @@
                                                 <div class="clearfix"></div>
                                             </div>
                                             <div class="x_content table-responsive">
-                                                <div id="@("grafica"+region+"Cargando")"> <h4>Cargando <i class="fa-solid fa-spinner fa-spin"></i></h4></div>
-                                                <div id="@("grafica"+region)" style="height:450px;" class="grafica-region" data-region="@region"></div>
+                                                <div id="graficaGeneralCargando"> <h4>Cargando <i class="fa-solid fa-spinner fa-spin"></i></h4></div>
+                                                <div id="graficaGeneral" style="height:450px;"></div>
                                             </div>
                                         </div>
                                     </div>
+
+                                    foreach (var region in listRegiones)
+                                    {
+                                        <div class="col-md-6 col-sm-6">
+                                            <div class="x_panel">
+                                                <div class="x_title">
+                                                    <h2>@region</h2>
+                                                    <ul class="nav navbar-right panel_toolbox">
+                                                        <span style="visibility:hidden">_______</span>
+                                                        <li>
+                                                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                                        </li>
+                                                    </ul>
+                                                    <div class="clearfix"></div>
+                                                </div>
+                                                <div class="x_content table-responsive">
+                                                    <div id="@("grafica" + region.Replace(" ", String.Empty) + "Cargando")"> <h4>Cargando <i class="fa-solid fa-spinner fa-spin"></i></h4></div>
+                                                    <div id="@("grafica" + region)" style="height:450px;" class="grafica-region" data-region="@region"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+
+
+
+                                    <!-- #endregion -->
                                 }
-
-
-
-                                <!-- #endregion -->
-
                             </div>
                         </div>
                     </div>
@@ -1588,40 +1601,59 @@
             });
 
             //carga la graficas
-            CargarGraficas();
+            var origen_ = '@origen';
+            if (origen_ != '') {
+                CargarGraficas();
+            }
 
         });
 
-        //paleta de colores para las graficas (variable global)
-        var colores = [
-            '#ff0010',
-            '#1a2bcc',
-            '#ffc426',
-            '#22c426',
-            '#ea7e53',
-            '#eedd78',
-            '#73a373',
-            '#73b9bc',
-            '#7289ab',
-            '#91ca8c',
-            '#f49f42'
-        ];
 
-        function CargarGraficas() {          
+
+        function CargarGraficas() {
             CargaRegionesFY();
+
+            let index = 0;
 
             //agrega los eventos para el cambio de importe
             $(".grafica-region").each(function () {
                 let reg = $(this).attr("data-region");
+                CargaRegion(reg, index++);
+            });
 
-                CargaRegion(reg);
+        }
 
-            });           
+        function GetPaletaColores() {
+            //paleta de colores para las graficas (variable global)
+            let colores = [
+                '#1a2bcc',
+                '#ffc426',
+                '#22c426',
+                '#ea7e53',
+                '#ff0010',
+                '#eedd78',
+                '#73a373',
+                '#73b9bc',
+                '#7289ab',
+                '#91ca8c',
+                '#f49f42'
+            ];
 
+            return colores;
         }
 
         function CargaRegionesFY() {
 
+            let paletaColores = GetPaletaColores();
+
+            //variables para graficas
+            var country_territory_ = '@country_territory';
+            var manufacturer_= '@manufacturer';
+            var production_plant_= '@production_plant';
+            var vehicle_= '@vehicle';
+            var origen_ = '@origen';
+            var demanda_ = '@demanda';
+                       
             let option;
             let series = [];
 
@@ -1631,13 +1663,13 @@
                 async: true,
                 url: '/ECharts/GetChartRegiones',
                 dataType: "json",
-                data: {},
+                data: { country_territory: country_territory_, manufacturer: manufacturer_, production_plant: production_plant_, vehicle: vehicle_, origen:origen_, demanda:demanda_},
                 success: function (result) {
                     try {
 
                         //obtine el numero de barras
                         for (let i = 1; i < result.name.length; i++) {
-                            series.push({ type: 'bar' });
+                            series.push({ type: 'bar'});
                         }
 
                         var objsx = [];
@@ -1658,7 +1690,7 @@
                             legend: {
 
                             },
-                            color: colores,
+                            color: paletaColores,
                             toolbox: {
                                 show: true,
                                 feature: {
@@ -1699,8 +1731,6 @@
                             },
                             xAxis: { type: 'category', axisLabel: { interval: 0, rotate: 30 } },
                             yAxis: {},
-
-
                             // Declare several bar series, each will be mapped
                             // to a column of dataset.source by default.
                             //una serie por cada valor en dimensions
@@ -1733,11 +1763,26 @@
                     graficaRegiones.hideLoading();
                 }
 
-            });     
+            });
         }
 
 
-          function CargaRegion(region) {
+        function CargaRegion(region, index) {
+
+            let paletaColores = GetPaletaColores();
+
+            for (let i = 0; i < index; i++) {
+                paletaColores.shift();
+            }
+
+             //variables para graficas
+            var country_territory_ = '@country_territory';
+            var manufacturer_= '@manufacturer';
+            var production_plant_= '@production_plant';
+            var vehicle_= '@vehicle';
+            var origen_ = '@origen';
+            var demanda_ = '@demanda';
+
 
             var graficaNorth = echarts.init(document.getElementById('grafica' + region));
             let option;
@@ -1748,13 +1793,21 @@
                 async: true,
                 url: '/ECharts/GetChartRegion',
                 dataType: "json",
-                data: {region:region},
+                data: { country_territory: country_territory_, manufacturer: manufacturer_, production_plant: production_plant_, vehicle: vehicle_, origen: origen_, demanda: demanda_, region: region },
                 success: function (result) {
                     try {
 
                         //obtine el numero de barras
                         for (let i = 1; i < result.name.length; i++) {
-                            series.push({ type: 'bar' });
+                            series.push({
+                                type: 'bar', itemStyle: {
+                                    normal: {
+                                        label: {
+                                            show: true,
+                                            position: 'inside'
+                                        }
+                                    }
+                                } });
                         }
 
                         var objsx = [];
@@ -1767,7 +1820,7 @@
                         option = {
                             title: {
                                 text: 'Región ' + region,
-                                subtext: 'Información del subtext'
+                                //subtext: 'Información del subtext'
                             },
                             tooltip: {
                                 trigger: 'axis'
@@ -1775,7 +1828,7 @@
                             legend: {
 
                             },
-                            color: colores,
+                            color: paletaColores,
                             toolbox: {
                                 show: true,
                                 feature: {
@@ -1826,7 +1879,7 @@
                         graficaNorth.setOption(option, true);
 
                         //oculta el cargando
-                        $('#grafica' + region + 'Cargando').hide();
+                        $('#grafica' + region.replace(/\s+/g, '') + 'Cargando').hide();
 
                     } catch (error) {
                         console.log(error);
@@ -1848,7 +1901,7 @@
                     graficaRegiones.hideLoading();
                 }
 
-            });     
+            });
         }
 
         function ReiniciaTablaTimer() {
@@ -1869,11 +1922,16 @@
 
 
         var graficaRegiones = echarts.init(document.getElementById('graficaGeneral'));
-        
+
 
         window.onresize = function () {
             graficaRegiones.resize();
-            graficaNorth.resize();
+
+            $(".grafica-region").each(function () {
+                var id = $(this).attr('_echarts_instance_');
+                window.echarts.getInstanceById(id).resize();
+            });
+
         };
 
     </script>

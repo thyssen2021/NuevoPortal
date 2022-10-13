@@ -468,6 +468,9 @@ namespace Portal_2_0.Models
                     }
 
                 }
+
+                rel.region = this.Region!=null? this.Region.descripcion: "SIN DEFINIR";
+
                 list.Add(rel);
             }
 
@@ -781,7 +784,7 @@ namespace Portal_2_0.Models
     {
         public int? cantidad { get; set; }
         public int anio { get; set; }
-
+        public string region {get; set;}
         public Enum_BG_origen_anios origen_datos { get; set; }
     }
 

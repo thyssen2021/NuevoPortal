@@ -144,6 +144,7 @@ namespace Portal_2_0.Controllers
 
             //obtiene la lista de regiones
             List<String> listRegiones = db.BG_IHS_regiones.Select(x => x.descripcion).Distinct().ToList();
+            listRegiones.Add("SIN DEFINIR");
             ViewBag.ListRegiones = listRegiones;
 
             //Envia el titulo para la vista
@@ -649,30 +650,62 @@ namespace Portal_2_0.Controllers
             return View(bG_IHS_item);
         }
 
-        // GET: BG_IHS_item/Delete/5
-        public ActionResult Delete(int? id)
+        public ActionResult Exportar(string country_territory, string manufacturer, string production_plant, string vehicle, string origen, string demanda = Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER)
         {
-            if (id == null)
+            if (TieneRol(TipoRoles.BUDGET_IHS))
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            BG_IHS_item bG_IHS_item = db.BG_IHS_item.Find(id);
-            if (bG_IHS_item == null)
-            {
-                return HttpNotFound();
-            }
-            return View(bG_IHS_item);
-        }
+                //verifica que el elemento este relacionado con el elmento anterior
+                if (
+                    !db.BG_IHS_item.Any(x => (country_territory == x.country_territory || String.IsNullOrEmpty(country_territory) && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)) && x.manufacturer == manufacturer))
+                    manufacturer = String.Empty;
 
-        // POST: BG_IHS_item/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
-        {
-            BG_IHS_item bG_IHS_item = db.BG_IHS_item.Find(id);
-            db.BG_IHS_item.Remove(bG_IHS_item);
-            db.SaveChanges();
-            return RedirectToAction("Index");
+                if (
+                    !db.BG_IHS_item.Any(x => (country_territory == x.country_territory || String.IsNullOrEmpty(country_territory))
+                                                && (x.manufacturer == manufacturer || String.IsNullOrEmpty(manufacturer))
+                                                && x.production_plant == production_plant
+                                                && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
+                                                ))
+                    production_plant = String.Empty;
+
+                if (
+                    !db.BG_IHS_item.Any(x => (country_territory == x.country_territory || String.IsNullOrEmpty(country_territory))
+                                                && (x.manufacturer == manufacturer || String.IsNullOrEmpty(manufacturer))
+                                                && (x.production_plant == production_plant || String.IsNullOrEmpty(production_plant))
+                                                && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
+                                                && vehicle == x.vehicle))
+                    vehicle = String.Empty;
+
+                var listado = db.BG_IHS_item
+                    .Where(x =>
+                        (x.country_territory == country_territory || String.IsNullOrEmpty(country_territory))
+                        && (x.manufacturer == manufacturer || String.IsNullOrEmpty(manufacturer))
+                        && (x.production_plant == production_plant || String.IsNullOrEmpty(production_plant))
+                        && (x.vehicle == vehicle || String.IsNullOrEmpty(vehicle))
+                        && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
+                        ).ToList();
+
+                byte[] stream = ExcelUtil.GeneraReporteBudgetIHS(listado);
+
+
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+                    // for example foo.bak
+                    FileName = "Reporte_IHS_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+                    // always prompt the user for downloading, set to true if you want 
+                    // the browser to try to show the file inline
+                    Inline = false,
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                return File(stream, "application/vnd.ms-excel");
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
         }
 
         protected override void Dispose(bool disposing)

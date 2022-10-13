@@ -1404,7 +1404,7 @@ namespace Portal_2_0.Models
                     fecha_cierre = item.fecha_cierre.Value;
                 else
                     fecha_cierre = DBNull.Value;
-                             
+
                 dt.Rows.Add(item.id, item.empleados2.ConcatNombre, item.fecha_solicitud, OT_Status.DescripcionStatus(item.estatus), item.Area.descripcion, OT_nivel_urgencia.DescripcionStatus(item.nivel_urgencia),
                     linea, item.id_zona_falla.HasValue ? item.OT_zona_falla.zona_falla : String.Empty, tPM, noTarjeta, grupoTrabajo, item.titulo, item.descripcion, responsable, fecha_asignacion, fecha_en_proceso, fecha_cierre, null, null, null, null, item.comentario
                     );
@@ -1562,11 +1562,11 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Número Celular", typeof(string));
             dt.Columns.Add("Compañia", typeof(string));
             dt.Columns.Add("Plan Celular", typeof(string));
-            dt.Columns.Add("Fecha de Corte", typeof(DateTime)); 
+            dt.Columns.Add("Fecha de Corte", typeof(DateTime));
             dt.Columns.Add("Fecha de Renovación", typeof(DateTime));
             dt.Columns.Add("Asignación (Responsable)", typeof(string));
             dt.Columns.Add("Departamento", typeof(string));
-            dt.Columns.Add("Estado", typeof(string));          
+            dt.Columns.Add("Estado", typeof(string));
 
             ////registros , rows
             foreach (IT_inventory_cellular_line item in listado)
@@ -1580,8 +1580,8 @@ namespace Portal_2_0.Models
                 if (asignacion != null && asignacion.empleados != null && asignacion.empleados.Area != null)
                     departamentoAsignacion = asignacion.empleados.Area.descripcion;
 
-                dt.Rows.Add(item.plantas.descripcion,item.numero_celular, item.IT_inventory_cellular_plans.nombre_compania, item.IT_inventory_cellular_plans.nombre_plan,
-                    item.fecha_corte, item.fecha_renovacion, nombreAsignacion, departamentoAsignacion, item.activo? "Activo":"Inactivo"
+                dt.Rows.Add(item.plantas.descripcion, item.numero_celular, item.IT_inventory_cellular_plans.nombre_compania, item.IT_inventory_cellular_plans.nombre_plan,
+                    item.fecha_corte, item.fecha_renovacion, nombreAsignacion, departamentoAsignacion, item.activo ? "Activo" : "Inactivo"
                     );
             }
 
@@ -1614,7 +1614,7 @@ namespace Portal_2_0.Models
             //inmoviliza el encabezado
             oSLDocument.FreezePanes(1, 0);
 
-            oSLDocument.Filter(1,1,1,dt.Columns.Count);
+            oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
             oSLDocument.AutoFitColumn(1, dt.Columns.Count);
 
             oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
@@ -1630,7 +1630,7 @@ namespace Portal_2_0.Models
             byte[] array = Bitacoras.Util.StreamUtil.ToByteArray(stream);
 
             return (array);
-        } 
+        }
         public static byte[] GeneraReportePFAExcel(List<PFA> listado)
         {
 
@@ -2545,6 +2545,160 @@ namespace Portal_2_0.Models
 
             //da estilo a los numeros
             oSLDocument.SetColumnStyle(9, 10, styleNumberDecimal);
+
+            //da estilo a la hoja de excel
+            //inmoviliza el encabezado
+            oSLDocument.FreezePanes(1, 0);
+
+
+            oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
+            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+
+            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
+            oSLDocument.SetRowStyle(1, styleHeader);
+            oSLDocument.SetRowStyle(1, styleHeaderFont);
+
+
+            oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
+
+            System.IO.Stream stream = new System.IO.MemoryStream();
+
+            oSLDocument.SaveAs(stream);
+
+            byte[] array = Bitacoras.Util.StreamUtil.ToByteArray(stream);
+
+            return (array);
+        }
+
+        /// <summary>
+        /// Genera el reporte del IHS
+        /// </summary>
+        /// <param name="listado"></param>
+        /// <returns></returns>
+        public static byte[] GeneraReporteBudgetIHS(List<BG_IHS_item> listado)
+        {
+
+            SLDocument oSLDocument = new SLDocument();
+
+            System.Data.DataTable dt = new System.Data.DataTable();
+
+
+            //columnas          
+            dt.Columns.Add("Id", typeof(string));                       //1
+            dt.Columns.Add("Origen", typeof(string));                   //1
+            dt.Columns.Add("Vehicle (IHS)", typeof(string));                   //1
+            dt.Columns.Add("Vehicle (Compuesto)", typeof(string));                   //1
+            dt.Columns.Add("Core Nameplate Region Mnemonic", typeof(string));                   //1
+            dt.Columns.Add("Core Nameplate Plant Mnemonic", typeof(string));                   //1
+            dt.Columns.Add("Mnemonic-Vehicle", typeof(string));                   //1
+            dt.Columns.Add("Mnemonic-Vehicle/Plant", typeof(string));                   //1
+            dt.Columns.Add("Mnemonic-Platform", typeof(string));                   //1
+            dt.Columns.Add("Mnemonic-Plant", typeof(string));                   //1
+            dt.Columns.Add("Region", typeof(string));                   //1
+            dt.Columns.Add("Market", typeof(string));                   //1
+            dt.Columns.Add("Country/Territory", typeof(string));                   //1
+            dt.Columns.Add("Production Plant", typeof(string));                   //1
+            dt.Columns.Add("Region(Plant)", typeof(string));                   //1
+            dt.Columns.Add("City", typeof(string));                   //1
+            dt.Columns.Add("Plant State/Province", typeof(string));                   //1
+            dt.Columns.Add("Source Plant", typeof(string));                   //1
+            dt.Columns.Add("Source Plant Country/Territory", typeof(string));                   //1
+            dt.Columns.Add("Source Plant Region", typeof(string));                   //1
+            dt.Columns.Add("Design Parent", typeof(string));                   //1
+            dt.Columns.Add("Engineering Group", typeof(string));                   //1
+            dt.Columns.Add("Manufacturer Group", typeof(string));                   //1
+            dt.Columns.Add("Manufacturer", typeof(string));                   //1
+            dt.Columns.Add("Sales Parent", typeof(string));                   //1
+            dt.Columns.Add("Production Brand", typeof(string));                   //1
+            dt.Columns.Add("Platform Design Owner", typeof(string));                   //1
+            dt.Columns.Add("Architecture", typeof(string));                   //1
+            dt.Columns.Add("Platform", typeof(string));                   //1
+            dt.Columns.Add("Program", typeof(string));                   //1
+            dt.Columns.Add("Production Nameplate", typeof(string));                   //1
+            dt.Columns.Add("SOP (Start of Production)", typeof(string));                   //1
+            dt.Columns.Add("EOP (End of Production)", typeof(string));                   //1
+            dt.Columns.Add("Lifecycle (Time)", typeof(string));                   //1
+            dt.Columns.Add("Assembly Type", typeof(string));                   //1
+            dt.Columns.Add("Strategic Group", typeof(string));                   //1
+            dt.Columns.Add("Sales Group", typeof(string));                   //1
+            dt.Columns.Add("Global Nameplate", typeof(string));                   //1
+            dt.Columns.Add("Primary Design Center", typeof(string));                   //1
+            dt.Columns.Add("Primary Design Country/Territory", typeof(string));                   //1
+            dt.Columns.Add("Primary Design Region", typeof(string));                   //1
+            dt.Columns.Add("Secondary Design Center", typeof(string));                   //1
+            dt.Columns.Add("Secondary Design Country/Territory	", typeof(string));                   //1
+            dt.Columns.Add("Secondary Design Region", typeof(string));                   //1
+            dt.Columns.Add("GVW Rating", typeof(string));                   //1
+            dt.Columns.Add("GVW Class", typeof(string));                   //1
+            dt.Columns.Add("Car/Truck", typeof(string));                   //1
+            dt.Columns.Add("Production Type", typeof(string));                   //1
+            dt.Columns.Add("Global Production Segment", typeof(string));                   //1
+            dt.Columns.Add("Flat Rolled Steel Usage", typeof(string));                   //1
+            dt.Columns.Add("Regional Sales Segment", typeof(string));                   //1
+            dt.Columns.Add("Global Production Price Class", typeof(string));                   //1
+            dt.Columns.Add("Global Sales Segment", typeof(string));                   //1
+            dt.Columns.Add("Global Sales Sub-Segment", typeof(string));                   //1
+            dt.Columns.Add("Global Sales Price Class", typeof(string));                   //1
+            dt.Columns.Add("Short-Term Risk Rating", typeof(string));                   //1
+            dt.Columns.Add("Long-Term Risk Rating", typeof(string));                   //1
+            dt.Columns.Add("Porcentaje scrap", typeof(string));                   //1
+
+
+            ////registros , rows
+            foreach (BG_IHS_item item in listado)
+            {
+
+                dt.Rows.Add(item.id, item.origen, item.vehicle, item.ConcatCodigo, item.core_nameplate_region_mnemonic, item.core_nameplate_plant_mnemonic, item.mnemonic_vehicle,
+                    item.mnemonic_vehicle_plant, item.mnemonic_platform, item.mnemonic_plant, item.region, item.market, item.country_territory, item.production_plant,
+                    item.Region != null ? item.Region.descripcion : null,
+                    item.city, item.plant_state_province, item.source_plant, item.source_plant_country_territory, item.source_plant_region, item.design_parent,
+                    item.engineering_group, item.manufacturer_group, item.manufacturer, item.sales_parent, item.production_brand, item.platform_design_owner, item.architecture,
+                    item.platform, item.program, item.production_nameplate, item.sop_start_of_production, item.eop_end_of_production, item.lifecycle_time, item.assembly_type,
+                    item.strategic_group, item.sales_group, item.global_nameplate, item.primary_design_center, item.primary_design_country_territory, item.primary_design_region,
+                    item.secondary_design_center, item.secondary_design_country_territory, item.secondary_design_region, item.gvw_rating, item.gvw_class, item.car_truck,
+                    item.production_type, item.global_production_segment,
+                    item.RelSegmento != null ? item.RelSegmento.flat_rolled_steel_usage : null,
+                    item.regional_sales_segment, item.global_production_price_class,
+                    item.global_sales_segment, item.global_sales_sub_segment, item.global_sales_price_class, item.short_term_risk_rating, item.long_term_risk_rating,
+                    item.porcentaje_scrap
+                    );
+            }
+
+            //crea la hoja de Inventory y la selecciona
+            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Autos normal");
+            oSLDocument.ImportDataTable(1, 1, dt, true);
+
+            //estilo para ajustar al texto
+            SLStyle styleWrap = oSLDocument.CreateStyle();
+            styleWrap.SetWrapText(true);
+            styleWrap.Alignment.Vertical = VerticalAlignmentValues.Top;
+
+            //estilo para el encabezado
+            SLStyle styleHeader = oSLDocument.CreateStyle();
+            styleHeader.Font.Bold = true;
+            styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
+
+
+            //estilo para numeros
+            SLStyle styleNumberDecimal = oSLDocument.CreateStyle();
+            styleNumberDecimal.FormatCode = "#,##0.00";
+
+
+            ////estilo para fecha
+            SLStyle styleShortDate = oSLDocument.CreateStyle();
+            styleShortDate.FormatCode = "yyyy/MM/dd";
+            //oSLDocument.SetColumnStyle(13, 14, styleShortDate);
+            //oSLDocument.SetColumnStyle(16, styleShortDate);
+
+
+            SLStyle styleHeaderFont = oSLDocument.CreateStyle();
+            styleHeaderFont.Font.FontName = "Calibri";
+            styleHeaderFont.Font.FontSize = 11;
+            styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
+            styleHeaderFont.Font.Bold = true;
+
+            //da estilo a los numeros
+            //oSLDocument.SetColumnStyle(9, 10, styleNumberDecimal);
 
             //da estilo a la hoja de excel
             //inmoviliza el encabezado
