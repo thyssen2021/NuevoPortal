@@ -92,7 +92,7 @@ namespace Portal_2_0.Models
 
             //usando linQ
             items = listado
-                            
+
                             .Select(s => new SelectListItem()
                             {
                                 Text = s,
@@ -115,7 +115,7 @@ namespace Portal_2_0.Models
         ///<return>
         ///retorna un List<SelectListItem> con las opciones disponibles
         public static List<SelectListItem> obtieneClientesPuebla()
-        {            
+        {
 
             //obtiene todos los posibles valores
             List<String> listado = ReportesPesadasDBUtil.ObtieneClientesPuebla();
@@ -146,12 +146,12 @@ namespace Portal_2_0.Models
         ///</summary>
         ///<return>
         ///retorna un List<SelectListItem> con las opciones disponibles
-        public static List<SelectListItem> obtieneSupervisoresPlanta(int planta=0)
+        public static List<SelectListItem> obtieneSupervisoresPlanta(int planta = 0)
         {
             Portal_2_0Entities db = new Portal_2_0Entities();
 
             //obtiene todos los posibles valores
-            List<produccion_supervisores> listado = db.produccion_supervisores.Where(p => p.activo == true && p.clave_planta==planta).ToList();
+            List<produccion_supervisores> listado = db.produccion_supervisores.Where(p => p.activo == true && p.clave_planta == planta).ToList();
 
             var items = new List<SelectListItem>();
 
@@ -159,7 +159,7 @@ namespace Portal_2_0.Models
             items = listado
                             .Select(s => new SelectListItem()
                             {
-                                Text = s.empleados.nombre +" "+ s.empleados.apellido1 +" "+s.empleados.apellido2,
+                                Text = s.empleados.nombre + " " + s.empleados.apellido1 + " " + s.empleados.apellido2,
                                 Value = s.id.ToString()
                             }).ToList();
 
@@ -183,7 +183,7 @@ namespace Portal_2_0.Models
             Portal_2_0Entities db = new Portal_2_0Entities();
 
             //obtiene todos los posibles valores
-            List<produccion_operadores> listado = db.produccion_operadores.Where(p => p.activo == true && p.id_linea == linea && p.id_empleado==emp.id).ToList();
+            List<produccion_operadores> listado = db.produccion_operadores.Where(p => p.activo == true && p.id_linea == linea && p.id_empleado == emp.id).ToList();
 
             var items = new List<SelectListItem>();
 
@@ -215,11 +215,11 @@ namespace Portal_2_0.Models
             Portal_2_0Entities db = new Portal_2_0Entities();
 
             //obtiene todos los posibles valores
-            List<bom_en_sap> listado = db.bom_en_sap.Where(p => p.Quantity>0 && !p.Material.StartsWith("sm")).ToList();
- 
+            List<bom_en_sap> listado = db.bom_en_sap.Where(p => p.Quantity > 0 && !p.Material.StartsWith("sm")).ToList();
+
             //realiza un distict de los materiales
             List<string> distinctList = listado.Select(m => m.Material).Distinct().ToList();
-            
+
             var items = new List<SelectListItem>();
 
             //usando linQ
@@ -238,7 +238,7 @@ namespace Portal_2_0.Models
             //});
 
             //agrega valores al final 
-            items.Add( new SelectListItem()
+            items.Add(new SelectListItem()
             {
                 Text = "TEMPORAL",
                 Value = "TEMPORAL"
@@ -252,7 +252,7 @@ namespace Portal_2_0.Models
         ///</summary>
         ///<return>
         ///retorna un List<SelectListItem> con las opciones disponibles
-        public static List<SelectListItem> obtieneRollo_BOM(string material="")
+        public static List<SelectListItem> obtieneRollo_BOM(string material = "")
         {
             Portal_2_0Entities db = new Portal_2_0Entities();
 
@@ -289,15 +289,26 @@ namespace Portal_2_0.Models
         ///retorna un List<SelectListItem> con las opciones disponibles
         public static List<SelectListItem> obtieneUsuarios(List<IdentitySample.Models.ApplicationUser> usuarios)
         {
-            
+
             var items = new List<SelectListItem>();
 
+            //obtiene unicamente los usuarios que tienen un empleado asociado
+            usuarios = usuarios.Where(x => x.IdEmpleado > 0).ToList();
+
             //usando linQ
-            items = usuarios.Select(s => new SelectListItem()
-                            {
-                                Text = s.obtieneEmpleado().ConcatNombre.ToUpper() + " ("+s.Email+")",
-                                Value = s.Id
-                            }).ToList();
+            foreach (var u in usuarios)
+            {
+                var emp = u.obtieneEmpleado();
+
+                if(emp!=null)
+                items.Add(new SelectListItem()
+                {
+                    Text = u.obtieneEmpleado().ConcatNombre.ToUpper() + " (" + u.Email + ")",
+                    Value = u.Id
+                });
+            }
+
+          
 
             //agrega valor vacio
             items.Insert(0, new SelectListItem()
