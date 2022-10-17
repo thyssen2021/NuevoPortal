@@ -43,20 +43,19 @@ namespace Portal_2_0.Controllers
 
             var cantidadRegistrosPorPagina = 20; // parámetro
 
-
             var listado = db.IT_mantenimientos
                 .Where(x => (x.IT_inventory_items.id_planta == planta_clave || planta_clave == null)
-                    && (x.id_empleado_responsable == id_empleado
+                     && ((x.id_empleado_responsable == id_empleado && id_empleado != null) // firma 
                         || x.IT_inventory_items.IT_asignacion_hardware_rel_items.Any(y => y.IT_asignacion_hardware.es_asignacion_actual == true
-                            && id_empleado == y.IT_asignacion_hardware.id_empleado
-                            /*&& id_empleado == y.IT_asignacion_hardware.id_responsable_principal*/)
-                        || id_empleado == null
+                            && id_empleado == y.IT_asignacion_hardware.id_empleado) //es responsable actual
+                        || (id_empleado == null && x.IT_inventory_items.IT_asignacion_hardware_rel_items.Any(y => y.IT_asignacion_hardware.es_asignacion_actual == true)) //es responsable actual)
+                       || x.id_empleado_responsable.HasValue
                         )
                         && (x.id_it_inventory_item == id_it_inventory_item || id_it_inventory_item == 0)
                         && (documento == null || x.id_biblioteca_digital.HasValue == documento)
                         && (mes == null || (x.fecha_programada.Year == mes.Value.Year && x.fecha_programada.Month == mes.Value.Month))
                         && (
-                        ((estatus_mantenimiento == IT_matenimiento_Estatus.REALIZADO || estatus_mantenimiento == IT_matenimiento_Estatus.REALIZADO_CON_DOCUMENTO)  && x.fecha_realizacion.HasValue)
+                        ((estatus_mantenimiento == IT_matenimiento_Estatus.REALIZADO || estatus_mantenimiento == IT_matenimiento_Estatus.REALIZADO_CON_DOCUMENTO) && x.fecha_realizacion.HasValue)
                         || (estatus_mantenimiento == IT_matenimiento_Estatus.VENCIDO && x.fecha_programada < DateTime.Now && x.fecha_realizacion == null && !x.IT_mantenimientos_rel_checklist.Any())
                         || (estatus_mantenimiento == IT_matenimiento_Estatus.EN_PROCESO && x.IT_mantenimientos_rel_checklist.Any() && !x.fecha_realizacion.HasValue)
                         || (estatus_mantenimiento == IT_matenimiento_Estatus.PROXIMO && x.fecha_programada > DateTime.Now && x.fecha_realizacion == null)
@@ -64,17 +63,17 @@ namespace Portal_2_0.Controllers
                         //|| String.IsNullOrEmpty(estatus_mantenimiento)
                         )
                 )
-                   .OrderByDescending(x => x.id)
+                   .OrderBy(x => x.fecha_programada)
                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                   .Take(cantidadRegistrosPorPagina).ToList();
 
             var totalDeRegistros = db.IT_mantenimientos
                   .Where(x => (x.IT_inventory_items.id_planta == planta_clave || planta_clave == null)
-                    && (x.id_empleado_responsable == id_empleado
+                  && ((x.id_empleado_responsable == id_empleado && id_empleado != null) // firma 
                         || x.IT_inventory_items.IT_asignacion_hardware_rel_items.Any(y => y.IT_asignacion_hardware.es_asignacion_actual == true
-                            && id_empleado == y.IT_asignacion_hardware.id_empleado
-                            /*&& id_empleado == y.IT_asignacion_hardware.id_responsable_principal*/)
-                        || id_empleado == null
+                            && id_empleado == y.IT_asignacion_hardware.id_empleado) //es responsable actual
+                        || (id_empleado == null && x.IT_inventory_items.IT_asignacion_hardware_rel_items.Any(y => y.IT_asignacion_hardware.es_asignacion_actual == true)) //es responsable actual)
+                       || x.id_empleado_responsable.HasValue
                         )
                         && (x.id_it_inventory_item == id_it_inventory_item || id_it_inventory_item == 0)
                         && (documento == null || x.id_biblioteca_digital.HasValue == documento)
@@ -231,7 +230,7 @@ namespace Portal_2_0.Controllers
                     //asigna la versión de IATF
                     iT_mantenimientos.id_iatf_version = id_version_iatf;
                 }
-              
+
             }
 
             if (ModelState.IsValid)
@@ -268,7 +267,8 @@ namespace Portal_2_0.Controllers
 
                     db.IT_mantenimientos.Add(nuevo_manto);
                 }
-                else {
+                else
+                {
                     //si no es finalizar, la fecha de realización es null
                     iT_mantenimientos.fecha_realizacion = null;
                 }
