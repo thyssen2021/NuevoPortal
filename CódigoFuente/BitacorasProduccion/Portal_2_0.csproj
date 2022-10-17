@@ -318,6 +318,9 @@
     <Compile Include="Controllers\IT_mantenimientos_checklist_categoriasController.cs" />
     <Compile Include="Controllers\IT_mantenimientos_checklist_itemController.cs" />
     <Compile Include="Controllers\IT_matriz_requerimientosController.cs" />
+    <Compile Include="Controllers\IT_siteController.cs" />
+    <Compile Include="Controllers\IT_site_actividadesController.cs" />
+    <Compile Include="Controllers\IT_site_checklistController.cs" />
     <Compile Include="Controllers\IT_software_tipoController.cs" />
     <Compile Include="Controllers\IT_solicitud_usuariosController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
@@ -541,6 +544,18 @@
     <Compile Include="Models\IT_matriz_software.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\IT_site.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_site_actividades.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_site_checklist.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_site_checklist_rel_actividades.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\IT_software_tipo.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -588,6 +603,9 @@
     <Compile Include="Models\MetadataModels\IT_mantenimientosMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_mantenimientos_checklist_categoriasMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_mantenimientos_checklist_itemMetadata.cs" />
+    <Compile Include="Models\MetadataModels\IT_siteMetada.cs" />
+    <Compile Include="Models\MetadataModels\IT_site_actividadesMetadata.cs" />
+    <Compile Include="Models\MetadataModels\IT_site_checklistMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_software_tipoMetadata.cs" />
     <Compile Include="Models\MetadataModels\class_v3Metadata.cs" />
     <Compile Include="Models\MetadataModels\currencyMetadata.cs" />
@@ -7214,6 +7232,22 @@
     <Content Include="Views\GV_usuarios\Disable.cshtml" />
     <Content Include="Views\GV_usuarios\Edit.cshtml" />
     <Content Include="Views\GV_usuarios\Index.cshtml" />
+    <Content Include="Views\IT_site_checklist\Create.cshtml" />
+    <Content Include="Views\IT_site_checklist\Details.cshtml" />
+    <Content Include="Views\IT_site_checklist\Edit.cshtml" />
+    <Content Include="Views\IT_site_checklist\Index.cshtml" />
+    <Content Include="Views\IT_site\Create.cshtml" />
+    <Content Include="Views\IT_site\Details.cshtml" />
+    <Content Include="Views\IT_site\Disable.cshtml" />
+    <Content Include="Views\IT_site\Edit.cshtml" />
+    <Content Include="Views\IT_site\Enable.cshtml" />
+    <Content Include="Views\IT_site\Index.cshtml" />
+    <Content Include="Views\IT_site_actividades\Create.cshtml" />
+    <Content Include="Views\IT_site_actividades\Details.cshtml" />
+    <Content Include="Views\IT_site_actividades\Disable.cshtml" />
+    <Content Include="Views\IT_site_actividades\Edit.cshtml" />
+    <Content Include="Views\IT_site_actividades\Enable.cshtml" />
+    <Content Include="Views\IT_site_actividades\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

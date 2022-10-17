@@ -1,0 +1,291 @@
+﻿@model IEnumerable<Portal_2_0.Models.IT_site_checklist>
+
+@{
+    ViewBag.Title = "Historial Checklist Site";
+    ViewBag.PrimerNivel = "IT_checklist";
+    ViewBag.SegundoNivel = "IT_site_checklist";
+    ViewBag.ControllerName = "IT_site_checklist";
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+    //obtiene los filtros
+    Portal_2_0.Models.Paginacion paginacionFiltros = (Portal_2_0.Models.Paginacion)ViewBag.Paginacion;
+
+    string id_site = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["id_site"] != null)
+    {
+        id_site = paginacionFiltros.ValoresQueryString["id_site"].ToString();
+    }
+
+
+}
+
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+
+    <style>
+        .fondo-verde {
+            background-color: #e1ffe1;
+        }
+
+        .fondo-verde-documento {
+            background-color: #b6d9b6;
+        }
+
+        .fondo-amarillo {
+            background-color: #fadebd;
+        }
+
+        .fondo-rojo {
+            background-color: #ffc8c8;
+        }
+
+        .fondo-azul {
+            background-color: #d0edf8;
+        }
+
+        .fondo-gris {
+            background-color: #f2f2f2;
+        }
+    </style>
+}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box table-responsive">
+                                    <div class="form-group">
+                                        @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
+                                        {
+
+                                            <div class="form-group row">
+                                                <label class="control-label col-md-1 col-sm-1" for="id_site" style="text-align:right">Site:</label>
+                                                <div class="col-md-4 col-sm-4 ">
+                                                    @Html.DropDownList("id_site", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                </div>                                               
+                                            </div>
+                                         
+
+                                        }
+                                        <hr />
+
+                                    </div>
+
+                                    <div class="form-group">
+                                        <a id="crearFormButton" href="@Url.Action( "Create", null, new
+                                                {
+                                                    id_site = id_site,
+                                                })" class="btn btn-success" style="color:white; display:@(!String.IsNullOrEmpty(id_site)?String.Empty:"none")">
+                                            <i class="fa fa-plus-square"></i>
+                                            Agregar Registro
+                                        </a>
+                                    </div>
+
+                                    @if (!String.IsNullOrEmpty(id_site))
+                                    {
+                                        
+                                        <table id="datatable_1" class="table table-striped datatable table-bordered" cellspacing="0" width="100%">
+                                            <thead>
+                                                <tr>
+                                                    <th nowrap width="1%">
+                                                        Acciones
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.id_site)
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.observacion_particular)
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.fecha)
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.estatus)
+                                                    </th>
+                                                    <th>
+                                                        Actividades
+                                                    </th>                                                    
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.id_sistemas)
+                                                    </th>
+
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var item in Model)
+                                                {
+                                                    <tr>
+
+                                                        <td nowrap>
+                                                            @if (Bitacoras.Util.IT_site_checklist_estatus.FINALIZADO != item.estatus)
+                                                            {
+                                                                <a href="@Url.Action("Edit", null, new { id = item.id})" class="btn btn-success btn-sm" title="Editar">
+                                                                    <i class="fa-regular fa-pen-to-square"></i>
+                                                                </a>
+                                                            }
+                                                            <a href="@Url.Action("Details", null, new { id = item.id})" class="btn btn-info btn-sm" title="Detalles">
+                                                                <i class="fa fa-info-circle"></i>
+                                                            </a>
+                                                            @*@if (Bitacoras.Util.IT_site_checklist_estatus.FINALIZADO == item.estatus)
+            {
+                <a href="@Url.Action("Export", null, new { id = item.id })" class="btn btn-danger btn-sm" title="Detalles">
+                    <i class="fa fa-file-pdf"></i>
+                </a>
+            }*@
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.IT_site.descripcion)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.observacion_particular)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.fecha)
+                                                        </td>
+                                                        <td>
+                                                            @Bitacoras.Util.IT_site_checklist_estatus.DescripcionStatus(item.estatus)
+                                                        </td>
+                                                        <td>
+                                                            <custom style="color:#1a702e; font-weight:bold">@Bitacoras.Util.IT_site_actividad_estatus.OK: @(item.IT_site_checklist_rel_actividades.Where(x=>x.estatus == Bitacoras.Util.IT_site_actividad_estatus.OK).Count()) <br /> </custom>
+                                                            <custom style="color:#ff0000; font-weight:bold">@Bitacoras.Util.IT_site_actividad_estatus.NO_OK: @(item.IT_site_checklist_rel_actividades.Where(x=>x.estatus == Bitacoras.Util.IT_site_actividad_estatus.NO_OK).Count()) <br /> </custom>
+                                                            <custom style="color:#0b6bc7; font-weight:bold">@Bitacoras.Util.IT_site_actividad_estatus.NA: @(item.IT_site_checklist_rel_actividades.Where(x=>x.estatus == Bitacoras.Util.IT_site_actividad_estatus.NA).Count()) <br /> </custom>
+                                                           
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.empleados.ConcatNombre)
+                                                        </td>
+
+                                                    </tr>
+
+                                                }
+
+                                            </tbody>
+                                        </table>
+                                        <div class="col-md-12 col-sm-12">
+                                            <br />
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="alert alert-info" role="alert">
+                                            Selecione una opci&oacute;n para visualizar el historial de registros.
+                                        </div>
+                                    }
+                                </div>
+                                <br />
+                                @if (Model.Count() > 0)
+                                {
+                                    <nav id="nav_paginacion" aria-label="...">
+                                        @{Html.RenderPartial("_Paginacion", Model);}
+                                    </nav>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render("~/bundles/dataTables_js")
+
+    <script>
+        $(document).ready(function () {
+
+            //inicializa los data table
+            var tabla = $('#datatable_1').DataTable({
+                "paging": false,
+                "ordering": false,
+                "searching": false,
+                "scrollX": true,
+                "info": false,
+                "responsive": false
+            });
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //Envia el formulario cada vez que se modifica el combo
+            $(".select2bs4").change(function () {
+                $("#buscarForm").submit();
+                BloqueaPantalla();
+            });
+
+        });
+
+        //captura el evento de zoom
+        $(window).resize(function () {
+            table_doc = $('#datatable_1').DataTable();
+            table_doc.columns.adjust();
+            //if (pixel_ratio != window.devicePixelRatio) {
+            //    console.log('entra')
+            //    pixel_ratio = window.devicePixelRatio
+            //    //si se cambio el zoom reajusta la tabla
+            //    table_doc = $('#datatable_1').DataTable();
+
+            //    setTimeout(function () {
+
+            //        clicMenu(2);
+            //    }, 100);
+
+            //    table_doc.columns.adjust();
+            //}
+        });
+
+        //agranda el tamaño de la barra
+        window.onload = function () {
+            document.getElementById('menu_toggle').click();
+        }
+    </script>
+
+}
+
+

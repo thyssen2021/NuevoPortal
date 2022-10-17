@@ -68,6 +68,8 @@
     <Compile Include="Util\IT_matenimiento_Estatus.cs" />
     <Compile Include="Util\GV_tipo_viaje.cs" />
     <Compile Include="Util\IT_MR_Status.cs" />
+    <Compile Include="Util\IT_site_actividad_estatus.cs" />
+    <Compile Include="Util\IT_site_checklist_estatus.cs" />
     <Compile Include="Util\IT_solicitud_usuario_Status.cs" />
     <Compile Include="Util\IT_Tipos_Hardware.cs" />
     <Compile Include="Util\MensajesSweetAlert.cs" />

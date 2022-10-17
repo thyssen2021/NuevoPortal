@@ -59,6 +59,7 @@ namespace Portal_2_0.Models
             this.GV_solicitud3 = new HashSet<GV_solicitud>();
             this.GV_solicitud4 = new HashSet<GV_solicitud>();
             this.GV_solicitud5 = new HashSet<GV_solicitud>();
+            this.IT_site_checklist = new HashSet<IT_site_checklist>();
         }
     
         public int id { get; set; }
@@ -172,5 +173,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<GV_solicitud> GV_solicitud4 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<GV_solicitud> GV_solicitud5 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_site_checklist> IT_site_checklist { get; set; }
     }
 }

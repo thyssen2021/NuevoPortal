@@ -128,5 +128,9 @@ namespace Portal_2_0.Models
         public virtual DbSet<view_valores_fiscal_year> view_valores_fiscal_year { get; set; }
         public virtual DbSet<GV_usuarios> GV_usuarios { get; set; }
         public virtual DbSet<GV_solicitud> GV_solicitud { get; set; }
+        public virtual DbSet<IT_site> IT_site { get; set; }
+        public virtual DbSet<IT_site_actividades> IT_site_actividades { get; set; }
+        public virtual DbSet<IT_site_checklist_rel_actividades> IT_site_checklist_rel_actividades { get; set; }
+        public virtual DbSet<IT_site_checklist> IT_site_checklist { get; set; }
     }
 }

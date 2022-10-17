@@ -257,6 +257,15 @@
         <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_solicitante" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_medio_transporte" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_rel_gastos_solicitud_id_gv_solicitud" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_site" Width="1.5" PointX="3" PointY="86" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_site_actividades" Width="1.5" PointX="24.75" PointY="72.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_site_checklist_rel_actividades" Width="1.5" PointX="27" PointY="86.625" />
+        <AssociationConnector Association="Portal_2_0Model.FK_id_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_site_checklist_id_it_site_actividad" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_site_checklist" Width="1.5" PointX="12.75" PointY="85.375" />
+        <AssociationConnector Association="Portal_2_0Model.FK_site_checklist_id_sistemas" />
+        <AssociationConnector Association="Portal_2_0Model.FK_site_checklist_id_site" />
+        <AssociationConnector Association="Portal_2_0Model.FK_site_checklist_id_site_checklist" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

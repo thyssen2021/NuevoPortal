@@ -37,7 +37,5 @@ namespace Bitacoras.Util
                     return "No Disponible";
             }
         }
-
-
     }
 }
