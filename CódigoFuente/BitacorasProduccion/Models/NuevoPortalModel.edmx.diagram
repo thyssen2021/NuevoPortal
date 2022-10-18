@@ -40,7 +40,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.IT_comunicaciones_tipo" Width="1.5" PointX="21.75" PointY="69.625" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_hardware_tipo" Width="1.5" PointX="21.75" PointY="99.625" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_internet_tipo" Width="1.5" PointX="13.5" PointY="95.625" IsExpanded="true" />
-        <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_cellular_line" Width="1.5" PointX="3" PointY="81.625" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_cellular_plans" Width="1.5" PointX="0.75" PointY="82.875" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_hard_drives" Width="1.5" PointX="10.25" PointY="73" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_hardware_type" Width="1.5" PointX="5.75" PointY="71.5" IsExpanded="true" />
@@ -178,7 +177,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_inspeccion_datos_generales_id_produccion_registro" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_inspeccion_pieza_descarte_produccion_id_falla" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_inspeccion_pieza_descarte_produccion_id_produccion_registro" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_id_cellular_line" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_item_id_asignacion_hardware" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_item_id_it_inventory_generico" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_item_id_it_inventory_item" ManuallyRouted="false" />
@@ -187,8 +185,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_comunicaciones_id_it_comunicaciones" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_hardware_id_it_hardware" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_internet_tipo" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IATF_documentos_id_inventory_celullar_plan" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_cellular_line_id_planta" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_item" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_items_genericos_id_inventory_type" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_items_id_inventory_type" ManuallyRouted="false" />
@@ -274,6 +270,10 @@
         <AssociationConnector Association="Portal_2_0Model.FK_site_checklist_id_equipo_checklist" />
         <AssociationConnector Association="Portal_2_0Model.FK_equipos_checklist_id_categoria_ck" />
         <AssociationConnector Association="Portal_2_0Model.FK_site_checklist_id_it_equipo_actividad" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_cellular_line" Width="1.5" PointX="3" PointY="82" />
+        <AssociationConnector Association="Portal_2_0Model.FK_id_cellular_line" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IATF_documentos_id_inventory_celullar_plan" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_cellular_line_id_planta" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

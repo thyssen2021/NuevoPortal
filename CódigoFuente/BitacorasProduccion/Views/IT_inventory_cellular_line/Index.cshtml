@@ -147,6 +147,9 @@
                                                     @Html.DisplayNameFor(model => model.fecha_corte)
                                                 </th>
                                                  <th>
+                                                    @Html.DisplayNameFor(model => model.fecha_renovacion_inicio)
+                                                </th>
+                                                <th>
                                                     @Html.DisplayNameFor(model => model.fecha_renovacion)
                                                 </th>
                                                 <th>
@@ -174,10 +177,13 @@
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.IT_inventory_cellular_plans.nombre_plan)
                                                     </td>
-                                                    <td>
+                                                    <td nowrap>
                                                         @Html.DisplayFor(modelItem => item.fecha_corte)
                                                     </td>
-                                                   <td>
+                                                   <td nowrap>
+                                                        @Html.DisplayFor(modelItem => item.fecha_renovacion_inicio)
+                                                    </td>
+                                                    <td nowrap>
                                                         @Html.DisplayFor(modelItem => item.fecha_renovacion)
                                                     </td>
                                                     @{ var asignacion = item.IT_asignacion_hardware.Where(x => x.es_asignacion_linea_actual && x.id_cellular_line == item.id && x.id_responsable_principal == x.id_empleado).FirstOrDefault();}

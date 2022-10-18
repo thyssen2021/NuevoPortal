@@ -60,7 +60,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_comunicaciones_tipo> IT_comunicaciones_tipo { get; set; }
         public virtual DbSet<IT_hardware_tipo> IT_hardware_tipo { get; set; }
         public virtual DbSet<IT_internet_tipo> IT_internet_tipo { get; set; }
-        public virtual DbSet<IT_inventory_cellular_line> IT_inventory_cellular_line { get; set; }
         public virtual DbSet<IT_inventory_cellular_plans> IT_inventory_cellular_plans { get; set; }
         public virtual DbSet<IT_inventory_hard_drives> IT_inventory_hard_drives { get; set; }
         public virtual DbSet<IT_inventory_hardware_type> IT_inventory_hardware_type { get; set; }
@@ -136,5 +135,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_equipos_checklist_actividades> IT_equipos_checklist_actividades { get; set; }
         public virtual DbSet<IT_equipos_checklist_categorias> IT_equipos_checklist_categorias { get; set; }
         public virtual DbSet<IT_equipos_rel_checklist_actividades> IT_equipos_rel_checklist_actividades { get; set; }
+        public virtual DbSet<IT_inventory_cellular_line> IT_inventory_cellular_line { get; set; }
     }
 }

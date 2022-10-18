@@ -171,7 +171,7 @@
                                                         </a>
                                                         @if (Bitacoras.Util.IT_equipos_checklist_estatus.FINALIZADO == item.estatus)
                                                         {
-                                                            <a href="@Url.Action("ExportPDF", null, new { id = item.id })" class="btn btn-danger btn-sm" title="Detalles">
+                                                            <a href="@Url.Action("ExportPDF", null, new { id = item.id })" class="btn btn-danger btn-sm" title="Detalles" target="_blank">
                                                                 <i class="fa fa-file-pdf"></i>
                                                             </a>
                                                         }

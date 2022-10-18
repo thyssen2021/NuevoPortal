@@ -175,7 +175,14 @@
                                 @Html.TextAreaFor(model => model.comentario_general, new { @class = "form-control", @rows = "4", @readonly = "readonly" })
                             </div>
                         </div>
-                    
+                        <div class="ln_solid"></div>
+
+                        @if (Bitacoras.Util.IT_equipos_checklist_estatus.FINALIZADO == Model.estatus)
+                        {
+                            <a href="@Url.Action("ExportPDF", null, new { id = Model.id })" class="btn btn-danger" title="Detalles" target="_blank" style="float:right">
+                                <i class="fa fa-file-pdf"></i> Exportar a PDF
+                            </a>
+                        }
                     </div>
                 </div>
                 <div>

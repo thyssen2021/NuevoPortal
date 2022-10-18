@@ -741,6 +741,7 @@ namespace Portal_2_0.Models
             ,new FiltersInventoryUtil {tipoHardware = tablet(),nombreCampo =  nameof(IT_inventory_items.mac_wlan), tipoFormulario = FiltersInventoryTypes.EDICION}
             ,new FiltersInventoryUtil {tipoHardware = tablet(),nombreCampo =  nameof(IT_inventory_items.total_physical_memory_mb), tipoFormulario = FiltersInventoryTypes.EDICION}
             ,new FiltersInventoryUtil {tipoHardware = tablet(),nombreCampo =  nameof(IT_inventory_items.inches), tipoFormulario = FiltersInventoryTypes.EDICION}
+            ,new FiltersInventoryUtil {tipoHardware = tablet(),nombreCampo =  nameof(IT_inventory_items.hostname), tipoFormulario = FiltersInventoryTypes.EDICION}
               //--FORMULARIOS RADIO
             ,new FiltersInventoryUtil {tipoHardware = radio(),nombreCampo =  nameof(IT_inventory_items.id_inventory_type), tipoFormulario = FiltersInventoryTypes.EDICION}
             ,new FiltersInventoryUtil {tipoHardware = radio(),nombreCampo =  nameof(IT_inventory_items.id_planta), tipoFormulario = FiltersInventoryTypes.EDICION}
