@@ -27,6 +27,7 @@ namespace Portal_2_0.Models
         public Nullable<System.DateTime> fecha_corte { get; set; }
         public bool activo { get; set; }
         public Nullable<System.DateTime> fecha_renovacion { get; set; }
+        public Nullable<System.DateTime> fecha_renovacion_inicio { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_asignacion_hardware> IT_asignacion_hardware { get; set; }

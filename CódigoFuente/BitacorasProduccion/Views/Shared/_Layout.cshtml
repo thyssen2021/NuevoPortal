@@ -223,6 +223,45 @@
                                             </ul>
                                         </li>
                                     }
+
+                                    @if (User.IsInRole(TipoRoles.IT_CHECKLIST_SITE) || User.IsInRole(TipoRoles.IT_CHECKLIST_EQUIPOS))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "IT_checklist" ? "active" : null )">
+                                            <a><i class="fa fa-clipboard-list"></i>IT - Checklist <span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "IT_checklist" ? "display:block" : null )">
+                                                @if (User.IsInRole(TipoRoles.IT_CHECKLIST_SITE))
+                                                {
+                                                    <li class="@(ViewBag.SegundoNivel == "IT_site_checklist" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_site_checklist")">Site</a></li>
+                                                }
+                                                 @if (User.IsInRole(TipoRoles.IT_CHECKLIST_EQUIPOS))
+                                                {
+                                                    <li class="@(ViewBag.SegundoNivel == "IT_equipos_checklist" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_equipos_checklist")">Nuevos Equipos</a></li>
+                                                }
+                                                <li class="link @(ViewBag.SegundoNivel == "IT_Checklist_catalogos" ? "active" : null )">
+                                                    <a>C&aacute;talogos<span class="fa fa-chevron-down"></span></a>
+                                                    <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "IT_Checklist_catalogos" ? "display:block" : null )">
+                                                        @if (User.IsInRole(TipoRoles.IT_CHECKLIST_SITE))
+                                                        {
+                                                            <h3>Site</h3>
+                                                            <li class="@(ViewBag.TercelNivel == "IT_site" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_site")">Sites</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "IT_site_actividades" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_site_actividades")">Site - Actividades</a></li>
+                                                        }
+                                                        @if (User.IsInRole(TipoRoles.IT_CHECKLIST_EQUIPOS))
+                                                        {
+                                                            <h3>Nuevos equipos</h3>
+                                                            <li class="@(ViewBag.TercelNivel == "IT_equipos_checklist_categorias" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_equipos_checklist_categorias")">Equipo - Categorias</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "IT_equipos_checklist_actividades" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_equipos_checklist_actividades")">Equipo - Actividades</a></li>
+                                                        }
+                                                    </ul>
+                                                </li>
+
+                                                
+                                            </ul>
+
+                                        </li>
+                                    }
+
+
                                     @if (User.IsInRole(TipoRoles.ADMIN))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "catalogos_admin" ? "active" : null )">

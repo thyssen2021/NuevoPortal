@@ -1,0 +1,307 @@
+﻿@model Portal_2_0.Models.IT_site_checklist
+
+@{
+    ViewBag.Title = "Creación de Nuevo Checklist";
+    ViewBag.PrimerNivel = "IT_checklist";
+    ViewBag.SegundoNivel = "IT_site_checklist";
+    ViewBag.ControllerName = "IT_site_checklist";
+
+    int contador = 0;
+}
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/green.css")" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+
+    <style>
+        td {
+            border: #009ff5 2px solid !important;
+        }
+    </style>
+}
+
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", new { @class = "text-white" })
+                                </div>
+                            }
+
+                            @*Valores ocultos*@
+                            @Html.HiddenFor(model => model.id_site)
+                            @Html.HiddenFor(model => model.id_sistemas)
+                            @Html.HiddenFor(model => model.estatus)
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>SITE</b></span>
+                            </div>
+
+                            <div class="form-group row ">
+                                @Html.LabelFor(model => model.id_site, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-5 col-sm-5 ">
+                                    <input class="form-control" value="@Model.IT_site.ConcatSite" readonly="readonly" />
+                                    @Html.ValidationMessageFor(model => model.id_site, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.fecha, htmlAttributes: new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-3 col-sm-3">
+                                    @Html.EditorFor(model => model.fecha, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.estatus, "", new { @class = "text-danger" })
+                                </div>
+                            </div><div class="ln_solid"></div><div class="form-group row">
+                                <span style="color:black"><b>CHECKLIST</b></span>
+                            </div>
+
+
+                            <table id="datatable_1" class="table datatable table-bordered table-striped" cellspacing="0" width="100%">
+                                <thead style="background-color: #009ff5; color: azure; border: #009ff5 2px solid;">
+                                    <tr>
+                                        <th width="1%">
+                                            #
+                                        </th>
+                                        <th>
+                                            Actividad
+                                        </th>
+                                        <th>
+                                            Referencia
+                                        </th>
+                                        <th>
+                                            Estado
+                                        </th>
+                                        <th width="40%">
+                                            Observaci&oacute;n
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var actividad in Model.IT_site_checklist_rel_actividades)
+                                    {
+                                        <input type="hidden" name="IT_site_checklist_rel_actividades.Index" id="IT_site_checklist_rel_actividades.Index" value="@contador" />
+                                        <input type="hidden" name="IT_site_checklist_rel_actividades[@contador].id_it_site_actividad" id="IT_site_checklist_rel_actividades[@contador].id_it_site_actividad" value="@actividad.id_it_site_actividad" />
+                                        <input type="hidden" name="IT_site_checklist_rel_actividades[@contador].id_site_checklist" id="IT_site_checklist_rel_actividades[@contador].id_site_checklist" value="@actividad.id_site_checklist" />
+
+                                        <tr>
+                                            <td id="div_index_@contador" style=" @(actividad.estatus == Bitacoras.Util.IT_site_actividad_estatus.NA ? "color : #0000FF" :
+                                                actividad.estatus == Bitacoras.Util.IT_site_actividad_estatus.NO_OK ? "color : #FF0000" :
+                                                actividad.estatus == Bitacoras.Util.IT_site_actividad_estatus.OK ? "color : #00A900" :String.Empty); font-weight:bold">
+                                                @(contador+1)
+                                            </td>
+                                            <td id="div_descripcion_@contador" style=" @(actividad.estatus == Bitacoras.Util.IT_site_actividad_estatus.NA ? "color : #0000FF" :
+                                                actividad.estatus == Bitacoras.Util.IT_site_actividad_estatus.NO_OK ? "color : #FF0000" :
+                                                actividad.estatus == Bitacoras.Util.IT_site_actividad_estatus.OK ? "color : #00A900" :String.Empty); font-weight:bold">
+                                                @Html.DisplayFor(modelItem => actividad.IT_site_actividades.descripcion)
+                                            </td>
+                                            <td id="div_referencia_@contador" style=" @(actividad.estatus == Bitacoras.Util.IT_site_actividad_estatus.NA ? "color : #0000FF" :
+                                                actividad.estatus == Bitacoras.Util.IT_site_actividad_estatus.NO_OK ? "color : #FF0000" :
+                                                actividad.estatus == Bitacoras.Util.IT_site_actividad_estatus.OK ? "color : #00A900" :String.Empty); font-weight:bold">
+                                                @Html.DisplayFor(modelItem => actividad.IT_site_actividades.referencia)
+                                            </td>
+                                            <td id="div_opciones_@contador" style=" @(actividad.estatus == Bitacoras.Util.IT_site_actividad_estatus.NA ? "color : #0000FF" :
+                                                actividad.estatus == Bitacoras.Util.IT_site_actividad_estatus.NO_OK ? "color : #FF0000" :
+                                                actividad.estatus == Bitacoras.Util.IT_site_actividad_estatus.OK ? "color : #00A900" :String.Empty); font-weight:bold">
+                                                <div>
+                                                    <input class="radio-estatus" type="radio" id="ok_@contador" name="IT_site_checklist_rel_actividades[@contador].estatus" data-row="@contador" value="@Bitacoras.Util.IT_site_actividad_estatus.OK" @(actividad.estatus == Bitacoras.Util.IT_site_actividad_estatus.OK ? "checked" : String.Empty)>
+                                                    <label for="ok_@contador">@Bitacoras.Util.IT_site_actividad_estatus.OK</label>
+                                                </div>
+                                                <div>
+                                                    <input class="radio-estatus" type="radio" id="no_ok_@contador" name="IT_site_checklist_rel_actividades[@contador].estatus" data-row="@contador" value="@Bitacoras.Util.IT_site_actividad_estatus.NO_OK" @(actividad.estatus == Bitacoras.Util.IT_site_actividad_estatus.NO_OK ? "checked" : String.Empty)>
+                                                    <label for="no_ok_@contador">@Bitacoras.Util.IT_site_actividad_estatus.NO_OK</label>
+                                                </div>
+                                                <div>
+                                                    <input class="radio-estatus" type="radio" id="na_@contador" name="IT_site_checklist_rel_actividades[@contador].estatus" data-row="@contador" value="@Bitacoras.Util.IT_site_actividad_estatus.NA" @(actividad.estatus == Bitacoras.Util.IT_site_actividad_estatus.NA ? "checked" : String.Empty)>
+                                                    <label for="na_@contador">@Bitacoras.Util.IT_site_actividad_estatus.NA</label>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <textarea type="text" name="IT_site_checklist_rel_actividades[@contador].observacion" id="IT_site_checklist_rel_actividades[@contador].observacion" class="form-control col-md-12" autocomplete="off" maxlength="150" rows="3">@actividad.observacion</textarea>
+                                                <span class="field-validation-valid text-danger" data-valmsg-for="IT_site_checklist_rel_actividades[@contador].observacion" data-valmsg-replace="true"></span>
+                                            </td>
+                                        </tr>
+                                        contador++;
+
+                                    }
+                                </tbody>
+                            </table>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>DATOS DE CIERRE</b></span>
+                            </div>
+
+
+                            <div class="form-group row ">
+                                @Html.LabelFor(model => model.id_sistemas, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    <input class="form-control" value="@Model.empleados.ConcatNumEmpleadoNombre" readonly="readonly" />
+                                    @Html.ValidationMessageFor(model => model.id_sistemas, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.observacion_particular, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align:left" })
+
+                            </div>
+                            <div class="item form-group">
+                                <div class="col-md-12">
+                                    @Html.TextAreaFor(model => model.observacion_particular, new { @class = "form-control", @rows = "4", @autocomplete = "off" })
+                                    @Html.ValidationMessageFor(model => model.observacion_particular, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="item form-group">
+                                <div class="col-md-10 col-sm-10 ">
+                                    <button type="button" id="btn-finalizar" class="btn btn-warning btn-lg float-lg-right"><i class="fa-regular fa-square-check"></i>&ensp;Finalizar</button>
+                                </div>
+                                <div class="col-md-2 col-sm-2">
+                                    <button type="button" id="btn-guardar" class="btn btn-success btn-lg float-lg-right"> <i class="fa-regular fa-floppy-disk"></i>&ensp;Guardar</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", ViewBag.ControllerName, new { id_site=Model.id_site})" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/dataTables_js")
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script>
+
+        $(document).ready(function () {
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+
+            $('.radio-estatus').on('ifChanged', function (event) {
+                var row = $(this).attr("data-row");
+
+
+                if (row != null) {
+                    var seleccion = $(this).val();
+                    console.log(seleccion);
+                    var descripciones = $("#div_descripcion_" + row)
+                    var referencias = $("#div_referencia_" + row)
+                    var opciones = $("#div_opciones_" + row)
+                    var index = $("#div_index_" + row)
+
+                    let color = "#FF0000";
+
+                    //asigna el color segun la opción elegida
+                    if (seleccion === "@Bitacoras.Util.IT_site_actividad_estatus.NA") {
+                       color="#0000FF";
+                    } else if (seleccion === "@Bitacoras.Util.IT_site_actividad_estatus.OK") {
+                        color="#00A900";
+                    } else if (seleccion === "@Bitacoras.Util.IT_site_actividad_estatus.NO_OK") {
+                      color="#FF0000";
+                    }
+
+                    descripciones.css("color", color);
+                    referencias.css("color", color);
+                    opciones.css("color", color);
+                    index.css("color", color);
+
+                }
+            });
+
+            //inicializa icheck
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+                increaseArea: '20%' // optional
+            });
+
+            $('form #btn-guardar').click(function (e) {
+                //asigna el estatus de en proceso
+                $('#@Html.IdFor(model => model.estatus)').val('@Bitacoras.Util.IT_site_checklist_estatus.EN_PROCESO');
+                let $form = $(this).closest('form');
+                $form.submit();
+
+            });
+
+
+            //maneja el envió el del formulario
+            $('form #btn-finalizar').click(function (e) {
+                let $form = $(this).closest('form');
+
+                const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: 'btn btn-success',
+                        cancelButton: 'btn btn-danger'
+                    },
+                    buttonsStyling: false,
+                })
+
+
+                swalWithBootstrapButtons.fire({
+                    title: '¿Desea finalizar el regitro?',
+                    html: "Una vez finalizado, no se podrán hacer cambios.",
+                    showCancelButton: true,
+                    confirmButtonText: 'Aceptar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.value) {
+                        //asigna el estatus de finalizado
+                        $('#@Html.IdFor(model => model.estatus)').val('@Bitacoras.Util.IT_site_checklist_estatus.FINALIZADO');
+
+                        //espera a que se cierre el modal para enviar el formulario
+                        setTimeout(function () {
+                            $form.submit();
+                        }, 900);
+                    }
+                });
+
+            });
+
+        });
+
+        function MuestraModal() {
+
+        }
+
+        window.onload = function () {
+            clicMenu(1);
+        }
+    </script>
+
+}
+

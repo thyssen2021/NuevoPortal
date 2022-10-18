@@ -54,12 +54,12 @@
                                 </div>
                             </div>
                             @*<div class="item form-group">
-                                <label class="col-form-label col-md-3 col-sm-3 label-align">Asignado</label>
-                                <div class="col-md-6 col-sm-6">
-                                    <input type="text" class="form-control" value="@(Model.IT_asignacion_cellular_line.Count>0 ?
-                                                        Model.IT_asignacion_cellular_line.First().empleados.ConcatNumEmpleadoNombre : "NO ASIGNADO" )" readonly>
-                                </div>
-                            </div>*@
+                <label class="col-form-label col-md-3 col-sm-3 label-align">Asignado</label>
+                <div class="col-md-6 col-sm-6">
+                    <input type="text" class="form-control" value="@(Model.IT_asignacion_cellular_line.Count>0 ?
+                                        Model.IT_asignacion_cellular_line.First().empleados.ConcatNumEmpleadoNombre : "NO ASIGNADO" )" readonly>
+                </div>
+            </div>*@
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.numero_celular, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                 <div class="col-md-6 col-sm-6 ">
@@ -72,6 +72,13 @@
                                 <div class="col-md-6 col-sm-6 ">
                                     @Html.EditorFor(model => model.fecha_corte, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
                                     @Html.ValidationMessageFor(model => model.fecha_corte, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.fecha_renovacion_inicio, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.EditorFor(model => model.fecha_renovacion_inicio, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.fecha_renovacion_inicio, "", new { @class = "text-danger" })
                                 </div>
                             </div>
                             <div class="item form-group">
