@@ -1,0 +1,301 @@
+﻿@model Portal_2_0.Models.IT_equipos_checklist
+
+@{
+    ViewBag.Title = "Detalles Checklist para Registro de Nuevos Equipos";
+    ViewBag.PrimerNivel = "IT_checklist";
+    ViewBag.SegundoNivel = "IT_equipos_checklist";
+    ViewBag.ControllerName = "IT_equipos_checklist";
+
+    int contador = 0;
+}
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/green.css")" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+
+    <style>
+        td {
+            border: #009ff5 2px solid !important;
+        }
+    </style>
+}
+
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+
+
+                        <div class="form-group row">
+                            <span style="color:black"><b>DATOS GENERALES</b></span>
+                        </div>
+
+                        <div class="form-group row ">
+                            @Html.LabelFor(model => model.id, htmlAttributes: new { @class = "col-form-label col-md-11 col-sm-11 label-align" })
+                            <div class="col-md-1 col-sm-1">
+                                @Html.EditorFor(model => model.id, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>
+                        </div>
+                        <div class="form-group row ">
+                            @Html.LabelFor(model => model.nombre, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            <div class="col-md-3 col-sm-3">
+                                @Html.EditorFor(model => model.nombre, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>
+                            @Html.LabelFor(model => model.numero_serie, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            <div class="col-md-3 col-sm-3">
+                                @Html.EditorFor(model => model.numero_serie, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>
+                            @Html.LabelFor(model => model.modelo, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            <div class="col-md-3 col-sm-3">
+                                @Html.EditorFor(model => model.modelo, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>
+                        </div>
+                        <div class="form-group row ">
+                            @Html.LabelFor(model => model.sistema_operativo, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            <div class="col-md-3 col-sm-3">
+                                @Html.EditorFor(model => model.sistema_operativo, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>
+                        </div>
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>CHECKLIST</b></span>
+                        </div>
+
+                        <table id="datatable_1" class="table datatable table-bordered table-striped" cellspacing="0" width="100%">
+                            <thead style="background-color: #009ff5; color: azure; border: #009ff5 2px solid;">
+                                <tr>
+                                    <th width="1%">
+                                        #
+                                    </th>
+                                    <th>
+                                        Categoria
+                                    </th>
+                                    <th>
+                                        Actividad
+                                    </th>
+                                    <th>
+                                        Estado
+                                    </th>
+                                    <th width="40%">
+                                        Observaci&oacute;n
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    int aux_categorias = 0;
+                                    int aux_c_items_categoria = 0;
+                                }
+                                @foreach (var cat in Model.IT_equipos_rel_checklist_actividades.Select(x => x.IT_equipos_checklist_actividades.IT_equipos_checklist_categorias).Distinct().ToList())
+                                {
+                                    aux_categorias = 1;
+                                    aux_c_items_categoria = Model.IT_equipos_rel_checklist_actividades.Where(x => x.IT_equipos_checklist_actividades.id_categoria_ck
+                                    == cat.id).Count();
+
+                                    foreach (var actividad in Model.IT_equipos_rel_checklist_actividades.Where(x => x.IT_equipos_checklist_actividades.id_categoria_ck == cat.id))
+                                    {
+                                        <input type="hidden" name="IT_equipos_rel_checklist_actividades.Index" id="IT_equipos_rel_checklist_actividades.Index" value="@contador" />
+                                        <input type="hidden" name="IT_equipos_rel_checklist_actividades[@contador].id_it_equipo_actividad" id="IT_equipos_rel_checklist_actividades[@contador].id_it_equipo_actividad" value="@actividad.id_it_equipo_actividad" />
+                                        <input type="hidden" name="IT_equipos_rel_checklist_actividades[@contador].id_equipo_checklist" id="IT_equipos_rel_checklist_actividades[@contador].id_equipo_checklist" value="@actividad.id_equipo_checklist" />
+
+                                        <tr>
+                                            <td id="div_index_@contador" style=" @(actividad.estatus == Bitacoras.Util.IT_site_actividad_estatus.NA ? "color : #0000FF" :
+                                                actividad.estatus == Bitacoras.Util.IT_site_actividad_estatus.NO_OK ? "color : #FF0000" :
+                                                actividad.estatus == Bitacoras.Util.IT_site_actividad_estatus.OK ? "color : #00A900" :String.Empty); font-weight:bold">
+                                                @(contador+1)
+                                            </td>
+                                            @if (aux_categorias++ == 1)
+                                            {
+                                                <td rowspan="@aux_c_items_categoria" align="center" style="vertical-align:middle; font-weight:bold; border: #009ff5 2px solid;">
+                                                    @Html.DisplayFor(modelItem => actividad.IT_equipos_checklist_actividades.IT_equipos_checklist_categorias.descripcion)
+                                                </td>
+                                            }
+                                            <td id="div_descripcion_@contador" style=" @(actividad.estatus == Bitacoras.Util.IT_site_actividad_estatus.NA ? "color : #0000FF" :
+                                                actividad.estatus == Bitacoras.Util.IT_site_actividad_estatus.NO_OK ? "color : #FF0000" :
+                                                actividad.estatus == Bitacoras.Util.IT_site_actividad_estatus.OK ? "color : #00A900" :String.Empty); font-weight:bold">
+                                                @Html.DisplayFor(modelItem => actividad.IT_equipos_checklist_actividades.descripcion)
+                                            </td>
+                                            <td id="div_opciones_@contador" style=" @(actividad.estatus == Bitacoras.Util.IT_site_actividad_estatus.NA ? "color : #0000FF" :
+                                                actividad.estatus == Bitacoras.Util.IT_site_actividad_estatus.NO_OK ? "color : #FF0000" :
+                                                actividad.estatus == Bitacoras.Util.IT_site_actividad_estatus.OK ? "color : #00A900" :String.Empty); font-weight:bold">
+                                                @Html.DisplayFor(modelItem => actividad.estatus)
+                                            </td>
+                                            <td>
+                                                @Html.DisplayFor(modelItem => actividad.observacion)
+                                            </td>
+                                        </tr>
+                                        contador++;
+                                    }
+                                }
+                            </tbody>
+                        </table>
+
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>DATOS DE CIERRE</b></span>
+                        </div>
+
+
+                        <div class="form-group row ">
+                            @Html.LabelFor(model => model.id_sistemas, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input class="form-control" value="@Model.empleados.ConcatNumEmpleadoNombre" readonly="readonly" />
+                                @Html.ValidationMessageFor(model => model.id_sistemas, "", new { @class = "text-danger" })
+                            </div>
+                            @Html.LabelFor(model => model.fecha, htmlAttributes: new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                            <div class="col-md-3 col-sm-3">
+                                @Html.EditorFor(model => model.fecha, new { htmlAttributes = new { @class = "form-control", @disabled = "disabled" } })
+                            </div>
+                        </div>
+
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.comentario_general, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align:left" })
+
+                        </div>
+                        <div class="item form-group">
+                            <div class="col-md-12">
+                                @Html.TextAreaFor(model => model.comentario_general, new { @class = "form-control", @rows = "4", @readonly = "readonly" })
+                            </div>
+                        </div>
+                    
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/dataTables_js")
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script>
+
+        $(document).ready(function () {
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+
+            $('.radio-estatus').on('ifChanged', function (event) {
+                var row = $(this).attr("data-row");
+
+
+                if (row != null) {
+                    var seleccion = $(this).val();
+                    console.log(seleccion);
+                    var descripciones = $("#div_descripcion_" + row)
+                    var referencias = $("#div_referencia_" + row)
+                    var opciones = $("#div_opciones_" + row)
+                    var index = $("#div_index_" + row)
+
+                    let color = "#FF0000";
+
+                    //asigna el color segun la opción elegida
+                    if (seleccion === "@Bitacoras.Util.IT_equipos_actividad_estatus.NA") {
+                       color="#0000FF";
+                    } else if (seleccion === "@Bitacoras.Util.IT_equipos_actividad_estatus.OK") {
+                        color="#00A900";
+                    } else if (seleccion === "@Bitacoras.Util.IT_equipos_actividad_estatus.NO_OK") {
+                      color="#FF0000";
+                    }
+
+                    descripciones.css("color", color);
+                    referencias.css("color", color);
+                    opciones.css("color", color);
+                    index.css("color", color);
+
+                }
+            });
+
+            //inicializa icheck
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+                increaseArea: '20%' // optional
+            });
+
+            $('form #btn-guardar').click(function (e) {
+                //asigna el estatus de en proceso
+                $('#@Html.IdFor(model => model.estatus)').val('@Bitacoras.Util.IT_equipos_checklist_estatus.EN_PROCESO');
+                let $form = $(this).closest('form');
+                $form.submit();
+
+            });
+
+
+            //maneja el envió el del formulario
+            $('form #btn-finalizar').click(function (e) {
+                let $form = $(this).closest('form');
+
+                const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: 'btn btn-success',
+                        cancelButton: 'btn btn-danger'
+                    },
+                    buttonsStyling: false,
+                })
+
+
+                swalWithBootstrapButtons.fire({
+                    title: '¿Desea finalizar el regitro?',
+                    html: "Una vez finalizado, no se podrán hacer cambios.",
+                    showCancelButton: true,
+                    confirmButtonText: 'Aceptar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.value) {
+                        //asigna el estatus de finalizado
+                        $('#@Html.IdFor(model => model.estatus)').val('@Bitacoras.Util.IT_equipos_checklist_estatus.FINALIZADO');
+
+                        //espera a que se cierre el modal para enviar el formulario
+                        setTimeout(function () {
+                            $form.submit();
+                        }, 900);
+                    }
+                });
+
+            });
+
+        });
+
+        function MuestraModal() {
+
+        }
+
+        window.onload = function () {
+            clicMenu(1);
+        }
+    </script>
+
+}
+

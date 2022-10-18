@@ -426,6 +426,47 @@
           <Property Name="aplica_descripcion" Type="bit" Nullable="false" />
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
+        <EntityType Name="IT_equipos_checklist">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_sistemas" Type="int" Nullable="false" />
+          <Property Name="nombre" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="numero_serie" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="modelo" Type="varchar" MaxLength="120" Nullable="false" />
+          <Property Name="sistema_operativo" Type="varchar" MaxLength="50" />
+          <Property Name="comentario_general" Type="varchar" MaxLength="200" />
+          <Property Name="fecha" Type="datetime" Nullable="false" />
+          <Property Name="estatus" Type="varchar" MaxLength="20" Nullable="false" />
+        </EntityType>
+        <EntityType Name="IT_equipos_checklist_actividades">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_categoria_ck" Type="int" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="120" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="IT_equipos_checklist_categorias">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="IT_equipos_rel_checklist_actividades">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_equipo_checklist" Type="int" Nullable="false" />
+          <Property Name="id_it_equipo_actividad" Type="int" Nullable="false" />
+          <Property Name="observacion" Type="varchar" MaxLength="150" />
+          <Property Name="estatus" Type="varchar" MaxLength="10" Nullable="false" />
+        </EntityType>
         <EntityType Name="IT_hardware_tipo">
           <Key>
             <PropertyRef Name="id" />
@@ -1663,6 +1704,30 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Principal>
             <Dependent Role="empleados">
               <PropertyRef Name="puesto" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_equipos_checklist_id_categoria_ck">
+          <End Role="IT_equipos_checklist_categorias" Type="Self.IT_equipos_checklist_categorias" Multiplicity="1" />
+          <End Role="IT_equipos_checklist_actividades" Type="Self.IT_equipos_checklist_actividades" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_equipos_checklist_categorias">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_equipos_checklist_actividades">
+              <PropertyRef Name="id_categoria_ck" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_equipos_checklist_id_sistemas">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="1" />
+          <End Role="IT_equipos_checklist" Type="Self.IT_equipos_checklist" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_equipos_checklist">
+              <PropertyRef Name="id_sistemas" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -3154,6 +3219,30 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_site_checklist_id_equipo_checklist">
+          <End Role="IT_equipos_checklist" Type="Self.IT_equipos_checklist" Multiplicity="1" />
+          <End Role="IT_equipos_rel_checklist_actividades" Type="Self.IT_equipos_rel_checklist_actividades" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_equipos_checklist">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_equipos_rel_checklist_actividades">
+              <PropertyRef Name="id_equipo_checklist" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_site_checklist_id_it_equipo_actividad">
+          <End Role="IT_equipos_checklist_actividades" Type="Self.IT_equipos_checklist_actividades" Multiplicity="1" />
+          <End Role="IT_equipos_rel_checklist_actividades" Type="Self.IT_equipos_rel_checklist_actividades" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_equipos_checklist_actividades">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_equipos_rel_checklist_actividades">
+              <PropertyRef Name="id_it_equipo_actividad" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_site_checklist_id_it_site_actividad">
           <End Role="IT_site_actividades" Type="Self.IT_site_actividades" Multiplicity="1" />
           <End Role="IT_site_checklist_rel_actividades" Type="Self.IT_site_checklist_rel_actividades" Multiplicity="*" />
@@ -3323,6 +3412,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySet Name="IT_asignacion_software" EntityType="Self.IT_asignacion_software" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_carpetas_red" EntityType="Self.IT_carpetas_red" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_comunicaciones_tipo" EntityType="Self.IT_comunicaciones_tipo" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IT_equipos_checklist" EntityType="Self.IT_equipos_checklist" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IT_equipos_checklist_actividades" EntityType="Self.IT_equipos_checklist_actividades" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IT_equipos_checklist_categorias" EntityType="Self.IT_equipos_checklist_categorias" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IT_equipos_rel_checklist_actividades" EntityType="Self.IT_equipos_rel_checklist_actividades" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_hardware_tipo" EntityType="Self.IT_hardware_tipo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_internet_tipo" EntityType="Self.IT_internet_tipo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_inventory_cellular_line" EntityType="Self.IT_inventory_cellular_line" Schema="dbo" store:Type="Tables" />
@@ -3595,6 +3688,14 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <AssociationSet Name="FK_empleados_puesto" Association="Self.FK_empleados_puesto">
             <End Role="puesto" EntitySet="puesto" />
             <End Role="empleados" EntitySet="empleados" />
+          </AssociationSet>
+          <AssociationSet Name="FK_equipos_checklist_id_categoria_ck" Association="Self.FK_equipos_checklist_id_categoria_ck">
+            <End Role="IT_equipos_checklist_categorias" EntitySet="IT_equipos_checklist_categorias" />
+            <End Role="IT_equipos_checklist_actividades" EntitySet="IT_equipos_checklist_actividades" />
+          </AssociationSet>
+          <AssociationSet Name="FK_equipos_checklist_id_sistemas" Association="Self.FK_equipos_checklist_id_sistemas">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IT_equipos_checklist" EntitySet="IT_equipos_checklist" />
           </AssociationSet>
           <AssociationSet Name="FK_GV_rel_gastos_solicitud_currency_iso" Association="Self.FK_GV_rel_gastos_solicitud_currency_iso">
             <End Role="currency" EntitySet="currency" />
@@ -4092,6 +4193,14 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="Area" EntitySet="Area" />
             <End Role="puesto" EntitySet="puesto" />
           </AssociationSet>
+          <AssociationSet Name="FK_site_checklist_id_equipo_checklist" Association="Self.FK_site_checklist_id_equipo_checklist">
+            <End Role="IT_equipos_checklist" EntitySet="IT_equipos_checklist" />
+            <End Role="IT_equipos_rel_checklist_actividades" EntitySet="IT_equipos_rel_checklist_actividades" />
+          </AssociationSet>
+          <AssociationSet Name="FK_site_checklist_id_it_equipo_actividad" Association="Self.FK_site_checklist_id_it_equipo_actividad">
+            <End Role="IT_equipos_checklist_actividades" EntitySet="IT_equipos_checklist_actividades" />
+            <End Role="IT_equipos_rel_checklist_actividades" EntitySet="IT_equipos_rel_checklist_actividades" />
+          </AssociationSet>
           <AssociationSet Name="FK_site_checklist_id_it_site_actividad" Association="Self.FK_site_checklist_id_it_site_actividad">
             <End Role="IT_site_actividades" EntitySet="IT_site_actividades" />
             <End Role="IT_site_checklist_rel_actividades" EntitySet="IT_site_checklist_rel_actividades" />
@@ -4455,6 +4564,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="GV_solicitud4" Relationship="Portal_2_0Model.FK_GV_solicitud_id_nomina" FromRole="empleados" ToRole="GV_solicitud" />
           <NavigationProperty Name="GV_solicitud5" Relationship="Portal_2_0Model.FK_GV_solicitud_id_solicitante" FromRole="empleados" ToRole="GV_solicitud" />
           <NavigationProperty Name="IT_site_checklist" Relationship="Portal_2_0Model.FK_site_checklist_id_sistemas" FromRole="empleados" ToRole="IT_site_checklist" />
+          <NavigationProperty Name="IT_equipos_checklist" Relationship="Portal_2_0Model.FK_equipos_checklist_id_sistemas" FromRole="empleados" ToRole="IT_equipos_checklist" />
           </EntityType>
         <EntityType Name="GV_medios_transporte">
           <Key>
@@ -8137,6 +8247,26 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="IT_site_checklist" EntitySet="IT_site_checklist" />
             <End Role="IT_site_checklist_rel_actividades" EntitySet="IT_site_checklist_rel_actividades" />
           </AssociationSet>
+          <EntitySet Name="IT_equipos_checklist" EntityType="Portal_2_0Model.IT_equipos_checklist" />
+          <EntitySet Name="IT_equipos_checklist_actividades" EntityType="Portal_2_0Model.IT_equipos_checklist_actividades" />
+          <EntitySet Name="IT_equipos_checklist_categorias" EntityType="Portal_2_0Model.IT_equipos_checklist_categorias" />
+          <EntitySet Name="IT_equipos_rel_checklist_actividades" EntityType="Portal_2_0Model.IT_equipos_rel_checklist_actividades" />
+          <AssociationSet Name="FK_equipos_checklist_id_sistemas" Association="Portal_2_0Model.FK_equipos_checklist_id_sistemas">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IT_equipos_checklist" EntitySet="IT_equipos_checklist" />
+          </AssociationSet>
+          <AssociationSet Name="FK_site_checklist_id_equipo_checklist" Association="Portal_2_0Model.FK_site_checklist_id_equipo_checklist">
+            <End Role="IT_equipos_checklist" EntitySet="IT_equipos_checklist" />
+            <End Role="IT_equipos_rel_checklist_actividades" EntitySet="IT_equipos_rel_checklist_actividades" />
+          </AssociationSet>
+          <AssociationSet Name="FK_equipos_checklist_id_categoria_ck" Association="Portal_2_0Model.FK_equipos_checklist_id_categoria_ck">
+            <End Role="IT_equipos_checklist_categorias" EntitySet="IT_equipos_checklist_categorias" />
+            <End Role="IT_equipos_checklist_actividades" EntitySet="IT_equipos_checklist_actividades" />
+          </AssociationSet>
+          <AssociationSet Name="FK_site_checklist_id_it_equipo_actividad" Association="Portal_2_0Model.FK_site_checklist_id_it_equipo_actividad">
+            <End Role="IT_equipos_checklist_actividades" EntitySet="IT_equipos_checklist_actividades" />
+            <End Role="IT_equipos_rel_checklist_actividades" EntitySet="IT_equipos_rel_checklist_actividades" />
+          </AssociationSet>
         </EntityContainer>
         <EntityType Name="GV_usuarios">
           <Key>
@@ -8416,6 +8546,102 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Principal>
             <Dependent Role="IT_site_checklist_rel_actividades">
               <PropertyRef Name="id_site_checklist" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="IT_equipos_checklist">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_sistemas" Type="Int32" Nullable="false" />
+          <Property Name="nombre" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="numero_serie" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="modelo" Type="String" Nullable="false" MaxLength="120" FixedLength="false" Unicode="false" />
+          <Property Name="sistema_operativo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="comentario_general" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="fecha" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="estatus" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_equipos_checklist_id_sistemas" FromRole="IT_equipos_checklist" ToRole="empleados" />
+          <NavigationProperty Name="IT_equipos_rel_checklist_actividades" Relationship="Portal_2_0Model.FK_site_checklist_id_equipo_checklist" FromRole="IT_equipos_checklist" ToRole="IT_equipos_rel_checklist_actividades" />
+        </EntityType>
+        <EntityType Name="IT_equipos_checklist_actividades">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_categoria_ck" Type="Int32" Nullable="false" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="120" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="IT_equipos_checklist_categorias" Relationship="Portal_2_0Model.FK_equipos_checklist_id_categoria_ck" FromRole="IT_equipos_checklist_actividades" ToRole="IT_equipos_checklist_categorias" />
+          <NavigationProperty Name="IT_equipos_rel_checklist_actividades" Relationship="Portal_2_0Model.FK_site_checklist_id_it_equipo_actividad" FromRole="IT_equipos_checklist_actividades" ToRole="IT_equipos_rel_checklist_actividades" />
+        </EntityType>
+        <EntityType Name="IT_equipos_checklist_categorias">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="IT_equipos_checklist_actividades" Relationship="Portal_2_0Model.FK_equipos_checklist_id_categoria_ck" FromRole="IT_equipos_checklist_categorias" ToRole="IT_equipos_checklist_actividades" />
+        </EntityType>
+        <EntityType Name="IT_equipos_rel_checklist_actividades">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_equipo_checklist" Type="Int32" Nullable="false" />
+          <Property Name="id_it_equipo_actividad" Type="Int32" Nullable="false" />
+          <Property Name="observacion" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="estatus" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="IT_equipos_checklist" Relationship="Portal_2_0Model.FK_site_checklist_id_equipo_checklist" FromRole="IT_equipos_rel_checklist_actividades" ToRole="IT_equipos_checklist" />
+          <NavigationProperty Name="IT_equipos_checklist_actividades" Relationship="Portal_2_0Model.FK_site_checklist_id_it_equipo_actividad" FromRole="IT_equipos_rel_checklist_actividades" ToRole="IT_equipos_checklist_actividades" />
+        </EntityType>
+        <Association Name="FK_equipos_checklist_id_sistemas">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_equipos_checklist" Role="IT_equipos_checklist" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_equipos_checklist">
+              <PropertyRef Name="id_sistemas" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_site_checklist_id_equipo_checklist">
+          <End Type="Portal_2_0Model.IT_equipos_checklist" Role="IT_equipos_checklist" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_equipos_rel_checklist_actividades" Role="IT_equipos_rel_checklist_actividades" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_equipos_checklist">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_equipos_rel_checklist_actividades">
+              <PropertyRef Name="id_equipo_checklist" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_equipos_checklist_id_categoria_ck">
+          <End Type="Portal_2_0Model.IT_equipos_checklist_categorias" Role="IT_equipos_checklist_categorias" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_equipos_checklist_actividades" Role="IT_equipos_checklist_actividades" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_equipos_checklist_categorias">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_equipos_checklist_actividades">
+              <PropertyRef Name="id_categoria_ck" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_site_checklist_id_it_equipo_actividad">
+          <End Type="Portal_2_0Model.IT_equipos_checklist_actividades" Role="IT_equipos_checklist_actividades" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_equipos_rel_checklist_actividades" Role="IT_equipos_rel_checklist_actividades" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_equipos_checklist_actividades">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_equipos_rel_checklist_actividades">
+              <PropertyRef Name="id_it_equipo_actividad" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -9924,6 +10150,51 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
                 <ScalarProperty Name="observacion_particular" ColumnName="observacion_particular" />
                 <ScalarProperty Name="id_sistemas" ColumnName="id_sistemas" />
                 <ScalarProperty Name="id_site" ColumnName="id_site" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IT_equipos_checklist">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_equipos_checklist">
+              <MappingFragment StoreEntitySet="IT_equipos_checklist">
+                <ScalarProperty Name="estatus" ColumnName="estatus" />
+                <ScalarProperty Name="fecha" ColumnName="fecha" />
+                <ScalarProperty Name="comentario_general" ColumnName="comentario_general" />
+                <ScalarProperty Name="sistema_operativo" ColumnName="sistema_operativo" />
+                <ScalarProperty Name="modelo" ColumnName="modelo" />
+                <ScalarProperty Name="numero_serie" ColumnName="numero_serie" />
+                <ScalarProperty Name="nombre" ColumnName="nombre" />
+                <ScalarProperty Name="id_sistemas" ColumnName="id_sistemas" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IT_equipos_checklist_actividades">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_equipos_checklist_actividades">
+              <MappingFragment StoreEntitySet="IT_equipos_checklist_actividades">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="id_categoria_ck" ColumnName="id_categoria_ck" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IT_equipos_checklist_categorias">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_equipos_checklist_categorias">
+              <MappingFragment StoreEntitySet="IT_equipos_checklist_categorias">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IT_equipos_rel_checklist_actividades">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_equipos_rel_checklist_actividades">
+              <MappingFragment StoreEntitySet="IT_equipos_rel_checklist_actividades">
+                <ScalarProperty Name="estatus" ColumnName="estatus" />
+                <ScalarProperty Name="observacion" ColumnName="observacion" />
+                <ScalarProperty Name="id_it_equipo_actividad" ColumnName="id_it_equipo_actividad" />
+                <ScalarProperty Name="id_equipo_checklist" ColumnName="id_equipo_checklist" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

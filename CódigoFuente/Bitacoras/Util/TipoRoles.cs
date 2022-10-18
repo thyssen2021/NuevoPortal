@@ -67,8 +67,7 @@ namespace Clases.Util
         public const string IT_MANTENIMIENTO_REGISTRO = "IT_Mantenimento_registro";
         //Modulo IT - Checklists
         public const string IT_CHECKLIST_SITE = "IT_Check_site";
-
-
+        public const string IT_CHECKLIST_EQUIPOS = "IT_Check_equipos";
 
     }
 }

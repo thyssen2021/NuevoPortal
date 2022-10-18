@@ -65,6 +65,8 @@
     <Compile Include="Util\DocumentosProcesos.cs" />
     <Compile Include="Util\GV_solicitud_estatus.cs" />
     <Compile Include="Util\GV_tipo_departamento.cs" />
+    <Compile Include="Util\IT_equipos_actividad_estatus.cs" />
+    <Compile Include="Util\IT_equipos_checklist_estatus.cs" />
     <Compile Include="Util\IT_matenimiento_Estatus.cs" />
     <Compile Include="Util\GV_tipo_viaje.cs" />
     <Compile Include="Util\IT_MR_Status.cs" />

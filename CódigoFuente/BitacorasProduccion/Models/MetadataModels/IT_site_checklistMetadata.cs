@@ -24,6 +24,7 @@ namespace Portal_2_0.Models
         [MaxLength(250)]
         public string observacion_particular { get; set; }
 
+        [Required]
         [DataType(DataType.Date)]
         [Display(Name = "Fecha")]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]

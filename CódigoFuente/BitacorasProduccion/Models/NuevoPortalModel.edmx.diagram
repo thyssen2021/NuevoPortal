@@ -266,6 +266,14 @@
         <AssociationConnector Association="Portal_2_0Model.FK_site_checklist_id_sistemas" />
         <AssociationConnector Association="Portal_2_0Model.FK_site_checklist_id_site" />
         <AssociationConnector Association="Portal_2_0Model.FK_site_checklist_id_site_checklist" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_equipos_checklist" Width="1.5" PointX="9.75" PointY="106.25" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_equipos_checklist_actividades" Width="1.5" PointX="9.75" PointY="110.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_equipos_checklist_categorias" Width="1.5" PointX="7.5" PointY="111" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_equipos_rel_checklist_actividades" Width="1.5" PointX="12" PointY="106.625" />
+        <AssociationConnector Association="Portal_2_0Model.FK_equipos_checklist_id_sistemas" />
+        <AssociationConnector Association="Portal_2_0Model.FK_site_checklist_id_equipo_checklist" />
+        <AssociationConnector Association="Portal_2_0Model.FK_equipos_checklist_id_categoria_ck" />
+        <AssociationConnector Association="Portal_2_0Model.FK_site_checklist_id_it_equipo_actividad" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

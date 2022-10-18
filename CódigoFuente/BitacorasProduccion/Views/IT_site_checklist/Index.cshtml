@@ -131,20 +131,20 @@
                                                         Acciones
                                                     </th>
                                                     <th>
+                                                        @Html.DisplayNameFor(model => model.fecha)
+                                                    </th>
+                                                    <th>
                                                         @Html.DisplayNameFor(model => model.id_site)
                                                     </th>
                                                     <th>
                                                         @Html.DisplayNameFor(model => model.observacion_particular)
                                                     </th>
                                                     <th>
-                                                        @Html.DisplayNameFor(model => model.fecha)
-                                                    </th>
-                                                    <th>
                                                         @Html.DisplayNameFor(model => model.estatus)
                                                     </th>
                                                     <th>
                                                         Actividades
-                                                    </th>                                                    
+                                                    </th>
                                                     <th>
                                                         @Html.DisplayNameFor(model => model.id_sistemas)
                                                     </th>
@@ -174,13 +174,13 @@
             }*@
                                                         </td>
                                                         <td>
+                                                            @Html.DisplayFor(modelItem => item.fecha)
+                                                        </td>
+                                                        <td>
                                                             @Html.DisplayFor(modelItem => item.IT_site.descripcion)
                                                         </td>
                                                         <td>
                                                             @Html.DisplayFor(modelItem => item.observacion_particular)
-                                                        </td>
-                                                        <td>
-                                                            @Html.DisplayFor(modelItem => item.fecha)
                                                         </td>
                                                         <td>
                                                             @Bitacoras.Util.IT_site_checklist_estatus.DescripcionStatus(item.estatus)
@@ -189,7 +189,7 @@
                                                             <custom style="color:#1a702e; font-weight:bold">@Bitacoras.Util.IT_site_actividad_estatus.OK: @(item.IT_site_checklist_rel_actividades.Where(x=>x.estatus == Bitacoras.Util.IT_site_actividad_estatus.OK).Count()) <br /> </custom>
                                                             <custom style="color:#ff0000; font-weight:bold">@Bitacoras.Util.IT_site_actividad_estatus.NO_OK: @(item.IT_site_checklist_rel_actividades.Where(x=>x.estatus == Bitacoras.Util.IT_site_actividad_estatus.NO_OK).Count()) <br /> </custom>
                                                             <custom style="color:#0b6bc7; font-weight:bold">@Bitacoras.Util.IT_site_actividad_estatus.NA: @(item.IT_site_checklist_rel_actividades.Where(x=>x.estatus == Bitacoras.Util.IT_site_actividad_estatus.NA).Count()) <br /> </custom>
-                                                           
+
                                                         </td>
                                                         <td>
                                                             @Html.DisplayFor(modelItem => item.empleados.ConcatNombre)
