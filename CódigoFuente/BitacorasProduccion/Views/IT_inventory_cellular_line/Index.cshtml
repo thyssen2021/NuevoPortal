@@ -186,10 +186,10 @@
                                                     <td nowrap>
                                                         @Html.DisplayFor(modelItem => item.fecha_renovacion)
                                                     </td>
-                                                    @{ var asignacion = item.IT_asignacion_hardware.Where(x => x.es_asignacion_linea_actual && x.id_cellular_line == item.id && x.id_responsable_principal == x.id_empleado).FirstOrDefault();}
+                                                    @{ var asignacion = item.IT_asignacion_hardware.Where(x => x.es_asignacion_linea_actual && x.es_asignacion_actual && x.id_cellular_line == item.id && x.id_responsable_principal == x.id_empleado).FirstOrDefault();}
 
                                                     <td nowrap>
-                                                        @foreach (var a in item.IT_asignacion_hardware.Where(x => x.es_asignacion_linea_actual && x.id_cellular_line == item.id && x.id_responsable_principal == x.id_empleado))
+                                                        @foreach (var a in item.IT_asignacion_hardware.Where(x => x.es_asignacion_linea_actual && x.es_asignacion_actual && x.id_cellular_line == item.id && x.id_responsable_principal == x.id_empleado))
                                                         {
                                                             @Html.DisplayFor(model => a.empleados.ConcatNombre)<br />
                                                         }

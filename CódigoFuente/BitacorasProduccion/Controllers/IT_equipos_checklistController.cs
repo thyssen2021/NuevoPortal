@@ -266,9 +266,8 @@ namespace Portal_2_0.Controllers
 
 
                 //Crea el parráfo que funciona como título
-                Paragraph pTitle = new Paragraph("").Add(new Tab());
-                pTitle.AddTabStops(new TabStop(85, TabAlignment.RIGHT));
-                pTitle.Add("Datos del Equipo").AddStyle(encabezado);
+                Paragraph pTitle = new Paragraph("");
+                pTitle.Add(" Datos del Equipo").AddStyle(encabezado);
                 doc.Add(pTitle);
 
 
@@ -292,8 +291,7 @@ namespace Portal_2_0.Controllers
                 doc.Add(table);
 
                 //---------- REGISTRO DE CHECKLIST --------     
-                pTitle = new Paragraph("").Add(new Tab());
-                pTitle.AddTabStops(new TabStop(20, TabAlignment.RIGHT));
+                pTitle = new Paragraph("");
                 pTitle.Add("Checklist").AddStyle(encabezado);
                 doc.Add(pTitle);
 
@@ -327,8 +325,7 @@ namespace Portal_2_0.Controllers
 
 
                 //---> Comentarios Adicionales <-------               
-                pTitle = new Paragraph("").Add(new Tab());
-                pTitle.AddTabStops(new TabStop(20, TabAlignment.RIGHT));
+                pTitle = new Paragraph("");
 
                 doc.Add(newline);
                 pTitle.Add("Comentarios Adicionales").AddStyle(encabezado);
