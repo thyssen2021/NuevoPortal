@@ -262,7 +262,7 @@ namespace Portal_2_0.Models
         //obtiene la region asociada o null en caso de no existir
         [NotMapped]
         [Display(Name = "Región")]
-        public BG_IHS_regiones Region
+        public BG_IHS_regiones _Region
         {
             get
             {
@@ -469,7 +469,7 @@ namespace Portal_2_0.Models
 
                 }
 
-                rel.region = this.Region!=null? this.Region.descripcion: "SIN DEFINIR";
+                rel.region = this._Region!=null? this._Region.descripcion: "SIN DEFINIR";
 
                 list.Add(rel);
             }

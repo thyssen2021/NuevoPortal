@@ -7265,6 +7265,7 @@
     <Content Include="Views\BG_IHS_rel_segmentos\Details.cshtml" />
     <Content Include="Views\BG_IHS_rel_segmentos\Edit.cshtml" />
     <Content Include="Views\BG_IHS_rel_segmentos\Index.cshtml" />
+    <Content Include="Views\BG_IHS_item\CargaDemandaCliente.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

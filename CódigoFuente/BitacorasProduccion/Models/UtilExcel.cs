@@ -1620,6 +1620,141 @@ namespace Portal_2_0.Models
 
             return lista;
         }
+          ///<summary>
+        ///Lee un archivo de excel y carga la demanda del cliente de forma masiva
+        ///</summary>
+        ///<return>
+        ///Devuelve un List<BG_IHS_item> con los datos leidos
+        ///</return>
+        ///<param name="streamPostedFile">
+        ///Stream del archivo recibido en el formulario
+        ///</param>
+        //public static List<BG_IHS_item> LeeIHSDemandaCliente(HttpPostedFileBase streamPostedFile, ref bool valido, ref string msjError)
+        //{
+        //    List<BG_IHS_item> lista = new List<BG_IHS_item>();
+        //    CultureInfo provider = new CultureInfo("en-US");
+        //    string hoja = "DemandaCliente";
+
+        //    //crea el reader del archivo
+        //    using (var reader = ExcelReaderFactory.CreateReader(streamPostedFile.InputStream))
+        //    {
+        //        //obtiene el dataset del archivo de excel
+        //        var result = reader.AsDataSet();
+
+        //        //estable la variable a false por defecto
+        //        valido = false;
+
+        //        //verifica que tenga la hoja
+        //        if (!result.Tables.Contains(hoja))
+        //        {
+        //            valido = false;
+        //            msjError = "El documento no tiene una hoja llamada: " + hoja;
+        //        }
+
+
+        //        //recorre todas las hojas del archivo
+        //        foreach (DataTable table in result.Tables)
+        //        {
+        //            //busca si existe una hoja llamada "dante"
+        //            if (table.TableName == hoja)
+        //            {
+        //                valido = true;
+
+        //                //se obtienen las cabeceras
+        //                List<string> encabezados = new List<string>();
+        //                int filaEncabezado = 0;
+
+        //                for (int i = 0; i < table.Columns.Count; i++)
+        //                {
+        //                    string title = table.Rows[filaEncabezado][i].ToString();
+
+        //                    if (!string.IsNullOrEmpty(title))
+        //                        encabezados.Add(title);
+        //                }
+
+        //                //verifica que la estrura del archivo sea válida
+        //                if (!encabezados.Contains("Mnemonic-Plant") || !encabezados.Contains("SOP (AAAA-MM) ") || !encabezados.Contains("Vehicle"))
+        //                {
+        //                    valido = false;
+        //                    msjError = "La hoja no cuenta con la estructura correcta";
+        //                    return lista;
+        //                }
+
+        //                //la fila 0 se omite (encabezado)
+        //                for (int i = 1; i < table.Rows.Count; i++)
+        //                {
+        //                    BG_IHS_item bg = new BG_IHS_item();
+
+        //                    try
+        //                    {
+        //                        //variables
+        //                        string mnemonic_plant = string.Empty;                              
+        //                        DateTime sop_start_of_production = new DateTime(2000, 01, 01); //fecha por defecto
+        //                        string vehicle = string.Empty;
+                               
+
+        //                        //recorre todas los encabezados
+        //                        for (int j = 0; j < encabezados.Count; j++)
+        //                        {
+        //                            //obtiene la cabezara de i
+        //                            switch (encabezados[j])
+        //                            {
+        //                                //obligatorios
+                                      
+        //                                case "Mnemonic-Plant":
+        //                                    mnemonic_plant = table.Rows[i][j].ToString();
+        //                                    break;                                    
+        //                                case "SOP (AAAA-MM)":
+        //                                    if (!String.IsNullOrEmpty(table.Rows[i][j].ToString()))
+        //                                        sop_start_of_production = Convert.ToDateTime(table.Rows[i][j].ToString());
+        //                                    break;
+        //                                case "Vehicle":
+        //                                    vehicle = table.Rows[i][j].ToString();
+        //                                    break;                                       
+        //                            }
+
+        //                            //si es fecha lo debe agregar objeto actual                                 
+        //                            string fechaString = encabezados[j];
+        //                            if (DateTime.TryParse(fechaString, out DateTime date))
+        //                            {
+
+        //                                //canvierte la cantidad a numero
+        //                                if (Int32.TryParse(table.Rows[i][j].ToString(), out int cantidad))
+        //                                {
+        //                                    bg.BG_IHS_rel_demanda.Add(new BG_IHS_rel_demanda
+        //                                    {
+        //                                        cantidad = cantidad,
+        //                                        fecha = date,
+        //                                        //fecha_carga = null,
+        //                                        tipo = Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER,
+        //                                    });
+        //                                }
+        //                            }
+                                  
+
+                                  
+        //                        }
+        //                        //asigna los valores al item de IHS                               
+        //                        bg.mnemonic_plant = mnemonic_plant;                            
+        //                        bg.sop_start_of_production = sop_start_of_production;
+        //                        bg.vehicle = vehicle;
+                             
+        //                        // agrega a la lista con los datos leidos
+        //                        lista.Add(bg);
+        //                    }
+        //                    catch (Exception e)
+        //                    {
+        //                        msjError = e.Message;
+        //                        System.Diagnostics.Debug.Print("Error: " + e.Message);
+        //                    }
+        //                }
+        //            }
+        //        }
+
+        //    }
+
+        //    return lista;
+        //}
 
     }
 }

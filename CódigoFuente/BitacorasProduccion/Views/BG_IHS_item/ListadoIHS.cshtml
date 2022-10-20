@@ -218,8 +218,12 @@
                                         {
                                             <a href="@Url.Action("CargaIHS", ViewBag.ControllerName)" class="btn btn-success">
                                                 <i class="fa fa-file-excel"></i>
-                                                Cargar Documento
+                                                Cargar Documento IHS
                                             </a>
+                                            @*<a href="@Url.Action("CargaDemandaCliente", ViewBag.ControllerName)" class="btn btn-success">
+                                                    <i class="fa fa-file-excel"></i>
+                                                    Cargar Demanda Cliente
+                                                </a>*@
                                             <a href="@Url.Action("Create", ViewBag.ControllerName)" class="btn btn-success">
                                                 <i class="fa-solid fa-circle-plus"></i>
                                                 Crear Registro
@@ -490,6 +494,12 @@
                                                                                 @cabecera.text
                                                                             </th>
                                                                         }
+                                                                        @foreach (var cabecera in cabeceraAniosFY)
+                                                                        {
+                                                                            <th>
+                                                                                @cabecera.text
+                                                                            </th>
+                                                                        }
                                                                     </tr>
                                                                 </thead>
                                                                 <tbody>
@@ -556,10 +566,10 @@
                                                                             <td class="@clase_celda">
                                                                                 @Html.DisplayFor(modelItem => item.production_plant)
                                                                             </td>
-                                                                            <td class="@(item.Region!=null?"texto-verde":"texto-rojo")">
-                                                                                @if (item.Region != null)
+                                                                            <td class="@(item._Region!=null?"texto-verde":"texto-rojo")">
+                                                                                @if (item._Region != null)
                                                                                 {
-                                                                                    @Html.DisplayFor(modelItem => item.Region.descripcion)
+                                                                                    @Html.DisplayFor(modelItem => item._Region.descripcion)
                                                                                 }
                                                                                 else
                                                                                 {
@@ -703,7 +713,11 @@
                                                                                 @Html.DisplayFor(modelItem => item.porcentaje_scrap)
                                                                             </td>
 
-                                                                            @foreach (var item_demanda in item.GetDemanda(cabeceraDemanda, demanda))
+                                                                            @{ 
+                                                                                var demandaMeses = item.GetDemanda(cabeceraDemanda, demanda);
+                                                                            }
+
+                                                                            @foreach (var item_demanda in demandaMeses)
                                                                             {
                                                                                 <td class="@(
                                                                                                 item_demanda != null ? item_demanda.origen_datos == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER ? "fondo-customer"
@@ -715,7 +729,7 @@
                                                                                 </td>
                                                                             }
 
-                                                                            @foreach (var item_cuarto in item.GetCuartos(item.GetDemanda(cabeceraDemanda, demanda), cabeceraCuartos, demanda))
+                                                                            @foreach (var item_cuarto in item.GetCuartos(demandaMeses, cabeceraCuartos, demanda))
                                                                             {
                                                                                 <td class="@(
                                                                                item_cuarto != null ? item_cuarto.origen_datos == Portal_2_0.Models.Enum_BG_origen_cuartos.Calculado ? "fondo-cuarto-calculado"
@@ -727,7 +741,18 @@
                                                                                 </td>
                                                                             }
 
-                                                                            @foreach (var item_anio in item.GetAnios(item.GetDemanda(cabeceraDemanda, demanda), cabeceraAnios, demanda))
+                                                                            @foreach (var item_anio in item.GetAnios(demandaMeses, cabeceraAnios, demanda))
+                                                                            {
+                                                                                <td class="@(
+                                                                               item_anio != null ? item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.Calculado ? "fondo-cuarto-calculado"
+                                                                               : item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.IHS ? "fondo-cuarto-ihs"
+                                                                               : "fondo-default"
+                                                                               : "fondo-default"
+                                                                        )">
+                                                                                    @Html.DisplayFor(modelItem => item_anio.cantidad)
+                                                                                </td>
+                                                                            }
+                                                                            @foreach (var item_anio in item.GetAniosFY(demandaMeses, cabeceraAnios, demanda))
                                                                             {
                                                                                 <td class="@(
                                                                                item_anio != null ? item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.Calculado ? "fondo-cuarto-calculado"
@@ -790,7 +815,7 @@
                                                                             @Html.DisplayNameFor(model => model.production_plant)
                                                                         </th>
                                                                         <th>
-                                                                            @Html.DisplayNameFor(model => model.Region.descripcion)
+                                                                            Regi&oacute;n
                                                                         </th>
                                                                         <th>
                                                                             @Html.DisplayNameFor(model => model.city)
@@ -895,7 +920,7 @@
                                                                             @Html.DisplayNameFor(model => model.global_production_segment)
                                                                         </th>
                                                                         <th>
-                                                                            Regi&oacute;n
+                                                                            @Html.DisplayNameFor(model => model.RelSegmento.flat_rolled_steel_usage)
                                                                         </th>
                                                                         <th>
                                                                             @Html.DisplayNameFor(model => model.regional_sales_segment)
@@ -987,10 +1012,10 @@
                                                                             <td class="@clase_celda">
                                                                                 @Html.DisplayFor(modelItem => item.production_plant)
                                                                             </td>
-                                                                            <td class="@(item.Region!=null?"texto-verde":"texto-rojo")">
-                                                                                @if (item.Region != null)
+                                                                            <td class="@(item._Region!=null?"texto-verde":"texto-rojo")">
+                                                                                @if (item._Region != null)
                                                                                 {
-                                                                                    @Html.DisplayFor(modelItem => item.Region.descripcion)
+                                                                                    @Html.DisplayFor(modelItem => item._Region.descripcion)
                                                                                 }
                                                                                 else
                                                                                 {
@@ -1489,6 +1514,18 @@
                                                 })" class="btn btn-success btm-sm" target="_blank" title="Reporte">
                                             <i class="fa-regular fa-file-excel"></i> Exportar Excel
                                         </a>
+                                        <a href="@Url.Action("CargaDemandaCliente", ViewBag.ControllerName, new
+                                                {
+                                                    origen = origen ,
+                                                    manufacturer = manufacturer,
+                                                    production_plant = production_plant,
+                                                    vehicle = vehicle,
+                                                    country_territory = country_territory,
+                                                    demanda = demanda
+
+                                                })" class="btn btn-info" title="Reporte">
+                                            <i class="fa-regular fa-pen-to-square"></i> Editar Demanda Cliente
+                                        </a>
 
                                     </div>
                                 }
@@ -1549,7 +1586,26 @@
                                         </div>
                                     }
 
-
+                                    <div class="col-md-6 col-sm-6">
+                                        <div class="x_panel">
+                                            <div class="x_title">
+                                                <h2>
+                                                    Plant SOP´s
+                                                </h2>
+                                                <ul class="nav navbar-right panel_toolbox">
+                                                    <span style="visibility:hidden">_______</span>
+                                                    <li>
+                                                        <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                                    </li>
+                                                </ul>
+                                                <div class="clearfix"></div>
+                                            </div>
+                                            <div class="x_content table-responsive">
+                                                <div id="graficaSOPCargando"> <h4>Cargando <i class="fa-solid fa-spinner fa-spin"></i></h4></div>
+                                                <div id="graficaSOP" style="height:450px;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
 
                                     <!-- #endregion -->
                                 }
@@ -1608,10 +1664,9 @@
 
         });
 
-
-
         function CargarGraficas() {
             CargaRegionesFY();
+            CargaGraficaSOP();
 
             let index = 0;
 
@@ -1626,7 +1681,7 @@
         function GetPaletaColores() {
             //paleta de colores para las graficas (variable global)
             let colores = [
-                '#1a2bcc',
+                '#00B0F0',
                 '#ffc426',
                 '#22c426',
                 '#ea7e53',
@@ -1653,7 +1708,7 @@
             var vehicle_= '@vehicle';
             var origen_ = '@origen';
             var demanda_ = '@demanda';
-                       
+
             let option;
             let series = [];
 
@@ -1771,9 +1826,11 @@
 
             let paletaColores = GetPaletaColores();
 
-            for (let i = 0; i < index; i++) {
-                paletaColores.shift();
-            }
+           //por defecto toma el primer valor de la paleta de colores
+
+            //for (let i = 0; i < index; i++) {
+            //    paletaColores.shift();
+            //}
 
              //variables para graficas
             var country_territory_ = '@country_territory';
@@ -1904,6 +1961,139 @@
             });
         }
 
+
+           function CargaGraficaSOP() {
+
+            let paletaColores = GetPaletaColores();
+
+            //variables para graficas
+            var country_territory_ = '@country_territory';
+            var manufacturer_= '@manufacturer';
+            var production_plant_= '@production_plant';
+            var vehicle_= '@vehicle';
+            var origen_ = '@origen';
+            var demanda_ = '@demanda';
+
+            let option;
+            let series = [];
+
+
+            $.ajax({
+                type: "post",
+                async: true,
+                url: '/ECharts/GetChartIHS_SOP',
+                dataType: "json",
+                data: { country_territory: country_territory_, manufacturer: manufacturer_, production_plant: production_plant_, vehicle: vehicle_, origen:origen_, demanda:demanda_},
+                success: function (result) {
+                    try {
+
+                        //obtine el numero de barras
+                        for (let i = 1; i < result.name.length; i++) {
+                            series.push({
+                                type: 'bar', itemStyle: {
+                                    normal: {
+                                        label: {
+                                            show: true,
+                                            position: 'inside'
+                                        }
+                                    }
+                                }
+                            });
+                        }
+
+                        var objsx = [];
+                        var objsy = [];
+
+                        for (var i = 0; i < result.name.length; i++) {
+                            objsx[i] = JSON.stringify(result.name[i]);//Receiving strings as JSON
+                        }
+
+                        option = {
+                            title: {
+                                text: 'Plant SOP´s',
+                            },
+                            tooltip: {
+                                trigger: 'axis'
+                            },
+                            legend: {
+
+                            },
+                            color: paletaColores,
+                            toolbox: {
+                                show: true,
+                                feature: {
+                                    magicType: {
+                                        show: true,
+                                        title: {
+                                            line: 'Lineas',
+                                            bar: 'Barras',
+                                            stack: 'Stack',
+                                            tiled: 'Tiled'
+                                        },
+                                        type: ['line', 'bar', 'stack', 'tiled']
+                                    },
+                                    dataView: {
+                                        show: true,
+                                        title: "Datos",
+                                        lang: [
+                                            "Datos",
+                                            "Cerrar",
+                                            "Actualizar",
+                                        ],
+                                        readOnly: false
+                                    },
+                                    restore: {
+                                        show: true,
+                                        title: "Restablecer"
+                                    },
+                                    saveAsImage: {
+                                        show: true,
+                                        title: "Guardar"
+                                    }
+                                }
+                            },
+                            calculable: true,
+                            dataset: {
+                                dimensions: result.name,
+                                source: result.num
+                            },
+                            xAxis: { type: 'category', axisLabel: { interval: 0, rotate: 30 } },
+                            yAxis: {},
+                            // Declare several bar series, each will be mapped
+                            // to a column of dataset.source by default.
+                            //una serie por cada valor en dimensions
+                            series: series
+                        };
+
+                        // Use the configuration items and data just specified to display the chart.
+                        graficaSOP.setOption(option, true);
+
+                        //oculta el cargando
+                        $('#graficaSOPCargando').hide();
+
+                    } catch (error) {
+                        console.log(error);
+                        Swal.fire({
+                            icon: 'error',
+                            text: 'Ocurrió un error al obtener la información de la gráfica "SOP": ' + error,
+                        })
+
+                    }
+
+                },
+                error: function (errorMsg) {
+                    console.log(errorMsg);
+                    //Execute this function when the request fails
+                    Swal.fire({
+                        icon: 'error',
+                        text: 'Ocurrió un error al obtener la información.',
+                    })
+                    graficaSOP.hideLoading();
+                }
+
+            });
+        }
+
         function ReiniciaTablaTimer() {
             setTimeout(ReiniciaTablas, 150);
             setTimeout(ReiniciaTablas, 220);
@@ -1922,10 +2112,12 @@
 
 
         var graficaRegiones = echarts.init(document.getElementById('graficaGeneral'));
+        var graficaSOP = echarts.init(document.getElementById('graficaSOP'));
 
 
         window.onresize = function () {
             graficaRegiones.resize();
+            graficaSOP.resize();
 
             $(".grafica-region").each(function () {
                 var id = $(this).attr('_echarts_instance_');
@@ -1935,5 +2127,6 @@
         };
 
     </script>
+
 
 }

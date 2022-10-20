@@ -160,7 +160,7 @@ namespace Portal_2_0.Controllers
             return View(listado);
         }
 
-        // GET: Bom/CargaIHS/5
+        // GET: BG_IHS_item/CargaIHS/5
         public ActionResult CargaIHS()
         {
             if (!TieneRol(TipoRoles.BUDGET_IHS))
@@ -170,7 +170,9 @@ namespace Portal_2_0.Controllers
 
         }
 
-        // POST: Bom/CargaIHS/5
+
+
+        // POST: BG_IHS_item/CargaIHS/5
         [HttpPost]
         public ActionResult CargaIHS(ExcelViewModel excelViewModel, FormCollection collection)
         {
@@ -225,7 +227,7 @@ namespace Portal_2_0.Controllers
                         //obtiene el listado actual de la BD rels demanda
                         List<BG_IHS_rel_demanda> listAnteriorRelDemanda = db.BG_IHS_rel_demanda.ToList();
                         //obtiene el listado actual de la BD rels cuartos
-                        List<BG_IHS_rel_cuartos> listAnteriorRelCuartos = db.BG_IHS_rel_cuartos.ToList();                     
+                        List<BG_IHS_rel_cuartos> listAnteriorRelCuartos = db.BG_IHS_rel_cuartos.ToList();
 
                         //obtiene el listado de diferencias
                         //List<BG_IHS_item> listDiferencias = lista.Except(listAnterior).ToList();
@@ -312,17 +314,20 @@ namespace Portal_2_0.Controllers
                                 }
 
                                 //busca si existe un rel region para la planta de producción actual
-                                if (!db.BG_IHS_rel_regiones.Any(x => x.production_plant == ihs.production_plant)) {
-                                    db.BG_IHS_rel_regiones.Add(new BG_IHS_rel_regiones { 
+                                if (!db.BG_IHS_rel_regiones.Any(x => x.production_plant == ihs.production_plant))
+                                {
+                                    db.BG_IHS_rel_regiones.Add(new BG_IHS_rel_regiones
+                                    {
                                         production_plant = ihs.production_plant,
-                                    });                                    
+                                    });
                                 }
-                                  //busca si existe un rel segemento para el global segment actual
-                                if (!db.BG_IHS_rel_segmentos.Any(x => x.global_production_segment == ihs.global_production_segment)) {
+                                //busca si existe un rel segemento para el global segment actual
+                                if (!db.BG_IHS_rel_segmentos.Any(x => x.global_production_segment == ihs.global_production_segment))
+                                {
                                     db.BG_IHS_rel_segmentos.Add(new BG_IHS_rel_segmentos
-                                    { 
+                                    {
                                         global_production_segment = ihs.global_production_segment,
-                                    });                                    
+                                    });
                                 }
 
                                 db.SaveChanges();
@@ -350,6 +355,237 @@ namespace Portal_2_0.Controllers
             }
             return View(excelViewModel);
         }
+
+        // GET: BG_IHS_item/CargaDemandaCliente/5
+        public ActionResult CargaDemandaCliente(string country_territory, string manufacturer, string production_plant, string vehicle, string origen, string demanda = Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER)
+        {
+            if (!TieneRol(TipoRoles.BUDGET_IHS))
+                return View("../Home/ErrorPermisos");
+
+            //verifica que el elemento este relacionado con el elmento anterior
+            if (
+                !db.BG_IHS_item.Any(x => (country_territory == x.country_territory || String.IsNullOrEmpty(country_territory) && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)) && x.manufacturer == manufacturer))
+                manufacturer = String.Empty;
+
+            if (
+                !db.BG_IHS_item.Any(x => (country_territory == x.country_territory || String.IsNullOrEmpty(country_territory))
+                                            && (x.manufacturer == manufacturer || String.IsNullOrEmpty(manufacturer))
+                                            && x.production_plant == production_plant
+                                            && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
+                                            ))
+                production_plant = String.Empty;
+
+            if (
+                !db.BG_IHS_item.Any(x => (country_territory == x.country_territory || String.IsNullOrEmpty(country_territory))
+                                            && (x.manufacturer == manufacturer || String.IsNullOrEmpty(manufacturer))
+                                            && (x.production_plant == production_plant || String.IsNullOrEmpty(production_plant))
+                                            && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
+                                            && vehicle == x.vehicle))
+                vehicle = String.Empty;
+
+            //obtiene el menor año de los archivos cargados de ihs
+            int anoInicio = 2019, anoFin = 2030;
+            try
+            {
+                anoInicio = db.BG_IHS_rel_demanda.OrderBy(x => x.fecha).Select(x => x.fecha).FirstOrDefault().Year;
+                anoFin = db.BG_IHS_rel_demanda.OrderByDescending(x => x.fecha).Select(x => x.fecha).FirstOrDefault().Year;
+            }
+            catch (Exception) { /* do nothing */ }
+
+
+            var listado = db.BG_IHS_item
+                .Where(x =>
+                    (x.country_territory == country_territory || String.IsNullOrEmpty(country_territory))
+                    && (x.manufacturer == manufacturer || String.IsNullOrEmpty(manufacturer))
+                    && (x.production_plant == production_plant || String.IsNullOrEmpty(production_plant))
+                    && (x.vehicle == vehicle || String.IsNullOrEmpty(vehicle))
+                    && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
+                    ).ToList();
+
+            List<BG_IHS_rel_demanda> listDemanda = new List<BG_IHS_rel_demanda>();
+
+            foreach (var ihs in listado)
+            {
+                //crea un rel para cada año existente en la bd
+                for (int i = anoInicio; i <= anoFin; i++)
+                {
+                    for (int j = 1; j <= 12; j++)
+                    {
+                        DateTime fecha = new DateTime(i, j, 1);
+
+                        var dem = ihs.BG_IHS_rel_demanda.Where(x => x.fecha == fecha && x.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER).FirstOrDefault();
+                        //si no existe un campo con los mismos valores lo agrega
+                        if (dem == null)
+                        {
+                            listDemanda.Add(new BG_IHS_rel_demanda
+                            {
+                                // cantidad = bG_IHS_item.BG_IHS_rel_demanda.Where(x => x.fecha == fecha && x.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL).Select(x=> x.cantidad).FirstOrDefault(),
+                                id = 0,
+                                id_ihs_item = ihs.id,
+                                fecha = fecha,
+                                tipo = Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER
+                            });
+                        }
+                        else
+                        { //agrega el de BD 
+                            listDemanda.Add(dem);
+                        }
+                    }
+                }
+            }
+
+            //solo manda los de tipo customer
+            listDemanda = listDemanda.Where(x => x.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER).ToList();
+            ViewBag.IHS_Items = listado;
+
+            return View(listDemanda);
+
+        }
+
+        // POST: BG_IHS_item/CargaDemandaCliente/5
+        [HttpPost]
+        public ActionResult CargaDemandaCliente(List<BG_IHS_rel_demanda> demandaList, string country_territory, string manufacturer, string production_plant, string vehicle, string origen, string demanda)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    int actualizados = 0;
+                    int creados = 0;
+
+                    //Listado de la demanda actual en la BD
+                    List<BG_IHS_rel_demanda> demandaBD = db.BG_IHS_rel_demanda.Where(x => x.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER).ToList();
+
+                    //determina cuales de los rel demanda no han sido creados, deben tener id=0
+                    List<BG_IHS_rel_demanda> demandaCreate = demandaList.Where(x => x.id == 0).ToList();
+
+                    //obtiene el listado de los registros que deben actualizarse
+                    List<BG_IHS_rel_demanda> demandaUpdate = demandaList.Where(x => demandaBD.Any(y=> x.id == y.id && x.cantidad != y.cantidad)).ToList();
+
+                    //crea un registro en BD por cada elemento
+                    foreach (var item in demandaCreate)
+                    {
+                        db.BG_IHS_rel_demanda.Add(item);
+                        creados++;
+                    }
+
+                    //actualiza los registros que tuvieron cambios
+                    foreach (var item in demandaUpdate) {
+                        var d = demandaBD.FirstOrDefault(x=>x.id==item.id);
+                        d.cantidad = item.cantidad;
+
+                        actualizados++;
+                    }
+
+                    //guarda los cambios en bd
+                    db.SaveChanges();
+
+                    TempData["Mensaje"] = new MensajesSweetAlert("Los datos se guardaron correctamente. Creados: " + creados + ", Actualizados: " + actualizados, TipoMensajesSweetAlerts.SUCCESS);
+                    return RedirectToAction("ListadoIHS", new { origen = origen, country_territory = country_territory, manufacturer = manufacturer, production_plant = production_plant, vehicle = vehicle, demanda = demanda });
+                }
+                catch (Exception e)
+                {
+                    TempData["Mensaje"] = new MensajesSweetAlert("Ocurrió un error:" + e.Message, TipoMensajesSweetAlerts.WARNING);
+                    return RedirectToAction("ListadoIHS", new { origen = origen, country_territory = country_territory, manufacturer = manufacturer, production_plant = production_plant, vehicle = vehicle, demanda = demanda });
+                }
+            }
+            return RedirectToAction("ListadoIHS", new { origen = origen, country_territory = country_territory, manufacturer = manufacturer, production_plant = production_plant, vehicle = vehicle, demanda = demanda });
+        }
+
+        //// POST: BG_IHS_item/CargaDemandaCliente/5
+        //[HttpPost]
+        //public ActionResult CargaDemandaCliente(ExcelViewModel excelViewModel, FormCollection collection)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+
+        //        string msjError = "No se ha podido leer el archivo seleccionado.";
+
+        //        //lee el archivo seleccionado
+        //        try
+        //        {
+        //            HttpPostedFileBase stream = Request.Files["PostedFile"];
+
+
+        //            if (stream.InputStream.Length > 5242880)
+        //            {
+        //                msjError = "Sólo se permiten archivos con peso menor a 5 MB.";
+        //                throw new Exception(msjError);
+        //            }
+        //            else
+        //            {
+        //                string extension = Path.GetExtension(excelViewModel.PostedFile.FileName);
+        //                if (extension.ToUpper() != ".XLS" && extension.ToUpper() != ".XLSX")
+        //                {
+        //                    msjError = "Sólo se permiten archivos Excel";
+        //                    throw new Exception(msjError);
+        //                }
+        //            }
+
+        //            bool estructuraValida = false;
+
+        //            //el archivo es válido
+        //            List<BG_IHS_item> lista = UtilExcel.LeeIHSDemandaCliente(excelViewModel.PostedFile, ref estructuraValida, ref msjError);
+
+
+        //            if (!estructuraValida)
+        //            {
+        //                // msjError = "No cumple con la estructura válida.";
+        //                throw new Exception(msjError);
+        //            }
+        //            else
+        //            {
+        //                int no_encontrados = 0;
+        //                int actualizados = 0;
+        //                int error =0;
+
+        //                //filtra todos aquellos que tienen demanda
+        //                foreach (BG_IHS_item ihs in lista.Where(x => x.BG_IHS_rel_demanda.Any()))
+        //                {
+        //                    //busca si existe en bd el ihs item
+        //                    var ihsBD = db.BG_IHS_item.Where(x => x.mnemonic_plant == ihs.core_nameplate_plant_mnemonic
+        //                        && x.sop_start_of_production == ihs.sop_start_of_production
+        //                        && x.vehicle == ihs.vehicle);
+
+
+        //                    //si existe en BD
+        //                    if (ihsBD != null)
+        //                    {
+        //                        foreach (var demanda in ihs.BG_IHS_rel_demanda)
+        //                        {
+        //                            try
+        //                            {
+
+        //                            }
+        //                            catch (Exception e)
+        //                            {
+        //                                error++;
+        //                            }
+        //                        }
+        //                    }
+        //                    else { //si no existe en BD
+        //                        no_encontrados++;
+        //                    }
+
+
+        //                }
+
+        //                TempData["Mensaje"] = new MensajesSweetAlert("Actualizados: " + actualizados + "; Creados: " + creados
+        //                    + "; DemandasActualizadas: " + demandaAct + "; DemandasCrea: " + demandaCreate
+        //                    + "; CuartosActualizados: " + quarterAct + "; CuartosCreados: " + quarterCreate + "; Errores: " + error, TipoMensajesSweetAlerts.INFO);
+        //                return RedirectToAction("ListadoIHS", new { origen = Bitacoras.Util.BG_IHS_Origen.IHS });
+        //            }
+
+        //        }
+        //        catch (Exception e)
+        //        {
+        //            ModelState.AddModelError("", msjError);
+        //            return View(excelViewModel);
+        //        }
+
+        //    }
+        //    return View(excelViewModel);
+        //}
 
         // GET: BG_IHS_item/Details/5
         public ActionResult Details(int? id)
@@ -389,7 +625,7 @@ namespace Portal_2_0.Controllers
 
             if (id == null) //si no hay id, crea un nuevo modelo
             {
-                model = new BG_IHS_item { porcentaje_scrap = 3.0M };
+                model = new BG_IHS_item { porcentaje_scrap = 0.3M };
 
                 //crea un rel para cada año existente en la bd
                 for (int i = anoInicio; i <= anoFin; i++)
@@ -425,11 +661,13 @@ namespace Portal_2_0.Controllers
                         {
                             DateTime fecha = new DateTime(i, j, 1);
 
-                            var item = model.BG_IHS_rel_demanda.Where(x => x.fecha == fecha && x.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER).FirstOrDefault();
+                            var item = model.BG_IHS_rel_demanda.Where(x => x.fecha == fecha && x.tipo == Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL).FirstOrDefault();
 
                             //existe un rel
                             if (item != null)
                             {
+                                //toma el valor del original pero lo convierte en customer
+                                item.tipo = Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER;
                                 nuevaLista.Add(item);
                             }
                             else
@@ -684,7 +922,7 @@ namespace Portal_2_0.Controllers
                         && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
                         ).ToList();
 
-                byte[] stream = ExcelUtil.GeneraReporteBudgetIHS(listado);
+                byte[] stream = ExcelUtil.GeneraReporteBudgetIHS(listado, demanda);
 
 
                 var cd = new System.Net.Mime.ContentDisposition
