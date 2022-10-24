@@ -6724,6 +6724,7 @@
     <Content Include="Models\NuevoPortalModel.edmx.diagram">
       <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
     </Content>
+    <Content Include="Content\plantillas_excel\Reporte_IHS.xlsx" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
     <Content Include="Scripts\jquery-3.4.1.min.js" />

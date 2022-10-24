@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Web;
 
 
@@ -140,8 +141,6 @@ namespace Portal_2_0.Models
             dt.Columns.Add(nameof(view_historico_resultado.Peso_puntas_y_colas_reales_Kg_general), typeof(double));
             dt.Columns.Add(nameof(view_historico_resultado.Balance_de_Scrap_Real_general), typeof(double));
             dt.Columns.Add(nameof(view_historico_resultado.comentario), typeof(string));
-
-
 
             //registros , rows
             foreach (view_historico_resultado item in listado)
@@ -2583,7 +2582,15 @@ namespace Portal_2_0.Models
             var cabeceraAnios = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAnios();
             var cabeceraAniosFY = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAniosFY();
 
-            SLDocument oSLDocument = new SLDocument();
+            string hoja1 = "Autos normal";
+            string hoja2 = "Regiones";
+
+            int FYReference = 0;
+
+            //para regiones
+            List<BG_IHS_item_anios> listDatosRegionesFY = new List<BG_IHS_item_anios>();
+
+            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/Reporte_IHS.xlsx"), "Sheet1");
 
             System.Data.DataTable dt = new System.Data.DataTable();
 
@@ -2602,7 +2609,7 @@ namespace Portal_2_0.Models
 
             SLStyle styleValorCalculado = oSLDocument.CreateStyle();
             styleValorCalculado.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#bbf3c1"), System.Drawing.ColorTranslator.FromHtml("#bbf3c1"));
-           
+
             SLStyle styleValorIHS = oSLDocument.CreateStyle();
             styleValorIHS.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffb6c1"), System.Drawing.ColorTranslator.FromHtml("#ffb6c1"));
 
@@ -2695,6 +2702,7 @@ namespace Portal_2_0.Models
             foreach (BG_IHS_item item in listado)
             {
                 int indexColumna = 0;
+
                 //crea row
                 System.Data.DataRow row = dt.NewRow();
 
@@ -2810,7 +2818,7 @@ namespace Portal_2_0.Models
                         row[cabeceraMeses[indexCabecera].text] = DBNull.Value;
                         styleCells[listado.IndexOf(item), indexColumna] = oSLDocument.CreateStyle();
                     }
-                   
+
 
                     indexColumna++;
                     indexCabecera++;
@@ -2846,7 +2854,7 @@ namespace Portal_2_0.Models
                         row[cabeceraCuartos[indexCabecera].text] = DBNull.Value;
                         styleCells[listado.IndexOf(item), indexColumna] = oSLDocument.CreateStyle();
                     }
-                 
+
 
                     indexColumna++;
                     indexCabecera++;
@@ -2880,7 +2888,7 @@ namespace Portal_2_0.Models
                     {
                         row[cabeceraAnios[indexCabecera].text] = DBNull.Value;
                         styleCells[listado.IndexOf(item), indexColumna] = oSLDocument.CreateStyle();
-                    }                   
+                    }
 
                     indexColumna++;
                     indexCabecera++;
@@ -2889,7 +2897,12 @@ namespace Portal_2_0.Models
                 #endregion
                 #region años FY
                 indexCabecera = 0;
-                foreach (var item_demanda in item.GetAniosFY(demandaMeses, cabeceraAnios, demanda))
+                FYReference = indexColumna + 2;
+
+                var datosAniosFY = item.GetAniosFY(demandaMeses, cabeceraAnios, demanda);
+                listDatosRegionesFY.AddRange(datosAniosFY);
+
+                foreach (var item_demanda in datosAniosFY)
                 {
                     //si no es nul agrega la cantidad
                     if (item_demanda != null && item_demanda.cantidad != null)
@@ -2907,14 +2920,13 @@ namespace Portal_2_0.Models
                             default:
                                 styleCells[listado.IndexOf(item), indexColumna] = oSLDocument.CreateStyle();
                                 break;
-
                         }
                     }
                     else
                     {
                         row[cabeceraAniosFY[indexCabecera].text] = DBNull.Value;
                         styleCells[listado.IndexOf(item), indexColumna] = oSLDocument.CreateStyle();
-                    }                  
+                    }
 
                     indexColumna++;
                     indexCabecera++;
@@ -2924,23 +2936,30 @@ namespace Portal_2_0.Models
 
                 //agrega la filas
                 dt.Rows.Add(row);
+
             }
 
-
+            #region Hoja Autos Normal
 
             //crea la hoja de Inventory y la selecciona
-            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Autos normal");
-            oSLDocument.ImportDataTable(1, 1, dt, true);
+            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, hoja1);
+            oSLDocument.SelectWorksheet(hoja1);
+            oSLDocument.ImportDataTable(1, 2, dt, true);
+
+            foreach (BG_IHS_item item in listado)
+            {
+                int fila = listado.IndexOf(item) + 2;
+                oSLDocument.SetCellValue(fila, 1, "SI");
+            }
 
             //aplica el color de las celdas
             for (int a = 0; a < listado.Count; a++)
             {
                 for (int b = 0; b < columnasStyles; b++)
                 {
-                    oSLDocument.SetCellStyle(a+2, b+1, styleCells[a, b]);
+                    oSLDocument.SetCellStyle(a + 2, b + 1, styleCells[a, b]);
                 }
             }
-
 
             //estilo para ajustar al texto
             SLStyle styleWrap = oSLDocument.CreateStyle();
@@ -2952,21 +2971,19 @@ namespace Portal_2_0.Models
             styleHeader.Font.Bold = true;
             styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
 
-
             //estilo para numeros
             SLStyle styleNumberDecimal = oSLDocument.CreateStyle();
-            styleNumberDecimal.FormatCode = "#,##0.00";
-
+            styleNumberDecimal.FormatCode = "#,##0.000";
 
             ////estilo para fecha
             SLStyle styleShortDate = oSLDocument.CreateStyle();
             styleShortDate.FormatCode = "yyyy-mm";
-            oSLDocument.SetColumnStyle(32, 33, styleShortDate);
+            oSLDocument.SetColumnStyle(33, 34, styleShortDate);
 
             //crea Style para porcentaje
             SLStyle stylePercent = oSLDocument.CreateStyle();
             stylePercent.FormatCode = "0.00%";
-            oSLDocument.SetColumnStyle(58, stylePercent);
+            oSLDocument.SetColumnStyle(59, stylePercent);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
@@ -2980,7 +2997,7 @@ namespace Portal_2_0.Models
 
             //da estilo a la hoja de excel
             ////inmoviliza el encabezado
-            oSLDocument.FreezePanes(1, 3);
+            oSLDocument.FreezePanes(1, 4);
 
             oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
             oSLDocument.AutoFitColumn(1, dt.Columns.Count);
@@ -2990,6 +3007,64 @@ namespace Portal_2_0.Models
             oSLDocument.SetRowStyle(1, styleHeaderFont);
 
             oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
+            #endregion
+
+            #region resumen_regiones
+
+            //crear la hoja y la selecciona
+            oSLDocument.AddWorksheet(hoja2);
+            oSLDocument.SelectWorksheet(hoja2);
+
+            dt = new System.Data.DataTable();
+
+            //obtiene los FY
+            dt.Columns.Add("Región", typeof(string));
+            foreach (var fy in cabeceraAniosFY)
+                dt.Columns.Add(fy.text, typeof(double));
+
+            //inserta tabla
+            oSLDocument.ImportDataTable(1, 1, dt, true);
+
+            //obtiene la lista de regiones
+            List<String> listRegiones = listado.Select(x => x._Region.descripcion).Distinct().ToList();
+            listRegiones.Add("SIN DEFINIR");
+
+
+            int filaInicialFY = 2;
+            int filaFinalFY = listado.Count + 1;
+
+            //Recorre las regiones
+            foreach (var region in listRegiones)
+            {
+                int fila = listRegiones.IndexOf(region) + 2;
+                oSLDocument.SetCellValue(fila, 1, region);
+              
+
+                //recorre los FY
+                for (int i = 0; i < cabeceraAniosFY.Count; i++)
+                {
+                    string referenciaFY = GetCellReference(FYReference+i);
+                    int columna = i + 2;
+
+                    //=SUMAR.SI.CONJUNTO('Autos normal'!FI2:FI11,'Autos normal'!P2:P11,A2,'Autos normal'!A2:A11,"SI")/1000000
+                    oSLDocument.SetCellValue(fila, columna, "=SUMIFS('" + hoja1 + "'!" + referenciaFY + filaInicialFY.ToString() + ":" + referenciaFY + filaFinalFY.ToString() +
+                        ",'" + hoja1 + "'!P" + filaInicialFY + ":P" + filaFinalFY + ",A" + fila + ",'Autos normal'!A" + filaInicialFY + ":A" + filaFinalFY + ",\"SI\")/1000000");
+                }
+            }
+
+            //set sheet styles
+            oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
+            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
+            oSLDocument.SetRowStyle(1, styleHeader);
+            oSLDocument.SetRowStyle(1, styleHeaderFont);
+            //decimalwes
+            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleNumberDecimal);
+
+            oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
+
+            #endregion
+            ///
 
             System.IO.Stream stream = new System.IO.MemoryStream();
 
@@ -4306,6 +4381,19 @@ namespace Portal_2_0.Models
             byte[] array = Bitacoras.Util.StreamUtil.ToByteArray(stream);
 
             return (array);
+        }
+
+        public static string GetCellReference(int col)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            do
+            {
+                col--;
+                sb.Insert(0, (char)('A' + (col % 26)));
+                col /= 26;
+            } while (col > 0);
+            return sb.ToString();
         }
     }
 }
