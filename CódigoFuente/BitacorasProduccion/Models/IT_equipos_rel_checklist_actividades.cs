@@ -20,7 +20,7 @@ namespace Portal_2_0.Models
         public string observacion { get; set; }
         public string estatus { get; set; }
     
-        public virtual IT_equipos_checklist IT_equipos_checklist { get; set; }
         public virtual IT_equipos_checklist_actividades IT_equipos_checklist_actividades { get; set; }
+        public virtual IT_equipos_checklist IT_equipos_checklist { get; set; }
     }
 }

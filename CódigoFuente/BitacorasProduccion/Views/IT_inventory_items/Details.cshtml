@@ -651,6 +651,138 @@
                         </div>
                     </div>
                 }
+                @*HISTORIAL CHECKLIST*@
+                @if (Model.IT_equipos_checklist.Count > 0)
+                {
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <h2>Checklist de Registro</h2>
+                            <ul class="nav navbar-right panel_toolbox">
+                                @*Utilizado para mover a la derecha los iconos del card*@
+                                <span style="visibility:hidden">_______</span>
+                                <li>
+                                    <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="card-box ">
+
+                                        <div class="form-group row">
+                                            @{ c = 1;}
+
+
+                                            <table id="datatable_3" class="table table-striped datatable table-bordered" cellspacing="0" width="100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th nowrap width="1%">
+                                                            Acciones
+                                                        </th>
+                                                        <th>
+                                                            Fecha
+                                                        </th>
+                                                        <th>
+                                                            Hostname
+                                                        </th>
+                                                        <th>
+                                                            Tipo
+                                                        </th>
+                                                        <th>
+                                                            N&uacute;mero de Serie
+                                                        </th>
+                                                        <th>
+                                                            Modelo
+                                                        </th>
+                                                        <th>
+                                                            Sistema Operativo
+                                                        </th>
+                                                        <th>
+                                                            Comentario General
+                                                        </th>
+                                                        <th>
+                                                            Estatus
+                                                        </th>
+                                                        <th>
+                                                            Actividades
+                                                        </th>
+                                                        <th>
+                                                            Elabor&oacute;
+                                                        </th>
+
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var item in Model.IT_equipos_checklist)
+                                                    {
+                                                        <tr>
+                                                            <td nowrap>
+                                                                <a style="color:white" onclick="mostrarDetallesChecklist(@item.id); return false;" class="btn btn-secondary btn-sm" title="Detalles">
+                                                                    <i class="fa-solid fa-circle-info"></i>
+                                                                </a>
+                                                                @if (Bitacoras.Util.IT_equipos_checklist_estatus.FINALIZADO == item.estatus)
+                                                                {
+                                                                    <a href="@Url.Action("ExportPDF", "IT_equipos_checklist", new { id = item.id })" class="btn btn-danger btn-sm" title="Detalles" target="_blank">
+                                                                        <i class="fa fa-file-pdf"></i>
+                                                                    </a>
+                                                                }
+                                                            </td>
+                                                            <td nowrap>
+                                                                @Html.DisplayFor(modelItem => item.fecha)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.IT_inventory_items.hostname)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.IT_inventory_items.IT_inventory_hardware_type.descripcion)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.IT_inventory_items.serial_number)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.IT_inventory_items.model)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.IT_inventory_items.operation_system)
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.comentario_general)
+                                                            </td>
+                                                            <td>
+                                                                @Bitacoras.Util.IT_equipos_checklist_estatus.DescripcionStatus(item.estatus)
+                                                            </td>
+                                                            <td>
+                                                                <custom style="color:#1a702e; font-weight:bold">@Bitacoras.Util.IT_site_actividad_estatus.OK: @(item.IT_equipos_rel_checklist_actividades.Where(x=>x.estatus == Bitacoras.Util.IT_site_actividad_estatus.OK).Count()) <br /> </custom>
+                                                                <custom style="color:#ff0000; font-weight:bold">@Bitacoras.Util.IT_site_actividad_estatus.NO_OK: @(item.IT_equipos_rel_checklist_actividades.Where(x=>x.estatus == Bitacoras.Util.IT_site_actividad_estatus.NO_OK).Count()) <br /> </custom>
+                                                                <custom style="color:#0b6bc7; font-weight:bold">@Bitacoras.Util.IT_site_actividad_estatus.NA: @(item.IT_equipos_rel_checklist_actividades.Where(x=>x.estatus == Bitacoras.Util.IT_site_actividad_estatus.NA).Count()) <br /> </custom>
+
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(modelItem => item.empleados.ConcatNombre)
+                                                            </td>
+
+                                                        </tr>
+
+                                                    }
+
+                                                </tbody>
+                                            </table>
+                                            <div class="col-md-12 col-sm-12">
+                                                <br />
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                    <br />
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
                 <div>
                     <br />
                     <a onclick="volverAtras()" class="btn btn-round btn-info btm-sm" title="Volver" style="color:white">
@@ -719,6 +851,9 @@
 
         function mostrarDetallesMantenimiento(id) {              
                 window.open('/it_mantenimientos/Details/' + id + '', 'popup', "width=" + screen.width * .80 + ",height=" + screen.height * .80 + "");
+        }
+        function mostrarDetallesChecklist(id) {              
+            window.open('/IT_equipos_checklist/Details/' + id + '', 'popup', "width=" + screen.width * .80 + ",height=" + screen.height * .80 + "");
         }
 
         window.onload = function () {

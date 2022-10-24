@@ -94,22 +94,28 @@
                         <div class="row">
                             <div class="col-sm-12">
                                 <div class="card-box table-responsive">
-                                    @*<div class="form-group">
+                                    <div class="form-group">
                                             @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
                                             {
 
                                                 <div class="form-group row">
-                                                    <label class="control-label col-md-1 col-sm-1" for="id_site" style="text-align:right">Site:</label>
-                                                    <div class="col-md-4 col-sm-4 ">
-                                                        @Html.DropDownList("id_site", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                    <label class="control-label col-md-1 col-sm-1" for="id_inventory_item" style="text-align:right">Equipo:</label>
+                                                    <div class="col-md-6 col-sm-6">
+                                                        @Html.DropDownList("id_inventory_item", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                    </div>
+                                                    <div class="col-md-1 col-sm-1">
+                                                        <a href="@Url.Action( "Index", ViewBag.ControllerName)" class="btn btn-danger">
+                                                            Borrar
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-md-1 col-sm-1">
+                                                        <input type="submit" value="buscar" class="btn btn-info" />
                                                     </div>
                                                 </div>
-
-
                                             }
                                             <hr />
 
-                                        </div>*@
+                                        </div>
 
                                     <div class="form-group">
                                         <a id="crearFormButton" href="@Url.Action( "Create", null, new
@@ -130,13 +136,19 @@
                                                     @Html.DisplayNameFor(model => model.fecha)
                                                 </th>
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.nombre)
+                                                    @Html.DisplayNameFor(model => model.IT_inventory_items.hostname)
                                                 </th>
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.numero_serie)
+                                                    Tipo
+                                                </th>
+                                                 <th>
+                                                    N&uacute;mero de Serie
                                                 </th>
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.modelo)
+                                                    Modelo
+                                                </th>
+                                                 <th>
+                                                   Sistema Operativo
                                                 </th>
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.comentario_general)
@@ -176,22 +188,27 @@
                                                             </a>
                                                         }
                                                     </td>
-                                                    <td>
+                                                    <td nowrap>
                                                         @Html.DisplayFor(modelItem => item.fecha)
                                                     </td>
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.nombre)
+                                                        @Html.DisplayFor(modelItem => item.IT_inventory_items.hostname)
+                                                    </td>
+                                                     <td>
+                                                        @Html.DisplayFor(modelItem => item.IT_inventory_items.IT_inventory_hardware_type.descripcion)
                                                     </td>
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.numero_serie)
+                                                        @Html.DisplayFor(modelItem => item.IT_inventory_items.serial_number)
                                                     </td>
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.modelo)
+                                                        @Html.DisplayFor(modelItem => item.IT_inventory_items.model)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.IT_inventory_items.operation_system)
                                                     </td>
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.comentario_general)
                                                     </td>
-
                                                     <td>
                                                         @Bitacoras.Util.IT_equipos_checklist_estatus.DescripcionStatus(item.estatus)
                                                     </td>

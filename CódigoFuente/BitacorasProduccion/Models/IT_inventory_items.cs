@@ -21,6 +21,7 @@ namespace Portal_2_0.Models
             this.IT_inventory_hard_drives = new HashSet<IT_inventory_hard_drives>();
             this.IT_mantenimientos = new HashSet<IT_mantenimientos>();
             this.IT_inventory_items1 = new HashSet<IT_inventory_items>();
+            this.IT_equipos_checklist = new HashSet<IT_equipos_checklist>();
         }
     
         public int id { get; set; }
@@ -68,5 +69,7 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_inventory_items> IT_inventory_items1 { get; set; }
         public virtual IT_inventory_items IT_inventory_items2 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_equipos_checklist> IT_equipos_checklist { get; set; }
     }
 }

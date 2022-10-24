@@ -18,23 +18,27 @@ namespace Portal_2_0.Models
         public int id_sistemas { get; set; }
 
         [Required]
-        [Display(Name = "Nombre")]
-        [MaxLength(50)]
-        public string nombre { get; set; }
+        [Display(Name = "Equipo")]
+        public int id_inventory_item { get; set; }
 
-        [Required]
-        [Display(Name = "Número de Serie")]
-        [MaxLength(50)]
-        public string numero_serie { get; set; }
+        //[Required]
+        //[Display(Name = "Nombre")]
+        //[MaxLength(50)]
+        //public string nombre { get; set; }
 
-        [Required]
-        [Display(Name = "Modelo")]
-        [MaxLength(120)]
-        public string modelo { get; set; }
+        //[Required]
+        //[Display(Name = "Número de Serie")]
+        //[MaxLength(50)]
+        //public string numero_serie { get; set; }
 
-        [Display(Name = "Sistema Operativo")]
-        [MaxLength(50)]
-        public string sistema_operativo { get; set; }
+        //[Required]
+        //[Display(Name = "Modelo")]
+        //[MaxLength(120)]
+        //public string modelo { get; set; }
+
+        //[Display(Name = "Sistema Operativo")]
+        //[MaxLength(50)]
+        //public string sistema_operativo { get; set; }
 
         [Display(Name = "Comentario General")]
         [MaxLength(200)]

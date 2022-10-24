@@ -22,10 +22,7 @@ GO
 CREATE TABLE [IT_equipos_checklist](
 	[id] [int] IDENTITY(1,1) NOT NULL,
 	[id_sistemas] [int] NOT NULL, 
-	[nombre] [varchar](50) NOT NULL,
-	[numero_serie] [varchar](50) NOT NULL,
-	[modelo][varchar](120) NOT NULL,
-	[sistema_operativo][varchar](50) NULL,
+	[id_inventory_item][int] NOT NULL,
 	[comentario_general] [varchar](200) NULL,
 	[fecha][datetime] NOT NULL,
 	[estatus][varchar](20) NOT NULL
@@ -41,6 +38,13 @@ alter table [IT_equipos_checklist]
  add constraint FK_equipos_checklist_id_sistemas
   foreign key (id_sistemas)
   references empleados(id);
+
+  -- restriccion de clave foranea
+alter table [IT_equipos_checklist]
+ add constraint FK_equipos_checklist_id_inventory_item
+  foreign key (id_inventory_item)
+  references IT_inventory_items(id);
+
 
   -- restricion check
 ALTER TABLE [IT_equipos_checklist] ADD CONSTRAINT CK_IT_equipos_checklist_estatus CHECK ([estatus] IN 

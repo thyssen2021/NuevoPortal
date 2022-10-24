@@ -54,24 +54,41 @@
                                 @Html.EditorFor(model => model.id, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                             </div>
                         </div>
+                     
+                        <th>
+                            
+                        </th>
+                        <th>
+                            
+                        </th>
+                        <th>
+                            
+                        </th>
+                        <th>
+                            
+                        </th>
                         <div class="form-group row ">
-                            @Html.LabelFor(model => model.nombre, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            <label class="col-form-label col-md-1 col-sm-1 label-align">Hostname</label>
                             <div class="col-md-3 col-sm-3">
-                                @Html.EditorFor(model => model.nombre, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                @Html.EditorFor(model => model.IT_inventory_items.hostname, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                             </div>
-                            @Html.LabelFor(model => model.numero_serie, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            <label class="col-form-label col-md-1 col-sm-1 label-align">Tipo</label>
                             <div class="col-md-3 col-sm-3">
-                                @Html.EditorFor(model => model.numero_serie, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                @Html.EditorFor(model => model.IT_inventory_items.IT_inventory_hardware_type.descripcion, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                             </div>
-                            @Html.LabelFor(model => model.modelo, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            <label class="col-form-label col-md-1 col-sm-1 label-align">N&uacute;mero de Serie</label>
                             <div class="col-md-3 col-sm-3">
-                                @Html.EditorFor(model => model.modelo, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
-                            </div>
+                                @Html.EditorFor(model => model.IT_inventory_items.serial_number, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>                          
                         </div>
                         <div class="form-group row ">
-                            @Html.LabelFor(model => model.sistema_operativo, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            <label class="col-form-label col-md-1 col-sm-1 label-align">Modelo</label>
                             <div class="col-md-3 col-sm-3">
-                                @Html.EditorFor(model => model.sistema_operativo, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                @Html.EditorFor(model => model.IT_inventory_items.model, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>
+                            <label class="col-form-label col-md-1 col-sm-1 label-align">Sistema Operativo</label>
+                            <div class="col-md-3 col-sm-3">
+                                @Html.EditorFor(model => model.IT_inventory_items.operation_system, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                             </div>
                         </div>
                         <div class="ln_solid"></div>

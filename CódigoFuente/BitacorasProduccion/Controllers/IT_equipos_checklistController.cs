@@ -29,7 +29,7 @@ namespace Portal_2_0.Controllers
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
         // GET: IT_equipos_checklist
-        public ActionResult Index(int pagina = 1)
+        public ActionResult Index(int? id_inventory_item, int pagina = 1)
         {
             if (!TieneRol(TipoRoles.IT_CHECKLIST_EQUIPOS))
                 return View("../Home/ErrorPermisos");
@@ -43,17 +43,19 @@ namespace Portal_2_0.Controllers
             var cantidadRegistrosPorPagina = 20; // parámetro
 
             var listado = db.IT_equipos_checklist
+                .Where(x => x.id_inventory_item == id_inventory_item || id_inventory_item == null)
                .OrderByDescending(x => x.fecha)
                .ThenByDescending(x => x.id)
                .Skip((pagina - 1) * cantidadRegistrosPorPagina)
               .Take(cantidadRegistrosPorPagina).ToList();
 
             var totalDeRegistros = db.IT_equipos_checklist
+                .Where(x => x.id_inventory_item == id_inventory_item || id_inventory_item == null)
                .Count();
 
             //para paginación
             System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
-            //routeValues["id_site"] = id_site;
+            routeValues["id_inventory_item"] = id_inventory_item;
 
             Paginacion paginacion = new Paginacion
             {
@@ -63,6 +65,14 @@ namespace Portal_2_0.Controllers
                 ValoresQueryString = routeValues
             };
             ViewBag.Paginacion = paginacion;
+
+
+            ViewBag.id_inventory_item = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x => x.active == true
+                && (x.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.LAPTOP
+                || x.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.DESKTOP
+                || x.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.TABLET)
+                ), nameof(IT_inventory_items.id), nameof(IT_inventory_items.ConcatInfoGeneral)), selected: id_inventory_item.ToString(), textoPorDefecto: "-- Todos --");
+
 
             return View(listado);
         }
@@ -106,11 +116,17 @@ namespace Portal_2_0.Controllers
             {
                 model.IT_equipos_rel_checklist_actividades.Add(new IT_equipos_rel_checklist_actividades
                 {
-                    estatus = Bitacoras.Util.IT_equipos_actividad_estatus.NO_OK,
+                    estatus = Bitacoras.Util.IT_equipos_actividad_estatus.OK,
                     id_it_equipo_actividad = item.id,
                     IT_equipos_checklist_actividades = item
                 });
             }
+
+            ViewBag.id_inventory_item = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x => x.active == true
+                       && (x.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.LAPTOP
+                       || x.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.DESKTOP
+                       || x.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.TABLET)
+                       ), nameof(IT_inventory_items.id), nameof(IT_inventory_items.ConcatInfoGeneral)), selected: model.id_inventory_item.ToString(), textoPorDefecto: "-- Seleccionar --");
 
             return View(model);
         }
@@ -122,6 +138,8 @@ namespace Portal_2_0.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(IT_equipos_checklist IT_equipos_checklist)
         {
+            if (db.IT_equipos_checklist.Any(x => x.id_inventory_item == IT_equipos_checklist.id_inventory_item))
+                ModelState.AddModelError("", "Ya existe un checklist para el equipo seleccionado");
 
             if (ModelState.IsValid)
             {
@@ -139,6 +157,13 @@ namespace Portal_2_0.Controllers
             {
                 item.IT_equipos_checklist_actividades = db.IT_equipos_checklist_actividades.Find(item.id_it_equipo_actividad);
             }
+
+            ViewBag.id_inventory_item = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x => x.active == true
+                       && (x.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.LAPTOP
+                       || x.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.DESKTOP
+                       || x.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.TABLET)
+                       ), nameof(IT_inventory_items.id), nameof(IT_inventory_items.ConcatInfoGeneral)), selected: IT_equipos_checklist.id_inventory_item.ToString(), textoPorDefecto: "-- Seleccionar --");
+
 
             return View(IT_equipos_checklist);
         }
@@ -158,6 +183,11 @@ namespace Portal_2_0.Controllers
             {
                 return HttpNotFound();
             }
+            ViewBag.id_inventory_item = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x => x.active == true
+                       && (x.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.LAPTOP
+                       || x.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.DESKTOP
+                       || x.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.TABLET)
+                       ), nameof(IT_inventory_items.id), nameof(IT_inventory_items.ConcatInfoGeneral)), selected: IT_equipos_checklist.id_inventory_item.ToString(), textoPorDefecto: "-- Seleccionar --");
 
             return View(IT_equipos_checklist);
         }
@@ -197,6 +227,13 @@ namespace Portal_2_0.Controllers
             {
                 item.IT_equipos_checklist_actividades = db.IT_equipos_checklist_actividades.Find(item.id_it_equipo_actividad);
             }
+
+            ViewBag.id_inventory_item = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x => x.active == true
+                       && (x.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.LAPTOP
+                       || x.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.DESKTOP
+                       || x.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.TABLET)
+                       ), nameof(IT_inventory_items.id), nameof(IT_inventory_items.ConcatInfoGeneral)), selected: IT_equipos_checklist.id_inventory_item.ToString(), textoPorDefecto: "-- Seleccionar --");
+
 
             return View(IT_equipos_checklist);
         }
@@ -277,16 +314,16 @@ namespace Portal_2_0.Controllers
 
                 Table table = new Table(UnitValue.CreatePercentArray(cellWidth)).UseAllAvailableWidth();
 
-                table.AddCell(new Cell().Add(new Paragraph("Nombre:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
-                table.AddCell(new Cell().Add(new Paragraph(item.nombre)).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
+                table.AddCell(new Cell().Add(new Paragraph("Hostname:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
+                table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.IT_inventory_items.hostname) ? item.IT_inventory_items.hostname : String.Empty)).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
+                table.AddCell(new Cell().Add(new Paragraph("Tipo:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
+                table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.IT_inventory_items.IT_inventory_hardware_type.descripcion) ? item.IT_inventory_items.IT_inventory_hardware_type.descripcion : String.Empty)).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
                 table.AddCell(new Cell().Add(new Paragraph("Número de Serie:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
-                table.AddCell(new Cell().Add(new Paragraph(item.numero_serie)).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
+                table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.IT_inventory_items.serial_number) ? item.IT_inventory_items.serial_number : String.Empty)).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
                 table.AddCell(new Cell().Add(new Paragraph("Modelo:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
-                table.AddCell(new Cell().Add(new Paragraph(item.modelo)).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
+                table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.IT_inventory_items.model) ? item.IT_inventory_items.model : String.Empty)).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
                 table.AddCell(new Cell().Add(new Paragraph("Sistema Operativo:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
-                table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.sistema_operativo) ? item.sistema_operativo : String.Empty)).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
-                table.AddCell(new Cell().Add(new Paragraph("Elaboró:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
-                table.AddCell(new Cell().Add(new Paragraph(item.empleados.ConcatNombre)).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
+                table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.IT_inventory_items.operation_system) ? item.IT_inventory_items.operation_system : String.Empty)).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
 
                 doc.Add(table);
 
@@ -402,7 +439,7 @@ namespace Portal_2_0.Controllers
                 table.AddCell(new Cell().Add(new Paragraph("Descripción")).AddStyle(encabezadoTabla));
 
 
-                table.AddCell(new Cell().Add(new Paragraph(new DateTime(2022,10,04).ToShortDateString()).AddStyle(fuenteThyssen)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                table.AddCell(new Cell().Add(new Paragraph(new DateTime(2022, 10, 04).ToShortDateString()).AddStyle(fuenteThyssen)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
                 table.AddCell(new Cell().Add(new Paragraph("IT").AddStyle(fuenteThyssen)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
                 //  table.AddCell(new Cell().Add(new Paragraph(String.IsNullOrEmpty(revision.puesto_responsable) ? String.Empty : revision.puesto_responsable).AddStyle(fuenteThyssen)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
                 table.AddCell(new Cell().Add(new Paragraph("1").SetTextAlignment(TextAlignment.CENTER).AddStyle(fuenteThyssen)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));

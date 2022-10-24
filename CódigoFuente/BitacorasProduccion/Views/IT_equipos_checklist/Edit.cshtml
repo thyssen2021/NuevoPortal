@@ -62,29 +62,12 @@
                             </div>
 
                             <div class="form-group row ">
-                                @Html.LabelFor(model => model.nombre, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-3 col-sm-3">
-                                    @Html.EditorFor(model => model.nombre, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                                    @Html.ValidationMessageFor(model => model.nombre, "", new { @class = "text-danger" })
-                                </div>
-                                @Html.LabelFor(model => model.numero_serie, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-3 col-sm-3">
-                                    @Html.EditorFor(model => model.numero_serie, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                                    @Html.ValidationMessageFor(model => model.numero_serie, "", new { @class = "text-danger" })
-                                </div>
-                                @Html.LabelFor(model => model.modelo, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-3 col-sm-3">
-                                    @Html.EditorFor(model => model.modelo, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                                    @Html.ValidationMessageFor(model => model.modelo, "", new { @class = "text-danger" })
+                                @Html.LabelFor(model => model.id_inventory_item, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-8 col-sm-8">
+                                    @Html.DropDownList("id_inventory_item", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @Html.ValidationMessageFor(model => model.id_inventory_item, "", new { @class = "text-danger" })
                                 </div>
 
-                            </div>
-                            <div class="form-group row ">
-                                @Html.LabelFor(model => model.sistema_operativo, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-3 col-sm-3">
-                                    @Html.EditorFor(model => model.sistema_operativo, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                                    @Html.ValidationMessageFor(model => model.sistema_operativo, "", new { @class = "text-danger" })
-                                </div>
                             </div>
                             <div class="ln_solid"></div>
                             <div class="form-group row">

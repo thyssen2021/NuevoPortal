@@ -131,10 +131,10 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_site_actividades> IT_site_actividades { get; set; }
         public virtual DbSet<IT_site_checklist_rel_actividades> IT_site_checklist_rel_actividades { get; set; }
         public virtual DbSet<IT_site_checklist> IT_site_checklist { get; set; }
-        public virtual DbSet<IT_equipos_checklist> IT_equipos_checklist { get; set; }
         public virtual DbSet<IT_equipos_checklist_actividades> IT_equipos_checklist_actividades { get; set; }
         public virtual DbSet<IT_equipos_checklist_categorias> IT_equipos_checklist_categorias { get; set; }
         public virtual DbSet<IT_equipos_rel_checklist_actividades> IT_equipos_rel_checklist_actividades { get; set; }
         public virtual DbSet<IT_inventory_cellular_line> IT_inventory_cellular_line { get; set; }
+        public virtual DbSet<IT_equipos_checklist> IT_equipos_checklist { get; set; }
     }
 }
