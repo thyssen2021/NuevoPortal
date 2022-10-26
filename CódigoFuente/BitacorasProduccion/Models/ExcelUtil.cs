@@ -1,6 +1,7 @@
 ﻿using Bitacoras.Util;
 using DocumentFormat.OpenXml.Spreadsheet;
 using SpreadsheetLight;
+using SpreadsheetLight.Charts;
 using SpreadsheetLight.Drawing;
 using System;
 using System.Collections.Generic;
@@ -2696,7 +2697,8 @@ namespace Portal_2_0.Models
 
             SLStyle[,] styleCells = new SLStyle[listado.Count, columnasStyles];
 
-
+            //copia el estilo de una celda 
+            SLStyle styleSN = oSLDocument.GetCellStyle("A2");
 
             ////registros , rows
             foreach (BG_IHS_item item in listado)
@@ -3038,12 +3040,22 @@ namespace Portal_2_0.Models
             {
                 int fila = listRegiones.IndexOf(region) + 2;
                 oSLDocument.SetCellValue(fila, 1, region);
-              
+
+                string SN = "SI";
+                if (region == "EXPORT")
+                    SN = "NO";
+                //Agrega el SI o NO
+                oSLDocument.SetCellValue(fila, cabeceraAniosFY.Count + 2, SN);
+
+                SLDataValidation dv;
+                dv = oSLDocument.CreateDataValidation(fila, cabeceraAniosFY.Count + 2);
+                dv.AllowList("aplica", true, true);
+                oSLDocument.AddDataValidation(dv);
 
                 //recorre los FY
                 for (int i = 0; i < cabeceraAniosFY.Count; i++)
                 {
-                    string referenciaFY = GetCellReference(FYReference+i);
+                    string referenciaFY = GetCellReference(FYReference + i);
                     int columna = i + 2;
 
                     //=SUMAR.SI.CONJUNTO('Autos normal'!FI2:FI11,'Autos normal'!P2:P11,A2,'Autos normal'!A2:A11,"SI")/1000000
@@ -3052,14 +3064,142 @@ namespace Portal_2_0.Models
                 }
             }
 
+            //formato condicional
+            SLConditionalFormatting cf;
+            cf = new SLConditionalFormatting(2, cabeceraAniosFY.Count + 2, listRegiones.Count + 2, cabeceraAniosFY.Count + 2);
+            cf.HighlightCellsContainingText(true, "SI", SLHighlightCellsStyleValues.GreenFillWithDarkGreenText);
+            oSLDocument.AddConditionalFormatting(cf);
+            cf.HighlightCellsContainingText(true, "NO", SLHighlightCellsStyleValues.LightRedFillWithDarkRedText);
+            oSLDocument.AddConditionalFormatting(cf);
+
+
+            //agrega la tabla para SOP's
+            int SOPInicial = cabeceraAniosFY.Count + 5;
+            string referenciaSN = GetCellReference(cabeceraAniosFY.Count + 2);
+            //agrega el titulo de la fila
+            oSLDocument.SetCellValue(2, SOPInicial - 1, "Plant SOP's");
+
+            for (int i = 0; i < cabeceraAniosFY.Count; i++)
+            {
+                string referenciaFY = GetCellReference(2 + i); //empieza desde la columna B
+
+                oSLDocument.SetCellValue(1, SOPInicial + i, cabeceraAniosFY[i].text);
+
+                oSLDocument.SetCellValue(2, SOPInicial + i, "=SUMIFS(" + referenciaFY + filaInicialFY + ": " + referenciaFY + (filaFinalFY - 1) + ", " + referenciaSN + filaInicialFY + ":" + referenciaSN + (filaFinalFY - 1) + ", \"SI\")");
+            }
+
+            //agrega la gráfica de regiones
+            SLChart chart;
+            string reference = GetCellReference(cabeceraAniosFY.Count + 1) + (listRegiones.Count + 1);
+            chart = oSLDocument.CreateChart("A1", reference);
+            chart.SetChartType(SLColumnChartType.ClusteredColumn);
+            chart.SetChartPosition(listRegiones.Count + 4, 0.5f, listRegiones.Count + 26, 10);
+
+            // use SLGroupDataLabelOptions for an entire data series
+            SLGroupDataLabelOptions gdloptions;
+            SLDataSeriesOptions dso;
+
+            gdloptions = chart.CreateGroupDataLabelOptions();
+            gdloptions.ShowValue = true;
+            gdloptions.FormatCode = "0.00";
+
+            // agrega el titulo da las series
+            for (int i = 1; i <= listRegiones.Count; i++)
+            {
+                chart.SetGroupDataLabelOptions(i, gdloptions);
+            }
+
+            //titulo del la tabla
+            chart.Title.SetTitle("Regiones");
+            chart.ShowChartTitle(true);
+
+            oSLDocument.InsertChart(chart);
+
+            float tamanoGrafica = 21;
+            float inicioGraficas = listRegiones.Count + 28;
+            //crea una copia de la grafica
+            foreach (var r in listRegiones)
+            {
+                int index = listRegiones.IndexOf(r);
+
+                var chartX = chart;
+                chartX.SetChartPosition(inicioGraficas + 2 + (tamanoGrafica * index), 0.5f, inicioGraficas + (tamanoGrafica * index) + tamanoGrafica, 10);
+                chartX.Title.SetTitle(r);
+                chartX.ShowChartTitle(true);
+
+                // agrega el titulo da las series
+                for (int i = 1; i <= listRegiones.Count; i++)
+                {
+                    // get the options from the 2nd data series
+                    dso = chart.GetDataSeriesOptions(i);
+                    // 10% transparency
+                    dso.Fill.SetSolidFill(System.Drawing.ColorTranslator.FromHtml("#00B0F0"), 0);
+                    // Or not, depending on what you want to achieve...
+                    chart.SetDataSeriesOptions(i, dso);
+                }
+                oSLDocument.InsertChart(chartX);
+
+                int iG = (int)inicioGraficas + 4 + ((int)tamanoGrafica * index);
+
+                //inserta la tabla de tendencia
+                for (int i = 0; i < cabeceraAniosFY.Count; i++)
+                {
+                    oSLDocument.SetCellValue(iG, SOPInicial + i, cabeceraAniosFY[i].text);
+                    oSLDocument.SetCellValue(iG + i + 1, SOPInicial - 1, cabeceraAniosFY[i].text);
+                    //da formato a la celda
+                    oSLDocument.SetCellStyle(iG, SOPInicial + i, styleHeader);
+                    oSLDocument.SetCellStyle(iG + i + 1, SOPInicial - 1, styleHeader);
+                    oSLDocument.SetCellStyle(iG, SOPInicial + i, styleHeaderFont);
+                    oSLDocument.SetCellStyle(iG + i + 1, SOPInicial - 1, styleHeaderFont);
+
+                    for (int j = 0; j < cabeceraAniosFY.Count; j++)
+                    {
+                        string referenceMenor = GetCellReference(i+2);
+                        string referenceMayor = GetCellReference(j+2);
+                        int referenceFila = index + 2;
+
+                        if (j != i && j>i)
+                            oSLDocument.SetCellValue(iG + i + 1, SOPInicial + j, "=IFERROR(("+referenceMayor+referenceFila+"/"+referenceMenor+referenceFila+")^(1/5)-1,\"-\")");
+                        else if(j==i)
+                            oSLDocument.SetCellValue(iG + i + 1, SOPInicial + j, "x");
+
+                        //agrega el estilo de porcentaje
+                        oSLDocument.SetCellStyle(iG + i + 1, SOPInicial + j, stylePercent);
+
+                    }
+
+                }
+
+            }
+
+            //inserta la grafica para SOP
+            var chartSOP = oSLDocument.CreateChart(GetCellReference(SOPInicial - 1) + "1", GetCellReference(SOPInicial + cabeceraAniosFY.Count - 1) + "2");
+            chartSOP.SetChartType(SLColumnChartType.ClusteredColumn);
+            chartSOP.SetChartPosition(3, SOPInicial - 1, 17, SOPInicial + 8);
+            chartSOP.Title.SetTitle("Plant SOP's");
+            chartSOP.ShowChartTitle(true);
+            //aplica el formato al texto de la serie
+            chartSOP.SetGroupDataLabelOptions(1, gdloptions);
+            //cambia el color de la serie
+            dso = chartSOP.GetDataSeriesOptions(1);
+            dso.Fill.SetSolidFill(System.Drawing.ColorTranslator.FromHtml("#00B0F0"), 0);
+            chartSOP.SetDataSeriesOptions(1, dso);
+
+            oSLDocument.InsertChart(chartSOP);
+
+
+
+
             //set sheet styles
             oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
             oSLDocument.AutoFitColumn(1, dt.Columns.Count);
             oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
             oSLDocument.SetRowStyle(1, styleHeader);
             oSLDocument.SetRowStyle(1, styleHeaderFont);
-            //decimalwes
+
+            //decimales
             oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleNumberDecimal);
+            oSLDocument.SetRowStyle(2, styleNumberDecimal);
 
             oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
 

@@ -12,26 +12,21 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class IT_inventory_cellular_line
+    public partial class BG_IHS_division
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public IT_inventory_cellular_line()
+        public BG_IHS_division()
         {
-            this.IT_asignacion_hardware = new HashSet<IT_asignacion_hardware>();
+            this.BG_IHS_rel_division = new HashSet<BG_IHS_rel_division>();
         }
     
         public int id { get; set; }
-        public int id_inventory_celullar_plan { get; set; }
-        public int id_planta { get; set; }
-        public string numero_celular { get; set; }
-        public Nullable<System.DateTime> fecha_corte { get; set; }
+        public int id_ihs_item { get; set; }
+        public string comentario { get; set; }
         public bool activo { get; set; }
-        public Nullable<System.DateTime> fecha_renovacion { get; set; }
-        public Nullable<System.DateTime> fecha_renovacion_inicio { get; set; }
     
+        public virtual BG_IHS_item BG_IHS_item { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IT_asignacion_hardware> IT_asignacion_hardware { get; set; }
-        public virtual IT_inventory_cellular_plans IT_inventory_cellular_plans { get; set; }
-        public virtual plantas plantas { get; set; }
+        public virtual ICollection<BG_IHS_rel_division> BG_IHS_rel_division { get; set; }
     }
 }

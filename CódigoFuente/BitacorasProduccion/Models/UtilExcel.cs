@@ -894,6 +894,7 @@ namespace Portal_2_0.Models
                                 double? peso_neto;
                                 double? peso_bruto;
 
+
                                 if (listTemporalBOM.Count > 0)
                                 {
                                     fechaCreacion = listTemporalBOM.OrderByDescending(x => x.Created).FirstOrDefault().Created;
