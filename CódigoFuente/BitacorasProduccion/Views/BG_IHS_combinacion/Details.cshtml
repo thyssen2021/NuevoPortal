@@ -1,0 +1,67 @@
+﻿@model Portal_2_0.Models.BG_IHS_combinacion
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>BG_IHS_combinacion</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.vehicle)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.vehicle)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.production_brand)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.production_brand)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.sop_start_of_production)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.sop_start_of_production)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.eop_end_of_production)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.eop_end_of_production)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.comentario)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.comentario)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.activo)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.activo)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
