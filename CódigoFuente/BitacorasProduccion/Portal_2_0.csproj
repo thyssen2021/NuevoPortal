@@ -290,6 +290,7 @@
     <Compile Include="Controllers\budget_departamentosController.cs" />
     <Compile Include="Controllers\class_v3Controller.cs" />
     <Compile Include="Controllers\CombosController.cs" />
+    <Compile Include="Controllers\ComprobacionGVController.cs" />
     <Compile Include="Controllers\EChartsController.cs" />
     <Compile Include="Controllers\empleadosController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
@@ -7284,6 +7285,8 @@
     <Content Include="Views\IT_equipos_checklist_actividades\Index.cshtml" />
     <Content Include="Views\IT_equipos_checklist_actividades\Disable.cshtml" />
     <Content Include="Views\IT_equipos_checklist_actividades\Enable.cshtml" />
+    <Content Include="Views\ComprobacionGV\Solicitudes.cshtml" />
+    <Content Include="Views\ComprobacionGV\ComprobacionGastos.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

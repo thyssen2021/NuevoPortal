@@ -233,7 +233,7 @@
                                                 {
                                                     <li class="@(ViewBag.SegundoNivel == "IT_site_checklist" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_site_checklist")">Site</a></li>
                                                 }
-                                                 @if (User.IsInRole(TipoRoles.IT_CHECKLIST_EQUIPOS))
+                                                @if (User.IsInRole(TipoRoles.IT_CHECKLIST_EQUIPOS))
                                                 {
                                                     <li class="@(ViewBag.SegundoNivel == "IT_equipos_checklist" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_equipos_checklist")">Nuevos Equipos</a></li>
                                                 }
@@ -255,7 +255,7 @@
                                                     </ul>
                                                 </li>
 
-                                                
+
                                             </ul>
 
                                         </li>
@@ -278,6 +278,7 @@
                                         || User.IsInRole(TipoRoles.GV_NOMINA)
                                         )
                                     {
+                                        @* SOLICITUD GV *@
                                         <li class="@(ViewBag.PrimerNivel == "gastos_viaje" ? "active" : null )">
                                             <a><i class="fa fa-person-walking-luggage"></i>Gastos de Viaje <span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "gastos_viaje" ? "display:block" : null )">
@@ -333,6 +334,63 @@
                                                 <li class="@(ViewBag.SegundoNivel == "GV_manual_usuario" ? "current-page" : null )"><a href="@Url.Action( "Manual", "GV_solicitud")">Manual de Usuario</a></li>
                                             </ul>
                                         </li>
+
+                                        @* COMPROBACION GV *@
+                                        <li class="@(ViewBag.PrimerNivel == "gastos_viaje_comprobacion" ? "active" : null )">
+                                            <a><i class="fa fa-check-to-slot"></i>Comprobaci&oacute;n G.V. <span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "gastos_viaje_comprobacion" ? "display:block" : null )">
+                                                @if (User.IsInRole(TipoRoles.GV_SOLICITUD))
+                                                {
+                                                    <h3>SOLICITUDES</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "GV_comprobacion" ? "current-page" : null )"><a href="@Url.Action( "Solicitudes", "ComprobacionGV")">Mis Solicitudes</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.GV_JEFE_DIRECTO))
+                                                {
+                                                    <h3>JEFE DIRECTO</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_jefe_directo" ? "current-page" : null )"><a href="@Url.Action( "SolicitudesJefeDirecto", "GV_comprobacion")">(Jefe Directo) Solicitudes</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.GV_CONTROLLING))
+                                                {
+                                                    <h3>CONTROLLING</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_controlling" ? "current-page" : null )"><a href="@Url.Action( "SolicitudesControlling", "GV_comprobacion")">(Controlling) Solicitudes</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.GV_NOMINA))
+                                                {
+                                                    <h3>N&Oacute;MINA</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_nomina" ? "current-page" : null )"><a href="@Url.Action( "SolicitudesNomina", "GV_comprobacion")">(N&oacute;mina) Solicitudes</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.GV_CONTABILIDAD))
+                                                {
+                                                    <h3>CUENTAS POR PAGAR</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_contabilidad" ? "current-page" : null )"><a href="@Url.Action( "SolicitudesContabilidad", "GV_comprobacion")">(Ctas. por pagar) Solicitudes</a></li>
+                                                }
+
+                                                @if (User.IsInRole(TipoRoles.GV_REPORTES))
+                                                {
+                                                    <h3>REPORTES</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "gv_reportes" ? "current-page" : null )"><a href="@Url.Action( "Reportes", "GV_comprobacion")">Reportes</a></li>
+                                                }
+
+                                                @if (User.IsInRole(TipoRoles.GV_CATALOGOS) || User.IsInRole(TipoRoles.ADMIN))
+                                                {
+                                                    <h3>CAT&Aacute;LOGOS</h3>
+                                                    <li class="link @(ViewBag.SegundoNivel == "GV_catalogos" ? "active" : "" )">
+                                                        <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
+                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "GV_catalogos" ? "display:block" : null )">
+                                                            <li class="@(ViewBag.TercelNivel == "GV_tipo_gastos_viaje" ? "current-page" : null )"><a href="@Url.Action( "Index", "GV_tipo_gastos_viaje")">Tipos de Gastos de Viaje</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "GV_medios_transporte" ? "current-page" : null )"><a href="@Url.Action( "Index", "GV_medios_transporte")">Medios de Transporte</a></li>
+                                                            @if (User.IsInRole(TipoRoles.ADMIN))
+                                                            {
+                                                                <li class="@(ViewBag.TercelNivel == "GV_usuarios" ? "current-page" : null )"><a href="@Url.Action( "Index", "GV_comprobacion")">Usuarios - Deptos</a></li>
+                                                            }
+                                                        </ul>
+                                                    </li>
+                                                }
+                                                <h3>MANUAL DE USUARIO</h3>
+                                                <li class="@(ViewBag.SegundoNivel == "GV_manual_usuario" ? "current-page" : null )"><a href="@Url.Action( "Manual", "GV_comprobacion")">Manual de Usuario</a></li>
+                                            </ul>
+                                        </li>
+
                                     }
 
 
@@ -648,8 +706,8 @@
                                                 {
                                                     <h3>Centros de Costo</h3>
                                                     @*<li class="@(ViewBag.SegundoNivel == "actual" ? "current-page" : null )"><a href="@Url.Action("Actual", "ResponsableBudget")">ACT FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)))</a></li>
-                                                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
-                                                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
+                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
+                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
                                                     <li class="@(ViewBag.SegundoNivel == "centros" ? "current-page" : null )"><a href="@Url.Action("Centros", "ResponsableBudget")">Mis Centros</a></li>
                                                 }
 
