@@ -22,6 +22,8 @@ CREATE TABLE [BG_IHS_combinacion](
 	[id] [int] IDENTITY(1,1) NOT NULL,	
 	[vehicle][VARCHAR](100) NOT NULL,
 	[production_brand][VARCHAR](30) NOT NULL,
+	[production_plant][VARCHAR](50) NULL,
+	[manufacturer_group][VARCHAR](30) NULL,
 	[sop_start_of_production][datetime] NULL,
 	[eop_end_of_production][datetime] NULL,
 	[comentario][varchar](150) NULL,

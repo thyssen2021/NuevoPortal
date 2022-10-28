@@ -23,6 +23,14 @@ namespace Portal_2_0.Models
         [MaxLength(100)]
         public string production_brand { get; set; }
 
+        [Display(Name = "Production Plant")]
+        [MaxLength(50)]
+        public string production_plant { get; set; }
+
+        [Display(Name = "Manufacturer")]
+        [MaxLength(30)]
+        public string manufacturer_group { get; set; }
+
         [DataType(DataType.Date)]
         [Display(Name = "Start of Production")]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]

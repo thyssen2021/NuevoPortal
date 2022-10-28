@@ -23,6 +23,8 @@ namespace Portal_2_0.Models
         public int id { get; set; }
         public string vehicle { get; set; }
         public string production_brand { get; set; }
+        public string production_plant { get; set; }
+        public string manufacturer_group { get; set; }
         public Nullable<System.DateTime> sop_start_of_production { get; set; }
         public Nullable<System.DateTime> eop_end_of_production { get; set; }
         public string comentario { get; set; }

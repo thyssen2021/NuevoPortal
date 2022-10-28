@@ -9,6 +9,12 @@
     int contador = 100;
 
     List<Portal_2_0.Models.BG_IHS_item> listadoIHSItems = (List<Portal_2_0.Models.BG_IHS_item>)ViewBag.listadoIHSItems;
+
+    var cabeceraDemanda = Portal_2_0.Models.BG_IHS_UTIL.GetCabecera();
+    var cabeceraCuartos = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraCuartos();
+    var cabeceraAnios = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAnios();
+    var cabeceraAniosFY = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAniosFY();
+
 }
 
 @section estilos
@@ -16,8 +22,6 @@
     <!-- Select2 -->
     <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
-
-
 }
 
 
@@ -97,7 +101,7 @@
                                             <span class="float-right">IHS item</span>
                                         </label>
                                         <div class="col-md-8">
-                                            <select name="BG_IHS_rel_combinacion[@contador].id_ihs_item" id="BG_IHS_rel_combinacion[@contador].id_ihs_item" data-row="@contador" class="form-control select2bs4" style="width:100%" required>
+                                            <select name="BG_IHS_rel_combinacion[@contador].id_ihs_item" id="BG_IHS_rel_combinacion[@contador].id_ihs_item" data-row="@contador" class="form-control select2bs4 ihs-item" style="width:100%" required>
                                                 <option value=''>-- Seleccione un valor --</option>
                                                 @foreach (var item in listadoIHSItems)
                                                 {
@@ -137,6 +141,143 @@
                                 </div>
                             </div>
 
+                            @*Demanda ORIGINAL*@
+                            <div class="ln_solid"></div>
+                            <div class="table-responsive">
+
+                                <table id="datatable_1" class="table data-table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr style=" background-color: #0094ff; color: azure;" !important>
+                                            <th>
+                                                ID
+                                            </th>
+                                            <th>
+                                                Origen
+                                            </th>
+                                            <th>
+                                                Manufacturer
+                                            </th>
+                                            <th>
+                                                Production Plant
+                                            </th>
+                                            <th>
+                                                Production Brand
+                                            </th>
+                                            <th>
+                                                Program
+                                            </th>
+                                            <th>
+                                                Production Nameplate
+                                            </th>
+                                            <th>
+                                                Vehicle
+                                            </th>
+                                            <th>
+                                                SOP
+                                            </th>
+                                            <th>
+                                                EOP
+                                            </th>                                            
+                                            @foreach (var cabecera in cabeceraDemanda)
+                                            {
+                                                <th>
+                                                    @cabecera.text
+                                                </th>
+                                            }
+                                            @foreach (var cabecera in cabeceraCuartos)
+                                            {
+                                                <th>
+                                                    @cabecera.text
+                                                </th>
+                                            }
+                                            @foreach (var cabecera in cabeceraAnios)
+                                            {
+                                                <th>
+                                                    @cabecera.text
+                                                </th>
+                                            }
+                                            @foreach (var cabecera in cabeceraAniosFY)
+                                            {
+                                                <th>
+                                                    @cabecera.text
+                                                </th>
+                                            }
+                                        </tr>
+                                    </thead>
+                                    <tbody id="body_conceptos_original">
+                                        @*Agregar de forma dinámica los elementos*@
+
+                                    </tbody>
+                                    <!-- Suma de los resultados -->
+                                    <tfoot style="background-color:azure; font-weight:bold; color:#0c28d0">
+                                        <tr>
+                                            <td>
+                                                ID
+                                            </td>
+                                            <td>
+                                                Origen
+                                            </td>
+                                            <td>
+                                                Manufacturer Group
+                                            </td>
+                                            <td>
+                                                Production Plant
+                                            </td>
+                                            <td>
+                                                Production Brand
+                                            </td>
+                                            <td>
+                                                Program
+                                            </td>
+                                            <td>
+                                                Production Nameplate
+                                            </td>
+                                            <td>
+                                                Vehicle
+                                            </td>
+                                            <td>
+                                                SOP
+                                            </td>
+                                            <td>
+                                                EOP
+                                            </td>
+                                          
+                                            @foreach (var cabecera in cabeceraDemanda)
+                                            {
+                                                <td>
+                                                    @cabecera.text
+                                                </td>
+                                            }
+                                            @foreach (var cabecera in cabeceraCuartos)
+                                            {
+                                                <td>
+                                                    @cabecera.text
+                                                </td>
+                                            }
+                                            @foreach (var cabecera in cabeceraAnios)
+                                            {
+                                                <td>
+                                                    @cabecera.text
+                                                </td>
+                                            }
+                                            @foreach (var cabecera in cabeceraAniosFY)
+                                            {
+                                                <td>
+                                                    @cabecera.text
+                                                </td>
+                                            }
+                                        </tr>
+                                    </tfoot>
+
+                                </table>
+
+                            </div>
+
+
+                            <div class="col-md-12">
+                                <div class="ln_solid"></div>
+                            </div>
+
                             <div class="ln_solid"></div>
                             <div class="item form-group">
                                 <div class="col-md-12 col-sm-12 ">
@@ -170,6 +311,8 @@
     @Scripts.Render(Url.Content("~/Content/vendors/jquery-iu/jquery-ui.min.js"))
     @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
 
     <script>
         $(document).ready(function () {
@@ -178,7 +321,6 @@
             $('.select2bs4').select2({
                 theme: 'bootstrap4'
             })
-
 
             asignaEvents();
         });
@@ -192,12 +334,58 @@
             //vuelve a asigar el evento on a cada input de los lotes
             $('.select2bs4').each(function () {
                 $(this).change(function () {
-
                     var row = $(this).attr("data-row");
                     if (row != null)
                         verificaInfo(row);
+
+                    //llamada al metodo para cargar las filas
+                    CargaRow();
+
                 });
 
+            });
+        }
+
+        function CargaRow() {
+            let items_seleccionados = [];
+
+            //obtiene la lista de los ids enviados
+            $('.ihs-item').each(function () {
+                var value = $(this).val();
+
+                if (value != "")
+                    items_seleccionados.push(value);
+
+            });
+
+
+            $.ajax({
+                type: 'POST',
+                url: '/BG_IHS_combinacion/GetRows',
+                data: JSON.stringify(items_seleccionados),
+                contentType: 'application/json',
+                success: function (data) {
+                    try {
+                        $('#body_conceptos_original').html(data[0].value);
+                    }
+                    catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Ocurrió un error obteniendo la información: ' + error,
+                            confirmButtonText: 'Aceptar',
+                        })
+                    }
+                },
+                error: function (textStatus, errorThrown) {
+                    //en caso de error en la llamada ajax
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Ocurrió un error: '+ errorThrown,
+                        text: 'Intente nuevamente.'
+                    })
+                },
+                async: true
             });
         }
 
@@ -231,7 +419,7 @@
                                             <span class="float-right">IHS item</span>
                                         </label>
                                         <div class="col-md-8">
-                                            <select name="BG_IHS_rel_combinacion[`+ num + `].id_ihs_item" id="BG_IHS_rel_combinacion[` + num + `].id_ihs_item" data-row="` + num + `" class="form-control select2bs4" style="width:100%" required>
+                                            <select name="BG_IHS_rel_combinacion[`+ num + `].id_ihs_item" id="BG_IHS_rel_combinacion[` + num + `].id_ihs_item" data-row="` + num + `" class="form-control select2bs4 ihs-item" style="width:100%" required>
                                                 `+ textoSelectOptions + `
                                             </select>
                                             <span class="field-validation-valid text-danger" data-valmsg-for="BG_IHS_rel_combinacion[`+ num + `].id_ihs_item" data-valmsg-replace="true"></span>
@@ -264,14 +452,14 @@
 
 
         return stringSelects;
-        }
+    }
 
-        function borrarPieza(id) {
+    function borrarPieza(id) {
 
-            $("#div_items_ihs_" + id).fadeOut(0, function () {
-                $(this).remove();
-            });
-        }
+        $("#div_items_ihs_" + id).fadeOut(0, function () {
+            $(this).remove();
+        });
+    }
 
     function mostrarDetalles(contador) {
         var e = document.getElementById("BG_IHS_rel_combinacion[" + contador + "].id_ihs_item");

@@ -8,6 +8,7 @@
     var cabeceraDemanda = Portal_2_0.Models.BG_IHS_UTIL.GetCabecera();
     var cabeceraCuartos = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraCuartos();
     var cabeceraAnios = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAnios();
+    var cabeceraAniosFY = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAniosFY();
 }
 
 @section estilos
@@ -496,6 +497,9 @@
                                             <li class="nav-item">
                                                 <a class="nav-link" id="contact-tab" data-toggle="tab" href="#anios" role="tab" aria-controls="anios" aria-selected="false" onclick="ReiniciaTablaTimer()">A&ntilde;os</a>
                                             </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="contact-tab" data-toggle="tab" href="#aniosFY" role="tab" aria-controls="aniosFY" aria-selected="false" onclick="ReiniciaTablaTimer()">A&ntilde;os (FY)</a>
+                                            </li>
                                         </ul>
                                         <div class="tab-content" id="myTabContent">
 
@@ -663,6 +667,59 @@
                                                     </table>
                                                 </div>
                                             </div>
+                                           <div class="tab-pane fade" id="aniosFY" role="tabpanel" aria-labelledby="contact-tab">
+                                                <div class="form-group row">
+
+                                                    <table id="datatable_40" class="table data-table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                                        <thead>
+                                                            <tr style=" background-color: #0094ff; color: azure;" !important>
+                                                                <th>
+                                                                    @Html.DisplayNameFor(model => model.origen)
+                                                                </th>
+                                                                <th>
+                                                                    @Html.DisplayNameFor(model => model.vehicle)
+                                                                </th>
+                                                                @foreach (var cabecera in cabeceraAniosFY)
+                                                                {
+                                                                    <th>
+                                                                        @cabecera.text
+                                                                    </th>
+                                                                }
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+
+
+                                                            <tr class="@(Model.origen == Bitacoras.Util.BG_IHS_Origen.IHS ? "fondo-ihs"
+                                : Model.origen == Bitacoras.Util.BG_IHS_Origen.USER ? "fondo-user"
+                                : String.Empty
+                                                    )">
+                                                                <td class="@clase_celda" style="font-weight:bold">
+                                                                    @Html.DisplayFor(modelItem => Model.origen)
+                                                                </td>
+                                                                <td class="@clase_celda">
+                                                                    @Html.DisplayFor(modelItem => Model.vehicle)
+                                                                </td>
+
+                                                                @foreach (var item_anio in Model.GetAniosFY(Model.GetDemanda(cabeceraDemanda, Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL), cabeceraAnios, Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL))
+                                                                {
+                                                                    <td class="@(
+                                                                               item_anio != null ? item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.Calculado ? "fondo-cuarto-calculado"
+                                                                               : item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.IHS ? "fondo-cuarto-ihs"
+                                                                               : "fondo-default"
+                                                                               : "fondo-default"
+                                                                        )">
+                                                                        @Html.DisplayFor(modelItem => item_anio.cantidad)
+                                                                    </td>
+                                                                }
+                                                            </tr>
+
+                                                        </tbody>
+
+                                                    </table>
+                                                </div>
+                                            </div>
+                                           
                                         </div>
                                     </div>
                                 </div>
@@ -693,6 +750,9 @@
                                             </li>
                                             <li class="nav-item">
                                                 <a class="nav-link" id="contact-tab" data-toggle="tab" href="#anios_customer" role="tab" aria-controls="anios" aria-selected="false" onclick="ReiniciaTablaTimer()">A&ntilde;os</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="contact-tab" data-toggle="tab" href="#anios_customer_FY" role="tab" aria-controls="aniosFY" aria-selected="false" onclick="ReiniciaTablaTimer()">A&ntilde;os (FY)</a>
                                             </li>
                                         </ul>
                                         <div class="tab-content" id="myTabContent">
@@ -860,6 +920,59 @@
                                                     </table>
                                                 </div>
                                             </div>
+                                            <div class="tab-pane fade" id="anios_customer_FY" role="tabpanel" aria-labelledby="contact-tab">
+                                                <div class="form-group row">
+
+                                                    <table id="datatable_60" class="table data-table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                                        <thead>
+                                                            <tr style=" background-color: #0094ff; color: azure;" !important>
+                                                                <th>
+                                                                    @Html.DisplayNameFor(model => model.origen)
+                                                                </th>
+                                                                <th>
+                                                                    @Html.DisplayNameFor(model => model.vehicle)
+                                                                </th>
+                                                                @foreach (var cabecera in cabeceraAniosFY)
+                                                                {
+                                                                    <th>
+                                                                        @cabecera.text
+                                                                    </th>
+                                                                }
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+
+
+                                                            <tr class="@(Model.origen == Bitacoras.Util.BG_IHS_Origen.IHS ? "fondo-ihs"
+                                                                : Model.origen == Bitacoras.Util.BG_IHS_Origen.USER ? "fondo-user"
+                                                                : String.Empty
+                                                            )">
+                                                                <td class="@clase_celda" style="font-weight:bold">
+                                                                    @Html.DisplayFor(modelItem => Model.origen)
+                                                                </td>
+                                                                <td class="@clase_celda">
+                                                                    @Html.DisplayFor(modelItem => Model.vehicle)
+                                                                </td>
+
+                                                                @foreach (var item_anio in Model.GetAniosFY(Model.GetDemanda(cabeceraDemanda, Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER), cabeceraAnios, Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER))
+                                                                {
+                                                                    <td class="@(
+                                                                               item_anio != null ? item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.Calculado ? "fondo-cuarto-calculado"
+                                                                               : item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.IHS ? "fondo-cuarto-ihs"
+                                                                               : "fondo-default"
+                                                                               : "fondo-default"
+                                                                        )">
+                                                                        @Html.DisplayFor(modelItem => item_anio.cantidad)
+                                                                    </td>
+                                                                }
+                                                            </tr>
+
+                                                        </tbody>
+
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        
                                         </div>
                                     </div>
                                 </div>

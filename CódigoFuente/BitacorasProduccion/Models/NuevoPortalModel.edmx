@@ -57,6 +57,8 @@
           <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="vehicle" Type="varchar" MaxLength="100" Nullable="false" />
           <Property Name="production_brand" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="production_plant" Type="varchar" MaxLength="50" />
+          <Property Name="manufacturer_group" Type="varchar" MaxLength="30" />
           <Property Name="sop_start_of_production" Type="datetime" />
           <Property Name="eop_end_of_production" Type="datetime" />
           <Property Name="comentario" Type="varchar" MaxLength="150" />
@@ -8624,14 +8626,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="BG_IHS_rel_regiones" EntitySet="BG_IHS_rel_regiones" />
           </AssociationSet>
           <EntitySet Name="BG_IHS_rel_segmentos" EntityType="Portal_2_0Model.BG_IHS_rel_segmentos" />
-          <EntitySet Name="BG_IHS_combinacion" EntityType="Portal_2_0Model.BG_IHS_combinacion" />
           <EntitySet Name="BG_IHS_division" EntityType="Portal_2_0Model.BG_IHS_division" />
           <EntitySet Name="BG_IHS_rel_combinacion" EntityType="Portal_2_0Model.BG_IHS_rel_combinacion" />
           <EntitySet Name="BG_IHS_rel_division" EntityType="Portal_2_0Model.BG_IHS_rel_division" />
-          <AssociationSet Name="FK_BG_IHS_rel_combinacion_id_ihs_combinacion" Association="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_combinacion">
-            <End Role="BG_IHS_combinacion" EntitySet="BG_IHS_combinacion" />
-            <End Role="BG_IHS_rel_combinacion" EntitySet="BG_IHS_rel_combinacion" />
-          </AssociationSet>
           <AssociationSet Name="FK_BG_IHS_division_id_ihs_item" Association="Portal_2_0Model.FK_BG_IHS_division_id_ihs_item">
             <End Role="BG_IHS_item" EntitySet="BG_IHS_item" />
             <End Role="BG_IHS_division" EntitySet="BG_IHS_division" />
@@ -8642,6 +8639,11 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           </AssociationSet>
           <AssociationSet Name="FK_BG_IHS_rel_combinacion_id_ihs_item" Association="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_item">
             <End Role="BG_IHS_item" EntitySet="BG_IHS_item" />
+            <End Role="BG_IHS_rel_combinacion" EntitySet="BG_IHS_rel_combinacion" />
+          </AssociationSet>
+          <EntitySet Name="BG_IHS_combinacion" EntityType="Portal_2_0Model.BG_IHS_combinacion" />
+          <AssociationSet Name="FK_BG_IHS_rel_combinacion_id_ihs_combinacion" Association="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_combinacion">
+            <End Role="BG_IHS_combinacion" EntitySet="BG_IHS_combinacion" />
             <End Role="BG_IHS_rel_combinacion" EntitySet="BG_IHS_rel_combinacion" />
           </AssociationSet>
         </EntityContainer>
@@ -9167,19 +9169,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="flat_rolled_steel_usage" Type="Int32" />
           <Property Name="blanks_usage_percent" Type="Decimal" Precision="3" Scale="2" />
         </EntityType>
-        <EntityType Name="BG_IHS_combinacion">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="vehicle" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="production_brand" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="sop_start_of_production" Type="DateTime" Precision="3" />
-          <Property Name="eop_end_of_production" Type="DateTime" Precision="3" />
-          <Property Name="comentario" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="activo" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="BG_IHS_rel_combinacion" Relationship="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_combinacion" FromRole="BG_IHS_combinacion" ToRole="BG_IHS_rel_combinacion" />
-        </EntityType>
         <EntityType Name="BG_IHS_division">
           <Key>
             <PropertyRef Name="id" />
@@ -9198,8 +9187,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="id_ihs_combinacion" Type="Int32" Nullable="false" />
           <Property Name="id_ihs_item" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="BG_IHS_combinacion" Relationship="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_combinacion" FromRole="BG_IHS_rel_combinacion" ToRole="BG_IHS_combinacion" />
           <NavigationProperty Name="BG_IHS_item" Relationship="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_item" FromRole="BG_IHS_rel_combinacion" ToRole="BG_IHS_item" />
+          <NavigationProperty Name="BG_IHS_combinacion" Relationship="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_combinacion" FromRole="BG_IHS_rel_combinacion" ToRole="BG_IHS_combinacion" />
         </EntityType>
         <EntityType Name="BG_IHS_rel_division">
           <Key>
@@ -9213,18 +9202,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="activo" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="BG_IHS_division" Relationship="Portal_2_0Model.FK_BG_IHS_rel_division_id_ihs_division" FromRole="BG_IHS_rel_division" ToRole="BG_IHS_division" />
         </EntityType>
-        <Association Name="FK_BG_IHS_rel_combinacion_id_ihs_combinacion">
-          <End Type="Portal_2_0Model.BG_IHS_combinacion" Role="BG_IHS_combinacion" Multiplicity="1" />
-          <End Type="Portal_2_0Model.BG_IHS_rel_combinacion" Role="BG_IHS_rel_combinacion" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="BG_IHS_combinacion">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="BG_IHS_rel_combinacion">
-              <PropertyRef Name="id_ihs_combinacion" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_BG_IHS_division_id_ihs_item">
           <End Type="Portal_2_0Model.BG_IHS_item" Role="BG_IHS_item" Multiplicity="1" />
           <End Type="Portal_2_0Model.BG_IHS_division" Role="BG_IHS_division" Multiplicity="*" />
@@ -9258,6 +9235,33 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Principal>
             <Dependent Role="BG_IHS_rel_combinacion">
               <PropertyRef Name="id_ihs_item" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="BG_IHS_combinacion">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="vehicle" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="production_brand" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="production_plant" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="manufacturer_group" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="sop_start_of_production" Type="DateTime" Precision="3" />
+          <Property Name="eop_end_of_production" Type="DateTime" Precision="3" />
+          <Property Name="comentario" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="BG_IHS_rel_combinacion" Relationship="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_combinacion" FromRole="BG_IHS_combinacion" ToRole="BG_IHS_rel_combinacion" />
+        </EntityType>
+        <Association Name="FK_BG_IHS_rel_combinacion_id_ihs_combinacion">
+          <End Type="Portal_2_0Model.BG_IHS_combinacion" Role="BG_IHS_combinacion" Multiplicity="1" />
+          <End Type="Portal_2_0Model.BG_IHS_rel_combinacion" Role="BG_IHS_rel_combinacion" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="BG_IHS_combinacion">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="BG_IHS_rel_combinacion">
+              <PropertyRef Name="id_ihs_combinacion" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -10989,19 +10993,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="BG_IHS_combinacion">
-            <EntityTypeMapping TypeName="Portal_2_0Model.BG_IHS_combinacion">
-              <MappingFragment StoreEntitySet="BG_IHS_combinacion">
-                <ScalarProperty Name="activo" ColumnName="activo" />
-                <ScalarProperty Name="comentario" ColumnName="comentario" />
-                <ScalarProperty Name="eop_end_of_production" ColumnName="eop_end_of_production" />
-                <ScalarProperty Name="sop_start_of_production" ColumnName="sop_start_of_production" />
-                <ScalarProperty Name="production_brand" ColumnName="production_brand" />
-                <ScalarProperty Name="vehicle" ColumnName="vehicle" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="BG_IHS_division">
             <EntityTypeMapping TypeName="Portal_2_0Model.BG_IHS_division">
               <MappingFragment StoreEntitySet="BG_IHS_division">
@@ -11029,6 +11020,21 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
                 <ScalarProperty Name="production_nameplate" ColumnName="production_nameplate" />
                 <ScalarProperty Name="vehicle" ColumnName="vehicle" />
                 <ScalarProperty Name="id_ihs_division" ColumnName="id_ihs_division" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="BG_IHS_combinacion">
+            <EntityTypeMapping TypeName="Portal_2_0Model.BG_IHS_combinacion">
+              <MappingFragment StoreEntitySet="BG_IHS_combinacion">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="comentario" ColumnName="comentario" />
+                <ScalarProperty Name="eop_end_of_production" ColumnName="eop_end_of_production" />
+                <ScalarProperty Name="sop_start_of_production" ColumnName="sop_start_of_production" />
+                <ScalarProperty Name="manufacturer_group" ColumnName="manufacturer_group" />
+                <ScalarProperty Name="production_plant" ColumnName="production_plant" />
+                <ScalarProperty Name="production_brand" ColumnName="production_brand" />
+                <ScalarProperty Name="vehicle" ColumnName="vehicle" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

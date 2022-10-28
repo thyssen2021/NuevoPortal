@@ -198,5 +198,50 @@ namespace Portal_2_0.Controllers
             }
             base.Dispose(disposing);
         }
+
+        /// <summary>
+        /// Método que retorna las filas de las tablas de combinacion
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public JsonResult GetRows(int[] data)
+        {
+            var cabeceraDemanda = Portal_2_0.Models.BG_IHS_UTIL.GetCabecera();
+            var cabeceraCuartos = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraCuartos();
+            var cabeceraAnios = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAnios();
+            var cabeceraAniosFY = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraAniosFY();
+
+          //  List<int> list = data.ToList().Distinct().ToList();
+            List<int> list = data.ToList();
+
+            string resultString = string.Empty;
+
+            foreach (var item in list) {
+                var ihs = db.BG_IHS_item.Find(item);
+
+                if (ihs != null)
+                    resultString += @"<tr>
+                                        <td>"+ihs.id+@"</td>
+                                        <td>"+ihs.origen+@"</td>
+                                        <td>"+ihs.manufacturer_group+@"</td>
+                                        <td>"+ihs.production_plant+@"</td>
+                                        <td>"+ihs.production_brand+@"</td>
+                                        <td>"+ihs.program+@"</td>
+                                        <td>"+ihs.production_nameplate+@"</td>
+                                        <td>"+ihs.vehicle+@"</td>
+                                        <td>"+(ihs.sop_start_of_production.HasValue?ihs.sop_start_of_production.Value.ToShortDateString():String.Empty) +@"</td>                                        
+                                        <td>"+(ihs.eop_end_of_production.HasValue?ihs.eop_end_of_production.Value.ToShortDateString():String.Empty) +@"</td>                                        
+
+                                </tr>";
+            }
+
+            //inicializa la lista de objetos
+            var result = new object[1];
+
+            result[0] = new { value = resultString};
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+                
     }
 }
