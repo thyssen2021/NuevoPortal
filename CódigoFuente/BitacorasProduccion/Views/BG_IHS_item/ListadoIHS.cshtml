@@ -751,7 +751,7 @@
                                                                                     @Html.DisplayFor(modelItem => item_anio.cantidad)
                                                                                 </td>
                                                                             }
-                                                                            @foreach (var item_anio in item.GetAniosFY(demandaMeses, cabeceraAnios, demanda))
+                                                                            @foreach (var item_anio in item.GetAniosFY(demandaMeses, cabeceraAniosFY, demanda))
                                                                             {
                                                                                 <td class="@(
                                                                                item_anio != null ? item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.Calculado ? "fondo-cuarto-calculado"
@@ -1468,7 +1468,7 @@
                                                                         @Html.DisplayFor(modelItem => item.vehicle)
                                                                     </td>
 
-                                                                    @foreach (var item_anio in item.GetAniosFY(item.GetDemanda(cabeceraDemanda, demanda), cabeceraAnios, demanda))
+                                                                    @foreach (var item_anio in item.GetAniosFY(item.GetDemanda(cabeceraDemanda, demanda), cabeceraAniosFY, demanda))
                                                                     {
                                                                         <td class="@(
                                                                                item_anio != null ? item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.Calculado ? "fondo-cuarto-calculado"

@@ -22,6 +22,7 @@ CREATE TABLE [BG_IHS_division](
 	[id] [int] IDENTITY(1,1) NOT NULL,	
 	[id_ihs_item][int] NOT NULL,
 	[comentario][varchar](150) NULL,
+	[porcentaje_scrap][decimal](3,2) NULL,
 	[activo][bit] NOT NULL DEFAULT 1,	
  CONSTRAINT [PK_BG_IHS_division] PRIMARY KEY CLUSTERED 
 (

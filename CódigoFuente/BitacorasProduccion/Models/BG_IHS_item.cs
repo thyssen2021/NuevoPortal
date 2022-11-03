@@ -19,8 +19,8 @@ namespace Portal_2_0.Models
         {
             this.BG_IHS_rel_demanda = new HashSet<BG_IHS_rel_demanda>();
             this.BG_IHS_rel_cuartos = new HashSet<BG_IHS_rel_cuartos>();
-            this.BG_IHS_division = new HashSet<BG_IHS_division>();
             this.BG_IHS_rel_combinacion = new HashSet<BG_IHS_rel_combinacion>();
+            this.BG_IHS_division = new HashSet<BG_IHS_division>();
         }
     
         public int id { get; set; }
@@ -84,8 +84,8 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<BG_IHS_rel_cuartos> BG_IHS_rel_cuartos { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<BG_IHS_division> BG_IHS_division { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<BG_IHS_rel_combinacion> BG_IHS_rel_combinacion { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<BG_IHS_division> BG_IHS_division { get; set; }
     }
 }

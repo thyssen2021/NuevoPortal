@@ -27,6 +27,7 @@ CREATE TABLE [BG_IHS_combinacion](
 	[sop_start_of_production][datetime] NULL,
 	[eop_end_of_production][datetime] NULL,
 	[comentario][varchar](150) NULL,
+	[porcentaje_scrap][decimal](3,2) NULL,
 	[activo][bit] NOT NULL DEFAULT 1,	
  CONSTRAINT [PK_BG_IHS_combinacion] PRIMARY KEY CLUSTERED 
 (

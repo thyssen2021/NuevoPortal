@@ -268,14 +268,14 @@
         <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_rel_regiones" Width="1.5" PointX="18.625" PointY="3.75" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_regiones_id_ihs_region" />
         <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_rel_segmentos" Width="1.5" PointX="16.375" PointY="0.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_division" Width="1.5" PointX="13.625" PointY="22.125" />
         <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_rel_combinacion" Width="1.5" PointX="16.625" PointY="6.5" />
         <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_rel_division" Width="1.5" PointX="15.875" PointY="22" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_item" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_combinacion" Width="1.5" PointX="14.375" PointY="25.875" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_division" Width="1.5" PointX="13.625" PointY="21.25" />
+        <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_combinacion" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_division_id_ihs_item" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_division_id_ihs_division" />
-        <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_item" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_IHS_combinacion" Width="1.5" PointX="16.375" PointY="10" />
-        <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_combinacion" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

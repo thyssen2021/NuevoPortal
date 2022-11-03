@@ -2585,6 +2585,7 @@ namespace Portal_2_0.Models
 
             string hoja1 = "Autos normal";
             string hoja2 = "Regiones";
+            string hoja3 = "Autos Modificados";
 
             int FYReference = 0;
 
@@ -2901,7 +2902,7 @@ namespace Portal_2_0.Models
                 indexCabecera = 0;
                 FYReference = indexColumna + 2;
 
-                var datosAniosFY = item.GetAniosFY(demandaMeses, cabeceraAnios, demanda);
+                var datosAniosFY = item.GetAniosFY(demandaMeses, cabeceraAniosFY, demanda);
                 listDatosRegionesFY.AddRange(datosAniosFY);
 
                 foreach (var item_demanda in datosAniosFY)
@@ -2959,7 +2960,7 @@ namespace Portal_2_0.Models
             {
                 for (int b = 0; b < columnasStyles; b++)
                 {
-                    oSLDocument.SetCellStyle(a + 2, b + 1, styleCells[a, b]);
+                    oSLDocument.SetCellStyle(a + 2, b + 2, styleCells[a, b]);
                 }
             }
 
@@ -3001,14 +3002,16 @@ namespace Portal_2_0.Models
             ////inmoviliza el encabezado
             oSLDocument.FreezePanes(1, 4);
 
-            oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
-            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+            oSLDocument.Filter(1, 1, 1, dt.Columns.Count + 1);
+            oSLDocument.AutoFitColumn(1, dt.Columns.Count + 1);
 
-            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
-            oSLDocument.SetRowStyle(1, styleHeader);
-            oSLDocument.SetRowStyle(1, styleHeaderFont);
+            oSLDocument.SetColumnStyle(1, dt.Columns.Count + 1, styleWrap);
+            oSLDocument.SetCellStyle(1, 1, 1, dt.Columns.Count + 1, styleHeader);
+            oSLDocument.SetCellStyle(1, 1, 1, dt.Columns.Count + 1, styleHeaderFont);
 
             oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
+            //oculta la columna de porcentaje
+            oSLDocument.HideColumn(59);
             #endregion
 
             #region resumen_regiones
@@ -3154,13 +3157,13 @@ namespace Portal_2_0.Models
 
                     for (int j = 0; j < cabeceraAniosFY.Count; j++)
                     {
-                        string referenceMenor = GetCellReference(i+2);
-                        string referenceMayor = GetCellReference(j+2);
+                        string referenceMenor = GetCellReference(i + 2);
+                        string referenceMayor = GetCellReference(j + 2);
                         int referenceFila = index + 2;
 
-                        if (j != i && j>i)
-                            oSLDocument.SetCellValue(iG + i + 1, SOPInicial + j, "=IFERROR(("+referenceMayor+referenceFila+"/"+referenceMenor+referenceFila+")^(1/5)-1,\"-\")");
-                        else if(j==i)
+                        if (j != i && j > i)
+                            oSLDocument.SetCellValue(iG + i + 1, SOPInicial + j, "=IFERROR((" + referenceMayor + referenceFila + "/" + referenceMenor + referenceFila + ")^(1/5)-1,\"-\")");
+                        else if (j == i)
                             oSLDocument.SetCellValue(iG + i + 1, SOPInicial + j, "x");
 
                         //agrega el estilo de porcentaje
@@ -3188,8 +3191,6 @@ namespace Portal_2_0.Models
             oSLDocument.InsertChart(chartSOP);
 
 
-
-
             //set sheet styles
             oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
             oSLDocument.AutoFitColumn(1, dt.Columns.Count);
@@ -3204,7 +3205,58 @@ namespace Portal_2_0.Models
             oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
 
             #endregion
+
+            #region Autos Modificados
+            //copia la hoja1 a la hoja 3
+            oSLDocument.CopyWorksheet(hoja1, hoja3);
+
+            oSLDocument.SelectWorksheet(hoja3);
+
+            //muestra la columna de porcentaje
+            oSLDocument.UnhideColumn(59);
+            //oculta la primera columna
+            oSLDocument.HideColumn(1, 2);
+            oSLDocument.HideColumn(6, 13);
+            oSLDocument.HideColumn(21, 23);
+            oSLDocument.HideColumn(28, 32);
+            oSLDocument.HideColumn(35, 58);
+
+            //obtiene la fila con la del porcentaje
+            int colPorcentaje = camposPrevios + 1;  //+1 por el campo de si y no
+            int numValores = cabeceraMeses.Count + cabeceraCuartos.Count + cabeceraAnios.Count + cabeceraAniosFY.Count;
+            string colRef = GetCellReference(colPorcentaje);
+
+            for (int i = 2; true; i++) //es infinito hasta se rompe
+            {
+                //lee si tiene un valor en la fila
+                if (!String.IsNullOrEmpty(oSLDocument.GetCellValueAsString(i, 1)))
+                {
+                    for (int j = 1; j <= numValores; j++)
+                    {
+                        int col = j + colPorcentaje;
+
+                        
+                            oSLDocument.SetCellValue(i, col, "='" + hoja1 + "'!" + GetCellReference(col) + i + "*(1+" + colRef + i + ")");
+                        
+                    }
+                }
+                else
+                { //termina el for
+                    break;
+                }
+
+            }
+
+
+            dt = new System.Data.DataTable();
+
+
+            #endregion
+
+
             ///
+            //vuelve a selecciona la hoja 1
+            oSLDocument.SelectWorksheet(hoja1);
 
             System.IO.Stream stream = new System.IO.MemoryStream();
 

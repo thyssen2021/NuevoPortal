@@ -62,6 +62,7 @@
           <Property Name="sop_start_of_production" Type="datetime" />
           <Property Name="eop_end_of_production" Type="datetime" />
           <Property Name="comentario" Type="varchar" MaxLength="150" />
+          <Property Name="porcentaje_scrap" Type="decimal" Precision="3" Scale="2" />
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="BG_IHS_division">
@@ -71,6 +72,7 @@
           <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="id_ihs_item" Type="int" Nullable="false" />
           <Property Name="comentario" Type="varchar" MaxLength="150" />
+          <Property Name="porcentaje_scrap" Type="decimal" Precision="3" Scale="2" />
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="BG_IHS_item">
@@ -8626,9 +8628,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="BG_IHS_rel_regiones" EntitySet="BG_IHS_rel_regiones" />
           </AssociationSet>
           <EntitySet Name="BG_IHS_rel_segmentos" EntityType="Portal_2_0Model.BG_IHS_rel_segmentos" />
-          <EntitySet Name="BG_IHS_division" EntityType="Portal_2_0Model.BG_IHS_division" />
           <EntitySet Name="BG_IHS_rel_combinacion" EntityType="Portal_2_0Model.BG_IHS_rel_combinacion" />
           <EntitySet Name="BG_IHS_rel_division" EntityType="Portal_2_0Model.BG_IHS_rel_division" />
+          <AssociationSet Name="FK_BG_IHS_rel_combinacion_id_ihs_item" Association="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_item">
+            <End Role="BG_IHS_item" EntitySet="BG_IHS_item" />
+            <End Role="BG_IHS_rel_combinacion" EntitySet="BG_IHS_rel_combinacion" />
+          </AssociationSet>
+          <EntitySet Name="BG_IHS_combinacion" EntityType="Portal_2_0Model.BG_IHS_combinacion" />
+          <EntitySet Name="BG_IHS_division" EntityType="Portal_2_0Model.BG_IHS_division" />
+          <AssociationSet Name="FK_BG_IHS_rel_combinacion_id_ihs_combinacion" Association="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_combinacion">
+            <End Role="BG_IHS_combinacion" EntitySet="BG_IHS_combinacion" />
+            <End Role="BG_IHS_rel_combinacion" EntitySet="BG_IHS_rel_combinacion" />
+          </AssociationSet>
           <AssociationSet Name="FK_BG_IHS_division_id_ihs_item" Association="Portal_2_0Model.FK_BG_IHS_division_id_ihs_item">
             <End Role="BG_IHS_item" EntitySet="BG_IHS_item" />
             <End Role="BG_IHS_division" EntitySet="BG_IHS_division" />
@@ -8636,15 +8647,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <AssociationSet Name="FK_BG_IHS_rel_division_id_ihs_division" Association="Portal_2_0Model.FK_BG_IHS_rel_division_id_ihs_division">
             <End Role="BG_IHS_division" EntitySet="BG_IHS_division" />
             <End Role="BG_IHS_rel_division" EntitySet="BG_IHS_rel_division" />
-          </AssociationSet>
-          <AssociationSet Name="FK_BG_IHS_rel_combinacion_id_ihs_item" Association="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_item">
-            <End Role="BG_IHS_item" EntitySet="BG_IHS_item" />
-            <End Role="BG_IHS_rel_combinacion" EntitySet="BG_IHS_rel_combinacion" />
-          </AssociationSet>
-          <EntitySet Name="BG_IHS_combinacion" EntityType="Portal_2_0Model.BG_IHS_combinacion" />
-          <AssociationSet Name="FK_BG_IHS_rel_combinacion_id_ihs_combinacion" Association="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_combinacion">
-            <End Role="BG_IHS_combinacion" EntitySet="BG_IHS_combinacion" />
-            <End Role="BG_IHS_rel_combinacion" EntitySet="BG_IHS_rel_combinacion" />
           </AssociationSet>
         </EntityContainer>
         <EntityType Name="GV_usuarios">
@@ -8882,8 +8884,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="porcentaje_scrap" Type="Decimal" Nullable="false" Precision="5" Scale="2" />
           <NavigationProperty Name="BG_IHS_rel_demanda" Relationship="Portal_2_0Model.FK_BG_IHS_rel_demanda_id_ihs_item" FromRole="BG_IHS_item" ToRole="BG_IHS_rel_demanda" />
           <NavigationProperty Name="BG_IHS_rel_cuartos" Relationship="Portal_2_0Model.FK_BG_IHS_rel_cuartos_id_ihs_item" FromRole="BG_IHS_item" ToRole="BG_IHS_rel_cuartos" />
-          <NavigationProperty Name="BG_IHS_division" Relationship="Portal_2_0Model.FK_BG_IHS_division_id_ihs_item" FromRole="BG_IHS_item" ToRole="BG_IHS_division" />
           <NavigationProperty Name="BG_IHS_rel_combinacion" Relationship="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_item" FromRole="BG_IHS_item" ToRole="BG_IHS_rel_combinacion" />
+          <NavigationProperty Name="BG_IHS_division" Relationship="Portal_2_0Model.FK_BG_IHS_division_id_ihs_item" FromRole="BG_IHS_item" ToRole="BG_IHS_division" />
         </EntityType>
         <EntityType Name="BG_IHS_rel_demanda">
           <Key>
@@ -9169,17 +9171,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="flat_rolled_steel_usage" Type="Int32" />
           <Property Name="blanks_usage_percent" Type="Decimal" Precision="3" Scale="2" />
         </EntityType>
-        <EntityType Name="BG_IHS_division">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_ihs_item" Type="Int32" Nullable="false" />
-          <Property Name="comentario" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="activo" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="BG_IHS_item" Relationship="Portal_2_0Model.FK_BG_IHS_division_id_ihs_item" FromRole="BG_IHS_division" ToRole="BG_IHS_item" />
-          <NavigationProperty Name="BG_IHS_rel_division" Relationship="Portal_2_0Model.FK_BG_IHS_rel_division_id_ihs_division" FromRole="BG_IHS_division" ToRole="BG_IHS_rel_division" />
-        </EntityType>
         <EntityType Name="BG_IHS_rel_combinacion">
           <Key>
             <PropertyRef Name="id" />
@@ -9202,30 +9193,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="activo" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="BG_IHS_division" Relationship="Portal_2_0Model.FK_BG_IHS_rel_division_id_ihs_division" FromRole="BG_IHS_rel_division" ToRole="BG_IHS_division" />
         </EntityType>
-        <Association Name="FK_BG_IHS_division_id_ihs_item">
-          <End Type="Portal_2_0Model.BG_IHS_item" Role="BG_IHS_item" Multiplicity="1" />
-          <End Type="Portal_2_0Model.BG_IHS_division" Role="BG_IHS_division" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="BG_IHS_item">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="BG_IHS_division">
-              <PropertyRef Name="id_ihs_item" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_BG_IHS_rel_division_id_ihs_division">
-          <End Type="Portal_2_0Model.BG_IHS_division" Role="BG_IHS_division" Multiplicity="1" />
-          <End Type="Portal_2_0Model.BG_IHS_rel_division" Role="BG_IHS_rel_division" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="BG_IHS_division">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="BG_IHS_rel_division">
-              <PropertyRef Name="id_ihs_division" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_BG_IHS_rel_combinacion_id_ihs_item">
           <End Type="Portal_2_0Model.BG_IHS_item" Role="BG_IHS_item" Multiplicity="1" />
           <End Type="Portal_2_0Model.BG_IHS_rel_combinacion" Role="BG_IHS_rel_combinacion" Multiplicity="*" />
@@ -9250,8 +9217,21 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="sop_start_of_production" Type="DateTime" Precision="3" />
           <Property Name="eop_end_of_production" Type="DateTime" Precision="3" />
           <Property Name="comentario" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="porcentaje_scrap" Type="Decimal" Precision="3" Scale="2" />
           <Property Name="activo" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="BG_IHS_rel_combinacion" Relationship="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_ihs_combinacion" FromRole="BG_IHS_combinacion" ToRole="BG_IHS_rel_combinacion" />
+        </EntityType>
+        <EntityType Name="BG_IHS_division">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_ihs_item" Type="Int32" Nullable="false" />
+          <Property Name="comentario" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="porcentaje_scrap" Type="Decimal" Precision="3" Scale="2" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="BG_IHS_item" Relationship="Portal_2_0Model.FK_BG_IHS_division_id_ihs_item" FromRole="BG_IHS_division" ToRole="BG_IHS_item" />
+          <NavigationProperty Name="BG_IHS_rel_division" Relationship="Portal_2_0Model.FK_BG_IHS_rel_division_id_ihs_division" FromRole="BG_IHS_division" ToRole="BG_IHS_rel_division" />
         </EntityType>
         <Association Name="FK_BG_IHS_rel_combinacion_id_ihs_combinacion">
           <End Type="Portal_2_0Model.BG_IHS_combinacion" Role="BG_IHS_combinacion" Multiplicity="1" />
@@ -9262,6 +9242,30 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Principal>
             <Dependent Role="BG_IHS_rel_combinacion">
               <PropertyRef Name="id_ihs_combinacion" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BG_IHS_division_id_ihs_item">
+          <End Type="Portal_2_0Model.BG_IHS_item" Role="BG_IHS_item" Multiplicity="1" />
+          <End Type="Portal_2_0Model.BG_IHS_division" Role="BG_IHS_division" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="BG_IHS_item">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="BG_IHS_division">
+              <PropertyRef Name="id_ihs_item" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BG_IHS_rel_division_id_ihs_division">
+          <End Type="Portal_2_0Model.BG_IHS_division" Role="BG_IHS_division" Multiplicity="1" />
+          <End Type="Portal_2_0Model.BG_IHS_rel_division" Role="BG_IHS_rel_division" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="BG_IHS_division">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="BG_IHS_rel_division">
+              <PropertyRef Name="id_ihs_division" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -10993,16 +10997,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="BG_IHS_division">
-            <EntityTypeMapping TypeName="Portal_2_0Model.BG_IHS_division">
-              <MappingFragment StoreEntitySet="BG_IHS_division">
-                <ScalarProperty Name="activo" ColumnName="activo" />
-                <ScalarProperty Name="comentario" ColumnName="comentario" />
-                <ScalarProperty Name="id_ihs_item" ColumnName="id_ihs_item" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="BG_IHS_rel_combinacion">
             <EntityTypeMapping TypeName="Portal_2_0Model.BG_IHS_rel_combinacion">
               <MappingFragment StoreEntitySet="BG_IHS_rel_combinacion">
@@ -11028,6 +11022,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <EntityTypeMapping TypeName="Portal_2_0Model.BG_IHS_combinacion">
               <MappingFragment StoreEntitySet="BG_IHS_combinacion">
                 <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="porcentaje_scrap" ColumnName="porcentaje_scrap" />
                 <ScalarProperty Name="comentario" ColumnName="comentario" />
                 <ScalarProperty Name="eop_end_of_production" ColumnName="eop_end_of_production" />
                 <ScalarProperty Name="sop_start_of_production" ColumnName="sop_start_of_production" />
@@ -11035,6 +11030,17 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
                 <ScalarProperty Name="production_plant" ColumnName="production_plant" />
                 <ScalarProperty Name="production_brand" ColumnName="production_brand" />
                 <ScalarProperty Name="vehicle" ColumnName="vehicle" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="BG_IHS_division">
+            <EntityTypeMapping TypeName="Portal_2_0Model.BG_IHS_division">
+              <MappingFragment StoreEntitySet="BG_IHS_division">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="porcentaje_scrap" ColumnName="porcentaje_scrap" />
+                <ScalarProperty Name="comentario" ColumnName="comentario" />
+                <ScalarProperty Name="id_ihs_item" ColumnName="id_ihs_item" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

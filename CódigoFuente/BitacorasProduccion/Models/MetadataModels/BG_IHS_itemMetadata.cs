@@ -437,7 +437,7 @@ namespace Portal_2_0.Models
 
             foreach (var item in cabeceraTabla)
             {
-                DateTime fechaInicial = new DateTime(item.anio-1, 10, 1);
+                DateTime fechaInicial = new DateTime(item.anio, 10, 1);
                 DateTime fechaFinal = fechaInicial.AddYears(1).AddDays(-1);
 
                 var rel = new Models.BG_IHS_item_anios
@@ -448,7 +448,6 @@ namespace Portal_2_0.Models
                 };
 
                 //obtiene los items que abarca el periodo
-
                 List<BG_IHS_rel_demanda> mesesPeriodo = meses.Where(x => x != null && x.fecha >= fechaInicial && x.fecha <= fechaFinal).ToList();
 
                 //verifica si tiene meses en el periodo
@@ -457,9 +456,11 @@ namespace Portal_2_0.Models
                     rel.cantidad = mesesPeriodo.Sum(x => x.cantidad);
                     rel.origen_datos = Enum_BG_origen_anios.Calculado;
                 }
-                else //si no tiene meses lo toma directamente de la tabla cuartos
+                else //si no tiene meses lo toma directamente de la tabla cuartos 
                 {
-                    var cuartos = this.BG_IHS_rel_cuartos.Where(x => x.anio == item.anio).ToList();
+                    List<BG_IHS_rel_cuartos> cuartosRel = this.BG_IHS_rel_cuartos.ToList();
+
+                    var cuartos = this.BG_IHS_rel_cuartos.Where(x => (x.anio == item.anio && x.cuarto ==4) || (x.anio == (item.anio+1) && x.cuarto < 4)).ToList();
 
                     if (cuartos.Count > 0)
                     {

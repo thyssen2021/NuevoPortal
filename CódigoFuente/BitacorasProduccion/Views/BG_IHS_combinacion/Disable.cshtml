@@ -1,13 +1,12 @@
 ﻿@model Portal_2_0.Models.BG_IHS_combinacion
 
 @{
-    ViewBag.Title = "Detalles de Combinación IHS";
+    ViewBag.Title = "Deshabilitar Combinación de IHS";
     ViewBag.PrimerNivel = "budget_ihs";
     ViewBag.SegundoNivel = "BG_IHS_combinacion";
     ViewBag.ControllerName = "BG_IHS_combinacion";
 
     int contador = 100;
-
 
     var cabeceraDemanda = Portal_2_0.Models.BG_IHS_UTIL.GetCabecera();
     var cabeceraCuartos = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraCuartos();
@@ -131,6 +130,7 @@
                                 @Html.EditorFor(model => model.porcentaje_scrap_100, new { htmlAttributes = new { @class = "form-control porcentaje", @type = "text", @readonly = "readonly" } })
                             </div>
                         </div>
+
 
 
                         <div class="ln_solid"></div>
@@ -336,6 +336,27 @@
                         <div class="col-md-12">
                             <div class="ln_solid"></div>
                         </div>
+                        <div class="col-md-12">
+                            <h2>¿Realmente desea DESHABILTAR esta combinacaci&oacute;n de IHS?</h2>
+                            <br />
+                        </div>
+                        <div class="col-md-12">
+                            <p class="float-md-left">
+                                <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = Model.id})" class="btn btn-success btm-sm" title="Editar">
+                                    <i class="fa-regular fa-pen-to-square"></i> Editar
+                                </a>
+                            </p>
+                            <p class="float-md-right">
+                                @using (Html.BeginForm())
+                                {
+                                    @Html.AntiForgeryToken()
+
+                                    <div class="form-actions no-color float-md-right">
+                                        <input type="submit" value="Deshabilitar" class="btn btn-danger btm-sm" />
+                                    </div>
+                                }
+                            </p>
+                        </div>
                     </div>
                 </div>
                 <div>
@@ -359,6 +380,7 @@
     @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
     <!-- input mask -->
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+
 <script>
         $(document).ready(function () {
 
@@ -384,7 +406,6 @@
         function CargaRow(demanda) {
             let items_seleccionados = [];
 
-
             let porcentaje = $('#@Html.IdFor(model => model.porcentaje_scrap_100)').val();
 
             if (isNaN(porcentaje))
@@ -396,6 +417,7 @@
 
                 if (value != "")
                     items_seleccionados.push(value);
+
             });
 
 

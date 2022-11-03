@@ -283,6 +283,7 @@
     <Compile Include="Controllers\BG_CentroCostoController.cs" />
     <Compile Include="Controllers\BG_CuentasSAPController.cs" />
     <Compile Include="Controllers\BG_IHS_combinacionController.cs" />
+    <Compile Include="Controllers\BG_IHS_divisionController.cs" />
     <Compile Include="Controllers\BG_IHS_itemController.cs" />
     <Compile Include="Controllers\BG_IHS_regionesController.cs" />
     <Compile Include="Controllers\BG_IHS_rel_regionesController.cs" />
@@ -589,6 +590,7 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\MetadataModels\BG_IHS_combinacionMetadata.cs" />
+    <Compile Include="Models\MetadataModels\BG_IHS_divisionMetadata.cs" />
     <Compile Include="Models\MetadataModels\BG_IHS_itemMetadata.cs" />
     <Compile Include="Models\MetadataModels\BG_IHS_regionesMetadata.cs" />
     <Compile Include="Models\MetadataModels\BG_IHS_rel_cuartosMetadata.cs" />
@@ -7282,10 +7284,17 @@
     <Content Include="Views\BG_IHS_rel_segmentos\Index.cshtml" />
     <Content Include="Views\BG_IHS_item\CargaDemandaCliente.cshtml" />
     <Content Include="Views\BG_IHS_combinacion\Create.cshtml" />
-    <Content Include="Views\BG_IHS_combinacion\Delete.cshtml" />
     <Content Include="Views\BG_IHS_combinacion\Details.cshtml" />
     <Content Include="Views\BG_IHS_combinacion\Edit.cshtml" />
     <Content Include="Views\BG_IHS_combinacion\Index.cshtml" />
+    <Content Include="Views\BG_IHS_combinacion\Disable.cshtml" />
+    <Content Include="Views\BG_IHS_combinacion\Enable.cshtml" />
+    <Content Include="Views\BG_IHS_division\Create.cshtml" />
+    <Content Include="Views\BG_IHS_division\Details.cshtml" />
+    <Content Include="Views\BG_IHS_division\Edit.cshtml" />
+    <Content Include="Views\BG_IHS_division\Index.cshtml" />
+    <Content Include="Views\BG_IHS_division\Enable.cshtml" />
+    <Content Include="Views\BG_IHS_division\Disable.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

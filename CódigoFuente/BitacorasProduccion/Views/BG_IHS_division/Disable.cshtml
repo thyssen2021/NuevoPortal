@@ -1,10 +1,10 @@
-﻿@model Portal_2_0.Models.BG_IHS_combinacion
+﻿@model Portal_2_0.Models.BG_IHS_division
 
 @{
-    ViewBag.Title = "Detalles de Combinación IHS";
+    ViewBag.Title = "Deshabilitar División de IHS";
     ViewBag.PrimerNivel = "budget_ihs";
-    ViewBag.SegundoNivel = "BG_IHS_combinacion";
-    ViewBag.ControllerName = "BG_IHS_combinacion";
+    ViewBag.SegundoNivel = "BG_IHS_division";
+    ViewBag.ControllerName = "BG_IHS_division";
 
     int contador = 100;
 
@@ -87,51 +87,28 @@
                     </div>
                     <div class="x_content">
 
-
-
                         <div class="form-group row">
                             <span style="color:black"><b>DATOS GENERALES</b></span>
                         </div>
 
-                        <div class="item form-group">
-                            @Html.LabelFor(model => model.vehicle, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                            <div class="col-md-5 col-sm-5 ">
-                                @Html.EditorFor(model => model.vehicle, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
-                                @Html.ValidationMessageFor(model => model.vehicle, "", new { @class = "text-danger" })
+                        <div class="form-group row">
+                            @Html.HiddenFor(model => model.id_ihs_item)
+                            <!-- IHS Item -->
+                            @Html.LabelFor(model => model.id_ihs_item, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            <div class="col-md-8 col-sm-8">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => Model.BG_IHS_item.ConcatCodigo)" readonly />
                             </div>
-                            @Html.LabelFor(model => model.production_brand, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                            <div class="col-md-5 col-sm-5">
-                                @Html.EditorFor(model => model.production_brand, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
-                                @Html.ValidationMessageFor(model => model.production_brand, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
-                        <div class="item form-group">
-                            @Html.LabelFor(model => model.production_plant, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                            <div class="col-md-5 col-sm-5 ">
-                                @Html.EditorFor(model => model.production_plant, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
-                            </div>
-                            @Html.LabelFor(model => model.manufacturer_group, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                            <div class="col-md-5 col-sm-5">
-                                @Html.EditorFor(model => model.manufacturer_group, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
-                            </div>
-                        </div>
 
-                        <div class="item form-group">
-                            @Html.LabelFor(model => model.sop_start_of_production, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                            <div class="col-md-3 col-sm-3">
-                                <input type="month" id="sop_start_of_production" name="sop_start_of_production" class="form-control" value="@(Model.sop_start_of_production.HasValue? Model.sop_start_of_production.Value.ToString("yyyy-MM") : String.Empty )" disabled />
-                            </div>
-                            @Html.LabelFor(model => model.eop_end_of_production, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                            <div class="col-md-3 col-sm-3">
-                                <input type="month" id="eop_end_of_production" name="eop_end_of_production" class="form-control" value="@(Model.eop_end_of_production.HasValue? Model.eop_end_of_production.Value.ToString("yyyy-MM") : String.Empty )" disabled />
+                            <div class="col-md-1 col-sm-1">
+                                <button type="button" id="btn-info-cell" onclick="mostrarDetalles(); return false;" class="btn btn-primary btn-sm" title="Ver Detalles" style="display: @(Model.id_ihs_item>0?"block":"none")"> <i class="fa-solid fa-eye"></i></button>
                             </div>
                             <!-- porcentaje scrap-->
-                            @Html.LabelFor(model => model.porcentaje_scrap_100, new { @class = "control-label col-md-2" })
-                            <div class="col-md-2">
+                            @Html.LabelFor(model => model.porcentaje_scrap_100, new { @class = "control-label col-md-1" })
+                            <div class="col-md-1">
                                 @Html.EditorFor(model => model.porcentaje_scrap_100, new { htmlAttributes = new { @class = "form-control porcentaje", @type = "text", @readonly = "readonly" } })
+                                @Html.ValidationMessageFor(model => model.porcentaje_scrap_100, "", new { @class = "text-danger" })
                             </div>
                         </div>
-
 
                         <div class="ln_solid"></div>
                         <div class="form-group row">
@@ -140,23 +117,37 @@
 
                         @*SELECCION DE ELEMENTOS IHS*@
 
-                        <div id="div_rel_combinaciones">
-                            @foreach (var rel_combinacion in Model.BG_IHS_rel_combinacion)
+                        <div id="div_rel_divisiones">
+                            @foreach (var rel_division in Model.BG_IHS_rel_division)
                             {
                                 <div class="form-group row" id="div_items_ihs_@contador">
-                                    <input type="hidden" name="hidden_id_ish_@contador" id="hidden_id_ish_@contador" value="@rel_combinacion.id_ihs_item" class="ihs-item" />
-                                    <label class="control-label col-md-1" for="BG_IHS_rel_combinacion[@contador].id_ihs_item">
-                                        <span class="float-right">IHS item</span>
+                                    @* Necesario para auto binding *@
+                                    <input type="hidden" name="BG_IHS_rel_division.Index" id="BG_IHS_rel_division.Index" value="@contador" />
+                                    <input type="hidden" class="porcentaje-contador" name="porcentaje_@contador" id="porcentaje_@contador" value="@contador" />
+                                    <input type="hidden" name="BG_IHS_rel_division[@contador].id_ihs_division" id="BG_IHS_rel_division[@contador].id_ihs_division" value="@Model.id" />
+
+                                    <label class="control-label col-md-1" for="BG_IHS_rel_division[@contador].vehicle">
+                                        <span class="float-right">Vehicle</span>
                                     </label>
-                                    <div class="col-md-8">
-                                        <input type="text" class="form-control" value="@Html.DisplayFor(model => rel_combinacion.BG_IHS_item.ConcatCodigo)" readonly />
+                                    <div class="col-md-4">
+                                        <input type="text" maxlength="100" class="form-control calculo-porcentaje" name="BG_IHS_rel_division[@contador].vehicle" id="BG_IHS_rel_division[@contador].vehicle" value="@rel_division.vehicle" readonly />
+                                        <span class="field-validation-valid text-danger" data-valmsg-for="BG_IHS_rel_division[@contador].vehicle" data-valmsg-replace="true"></span>
                                     </div>
-                                    <div class="col-md-1 col-sm-1">
-                                        <button type="button" id="btn-info-cell_@contador" onclick="mostrarDetalles(@contador); return false;" class="btn btn-primary btn-sm" title="Ver Detalles"> <i class="fa-solid fa-eye"></i></button>
+                                    <label class="control-label col-md-1" for="BG_IHS_rel_division[@contador].production_nameplate">
+                                        <span class="float-right">Production Nameplate</span>
+                                    </label>
+                                    <div class="col-md-3">
+                                        <input type="text" maxlength="30" class="form-control calculo-porcentaje" name="BG_IHS_rel_division[@contador].production_nameplate" id="BG_IHS_rel_division[@contador].production_nameplate" value="@rel_division.production_nameplate" readonly />
+                                        <span class="field-validation-valid text-danger" data-valmsg-for="BG_IHS_rel_division[@contador].production_nameplate" data-valmsg-replace="true"></span>
                                     </div>
-
+                                    <label class="control-label col-md-1" for="BG_IHS_rel_division[@contador].porcentaje">
+                                        <span class="float-right">%</span>
+                                    </label>
+                                    <div class="col-md-1">
+                                        <input type="number" min="0" max="100" step="1" class="form-control calculo-porcentaje" name="BG_IHS_rel_division[@contador].porcentaje" id="BG_IHS_rel_division[@contador].porcentaje" value="@rel_division.porcentaje" readonly />
+                                        <span class="field-validation-valid text-danger" data-valmsg-for="BG_IHS_rel_division[@contador].porcentaje" data-valmsg-replace="true"></span>
+                                    </div>
                                 </div>
-
                                 contador++;
                             }
                         </div>
@@ -166,14 +157,13 @@
 
                         </div>
 
-
                         <div class="ln_solid"></div>
                         <div class="item form-group">
                             @Html.LabelFor(model => model.comentario, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align:left" })
                         </div>
                         <div class="item form-group">
                             <div class="col-md-12">
-                                @Html.TextAreaFor(model => model.comentario, new { @class = "form-control", @rows = "4", @autocomplete = "off", @readonly = "readonly" })
+                                @Html.TextAreaFor(model => model.comentario, new { @class = "form-control", @rows = "4", @readonly = "readonly" })
                             </div>
                         </div>
 
@@ -182,7 +172,6 @@
                         <div class="form-group row">
                             <span style="color:black"><b>DEMANDA ORIGINAL (IHS)</b></span>
                         </div>
-
 
                         <div class="table-responsive">
 
@@ -208,10 +197,10 @@
                                             Program
                                         </th>
                                         <th>
-                                            Production Nameplate
+                                            Vehicle
                                         </th>
                                         <th>
-                                            Vehicle
+                                            Production Nameplate
                                         </th>
                                         <th>
                                             SOP
@@ -287,10 +276,10 @@
                                             Program
                                         </th>
                                         <th>
-                                            Production Nameplate
+                                            Vehicle
                                         </th>
                                         <th>
-                                            Vehicle
+                                            Production Nameplate
                                         </th>
                                         <th>
                                             SOP
@@ -330,12 +319,37 @@
                                 <tbody id="body_conceptos_CUSTOMER">
                                     @*Agrega de forma dinámica los elementos*@
                                 </tbody>
+
                             </table>
+
                         </div>
+
 
                         <div class="col-md-12">
                             <div class="ln_solid"></div>
                         </div>
+                        <div class="col-md-12">
+                            <h2>¿Realmente desea DESHABILTAR esta divisi&oacute;n de IHS?</h2>
+                            <br />
+                        </div>
+                        <div class="col-md-12">
+                            <p class="float-md-left">
+                                <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = Model.id})" class="btn btn-success btm-sm" title="Editar">
+                                    <i class="fa-regular fa-pen-to-square"></i> Editar
+                                </a>
+                            </p>
+                            <p class="float-md-right">
+                                @using (Html.BeginForm())
+                                {
+                                    @Html.AntiForgeryToken()
+
+                                    <div class="form-actions no-color float-md-right">
+                                        <input type="submit" value="Deshabilitar" class="btn btn-danger btm-sm" />
+                                    </div>
+                                }
+                            </p>
+                        </div>
+
                     </div>
                 </div>
                 <div>
@@ -350,7 +364,6 @@
 </div>
 
 
-
 @section Scripts {
     @Scripts.Render(Url.Content("~/Content/vendors/jquery-iu/jquery-ui.min.js"))
     @Scripts.Render("~/bundles/jqueryval")
@@ -359,6 +372,7 @@
     @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
     <!-- input mask -->
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+
 <script>
         $(document).ready(function () {
 
@@ -366,14 +380,12 @@
             $('.select2bs4').select2({
                 theme: 'bootstrap4'
             })
-
-             //llamada al metodo para cargar las filas
-            CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
-            CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
-
             //input mask
             $('.porcentaje').inputmask({ 'alias': 'integer', 'groupSeparator': ',', 'autoGroup': true, 'digits': 0, 'digitsOptional': false, 'suffix': ' %', 'allowMinus': false, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
 
+
+            calculaValores('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
+            calculaValores('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
 
         });
 
@@ -381,33 +393,82 @@
         var num = 0;
 
 
-        function CargaRow(demanda) {
-            let items_seleccionados = [];
+    function calculaValoresPorcentaje(demanda) {
+        let contador = 1;
+
+        //borra lo que habia previamente
+            $("tr").remove(".calculos_"+demanda);
+
+             //obtiene una lista con los porcentajes agregados
+            $('.porcentaje-contador').each(function () {
+                var row = $(this).val();
+
+                let vehicle = document.getElementById("BG_IHS_rel_division[" + row + "].vehicle").value;
+                let production_nameplate = document.getElementById("BG_IHS_rel_division[" + row + "].production_nameplate").value;
+                let porcentaje = document.getElementById("BG_IHS_rel_division[" + row + "].porcentaje").value;
+
+                let porcentajeFloat = !isNaN(porcentaje) ? (parseFloat(porcentaje)/100) : 0;
 
 
-            let porcentaje = $('#@Html.IdFor(model => model.porcentaje_scrap_100)').val();
+                let fila = `
+                         <tr style="background-color: #E3FFE3;" class="calculos_`+ demanda +`">
+                            <td>(`+ contador +`)</td>
+                            <td colspan="4"></td>
+                            <td style="font-weight:bold">`+ porcentaje +` %</td>
+                            <td>`+ vehicle +`</td>
+                            <td>`+ production_nameplate +`</td>
+                            <td colspan="3"></td>
+                    `;
+
+                //obtiene todos los valores segun la demanda
+                $('.valores-' + demanda).each(function () {
+                    let valor_original = $(this).html();
+                    if (!isNaN(valor_original)) {
+                        valor_original = parseFloat(valor_original) * porcentajeFloat;
+                    }
+                    //verifica si el valor original es un número
+                    if (!isNaN(valor_original)) {
+                        fila += "<td>" + valor_original.toFixed(2)+ "</td>";
+                    } else {
+                        fila += "<td></td>";
+                    }
+
+
+                });
+
+                fila += `</tr>`;
+
+
+                $('#body_conceptos_'+demanda).append(fila);
+
+                contador++;
+            });
+
+        }
+
+
+
+        function calculaValores(demanda) {
+
+            let ihs_value = $('#@Html.IdFor(model => model.id_ihs_item)').val();
+
+               let porcentaje = $('#@Html.IdFor(model => model.porcentaje_scrap_100)').val();
 
             if (isNaN(porcentaje))
                 porcentaje = 0; //100%
 
-            //obtiene la lista de los ids enviados
-            $('.ihs-item').each(function () {
-                var value = $(this).val();
-
-                if (value != "")
-                    items_seleccionados.push(value);
-            });
-
-
-            if (items_seleccionados.length > 0) {
+            if (ihs_value != "") {
                 $.ajax({
                     type: 'POST',
-                    url: '/BG_IHS_combinacion/GetRows',
-                    data: { data: items_seleccionados, demanda: demanda, porcentaje: porcentaje },
+                    url: '/BG_IHS_division/GetRows',
+                    data: { id_ihs: ihs_value, demanda: demanda, porcentaje: porcentaje },
                     // contentType: 'application/json',
                     success: function (data) {
                         try {
                             $('#body_conceptos_' + demanda).html(data[0].value);
+                    //llamada al metodo para cargar las filas
+                    calculaValoresPorcentaje('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
+                    calculaValoresPorcentaje('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
                         }
                         catch (error) {
                             Swal.fire({
@@ -428,15 +489,19 @@
                     },
                     async: true
                 });
+            } else { //si ihs esta vacio
+                //se borra el contenido de la tabla
+                $('#body_conceptos_' + demanda).html('');
             }
+
         }
 
-    function mostrarDetalles(contador) {
-        var e = document.getElementById("BG_IHS_rel_combinacion[" + contador + "].id_ihs_item");
-        var value = e.value;
-        window.open('/BG_IHS_item/Details/' + value + '', 'popup', "width=" + screen.width * .80 + ",height=" + screen.height * .80 + "");
+        function mostrarDetalles() {
+            var value =  $('#@Html.IdFor(model => model.id_ihs_item)').val();
 
-    }
+            window.open('/BG_IHS_item/Details/' + value + '', 'popup', "width=" + screen.width * .80 + ",height=" + screen.height * .80 + "");
+
+        }
         window.onload = function () {
             clicMenu(1);
         }

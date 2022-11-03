@@ -1,14 +1,13 @@
-﻿@model Portal_2_0.Models.BG_IHS_combinacion
+﻿@model Portal_2_0.Models.BG_IHS_division
 
 @{
-    ViewBag.Title = "Editar Combinación IHS";
+    ViewBag.Title = "Editar División de IHS";
     ViewBag.PrimerNivel = "budget_ihs";
-    ViewBag.SegundoNivel = "BG_IHS_combinacion";
-    ViewBag.ControllerName = "BG_IHS_combinacion";
+    ViewBag.SegundoNivel = "BG_IHS_division";
+    ViewBag.ControllerName = "BG_IHS_division";
 
     int contador = 100;
 
-    List<Portal_2_0.Models.BG_IHS_item> listadoIHSItems = (List<Portal_2_0.Models.BG_IHS_item>)ViewBag.listadoIHSItems;
 
     var cabeceraDemanda = Portal_2_0.Models.BG_IHS_UTIL.GetCabecera();
     var cabeceraCuartos = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraCuartos();
@@ -105,45 +104,20 @@
                                 <span style="color:black"><b>DATOS GENERALES</b></span>
                             </div>
 
-                            <div class="item form-group">
-                                @Html.LabelFor(model => model.vehicle, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-5 col-sm-5 ">
-                                    @Html.EditorFor(model => model.vehicle, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                                    @Html.ValidationMessageFor(model => model.vehicle, "", new { @class = "text-danger" })
+                            <div class="form-group row">
+                                <!-- IHS Item -->
+                                @Html.LabelFor(model => model.id_ihs_item, new { @class = "control-label col-md-1" })
+                                <div class="col-md-8">
+                                    @Html.DropDownList("id_ihs_item", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @Html.ValidationMessageFor(model => model.id_ihs_item, "", new { @class = "text-danger" })
                                 </div>
-                                @Html.LabelFor(model => model.production_brand, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-5 col-sm-5">
-                                    @Html.EditorFor(model => model.production_brand, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                                    @Html.ValidationMessageFor(model => model.production_brand, "", new { @class = "text-danger" })
-                                </div>
-                            </div>
-                            <div class="item form-group">
-                                @Html.LabelFor(model => model.production_plant, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-5 col-sm-5 ">
-                                    @Html.EditorFor(model => model.production_plant, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                                    @Html.ValidationMessageFor(model => model.production_plant, "", new { @class = "text-danger" })
-                                </div>
-                                @Html.LabelFor(model => model.manufacturer_group, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-5 col-sm-5">
-                                    @Html.EditorFor(model => model.manufacturer_group, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                                    @Html.ValidationMessageFor(model => model.manufacturer_group, "", new { @class = "text-danger" })
-                                </div>
-                            </div>
 
-                            <div class="item form-group">
-                                @Html.LabelFor(model => model.sop_start_of_production, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-3 col-sm-3">
-                                    <input type="month" id="sop_start_of_production" name="sop_start_of_production" class="form-control" value="@(Model.sop_start_of_production.HasValue? Model.sop_start_of_production.Value.ToString("yyyy-MM") : String.Empty )" />
-                                    @Html.ValidationMessageFor(model => model.sop_start_of_production, "", new { @class = "text-danger" })
-                                </div>
-                                @Html.LabelFor(model => model.eop_end_of_production, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-3 col-sm-3">
-                                    <input type="month" id="eop_end_of_production" name="eop_end_of_production" class="form-control" value="@(Model.eop_end_of_production.HasValue? Model.eop_end_of_production.Value.ToString("yyyy-MM") : String.Empty )" />
-                                    @Html.ValidationMessageFor(model => model.eop_end_of_production, "", new { @class = "text-danger" })
+                                <div class="col-md-1 col-sm-1">
+                                    <button type="button" id="btn-info-cell" onclick="mostrarDetalles(); return false;" class="btn btn-primary btn-sm" title="Ver Detalles" style="display: @(Model.id_ihs_item>0?"block":"none")"> <i class="fa-solid fa-eye"></i></button>
                                 </div>
                                 <!-- porcentaje scrap-->
-                                @Html.LabelFor(model => model.porcentaje_scrap_100, new { @class = "control-label col-md-2" })
-                                <div class="col-md-2">
+                                @Html.LabelFor(model => model.porcentaje_scrap_100, new { @class = "control-label col-md-1" })
+                                <div class="col-md-1">
                                     @Html.EditorFor(model => model.porcentaje_scrap_100, new { htmlAttributes = new { @class = "form-control porcentaje", @type = "text" } })
                                     @Html.ValidationMessageFor(model => model.porcentaje_scrap_100, "", new { @class = "text-danger" })
                                 </div>
@@ -156,35 +130,40 @@
 
                             @*SELECCION DE ELEMENTOS IHS*@
 
-                            <div id="div_rel_combinaciones">
-                                @foreach (var rel_combinacion in Model.BG_IHS_rel_combinacion)
+                            <div id="div_rel_divisiones">
+                                @foreach (var rel_division in Model.BG_IHS_rel_division)
                                 {
                                     <div class="form-group row" id="div_items_ihs_@contador">
                                         @* Necesario para auto binding *@
-                                        <input type="hidden" name="BG_IHS_rel_combinacion.Index" id="BG_IHS_rel_combinacion.Index" value="@contador" />
-                                        <input type="hidden" name="BG_IHS_rel_combinacion[@contador].id" id="BG_IHS_rel_combinacion[@contador].id" value="@rel_combinacion.id" />
-                                        <input type="hidden" name="BG_IHS_rel_combinacion[@contador].id_ihs_combinacion" id="BG_IHS_rel_combinacion[@contador].id_ihs_combinacion" value="@Model.id" />
-                                        <label class="control-label col-md-1" for="BG_IHS_rel_combinacion[@contador].id_ihs_item">
-                                            <span class="float-right">IHS item</span>
+                                        <input type="hidden" name="BG_IHS_rel_division.Index" id="BG_IHS_rel_division.Index" value="@contador" />
+                                        <input type="hidden" class="porcentaje-contador" name="porcentaje_@contador" id="porcentaje_@contador" value="@contador" />
+                                        <input type="hidden" name="BG_IHS_rel_division[@contador].id_ihs_division" id="BG_IHS_rel_division[@contador].id_ihs_division" value="@Model.id" />
+
+                                        <label class="control-label col-md-1" for="BG_IHS_rel_division[@contador].vehicle">
+                                            <span class="float-right">Vehicle</span>
                                         </label>
-                                        <div class="col-md-8">
-                                            <select name="BG_IHS_rel_combinacion[@contador].id_ihs_item" id="BG_IHS_rel_combinacion[@contador].id_ihs_item" data-row="@contador" class="form-control select2bs4 ihs-item" style="width:100%" required>
-                                                <option value=''>-- Seleccione un valor --</option>
-                                                @foreach (var item in listadoIHSItems)
-                                                {
-                                                    <option value="@item.id" @(rel_combinacion.id_ihs_item == item.id ? "selected" : null )>@item.ConcatCodigo</option>
-                                                }
-                                            </select>
-                                            <span class="field-validation-valid text-danger" data-valmsg-for="BG_IHS_rel_combinacion[@contador].id_ihs_item" data-valmsg-replace="true"></span>
+                                        <div class="col-md-4">
+                                            <input type="text" maxlength="100" class="form-control calculo-porcentaje" name="BG_IHS_rel_division[@contador].vehicle" id="BG_IHS_rel_division[@contador].vehicle" value="@rel_division.vehicle" autocomplete="off" required />
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="BG_IHS_rel_division[@contador].vehicle" data-valmsg-replace="true"></span>
                                         </div>
-                                        <div class="col-md-1 col-sm-1">
-                                            <button type="button" id="btn-info-cell_@contador" onclick="mostrarDetalles(@contador); return false;" class="btn btn-primary btn-sm" title="Ver Detalles"> <i class="fa-solid fa-eye"></i></button>
+                                        <label class="control-label col-md-1" for="BG_IHS_rel_division[@contador].production_nameplate">
+                                            <span class="float-right">Production Nameplate</span>
+                                        </label>
+                                        <div class="col-md-3">
+                                            <input type="text" maxlength="30" class="form-control calculo-porcentaje" name="BG_IHS_rel_division[@contador].production_nameplate" id="BG_IHS_rel_division[@contador].production_nameplate" value="@rel_division.production_nameplate" autocomplete="off" required />
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="BG_IHS_rel_division[@contador].production_nameplate" data-valmsg-replace="true"></span>
+                                        </div>
+                                        <label class="control-label col-md-1" for="BG_IHS_rel_division[@contador].porcentaje">
+                                            <span class="float-right">%</span>
+                                        </label>
+                                        <div class="col-md-1">
+                                            <input type="number" min="0" max="100" step="1" class="form-control calculo-porcentaje" name="BG_IHS_rel_division[@contador].porcentaje" id="BG_IHS_rel_division[@contador].porcentaje" value="@rel_division.porcentaje" autocomplete="off" required />
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="BG_IHS_rel_division[@contador].porcentaje" data-valmsg-replace="true"></span>
                                         </div>
                                         <div class="col-md-1">
                                             <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarPieza(@contador); return false;">
                                         </div>
                                     </div>
-
                                     contador++;
                                 }
                             </div>
@@ -216,7 +195,6 @@
                                 <span style="color:black"><b>DEMANDA ORIGINAL (IHS)</b></span>
                             </div>
 
-
                             <div class="table-responsive">
 
                                 <table id="datatable_1" class="table data-table table-striped table-bordered nowrap" cellspacing="0" width="100%">
@@ -241,10 +219,10 @@
                                                 Program
                                             </th>
                                             <th>
-                                                Production Nameplate
+                                                Vehicle
                                             </th>
                                             <th>
-                                                Vehicle
+                                                Production Nameplate
                                             </th>
                                             <th>
                                                 SOP
@@ -283,6 +261,7 @@
                                     </thead>
                                     <tbody id="body_conceptos_ORIGINAL">
                                         @*Agrega de forma dinámica los elementos*@
+
                                     </tbody>
 
                                 </table>
@@ -320,10 +299,10 @@
                                                 Program
                                             </th>
                                             <th>
-                                                Production Nameplate
+                                                Vehicle
                                             </th>
                                             <th>
-                                                Vehicle
+                                                Production Nameplate
                                             </th>
                                             <th>
                                                 SOP
@@ -393,14 +372,6 @@
     </div>
 </div>
 
-<!-- options -->
-<div id="select_options" style="display:none">
-    <option value='' selected>-- Seleccione un valor --</option>
-    @foreach (var item in listadoIHSItems)
-    {
-        <option value="@item.id">@item.ConcatCodigo</option>
-    }
-</div>
 
 @section Scripts {
     @Scripts.Render(Url.Content("~/Content/vendors/jquery-iu/jquery-ui.min.js"))
@@ -419,73 +390,118 @@
                 theme: 'bootstrap4'
             })
 
-             //llamada al metodo para cargar las filas
-            CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
-            CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
-
-                  //llamada el método cuando se carga por primera vez
-            $('#@Html.IdFor(model => model.porcentaje_scrap_100)').on('input', function (e) {
-                CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
-                CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
+            $('#@Html.IdFor(model => model.id_ihs_item)').change(function (event) {
+                verificaInfo($(this).val());
+                calculaValores('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
+                calculaValores('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
             });
+
+            //llamada el método cuando se carga por primera vez
+            $('#@Html.IdFor(model => model.id_ihs_item)').change();
 
             //input mask
             $('.porcentaje').inputmask({ 'alias': 'integer', 'groupSeparator': ',', 'autoGroup': true, 'digits': 0, 'digitsOptional': false, 'suffix': ' %', 'allowMinus': false, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
+
+                    //llamada el método cuando se carga por primera vez
+            $('#@Html.IdFor(model => model.porcentaje_scrap_100)').on('input', function (e) {
+                calculaValores('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
+                calculaValores('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
+            });
 
             asignaEvents();
         });
 
         //variable global para el id
         var num = 0;
-        //variable global de los select
-        var textoSelectOptions = obtieneSelect();
 
-        function asignaEvents() {
+         function asignaEvents() {
             //vuelve a asigar el evento on a cada input de los lotes
-            $('.select2bs4').each(function () {
-                $(this).change(function () {
-                    var row = $(this).attr("data-row");
-                    if (row != null)
-                        verificaInfo(row);
-
+            $('.calculo-porcentaje').each(function () {
+                $(this).on('input', function (e) {
                     //llamada al metodo para cargar las filas
-                    CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
-                    CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
-
+                    calculaValoresPorcentaje('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
+                    calculaValoresPorcentaje('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
                 });
 
             });
         }
 
-        function CargaRow(demanda) {
-            let items_seleccionados = [];
+    function calculaValoresPorcentaje(demanda) {
+        let contador = 1;
 
+        //borra lo que habia previamente
+            $("tr").remove(".calculos_"+demanda);
+
+             //obtiene una lista con los porcentajes agregados
+            $('.porcentaje-contador').each(function () {
+                var row = $(this).val();
+
+                let vehicle = document.getElementById("BG_IHS_rel_division[" + row + "].vehicle").value;
+                let production_nameplate = document.getElementById("BG_IHS_rel_division[" + row + "].production_nameplate").value;
+                let porcentaje = document.getElementById("BG_IHS_rel_division[" + row + "].porcentaje").value;
+
+                let porcentajeFloat = !isNaN(porcentaje) ? (parseFloat(porcentaje)/100) : 0;
+
+
+                let fila = `
+                         <tr style="background-color: #E3FFE3;" class="calculos_`+ demanda +`">
+                            <td>(`+ contador +`)</td>
+                            <td colspan="4"></td>
+                            <td style="font-weight:bold">`+ porcentaje +` %</td>
+                            <td>`+ vehicle +`</td>
+                            <td>`+ production_nameplate +`</td>
+                            <td colspan="3"></td>
+                    `;
+
+                //obtiene todos los valores segun la demanda
+                $('.valores-' + demanda).each(function () {
+                    let valor_original = $(this).html();
+                    if (!isNaN(valor_original)) {
+                        valor_original = parseFloat(valor_original) * porcentajeFloat;
+                    }
+                    //verifica si el valor original es un número
+                    if (!isNaN(valor_original)) {
+                        fila += "<td>" + valor_original.toFixed(2)+ "</td>";
+                    } else {
+                        fila += "<td></td>";
+                    }
+
+
+                });
+
+                fila += `</tr>`;
+
+
+                $('#body_conceptos_'+demanda).append(fila);
+
+                contador++;
+            });
+
+        }
+
+
+
+        function calculaValores(demanda) {
+
+            let ihs_value = $('#@Html.IdFor(model => model.id_ihs_item)').val();
 
             let porcentaje = $('#@Html.IdFor(model => model.porcentaje_scrap_100)').val();
 
             if (isNaN(porcentaje))
                 porcentaje = 0; //100%
 
-            //obtiene la lista de los ids enviados
-            $('.ihs-item').each(function () {
-                var value = $(this).val();
-
-                if (value != "")
-                    items_seleccionados.push(value);
-
-            });
-
-            console.log();
-
-            if (items_seleccionados.length > 0) {
+            if (ihs_value != "") {
                 $.ajax({
                     type: 'POST',
-                    url: '/BG_IHS_combinacion/GetRows',
-                    data: { data: items_seleccionados, demanda: demanda, porcentaje: porcentaje },
+                    url: '/BG_IHS_division/GetRows',
+                    data: { id_ihs: ihs_value, demanda: demanda, porcentaje: porcentaje },
                     // contentType: 'application/json',
                     success: function (data) {
                         try {
                             $('#body_conceptos_' + demanda).html(data[0].value);
+                    //llamada al metodo para cargar las filas
+                    calculaValoresPorcentaje('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
+                    calculaValoresPorcentaje('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
                         }
                         catch (error) {
                             Swal.fire({
@@ -506,22 +522,23 @@
                     },
                     async: true
                 });
+            } else { //si ihs esta vacio
+                //se borra el contenido de la tabla
+                $('#body_conceptos_' + demanda).html('');
             }
+
         }
 
-        function verificaInfo(contador) {
-
-            var e = document.getElementById("BG_IHS_rel_combinacion[" + contador + "].id_ihs_item");
-            var value = e.value;
+        function verificaInfo(value) {
 
             //si material esta vacia
             if (value == "") {
-                $("#btn-info-cell_" + contador).prop("disabled", true);
-                $("#btn-info-cell_" + contador).hide('explode', 400);
+                $("#btn-info-cell").prop("disabled", true);
+                $("#btn-info-cell").hide('explode', 400);
             }
             else {
-                $("#btn-info-cell_" + contador).prop("disabled", false);
-                $("#btn-info-cell_" + contador).show('explode', 350);
+                $("#btn-info-cell").prop("disabled", false);
+                $("#btn-info-cell").show('explode', 350);
 
             }
         }
@@ -529,61 +546,64 @@
         //agrega una fila para los conceptos
         function AgregarConcepto() {
 
-            $("#div_rel_combinaciones").append(
+            $("#div_rel_divisiones").append(
                 `
-                                                <div class="form-group row" id="div_items_ihs_`+ num + `">
-                                        @* Necesario para auto binding *@
-                                        <input type="hidden" name="BG_IHS_rel_combinacion.Index" id="BG_IHS_rel_combinacion.Index" value="`+ num + `" />
-                                        <input type="hidden" name="BG_IHS_rel_combinacion[`+ num + `].id_ihs_combinacion" id="BG_IHS_rel_combinacion[`+ num + `].id_ihs_combinacion" value="@Model.id" />
-                                        <label class="control-label col-md-1" for="BG_IHS_rel_combinacion[`+ num + `].id_ihs_item">
-                                            <span class="float-right">IHS item</span>
-                                        </label>
-                                        <div class="col-md-8">
-                                            <select name="BG_IHS_rel_combinacion[`+ num + `].id_ihs_item" id="BG_IHS_rel_combinacion[` + num + `].id_ihs_item" data-row="` + num + `" class="form-control select2bs4 ihs-item" style="width:100%" required>
-                                                `+ textoSelectOptions + `
-                                            </select>
-                                            <span class="field-validation-valid text-danger" data-valmsg-for="BG_IHS_rel_combinacion[`+ num + `].id_ihs_item" data-valmsg-replace="true"></span>
-                                        </div>
-                                         <div class="col-md-1 col-sm-1">
-                                            <button type="button" id="btn-info-cell_`+ num + `" onclick="mostrarDetalles(` + num + `); return false;" class="btn btn-primary btn-sm" style="display:none"  title="Ver Detalles"> <i class="fa-solid fa-eye"></i></button>
-                                        </div>
-                                        <div class="col-md-1">
-                                            <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarPieza(`+ num + `); return false;">
-                                        </div>
-                                    </div>
-
+                             <div class="form-group row" id="div_items_ihs_`+ num + `">
+                                @* Necesario para auto binding *@
+                                <input type="hidden" name="BG_IHS_rel_division.Index" id="BG_IHS_rel_division.Index" value="`+ num + `" />
+                                <input type="hidden" name="BG_IHS_rel_division[`+ num + `].id_ihs_division" id="BG_IHS_rel_division[`+ num + `].id_ihs_division" value="@Model.id" />
+                                <input type="hidden" class="porcentaje-contador" name="porcentaje_`+ num + `" id="porcentaje_`+ num + `" value="`+ num + `" />
+                                <label class="control-label col-md-1" for="BG_IHS_rel_division[`+ num + `].vehicle">
+                                    <span class="float-right">Vehicle</span>
+                                </label>
+                                <div class="col-md-4">
+                                    <input type="text" maxlength="100" class="form-control calculo-porcentaje" name="BG_IHS_rel_division[`+ num + `].vehicle" id="BG_IHS_rel_division[` + num + `].vehicle" autocomplete="off" required/>
+                                    <span class="field-validation-valid text-danger" data-valmsg-for="BG_IHS_rel_division[`+ num + `].vehicle" data-valmsg-replace="true"></span>
+                                </div>
+                                <label class="control-label col-md-1" for="BG_IHS_rel_division[`+ num + `].production_nameplate">
+                                    <span class="float-right">Production Nameplate</span>
+                                </label>
+                                <div class="col-md-3">
+                                    <input type="text" maxlength="30" class="form-control calculo-porcentaje" name="BG_IHS_rel_division[`+ num + `].production_nameplate" id="BG_IHS_rel_division[` + num + `].production_nameplate" autocomplete="off" required />
+                                    <span class="field-validation-valid text-danger" data-valmsg-for="BG_IHS_rel_division[`+ num + `].production_nameplate" data-valmsg-replace="true"></span>
+                                </div>
+                                <label class="control-label col-md-1" for="BG_IHS_rel_division[`+ num + `].porcentaje">
+                                    <span class="float-right">%</span>
+                                </label>
+                                <div class="col-md-1">
+                                    <input type="number" min="0" max="100" step="1" class="form-control calculo-porcentaje" name="BG_IHS_rel_division[`+ num + `].porcentaje" id="BG_IHS_rel_division[` + num + `].porcentaje" autocomplete="off" value="0" required />
+                                    <span class="field-validation-valid text-danger" data-valmsg-for="BG_IHS_rel_division[`+ num + `].porcentaje" data-valmsg-replace="true"></span>
+                                </div>
+                                <div class="col-md-1">
+                                    <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarPieza(`+ num + `); return false;">
+                                </div>
+                            </div>
                                                    `
             );
             $("#div_items_ihs_" + num).hide().fadeIn(700);
 
-            // Initialize Select2 Elements (debe ir después de asignar el valor)
-            $('.select2bs4').select2({
-                theme: 'bootstrap4'
-            })
+            calculaValores('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
+            calculaValores('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
+            asignaEvents();
 
             num++;
-
-            asignaEvents();
         }
 
     //obtiene los select de las categorias
-    function obtieneSelect() {
-        let stringSelects = $('#select_options').html();
 
-
-        return stringSelects;
-    }
 
     function borrarPieza(id) {
 
         $("#div_items_ihs_" + id).fadeOut(0, function () {
             $(this).remove();
         });
+        calculaValores('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
+        calculaValores('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
     }
 
-    function mostrarDetalles(contador) {
-        var e = document.getElementById("BG_IHS_rel_combinacion[" + contador + "].id_ihs_item");
-        var value = e.value;
+    function mostrarDetalles() {
+        var value =  $('#@Html.IdFor(model => model.id_ihs_item)').val();
+
         window.open('/BG_IHS_item/Details/' + value + '', 'popup', "width=" + screen.width * .80 + ",height=" + screen.height * .80 + "");
 
     }

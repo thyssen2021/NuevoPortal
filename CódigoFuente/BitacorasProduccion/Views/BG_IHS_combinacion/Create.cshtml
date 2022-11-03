@@ -3,8 +3,8 @@
 @{
     ViewBag.Title = "Crear Combinación IHS";
     ViewBag.PrimerNivel = "budget_ihs";
-    ViewBag.SegundoNivel = "budget_ihs_catalogos";
-    ViewBag.ControllerName = "budget_ihs_catalogos";
+    ViewBag.SegundoNivel = "BG_IHS_combinacion";
+    ViewBag.ControllerName = "BG_IHS_combinacion";
 
     int contador = 100;
 
@@ -22,6 +22,55 @@
     <!-- Select2 -->
     <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+
+    <style>
+        .fondo-default {
+            background-color: #f7f7f7 !important;
+            color: #000000 !important;
+        }
+
+        .fondo-ihs {
+            background-color: antiquewhite !important;
+        }
+
+        .fondo-user {
+            background-color: #d6c6ea !important;
+        }
+
+        .fondo-original {
+            background-color: #faff6b !important;
+        }
+
+        .fondo-customer {
+            background-color: #6afcf3 !important;
+        }
+
+        .texto-verde {
+            font-weight: bold;
+            color: darkgreen;
+            background-color: #b8f6f3 !important;
+        }
+
+        .texto-rojo {
+            font-weight: bold;
+            color: red;
+            background-color: #b8f6f3 !important;
+        }
+
+        .fondo-customer {
+            background-color: #6afcf3 !important;
+        }
+
+        .fondo-cuarto-calculado {
+            background-color: #bbf3c1 !important;
+            color: darkslategray !important;
+        }
+
+        .fondo-cuarto-ihs {
+            background-color: lightpink !important;
+            color: darkslategray !important;
+        }
+    </style>
 }
 
 
@@ -66,19 +115,36 @@
                                     @Html.ValidationMessageFor(model => model.production_brand, "", new { @class = "text-danger" })
                                 </div>
                             </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.production_plant, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-5 col-sm-5 ">
+                                    @Html.EditorFor(model => model.production_plant, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.production_plant, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.manufacturer_group, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-5 col-sm-5">
+                                    @Html.EditorFor(model => model.manufacturer_group, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.manufacturer_group, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
 
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.sop_start_of_production, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-5 col-sm-5">
+                                <div class="col-md-3 col-sm-3">
                                     <input type="month" id="sop_start_of_production" name="sop_start_of_production" class="form-control" value="@(Model.sop_start_of_production.HasValue? Model.sop_start_of_production.Value.ToString("yyyy-MM") : String.Empty )" />
                                     @Html.ValidationMessageFor(model => model.sop_start_of_production, "", new { @class = "text-danger" })
                                 </div>
                                 @Html.LabelFor(model => model.eop_end_of_production, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-5 col-sm-5">
+                                <div class="col-md-3 col-sm-3">
                                     <input type="month" id="eop_end_of_production" name="eop_end_of_production" class="form-control" value="@(Model.eop_end_of_production.HasValue? Model.eop_end_of_production.Value.ToString("yyyy-MM") : String.Empty )" />
                                     @Html.ValidationMessageFor(model => model.eop_end_of_production, "", new { @class = "text-danger" })
                                 </div>
-
+                                <!-- porcentaje scrap-->
+                                @Html.LabelFor(model => model.porcentaje_scrap_100, new { @class = "control-label col-md-2" })
+                                <div class="col-md-2">
+                                    @Html.EditorFor(model => model.porcentaje_scrap_100, new { htmlAttributes = new { @class = "form-control porcentaje", @type = "text" } })
+                                    @Html.ValidationMessageFor(model => model.porcentaje_scrap_100, "", new { @class = "text-danger" })
+                                </div>
                             </div>
 
 
@@ -113,7 +179,9 @@
                                         <div class="col-md-1 col-sm-1">
                                             <button type="button" id="btn-info-cell_@contador" onclick="mostrarDetalles(@contador); return false;" class="btn btn-primary btn-sm" title="Ver Detalles"> <i class="fa-solid fa-eye"></i></button>
                                         </div>
-
+                                        <div class="col-md-1">
+                                            <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarPieza(@contador); return false;">
+                                        </div>
                                     </div>
 
                                     contador++;
@@ -143,6 +211,11 @@
 
                             @*Demanda ORIGINAL*@
                             <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>DEMANDA ORIGINAL (IHS)</b></span>
+                            </div>
+
+
                             <div class="table-responsive">
 
                                 <table id="datatable_1" class="table data-table table-striped table-bordered nowrap" cellspacing="0" width="100%">
@@ -177,97 +250,118 @@
                                             </th>
                                             <th>
                                                 EOP
-                                            </th>                                            
+                                            </th>
+                                            <th>
+                                                % Scrap
+                                            </th>
                                             @foreach (var cabecera in cabeceraDemanda)
                                             {
-                                                <th>
+                                                <th nowrap style="background-color:royalblue">
                                                     @cabecera.text
                                                 </th>
                                             }
                                             @foreach (var cabecera in cabeceraCuartos)
                                             {
-                                                <th>
+                                                <th nowrap>
                                                     @cabecera.text
                                                 </th>
                                             }
                                             @foreach (var cabecera in cabeceraAnios)
                                             {
-                                                <th>
+                                                <th nowrap style="background-color:royalblue">
                                                     @cabecera.text
                                                 </th>
                                             }
                                             @foreach (var cabecera in cabeceraAniosFY)
                                             {
-                                                <th>
+                                                <th nowrap>
                                                     @cabecera.text
                                                 </th>
                                             }
                                         </tr>
                                     </thead>
-                                    <tbody id="body_conceptos_original">
-                                        @*Agregar de forma dinámica los elementos*@
-
+                                    <tbody id="body_conceptos_ORIGINAL">
+                                        @*Agrega de forma dinámica los elementos*@
                                     </tbody>
-                                    <!-- Suma de los resultados -->
-                                    <tfoot style="background-color:azure; font-weight:bold; color:#0c28d0">
-                                        <tr>
-                                            <td>
+
+                                </table>
+
+                            </div>
+
+                            @*Demanda CUSTOMER*@
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>DEMANDA CUSTOMER</b></span>
+                            </div>
+
+
+                            <div class="table-responsive">
+
+                                <table id="datatable_2" class="table data-table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr style=" background-color: #0094ff; color: azure;" !important>
+                                            <th>
                                                 ID
-                                            </td>
-                                            <td>
+                                            </th>
+                                            <th>
                                                 Origen
-                                            </td>
-                                            <td>
-                                                Manufacturer Group
-                                            </td>
-                                            <td>
+                                            </th>
+                                            <th>
+                                                Manufacturer
+                                            </th>
+                                            <th>
                                                 Production Plant
-                                            </td>
-                                            <td>
+                                            </th>
+                                            <th>
                                                 Production Brand
-                                            </td>
-                                            <td>
+                                            </th>
+                                            <th>
                                                 Program
-                                            </td>
-                                            <td>
+                                            </th>
+                                            <th>
                                                 Production Nameplate
-                                            </td>
-                                            <td>
+                                            </th>
+                                            <th>
                                                 Vehicle
-                                            </td>
-                                            <td>
+                                            </th>
+                                            <th>
                                                 SOP
-                                            </td>
-                                            <td>
+                                            </th>
+                                            <th>
                                                 EOP
-                                            </td>
-                                          
+                                            </th>  
+                                            <th>
+                                                % Scrap
+                                            </th>
                                             @foreach (var cabecera in cabeceraDemanda)
                                             {
-                                                <td>
+                                                <th nowrap style="background-color:royalblue">
                                                     @cabecera.text
-                                                </td>
+                                                </th>
                                             }
                                             @foreach (var cabecera in cabeceraCuartos)
                                             {
-                                                <td>
+                                                <th nowrap>
                                                     @cabecera.text
-                                                </td>
+                                                </th>
                                             }
                                             @foreach (var cabecera in cabeceraAnios)
                                             {
-                                                <td>
+                                                <th nowrap style="background-color:royalblue">
                                                     @cabecera.text
-                                                </td>
+                                                </th>
                                             }
                                             @foreach (var cabecera in cabeceraAniosFY)
                                             {
-                                                <td>
+                                                <th nowrap>
                                                     @cabecera.text
-                                                </td>
+                                                </th>
                                             }
                                         </tr>
-                                    </tfoot>
+                                    </thead>
+                                    <tbody id="body_conceptos_CUSTOMER">
+                                        @*Agrega de forma dinámica los elementos*@
+                                    </tbody>
 
                                 </table>
 
@@ -313,14 +407,29 @@
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
     <!-- SweetAlert2 -->
     @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
 
-    <script>
+<script>
         $(document).ready(function () {
 
             // Initialize Select2 Elements (debe ir después de asignar el valor)
             $('.select2bs4').select2({
                 theme: 'bootstrap4'
             })
+
+             //llamada al metodo para cargar las filas
+            CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
+            CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
+
+                //llamada el método cuando se carga por primera vez
+            $('#@Html.IdFor(model => model.porcentaje_scrap_100)').on('input', function (e) {
+                CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
+                CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
+            });
+
+            //input mask
+            $('.porcentaje').inputmask({ 'alias': 'integer', 'groupSeparator': ',', 'autoGroup': true, 'digits': 0, 'digitsOptional': false, 'suffix': ' %', 'allowMinus': false, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
 
             asignaEvents();
         });
@@ -339,15 +448,22 @@
                         verificaInfo(row);
 
                     //llamada al metodo para cargar las filas
-                    CargaRow();
+                    CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
+                    CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
 
                 });
 
             });
         }
 
-        function CargaRow() {
+        function CargaRow(demanda) {
             let items_seleccionados = [];
+
+            let porcentaje = $('#@Html.IdFor(model => model.porcentaje_scrap_100)').val();
+
+            if (isNaN(porcentaje))
+                porcentaje = 0; //100%
+
 
             //obtiene la lista de los ids enviados
             $('.ihs-item').each(function () {
@@ -358,35 +474,36 @@
 
             });
 
-
-            $.ajax({
-                type: 'POST',
-                url: '/BG_IHS_combinacion/GetRows',
-                data: JSON.stringify(items_seleccionados),
-                contentType: 'application/json',
-                success: function (data) {
-                    try {
-                        $('#body_conceptos_original').html(data[0].value);
-                    }
-                    catch (error) {
+            if (items_seleccionados.length > 0) {
+                $.ajax({
+                    type: 'POST',
+                    url: '/BG_IHS_combinacion/GetRows',
+                    data: { data: items_seleccionados, demanda: demanda, porcentaje: porcentaje },
+                    // contentType: 'application/json',
+                    success: function (data) {
+                        try {
+                            $('#body_conceptos_' + demanda).html(data[0].value);
+                        }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    error: function (textStatus, errorThrown) {
+                        //en caso de error en la llamada ajax
                         Swal.fire({
                             icon: 'error',
-                            title: 'Error',
-                            text: 'Ocurrió un error obteniendo la información: ' + error,
-                            confirmButtonText: 'Aceptar',
+                            title: 'Ocurrió un error: ' + errorThrown,
+                            text: 'Intente nuevamente.'
                         })
-                    }
-                },
-                error: function (textStatus, errorThrown) {
-                    //en caso de error en la llamada ajax
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Ocurrió un error: '+ errorThrown,
-                        text: 'Intente nuevamente.'
-                    })
-                },
-                async: true
-            });
+                    },
+                    async: true
+                });
+            }
         }
 
         function verificaInfo(contador) {
@@ -470,7 +587,7 @@
         window.onload = function () {
             clicMenu(1);
         }
-    </script>
+</script>
 }
 
 

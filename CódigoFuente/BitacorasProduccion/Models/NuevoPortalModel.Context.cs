@@ -136,9 +136,9 @@ namespace Portal_2_0.Models
         public virtual DbSet<BG_IHS_regiones> BG_IHS_regiones { get; set; }
         public virtual DbSet<BG_IHS_rel_regiones> BG_IHS_rel_regiones { get; set; }
         public virtual DbSet<BG_IHS_rel_segmentos> BG_IHS_rel_segmentos { get; set; }
-        public virtual DbSet<BG_IHS_division> BG_IHS_division { get; set; }
         public virtual DbSet<BG_IHS_rel_combinacion> BG_IHS_rel_combinacion { get; set; }
         public virtual DbSet<BG_IHS_rel_division> BG_IHS_rel_division { get; set; }
         public virtual DbSet<BG_IHS_combinacion> BG_IHS_combinacion { get; set; }
+        public virtual DbSet<BG_IHS_division> BG_IHS_division { get; set; }
     }
 }

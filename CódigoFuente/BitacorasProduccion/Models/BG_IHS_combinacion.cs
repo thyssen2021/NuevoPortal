@@ -28,6 +28,7 @@ namespace Portal_2_0.Models
         public Nullable<System.DateTime> sop_start_of_production { get; set; }
         public Nullable<System.DateTime> eop_end_of_production { get; set; }
         public string comentario { get; set; }
+        public Nullable<decimal> porcentaje_scrap { get; set; }
         public bool activo { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

@@ -23,6 +23,7 @@ namespace Portal_2_0.Models
         public int id { get; set; }
         public int id_ihs_item { get; set; }
         public string comentario { get; set; }
+        public Nullable<decimal> porcentaje_scrap { get; set; }
         public bool activo { get; set; }
     
         public virtual BG_IHS_item BG_IHS_item { get; set; }

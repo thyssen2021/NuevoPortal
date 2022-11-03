@@ -701,7 +701,7 @@
                                                                     @Html.DisplayFor(modelItem => Model.vehicle)
                                                                 </td>
 
-                                                                @foreach (var item_anio in Model.GetAniosFY(Model.GetDemanda(cabeceraDemanda, Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL), cabeceraAnios, Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL))
+                                                                @foreach (var item_anio in Model.GetAniosFY(Model.GetDemanda(cabeceraDemanda, Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL), cabeceraAniosFY, Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL))
                                                                 {
                                                                     <td class="@(
                                                                                item_anio != null ? item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.Calculado ? "fondo-cuarto-calculado"
@@ -954,7 +954,7 @@
                                                                     @Html.DisplayFor(modelItem => Model.vehicle)
                                                                 </td>
 
-                                                                @foreach (var item_anio in Model.GetAniosFY(Model.GetDemanda(cabeceraDemanda, Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER), cabeceraAnios, Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER))
+                                                                @foreach (var item_anio in Model.GetAniosFY(Model.GetDemanda(cabeceraDemanda, Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER), cabeceraAniosFY, Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER))
                                                                 {
                                                                     <td class="@(
                                                                                item_anio != null ? item_anio.origen_datos == Portal_2_0.Models.Enum_BG_origen_anios.Calculado ? "fondo-cuarto-calculado"
