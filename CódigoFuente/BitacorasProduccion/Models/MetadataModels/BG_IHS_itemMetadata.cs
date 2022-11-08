@@ -266,7 +266,7 @@ namespace Portal_2_0.Models
         {
             get
             {
-                BG_IHS_regiones item = null;
+                BG_IHS_regiones item = new BG_IHS_regiones();
                 using (var db = new Portal_2_0Entities())
                 {
                     item = db.BG_IHS_regiones.Where(x => x.BG_IHS_rel_regiones.Any(y => y.production_plant == this.production_plant && y.id_bg_ihs_region.HasValue)).FirstOrDefault();
@@ -442,7 +442,7 @@ namespace Portal_2_0.Models
 
                 var rel = new Models.BG_IHS_item_anios
                 {
-                    anio = item.anio-1,
+                    anio = item.anio - 1,
                     //origen 
                     //cantidad
                 };
@@ -460,7 +460,7 @@ namespace Portal_2_0.Models
                 {
                     List<BG_IHS_rel_cuartos> cuartosRel = this.BG_IHS_rel_cuartos.ToList();
 
-                    var cuartos = this.BG_IHS_rel_cuartos.Where(x => (x.anio == item.anio && x.cuarto ==4) || (x.anio == (item.anio+1) && x.cuarto < 4)).ToList();
+                    var cuartos = this.BG_IHS_rel_cuartos.Where(x => (x.anio == item.anio && x.cuarto == 4) || (x.anio == (item.anio + 1) && x.cuarto < 4)).ToList();
 
                     if (cuartos.Count > 0)
                     {
@@ -470,7 +470,7 @@ namespace Portal_2_0.Models
 
                 }
 
-                rel.region = this._Region!=null? this._Region.descripcion: "SIN DEFINIR";
+                rel.region = this._Region != null ? this._Region.descripcion : "SIN DEFINIR";
 
                 list.Add(rel);
             }
@@ -700,8 +700,12 @@ namespace Portal_2_0.Models
                     anoFinDemanda = db.BG_IHS_rel_demanda.OrderByDescending(x => x.fecha).Select(x => x.fecha).FirstOrDefault().Year;
                     anioFinCuartos = db.BG_IHS_rel_cuartos.OrderByDescending(x => x.anio).Select(x => x.anio).FirstOrDefault();
 
-                    anioMenor = anoInicioDemanda < anioInicioCuartos ? anoInicioDemanda : anioInicioCuartos;
-                    anioMayor = anoFinDemanda > anioFinCuartos ? anoFinDemanda : anioFinCuartos;
+                    //solo se aplica cuando los años obtenidos son mayores al 2000
+                    if (anoInicioDemanda > 2000 && anioInicioCuartos > 2000 && anoFinDemanda > 2000 && anioFinCuartos > 2000)
+                    {
+                        anioMenor = anoInicioDemanda < anioInicioCuartos ? anoInicioDemanda : anioInicioCuartos;
+                        anioMayor = anoFinDemanda > anioFinCuartos ? anoFinDemanda : anioFinCuartos;
+                    }
                 }
                 catch (Exception) { /* do nothing */ }
 
@@ -739,8 +743,12 @@ namespace Portal_2_0.Models
                     anoFinDemanda = db.BG_IHS_rel_demanda.OrderByDescending(x => x.fecha).Select(x => x.fecha).FirstOrDefault().Year;
                     anioFinCuartos = db.BG_IHS_rel_cuartos.OrderByDescending(x => x.anio).Select(x => x.anio).FirstOrDefault();
 
-                    anioMenor = anoInicioDemanda < anioInicioCuartos ? anoInicioDemanda : anioInicioCuartos;
-                    anioMayor = anoFinDemanda > anioFinCuartos ? anoFinDemanda : anioFinCuartos;
+                    //solo se aplica cuando los años obtenidos son mayores al 2000
+                    if (anoInicioDemanda > 2000 && anioInicioCuartos > 2000 && anoFinDemanda > 2000 && anioFinCuartos > 2000)
+                    {
+                        anioMenor = anoInicioDemanda < anioInicioCuartos ? anoInicioDemanda : anioInicioCuartos;
+                        anioMayor = anoFinDemanda > anioFinCuartos ? anoFinDemanda : anioFinCuartos;
+                    }
                 }
                 catch (Exception) { /* do nothing */ }
 
@@ -751,7 +759,7 @@ namespace Portal_2_0.Models
                         new BG_IHS_cabecera_anios()
                         {
                             text = "FY " + (i - 1).ToString().Substring(2, 2) + "-" + i.ToString().Substring(2, 2),
-                            anio = i-1,
+                            anio = i - 1,
                         });
 
                 }
@@ -785,7 +793,7 @@ namespace Portal_2_0.Models
     {
         public int? cantidad { get; set; }
         public int anio { get; set; }
-        public string region {get; set;}
+        public string region { get; set; }
         public Enum_BG_origen_anios origen_datos { get; set; }
     }
 

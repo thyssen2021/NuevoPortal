@@ -2575,7 +2575,7 @@ namespace Portal_2_0.Models
         /// </summary>
         /// <param name="listado"></param>
         /// <returns></returns>
-        public static byte[] GeneraReporteBudgetIHS(List<BG_IHS_item> listado, string demanda)
+        public static byte[] GeneraReporteBudgetIHS(List<BG_IHS_item> listado, List<BG_IHS_combinacion> combinaciones, List<BG_IHS_division> divisiones, string demanda)
         {
 
             var cabeceraMeses = Portal_2_0.Models.BG_IHS_UTIL.GetCabecera();
@@ -2614,6 +2614,18 @@ namespace Portal_2_0.Models
 
             SLStyle styleValorIHS = oSLDocument.CreateStyle();
             styleValorIHS.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffb6c1"), System.Drawing.ColorTranslator.FromHtml("#ffb6c1"));
+
+            SLStyle styleTituloCombinacion = oSLDocument.CreateStyle();
+            styleTituloCombinacion.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#FFCC99"), System.Drawing.ColorTranslator.FromHtml("#FFCC99"));
+            styleTituloCombinacion.Font.FontColor = System.Drawing.Color.DarkBlue;
+            styleTituloCombinacion.Font.Bold = true;
+            
+            SLStyle styleBoldBlue = oSLDocument.CreateStyle();
+            styleBoldBlue.Font.FontColor = System.Drawing.Color.DarkBlue;
+            styleBoldBlue.Font.Bold = true;
+            
+            SLStyle styleDivisionesData = oSLDocument.CreateStyle();
+            styleDivisionesData.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#D5E8DB"), System.Drawing.ColorTranslator.FromHtml("#D5E8DB"));
 
 
             //columnas          
@@ -3031,7 +3043,7 @@ namespace Portal_2_0.Models
             oSLDocument.ImportDataTable(1, 1, dt, true);
 
             //obtiene la lista de regiones
-            List<String> listRegiones = listado.Select(x => x._Region.descripcion).Distinct().ToList();
+            List<String> listRegiones = listado.Where(x=>x._Region!=null).Select(x => x._Region.descripcion).Distinct().ToList();
             listRegiones.Add("SIN DEFINIR");
 
 
@@ -3218,13 +3230,15 @@ namespace Portal_2_0.Models
             oSLDocument.HideColumn(1, 2);
             oSLDocument.HideColumn(6, 13);
             oSLDocument.HideColumn(21, 23);
-            oSLDocument.HideColumn(28, 32);
+            oSLDocument.HideColumn(28, 30);
             oSLDocument.HideColumn(35, 58);
 
             //obtiene la fila con la del porcentaje
             int colPorcentaje = camposPrevios + 1;  //+1 por el campo de si y no
             int numValores = cabeceraMeses.Count + cabeceraCuartos.Count + cabeceraAnios.Count + cabeceraAniosFY.Count;
             string colRef = GetCellReference(colPorcentaje);
+
+            int fila_actual = 0;
 
             for (int i = 2; true; i++) //es infinito hasta se rompe
             {
@@ -3234,22 +3248,723 @@ namespace Portal_2_0.Models
                     for (int j = 1; j <= numValores; j++)
                     {
                         int col = j + colPorcentaje;
+                        oSLDocument.SetCellValue(i, col, "='" + hoja1 + "'!" + GetCellReference(col) + i + "*(1+" + colRef + i + ")");
 
-                        
-                            oSLDocument.SetCellValue(i, col, "='" + hoja1 + "'!" + GetCellReference(col) + i + "*(1+" + colRef + i + ")");
-                        
                     }
                 }
                 else
                 { //termina el for
+                    fila_actual = i + 1;
                     break;
                 }
 
             }
 
+            //-- COMBINACION
 
-            dt = new System.Data.DataTable();
+            #region combinaciones
+            oSLDocument.SetCellValue(fila_actual, 2, "COMBINACIONES");
+            oSLDocument.MergeWorksheetCells(fila_actual, 2, fila_actual, 4);
+            oSLDocument.SetCellStyle(fila_actual, 2, styleHeader);
+            oSLDocument.SetCellStyle(fila_actual, 2, styleHeaderFont);
 
+            //aumenta la fila actual
+            fila_actual++;
+            string porcentajeReferencia = GetCellReference(camposPrevios + 1);
+
+            //agrega una combinación
+            foreach (var combinacion in combinaciones)
+            {
+                int inicio_fila = fila_actual;
+
+
+                oSLDocument.SetCellValue(fila_actual, 3, "Combinación");
+                oSLDocument.SetCellValue(fila_actual, 4, combinacion.vehicle);
+                oSLDocument.SetCellValue(fila_actual, 5, combinacion.vehicle);
+                oSLDocument.SetCellValue(fila_actual, 15, combinacion.production_plant);
+                oSLDocument.SetCellValue(fila_actual, 24, combinacion.manufacturer_group);
+                oSLDocument.SetCellValue(fila_actual, 25, combinacion.manufacturer_group);
+                oSLDocument.SetCellValue(fila_actual, 27, combinacion.production_brand);
+                oSLDocument.SetCellValue(fila_actual, 33, combinacion.sop_start_of_production.Value); //
+                oSLDocument.SetCellValue(fila_actual, 34, combinacion.eop_end_of_production.Value); //
+                oSLDocument.SetCellValue(fila_actual, 59, combinacion.porcentaje_scrap.Value); //
+
+                //agrega el estilo a la cabecera
+                oSLDocument.SetCellStyle(fila_actual, 1, fila_actual, columnasStyles + 1, styleTituloCombinacion);
+
+                //crea las sumatoria
+                for (int i = camposPrevios + 2; i < camposPrevios + 2 + (cabeceraMeses.Count + cabeceraCuartos.Count + cabeceraAnios.Count + cabeceraAniosFY.Count); i++)
+                {
+                    string celdaRef = GetCellReference(i);
+                    oSLDocument.SetCellValue(fila_actual, i, "=SUM(" + celdaRef + (fila_actual + 1) + ":" + celdaRef + (fila_actual + combinacion.BG_IHS_rel_combinacion.Count) + ")");
+                }
+
+                fila_actual++;
+                //sumar totales (con formula)
+                dt = new System.Data.DataTable();
+
+                //columnas          
+                #region cabecera
+                dt.Columns.Add("Id", typeof(string));                       //1
+                dt.Columns.Add("Origen", typeof(string));                   //1
+                dt.Columns.Add("Vehicle (IHS)", typeof(string));                   //1
+                dt.Columns.Add("Vehicle (Compuesto)", typeof(string));                   //1
+                dt.Columns.Add("Core Nameplate Region Mnemonic", typeof(string));                   //1
+                dt.Columns.Add("Core Nameplate Plant Mnemonic", typeof(string));                   //1
+                dt.Columns.Add("Mnemonic-Vehicle", typeof(string));                   //1
+                dt.Columns.Add("Mnemonic-Vehicle/Plant", typeof(string));                   //1
+                dt.Columns.Add("Mnemonic-Platform", typeof(string));                   //1
+                dt.Columns.Add("Mnemonic-Plant", typeof(string));                   //1
+                dt.Columns.Add("Region", typeof(string));                   //1
+                dt.Columns.Add("Market", typeof(string));                   //1
+                dt.Columns.Add("Country/Territory", typeof(string));                   //1
+                dt.Columns.Add("Production Plant", typeof(string));                   //1
+                dt.Columns.Add("Region(Plant)", typeof(string));                   //1
+                dt.Columns.Add("City", typeof(string));                   //1
+                dt.Columns.Add("Plant State/Province", typeof(string));                   //1
+                dt.Columns.Add("Source Plant", typeof(string));                   //1
+                dt.Columns.Add("Source Plant Country/Territory", typeof(string));                   //1
+                dt.Columns.Add("Source Plant Region", typeof(string));                   //1
+                dt.Columns.Add("Design Parent", typeof(string));                   //1
+                dt.Columns.Add("Engineering Group", typeof(string));                   //1
+                dt.Columns.Add("Manufacturer Group", typeof(string));                   //1
+                dt.Columns.Add("Manufacturer", typeof(string));                   //1
+                dt.Columns.Add("Sales Parent", typeof(string));                   //1
+                dt.Columns.Add("Production Brand", typeof(string));                   //1
+                dt.Columns.Add("Platform Design Owner", typeof(string));                   //1
+                dt.Columns.Add("Architecture", typeof(string));                   //1
+                dt.Columns.Add("Platform", typeof(string));                   //1
+                dt.Columns.Add("Program", typeof(string));                   //1
+                dt.Columns.Add("Production Nameplate", typeof(string));                   //1
+                dt.Columns.Add("SOP (Start of Production)", typeof(DateTime));                   //1
+                dt.Columns.Add("EOP (End of Production)", typeof(DateTime));                   //1
+                dt.Columns.Add("Lifecycle (Time)", typeof(string));                   //1
+                dt.Columns.Add("Assembly Type", typeof(string));                   //1
+                dt.Columns.Add("Strategic Group", typeof(string));                   //1
+                dt.Columns.Add("Sales Group", typeof(string));                   //1
+                dt.Columns.Add("Global Nameplate", typeof(string));                   //1
+                dt.Columns.Add("Primary Design Center", typeof(string));                   //1
+                dt.Columns.Add("Primary Design Country/Territory", typeof(string));                   //1
+                dt.Columns.Add("Primary Design Region", typeof(string));                   //1
+                dt.Columns.Add("Secondary Design Center", typeof(string));                   //1
+                dt.Columns.Add("Secondary Design Country/Territory	", typeof(string));                   //1
+                dt.Columns.Add("Secondary Design Region", typeof(string));                   //1
+                dt.Columns.Add("GVW Rating", typeof(string));                   //1
+                dt.Columns.Add("GVW Class", typeof(string));                   //1
+                dt.Columns.Add("Car/Truck", typeof(string));                   //1
+                dt.Columns.Add("Production Type", typeof(string));                   //1
+                dt.Columns.Add("Global Production Segment", typeof(string));                   //1
+                dt.Columns.Add("Flat Rolled Steel Usage", typeof(string));                   //1
+                dt.Columns.Add("Regional Sales Segment", typeof(string));                   //1
+                dt.Columns.Add("Global Production Price Class", typeof(string));                   //1
+                dt.Columns.Add("Global Sales Segment", typeof(string));                   //1
+                dt.Columns.Add("Global Sales Sub-Segment", typeof(string));                   //1
+                dt.Columns.Add("Global Sales Price Class", typeof(string));                   //1
+                dt.Columns.Add("Short-Term Risk Rating", typeof(string));                   //1
+                dt.Columns.Add("Long-Term Risk Rating", typeof(string));                   //1
+                dt.Columns.Add("Porcentaje scrap", typeof(decimal));                  //1   
+                                                                                      //agrega cabecera meses
+                foreach (var c in cabeceraMeses)
+                    dt.Columns.Add(c.text, typeof(string));                  //1
+                                                                             //agrega cabecera cuartos
+                foreach (var c in cabeceraCuartos)
+                    dt.Columns.Add(c.text, typeof(string));                  //1
+                                                                             //agrega cabecera años ene-dic
+                foreach (var c in cabeceraAnios)
+                    dt.Columns.Add(c.text, typeof(string));                  //1
+                                                                             //agrega cabecera fy
+                foreach (var c in cabeceraAniosFY)
+                    dt.Columns.Add(c.text, typeof(string));                  //1
+                #endregion
+
+                foreach (var c_item in combinacion.BG_IHS_rel_combinacion)
+                {
+                    //crea row
+                    System.Data.DataRow row = dt.NewRow();
+
+                    #region valores
+                    row["Id"] = c_item.BG_IHS_item.id;
+                    row["Origen"] = c_item.BG_IHS_item.origen;
+                    row["Vehicle (IHS)"] = c_item.BG_IHS_item.vehicle;
+                    row["Vehicle (Compuesto)"] = c_item.BG_IHS_item.ConcatCodigo;
+                    row["Core Nameplate Region Mnemonic"] = c_item.BG_IHS_item.core_nameplate_region_mnemonic;
+                    row["Core Nameplate Plant Mnemonic"] = c_item.BG_IHS_item.core_nameplate_plant_mnemonic;
+                    row["Mnemonic-Vehicle"] = c_item.BG_IHS_item.mnemonic_vehicle;
+                    row["Mnemonic-Vehicle/Plant"] = c_item.BG_IHS_item.mnemonic_vehicle_plant;
+                    row["Mnemonic-Platform"] = c_item.BG_IHS_item.mnemonic_platform;
+                    row["Mnemonic-Plant"] = c_item.BG_IHS_item.mnemonic_plant;
+                    row["Region"] = c_item.BG_IHS_item.region;
+                    row["Market"] = c_item.BG_IHS_item.market;
+                    row["Country/Territory"] = c_item.BG_IHS_item.country_territory;
+                    row["Production Plant"] = c_item.BG_IHS_item.production_plant;
+                    row["Region(Plant)"] = c_item.BG_IHS_item._Region != null ? c_item.BG_IHS_item._Region.descripcion : null;
+                    row["City"] = c_item.BG_IHS_item.city;
+                    row["Plant State/Province"] = c_item.BG_IHS_item.plant_state_province;
+                    row["Source Plant"] = c_item.BG_IHS_item.source_plant;
+                    row["Source Plant Country/Territory"] = c_item.BG_IHS_item.source_plant_country_territory;
+                    row["Source Plant Region"] = c_item.BG_IHS_item.source_plant_region;
+                    row["Design Parent"] = c_item.BG_IHS_item.design_parent;
+                    row["Engineering Group"] = c_item.BG_IHS_item.engineering_group;
+                    row["Manufacturer Group"] = c_item.BG_IHS_item.manufacturer_group;
+                    row["Manufacturer"] = c_item.BG_IHS_item.manufacturer;
+                    row["Sales Parent"] = c_item.BG_IHS_item.sales_parent;
+                    row["Production Brand"] = c_item.BG_IHS_item.production_brand;
+                    row["Platform Design Owner"] = c_item.BG_IHS_item.platform_design_owner;
+                    row["Architecture"] = c_item.BG_IHS_item.architecture;
+                    row["Platform"] = c_item.BG_IHS_item.platform;
+                    row["Program"] = c_item.BG_IHS_item.program;
+                    row["Production Nameplate"] = c_item.BG_IHS_item.production_nameplate;
+                    row["SOP (Start of Production)"] = c_item.BG_IHS_item.sop_start_of_production;
+                    row["EOP (End of Production)"] = c_item.BG_IHS_item.eop_end_of_production;
+                    row["Lifecycle (Time)"] = c_item.BG_IHS_item.lifecycle_time;
+                    row["Assembly Type"] = c_item.BG_IHS_item.assembly_type;
+                    row["Strategic Group"] = c_item.BG_IHS_item.strategic_group;
+                    row["Sales Group"] = c_item.BG_IHS_item.sales_group;
+                    row["Global Nameplate"] = c_item.BG_IHS_item.global_nameplate;
+                    row["Primary Design Center"] = c_item.BG_IHS_item.primary_design_center;
+                    row["Primary Design Country/Territory"] = c_item.BG_IHS_item.primary_design_country_territory;
+                    row["Primary Design Region"] = c_item.BG_IHS_item.primary_design_region;
+                    row["Secondary Design Center"] = c_item.BG_IHS_item.secondary_design_center;
+                    row["Secondary Design Country/Territory	"] = c_item.BG_IHS_item.secondary_design_country_territory;
+                    row["Secondary Design Region"] = c_item.BG_IHS_item.secondary_design_region;
+                    row["GVW Rating"] = c_item.BG_IHS_item.gvw_rating;
+                    row["GVW Class"] = c_item.BG_IHS_item.gvw_class;
+                    row["Car/Truck"] = c_item.BG_IHS_item.car_truck;
+                    row["Production Type"] = c_item.BG_IHS_item.production_type;
+                    row["Global Production Segment"] = c_item.BG_IHS_item.global_production_segment;
+                    row["Flat Rolled Steel Usage"] = c_item.BG_IHS_item.RelSegmento != null ? c_item.BG_IHS_item.RelSegmento.flat_rolled_steel_usage : null;
+                    row["Regional Sales Segment"] = c_item.BG_IHS_item.regional_sales_segment;
+                    row["Global Production Price Class"] = c_item.BG_IHS_item.global_production_price_class;
+                    row["Global Sales Segment"] = c_item.BG_IHS_item.global_sales_segment;
+                    row["Global Sales Sub-Segment"] = c_item.BG_IHS_item.global_sales_sub_segment;
+                    row["Global Sales Price Class"] = c_item.BG_IHS_item.global_sales_price_class;
+                    row["Short-Term Risk Rating"] = c_item.BG_IHS_item.short_term_risk_rating;
+                    row["Long-Term Risk Rating"] = c_item.BG_IHS_item.long_term_risk_rating;
+                    row["Porcentaje scrap"] = DBNull.Value;
+                    #region meses
+                    int indexCabecera = 0;
+                    int indexColumna = camposPrevios + 2;
+
+
+                    List<BG_IHS_rel_demanda> demandaMeses = c_item.BG_IHS_item.GetDemanda(cabeceraMeses, demanda);
+
+                    foreach (var item_demanda in demandaMeses)
+                    {
+                        //si no es nul agrega la cantidad
+                        if (item_demanda != null)
+                        {
+                            //row[cabeceraMeses[indexCabecera].text] = item_demanda.cantidad;
+                            //= 250 * (1 + BG11)
+                            row[cabeceraMeses[indexCabecera].text] = "=" + (item_demanda.cantidad != null ? item_demanda.cantidad.Value : 0) + "*(1+" + porcentajeReferencia + inicio_fila + ")";
+
+                            //agrega el estilo a la cabecera
+                            switch (item_demanda.origen_datos)
+                            {
+                                case Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER:
+                                    oSLDocument.SetCellStyle(fila_actual, indexColumna, styleDemandaCustomer);
+                                    break;
+                                case Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL:
+                                    oSLDocument.SetCellStyle(fila_actual, indexColumna, styleDemandaOriginal);
+                                    break;
+
+                            }
+                        }
+                        else
+                        {
+                            row[cabeceraMeses[indexCabecera].text] = DBNull.Value;
+                        }
+                        indexCabecera++;
+                        indexColumna++;
+                    }
+
+                    #endregion
+
+                    #region cuartos
+                    indexCabecera = 0;
+
+                    foreach (var item_demanda in c_item.BG_IHS_item.GetCuartos(demandaMeses, cabeceraCuartos, demanda))
+                    {
+                        //si no es nul agrega la cantidad
+                        if (item_demanda != null && item_demanda.cantidad != null)
+                        {
+                            row[cabeceraCuartos[indexCabecera].text] = "=" + (item_demanda.cantidad != null ? item_demanda.cantidad.Value : 0) + "*(1+" + porcentajeReferencia + inicio_fila + ")";
+
+                            //agrega el estilo a la cabecera
+                            switch (item_demanda.origen_datos)
+                            {
+                                case Portal_2_0.Models.Enum_BG_origen_cuartos.Calculado:
+                                    oSLDocument.SetCellStyle(fila_actual, indexColumna, styleValorCalculado);
+                                    break;
+                                case Portal_2_0.Models.Enum_BG_origen_cuartos.IHS:
+                                    oSLDocument.SetCellStyle(fila_actual, indexColumna, styleValorIHS);
+                                    break;
+                            }
+
+                        }
+                        else
+                        {
+                            row[cabeceraCuartos[indexCabecera].text] = DBNull.Value;
+                        }
+                        indexColumna++;
+                        indexCabecera++;
+                    }
+
+                    #endregion
+
+                    #region años
+                    indexCabecera = 0;
+                    foreach (var item_demanda in c_item.BG_IHS_item.GetAnios(demandaMeses, cabeceraAnios, demanda))
+                    {
+                        //si no es nul agrega la cantidad
+                        if (item_demanda != null && item_demanda.cantidad != null)
+                        {
+                            row[cabeceraAnios[indexCabecera].text] = "=" + (item_demanda.cantidad != null ? item_demanda.cantidad.Value : 0) + "*(1+" + porcentajeReferencia + inicio_fila + ")";
+
+                            //agrega el estilo a la cabecera
+                            switch (item_demanda.origen_datos)
+                            {
+                                case Portal_2_0.Models.Enum_BG_origen_anios.Calculado:
+                                    oSLDocument.SetCellStyle(fila_actual, indexColumna, styleValorCalculado);
+                                    break;
+                                case Portal_2_0.Models.Enum_BG_origen_anios.IHS:
+                                    oSLDocument.SetCellStyle(fila_actual, indexColumna, styleValorIHS);
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            row[cabeceraAnios[indexCabecera].text] = DBNull.Value;
+                        }
+
+                        indexColumna++;
+                        indexCabecera++;
+                    }
+
+                    #endregion
+                    #region años FY
+                    indexCabecera = 0;
+                    //FYReference = indexColumna + 2;
+
+                    var datosAniosFY = c_item.BG_IHS_item.GetAniosFY(demandaMeses, cabeceraAniosFY, demanda);
+                    listDatosRegionesFY.AddRange(datosAniosFY);
+
+                    foreach (var item_demanda in datosAniosFY)
+                    {
+                        //si no es nul agrega la cantidad
+                        if (item_demanda != null && item_demanda.cantidad != null)
+                        {
+                            row[cabeceraAniosFY[indexCabecera].text] = "=" + (item_demanda.cantidad != null ? item_demanda.cantidad.Value : 0) + "*(1+" + porcentajeReferencia + inicio_fila + ")";
+
+                            //agrega el estilo a la cabecera
+                            switch (item_demanda.origen_datos)
+                            {
+                                case Portal_2_0.Models.Enum_BG_origen_anios.Calculado:
+                                    oSLDocument.SetCellStyle(fila_actual, indexColumna, styleValorCalculado);
+                                    break;
+                                case Portal_2_0.Models.Enum_BG_origen_anios.IHS:
+                                    oSLDocument.SetCellStyle(fila_actual, indexColumna, styleValorIHS);
+                                    break;
+
+                            }
+                        }
+                        else
+                        {
+                            row[cabeceraAniosFY[indexCabecera].text] = DBNull.Value;
+                        }
+
+                        indexColumna++;
+                        indexCabecera++;
+                    }
+
+                    #endregion
+
+                    #endregion
+
+                    //aplica el estilo a los primeros campos
+                    switch (c_item.BG_IHS_item.origen)
+                    {
+                        case Bitacoras.Util.BG_IHS_Origen.IHS:
+                            oSLDocument.SetCellStyle(fila_actual, 2, fila_actual, camposPrevios + 1, styleIHS);
+                            break;
+                        case Bitacoras.Util.BG_IHS_Origen.USER:
+                            oSLDocument.SetCellStyle(fila_actual, 2, fila_actual, camposPrevios + 1, styleUser);
+                            break;
+
+                    }
+                    //agrega la filas
+                    dt.Rows.Add(row);
+                    fila_actual++;
+                }
+
+                oSLDocument.ImportDataTable(fila_actual - combinacion.BG_IHS_rel_combinacion.Count, 2, dt, false);
+
+            }
+
+            #endregion
+
+            // -- DIVISIONES
+            #region divisiones
+
+            fila_actual++;
+
+            oSLDocument.SetCellValue(fila_actual, 2, "DIVISIONES");
+            oSLDocument.MergeWorksheetCells(fila_actual, 2, fila_actual, 4);
+            oSLDocument.SetCellStyle(fila_actual, 2, styleHeader);
+            oSLDocument.SetCellStyle(fila_actual, 2, styleHeaderFont);
+
+            fila_actual++;
+
+            foreach (var division in divisiones)
+            {
+                int inicio_fila = fila_actual;
+
+                dt = new System.Data.DataTable();
+                //columnas          
+                #region cabecera
+                dt.Columns.Add("Id", typeof(string));                       //1
+                dt.Columns.Add("Origen", typeof(string));                   //1
+                dt.Columns.Add("Vehicle (IHS)", typeof(string));                   //1
+                dt.Columns.Add("Vehicle (Compuesto)", typeof(string));                   //1
+                dt.Columns.Add("Core Nameplate Region Mnemonic", typeof(string));                   //1
+                dt.Columns.Add("Core Nameplate Plant Mnemonic", typeof(string));                   //1
+                dt.Columns.Add("Mnemonic-Vehicle", typeof(string));                   //1
+                dt.Columns.Add("Mnemonic-Vehicle/Plant", typeof(string));                   //1
+                dt.Columns.Add("Mnemonic-Platform", typeof(string));                   //1
+                dt.Columns.Add("Mnemonic-Plant", typeof(string));                   //1
+                dt.Columns.Add("Region", typeof(string));                   //1
+                dt.Columns.Add("Market", typeof(string));                   //1
+                dt.Columns.Add("Country/Territory", typeof(string));                   //1
+                dt.Columns.Add("Production Plant", typeof(string));                   //1
+                dt.Columns.Add("Region(Plant)", typeof(string));                   //1
+                dt.Columns.Add("City", typeof(string));                   //1
+                dt.Columns.Add("Plant State/Province", typeof(string));                   //1
+                dt.Columns.Add("Source Plant", typeof(string));                   //1
+                dt.Columns.Add("Source Plant Country/Territory", typeof(string));                   //1
+                dt.Columns.Add("Source Plant Region", typeof(string));                   //1
+                dt.Columns.Add("Design Parent", typeof(string));                   //1
+                dt.Columns.Add("Engineering Group", typeof(string));                   //1
+                dt.Columns.Add("Manufacturer Group", typeof(string));                   //1
+                dt.Columns.Add("Manufacturer", typeof(string));                   //1
+                dt.Columns.Add("Sales Parent", typeof(string));                   //1
+                dt.Columns.Add("Production Brand", typeof(string));                   //1
+                dt.Columns.Add("Platform Design Owner", typeof(string));                   //1
+                dt.Columns.Add("Architecture", typeof(string));                   //1
+                dt.Columns.Add("Platform", typeof(string));                   //1
+                dt.Columns.Add("Program", typeof(string));                   //1
+                dt.Columns.Add("Production Nameplate", typeof(string));                   //1
+                dt.Columns.Add("SOP (Start of Production)", typeof(DateTime));                   //1
+                dt.Columns.Add("EOP (End of Production)", typeof(DateTime));                   //1
+                dt.Columns.Add("Lifecycle (Time)", typeof(string));                   //1
+                dt.Columns.Add("Assembly Type", typeof(string));                   //1
+                dt.Columns.Add("Strategic Group", typeof(string));                   //1
+                dt.Columns.Add("Sales Group", typeof(string));                   //1
+                dt.Columns.Add("Global Nameplate", typeof(string));                   //1
+                dt.Columns.Add("Primary Design Center", typeof(string));                   //1
+                dt.Columns.Add("Primary Design Country/Territory", typeof(string));                   //1
+                dt.Columns.Add("Primary Design Region", typeof(string));                   //1
+                dt.Columns.Add("Secondary Design Center", typeof(string));                   //1
+                dt.Columns.Add("Secondary Design Country/Territory	", typeof(string));                   //1
+                dt.Columns.Add("Secondary Design Region", typeof(string));                   //1
+                dt.Columns.Add("GVW Rating", typeof(string));                   //1
+                dt.Columns.Add("GVW Class", typeof(string));                   //1
+                dt.Columns.Add("Car/Truck", typeof(string));                   //1
+                dt.Columns.Add("Production Type", typeof(string));                   //1
+                dt.Columns.Add("Global Production Segment", typeof(string));                   //1
+                dt.Columns.Add("Flat Rolled Steel Usage", typeof(string));                   //1
+                dt.Columns.Add("Regional Sales Segment", typeof(string));                   //1
+                dt.Columns.Add("Global Production Price Class", typeof(string));                   //1
+                dt.Columns.Add("Global Sales Segment", typeof(string));                   //1
+                dt.Columns.Add("Global Sales Sub-Segment", typeof(string));                   //1
+                dt.Columns.Add("Global Sales Price Class", typeof(string));                   //1
+                dt.Columns.Add("Short-Term Risk Rating", typeof(string));                   //1
+                dt.Columns.Add("Long-Term Risk Rating", typeof(string));                   //1
+                dt.Columns.Add("Porcentaje scrap", typeof(decimal));                  //1   
+                                                                                      //agrega cabecera meses
+                foreach (var c in cabeceraMeses)
+                    dt.Columns.Add(c.text, typeof(string));                  //1
+                                                                             //agrega cabecera cuartos
+                foreach (var c in cabeceraCuartos)
+                    dt.Columns.Add(c.text, typeof(string));                  //1
+                                                                             //agrega cabecera años ene-dic
+                foreach (var c in cabeceraAnios)
+                    dt.Columns.Add(c.text, typeof(string));                  //1
+                                                                             //agrega cabecera fy
+                foreach (var c in cabeceraAniosFY)
+                    dt.Columns.Add(c.text, typeof(string));                  //1
+                #endregion
+
+
+                //crea row
+                System.Data.DataRow row = dt.NewRow();
+
+                #region valores
+                row["Id"] = division.BG_IHS_item.id;
+                row["Origen"] = division.BG_IHS_item.origen;
+                row["Vehicle (IHS)"] = division.BG_IHS_item.vehicle;
+                row["Vehicle (Compuesto)"] = division.BG_IHS_item.ConcatCodigo;
+                row["Core Nameplate Region Mnemonic"] = division.BG_IHS_item.core_nameplate_region_mnemonic;
+                row["Core Nameplate Plant Mnemonic"] = division.BG_IHS_item.core_nameplate_plant_mnemonic;
+                row["Mnemonic-Vehicle"] = division.BG_IHS_item.mnemonic_vehicle;
+                row["Mnemonic-Vehicle/Plant"] = division.BG_IHS_item.mnemonic_vehicle_plant;
+                row["Mnemonic-Platform"] = division.BG_IHS_item.mnemonic_platform;
+                row["Mnemonic-Plant"] = division.BG_IHS_item.mnemonic_plant;
+                row["Region"] = division.BG_IHS_item.region;
+                row["Market"] = division.BG_IHS_item.market;
+                row["Country/Territory"] = division.BG_IHS_item.country_territory;
+                row["Production Plant"] = division.BG_IHS_item.production_plant;
+                row["Region(Plant)"] = division.BG_IHS_item._Region != null ? division.BG_IHS_item._Region.descripcion : null;
+                row["City"] = division.BG_IHS_item.city;
+                row["Plant State/Province"] = division.BG_IHS_item.plant_state_province;
+                row["Source Plant"] = division.BG_IHS_item.source_plant;
+                row["Source Plant Country/Territory"] = division.BG_IHS_item.source_plant_country_territory;
+                row["Source Plant Region"] = division.BG_IHS_item.source_plant_region;
+                row["Design Parent"] = division.BG_IHS_item.design_parent;
+                row["Engineering Group"] = division.BG_IHS_item.engineering_group;
+                row["Manufacturer Group"] = division.BG_IHS_item.manufacturer_group;
+                row["Manufacturer"] = division.BG_IHS_item.manufacturer;
+                row["Sales Parent"] = division.BG_IHS_item.sales_parent;
+                row["Production Brand"] = division.BG_IHS_item.production_brand;
+                row["Platform Design Owner"] = division.BG_IHS_item.platform_design_owner;
+                row["Architecture"] = division.BG_IHS_item.architecture;
+                row["Platform"] = division.BG_IHS_item.platform;
+                row["Program"] = division.BG_IHS_item.program;
+                row["Production Nameplate"] = division.BG_IHS_item.production_nameplate;
+                row["SOP (Start of Production)"] = division.BG_IHS_item.sop_start_of_production;
+                row["EOP (End of Production)"] = division.BG_IHS_item.eop_end_of_production;
+                row["Lifecycle (Time)"] = division.BG_IHS_item.lifecycle_time;
+                row["Assembly Type"] = division.BG_IHS_item.assembly_type;
+                row["Strategic Group"] = division.BG_IHS_item.strategic_group;
+                row["Sales Group"] = division.BG_IHS_item.sales_group;
+                row["Global Nameplate"] = division.BG_IHS_item.global_nameplate;
+                row["Primary Design Center"] = division.BG_IHS_item.primary_design_center;
+                row["Primary Design Country/Territory"] = division.BG_IHS_item.primary_design_country_territory;
+                row["Primary Design Region"] = division.BG_IHS_item.primary_design_region;
+                row["Secondary Design Center"] = division.BG_IHS_item.secondary_design_center;
+                row["Secondary Design Country/Territory	"] = division.BG_IHS_item.secondary_design_country_territory;
+                row["Secondary Design Region"] = division.BG_IHS_item.secondary_design_region;
+                row["GVW Rating"] = division.BG_IHS_item.gvw_rating;
+                row["GVW Class"] = division.BG_IHS_item.gvw_class;
+                row["Car/Truck"] = division.BG_IHS_item.car_truck;
+                row["Production Type"] = division.BG_IHS_item.production_type;
+                row["Global Production Segment"] = division.BG_IHS_item.global_production_segment;
+                row["Flat Rolled Steel Usage"] = division.BG_IHS_item.RelSegmento != null ? division.BG_IHS_item.RelSegmento.flat_rolled_steel_usage : null;
+                row["Regional Sales Segment"] = division.BG_IHS_item.regional_sales_segment;
+                row["Global Production Price Class"] = division.BG_IHS_item.global_production_price_class;
+                row["Global Sales Segment"] = division.BG_IHS_item.global_sales_segment;
+                row["Global Sales Sub-Segment"] = division.BG_IHS_item.global_sales_sub_segment;
+                row["Global Sales Price Class"] = division.BG_IHS_item.global_sales_price_class;
+                row["Short-Term Risk Rating"] = division.BG_IHS_item.short_term_risk_rating;
+                row["Long-Term Risk Rating"] = division.BG_IHS_item.long_term_risk_rating;
+                row["Porcentaje scrap"] = division.porcentaje_scrap;
+                #region meses
+                int indexCabecera = 0;
+                int indexColumna = camposPrevios + 2;
+
+
+                List<BG_IHS_rel_demanda> demandaMeses = division.BG_IHS_item.GetDemanda(cabeceraMeses, demanda);
+
+                foreach (var item_demanda in demandaMeses)
+                {
+                    //si no es nul agrega la cantidad
+                    if (item_demanda != null)
+                    {
+                        //row[cabeceraMeses[indexCabecera].text] = item_demanda.cantidad;
+                        //= 250 * (1 + BG11)
+                        row[cabeceraMeses[indexCabecera].text] = "=" + (item_demanda.cantidad != null ? item_demanda.cantidad.Value : 0) + "*(1+" + porcentajeReferencia + inicio_fila + ")";
+
+                        //agrega el estilo a la cabecera
+                        // coloca el texto en negritas
+                        oSLDocument.SetCellStyle(fila_actual, indexColumna, styleBoldBlue);
+                        switch (item_demanda.origen_datos)
+                        {
+                            case Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER:
+                                oSLDocument.SetCellStyle(fila_actual, indexColumna, styleDemandaCustomer);
+                                break;
+                            case Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL:
+                                oSLDocument.SetCellStyle(fila_actual, indexColumna, styleDemandaOriginal);
+                                break;
+
+                        }
+                      
+                    }
+                    else
+                    {
+                        row[cabeceraMeses[indexCabecera].text] = DBNull.Value;
+                    }
+                    indexCabecera++;
+                    indexColumna++;
+                }
+
+                #endregion
+
+                #region cuartos
+                indexCabecera = 0;
+
+                foreach (var item_demanda in division.BG_IHS_item.GetCuartos(demandaMeses, cabeceraCuartos, demanda))
+                {
+                    //si no es nul agrega la cantidad
+                    if (item_demanda != null && item_demanda.cantidad != null)
+                    {
+                        row[cabeceraCuartos[indexCabecera].text] = "=" + (item_demanda.cantidad != null ? item_demanda.cantidad.Value : 0) + "*(1+" + porcentajeReferencia + inicio_fila + ")";
+
+                        //agrega el estilo a la cabecera
+                        // coloca el texto en negritas
+                        oSLDocument.SetCellStyle(fila_actual, indexColumna, styleBoldBlue);
+                        switch (item_demanda.origen_datos)
+                        {
+                            case Portal_2_0.Models.Enum_BG_origen_cuartos.Calculado:
+                                oSLDocument.SetCellStyle(fila_actual, indexColumna, styleValorCalculado);
+                                break;
+                            case Portal_2_0.Models.Enum_BG_origen_cuartos.IHS:
+                                oSLDocument.SetCellStyle(fila_actual, indexColumna, styleValorIHS);
+                                break;
+                        }                       
+                    }
+                    else
+                    {
+                        row[cabeceraCuartos[indexCabecera].text] = DBNull.Value;
+                    }
+                    indexColumna++;
+                    indexCabecera++;
+                }
+
+                #endregion
+
+                #region años
+                indexCabecera = 0;
+                foreach (var item_demanda in division.BG_IHS_item.GetAnios(demandaMeses, cabeceraAnios, demanda))
+                {
+                    //si no es nul agrega la cantidad
+                    if (item_demanda != null && item_demanda.cantidad != null)
+                    {
+                        row[cabeceraAnios[indexCabecera].text] = "=" + (item_demanda.cantidad != null ? item_demanda.cantidad.Value : 0) + "*(1+" + porcentajeReferencia + inicio_fila + ")";
+
+                        //agrega el estilo a la cabecera
+                        // coloca el texto en negritas
+                        oSLDocument.SetCellStyle(fila_actual, indexColumna, styleBoldBlue);
+                        switch (item_demanda.origen_datos)
+                        {
+                            case Portal_2_0.Models.Enum_BG_origen_anios.Calculado:
+                                oSLDocument.SetCellStyle(fila_actual, indexColumna, styleValorCalculado);
+                                break;
+                            case Portal_2_0.Models.Enum_BG_origen_anios.IHS:
+                                oSLDocument.SetCellStyle(fila_actual, indexColumna, styleValorIHS);
+                                break;
+                        }
+                       
+                    }
+                    else
+                    {
+                        row[cabeceraAnios[indexCabecera].text] = DBNull.Value;
+                    }
+
+                    indexColumna++;
+                    indexCabecera++;
+                }
+
+                #endregion
+                #region años FY
+                indexCabecera = 0;
+                //FYReference = indexColumna + 2;
+
+                var datosAniosFY = division.BG_IHS_item.GetAniosFY(demandaMeses, cabeceraAniosFY, demanda);
+                listDatosRegionesFY.AddRange(datosAniosFY);
+
+                foreach (var item_demanda in datosAniosFY)
+                {
+                    //si no es nul agrega la cantidad
+                    if (item_demanda != null && item_demanda.cantidad != null)
+                    {
+                        row[cabeceraAniosFY[indexCabecera].text] = "=" + (item_demanda.cantidad != null ? item_demanda.cantidad.Value : 0) + "*(1+" + porcentajeReferencia + inicio_fila + ")";
+
+                        //agrega el estilo a la cabecera
+                        // coloca el texto en negritas
+                        oSLDocument.SetCellStyle(fila_actual, indexColumna, styleBoldBlue);
+                        switch (item_demanda.origen_datos)
+                        {
+                            case Portal_2_0.Models.Enum_BG_origen_anios.Calculado:
+                                oSLDocument.SetCellStyle(fila_actual, indexColumna, styleValorCalculado);
+                                break;
+                            case Portal_2_0.Models.Enum_BG_origen_anios.IHS:
+                                oSLDocument.SetCellStyle(fila_actual, indexColumna, styleValorIHS);
+                                break;
+
+                        }
+                       
+                    }
+                    else
+                    {
+                        row[cabeceraAniosFY[indexCabecera].text] = DBNull.Value;
+                    }
+
+                    indexColumna++;
+                    indexCabecera++;
+                }
+
+                #endregion
+
+                #endregion
+
+                // coloca el texto en negritas
+                oSLDocument.SetCellStyle(fila_actual, 2, fila_actual, camposPrevios + 1, styleBoldBlue);
+                //aplica el estilo a los primeros campos
+                switch (division.BG_IHS_item.origen)
+                {
+                    case Bitacoras.Util.BG_IHS_Origen.IHS:
+                        oSLDocument.SetCellStyle(fila_actual, 2, fila_actual, camposPrevios + 1, styleIHS);
+                        break;
+                    case Bitacoras.Util.BG_IHS_Origen.USER:
+                        oSLDocument.SetCellStyle(fila_actual, 2, fila_actual, camposPrevios + 1, styleUser);
+                        break;
+
+                }
+                
+
+                //agrega la filas
+                dt.Rows.Add(row);
+                 //agrega la tabla
+                oSLDocument.ImportDataTable(fila_actual, 2, dt, false);
+
+                fila_actual++;
+
+                int fila_porcentaje_division =31;
+                string porcentajeDivisionReferencia = GetCellReference(fila_porcentaje_division);
+
+                foreach (var rel in division.BG_IHS_rel_division) {
+                    //aplica
+
+                    oSLDocument.SetCellValue(fila_actual, 4, rel.vehicle);
+                    oSLDocument.SetCellValue(fila_actual, 5, rel.vehicle);
+                    oSLDocument.SetCellValue(fila_actual, 31, rel.porcentaje.Value);
+                    oSLDocument.SetCellStyle(fila_actual, fila_porcentaje_division, stylePercent);
+                    oSLDocument.SetCellValue(fila_actual, 32, rel.production_nameplate);
+
+                    //agrega la formula
+                    for (int i = camposPrevios + 2; i < camposPrevios + 2 + (cabeceraMeses.Count + cabeceraCuartos.Count + cabeceraAnios.Count + cabeceraAniosFY.Count); i++)
+                    {
+                        string celdaRef = GetCellReference(i);
+                        oSLDocument.SetCellValue(fila_actual, i, "="+celdaRef+inicio_fila+"*"+porcentajeDivisionReferencia+fila_actual);
+                    }
+                    fila_actual++;
+
+
+
+                }
+
+            }
+
+
+            #endregion
+
+
+            //estilos
+            oSLDocument.SetColumnStyle(33, 34, styleShortDate);
+            oSLDocument.SetColumnStyle(59, stylePercent);
+
+            //establece alto de las filas
+            oSLDocument.SetRowHeight(1, fila_actual, 15.0);
+            //set autofit
+            oSLDocument.AutoFitColumn(1, columnasStyles);
 
             #endregion
 

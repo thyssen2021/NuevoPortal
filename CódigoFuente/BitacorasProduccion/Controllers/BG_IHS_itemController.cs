@@ -922,7 +922,10 @@ namespace Portal_2_0.Controllers
                         && (x.origen == origen || origen == Bitacoras.Util.BG_IHS_Origen.UNION)
                         ).ToList();
 
-                byte[] stream = ExcelUtil.GeneraReporteBudgetIHS(listado, demanda);
+                var combinaciones = db.BG_IHS_combinacion.Where(x => x.activo).ToList();
+                var divisiones = db.BG_IHS_division.Where(x => x.activo).ToList();
+
+                byte[] stream = ExcelUtil.GeneraReporteBudgetIHS(listado, combinaciones, divisiones, demanda);
 
 
                 var cd = new System.Net.Mime.ContentDisposition

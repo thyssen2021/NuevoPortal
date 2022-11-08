@@ -19,7 +19,7 @@ namespace Portal_2_0.Controllers
         // GET: BG_IHS_regiones
         public ActionResult Index()
         {
-            if (TieneRol(TipoRoles.GV_CATALOGOS))
+            if (TieneRol(TipoRoles.BUDGET_IHS_CATALOGOS))
             {
                 //mensaje en caso de crear, editar, etc
                 if (TempData["Mensaje"] != null)
@@ -36,7 +36,7 @@ namespace Portal_2_0.Controllers
         // GET: BG_IHS_regiones/Details/5
         public ActionResult Details(int? id)
         {
-            if (TieneRol(TipoRoles.GV_CATALOGOS))
+            if (TieneRol(TipoRoles.BUDGET_IHS_CATALOGOS))
             {
                 if (id == null)
                 {
@@ -60,7 +60,7 @@ namespace Portal_2_0.Controllers
         // GET: BG_IHS_regiones/Create
         public ActionResult Create()
         {
-            if (TieneRol(TipoRoles.GV_CATALOGOS))
+            if (TieneRol(TipoRoles.BUDGET_IHS_CATALOGOS))
             {
                 return View();
             }
@@ -108,7 +108,7 @@ namespace Portal_2_0.Controllers
         public ActionResult Edit(int? id)
         {
 
-            if (TieneRol(TipoRoles.GV_CATALOGOS))
+            if (TieneRol(TipoRoles.BUDGET_IHS_CATALOGOS))
             {
                 if (id == null)
                 {
@@ -169,7 +169,7 @@ namespace Portal_2_0.Controllers
         // GET: BG_IHS_regiones/Disable/5
         public ActionResult Disable(int? id)
         {
-            if (TieneRol(TipoRoles.GV_CATALOGOS))
+            if (TieneRol(TipoRoles.BUDGET_IHS_CATALOGOS))
             {
                 if (id == null)
                 {
@@ -230,7 +230,7 @@ namespace Portal_2_0.Controllers
         // GET: BG_IHS_regiones/Enable/5
         public ActionResult Enable(int? id)
         {
-            if (TieneRol(TipoRoles.GV_CATALOGOS))
+            if (TieneRol(TipoRoles.BUDGET_IHS_CATALOGOS))
             {
                 if (id == null)
                 {

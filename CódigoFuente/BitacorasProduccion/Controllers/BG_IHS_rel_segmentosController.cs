@@ -19,7 +19,7 @@ namespace Portal_2_0.Controllers
         // GET: BG_IHS_rel_segmentos
         public ActionResult Index(string estado)
         {
-            if (!TieneRol(TipoRoles.GV_CATALOGOS))
+            if (!TieneRol(TipoRoles.BUDGET_IHS_CATALOGOS))
                 return View("../Home/ErrorPermisos");
 
             //mensaje en caso de crear, editar, etc
@@ -44,7 +44,7 @@ namespace Portal_2_0.Controllers
         // GET: BG_IHS_rel_segmentos/Details/5
         public ActionResult Details(int? id)
         {
-            if (!TieneRol(TipoRoles.GV_CATALOGOS))
+            if (!TieneRol(TipoRoles.BUDGET_IHS_CATALOGOS))
                 return View("../Home/ErrorPermisos");
 
             if (id == null)
@@ -64,7 +64,7 @@ namespace Portal_2_0.Controllers
         // GET: BG_IHS_rel_segmentos/Edit/5
         public ActionResult Edit(int? id)
         {
-            if (!TieneRol(TipoRoles.GV_CATALOGOS))
+            if (!TieneRol(TipoRoles.BUDGET_IHS_CATALOGOS))
                 return View("../Home/ErrorPermisos");
 
             if (id == null)

@@ -576,6 +576,11 @@
         $("#div_items_ihs_" + id).fadeOut(0, function () {
             $(this).remove();
         });
+
+        //llamada al metodo para cargar las filas
+        CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.ORIGINAL');
+        CargaRow('@Bitacoras.Util.BG_IHS_tipo_demanda.CUSTOMER');
+
     }
 
     function mostrarDetalles(contador) {
