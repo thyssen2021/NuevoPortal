@@ -50,6 +50,56 @@
           <Property Name="FechaCreacion" Type="datetime" Nullable="false" />
           <Property Name="IdEmpleado" Type="int" Nullable="false" />
         </EntityType>
+        <EntityType Name="BG_Forecast_item">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_bg_forecast_reporte" Type="int" Nullable="false" />
+          <Property Name="business_and_plant" Type="varchar" MaxLength="30" />
+          <Property Name="calculo_activo" Type="bit" Nullable="false" />
+          <Property Name="sap_invoice_code" Type="varchar" MaxLength="12" />
+          <Property Name="invoiced_to" Type="varchar" MaxLength="100" />
+          <Property Name="number_sap_client" Type="varchar" MaxLength="8" />
+          <Property Name="shipped_to" Type="varchar" MaxLength="100" />
+          <Property Name="own_cm" Type="varchar" MaxLength="5" />
+          <Property Name="route" Type="varchar" MaxLength="15" />
+          <Property Name="plant" Type="varchar" MaxLength="4" />
+          <Property Name="external_process" Type="varchar" MaxLength="25" />
+          <Property Name="mill" Type="varchar" MaxLength="100" />
+          <Property Name="sap_master_coil" Type="varchar" MaxLength="12" />
+          <Property Name="part_description" Type="varchar" MaxLength="100" />
+          <Property Name="part_number" Type="varchar" MaxLength="100" />
+          <Property Name="production_line" Type="varchar" MaxLength="15" />
+          <Property Name="vehicle" Type="varchar" MaxLength="150" />
+          <Property Name="parts_auto" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="strokes_auto" Type="decimal" Precision="5" Scale="2" />
+          <Property Name="material_type" Type="varchar" MaxLength="20" />
+          <Property Name="shape" Type="varchar" MaxLength="5" />
+          <Property Name="initial_weight_part" Type="decimal" Precision="8" Scale="3" />
+          <Property Name="net_weight_part" Type="decimal" Precision="8" Scale="3" />
+          <Property Name="scrap_consolidation" Type="bit" Nullable="false" />
+          <Property Name="ventas_part" Type="decimal" Precision="6" Scale="2" />
+          <Property Name="material_cost_part" Type="decimal" Precision="6" Scale="2" />
+          <Property Name="cost_of_outside_processor" Type="decimal" Precision="6" Scale="2" />
+          <Property Name="additional_material_cost_part" Type="decimal" Precision="6" Scale="2" />
+          <Property Name="outgoing_freight_part" Type="decimal" Precision="6" Scale="2" />
+          <Property Name="freights_income" Type="varchar" MaxLength="100" />
+          <Property Name="outgoing freight" Type="varchar" MaxLength="100" />
+          <Property Name="cat_1" Type="varchar" MaxLength="20" />
+          <Property Name="cat_2" Type="varchar" MaxLength="20" />
+          <Property Name="cat_3" Type="varchar" MaxLength="20" />
+          <Property Name="cat_4" Type="varchar" MaxLength="20" />
+        </EntityType>
+        <EntityType Name="BG_Forecast_reporte">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="fecha" Type="datetime" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="80" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
         <EntityType Name="BG_IHS_combinacion">
           <Key>
             <PropertyRef Name="id" />
@@ -1757,6 +1807,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Principal>
             <Dependent Role="BG_IHS_division">
               <PropertyRef Name="id_ihs_item" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BG_IHS_rel_combinacion_id_bg_forecast_reporte">
+          <End Role="BG_Forecast_reporte" Type="Self.BG_Forecast_reporte" Multiplicity="1" />
+          <End Role="BG_Forecast_item" Type="Self.BG_Forecast_item" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="BG_Forecast_reporte">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="BG_Forecast_item">
+              <PropertyRef Name="id_bg_forecast_reporte" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -3629,6 +3691,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySet Name="AspNetRoles" EntityType="Self.AspNetRoles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="AspNetUserRoles" EntityType="Self.AspNetUserRoles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="AspNetUsers" EntityType="Self.AspNetUsers" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="BG_Forecast_item" EntityType="Self.BG_Forecast_item" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="BG_Forecast_reporte" EntityType="Self.BG_Forecast_reporte" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="BG_IHS_combinacion" EntityType="Self.BG_IHS_combinacion" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="BG_IHS_division" EntityType="Self.BG_IHS_division" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="BG_IHS_item" EntityType="Self.BG_IHS_item" Schema="dbo" store:Type="Tables" />
@@ -4011,6 +4075,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <AssociationSet Name="FK_BG_IHS_division_id_ihs_item" Association="Self.FK_BG_IHS_division_id_ihs_item">
             <End Role="BG_IHS_item" EntitySet="BG_IHS_item" />
             <End Role="BG_IHS_division" EntitySet="BG_IHS_division" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BG_IHS_rel_combinacion_id_bg_forecast_reporte" Association="Self.FK_BG_IHS_rel_combinacion_id_bg_forecast_reporte">
+            <End Role="BG_Forecast_reporte" EntitySet="BG_Forecast_reporte" />
+            <End Role="BG_Forecast_item" EntitySet="BG_Forecast_item" />
           </AssociationSet>
           <AssociationSet Name="FK_BG_IHS_rel_combinacion_id_ihs_combinacion" Association="Self.FK_BG_IHS_rel_combinacion_id_ihs_combinacion">
             <End Role="BG_IHS_combinacion" EntitySet="BG_IHS_combinacion" />
@@ -8648,6 +8716,12 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="BG_IHS_division" EntitySet="BG_IHS_division" />
             <End Role="BG_IHS_rel_division" EntitySet="BG_IHS_rel_division" />
           </AssociationSet>
+          <EntitySet Name="BG_Forecast_reporte" EntityType="Portal_2_0Model.BG_Forecast_reporte" />
+          <EntitySet Name="BG_Forecast_item" EntityType="Portal_2_0Model.BG_Forecast_item" />
+          <AssociationSet Name="FK_BG_IHS_rel_combinacion_id_bg_forecast_reporte" Association="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_bg_forecast_reporte">
+            <End Role="BG_Forecast_reporte" EntitySet="BG_Forecast_reporte" />
+            <End Role="BG_Forecast_item" EntitySet="BG_Forecast_item" />
+          </AssociationSet>
         </EntityContainer>
         <EntityType Name="GV_usuarios">
           <Key>
@@ -9266,6 +9340,70 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Principal>
             <Dependent Role="BG_IHS_rel_division">
               <PropertyRef Name="id_ihs_division" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="BG_Forecast_reporte">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="fecha" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="descripcion" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="BG_Forecast_item" Relationship="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_bg_forecast_reporte" FromRole="BG_Forecast_reporte" ToRole="BG_Forecast_item" />
+        </EntityType>
+        <EntityType Name="BG_Forecast_item">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_bg_forecast_reporte" Type="Int32" Nullable="false" />
+          <Property Name="business_and_plant" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="calculo_activo" Type="Boolean" Nullable="false" />
+          <Property Name="sap_invoice_code" Type="String" MaxLength="12" FixedLength="false" Unicode="false" />
+          <Property Name="invoiced_to" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="number_sap_client" Type="String" MaxLength="8" FixedLength="false" Unicode="false" />
+          <Property Name="shipped_to" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="own_cm" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="route" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="plant" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="external_process" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="mill" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="sap_master_coil" Type="String" MaxLength="12" FixedLength="false" Unicode="false" />
+          <Property Name="part_description" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="part_number" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="production_line" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="vehicle" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="parts_auto" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="strokes_auto" Type="Decimal" Precision="5" Scale="2" />
+          <Property Name="material_type" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="shape" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="initial_weight_part" Type="Decimal" Precision="8" Scale="3" />
+          <Property Name="net_weight_part" Type="Decimal" Precision="8" Scale="3" />
+          <Property Name="scrap_consolidation" Type="Boolean" Nullable="false" />
+          <Property Name="ventas_part" Type="Decimal" Precision="6" Scale="2" />
+          <Property Name="material_cost_part" Type="Decimal" Precision="6" Scale="2" />
+          <Property Name="cost_of_outside_processor" Type="Decimal" Precision="6" Scale="2" />
+          <Property Name="additional_material_cost_part" Type="Decimal" Precision="6" Scale="2" />
+          <Property Name="outgoing_freight_part" Type="Decimal" Precision="6" Scale="2" />
+          <Property Name="freights_income" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="outgoing_freight" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="cat_1" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="cat_2" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="cat_3" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="cat_4" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="BG_Forecast_reporte" Relationship="Portal_2_0Model.FK_BG_IHS_rel_combinacion_id_bg_forecast_reporte" FromRole="BG_Forecast_item" ToRole="BG_Forecast_reporte" />
+        </EntityType>
+        <Association Name="FK_BG_IHS_rel_combinacion_id_bg_forecast_reporte">
+          <End Type="Portal_2_0Model.BG_Forecast_reporte" Role="BG_Forecast_reporte" Multiplicity="1" />
+          <End Type="Portal_2_0Model.BG_Forecast_item" Role="BG_Forecast_item" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="BG_Forecast_reporte">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="BG_Forecast_item">
+              <PropertyRef Name="id_bg_forecast_reporte" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -11041,6 +11179,58 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
                 <ScalarProperty Name="porcentaje_scrap" ColumnName="porcentaje_scrap" />
                 <ScalarProperty Name="comentario" ColumnName="comentario" />
                 <ScalarProperty Name="id_ihs_item" ColumnName="id_ihs_item" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="BG_Forecast_reporte">
+            <EntityTypeMapping TypeName="Portal_2_0Model.BG_Forecast_reporte">
+              <MappingFragment StoreEntitySet="BG_Forecast_reporte">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="fecha" ColumnName="fecha" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="BG_Forecast_item">
+            <EntityTypeMapping TypeName="Portal_2_0Model.BG_Forecast_item">
+              <MappingFragment StoreEntitySet="BG_Forecast_item">
+                <ScalarProperty Name="cat_4" ColumnName="cat_4" />
+                <ScalarProperty Name="cat_3" ColumnName="cat_3" />
+                <ScalarProperty Name="cat_2" ColumnName="cat_2" />
+                <ScalarProperty Name="cat_1" ColumnName="cat_1" />
+                <ScalarProperty Name="outgoing_freight" ColumnName="outgoing freight" />
+                <ScalarProperty Name="freights_income" ColumnName="freights_income" />
+                <ScalarProperty Name="outgoing_freight_part" ColumnName="outgoing_freight_part" />
+                <ScalarProperty Name="additional_material_cost_part" ColumnName="additional_material_cost_part" />
+                <ScalarProperty Name="cost_of_outside_processor" ColumnName="cost_of_outside_processor" />
+                <ScalarProperty Name="material_cost_part" ColumnName="material_cost_part" />
+                <ScalarProperty Name="ventas_part" ColumnName="ventas_part" />
+                <ScalarProperty Name="scrap_consolidation" ColumnName="scrap_consolidation" />
+                <ScalarProperty Name="net_weight_part" ColumnName="net_weight_part" />
+                <ScalarProperty Name="initial_weight_part" ColumnName="initial_weight_part" />
+                <ScalarProperty Name="shape" ColumnName="shape" />
+                <ScalarProperty Name="material_type" ColumnName="material_type" />
+                <ScalarProperty Name="strokes_auto" ColumnName="strokes_auto" />
+                <ScalarProperty Name="parts_auto" ColumnName="parts_auto" />
+                <ScalarProperty Name="vehicle" ColumnName="vehicle" />
+                <ScalarProperty Name="production_line" ColumnName="production_line" />
+                <ScalarProperty Name="part_number" ColumnName="part_number" />
+                <ScalarProperty Name="part_description" ColumnName="part_description" />
+                <ScalarProperty Name="sap_master_coil" ColumnName="sap_master_coil" />
+                <ScalarProperty Name="mill" ColumnName="mill" />
+                <ScalarProperty Name="external_process" ColumnName="external_process" />
+                <ScalarProperty Name="plant" ColumnName="plant" />
+                <ScalarProperty Name="route" ColumnName="route" />
+                <ScalarProperty Name="own_cm" ColumnName="own_cm" />
+                <ScalarProperty Name="shipped_to" ColumnName="shipped_to" />
+                <ScalarProperty Name="number_sap_client" ColumnName="number_sap_client" />
+                <ScalarProperty Name="invoiced_to" ColumnName="invoiced_to" />
+                <ScalarProperty Name="sap_invoice_code" ColumnName="sap_invoice_code" />
+                <ScalarProperty Name="calculo_activo" ColumnName="calculo_activo" />
+                <ScalarProperty Name="business_and_plant" ColumnName="business_and_plant" />
+                <ScalarProperty Name="id_bg_forecast_reporte" ColumnName="id_bg_forecast_reporte" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

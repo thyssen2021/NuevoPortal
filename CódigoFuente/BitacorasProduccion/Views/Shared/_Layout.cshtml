@@ -330,6 +330,26 @@
                                             </ul>
                                         </li>
                                     }
+                                       @if (User.IsInRole(TipoRoles.BUDGET_IHS))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "budget_forecast" ? "active" : null )">
+                                            <a><i class="fa fa-chart-gantt"></i>Forecast <span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "budget_forecast" ? "display:block" : null )">
+                                                <li class="@(ViewBag.SegundoNivel == "listado_forecast" ? "current-page" : null )"><a href="@Url.Action( "index", "BG_Forecast_reporte")">Forecast</a></li>
+                                                @*@if (User.IsInRole(TipoRoles.BUDGET_IHS_CATALOGOS))
+                                                {
+                                                    <li class="link @(ViewBag.SegundoNivel == "budget_ihs_catalogos" ? "active" : null )">
+                                                        <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
+                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "budget_ihs_catalogos" ? "display:block" : null )">
+                                                            <li class="@(ViewBag.TercelNivel == "BG_IHS_rel_regiones" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_IHS_rel_regiones")">Asignar Regi&oacute;n</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "BG_IHS_regiones" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_IHS_regiones")">Regiones</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "BG_IHS_rel_segmentos" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_IHS_rel_segmentos")">Segmentos</a></li>
+                                                        </ul>
+                                                    </li>
+                                                }*@
+                                            </ul>
+                                        </li>
+                                    }
 
 
                                     @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS) || User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REGISTRO) || User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REPORTE))

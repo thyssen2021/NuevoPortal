@@ -282,6 +282,7 @@
     <Compile Include="Controllers\AreasController.cs" />
     <Compile Include="Controllers\BG_CentroCostoController.cs" />
     <Compile Include="Controllers\BG_CuentasSAPController.cs" />
+    <Compile Include="Controllers\BG_Forecast_reporteController.cs" />
     <Compile Include="Controllers\BG_IHS_combinacionController.cs" />
     <Compile Include="Controllers\BG_IHS_divisionController.cs" />
     <Compile Include="Controllers\BG_IHS_itemController.cs" />
@@ -394,6 +395,12 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\BaseController.cs" />
+    <Compile Include="Models\BG_Forecast_item.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\BG_Forecast_reporte.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\BG_IHS_combinacion.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -589,6 +596,8 @@
     <Compile Include="Models\log_inicio_sesion.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\MetadataModels\BG_Forecast_itemMetadata.cs" />
+    <Compile Include="Models\MetadataModels\BG_Forecast_reporteMetadata.cs" />
     <Compile Include="Models\MetadataModels\BG_IHS_combinacionMetadata.cs" />
     <Compile Include="Models\MetadataModels\BG_IHS_divisionMetadata.cs" />
     <Compile Include="Models\MetadataModels\BG_IHS_itemMetadata.cs" />
@@ -696,6 +705,11 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\NuevoPortalModel.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Models\NuevoPortalModel1.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
@@ -6735,7 +6749,7 @@
     <None Include="Connected Services\ServiceReferenceBasculas\WebServiceBasculas.wsdl" />
     <EntityDeploy Include="Models\NuevoPortalModel.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>NuevoPortalModel.Designer.cs</LastGenOutput>
+      <LastGenOutput>NuevoPortalModel1.Designer.cs</LastGenOutput>
     </EntityDeploy>
     <Content Include="Models\NuevoPortalModel.edmx.diagram">
       <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
@@ -7295,6 +7309,11 @@
     <Content Include="Views\BG_IHS_division\Index.cshtml" />
     <Content Include="Views\BG_IHS_division\Enable.cshtml" />
     <Content Include="Views\BG_IHS_division\Disable.cshtml" />
+    <Content Include="Views\BG_Forecast_reporte\Create.cshtml" />
+    <Content Include="Views\BG_Forecast_reporte\Delete.cshtml" />
+    <Content Include="Views\BG_Forecast_reporte\Details.cshtml" />
+    <Content Include="Views\BG_Forecast_reporte\Edit.cshtml" />
+    <Content Include="Views\BG_Forecast_reporte\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

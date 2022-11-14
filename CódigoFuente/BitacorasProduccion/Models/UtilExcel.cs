@@ -69,6 +69,23 @@ namespace Portal_2_0.Models
             "Long-Term Risk Rating", //int
         };
 
+         public static List<string> ListadoCabeceraReporteBudget = new List<string> {
+            "Bussines & Plant",
+            "INVOICED TO:",
+            "NUMBER SAP CLIENT",
+            "SHIPPED TO:",
+            "ROUTE",
+            "PLANT",
+            "MILL",
+            "SAP MASTER COIL",
+            "PART DESCRIPTION",
+            "PART NUMBER",
+            "VEHICLE  -  IHS 1",
+            "SHAPE",            
+        };
+
+
+
         ///<summary>
         ///Lee un archivo de excel y carga el listado de bom
         ///</summary>
@@ -1531,7 +1548,7 @@ namespace Portal_2_0.Models
                                     string input = encabezados[j];
                                     Match m = Regex.Match(input, pattern, RegexOptions.IgnoreCase);
                                     if (m.Success)
-                                    { 
+                                    {
                                         //separa el string en 2
                                         string[] valores = input.Split(' ');
                                         valores[0] = valores[0].Substring(1);
@@ -1541,12 +1558,12 @@ namespace Portal_2_0.Models
                                         {
                                             bg.BG_IHS_rel_cuartos.Add(new BG_IHS_rel_cuartos
                                             {
-                                                cantidad = cantidad,             
+                                                cantidad = cantidad,
                                                 cuarto = Int32.Parse(valores[0]),
                                                 anio = Int32.Parse(valores[1])
                                             });
                                         }
-                                           
+
                                     }
                                 }
                                 //asigna los valores al item de IHS
@@ -1621,7 +1638,176 @@ namespace Portal_2_0.Models
 
             return lista;
         }
-          ///<summary>
+        ///<summary>
+        ///Lee un archivo de excel y carga el listado de IHS
+        ///</summary>
+        ///<return>
+        ///Devuelve un List<BG_IHS_item> con los datos leidos
+        ///</return>
+        ///<param name="streamPostedFile">
+        ///Stream del archivo recibido en el formulario
+        ///</param>
+        public static List<BG_Forecast_item> LeeReporteBudget(HttpPostedFileBase streamPostedFile, string select_hoja, ref string estatus, ref string msj)
+        {
+            List<BG_Forecast_item> lista = new List<BG_Forecast_item>();
+            CultureInfo provider = new CultureInfo("en-US");
+
+            //crea el reader del archivo
+            using (var reader = ExcelReaderFactory.CreateReader(streamPostedFile.InputStream))
+            {
+                //obtiene el dataset del archivo de excel
+                var result = reader.AsDataSet();
+
+
+                //verifica que tenga la hoja
+                if (!result.Tables.Contains(select_hoja))
+                {
+                    estatus = "ERROR";
+                    msj = "El documento no tiene una hoja llamada: " + select_hoja;
+                    return lista;
+                }
+
+
+                //recorre todas las hojas del archivo
+                foreach (DataTable table in result.Tables)
+                {
+                    //busca si existe una hoja llamada "hoja1"
+                    if (table.TableName == select_hoja)
+                    {
+
+                        int filaEncabezado = 5;
+
+                        //se obtienen las cabeceras
+                        List<string> encabezadosTrim = new List<string>();
+
+                        for (int i = 0; i < table.Columns.Count; i++)
+                        {
+                            string title = table.Rows[filaEncabezado][i].ToString().Replace(" ", String.Empty);
+
+                            if (!string.IsNullOrEmpty(title))
+                                encabezadosTrim.Add(title);
+                        }
+
+                        //verifica que el archivo tenga algunas de las columnas necesarias
+                        foreach (string title in UtilExcel.ListadoCabeceraReporteBudget)
+                        {
+                            var titleTrim = title.Replace(" ", string.Empty);
+
+                            if (!encabezadosTrim.Contains(titleTrim))
+                            {
+                                estatus = "ERROR";
+                                msj = "La hoja no cuenta con una columna llamada: " + title;
+                                return lista;
+                            }
+                        }
+
+
+
+                        //la fila 4 se omite (encabezado)
+                        for (int i = filaEncabezado + 1; i < table.Rows.Count; i++)
+                        {
+                            //determina si la fila esta bacia
+                            if (String.IsNullOrEmpty(table.Rows[i][1].ToString()))
+                                break; //sale del for
+
+                            Decimal? decimalNull = null;
+
+                            BG_Forecast_item bg = new BG_Forecast_item();
+                            
+                            try
+                            {
+                                //asigna los valores al item de Budget
+                                bg.cat_1 = table.Rows[i][1].ToString(); // columna 2 es el consecutivo                               
+                                bg.business_and_plant = table.Rows[i][3].ToString();
+                                bg.cat_2 = table.Rows[i][4].ToString(); // PO in hand
+                                bg.cat_3 = table.Rows[i][5].ToString();
+                                bg.cat_4 = table.Rows[i][6].ToString();
+                                bg.calculo_activo = table.Rows[i][7].ToString().ToUpper() == "A" ? true : false;
+                                bg.sap_invoice_code = table.Rows[i][8].ToString();
+                                bg.invoiced_to = table.Rows[i][9].ToString();
+                                bg.number_sap_client = table.Rows[i][10].ToString();
+                                bg.shipped_to = table.Rows[i][11].ToString();
+                                bg.own_cm = table.Rows[i][12].ToString();
+                                bg.route = table.Rows[i][13].ToString();
+                                bg.plant = table.Rows[i][14].ToString();
+                                bg.external_process = table.Rows[i][15].ToString();
+                                bg.mill = table.Rows[i][16].ToString();
+                                bg.sap_master_coil = table.Rows[i][17].ToString();
+                                bg.part_description = table.Rows[i][18].ToString();
+                                bg.part_number = table.Rows[i][19].ToString();
+                                bg.production_line = table.Rows[i][20].ToString();
+                                bg.vehicle = table.Rows[i][21].ToString();
+                                bg.parts_auto = Decimal.TryParse(table.Rows[i][23].ToString(), out decimal parts_auto)? parts_auto: decimalNull;
+                                bg.strokes_auto = Decimal.TryParse(table.Rows[i][24].ToString(), out decimal strokes_auto) ? strokes_auto : decimalNull;
+                                bg.material_type = table.Rows[i][25].ToString();
+                                bg.shape = table.Rows[i][26].ToString();
+                                bg.initial_weight_part = Decimal.TryParse(table.Rows[i][28].ToString(), out decimal initial_weight_part) ? initial_weight_part : decimalNull;
+                                bg.net_weight_part = Decimal.TryParse(table.Rows[i][29].ToString(), out decimal net_weight_part) ? net_weight_part : decimalNull;
+                                bg.scrap_consolidation = table.Rows[i][31].ToString().ToUpper() == "YES" ? true : false;
+                                bg.ventas_part = Decimal.TryParse(table.Rows[i][33].ToString(), out decimal ventas_part) ? ventas_part : decimalNull;
+                                bg.material_cost_part = Decimal.TryParse(table.Rows[i][34].ToString(), out decimal material_cost_part) ? material_cost_part : decimalNull;
+                                bg.cost_of_outside_processor = Decimal.TryParse(table.Rows[i][35].ToString(), out decimal cost_of_outside_processor) ? cost_of_outside_processor : decimalNull;
+                                bg.additional_material_cost_part = Decimal.TryParse(table.Rows[i][37].ToString(), out decimal additional_material_cost_part) ? additional_material_cost_part : decimalNull;
+                                bg.outgoing_freight_part = Decimal.TryParse(table.Rows[i][38].ToString(), out decimal outgoing_freight_part) ? outgoing_freight_part : decimalNull;
+                                bg.freights_income = table.Rows[i][44].ToString();
+                                bg.outgoing_freight = table.Rows[i][45].ToString();
+
+
+                                // agrega a la lista con los datos leidos
+                                lista.Add(bg);
+                            }
+                            catch (Exception e)
+                            {
+                                estatus = "ERROR";
+                                msj = "Ha ocurrido un error: " + e.Message;
+                                return new List<BG_Forecast_item>();
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            //retorna la ruta correctamente
+            estatus = "OK";
+            msj = "Archivo leído correctamente";
+            return lista;
+        }
+
+        ///<summary>
+        ///Lee un archivo de excel y carga el listado de IHS
+        ///</summary>
+        ///<return>
+        ///Devuelve un List<BG_IHS_item> con los datos leidos
+        ///</return>
+        ///<param name="streamPostedFile">
+        ///Stream del archivo recibido en el formulario
+        ///</param>
+        public static List<string> LeeHojasArchivo(HttpPostedFileBase streamPostedFile, ref string estatus, ref string msj)
+        {
+            List<string> lista = new List<string>();
+
+            //crea el reader del archivo
+            using (var reader = ExcelReaderFactory.CreateReader(streamPostedFile.InputStream))
+            {
+                //obtiene el dataset del archivo de excel
+                var result = reader.AsDataSet();
+
+
+                //recorre todas las hojas del archivo
+                foreach (DataTable table in result.Tables)
+                {
+                    lista.Add(table.TableName);
+                }
+
+            }
+
+            //retorna la ruta correctamente
+            estatus = "OK";
+            msj = "Archivo leído correctamente";
+            return lista;
+        }
+        ///<summary>
         ///Lee un archivo de excel y carga la demanda del cliente de forma masiva
         ///</summary>
         ///<return>
@@ -1692,7 +1878,7 @@ namespace Portal_2_0.Models
         //                        string mnemonic_plant = string.Empty;                              
         //                        DateTime sop_start_of_production = new DateTime(2000, 01, 01); //fecha por defecto
         //                        string vehicle = string.Empty;
-                               
+
 
         //                        //recorre todas los encabezados
         //                        for (int j = 0; j < encabezados.Count; j++)
@@ -1701,7 +1887,7 @@ namespace Portal_2_0.Models
         //                            switch (encabezados[j])
         //                            {
         //                                //obligatorios
-                                      
+
         //                                case "Mnemonic-Plant":
         //                                    mnemonic_plant = table.Rows[i][j].ToString();
         //                                    break;                                    
@@ -1731,15 +1917,15 @@ namespace Portal_2_0.Models
         //                                    });
         //                                }
         //                            }
-                                  
 
-                                  
+
+
         //                        }
         //                        //asigna los valores al item de IHS                               
         //                        bg.mnemonic_plant = mnemonic_plant;                            
         //                        bg.sop_start_of_production = sop_start_of_production;
         //                        bg.vehicle = vehicle;
-                             
+
         //                        // agrega a la lista con los datos leidos
         //                        lista.Add(bg);
         //                    }

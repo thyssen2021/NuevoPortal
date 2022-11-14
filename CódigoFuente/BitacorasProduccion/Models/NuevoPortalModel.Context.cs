@@ -140,5 +140,7 @@ namespace Portal_2_0.Models
         public virtual DbSet<BG_IHS_rel_division> BG_IHS_rel_division { get; set; }
         public virtual DbSet<BG_IHS_combinacion> BG_IHS_combinacion { get; set; }
         public virtual DbSet<BG_IHS_division> BG_IHS_division { get; set; }
+        public virtual DbSet<BG_Forecast_reporte> BG_Forecast_reporte { get; set; }
+        public virtual DbSet<BG_Forecast_item> BG_Forecast_item { get; set; }
     }
 }
