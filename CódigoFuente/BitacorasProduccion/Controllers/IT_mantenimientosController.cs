@@ -194,11 +194,11 @@ namespace Portal_2_0.Controllers
                         id_item_checklist_mantenimiento = itemCK.id,
                         IT_mantenimientos_checklist_item = itemCK,
                         id_mantenimiento = iT_mantenimientos.id,
-                        terminado = false
+                        terminado = true
                     });
             }
 
-            ViewBag.id_empleado_responsable = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true && x.planta_clave == iT_mantenimientos.IT_inventory_items.id_planta), "id", "ConcatNumEmpleadoNombre"), selected: id_responsable_default.ToString(), textoPorDefecto: "-- Seleccionar --");
+            ViewBag.id_empleado_responsable = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true ), "id", "ConcatNumEmpleadoNombre"), selected: id_responsable_default.ToString(), textoPorDefecto: "-- Seleccionar --");
             ViewBag.estatus_inicial = estatus_inicial;
             ViewBag.estatus_mantenimiento = estatus_mantenimiento;
 
@@ -307,7 +307,7 @@ namespace Portal_2_0.Controllers
                     id_responsable_default = asignacion.IT_asignacion_hardware.id_empleado;
             }
 
-            ViewBag.id_empleado_responsable = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true && x.planta_clave == iT_mantenimientos.IT_inventory_items.id_planta), "id", "ConcatNumEmpleadoNombre"), selected: id_responsable_default.ToString(), textoPorDefecto: "-- Seleccionar --");
+            ViewBag.id_empleado_responsable = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true ), "id", "ConcatNumEmpleadoNombre"), selected: id_responsable_default.ToString(), textoPorDefecto: "-- Seleccionar --");
             ViewBag.estatus_inicial = estatus_inicial;
             ViewBag.estatus_mantenimiento = estatus_mantenimiento;
 
