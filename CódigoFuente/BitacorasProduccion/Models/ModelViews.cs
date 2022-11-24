@@ -26,6 +26,20 @@ namespace Portal_2_0.Models
     }
 
     /// <summary>
+    /// Modelo para generar reporte de budget-forecart
+    /// </summary>
+    public class ReporteBudgetForecastViewModel
+    {
+        [Required]       
+        [Display(Name = "Reporte")]
+        public int id_reporte { get; set; }
+        
+        [Required]       
+        [Display(Name = "Tipo de Demanda")]
+        public string demanda { get; set; }
+    }
+
+    /// <summary>
     /// Modelo para crear inspector de piezas de descarte
     /// </summary>
     public class AsignarSoftwareViewModel

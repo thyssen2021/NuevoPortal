@@ -16,6 +16,10 @@ namespace Portal_2_0.Models
     {
         public int id { get; set; }
         public int id_bg_forecast_reporte { get; set; }
+        public Nullable<int> id_ihs_item { get; set; }
+        public Nullable<int> id_ihs_combinacion { get; set; }
+        public Nullable<int> id_ihs_rel_division { get; set; }
+        public int pos { get; set; }
         public string business_and_plant { get; set; }
         public bool calculo_activo { get; set; }
         public string sap_invoice_code { get; set; }
@@ -25,25 +29,25 @@ namespace Portal_2_0.Models
         public string own_cm { get; set; }
         public string route { get; set; }
         public string plant { get; set; }
-        public string external_process { get; set; }
+        public string external_processor { get; set; }
         public string mill { get; set; }
         public string sap_master_coil { get; set; }
         public string part_description { get; set; }
         public string part_number { get; set; }
         public string production_line { get; set; }
         public string vehicle { get; set; }
-        public Nullable<decimal> parts_auto { get; set; }
-        public Nullable<decimal> strokes_auto { get; set; }
+        public Nullable<double> parts_auto { get; set; }
+        public Nullable<double> strokes_auto { get; set; }
         public string material_type { get; set; }
         public string shape { get; set; }
-        public Nullable<decimal> initial_weight_part { get; set; }
-        public Nullable<decimal> net_weight_part { get; set; }
+        public Nullable<double> initial_weight_part { get; set; }
+        public Nullable<double> net_weight_part { get; set; }
         public bool scrap_consolidation { get; set; }
-        public Nullable<decimal> ventas_part { get; set; }
-        public Nullable<decimal> material_cost_part { get; set; }
-        public Nullable<decimal> cost_of_outside_processor { get; set; }
-        public Nullable<decimal> additional_material_cost_part { get; set; }
-        public Nullable<decimal> outgoing_freight_part { get; set; }
+        public Nullable<double> ventas_part { get; set; }
+        public Nullable<double> material_cost_part { get; set; }
+        public Nullable<double> cost_of_outside_processor { get; set; }
+        public Nullable<double> additional_material_cost_part { get; set; }
+        public Nullable<double> outgoing_freight_part { get; set; }
         public string freights_income { get; set; }
         public string outgoing_freight { get; set; }
         public string cat_1 { get; set; }
@@ -52,5 +56,8 @@ namespace Portal_2_0.Models
         public string cat_4 { get; set; }
     
         public virtual BG_Forecast_reporte BG_Forecast_reporte { get; set; }
+        public virtual BG_IHS_combinacion BG_IHS_combinacion { get; set; }
+        public virtual BG_IHS_item BG_IHS_item { get; set; }
+        public virtual BG_IHS_rel_division BG_IHS_rel_division { get; set; }
     }
 }

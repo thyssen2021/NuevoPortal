@@ -7310,10 +7310,16 @@
     <Content Include="Views\BG_IHS_division\Enable.cshtml" />
     <Content Include="Views\BG_IHS_division\Disable.cshtml" />
     <Content Include="Views\BG_Forecast_reporte\Create.cshtml" />
-    <Content Include="Views\BG_Forecast_reporte\Delete.cshtml" />
     <Content Include="Views\BG_Forecast_reporte\Details.cshtml" />
     <Content Include="Views\BG_Forecast_reporte\Edit.cshtml" />
     <Content Include="Views\BG_Forecast_reporte\Index.cshtml" />
+    <Content Include="Views\BG_Forecast_reporte\Disable.cshtml" />
+    <Content Include="Views\BG_Forecast_reporte\Enable.cshtml" />
+    <Content Include="Views\BG_Forecast_reporte\EditElemento.cshtml" />
+    <Content Include="Views\Shared\_HeaderLoading.cshtml" />
+    <Content Include="Views\BG_Forecast_reporte\EditarReporte.cshtml" />
+    <Content Include="Views\BG_Forecast_reporte\EditarAsociacionIHS.cshtml" />
+    <Content Include="Views\BG_Forecast_reporte\GenerarReporte.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

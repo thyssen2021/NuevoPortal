@@ -14,6 +14,12 @@ namespace Portal_2_0.Models
     
     public partial class BG_IHS_rel_division
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public BG_IHS_rel_division()
+        {
+            this.BG_Forecast_item = new HashSet<BG_Forecast_item>();
+        }
+    
         public int id { get; set; }
         public int id_ihs_division { get; set; }
         public string vehicle { get; set; }
@@ -22,5 +28,7 @@ namespace Portal_2_0.Models
         public bool activo { get; set; }
     
         public virtual BG_IHS_division BG_IHS_division { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<BG_Forecast_item> BG_Forecast_item { get; set; }
     }
 }

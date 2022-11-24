@@ -19,8 +19,6 @@
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
 }
 
-@{Html.RenderPartial("_HeaderLoading");}
-
 <div class="right_col" role="main">
     <div class="">
 
@@ -39,17 +37,8 @@
                         <div class="form-group row">
                             <span style="color:black"><b>DATOS GENERALES</b></span>
                         </div>
-                        <div class="ln_solid"></div>
-                        @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
-                        {
-                            @Html.AntiForgeryToken()
+                        <div class="ln_solid"></div>                       
 
-                            if (!Html.ViewData.ModelState.IsValid)
-                            {
-                                <div class="alert alert-danger" role="alert">
-                                    @Html.ValidationSummary("", new { @class = "text-white" })
-                                </div>
-                            }
                             <input type="hidden" name="activo" id="activo" value="true" />
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.descripcion, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
@@ -61,7 +50,7 @@
                                     @Html.EditorFor(model => model.fecha, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                                 </div>
                             </div>
-
+                                                   
                             <br />
 
                             <div class="row">
@@ -75,15 +64,6 @@
                                                     </th>
                                                     <th>
                                                         @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().business_and_plant)
-                                                    </th>
-                                                    <th>
-                                                        IHS Asociado
-                                                    </th>
-                                                    <th>
-                                                        IHS Asociado (Tipo)
-                                                    </th>
-                                                    <th>
-                                                        @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().vehicle)
                                                     </th>
                                                     <th>
                                                         @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().cat_2)
@@ -129,6 +109,9 @@
                                                     </th>
                                                     <th>
                                                         @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().production_line)
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().vehicle)
                                                     </th>
                                                     <th>
                                                         @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().parts_auto)
@@ -195,15 +178,6 @@
                                                         <td>
                                                             @Html.DisplayFor(modelItem => item.business_and_plant)
                                                         </td>
-                                                        <td style="font-weight:bold">
-                                                            @Html.DisplayFor(modelItem => item.ElementoIHS.descripcion)
-                                                        </td>
-                                                        <td>
-                                                            @Html.DisplayFor(modelItem => item.ElementoIHS.descripcionTipo)
-                                                        </td>
-                                                        <td>
-                                                            @Html.DisplayFor(modelItem => item.vehicle)
-                                                        </td>
                                                         <td>
                                                             @Html.DisplayFor(modelItem => item.cat_2)
                                                         </td>
@@ -248,6 +222,9 @@
                                                         </td>
                                                         <td>
                                                             @Html.DisplayFor(modelItem => item.production_line)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.vehicle)
                                                         </td>
                                                         <td>
                                                             @Html.DisplayFor(modelItem => item.parts_auto)
@@ -310,12 +287,27 @@
 
 
                             <div class="ln_solid"></div>
-                            @*<div class="item form-group">
-                                    <div class="col-md-12 col-sm-12">
-                                        <button type="submit" class="btn btn-success float-right"><i class="fa-regular fa-floppy-disk"></i> Guardar</button>
-                                    </div>
-                                </div>*@
-                        }
+                            <div class="col-md-12">
+                                <h2>¿Realmente desea DESHABILTAR esta combinacaci&oacute;n de IHS?</h2>
+                                <br />
+                            </div>
+                            <div class="col-md-12">
+                                <p class="float-md-left">
+                                    <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = Model.id})" class="btn btn-success btm-sm" title="Editar">
+                                        <i class="fa-regular fa-pen-to-square"></i> Editar
+                                    </a>
+                                </p>
+                                <p class="float-md-right">
+                                    @using (Html.BeginForm())
+                                    {
+                                        @Html.AntiForgeryToken()
+
+                                        <div class="form-actions no-color float-md-right">
+                                            <input type="submit" value="Deshabilitar" class="btn btn-danger btm-sm" />
+                                        </div>
+                                    }
+                                </p>
+                            </div>                        
                     </div>
                 </div>
                 <div>
@@ -330,7 +322,6 @@
 </div>
 
 
-
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
     <!-- SweetAlert2 -->
@@ -338,6 +329,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
     @Scripts.Render("~/bundles/dataTables_js")
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+
 
     <script>
         $(document).ready(function () {
@@ -354,11 +346,9 @@
             "pageLength": 25
         });
 
+
         window.onload = function () {
             clicMenu(1);
-            //oculta la pantalla de carga
-            $('#loading').hide();
         }
     </script>
-
 }

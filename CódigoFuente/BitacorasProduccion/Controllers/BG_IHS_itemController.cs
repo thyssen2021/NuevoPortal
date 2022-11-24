@@ -5,6 +5,7 @@ using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
 using Clases.Util;
@@ -460,7 +461,7 @@ namespace Portal_2_0.Controllers
                     List<BG_IHS_rel_demanda> demandaCreate = demandaList.Where(x => x.id == 0).ToList();
 
                     //obtiene el listado de los registros que deben actualizarse
-                    List<BG_IHS_rel_demanda> demandaUpdate = demandaList.Where(x => demandaBD.Any(y=> x.id == y.id && x.cantidad != y.cantidad)).ToList();
+                    List<BG_IHS_rel_demanda> demandaUpdate = demandaList.Where(x => demandaBD.Any(y => x.id == y.id && x.cantidad != y.cantidad)).ToList();
 
                     //crea un registro en BD por cada elemento
                     foreach (var item in demandaCreate)
@@ -470,8 +471,9 @@ namespace Portal_2_0.Controllers
                     }
 
                     //actualiza los registros que tuvieron cambios
-                    foreach (var item in demandaUpdate) {
-                        var d = demandaBD.FirstOrDefault(x=>x.id==item.id);
+                    foreach (var item in demandaUpdate)
+                    {
+                        var d = demandaBD.FirstOrDefault(x => x.id == item.id);
                         d.cantidad = item.cantidad;
 
                         actualizados++;
@@ -492,7 +494,7 @@ namespace Portal_2_0.Controllers
             return RedirectToAction("ListadoIHS", new { origen = origen, country_territory = country_territory, manufacturer = manufacturer, production_plant = production_plant, vehicle = vehicle, demanda = demanda });
         }
 
-      
+
 
         // GET: BG_IHS_item/Details/5
         public ActionResult Details(int? id)
@@ -511,6 +513,43 @@ namespace Portal_2_0.Controllers
             }
             return View(bG_IHS_item);
         }
+
+        // GET: BG_IHS_item/DetallesAsociacion/5
+        public ActionResult DetallesAsociacion(string id)
+        {
+            if (!TieneRol(TipoRoles.BUDGET_IHS))
+                return View("../Home/ErrorPermisos");
+
+            if (string.IsNullOrEmpty(id))
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+
+            Match m = Regex.Match(id, @"\d+");
+
+            int num_id = 0;
+            if (m.Success) //si tiene un numero
+            {
+                bool valido = int.TryParse(m.Value, out num_id);
+
+                if (!valido)
+                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            //separa la clave del id
+            switch (id[0])
+            {
+                case 'I':
+                    return RedirectToAction("details", new { id = num_id });
+                case 'C':
+                    return RedirectToAction("details","BG_IHS_combinacion" , new { id = num_id });
+                case 'D':
+                    var rel_div = db.BG_IHS_rel_division.Find(num_id);
+                    return RedirectToAction("details", "BG_IHS_division", new { id = rel_div.BG_IHS_division.id });
+            }
+
+            return RedirectToAction("details", new { id = num_id });
+        }
+
+
 
         // GET: BG_IHS_item/Create
         public ActionResult Create(int? id)
@@ -838,7 +877,7 @@ namespace Portal_2_0.Controllers
                 var cd = new System.Net.Mime.ContentDisposition
                 {
                     // for example foo.bak
-                    FileName = "Reporte_IHS_"+demanda+"_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+                    FileName = "Reporte_IHS_" + demanda + "_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
 
                     // always prompt the user for downloading, set to true if you want 
                     // the browser to try to show the file inline

@@ -1,10 +1,14 @@
 ﻿@model Portal_2_0.Models.BG_Forecast_reporte
 
 @{
-    ViewBag.Title = "Crear Reporte de Forecast";
+    bool reemplazar = ViewBag.Reemplazar != null;
+
+    ViewBag.Title = reemplazar ? "Reemplazar Reporte" : "Crear Reporte de Forecast";
     ViewBag.PrimerNivel = "budget_forecast";
     ViewBag.SegundoNivel = "listado_forecast";
     ViewBag.ControllerName = "BG_Forecast_reporte";
+
+
 
 }
 
@@ -61,6 +65,7 @@
                                 <select name="select_hoja" id="select_hoja" class="form-control select2bs4" style="width:100%" required>
                                     <option value="" selected>Seleccione</option>
                                 </select>
+                                <span class="field-validation-valid text-danger" data-valmsg-for="select_hoja" data-valmsg-replace="true"></span>
                             </div>
 
                             <div class="item form-group">
@@ -101,6 +106,54 @@
                                     @Html.EditorFor(model => model.fecha, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
                                     @Html.ValidationMessageFor(model => model.fecha, "", new { @class = "text-danger" })
                                 </div>
+                            </div>
+
+                            @*agrega los campos ocultos*@
+                            <div id="div_ocultos">
+                                @{int cont = 1;}
+                                @foreach (var item in Model.BG_Forecast_item)
+                                {
+                                    <input type="hidden" name="BG_Forecast_item.Index" id="BG_Forecast_item.Index" value="@cont" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].id_bg_forecast_reporte" id="BG_Forecast_item[@cont].id_bg_forecast_reporte" value="@item.id_bg_forecast_reporte" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].business_and_plant" id="BG_Forecast_item[@cont].business_and_plant" value="@item.business_and_plant" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].pos" id="BG_Forecast_item[@cont].pos" value="@item.pos" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].calculo_activo" id="BG_Forecast_item[@cont].calculo_activo" value="@item.calculo_activo.ToString()" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].sap_invoice_code" id="BG_Forecast_item[@cont].sap_invoice_code" value="@item.sap_invoice_code" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].invoiced_to" id="BG_Forecast_item[@cont].invoiced_to" value="@item.invoiced_to" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].number_sap_client" id="BG_Forecast_item[@cont].number_sap_client" value="@item.number_sap_client" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].shipped_to" id="BG_Forecast_item[@cont].shipped_to" value="@item.shipped_to" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].own_cm" id="BG_Forecast_item[@cont].own_cm" value="@item.own_cm" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].route" id="BG_Forecast_item[@cont].route" value="@item.route" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].plant" id="BG_Forecast_item[@cont].plant" value="@item.plant" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].external_processor" id="BG_Forecast_item[@cont].external_processor" value="@item.external_processor" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].mill" id="BG_Forecast_item[@cont].mill" value="@item.mill" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].sap_master_coil" id="BG_Forecast_item[@cont].sap_master_coil" value="@item.sap_master_coil" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].part_description" id="BG_Forecast_item[@cont].part_description" value="@item.part_description" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].part_number" id="BG_Forecast_item[@cont].part_number" value="@item.part_number" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].production_line" id="BG_Forecast_item[@cont].production_line" value="@item.production_line" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].vehicle" id="BG_Forecast_item[@cont].vehicle" value="@item.vehicle" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].parts_auto" id="BG_Forecast_item[@cont].parts_auto" value="@item.parts_auto" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].strokes_auto" id="BG_Forecast_item[@cont].strokes_auto" value="@item.strokes_auto" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].material_type" id="BG_Forecast_item[@cont].material_type" value="@item.material_type" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].shape" id="BG_Forecast_item[@cont].shape" value="@item.shape" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].initial_weight_part" id="BG_Forecast_item[@cont].initial_weight_part" value="@item.initial_weight_part" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].net_weight_part" id="BG_Forecast_item[@cont].net_weight_part" value="@item.net_weight_part" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].scrap_consolidation" id="BG_Forecast_item[@cont].scrap_consolidation" value="@item.scrap_consolidation.ToString()" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].ventas_part" id="BG_Forecast_item[@cont].ventas_part" value="@item.ventas_part" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].material_cost_part" id="BG_Forecast_item[@cont].material_cost_part" value="@item.material_cost_part" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].cost_of_outside_processor" id="BG_Forecast_item[@cont].cost_of_outside_processor" value="@item.cost_of_outside_processor" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].additional_material_cost_part" id="BG_Forecast_item[@cont].additional_material_cost_part" value="@item.additional_material_cost_part" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].outgoing_freight_part" id="BG_Forecast_item[@cont].outgoing_freight_part" value="@item.outgoing_freight_part" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].freights_income" id="BG_Forecast_item[@cont].freights_income" value="@item.freights_income" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].outgoing_freight" id="BG_Forecast_item[@cont].outgoing_freight" value="@item.outgoing_freight" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].cat_1" id="BG_Forecast_item[@cont].cat_1" value="@item.cat_1" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].cat_2" id="BG_Forecast_item[@cont].cat_2" value="@item.cat_2" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].cat_3" id="BG_Forecast_item[@cont].cat_3" value="@item.cat_3" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].cat_4" id="BG_Forecast_item[@cont].cat_4" value="@item.cat_4" />
+
+                                    cont++;
+                                }
+
                             </div>
 
                             <br />
@@ -145,7 +198,7 @@
                                                         @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().plant)
                                                     </th>
                                                     <th>
-                                                        @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().external_process)
+                                                        @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().external_processor)
                                                     </th>
                                                     <th>
                                                         @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().mill)
@@ -184,6 +237,9 @@
                                                         @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().net_weight_part)
                                                     </th>
                                                     <th>
+                                                        @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().eng_scrap_part)
+                                                    </th>
+                                                    <th>
                                                         @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().scrap_consolidation)
                                                     </th>
                                                     <th>
@@ -205,6 +261,10 @@
                                                         @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().outgoing_freight_part)
                                                     </th>
                                                     <th>
+                                                        @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().vas_to)
+                                                    </th>
+                                                    @* -- Pendientes campos de Gross Profit -- *@
+                                                    <th>
                                                         @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().freights_income)
                                                     </th>
                                                     <th>
@@ -213,18 +273,117 @@
                                                 </tr>
                                             </thead>
                                             <tbody id="table_body">
-                                                @*<tr>
+                                                @{cont = 1;}
+                                                @foreach (var item in Model.BG_Forecast_item)
+                                                {
+                                                    <tr>
                                                         <td>
-                                                            1
+                                                            @(cont++)
                                                         </td>
                                                         <td>
-                                                            Puebla
+                                                            @Html.DisplayFor(modelItem => item.business_and_plant)
                                                         </td>
                                                         <td>
-                                                            Silao
+                                                            @Html.DisplayFor(modelItem => item.cat_2)
+                                                        </td>
+                                                        <td>
+                                                            @(item.calculo_activo)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.sap_invoice_code)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.invoiced_to)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.number_sap_client)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.shipped_to)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.own_cm)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.route)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.plant)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.external_processor)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.mill)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.sap_master_coil)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.part_description)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.part_number)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.production_line)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.vehicle)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.parts_auto)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.strokes_auto)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.material_type)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.shape)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.initial_weight_part)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.net_weight_part)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.eng_scrap_part)
+                                                        </td>
+                                                        <td>
+                                                            @(item.scrap_consolidation)
+                                                        </td>
+                                                        <td>
+                                                            $ @Html.DisplayFor(modelItem => item.ventas_part)
+                                                        </td>
+                                                        <td>
+                                                            $ @Html.DisplayFor(modelItem => item.material_cost_part)
+                                                        </td>
+                                                        <td>
+                                                            $ @Html.DisplayFor(modelItem => item.cost_of_outside_processor)
+                                                        </td>
+                                                        <td>
+                                                            $ @Html.DisplayFor(modelItem => item.vas_part)
+                                                        </td>
+                                                        <td>
+                                                            $ @Html.DisplayFor(modelItem => item.additional_material_cost_part)
+                                                        </td>
+                                                        <td>
+                                                            $ @Html.DisplayFor(modelItem => item.outgoing_freight_part)
+                                                        </td>
+                                                        <td>
+                                                            $ @Html.DisplayFor(modelItem => item.vas_to)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.freights_income)
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.outgoing_freight)
                                                         </td>
                                                     </tr>
-                                                *@
+                                                }
                                             </tbody>
                                         </table>
                                     </div>
@@ -233,9 +392,19 @@
 
 
                             <div class="ln_solid"></div>
+
+                            if (reemplazar)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    <h6>
+                                        <b>Advertencia</b>: Al dar clic en "Guardar", se reemplazar&aacute;n todos los valores de reporte anterior por los nuevos valores cargados. Tambi&eacute;n se perder&aacute;n
+                                        las asociaciones de c&oacute;digo de vehiculo entre IHS y el reporte de Forecast que se hayan asignado manualmente.
+                                    </h6>
+                                </div>
+                            }
                             <div class="item form-group">
                                 <div class="col-md-12 col-sm-12">
-                                    <button type="submit" class="btn btn-success float-right"><i class="fa-regular fa-floppy-disk"></i> Guardar</button>
+                                    <button type="submit" class="btn btn-success float-right btm-lg"><i class="fa-regular fa-floppy-disk"></i> Guardar</button>
                                 </div>
                             </div>
                         }
@@ -286,7 +455,8 @@
             "ordering": true,
             "searching": true,
             "scrollX": true,
-            "info": true
+            "info": true,
+            "pageLength": 25
         });
 
         //Funciom para leer las hojas del documento
@@ -348,7 +518,8 @@
                 "ordering": true,
                 "searching": true,
                 "scrollX": true,
-                "info": true
+                "info": true,
+                "pageLength": 25
             });
         }
 
@@ -380,10 +551,12 @@
                                 $("#error-msj-div").show();
                                 $("#info-msj-div").hide();
                                 //borra la tabla
+                                $("#div_ocultos").html('');
                                 recargaTabla('');
 
                             } else if (datos[0].status == "OK") {
 
+                                $("#div_ocultos").html(datos[0].div_ocultos);
                                 recargaTabla(datos[0].value);
 
                                 Swal.fire({

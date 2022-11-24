@@ -1674,7 +1674,6 @@ namespace Portal_2_0.Models
                     //busca si existe una hoja llamada "hoja1"
                     if (table.TableName == select_hoja)
                     {
-
                         int filaEncabezado = 5;
 
                         //se obtienen las cabeceras
@@ -1710,14 +1709,15 @@ namespace Portal_2_0.Models
                             if (String.IsNullOrEmpty(table.Rows[i][1].ToString()))
                                 break; //sale del for
 
-                            Decimal? decimalNull = null;
+                            double? doubleNull = null;
 
                             BG_Forecast_item bg = new BG_Forecast_item();
                             
                             try
                             {
                                 //asigna los valores al item de Budget
-                                bg.cat_1 = table.Rows[i][1].ToString(); // columna 2 es el consecutivo                               
+                                bg.cat_1 = table.Rows[i][1].ToString();                              
+                                bg.pos = int.TryParse(table.Rows[i][2].ToString(), out int pos) ? pos : 0; // columna 2 es el consecutivo                               
                                 bg.business_and_plant = table.Rows[i][3].ToString();
                                 bg.cat_2 = table.Rows[i][4].ToString(); // PO in hand
                                 bg.cat_3 = table.Rows[i][5].ToString();
@@ -1730,25 +1730,25 @@ namespace Portal_2_0.Models
                                 bg.own_cm = table.Rows[i][12].ToString();
                                 bg.route = table.Rows[i][13].ToString();
                                 bg.plant = table.Rows[i][14].ToString();
-                                bg.external_process = table.Rows[i][15].ToString();
+                                bg.external_processor = table.Rows[i][15].ToString();
                                 bg.mill = table.Rows[i][16].ToString();
                                 bg.sap_master_coil = table.Rows[i][17].ToString();
-                                bg.part_description = table.Rows[i][18].ToString();
-                                bg.part_number = table.Rows[i][19].ToString();
+                                bg.part_description = table.Rows[i][18].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
+                                bg.part_number = table.Rows[i][19].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
                                 bg.production_line = table.Rows[i][20].ToString();
                                 bg.vehicle = table.Rows[i][21].ToString();
-                                bg.parts_auto = Decimal.TryParse(table.Rows[i][23].ToString(), out decimal parts_auto)? parts_auto: decimalNull;
-                                bg.strokes_auto = Decimal.TryParse(table.Rows[i][24].ToString(), out decimal strokes_auto) ? strokes_auto : decimalNull;
+                                bg.parts_auto = double.TryParse(table.Rows[i][23].ToString(), out double parts_auto)? parts_auto: doubleNull;
+                                bg.strokes_auto = double.TryParse(table.Rows[i][24].ToString(), out double strokes_auto) ? strokes_auto : doubleNull;
                                 bg.material_type = table.Rows[i][25].ToString();
                                 bg.shape = table.Rows[i][26].ToString();
-                                bg.initial_weight_part = Decimal.TryParse(table.Rows[i][28].ToString(), out decimal initial_weight_part) ? initial_weight_part : decimalNull;
-                                bg.net_weight_part = Decimal.TryParse(table.Rows[i][29].ToString(), out decimal net_weight_part) ? net_weight_part : decimalNull;
+                                bg.initial_weight_part = double.TryParse(table.Rows[i][28].ToString(), out double initial_weight_part) ? initial_weight_part : doubleNull;
+                                bg.net_weight_part = double.TryParse(table.Rows[i][29].ToString(), out double net_weight_part) ? net_weight_part : doubleNull;
                                 bg.scrap_consolidation = table.Rows[i][31].ToString().ToUpper() == "YES" ? true : false;
-                                bg.ventas_part = Decimal.TryParse(table.Rows[i][33].ToString(), out decimal ventas_part) ? ventas_part : decimalNull;
-                                bg.material_cost_part = Decimal.TryParse(table.Rows[i][34].ToString(), out decimal material_cost_part) ? material_cost_part : decimalNull;
-                                bg.cost_of_outside_processor = Decimal.TryParse(table.Rows[i][35].ToString(), out decimal cost_of_outside_processor) ? cost_of_outside_processor : decimalNull;
-                                bg.additional_material_cost_part = Decimal.TryParse(table.Rows[i][37].ToString(), out decimal additional_material_cost_part) ? additional_material_cost_part : decimalNull;
-                                bg.outgoing_freight_part = Decimal.TryParse(table.Rows[i][38].ToString(), out decimal outgoing_freight_part) ? outgoing_freight_part : decimalNull;
+                                bg.ventas_part = double.TryParse(table.Rows[i][33].ToString(), out double ventas_part) ? ventas_part : doubleNull;
+                                bg.material_cost_part = double.TryParse(table.Rows[i][34].ToString(), out double material_cost_part) ? material_cost_part : doubleNull;
+                                bg.cost_of_outside_processor = double.TryParse(table.Rows[i][35].ToString(), out double cost_of_outside_processor) ? cost_of_outside_processor : doubleNull;
+                                bg.additional_material_cost_part = double.TryParse(table.Rows[i][37].ToString(), out double additional_material_cost_part) ? additional_material_cost_part : doubleNull;
+                                bg.outgoing_freight_part = double.TryParse(table.Rows[i][38].ToString(), out double outgoing_freight_part) ? outgoing_freight_part : doubleNull;
                                 bg.freights_income = table.Rows[i][44].ToString();
                                 bg.outgoing_freight = table.Rows[i][45].ToString();
 

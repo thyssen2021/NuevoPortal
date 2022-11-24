@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
 
@@ -17,6 +18,7 @@ namespace Portal_2_0.Models
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public System.DateTime fecha { get; set; }
 
+        [Required]
         [MaxLength(80)]
         [Display(Name = "Descripción")]
         public string descripcion { get; set; }
@@ -30,6 +32,14 @@ namespace Portal_2_0.Models
     [MetadataType(typeof(BG_Forecast_reporteMetadata))]
     public partial class BG_Forecast_reporte
     {
-
+        //concatena el nombre
+        [NotMapped]
+        public string ConcatCodigo
+        {
+            get
+            {
+                return string.Format("({0}) {1}", this.fecha.ToShortDateString(), this.descripcion).ToUpper();
+            }
+        }
     }
 }

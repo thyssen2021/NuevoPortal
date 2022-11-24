@@ -18,6 +18,7 @@ namespace Portal_2_0.Models
         public BG_IHS_combinacion()
         {
             this.BG_IHS_rel_combinacion = new HashSet<BG_IHS_rel_combinacion>();
+            this.BG_Forecast_item = new HashSet<BG_Forecast_item>();
         }
     
         public int id { get; set; }
@@ -33,5 +34,7 @@ namespace Portal_2_0.Models
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<BG_IHS_rel_combinacion> BG_IHS_rel_combinacion { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<BG_Forecast_item> BG_Forecast_item { get; set; }
     }
 }
