@@ -581,7 +581,7 @@ namespace Portal_2_0.Controllers
                 var cd = new System.Net.Mime.ContentDisposition
                 {
                     // for example foo.bak
-                    FileName = "Inventory_Desktop_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+                    FileName = "Inventory_Laptop_Desktop_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
 
                     // always prompt the user for downloading, set to true if you want 
                     // the browser to try to show the file inline

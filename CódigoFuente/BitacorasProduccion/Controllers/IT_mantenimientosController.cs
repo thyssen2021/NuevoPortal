@@ -30,7 +30,7 @@ namespace Portal_2_0.Controllers
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
         // GET: IT_mantenimientos
-        public ActionResult Index(int? id_empleado, int? planta_clave, bool? documento, DateTime? mes, string estatus_mantenimiento = "", int id_it_inventory_item = 0, int pagina = 1)
+        public ActionResult Index(int? id_empleado, int? planta_clave, bool? documento, DateTime? mes, string asignado = "true", string estatus_mantenimiento = "", int id_it_inventory_item = 0, int pagina = 1)
         {
             if (!TieneRol(TipoRoles.IT_MANTENIMIENTO_REGISTRO))
                 return View("../Home/ErrorPermisos");
@@ -42,14 +42,22 @@ namespace Portal_2_0.Controllers
             }
 
             var cantidadRegistrosPorPagina = 20; // parámetro
+           bool sePuedeConvertir = Boolean.TryParse(asignado, out bool asignadoBoolean);
 
             var listado = db.IT_mantenimientos
-                .Where(x => (x.IT_inventory_items.id_planta == planta_clave || planta_clave == null)
-                     && ((x.id_empleado_responsable == id_empleado && id_empleado != null) // firma 
-                        || x.IT_inventory_items.IT_asignacion_hardware_rel_items.Any(y => y.IT_asignacion_hardware.es_asignacion_actual == true
-                            && id_empleado == y.IT_asignacion_hardware.id_empleado) //es responsable actual
-                        || (id_empleado == null && x.IT_inventory_items.IT_asignacion_hardware_rel_items.Any(y => y.IT_asignacion_hardware.es_asignacion_actual == true)) //es responsable actual)
-                       || x.id_empleado_responsable.HasValue
+                .Where(x =>
+                        (x.IT_inventory_items.id_planta == planta_clave || planta_clave == null)
+                        //responsable
+                        && (
+                            x.IT_inventory_items.IT_asignacion_hardware_rel_items.Any(y => y.IT_asignacion_hardware.es_asignacion_actual == true
+                                && id_empleado == y.IT_asignacion_hardware.id_empleado) //es responsable actual
+                            || (id_empleado == null) // todos en caso de que no se haya enviado id                             
+                        )
+                        //existe asignacion
+                        && (
+                        !sePuedeConvertir
+                        || asignadoBoolean == x.IT_inventory_items.IT_asignacion_hardware_rel_items.Any(y => y.IT_asignacion_hardware.es_asignacion_actual == true)
+
                         )
                         && (x.id_it_inventory_item == id_it_inventory_item || id_it_inventory_item == 0)
                         && (documento == null || x.id_biblioteca_digital.HasValue == documento)
@@ -68,12 +76,19 @@ namespace Portal_2_0.Controllers
                   .Take(cantidadRegistrosPorPagina).ToList();
 
             var totalDeRegistros = db.IT_mantenimientos
-                  .Where(x => (x.IT_inventory_items.id_planta == planta_clave || planta_clave == null)
-                  && ((x.id_empleado_responsable == id_empleado && id_empleado != null) // firma 
-                        || x.IT_inventory_items.IT_asignacion_hardware_rel_items.Any(y => y.IT_asignacion_hardware.es_asignacion_actual == true
-                            && id_empleado == y.IT_asignacion_hardware.id_empleado) //es responsable actual
-                        || (id_empleado == null && x.IT_inventory_items.IT_asignacion_hardware_rel_items.Any(y => y.IT_asignacion_hardware.es_asignacion_actual == true)) //es responsable actual)
-                       || x.id_empleado_responsable.HasValue
+                    .Where(x =>
+                        (x.IT_inventory_items.id_planta == planta_clave || planta_clave == null)
+                        //responsable
+                        && (
+                            x.IT_inventory_items.IT_asignacion_hardware_rel_items.Any(y => y.IT_asignacion_hardware.es_asignacion_actual == true
+                                && id_empleado == y.IT_asignacion_hardware.id_empleado) //es responsable actual
+                            || (id_empleado == null) // todos en caso de que no se haya enviado id                             
+                        )
+                        //existe asignacion
+                        && (
+                        !sePuedeConvertir
+                        || asignadoBoolean == x.IT_inventory_items.IT_asignacion_hardware_rel_items.Any(y => y.IT_asignacion_hardware.es_asignacion_actual == true)
+
                         )
                         && (x.id_it_inventory_item == id_it_inventory_item || id_it_inventory_item == 0)
                         && (documento == null || x.id_biblioteca_digital.HasValue == documento)
@@ -96,6 +111,7 @@ namespace Portal_2_0.Controllers
             routeValues["id_it_inventory_item"] = id_it_inventory_item;
             routeValues["estatus_mantenimiento"] = estatus_mantenimiento;
             routeValues["documento"] = documento;
+            routeValues["asignado"] = asignado;
 
             if (mes != null)
                 routeValues["mes"] = mes.Value.ToString("yyyy-MM");
@@ -117,15 +133,23 @@ namespace Portal_2_0.Controllers
             newListStatusMantenimiento.Add(new SelectListItem() { Text = IT_matenimiento_Estatus.DescripcionStatus(IT_matenimiento_Estatus.VENCIDO), Value = IT_matenimiento_Estatus.VENCIDO });
             SelectList selectListStatusResponsiva = new SelectList(newListStatusMantenimiento, "Value", "Text");
 
-            //select list para responsiva
+            //select list para estatus de responsiva
             List<SelectListItem> newListStatusDocumento = new List<SelectListItem>();
             newListStatusDocumento.Add(new SelectListItem() { Text = "Subido", Value = true.ToString() });
             newListStatusDocumento.Add(new SelectListItem() { Text = "Pendiente", Value = false.ToString() });
             SelectList selectListStatusDocumentoResponsiva = new SelectList(newListStatusDocumento, "Value", "Text");
 
+            //select list para asignacion
+            List<SelectListItem> newListAsignado = new List<SelectListItem>();
+            newListAsignado.Add(new SelectListItem() { Text = "-- Todos --", Value = "TODOS" });
+            newListAsignado.Add(new SelectListItem() { Text = "SÍ", Value = true.ToString() });
+            newListAsignado.Add(new SelectListItem() { Text = "NO", Value = false.ToString() });
+            SelectList selectListnewListAsignado = new SelectList(newListAsignado, "Value", "Text", selectedValue: asignado);
+
             ViewBag.Paginacion = paginacion;
             ViewBag.estatus_mantenimiento = AddFirstItem(selectListStatusResponsiva, selected: estatus_mantenimiento.ToString(), textoPorDefecto: "-- Seleccionar --");
             ViewBag.documento = AddFirstItem(selectListStatusDocumentoResponsiva, selected: documento.ToString(), textoPorDefecto: "-- Todos --");
+            ViewBag.asignado = selectListnewListAsignado;
             ViewBag.planta_clave = AddFirstItem(new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion", planta_clave.ToString()), textoPorDefecto: "-- Todas --");
             ViewBag.id_empleado = AddFirstItem(new SelectList(db.empleados, "id", "ConcatNumEmpleadoNombre"), selected: id_empleado.ToString(), textoPorDefecto: "-- Todos --");
             ViewBag.id_it_inventory_item = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x =>
@@ -198,7 +222,7 @@ namespace Portal_2_0.Controllers
                     });
             }
 
-            ViewBag.id_empleado_responsable = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true ), "id", "ConcatNumEmpleadoNombre"), selected: id_responsable_default.ToString(), textoPorDefecto: "-- Seleccionar --");
+            ViewBag.id_empleado_responsable = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true), "id", "ConcatNumEmpleadoNombre"), selected: id_responsable_default.ToString(), textoPorDefecto: "-- Seleccionar --");
             ViewBag.estatus_inicial = estatus_inicial;
             ViewBag.estatus_mantenimiento = estatus_mantenimiento;
 
@@ -247,13 +271,19 @@ namespace Portal_2_0.Controllers
 
                 db.Entry(iT_mantenimientos).State = EntityState.Modified;
 
+                DateTime next = iT_mantenimientos.fecha_realizacion.Value.AddMonths(iT_mantenimientos._PeriodoMantenimientos != null
+                    ? iT_mantenimientos._PeriodoMantenimientos.Value : 6); //seis meses por defecto
+
+                //busca el inventoryItem
+                var it_item = db.IT_inventory_items.Find(iT_mantenimientos.id_it_inventory_item);
+                if (it_item != null)
+                    it_item.maintenance_period_months = iT_mantenimientos._PeriodoMantenimientos;
+
                 //si es finalizar debe agregar una nueva entrada segun los meses de mantenimiento
                 if (iT_mantenimientos.finalizar_mantenimiento)
                 {
                     var inventory_item = db.IT_inventory_items.Find(iT_mantenimientos.id_it_inventory_item);
 
-                    DateTime next = iT_mantenimientos.fecha_realizacion.Value.AddMonths(inventory_item.maintenance_period_months.HasValue
-                        ? inventory_item.maintenance_period_months.Value : 6); //seis meses por defecto
 
                     //proximo manto al último día del mes actual
                     next = new DateTime(next.Year, next.Month, 1); //primer día del mes actual
@@ -271,6 +301,7 @@ namespace Portal_2_0.Controllers
                 {
                     //si no es finalizar, la fecha de realización es null
                     iT_mantenimientos.fecha_realizacion = null;
+                    
                 }
 
                 db.SaveChanges();
@@ -307,7 +338,7 @@ namespace Portal_2_0.Controllers
                     id_responsable_default = asignacion.IT_asignacion_hardware.id_empleado;
             }
 
-            ViewBag.id_empleado_responsable = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true ), "id", "ConcatNumEmpleadoNombre"), selected: id_responsable_default.ToString(), textoPorDefecto: "-- Seleccionar --");
+            ViewBag.id_empleado_responsable = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true), "id", "ConcatNumEmpleadoNombre"), selected: id_responsable_default.ToString(), textoPorDefecto: "-- Seleccionar --");
             ViewBag.estatus_inicial = estatus_inicial;
             ViewBag.estatus_mantenimiento = estatus_mantenimiento;
 
@@ -735,105 +766,65 @@ namespace Portal_2_0.Controllers
         }
 
 
-        //// GET: IT_mantenimientos/Create
-        //public ActionResult Create()
-        //{
-        //    ViewBag.id_biblioteca_digital = new SelectList(db.biblioteca_digital, "Id", "Nombre");
-        //    ViewBag.id_empleado_responsable = new SelectList(db.empleados, "id", "numeroEmpleado");
-        //    ViewBag.id_empleado_sistemas = new SelectList(db.empleados, "id", "numeroEmpleado");
-        //    ViewBag.id_iatf_version = new SelectList(db.IATF_revisiones, "id", "responsable");
-        //    ViewBag.id_it_inventory_item = new SelectList(db.IT_inventory_items, "id", "comments");
-        //    return View();
-        //}
+        public ActionResult Exportar(int? id_empleado, int? planta_clave, bool? documento, DateTime? mes, string asignado = "true", string estatus_mantenimiento = "", int id_it_inventory_item = 0)
+        {
+            if (TieneRol(TipoRoles.IT_MANTENIMIENTO_REGISTRO))
+            {
 
-        //// POST: IT_mantenimientos/Create
-        //// Para protegerse de ataques de publicación excesiva, habilite las propiedades específicas a las que quiere enlazarse. Para obtener 
-        //// más detalles, vea https://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult Create([Bind(Include = "id,id_it_inventory_item,id_empleado_responsable,id_empleado_sistemas,id_iatf_version,id_biblioteca_digital,fecha_programada,fecha_realizacion,comentarios")] IT_mantenimientos iT_mantenimientos)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        db.IT_mantenimientos.Add(iT_mantenimientos);
-        //        db.SaveChanges();
-        //        return RedirectToAction("Index");
-        //    }
+                bool sePuedeConvertir = Boolean.TryParse(asignado, out bool asignadoBoolean);
 
-        //    ViewBag.id_biblioteca_digital = new SelectList(db.biblioteca_digital, "Id", "Nombre", iT_mantenimientos.id_biblioteca_digital);
-        //    ViewBag.id_empleado_responsable = new SelectList(db.empleados, "id", "numeroEmpleado", iT_mantenimientos.id_empleado_responsable);
-        //    ViewBag.id_empleado_sistemas = new SelectList(db.empleados, "id", "numeroEmpleado", iT_mantenimientos.id_empleado_sistemas);
-        //    ViewBag.id_iatf_version = new SelectList(db.IATF_revisiones, "id", "responsable", iT_mantenimientos.id_iatf_version);
-        //    ViewBag.id_it_inventory_item = new SelectList(db.IT_inventory_items, "id", "comments", iT_mantenimientos.id_it_inventory_item);
-        //    return View(iT_mantenimientos);
-        //}
+                var listado = db.IT_mantenimientos
+                  .Where(x =>
+                        (x.IT_inventory_items.id_planta == planta_clave || planta_clave == null)
+                        //responsable
+                        && (
+                            x.IT_inventory_items.IT_asignacion_hardware_rel_items.Any(y => y.IT_asignacion_hardware.es_asignacion_actual == true
+                                && id_empleado == y.IT_asignacion_hardware.id_empleado) //es responsable actual
+                            || (id_empleado == null) // todos en caso de que no se haya enviado id                             
+                        )
+                        //existe asignacion
+                        && (
+                        !sePuedeConvertir
+                        || asignadoBoolean == x.IT_inventory_items.IT_asignacion_hardware_rel_items.Any(y => y.IT_asignacion_hardware.es_asignacion_actual == true)
 
-        //// GET: IT_mantenimientos/Edit/5
-        //public ActionResult Edit(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-        //    }
-        //    IT_mantenimientos iT_mantenimientos = db.IT_mantenimientos.Find(id);
-        //    if (iT_mantenimientos == null)
-        //    {
-        //        return HttpNotFound();
-        //    }
-        //    ViewBag.id_biblioteca_digital = new SelectList(db.biblioteca_digital, "Id", "Nombre", iT_mantenimientos.id_biblioteca_digital);
-        //    ViewBag.id_empleado_responsable = new SelectList(db.empleados, "id", "numeroEmpleado", iT_mantenimientos.id_empleado_responsable);
-        //    ViewBag.id_empleado_sistemas = new SelectList(db.empleados, "id", "numeroEmpleado", iT_mantenimientos.id_empleado_sistemas);
-        //    ViewBag.id_iatf_version = new SelectList(db.IATF_revisiones, "id", "responsable", iT_mantenimientos.id_iatf_version);
-        //    ViewBag.id_it_inventory_item = new SelectList(db.IT_inventory_items, "id", "comments", iT_mantenimientos.id_it_inventory_item);
-        //    return View(iT_mantenimientos);
-        //}
+                        )
+                        && (x.id_it_inventory_item == id_it_inventory_item || id_it_inventory_item == 0)
+                        && (documento == null || x.id_biblioteca_digital.HasValue == documento)
+                        && (mes == null || (x.fecha_programada.Year == mes.Value.Year && x.fecha_programada.Month == mes.Value.Month))
+                        && (
+                        ((estatus_mantenimiento == IT_matenimiento_Estatus.REALIZADO || estatus_mantenimiento == IT_matenimiento_Estatus.REALIZADO_CON_DOCUMENTO) && x.fecha_realizacion.HasValue)
+                        || (estatus_mantenimiento == IT_matenimiento_Estatus.VENCIDO && x.fecha_programada < DateTime.Now && x.fecha_realizacion == null && !x.IT_mantenimientos_rel_checklist.Any())
+                        || (estatus_mantenimiento == IT_matenimiento_Estatus.EN_PROCESO && x.IT_mantenimientos_rel_checklist.Any() && !x.fecha_realizacion.HasValue)
+                        || (estatus_mantenimiento == IT_matenimiento_Estatus.PROXIMO && x.fecha_programada > DateTime.Now && x.fecha_realizacion == null)
+                        || (estatus_mantenimiento == IT_matenimiento_Estatus.TODOS)
+                        //|| String.IsNullOrEmpty(estatus_mantenimiento)
+                        )
+                )
+                    .OrderBy(x => x.fecha_programada)
+                  .ToList();
 
-        //// POST: IT_mantenimientos/Edit/5
-        //// Para protegerse de ataques de publicación excesiva, habilite las propiedades específicas a las que quiere enlazarse. Para obtener 
-        //// más detalles, vea https://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult Edit([Bind(Include = "id,id_it_inventory_item,id_empleado_responsable,id_empleado_sistemas,id_iatf_version,id_biblioteca_digital,fecha_programada,fecha_realizacion,comentarios")] IT_mantenimientos iT_mantenimientos)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        db.Entry(iT_mantenimientos).State = EntityState.Modified;
-        //        db.SaveChanges();
-        //        return RedirectToAction("Index");
-        //    }
-        //    ViewBag.id_biblioteca_digital = new SelectList(db.biblioteca_digital, "Id", "Nombre", iT_mantenimientos.id_biblioteca_digital);
-        //    ViewBag.id_empleado_responsable = new SelectList(db.empleados, "id", "numeroEmpleado", iT_mantenimientos.id_empleado_responsable);
-        //    ViewBag.id_empleado_sistemas = new SelectList(db.empleados, "id", "numeroEmpleado", iT_mantenimientos.id_empleado_sistemas);
-        //    ViewBag.id_iatf_version = new SelectList(db.IATF_revisiones, "id", "responsable", iT_mantenimientos.id_iatf_version);
-        //    ViewBag.id_it_inventory_item = new SelectList(db.IT_inventory_items, "id", "comments", iT_mantenimientos.id_it_inventory_item);
-        //    return View(iT_mantenimientos);
-        //}
+                byte[] stream = ExcelUtil.GeneraReporteITMantenimientos(listado);
 
-        //// GET: IT_mantenimientos/Delete/5
-        //public ActionResult Delete(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-        //    }
-        //    IT_mantenimientos iT_mantenimientos = db.IT_mantenimientos.Find(id);
-        //    if (iT_mantenimientos == null)
-        //    {
-        //        return HttpNotFound();
-        //    }
-        //    return View(iT_mantenimientos);
-        //}
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+                    // for example foo.bak
+                    FileName = "Reporte_IT_Mantenimientos_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
 
-        //// POST: IT_mantenimientos/Delete/5
-        //[HttpPost, ActionName("Delete")]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult DeleteConfirmed(int id)
-        //{
-        //    IT_mantenimientos iT_mantenimientos = db.IT_mantenimientos.Find(id);
-        //    db.IT_mantenimientos.Remove(iT_mantenimientos);
-        //    db.SaveChanges();
-        //    return RedirectToAction("Index");
-        //}
+                    // always prompt the user for downloading, set to true if you want 
+                    // the browser to try to show the file inline
+                    Inline = false,
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                return File(stream, "application/vnd.ms-excel");
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
 
         protected override void Dispose(bool disposing)
         {

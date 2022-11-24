@@ -376,6 +376,94 @@ namespace Portal_2_0.Models
 
             return (array);
         }
+
+        /// <summary>
+        /// Genera reporte de IT_Mantenimientos
+        /// </summary>
+        /// <param name="listado"></param>
+        /// <returns></returns>
+        public static byte[] GeneraReporteITMantenimientos(List<IT_mantenimientos> listado)
+        {
+
+            SLDocument oSLDocument = new SLDocument();
+
+
+            System.Data.DataTable dt = new System.Data.DataTable();
+
+            //columnas          
+            dt.Columns.Add("Folio", typeof(string));
+            dt.Columns.Add("Equipo", typeof(string));
+            dt.Columns.Add("Tipo", typeof(string));
+            dt.Columns.Add("Planta", typeof(string));
+            dt.Columns.Add("Marca", typeof(string));
+            dt.Columns.Add("Modelo", typeof(string));
+            dt.Columns.Add("Serie", typeof(string));
+            dt.Columns.Add("Fecha Programada", typeof(DateTime));   //8
+            dt.Columns.Add("Fecha Realización", typeof(DateTime));  //9
+            dt.Columns.Add("Estatus", typeof(string));
+            dt.Columns.Add("Documento", typeof(string));
+            dt.Columns.Add("Firma de Aceptación", typeof(string));
+            dt.Columns.Add("Responsable Principal (Actual)", typeof(string));
+
+
+
+            ////registros , rows
+            foreach (var item in listado)
+            {
+                dt.Rows.Add(item.id, item.IT_inventory_items.hostname, item.IT_inventory_items.IT_inventory_hardware_type.descripcion, item.IT_inventory_items.plantas.descripcion, item.IT_inventory_items.brand
+                    , item.IT_inventory_items.model, item.IT_inventory_items.serial_number, item.fecha_programada, item.fecha_realizacion, Bitacoras.Util.IT_matenimiento_Estatus.DescripcionStatus(item.estatus),
+                    item.id_biblioteca_digital.HasValue ? "Subido" : "Pendiente", item.empleados != null ? item.empleados.ConcatNombre : String.Empty,
+                    item.responsable_principal
+                    );
+            }
+
+            //crea la hoja de FACTURAS y la selecciona
+            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Mantenimientos IT");
+            oSLDocument.ImportDataTable(1, 1, dt, true);
+
+            //estilo para ajustar al texto
+            SLStyle styleWrap = oSLDocument.CreateStyle();
+            styleWrap.SetWrapText(true);
+
+            //estilo para el encabezado
+            SLStyle styleHeader = oSLDocument.CreateStyle();
+            styleHeader.Font.Bold = true;
+            styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
+
+            ////estilo para fecha
+            SLStyle styleShortDate = oSLDocument.CreateStyle();
+            styleShortDate.FormatCode = "mmmm/yyyy";
+            oSLDocument.SetColumnStyle(8, styleShortDate);
+            oSLDocument.SetColumnStyle(9, styleShortDate);
+
+            SLStyle styleHeaderFont = oSLDocument.CreateStyle();
+            styleHeaderFont.Font.FontName = "Calibri";
+            styleHeaderFont.Font.FontSize = 11;
+            styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
+            styleHeaderFont.Font.Bold = true;
+
+            //da estilo a la hoja de excel
+            //inmoviliza el encabezado
+            oSLDocument.FreezePanes(1, 0);
+
+            oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
+            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+
+            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
+            oSLDocument.SetRowStyle(1, styleHeader);
+            oSLDocument.SetRowStyle(1, styleHeaderFont);
+
+            oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
+
+            System.IO.Stream stream = new System.IO.MemoryStream();
+
+            oSLDocument.SaveAs(stream);
+
+            byte[] array = Bitacoras.Util.StreamUtil.ToByteArray(stream);
+
+            return (array);
+        }
+
         public static byte[] GeneraReportePMExcel(List<poliza_manual> listado)
         {
 
@@ -1404,7 +1492,7 @@ namespace Portal_2_0.Models
                     fecha_cierre = item.fecha_cierre.Value;
                 else
                     fecha_cierre = DBNull.Value;
-                             
+
                 dt.Rows.Add(item.id, item.empleados2.ConcatNombre, item.fecha_solicitud, OT_Status.DescripcionStatus(item.estatus), item.Area.descripcion, OT_nivel_urgencia.DescripcionStatus(item.nivel_urgencia),
                     linea, item.id_zona_falla.HasValue ? item.OT_zona_falla.zona_falla : String.Empty, tPM, noTarjeta, grupoTrabajo, item.titulo, item.descripcion, responsable, fecha_asignacion, fecha_en_proceso, fecha_cierre, null, null, null, null, item.comentario
                     );
@@ -1562,12 +1650,12 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Número Celular", typeof(string));
             dt.Columns.Add("Compañia", typeof(string));
             dt.Columns.Add("Plan Celular", typeof(string));
-            dt.Columns.Add("Fecha de Corte", typeof(DateTime)); 
+            dt.Columns.Add("Fecha de Corte", typeof(DateTime));
             dt.Columns.Add("Fecha de Renovación(inicio)", typeof(DateTime));
             dt.Columns.Add("Fecha de Renovación(fin)", typeof(DateTime));
             dt.Columns.Add("Asignación (Responsable)", typeof(string));
             dt.Columns.Add("Departamento", typeof(string));
-            dt.Columns.Add("Estado", typeof(string));          
+            dt.Columns.Add("Estado", typeof(string));
 
             ////registros , rows
             foreach (IT_inventory_cellular_line item in listado)
@@ -1581,8 +1669,8 @@ namespace Portal_2_0.Models
                 if (asignacion != null && asignacion.empleados != null && asignacion.empleados.Area != null)
                     departamentoAsignacion = asignacion.empleados.Area.descripcion;
 
-                dt.Rows.Add(item.plantas.descripcion,item.numero_celular, item.IT_inventory_cellular_plans.nombre_compania, item.IT_inventory_cellular_plans.nombre_plan,
-                    item.fecha_corte,item.fecha_renovacion_inicio, item.fecha_renovacion,nombreAsignacion, departamentoAsignacion, item.activo? "Activo":"Inactivo"
+                dt.Rows.Add(item.plantas.descripcion, item.numero_celular, item.IT_inventory_cellular_plans.nombre_compania, item.IT_inventory_cellular_plans.nombre_plan,
+                    item.fecha_corte, item.fecha_renovacion_inicio, item.fecha_renovacion, nombreAsignacion, departamentoAsignacion, item.activo ? "Activo" : "Inactivo"
                     );
             }
 
@@ -1616,7 +1704,7 @@ namespace Portal_2_0.Models
             //inmoviliza el encabezado
             oSLDocument.FreezePanes(1, 0);
 
-            oSLDocument.Filter(1,1,1,dt.Columns.Count);
+            oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
             oSLDocument.AutoFitColumn(1, dt.Columns.Count);
 
             oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
@@ -1632,7 +1720,7 @@ namespace Portal_2_0.Models
             byte[] array = Bitacoras.Util.StreamUtil.ToByteArray(stream);
 
             return (array);
-        } 
+        }
         public static byte[] GeneraReportePFAExcel(List<PFA> listado)
         {
 
@@ -1769,16 +1857,26 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Is active?", typeof(bool));         //24
             dt.Columns.Add("Inactive Date?", typeof(DateTime)); //25
             dt.Columns.Add("Comments", typeof(string));         //26
+            dt.Columns.Add("Asignación Actual", typeof(string));         //27
 
             ////registros , rows
             foreach (IT_inventory_items item in listado)
             {
+                //  var Asignaciones = db.IT_asignacion_hardware.Where(x => x.IT_asignacion_hardware_rel_items.Any(y => y.id_it_inventory_item == id)).ToList();
+                string asignacionActual = string.Empty;
+
+                var asignacion = item.IT_asignacion_hardware_rel_items.Where(x => x.IT_asignacion_hardware.es_asignacion_actual
+                                    && x.IT_asignacion_hardware.id_empleado == x.IT_asignacion_hardware.id_responsable_principal).Select(x => x.IT_asignacion_hardware).FirstOrDefault();
+
+                if (asignacion != null)
+                    asignacionActual = asignacion.empleados1.ConcatNombre;
+
                 if (inventoryType != Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER && inventoryType != Bitacoras.Util.IT_Tipos_Hardware.SERVER)
                     dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.hostname, item.brand, item.model, item.serial_number,
                     item.operation_system, item.bits_operation_system, item.cpu_speed_mhz, item.number_of_cpus, item.processor, item.mac_lan, item.mac_wlan,
                     item.total_physical_memory_gb, null, null, null, item.NumberOfHardDrives, item.TotalDiskSpace, item.maintenance_period_months,
                      item.purchase_date, item.end_warranty,
-                     item.active, item.inactive_date, item.comments
+                     item.active, item.inactive_date, item.comments, asignacionActual
                     );
                 else
                 { //se agrega phyical server{
@@ -1790,7 +1888,7 @@ namespace Portal_2_0.Models
                       item.operation_system, item.bits_operation_system, item.cpu_speed_mhz, item.number_of_cpus, item.processor, item.mac_lan, item.mac_wlan,
                       item.total_physical_memory_gb, null, null, null, item.NumberOfHardDrives, item.TotalDiskSpace, item.maintenance_period_months,
                        item.purchase_date, item.end_warranty,
-                       item.active, item.inactive_date, item.comments
+                       item.active, item.inactive_date, item.comments, string.Empty
                       );
                 }
 

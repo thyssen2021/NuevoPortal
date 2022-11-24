@@ -118,6 +118,29 @@ namespace Portal_2_0.Models
 
         }
 
+        public int? _PeriodoMantenimientos { get; set; }
+
+       // obtiene el periodo de mantenimiento
+       [NotMapped]
+        [Display(Name = "Periódo de mantenimiento")]
+        [Range(1, Int16.MaxValue)]
+        public int? PeriodoMantenimientos
+        {
+            get
+            {
+                using (var db = new Portal_2_0Entities())
+                {
+                    var item = db.IT_inventory_items.Find(this.id_it_inventory_item);
+                     
+                   return item.maintenance_period_months;
+                }
+            }
+            set {
+                _PeriodoMantenimientos = value;
+            }
+
+        }
+
         // obtiene si es el prim mantenimiento
         [NotMapped]
         [Display(Name = "Fecha Programada Mes")]

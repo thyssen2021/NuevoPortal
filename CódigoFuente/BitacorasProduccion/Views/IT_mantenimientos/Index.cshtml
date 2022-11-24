@@ -141,6 +141,10 @@
                                                     <div class="col-md-2 col-sm-2">
                                                         <input type="month" id="mes" name="mes" class="form-control" value="@mes">
                                                     </div>
+                                                    <label class="control-label col-md-1 col-sm-1" for="asignado" style="text-align:right">¿Está asignado?:</label>
+                                                    <div class="col-md-2 col-sm-2">
+                                                        @Html.DropDownList("asignado", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                    </div>
                                                 </div>
                                                 <div class="ln_solid"></div>
                                                 <div class="form-group row">
@@ -245,7 +249,7 @@
                                                               : String.Empty
                                                     )">
                                                         <td>
-                                                            @if (item.estatus != Bitacoras.Util.IT_matenimiento_Estatus.REALIZADO)
+                                                            @if (item.estatus != Bitacoras.Util.IT_matenimiento_Estatus.REALIZADO && item.estatus != Bitacoras.Util.IT_matenimiento_Estatus.REALIZADO_CON_DOCUMENTO)
                                                             {
                                                                 <a href="@Url.Action("CerrarMantenimiento", null, new { id = item.id, estatus_mantenimiento = estatus_mantenimiento })" class="btn btn-success btn-sm" title="Cerrar Mantenimiento">
                                                                     <i class="fa-solid fa-screwdriver-wrench"></i>
@@ -339,6 +343,22 @@
                                     <nav id="nav_paginacion" aria-label="...">
                                         @{Html.RenderPartial("_Paginacion", Model);}
                                     </nav>
+                                    <div class="form-group">
+                                    
+                                        <a href="@Url.Action("Exportar", ViewBag.ControllerName, new
+                                                {
+                                                   estatus_mantenimiento = paginacionFiltros.ValoresQueryString["estatus_mantenimiento"] != null? paginacionFiltros.ValoresQueryString["estatus_mantenimiento"] : string.Empty,
+                                                   id_empleado = paginacionFiltros.ValoresQueryString["id_empleado"] != null? paginacionFiltros.ValoresQueryString["id_empleado"] : string.Empty,
+                                                   planta_clave = paginacionFiltros.ValoresQueryString["planta_clave"] != null? paginacionFiltros.ValoresQueryString["planta_clave"] : string.Empty,
+                                                   documento = paginacionFiltros.ValoresQueryString["documento"] != null? paginacionFiltros.ValoresQueryString["documento"] : string.Empty,
+                                                   mes = paginacionFiltros.ValoresQueryString["mes"] != null? paginacionFiltros.ValoresQueryString["mes"] : string.Empty,
+                                                   asignado = paginacionFiltros.ValoresQueryString["asignado"] != null? paginacionFiltros.ValoresQueryString["asignado"] : string.Empty,
+                                                   id_it_inventory_item = paginacionFiltros.ValoresQueryString["id_it_inventory_item"] != null? paginacionFiltros.ValoresQueryString["id_it_inventory_item"] : string.Empty,
+
+                                                })" class="btn btn-success btm-sm" target="_blank" title="Reporte">
+                                            <i class="fa-regular fa-file-excel"></i> Exportar Excel
+                                        </a>
+                                    </div>
                                 }
                             </div>
                         </div>
