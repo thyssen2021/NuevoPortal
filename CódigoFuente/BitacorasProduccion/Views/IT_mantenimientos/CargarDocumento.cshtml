@@ -177,11 +177,11 @@
                         <div class="item form-group">
                             @Html.LabelFor(model => model.id_empleado_sistemas, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                             <div class="col-md-4 col-sm-4 ">
-                                <input type="text" class="form-control" value="@Model.empleados1.ConcatNombre" readonly />
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.empleados1.ConcatNombre)" readonly />
                             </div>
                             @Html.LabelFor(model => model.id_empleado_responsable, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
                             <div class="col-md-5 col-sm-5 ">
-                                <input type="text" class="form-control" value="@Model.empleados.ConcatNombre" readonly />
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.empleados.ConcatNombre)" readonly />
                             </div>
                         </div>
                         <div class="item form-group">

@@ -242,12 +242,17 @@ namespace Portal_2_0.Controllers
                 var tipo = db.IT_inventory_hardware_type.Find(id_inventory);
                 if (tipo != null && (tipo.descripcion == IT_Tipos_Hardware.LAPTOP || tipo.descripcion == IT_Tipos_Hardware.DESKTOP))
                 {
-                   
+
+                    DateTime next = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1); //primer día del mes actual
+                    next = next.AddMonths(iT_inventory_items.maintenance_period_months.HasValue
+                        ? iT_inventory_items.maintenance_period_months.Value : 6)
+                        .AddMonths(1) //el primer dia del mes siguiente
+                        .AddDays(-1); //ultimo día del més anterior
+
                     var nuevo_manto = new IT_mantenimientos
                     {
                        // id_it_inventory_item = inventory_item.id,
-                        fecha_programada = DateTime.Now.AddMonths(iT_inventory_items.maintenance_period_months.HasValue
-                        ? iT_inventory_items.maintenance_period_months.Value : 6), //seis meses por defecto
+                        fecha_programada = next, //seis meses por defecto
                     };
 
                     iT_inventory_items.IT_mantenimientos.Add(nuevo_manto);

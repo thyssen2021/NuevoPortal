@@ -410,6 +410,9 @@
             $('#@Html.IdFor(model => model.PeriodoMantenimientos)').on('change', function () {
                 MuestraProximoMantenimiento($(this).val());
             });
+            $('#@Html.IdFor(model => model.fecha_realizacion)').on('change', function () {
+                MuestraProximoMantenimiento($('#PeriodoMantenimientos').val());
+            });
 
             //ejecuta el evento una vez cargada la página
             $('#@Html.IdFor(model => model.id_empleado_responsable)').change();

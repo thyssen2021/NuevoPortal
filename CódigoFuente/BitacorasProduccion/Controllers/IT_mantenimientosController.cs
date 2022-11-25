@@ -369,6 +369,13 @@ namespace Portal_2_0.Controllers
 
                 return View("../Home/ErrorGenerico");
             }
+              if (item.id_empleado_responsable==null)
+            {
+                ViewBag.Titulo = "¡Lo sentimos!¡No se puede generar el PDF de este mantenimiento!";
+                ViewBag.Descripcion = "No se puede generar la Plantilla PDF debido a que se trata de un primer mantenimiento. En su lugar suba el último Documento PDF escaneado.";
+
+                return View("../Home/ErrorGenerico");
+            }
 
             byte[] pdfBytes;
             using (var stream = new MemoryStream())
