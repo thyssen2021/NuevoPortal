@@ -934,10 +934,12 @@ namespace Portal_2_0.Controllers
                     stream = ExcelUtil.GeneraReporteBudgetForecast(model, dbContext);
                 }
 
+                var reporte = db.BG_Forecast_reporte.Find(model.id_reporte);
+
                 var cd = new System.Net.Mime.ContentDisposition
                 {
                     // for example foo.bak
-                    FileName = "Reporte_Forecast_" + model.demanda + "_reporte_" + ".xlsx",
+                    FileName = "Reporte_Forecast_" + model.demanda + "_(" +reporte.descripcion+ ").xlsx",
 
                     // always prompt the user for downloading, set to true if you want 
                     // the browser to try to show the file inline

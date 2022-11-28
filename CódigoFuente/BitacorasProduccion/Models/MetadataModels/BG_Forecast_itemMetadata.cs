@@ -219,7 +219,7 @@ namespace Portal_2_0.Models
         {
             get
             {
-                var RelElemento = new RelElementoIHS { descripcionTipo="Pendiente" };
+                var RelElemento = new RelElementoIHS { descripcionTipo = "Pendiente" };
 
                 //inicializa el objeto de IHS
                 if (BG_IHS_combinacion != null)
@@ -270,13 +270,20 @@ namespace Portal_2_0.Models
         {
             get
             {
+
                 try
                 {
-                    return (this.vas_part / initial_weight_part) * 1000;
+                    //si alguna de las variables es nula retorna 0 en su lugar
+                    double? result = ((this.vas_part.HasValue ? this.vas_part.Value : 0) / (this.initial_weight_part.HasValue ? this.initial_weight_part : 0)) * 1000;
+
+                    if (result.HasValue && !Double.IsNaN(result.Value))
+                        return result;
+                    else
+                        return (double?)null;
                 }
                 catch
                 {
-                    return null;
+                    return (double?)null;
                 }
             }
         }

@@ -2481,6 +2481,9 @@ namespace Portal_2_0.Models
             combinaciones = db.BG_Forecast_item.Where(x => x.BG_Forecast_reporte.id == model.id_reporte && x.id_ihs_combinacion.HasValue).Select(x => x.BG_IHS_combinacion).Distinct().ToList();
             //obtiene las divisiones de IHS asociados al reporte
             divisiones = db.BG_Forecast_item.Where(x => x.BG_Forecast_reporte.id == model.id_reporte && x.id_ihs_rel_division.HasValue).Select(x => x.BG_IHS_rel_division.BG_IHS_division).Distinct().ToList();
+            //obtiene el reporte
+            var reporte = db.BG_Forecast_reporte.Find(model.id_reporte);
+
 
             int FYReference = 0;
 
@@ -2521,6 +2524,50 @@ namespace Portal_2_0.Models
 
             SLStyle styleDivisionesData = oSLDocument.CreateStyle();
             styleDivisionesData.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#D5E8DB"), System.Drawing.ColorTranslator.FromHtml("#D5E8DB"));
+
+            //estilo para ajustar al texto
+            SLStyle styleWrap = oSLDocument.CreateStyle();
+            styleWrap.SetWrapText(true);
+            styleWrap.Alignment.Vertical = VerticalAlignmentValues.Top;
+
+            //estilo para ajustar al texto
+            SLStyle styleCenter = oSLDocument.CreateStyle();
+            styleCenter.SetWrapText(true);
+            styleCenter.Alignment.Vertical = VerticalAlignmentValues.Top;
+            styleCenter.Alignment.Horizontal = HorizontalAlignmentValues.Center;
+
+
+            //estilo para el encabezado
+            SLStyle styleHeader = oSLDocument.CreateStyle();
+            styleHeader.Font.Bold = true;
+            styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
+
+            //estilo para numeros
+            SLStyle styleNumberDecimal_2 = oSLDocument.CreateStyle();
+            styleNumberDecimal_2.FormatCode = "#,##0.00";
+
+            //estilo para numeros
+            SLStyle styleNumberDecimal_3 = oSLDocument.CreateStyle();
+            styleNumberDecimal_3.FormatCode = "#,##0.000";
+
+            ////estilo para fecha
+            SLStyle styleShortDate = oSLDocument.CreateStyle();
+            styleShortDate.FormatCode = "yyyy-mm";
+
+            //crea Style para porcentaje
+            SLStyle stylePercent = oSLDocument.CreateStyle();
+            stylePercent.FormatCode = "0.00%";
+            //crea Style para moneda
+            SLStyle styleCurrency = oSLDocument.CreateStyle();
+            styleCurrency.FormatCode = "$ 0.00";
+
+            SLStyle styleHeaderFont = oSLDocument.CreateStyle();
+            styleHeaderFont.Font.FontName = "Calibri";
+            styleHeaderFont.Font.FontSize = 11;
+            styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
+            styleHeaderFont.Font.Bold = true;
+
+
 
             #region Hoja Autos Normal
             //columnas          
@@ -2871,39 +2918,9 @@ namespace Portal_2_0.Models
                 }
             }
 
-            //estilo para ajustar al texto
-            SLStyle styleWrap = oSLDocument.CreateStyle();
-            styleWrap.SetWrapText(true);
-            styleWrap.Alignment.Vertical = VerticalAlignmentValues.Top;
-
-            //estilo para el encabezado
-            SLStyle styleHeader = oSLDocument.CreateStyle();
-            styleHeader.Font.Bold = true;
-            styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
-
-            //estilo para numeros
-            SLStyle styleNumberDecimal = oSLDocument.CreateStyle();
-            styleNumberDecimal.FormatCode = "#,##0.000";
-
-            ////estilo para fecha
-            SLStyle styleShortDate = oSLDocument.CreateStyle();
-            styleShortDate.FormatCode = "yyyy-mm";
             oSLDocument.SetColumnStyle(33, 34, styleShortDate);
-
-            //crea Style para porcentaje
-            SLStyle stylePercent = oSLDocument.CreateStyle();
-            stylePercent.FormatCode = "0.00%";
             oSLDocument.SetColumnStyle(59, stylePercent);
 
-
-            SLStyle styleHeaderFont = oSLDocument.CreateStyle();
-            styleHeaderFont.Font.FontName = "Calibri";
-            styleHeaderFont.Font.FontSize = 11;
-            styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
-            styleHeaderFont.Font.Bold = true;
-
-            //da estilo a los numeros
-            //oSLDocument.SetColumnStyle(9, 10, styleNumberDecimal);
 
             //da estilo a la hoja de excel
             ////inmoviliza el encabezado
@@ -3677,14 +3694,149 @@ namespace Portal_2_0.Models
 
             #region MonthByMonth
 
-            foreach (var fy in cabeceraAniosFY)
+            //si cabecera anios tiene elementos
+            //crea la plantilla para el primer elemento
+            if (cabeceraAniosFY.Count > 0)
             {
+                oSLDocument.AddWorksheet(cabeceraAniosFY[0].text + " by Month");
+                oSLDocument.SelectWorksheet(cabeceraAniosFY[0].text + " by Month");
+
                 dt = new System.Data.DataTable();
+                dt.Columns.Add("POS", typeof(string));                  //1
+                dt.Columns.Add("Business & plant", typeof(string));     //2
+                dt.Columns.Add("PO in Hand", typeof(string));           //3
+                dt.Columns.Add("A/D", typeof(bool));                    //4
+                dt.Columns.Add("SAP Invoice Code", typeof(string));     //5
+                dt.Columns.Add("Invoiced to", typeof(string));          //6
+                dt.Columns.Add("Number SAP Cliente", typeof(string));   //7
+                dt.Columns.Add("Shipped to", typeof(string));           //8
+                dt.Columns.Add("OWN/CM", typeof(string));               //9
+                dt.Columns.Add("Route", typeof(string));                //10
+                dt.Columns.Add("Plant", typeof(string));                //11
+                dt.Columns.Add("External Processor", typeof(string));   //12
+                dt.Columns.Add("Mill", typeof(string));                 //13
+                dt.Columns.Add("SAP Master Coil", typeof(string));      //14
+                dt.Columns.Add("Part Description", typeof(string));     //15
+                dt.Columns.Add("Part number", typeof(string));          //16
+                dt.Columns.Add("Production Line", typeof(string));      //17
+                dt.Columns.Add("Vehicle - IHS", typeof(string));        //18
+
+                dt.Columns.Add("Parts/Auto", typeof(double));           //19   -> decimal (2)
+                dt.Columns.Add("Strokes/Auto", typeof(double));         //20   -> decimal (2)
+                dt.Columns.Add("Material Type", typeof(string));        //21
+                dt.Columns.Add("Shape", typeof(string));                //22
+
+                dt.Columns.Add("Initial Weight/Part [KG]", typeof(double));    //23  -> decimal (2)
+                dt.Columns.Add("Net Weight/Part [KG]", typeof(double));        //24  -> decimal (2)
+                dt.Columns.Add("Eng. Scrap/Part [KG]", typeof(double));        //25  -> decimal (2)
+                dt.Columns.Add("Scrap Consolidation", typeof(bool));           //26  
+
+                dt.Columns.Add("Ventas/Part [USD]", typeof(double));                    //27 -> decimal ($2)
+                dt.Columns.Add("Material Cost/Part [USD]", typeof(double));             //28 -> decimal ($2) 
+                dt.Columns.Add("Cost of Outside Proccessor [USD]", typeof(double));     //29 -> decimal ($2)
+                dt.Columns.Add("VAS/Part [USD]", typeof(double));                       //30 -> decimal ($2)
+                dt.Columns.Add("Additional Material Cost/Part [USD]", typeof(double));  //31 -> decimal ($2)
+                dt.Columns.Add("Outgoing Freight/PART [USD]", typeof(double));          //32 -> decimal ($2)
+
+                dt.Columns.Add("Vas/to", typeof(double));                                       //33 -> decimal ($2)
+                dt.Columns.Add("Gross profit-outgoing freight/Part [USD]", typeof(double));     //34 -> decimal ($2)
+                dt.Columns.Add("Gross profit-outgoing freight/to [USD]", typeof(double));     //35 -> decimal ($2)
+
+                dt.Columns.Add("Freights Income", typeof(string));        //35
+                dt.Columns.Add("Outgoing freight", typeof(string));        //36
+                dt.Columns.Add("Cat 1", typeof(string));        //37
+                dt.Columns.Add("Cat 3", typeof(string));        //38
+                dt.Columns.Add("Cat 4", typeof(string));        //39
 
 
 
-                oSLDocument.AddWorksheet(fy.text + " by Month");
+                //obtiene el reporte
+                foreach (var forecast_Item in reporte.BG_Forecast_item)
+                {
+                    dt.Rows.Add(forecast_Item.pos, forecast_Item.business_and_plant, forecast_Item.cat_2, forecast_Item.calculo_activo, forecast_Item.sap_invoice_code
+                        , forecast_Item.invoiced_to, forecast_Item.number_sap_client, forecast_Item.shipped_to, forecast_Item.own_cm, forecast_Item.route, forecast_Item.plant
+                        , forecast_Item.external_processor, forecast_Item.mill, forecast_Item.sap_master_coil, forecast_Item.part_description, forecast_Item.part_number
+                        , forecast_Item.production_line, forecast_Item.vehicle, forecast_Item.parts_auto, forecast_Item.strokes_auto, forecast_Item.material_type
+                        , forecast_Item.shape, forecast_Item.initial_weight_part, forecast_Item.net_weight_part, forecast_Item.eng_scrap_part, forecast_Item.scrap_consolidation
+                        , forecast_Item.ventas_part, forecast_Item.material_cost_part, forecast_Item.cost_of_outside_processor, forecast_Item.vas_part
+                        , forecast_Item.additional_material_cost_part, forecast_Item.outgoing_freight_part
+                        , forecast_Item.vas_to, 555, 555, forecast_Item.freights_income, forecast_Item.outgoing_freight, forecast_Item.cat_1
+                        , forecast_Item.cat_3, forecast_Item.cat_4
+                        );
+                }
+
+                oSLDocument.ImportDataTable(1, 1, dt, true);
+
+                //da estilo a la hoja de excel
+                //inmoviliza el encabezado
+                oSLDocument.FreezePanes(1, 0);
+                oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
+
+                oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+
+                //da estilo al encabezado
+
+                oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleCenter);
+                oSLDocument.SetRowStyle(1, styleHeader);
+                oSLDocument.SetRowStyle(1, styleHeaderFont);
+
+                //estilos para números
+                oSLDocument.SetColumnStyle(19, 20, styleNumberDecimal_2);
+                oSLDocument.SetColumnStyle(23, 25, styleNumberDecimal_2);
+                oSLDocument.SetColumnStyle(27, 35, styleCurrency);
+
+                //ajusta el tamaño de las filas
+                oSLDocument.SetRowHeight(1, dt.Rows.Count + 1, 45.0);
+                oSLDocument.SetRowHeight(2, dt.Rows.Count + 1, 15.0);
+                //ajusta el ancho de las columnas
+                oSLDocument.SetColumnWidth(4, 13.0); //A/D
+                oSLDocument.SetColumnWidth(7, 13.0);   //Number SAP Client
+                oSLDocument.SetColumnWidth(23, 35, 13.0);   //Number SAP Client
+
+                //oculta columnas
+                oSLDocument.HideColumn(37, 39);
+
+
+                //copia la plantilla para el resto de años
+                for (int i = 1; i < cabeceraAniosFY.Count; i++)
+                {
+                    string newSheetName = cabeceraAniosFY[i].text + " by Month";
+                    string baseSheetName = cabeceraAniosFY[0].text + " by Month";
+
+                    oSLDocument.SelectWorksheet("Aux"); //selecciona la hoja aux para no tener detalles a la hora de copiar la hoja actual
+                    oSLDocument.CopyWorksheet(baseSheetName, newSheetName);
+                }
+
+                //obtiene el número de columnas
+                int columnas = dt.Columns.Count;
+
+
+                //continua con las tablas para cada año
+                //copia la plantilla para el resto de años
+                for (int i = 0; i < cabeceraAniosFY.Count; i++)
+                {
+                    string sheetName = cabeceraAniosFY[i].text + " by Month";
+
+                    oSLDocument.SelectWorksheet(sheetName); //selecciona la hoja
+
+                    dt = new System.Data.DataTable();
+
+                    //validar hasta que fecha puedo obtener los valores por meses
+                    //crear ciclo que me permita obtener los encabezados   //dejar una celda de separación como en el original
+                    //establecer los valores según el valor obtenido
+                    //crear celda seleccionable para ver si aplica en calculo o no
+                    //ver cuales serían las siguentes graficas
+                    //
+
+                    dt.Columns.Add("POS", typeof(string));                  //1
+
+
+
+                }
+
             }
+
+
 
             #endregion
             ///
