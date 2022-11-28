@@ -38,7 +38,7 @@ namespace Portal_2_0.Models
                 foreach (DataTable table in result.Tables)
                 {
                     //busca si existe una hoja llamada "dante"
-                    if (table.TableName.ToUpper() == "SHEET1"|| table.TableName.ToUpper() == "HOJA1")
+                    if (table.TableName.ToUpper() == "SHEET1" || table.TableName.ToUpper() == "HOJA1")
                     {
                         valido = true;
 
@@ -649,7 +649,7 @@ namespace Portal_2_0.Models
 
             using (var db = new Portal_2_0Entities())
             {
-               listadoBOM = db.bom_en_sap.ToList();
+                listadoBOM = db.bom_en_sap.ToList();
             }
 
             //crea el reader del archivo
@@ -844,10 +844,22 @@ namespace Portal_2_0.Models
                                 }
 
                                 if (fechaUso.HasValue)
-                                {                                    
+                                {
                                     peso_bruto = listTemporalBOM.Where(x => x.LastDateUsed == fechaUso).Max(x => x.Quantity);
-                                    //peso bruto + los negativos
-                                    peso_neto = peso_bruto + listTemporalBOM.Where(x => x.LastDateUsed == fechaUso && x.Quantity < (-0.001) ).Sum(x => x.Quantity);
+
+                                    //si el peso bruto aparece dos veces, lo marca como valores duplicados
+                                    bool duplicado = listTemporalBOM.Where(x => x.LastDateUsed == fechaUso && x.Quantity == peso_bruto).Count() > 1;
+
+                                    if (duplicado)
+                                    {
+                                        //obtiene el peso quitando los duplicados
+                                        peso_neto=listTemporalBOM.Where(x => x.LastDateUsed == fechaUso && x.Quantity != (-0.001)).Select(x => x.Quantity).Distinct().Sum();
+                                    }
+                                    else
+                                    {
+                                        //peso bruto + los negativos
+                                        peso_neto = peso_bruto + listTemporalBOM.Where(x => x.LastDateUsed == fechaUso && x.Quantity < (-0.001)).Sum(x => x.Quantity);
+                                    }
                                 }
                                 else
                                 {
@@ -856,22 +868,24 @@ namespace Portal_2_0.Models
                                     peso_neto = peso_bruto + listTemporalBOM.Where(x => x.Created == fechaCreacion && x.Quantity < (-0.001)).Sum(x => x.Quantity);
                                 }
 
-                              
+
                                 //actualiza el peso de todos los demas mm que tengan null
-                                foreach (var item in lista.Where(x=>x.Material == material && !x.Net_weight.HasValue && !x.Gross_weight.HasValue))
+                                foreach (var item in lista.Where(x => x.Material == material && !x.Net_weight.HasValue && !x.Gross_weight.HasValue))
                                 {
                                     item.Net_weight = peso_neto;
                                     item.Gross_weight = peso_bruto;
                                 }
                                 //si peso neto y bruto es null toma el valor de mm donde no sea null
-                                if (!peso_neto.HasValue && !peso_bruto.HasValue) {
+                                if (!peso_neto.HasValue && !peso_bruto.HasValue)
+                                {
                                     var item = lista.Where(x => x.Material == material && x.Net_weight.HasValue && x.Gross_weight.HasValue).FirstOrDefault();
 
-                                    if (item != null) {
+                                    if (item != null)
+                                    {
                                         peso_neto = item.Net_weight;
                                         peso_bruto = item.Gross_weight;
                                     }
-                                    
+
                                 }
 
 
@@ -928,7 +942,7 @@ namespace Portal_2_0.Models
             return lista;
         }
 
-      
+
 
         /// <summary>
         /// Lee un archivo y obtiene un List de budget_cantidad con los valores leidos
