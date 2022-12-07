@@ -219,6 +219,15 @@
                                                             <th>
                                                                 @Html.DisplayNameFor(model => model.FirstOrDefault().outgoing_freight)
                                                             </th>
+                                                            <th>
+                                                                @Html.DisplayNameFor(model => model.FirstOrDefault().freights_income_usd_part)
+                                                            </th>
+                                                            <th>
+                                                                @Html.DisplayNameFor(model => model.FirstOrDefault().maniobras_usd_part)
+                                                            </th>
+                                                            <th>
+                                                                @Html.DisplayNameFor(model => model.FirstOrDefault().customs_expenses)
+                                                            </th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -335,6 +344,15 @@
                                                                 </td>
                                                                 <td>
                                                                     @Html.DisplayFor(modelItem => item.outgoing_freight)
+                                                                </td>
+                                                                <td>
+                                                                    @Html.DisplayFor(modelItem => item.freights_income_usd_part)
+                                                                </td>
+                                                                <td>
+                                                                    @Html.DisplayFor(modelItem => item.maniobras_usd_part)
+                                                                </td>
+                                                                <td>
+                                                                    @Html.DisplayFor(modelItem => item.customs_expenses)
                                                                 </td>
                                                             </tr>
                                                         }

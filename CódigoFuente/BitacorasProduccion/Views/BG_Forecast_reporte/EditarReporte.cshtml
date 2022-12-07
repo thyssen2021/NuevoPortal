@@ -23,7 +23,7 @@
     <link href="@Url.Content("~/Content/vendors/datatables.net-fixedcolumns/dataTables.fixedColumns.css")" rel="stylesheet">
     <!-- SweetAlert2 -->
     <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
-   
+
     <style>
         .numero-positivo::placeholder {
             color: #c8c8c8;
@@ -211,6 +211,15 @@
                                                         <th>
                                                             @Html.DisplayNameFor(model => model.FirstOrDefault().outgoing_freight)
                                                         </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().freights_income_usd_part)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().maniobras_usd_part)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().customs_expenses)
+                                                        </th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -228,7 +237,7 @@
                                                             <td>
                                                                 @Html.DisplayFor(modelItem => item.ElementoIHS.descripcion)
                                                             </td>
-                                                             <td>
+                                                            <td>
                                                                 @Html.DisplayFor(modelItem => item.ElementoIHS.descripcionTipo)
                                                             </td>
                                                             <td>
@@ -380,6 +389,33 @@
                                                                 @Html.EditorFor(modelItem => Model[index].outgoing_freight, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", maxlength = "100" } })
                                                                 @Html.ValidationMessageFor(modelItem => Model[index].outgoing_freight, "", new { @class = "text-danger" })
                                                             </td>
+                                                            <td>
+                                                                <div class="item form-group">
+                                                                    <label class="col-form-label col-md-1 col-sm-1 label-align">$</label>
+                                                                    <div class="col-md-11 col-sm-11">
+                                                                        @Html.EditorFor(modelItem => Model[index].freights_income_usd_part, new { htmlAttributes = new { @class = "form-control decimal", @autocomplete = "off" } })
+                                                                        @Html.ValidationMessageFor(modelItem => Model[index].freights_income_usd_part, "", new { @class = "text-danger" })
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div class="item form-group">
+                                                                    <label class="col-form-label col-md-1 col-sm-1 label-align">$</label>
+                                                                    <div class="col-md-11 col-sm-11">
+                                                                        @Html.EditorFor(modelItem => Model[index].maniobras_usd_part, new { htmlAttributes = new { @class = "form-control decimal", @autocomplete = "off" } })
+                                                                        @Html.ValidationMessageFor(modelItem => Model[index].maniobras_usd_part, "", new { @class = "text-danger" })
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div class="item form-group">
+                                                                    <label class="col-form-label col-md-1 col-sm-1 label-align">$</label>
+                                                                    <div class="col-md-11 col-sm-11">
+                                                                        @Html.EditorFor(modelItem => Model[index].customs_expenses, new { htmlAttributes = new { @class = "form-control decimal", @autocomplete = "off" } })
+                                                                        @Html.ValidationMessageFor(modelItem => Model[index].customs_expenses, "", new { @class = "text-danger" })
+                                                                    </div>
+                                                                </div>
+                                                            </td>
                                                         </tr>
                                                     }
                                             </table>
@@ -530,7 +566,7 @@
             //inicializa input mask
             $('.decimal').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 8, 'digitsOptional': true, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
 
-        
+
         });
 
          function BuscaReferenciasIHS() {

@@ -788,6 +788,9 @@ namespace Portal_2_0.Controllers
                             <input type=""hidden"" name=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.cat_2) + @""" id=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.cat_2) + @""" value=""" + item.cat_2 + @""" />
                             <input type=""hidden"" name=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.cat_3) + @""" id=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.cat_3) + @""" value=""" + item.cat_3 + @""" />
                             <input type=""hidden"" name=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.cat_4) + @""" id=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.cat_4) + @""" value=""" + item.cat_4 + @""" />
+                            <input type=""hidden"" name=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.freights_income_usd_part) + @""" id=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.freights_income_usd_part) + @""" value=""" + item.freights_income_usd_part + @""" />
+                            <input type=""hidden"" name=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.maniobras_usd_part) + @""" id=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.maniobras_usd_part) + @""" value=""" + item.maniobras_usd_part + @""" />
+                            <input type=""hidden"" name=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.customs_expenses) + @""" id=""BG_Forecast_item[" + index + @"]." + nameof(BG_Forecast_item.customs_expenses) + @""" value=""" + item.customs_expenses + @""" />
 ";
 
                     body += @"                            
@@ -827,6 +830,9 @@ namespace Portal_2_0.Controllers
                                 "<td>" + "$ " + (item.vas_to.HasValue ? item.vas_to.Value.ToString("0.00") : String.Empty) + "</td>" +
                                 "<td>" + item.freights_income + "</td>" +
                                 "<td>" + item.outgoing_freight + "</td>" +
+                                "<td>" + item.freights_income_usd_part + "</td>" +
+                                "<td>" + item.maniobras_usd_part + "</td>" +
+                                "<td>" + item.customs_expenses + "</td>" +
                             @"</tr>";
 
 

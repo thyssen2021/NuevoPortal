@@ -228,6 +228,15 @@
                                                         <th>
                                                             @Html.DisplayNameFor(model => model.FirstOrDefault().outgoing_freight)
                                                         </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().freights_income_usd_part)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().maniobras_usd_part)
+                                                        </th>
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.FirstOrDefault().customs_expenses)
+                                                        </th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -341,6 +350,15 @@
                                                             </td>
                                                             <td>
                                                                 @Html.DisplayFor(modelItem => item.outgoing_freight)
+                                                            </td>
+                                                            <td>
+                                                                $ @Html.DisplayFor(modelItem => item.freights_income_usd_part)
+                                                            </td>
+                                                            <td>
+                                                                $ @Html.DisplayFor(modelItem => item.maniobras_usd_part)
+                                                            </td>
+                                                            <td>
+                                                                $ @Html.DisplayFor(modelItem => item.customs_expenses)
                                                             </td>
                                                         </tr>
                                                     }
@@ -581,8 +599,8 @@
             }
 
             //asigna el valor para el tipo
-            $('#descripcion_tipo_' + index_temporal).html(tipo);          
-            $('#descripcion_tipo_' + index_temporal).hide().show('highlight', 1200);;          
+            $('#descripcion_tipo_' + index_temporal).html(tipo);
+            $('#descripcion_tipo_' + index_temporal).hide().show('highlight', 1200);;
 
             //oculta el modal
             $('#myModal').modal('hide');
@@ -657,7 +675,7 @@
         $(window).resize(function () {
             console.log('entra resize')
             table_doc = $('#datatable_1').DataTable();
-            table_doc.columns.adjust();                    
+            table_doc.columns.adjust();
         });
 
         // Warning

@@ -94,6 +94,9 @@
           <Property Name="cat_2" Type="varchar" MaxLength="20" />
           <Property Name="cat_3" Type="varchar" MaxLength="20" />
           <Property Name="cat_4" Type="varchar" MaxLength="20" />
+          <Property Name="freights_income_usd_part" Type="float" />
+          <Property Name="maniobras_usd_part" Type="float" />
+          <Property Name="customs_expenses" Type="float" />
         </EntityType>
         <EntityType Name="BG_Forecast_reporte">
           <Key>
@@ -9464,6 +9467,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="cat_2" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="cat_3" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="cat_4" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="freights_income_usd_part" Type="Double" />
+          <Property Name="maniobras_usd_part" Type="Double" />
+          <Property Name="customs_expenses" Type="Double" />
           <NavigationProperty Name="BG_Forecast_reporte" Relationship="Portal_2_0Model.FK_BG_Forecast_item_id_bg_forecast_reporte" FromRole="BG_Forecast_item" ToRole="BG_Forecast_reporte" />
           <NavigationProperty Name="BG_IHS_combinacion" Relationship="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_combinacion" FromRole="BG_Forecast_item" ToRole="BG_IHS_combinacion" />
           <NavigationProperty Name="BG_IHS_item" Relationship="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_item" FromRole="BG_Forecast_item" ToRole="BG_IHS_item" />
@@ -11306,6 +11312,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySetMapping Name="BG_Forecast_item">
             <EntityTypeMapping TypeName="Portal_2_0Model.BG_Forecast_item">
               <MappingFragment StoreEntitySet="BG_Forecast_item">
+                <ScalarProperty Name="customs_expenses" ColumnName="customs_expenses" />
+                <ScalarProperty Name="maniobras_usd_part" ColumnName="maniobras_usd_part" />
+                <ScalarProperty Name="freights_income_usd_part" ColumnName="freights_income_usd_part" />
                 <ScalarProperty Name="cat_4" ColumnName="cat_4" />
                 <ScalarProperty Name="cat_3" ColumnName="cat_3" />
                 <ScalarProperty Name="cat_2" ColumnName="cat_2" />

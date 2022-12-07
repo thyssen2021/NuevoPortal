@@ -277,7 +277,7 @@
         <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_division_id_ihs_item" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_IHS_rel_division_id_ihs_division" />
         <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_reporte" Width="1.5" PointX="16.375" PointY="13.5" />
-        <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_item" Width="1.5" PointX="18.625" PointY="10.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.BG_Forecast_item" Width="1.5" PointX="18.625" PointY="10.25" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_Forecast_item_id_bg_forecast_reporte" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_combinacion" />
         <AssociationConnector Association="Portal_2_0Model.FK_BG_Forecast_item_id_ihs_item" />

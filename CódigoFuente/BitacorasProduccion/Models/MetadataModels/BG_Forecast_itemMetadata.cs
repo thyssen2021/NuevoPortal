@@ -157,6 +157,18 @@ namespace Portal_2_0.Models
         [Display(Name = "Cat 4")]
         public string cat_4 { get; set; }
 
+        [Display(Name = "Freights Income USD/PART")]
+        [DisplayFormat(DataFormatString = "{0:n2}")]
+        public Nullable<double> freights_income_usd_part { get; set; }
+
+        [Display(Name = "Maniobras USD/PART")]
+        [DisplayFormat(DataFormatString = "{0:n2}")]
+        public Nullable<double> maniobras_usd_part { get; set; }
+
+        [Display(Name = "Custom Expenses USD/PART")]
+        [DisplayFormat(DataFormatString = "{0:n2}")]
+        public Nullable<double> customs_expenses { get; set; }
+
     }
 
     [MetadataType(typeof(BG_Forecast_itemMetadata))]
@@ -228,6 +240,7 @@ namespace Portal_2_0.Models
                     RelElemento.tipo = TipoElementoIHS.COMBINACION;
                     RelElemento.descripcion = BG_IHS_combinacion.vehicle;
                     RelElemento.descripcionTipo = "Combinación";
+
                 }
                 else if (BG_IHS_item != null)
                 {

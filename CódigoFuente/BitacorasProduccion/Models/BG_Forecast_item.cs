@@ -54,6 +54,9 @@ namespace Portal_2_0.Models
         public string cat_2 { get; set; }
         public string cat_3 { get; set; }
         public string cat_4 { get; set; }
+        public Nullable<double> freights_income_usd_part { get; set; }
+        public Nullable<double> maniobras_usd_part { get; set; }
+        public Nullable<double> customs_expenses { get; set; }
     
         public virtual BG_Forecast_reporte BG_Forecast_reporte { get; set; }
         public virtual BG_IHS_combinacion BG_IHS_combinacion { get; set; }

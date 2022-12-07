@@ -150,6 +150,9 @@
                                     <input type="hidden" name="BG_Forecast_item[@cont].cat_2" id="BG_Forecast_item[@cont].cat_2" value="@item.cat_2" />
                                     <input type="hidden" name="BG_Forecast_item[@cont].cat_3" id="BG_Forecast_item[@cont].cat_3" value="@item.cat_3" />
                                     <input type="hidden" name="BG_Forecast_item[@cont].cat_4" id="BG_Forecast_item[@cont].cat_4" value="@item.cat_4" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].freights_income_usd_part" id="BG_Forecast_item[@cont].freights_income_usd_part" value="@item.freights_income_usd_part" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].maniobras_usd_part" id="BG_Forecast_item[@cont].maniobras_usd_part" value="@item.maniobras_usd_part" />
+                                    <input type="hidden" name="BG_Forecast_item[@cont].customs_expenses" id="BG_Forecast_item[@cont].customs_expenses" value="@item.customs_expenses" />
 
                                     cont++;
                                 }
@@ -270,6 +273,15 @@
                                                     <th>
                                                         @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().outgoing_freight)
                                                     </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().freights_income_usd_part)
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().maniobras_usd_part)
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.BG_Forecast_item.FirstOrDefault().customs_expenses)
+                                                    </th>
                                                 </tr>
                                             </thead>
                                             <tbody id="table_body">
@@ -381,6 +393,15 @@
                                                         </td>
                                                         <td>
                                                             @Html.DisplayFor(modelItem => item.outgoing_freight)
+                                                        </td>
+                                                        <td>
+                                                            $ @Html.DisplayFor(modelItem => item.freights_income_usd_part)
+                                                        </td>
+                                                        <td>
+                                                            $ @Html.DisplayFor(modelItem => item.maniobras_usd_part)
+                                                        </td>
+                                                        <td>
+                                                            $ @Html.DisplayFor(modelItem => item.customs_expenses)
                                                         </td>
                                                     </tr>
                                                 }

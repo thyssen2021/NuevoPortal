@@ -69,7 +69,7 @@ namespace Portal_2_0.Models
             "Long-Term Risk Rating", //int
         };
 
-         public static List<string> ListadoCabeceraReporteBudget = new List<string> {
+        public static List<string> ListadoCabeceraReporteBudget = new List<string> {
             "Bussines & Plant",
             "INVOICED TO:",
             "NUMBER SAP CLIENT",
@@ -81,7 +81,7 @@ namespace Portal_2_0.Models
             "PART DESCRIPTION",
             "PART NUMBER",
             "VEHICLE  -  IHS 1",
-            "SHAPE",            
+            "SHAPE",
         };
 
 
@@ -1679,12 +1679,24 @@ namespace Portal_2_0.Models
                         //se obtienen las cabeceras
                         List<string> encabezadosTrim = new List<string>();
 
+                        int? FIUP = null;
+                        int? MUP = null;
+                        int? CEUP = null;
+
                         for (int i = 0; i < table.Columns.Count; i++)
                         {
-                            string title = table.Rows[filaEncabezado][i].ToString().Replace(" ", String.Empty);
+                            string title = table.Rows[filaEncabezado][i].ToString().Replace(" ", String.Empty).Replace("\n", String.Empty);
 
                             if (!string.IsNullOrEmpty(title))
                                 encabezadosTrim.Add(title);
+
+                            if (title.StartsWith("Freights Income USD / PART".Replace(" ", String.Empty).Replace("\n", String.Empty)))
+                                FIUP = i;
+                            if (title.StartsWith("Maniobras USD / PART".Replace(" ", String.Empty).Replace("\n", String.Empty)))
+                                MUP = i;
+                            if (title.StartsWith("Customs Expenses USD / PART".Replace(" ", String.Empty).Replace("\n", String.Empty)))
+                                CEUP = i;
+
                         }
 
                         //verifica que el archivo tenga algunas de las columnas necesarias
@@ -1700,8 +1712,6 @@ namespace Portal_2_0.Models
                             }
                         }
 
-
-
                         //la fila 4 se omite (encabezado)
                         for (int i = filaEncabezado + 1; i < table.Rows.Count; i++)
                         {
@@ -1712,11 +1722,11 @@ namespace Portal_2_0.Models
                             double? doubleNull = null;
 
                             BG_Forecast_item bg = new BG_Forecast_item();
-                            
+
                             try
                             {
                                 //asigna los valores al item de Budget
-                                bg.cat_1 = table.Rows[i][1].ToString();                              
+                                bg.cat_1 = table.Rows[i][1].ToString();
                                 bg.pos = int.TryParse(table.Rows[i][2].ToString(), out int pos) ? pos : 0; // columna 2 es el consecutivo                               
                                 bg.business_and_plant = table.Rows[i][3].ToString();
                                 bg.cat_2 = table.Rows[i][4].ToString(); // PO in hand
@@ -1737,7 +1747,7 @@ namespace Portal_2_0.Models
                                 bg.part_number = table.Rows[i][19].ToString().Replace("\r", String.Empty).Replace("\n", String.Empty);
                                 bg.production_line = table.Rows[i][20].ToString();
                                 bg.vehicle = table.Rows[i][21].ToString();
-                                bg.parts_auto = double.TryParse(table.Rows[i][23].ToString(), out double parts_auto)? parts_auto: doubleNull;
+                                bg.parts_auto = double.TryParse(table.Rows[i][23].ToString(), out double parts_auto) ? parts_auto : doubleNull;
                                 bg.strokes_auto = double.TryParse(table.Rows[i][24].ToString(), out double strokes_auto) ? strokes_auto : doubleNull;
                                 bg.material_type = table.Rows[i][25].ToString();
                                 bg.shape = table.Rows[i][26].ToString();
@@ -1751,7 +1761,12 @@ namespace Portal_2_0.Models
                                 bg.outgoing_freight_part = double.TryParse(table.Rows[i][38].ToString(), out double outgoing_freight_part) ? outgoing_freight_part : doubleNull;
                                 bg.freights_income = table.Rows[i][44].ToString();
                                 bg.outgoing_freight = table.Rows[i][45].ToString();
-
+                                if (FIUP != null)
+                                    bg.freights_income_usd_part = double.TryParse(table.Rows[i][FIUP.Value].ToString(), out double freights_income_usd) ? freights_income_usd : doubleNull;
+                                if (MUP != null)
+                                    bg.maniobras_usd_part = double.TryParse(table.Rows[i][MUP.Value].ToString(), out double maniobras_usd_part) ? maniobras_usd_part : doubleNull;
+                                if (CEUP != null)
+                                    bg.customs_expenses = double.TryParse(table.Rows[i][CEUP.Value].ToString(), out double customs_expenses) ? customs_expenses : doubleNull;
 
                                 // agrega a la lista con los datos leidos
                                 lista.Add(bg);

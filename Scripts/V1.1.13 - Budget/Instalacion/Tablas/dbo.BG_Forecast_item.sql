@@ -60,7 +60,11 @@ CREATE TABLE [BG_Forecast_item](
 	[cat_1][VARCHAR](20) NULL, --PO in hand
 	[cat_2][VARCHAR](20) NULL,
 	[cat_3][VARCHAR](20) NULL,
-	[cat_4][VARCHAR](20) NULL
+	[cat_4][VARCHAR](20) NULL,
+	[freights_income_usd_part][FLOAT] NULL,
+	[maniobras_usd_part][FLOAT] NULL,
+	[customs_expenses][FLOAT] NULL,
+
  CONSTRAINT [PK_BG_Forecast_item] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
@@ -115,4 +119,3 @@ ELSE
 	
 SET ANSI_PADDING OFF
 GO
-
