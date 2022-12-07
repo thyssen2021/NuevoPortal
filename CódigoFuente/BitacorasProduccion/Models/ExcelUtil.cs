@@ -1858,25 +1858,40 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Inactive Date?", typeof(DateTime)); //25
             dt.Columns.Add("Comments", typeof(string));         //26
             dt.Columns.Add("Asignación Actual", typeof(string));         //27
+            dt.Columns.Add("Planta", typeof(string));         //27
+            dt.Columns.Add("Departamento", typeof(string));         //27
+            dt.Columns.Add("Puesto", typeof(string));         //27
+            dt.Columns.Add("Jefe Inmediato", typeof(string));         //27
 
             ////registros , rows
             foreach (IT_inventory_items item in listado)
             {
                 //  var Asignaciones = db.IT_asignacion_hardware.Where(x => x.IT_asignacion_hardware_rel_items.Any(y => y.id_it_inventory_item == id)).ToList();
                 string asignacionActual = string.Empty;
+                string planta = string.Empty;
+                string departamento = string.Empty;
+                string puesto = string.Empty;
+                string jefeInmediato = string.Empty;
+                
 
                 var asignacion = item.IT_asignacion_hardware_rel_items.Where(x => x.IT_asignacion_hardware.es_asignacion_actual
                                     && x.IT_asignacion_hardware.id_empleado == x.IT_asignacion_hardware.id_responsable_principal).Select(x => x.IT_asignacion_hardware).FirstOrDefault();
 
                 if (asignacion != null)
+                {
                     asignacionActual = asignacion.empleados1.ConcatNombre;
+                    planta = asignacion.empleados1.plantas != null ? asignacion.empleados1.plantas.descripcion : String.Empty;
+                    departamento = asignacion.empleados1.Area != null ? asignacion.empleados1.Area.descripcion : String.Empty;
+                    puesto = asignacion.empleados1.puesto1 != null ? asignacion.empleados1.puesto1.descripcion : String.Empty;
+                    jefeInmediato  = asignacion.empleados1.empleados2 != null ? asignacion.empleados1.empleados2.ConcatNombre : String.Empty;
 
+                }
                 if (inventoryType != Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER && inventoryType != Bitacoras.Util.IT_Tipos_Hardware.SERVER)
                     dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.hostname, item.brand, item.model, item.serial_number,
                     item.operation_system, item.bits_operation_system, item.cpu_speed_mhz, item.number_of_cpus, item.processor, item.mac_lan, item.mac_wlan,
                     item.total_physical_memory_gb, null, null, null, item.NumberOfHardDrives, item.TotalDiskSpace, item.maintenance_period_months,
                      item.purchase_date, item.end_warranty,
-                     item.active, item.inactive_date, item.comments, asignacionActual
+                     item.active, item.inactive_date, item.comments, asignacionActual, planta, departamento, puesto, jefeInmediato
                     );
                 else
                 { //se agrega phyical server{
