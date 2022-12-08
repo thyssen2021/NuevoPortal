@@ -2463,6 +2463,9 @@ namespace Portal_2_0.Models
         }
         public static byte[] GeneraReporteBudgetForecast(ReporteBudgetForecastViewModel model, Portal_2_0Entities db)
         {
+            Stopwatch timeMeasure = new Stopwatch();
+            timeMeasure.Start();
+            Debug.Print(timeMeasure.Elapsed.Minutes + "m " + timeMeasure.Elapsed.Seconds % 60 + "s -> Inicia GeneraReporteBudgetForecast(): ");
 
             var cabeceraMeses = Portal_2_0.Models.BG_IHS_UTIL.GetCabecera();
             var cabeceraCuartos = Portal_2_0.Models.BG_IHS_UTIL.GetCabeceraCuartos();
@@ -2511,6 +2514,8 @@ namespace Portal_2_0.Models
 
             };
 
+            Debug.Print(timeMeasure.Elapsed.Minutes + "m " + timeMeasure.Elapsed.Seconds % 60 + "s -> Inicializa las primeras variables: ");
+
             //listado para tabla de InventoryOWN 
             List<float> averageOwnList = new List<float> { 3.8f, 3.8f, 2.4f, 3.2f, 3.8f, 3.8f, 2.8f, 3.8f, 3.8f, 3.6f, 4.1f, 3.7f };
 
@@ -2523,6 +2528,7 @@ namespace Portal_2_0.Models
             //obtiene el reporte
             var reporte = db.BG_Forecast_reporte.Find(model.id_reporte);
 
+            Debug.Print(timeMeasure.Elapsed.Minutes + "m " + timeMeasure.Elapsed.Seconds % 60 + "s -> Obtiene combinaciones y divisioens. ");
 
             int FYReference = 0;
 
@@ -2629,7 +2635,11 @@ namespace Portal_2_0.Models
             styleMissedIHS.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#FDE9D9"), System.Drawing.ColorTranslator.FromHtml("#FDE9D9"));
 
 
+            Debug.Print(timeMeasure.Elapsed.Minutes + "m " + timeMeasure.Elapsed.Seconds % 60 + "s -> Inicializa los estilos para el excel.");
+
             #region Hoja Autos Normal
+
+            Debug.Print((int)(timeMeasure.Elapsed.Seconds / 60) + "m " + timeMeasure.Elapsed.Seconds % 60 + "s -> Inicia Hoja Normal.");
             //columnas          
             #region cabecera general
             dt.Columns.Add("Id", typeof(string));                       //1
@@ -3018,7 +3028,10 @@ namespace Portal_2_0.Models
             oSLDocument.HideColumn(2);
             #endregion
 
+            Debug.Print(timeMeasure.Elapsed.Minutes + "m " + timeMeasure.Elapsed.Seconds % 60 + "s -> Termina Hoja Normal.");
+
             #region Autos Modificados
+            Debug.Print((int)(timeMeasure.Elapsed.Seconds / 60) + "m " + timeMeasure.Elapsed.Seconds % 60 + "s -> Inicia Autos Modificados");
             //copia la hoja1 a la hoja 2
             oSLDocument.SelectWorksheet("Aux"); //selecciona la hoja actual para no tener detalles a la hora de copiar la hoja actual
             oSLDocument.CopyWorksheet(hoja1, hoja2);
@@ -3774,7 +3787,10 @@ namespace Portal_2_0.Models
 
             #endregion
 
+            Debug.Print(timeMeasure.Elapsed.Minutes + "m " + timeMeasure.Elapsed.Seconds % 60 + "s -> Termina autos modificados.");
+
             #region MonthByMonth
+            Debug.Print(timeMeasure.Elapsed.Minutes + "m " + timeMeasure.Elapsed.Seconds % 60 + "s -> Inicia Month by Month.");
 
             //si cabecera anios tiene elementos de tipo meses
             var cabeceraAniosFY_conMeses = cabeceraAniosFY.Where(x => cabeceraMeses.Any(y => y.fecha.Value.Year == x.anio || y.fecha.Value.Year == (x.anio + 1))).ToList();
@@ -3931,6 +3947,8 @@ namespace Portal_2_0.Models
                         );
                 }
 
+                Debug.WriteLine(timeMeasure.Elapsed.Minutes + "m " + timeMeasure.Elapsed.Seconds % 60 + " -> Termina filas de reporte.");
+
                 oSLDocument.ImportDataTable(1, 1, dt, true);
 
                 SLDataValidation dv;
@@ -3977,7 +3995,6 @@ namespace Portal_2_0.Models
                 //oculta columnas
                 oSLDocument.HideColumn(38, 41);
 
-
                 //obtiene refencia a la columna con la clave de búsqueda (última de la tabla)
                 string claveRef = GetCellReference(dt.Columns.Count);
 
@@ -3997,6 +4014,8 @@ namespace Portal_2_0.Models
                     int numInicioColumnaFreightsIncomeUSD = 0;
                     int numInicioColumnaOutgoingFreightTotal = 0;
                     int numInicioColumnaAditionalMaterialCost = 0;
+                    int numInicioColumnaManiobrasPart = 0;
+                    int numInicioCustomExpenses = 0;
 
                     //selecciona la hoja
                     string newSheetName = cabeceraAniosFY_conMeses[i].text + " by Month";
@@ -4047,180 +4066,185 @@ namespace Portal_2_0.Models
                         int extra = !String.IsNullOrEmpty(t.extra) ? 1 : 0;
 
                         //Genera las referencias al reporte para cada elemento del reporte forecast
-                        foreach (var forecast_Item in reporte.BG_Forecast_item)
+
+                        int index = 5;
+                        System.Data.DataRow row = dt.NewRow();
+
+                        //recorre todos los meses del año
+                        mesFY = new DateTime(cabeceraAniosFY_conMeses[i].anio, 10, 01); //octubre del FY
+                        for (int j = 0; j < 1; j++) //solo realiza una vez
                         {
-                            int index = reporte.BG_Forecast_item.ToList().IndexOf(forecast_Item);
-                            System.Data.DataRow row = dt.NewRow();
-
-                            //recorre todos los meses del año
-                            mesFY = new DateTime(cabeceraAniosFY_conMeses[i].anio, 10, 01); //octubre del FY
-                            for (int j = 0; j < 12; j++)
+                            var columnRef = referenciaColumnas.Where(x => x.fecha == mesFY).FirstOrDefault();
+                            int rowNum = index;
+                            string nombreCelda = mesFY.ToString("MMM yyyy").ToUpper().Replace(".", String.Empty);
+                            //if (columnRef != null)
+                            //{
+                            switch (indexTabla)
                             {
-                                var columnRef = referenciaColumnas.Where(x => x.fecha == mesFY).FirstOrDefault();
-                                int rowNum = index + 5;
-                                string nombreCelda = mesFY.ToString("MMM yyyy").ToUpper().Replace(".", String.Empty);
-                                //if (columnRef != null)
-                                //{
-                                switch (indexTabla)
-                                {
-                                    //autos/month
-                                    case 0:
-                                        ////= SI(D2 = "A", SI.ERROR(INDICE('Autos Modificados'!BH: BH, COINCIDIR(AO2, 'Autos Modificados'!B: B, 0)), "--"), "--")
-                                        //if (columnRef != null)
-                                        //    row[nombreCelda] = "=IF(" + refA_D.celdaReferencia + (rowNum) + " = \"A\", IFERROR(INDEX('" + hoja2 + "'!" + columnRef.celdaReferencia + ":" + columnRef.celdaReferencia + ", MATCH(" + claveRef + (rowNum) + ", '" + hoja2 + "'!B:B, 0)), \"N/D\"), \"--\")";
-                                        //else
-                                        //    row[nombreCelda] = "--";
-                                        //oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleNumberDecimal_0);
-                                        break;
-                                    //total Sales [TUSD]
-                                    case 1:
-                                        //= SI($D28 = "C&SLT",$AH28 * AW28 / 1000,$AH28 * AW28 / 1000 *$X28)
-                                        row[nombreCelda] = "=IFERROR(IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\", $" + refVentasPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000, $" + refVentasPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + "),\"--\")";
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleCurrency);
-                                        numInicioColumnaTotalSales = columnaActual;
-                                        break;
-                                    //Material Cost
-                                    case 2:
-                                        //= SI($D28="C&SLT",$AI28*AW28/1000,$AI28*AW28/1000*$X28)
-                                        row[nombreCelda] = "=IFERROR(IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\", $" + refMaterialCostPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000, $" + refMaterialCostPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + "),\"--\")";
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleCurrency);
-                                        numInicioColumnaMaterialCost = columnaActual;
-                                        break;
-                                    //cost of out side procesor
-                                    case 3:
-                                        //=SI($D28="C&SLT",$AJ28*AW28/1000,$AJ28*AW28/1000*$X28)
-                                        row[nombreCelda] = "=IFERROR(IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\", $" + refCostOfOutsideProcessor.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000, $" + refCostOfOutsideProcessor.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + "),\"--\")";
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleCurrency);
-                                        numInicioColumnaCostOfOutsiteP = columnaActual;
-                                        break;
-                                    //Value Added Sales[TUSD]
-                                    case 4:
-                                        //=BJ28-BW28-CJ28
-                                        row[nombreCelda] = "=IFERROR((" + GetCellReference(numInicioColumnaTotalSales + j) + rowNum + "-" + GetCellReference(numInicioColumnaMaterialCost + j) + rowNum + "-" + GetCellReference(numInicioColumnaCostOfOutsiteP + j) + rowNum + "),\"--\")";
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleCurrency);
-                                        break;
-                                    //Processed Tons [to]
-                                    case 5:
-                                        //=SI($AA28="WLD",0,SI($D28="C&SLT",$AC28*AW28/1000,$AC28*AW28/1000*$X28))
-                                        row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + "=\"WLD\",0,IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\", $" + refInitialWeightPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000, $" + refInitialWeightPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + ")),\"--\")";
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleNumberDecimal_2);
-                                        numInicioColumnaProccessTon = columnaActual;
-                                        break;
-                                    //Engineered Scrap [to]
-                                    case 6:
-                                        //=SI($AA28="WLD",0,$AE28*AW28/1000*$X28)
-                                        row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + "=\"WLD\",0, $" + refEngineeredScrap.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + "),\"--\")";
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleNumberDecimal_2);
-                                        numInicioColumnaEngScrap = columnaActual;
-                                        break;
-                                    //scrapConsolidation
-                                    case 7:
-                                        //=SI($AF88="YES",-DX88,0)
-                                        row[nombreCelda] = "=IFERROR(IF($" + refScrapConsolidation.celdaReferencia + (rowNum) + "=\"YES\", -" + GetCellReference(numInicioColumnaEngScrap + j) + (rowNum) + ",0 ),\"--\")";
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleNumberDecimal_2);
-                                        numInicioColumnaScrapConsolidation = columnaActual;
-                                        break;
-                                    //Strokes [ - / 1000 ]  
-                                    case 8:
-                                        //=SI($AA88="WLD",0,$Y88*AW88/1000)
-                                        row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + "=\"WLD\",0, $" + refStrokesAuto.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000),\"--\")";
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleNumberDecimal_2);
-                                        break;
-                                    //Blanks [ - / 1000 ]
-                                    case 9:
-                                        //=SI($AA28="WLD",0,$X28*AW28/1000)
-                                        row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + "=\"WLD\",0, $" + refPartsAuto.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000),\"--\")";
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleNumberDecimal_2);
-                                        break;
-                                    //Additional material Cost
-                                    case 10:
-                                        //==SI($D28="C&SLT",$AL28*AW28/1000,$AL28*AW28/1000*$X28)
-                                        row[nombreCelda] = "=IFERROR(IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\", $" + refAdditionalMaterialCostPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000, $" + refAdditionalMaterialCostPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + "),\"--\")";
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleCurrency);
-                                        numInicioColumnaAditionalMaterialCost = columnaActual;
-                                        break;
-                                    //Outgoing freight total [USD]
-                                    case 11:
-                                        //=SI($D28="C&SLT",$AM28*AW28/1000,$AM28*AW28/1000*$X28)
-                                        row[nombreCelda] = "=IFERROR(IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\", $" + refOutgoingFreightPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000, $" + refOutgoingFreightPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + "),\"--\")";
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleCurrency);
-                                        numInicioColumnaOutgoingFreightTotal = columnaActual;
-                                        break;
-                                    //Inventory OWN (monthly average) [tons]
-                                    case 12:
-                                        //=SI(IZQUIERDA($M7,2)="CM",0,DJ7*GW$4)
-                                        row[nombreCelda] = "=IFERROR(IF(LEFT($" + refOwnCM.celdaReferencia + (rowNum) + ",2)=\"CM\",0," + GetCellReference(numInicioColumnaProccessTon + j) + (rowNum) + "*" + GetCellReference(columnaActual + j) + "2),\"--\")";
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleNumberDecimal_2);
-                                        numInicioColumnaInventoryOWNAverage = columnaActual;
-                                        inicioInventoryOwnMeses = columnaActual;
-                                        break;
-                                    //Inventory OWN (end of month) [USD]
-                                    case 13:
-                                        //=GS7*($AF7+$AI7)/$Z7
-                                        row[nombreCelda] = "=IFERROR(" + GetCellReference(numInicioColumnaInventoryOWNAverage + j) + (rowNum) + "*($" + refMaterialCostPart.celdaReferencia + (rowNum) + "+$" + refAdditionalMaterialCostPart.celdaReferencia + rowNum + ")/$" + refInitialWeightPart.celdaReferencia + rowNum + ",\"--\")";
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleNumberDecimal_2);
-                                        break;
-                                    //Freights Income USD/PART
-                                    case 14:
-                                        //= SI.ERROR(SI($AA28 = \"WLD\", 0, SI($D28 = \"C&SLT\",$HW28 * AW28 / 1000,$HW28 * AW28 / 1000 *$X28)), \"--\")
-                                        row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + " = \"WLD\", 0, IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\",$" + GetCellReference(columnaActual) + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000,$" + GetCellReference(columnaActual) + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + " / 1000 *$" + refPartsAuto.celdaReferencia + (rowNum) + ")), \"--\")";
-                                        row[t.extra] = forecast_Item.freights_income_usd_part.HasValue ? forecast_Item.freights_income_usd_part.Value : 0;
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleCurrency);
-                                        numInicioColumnaFreightsIncomeUSD = columnaActual;
-                                        break;
-                                    //Freights Maniobras USD/PART
-                                    case 15:
-                                        //=SI.ERROR(SI($AA28="WLD",0,SI($D28="C&SLT",$IK28*AW28/1000,$IK28*AW28/1000*$X28)),"--")
-                                        row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + " = \"WLD\", 0, IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\",$" + GetCellReference(columnaActual) + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000,$" + GetCellReference(columnaActual) + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + " / 1000 *$" + refPartsAuto.celdaReferencia + (rowNum) + ")), \"--\")";
-                                        row[t.extra] = forecast_Item.maniobras_usd_part.HasValue ? forecast_Item.maniobras_usd_part.Value : 0;
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleCurrency);
-                                        //numInicioColumnaFreightsIncomeUSD = columnaActual;
-                                        break;
-                                    //Customs Expenses USD/PART
-                                    case 16:
-                                        //=SI.ERROR(SI($AA28="WLD",0,SI($D28="C&SLT",$IY28*AW28/1000,$IY28*AW28/1000*$X28)),"--")
-                                        row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + " = \"WLD\", 0, IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\",$" + GetCellReference(columnaActual) + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000,$" + GetCellReference(columnaActual) + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + " / 1000 *$" + refPartsAuto.celdaReferencia + (rowNum) + ")), \"--\")";
-                                        row[t.extra] = forecast_Item.customs_expenses.HasValue ? forecast_Item.customs_expenses.Value : 0;
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleCurrency);
-                                        //numInicioColumnaFreightsIncomeUSD = columnaActual;
-                                        break;
-                                    //Shipment Tons[to]
-                                    case 17:
-                                        //=SI.ERROR(SI($AA28="WLD",0,SI($D28="C&SLT",$AC28*AW28/1000,$AD28*AW28/1000*$X28)),"--")
-                                        row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + " = \"WLD\", 0, IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\",$" + refInitialWeightPart.celdaReferencia + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000,$" + refNetWeightPart.celdaReferencia + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + " / 1000 *$" + refPartsAuto.celdaReferencia + (rowNum) + ")), \"--\")";
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleCurrency);
-                                        //numInicioColumnaFreightsIncomeUSD = columnaActual;
-                                        break;
-                                    case 18:
-                                        //pendiente
-                                        break;
-                                    case 19:
-                                        //pendiente
-                                        break;
-                                }
-
-                                mesFY = mesFY.AddMonths(1);
+                                //autos/month
+                                case 0:
+                                    ////= SI(D2 = "A", SI.ERROR(INDICE('Autos Modificados'!BH: BH, COINCIDIR(AO2, 'Autos Modificados'!B: B, 0)), "--"), "--")
+                                    //if (columnRef != null)
+                                    //    row[nombreCelda] = "=IF(" + refA_D.celdaReferencia + (rowNum) + " = \"A\", IFERROR(INDEX('" + hoja2 + "'!" + columnRef.celdaReferencia + ":" + columnRef.celdaReferencia + ", MATCH(" + claveRef + (rowNum) + ", '" + hoja2 + "'!B:B, 0)), \"N/D\"), \"--\")";
+                                    //else
+                                    //    row[nombreCelda] = "--";
+                                    //oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleNumberDecimal_0);
+                                    break;
+                                //total Sales [TUSD]
+                                case 1:
+                                    //= SI($D28 = "C&SLT",$AH28 * AW28 / 1000,$AH28 * AW28 / 1000 *$X28)
+                                    row[nombreCelda] = "=IFERROR(IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\", $" + refVentasPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000, $" + refVentasPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + "),\"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleCurrency);
+                                    numInicioColumnaTotalSales = columnaActual;
+                                    break;
+                                //Material Cost
+                                case 2:
+                                    //= SI($D28="C&SLT",$AI28*AW28/1000,$AI28*AW28/1000*$X28)
+                                    row[nombreCelda] = "=IFERROR(IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\", $" + refMaterialCostPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000, $" + refMaterialCostPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + "),\"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleCurrency);
+                                    numInicioColumnaMaterialCost = columnaActual;
+                                    break;
+                                //cost of out side procesor
+                                case 3:
+                                    //=SI($D28="C&SLT",$AJ28*AW28/1000,$AJ28*AW28/1000*$X28)
+                                    row[nombreCelda] = "=IFERROR(IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\", $" + refCostOfOutsideProcessor.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000, $" + refCostOfOutsideProcessor.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + "),\"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleCurrency);
+                                    numInicioColumnaCostOfOutsiteP = columnaActual;
+                                    break;
+                                //Value Added Sales[TUSD]
+                                case 4:
+                                    //=BJ28-BW28-CJ28
+                                    row[nombreCelda] = "=IFERROR((" + GetCellReference(numInicioColumnaTotalSales + j) + rowNum + "-" + GetCellReference(numInicioColumnaMaterialCost + j) + rowNum + "-" + GetCellReference(numInicioColumnaCostOfOutsiteP + j) + rowNum + "),\"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleCurrency);
+                                    break;
+                                //Processed Tons [to]
+                                case 5:
+                                    //=SI($AA28="WLD",0,SI($D28="C&SLT",$AC28*AW28/1000,$AC28*AW28/1000*$X28))
+                                    row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + "=\"WLD\",0,IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\", $" + refInitialWeightPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000, $" + refInitialWeightPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + ")),\"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleNumberDecimal_2);
+                                    numInicioColumnaProccessTon = columnaActual;
+                                    break;
+                                //Engineered Scrap [to]
+                                case 6:
+                                    //=SI($AA28="WLD",0,$AE28*AW28/1000*$X28)
+                                    row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + "=\"WLD\",0, $" + refEngineeredScrap.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + "),\"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleNumberDecimal_2);
+                                    numInicioColumnaEngScrap = columnaActual;
+                                    break;
+                                //scrapConsolidation
+                                case 7:
+                                    //=SI($AF88="YES",-DX88,0)
+                                    row[nombreCelda] = "=IFERROR(IF($" + refScrapConsolidation.celdaReferencia + (rowNum) + "=\"YES\", -" + GetCellReference(numInicioColumnaEngScrap + j) + (rowNum) + ",0 ),\"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleNumberDecimal_2);
+                                    numInicioColumnaScrapConsolidation = columnaActual;
+                                    break;
+                                //Strokes [ - / 1000 ]  
+                                case 8:
+                                    //=SI($AA88="WLD",0,$Y88*AW88/1000)
+                                    row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + "=\"WLD\",0, $" + refStrokesAuto.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000),\"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleNumberDecimal_2);
+                                    break;
+                                //Blanks [ - / 1000 ]
+                                case 9:
+                                    //=SI($AA28="WLD",0,$X28*AW28/1000)
+                                    row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + "=\"WLD\",0, $" + refPartsAuto.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000),\"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleNumberDecimal_2);
+                                    break;
+                                //Additional material Cost
+                                case 10:
+                                    //==SI($D28="C&SLT",$AL28*AW28/1000,$AL28*AW28/1000*$X28)
+                                    row[nombreCelda] = "=IFERROR(IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\", $" + refAdditionalMaterialCostPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000, $" + refAdditionalMaterialCostPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + "),\"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleCurrency);
+                                    numInicioColumnaAditionalMaterialCost = columnaActual;
+                                    break;
+                                //Outgoing freight total [USD]
+                                case 11:
+                                    //=SI($D28="C&SLT",$AM28*AW28/1000,$AM28*AW28/1000*$X28)
+                                    row[nombreCelda] = "=IFERROR(IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\", $" + refOutgoingFreightPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000, $" + refOutgoingFreightPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + "),\"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleCurrency);
+                                    numInicioColumnaOutgoingFreightTotal = columnaActual;
+                                    break;
+                                //Inventory OWN (monthly average) [tons]
+                                case 12:
+                                    //=SI(IZQUIERDA($M7,2)="CM",0,DJ7*GW$4)
+                                    row[nombreCelda] = "=IFERROR(IF(LEFT($" + refOwnCM.celdaReferencia + (rowNum) + ",2)=\"CM\",0," + GetCellReference(numInicioColumnaProccessTon + j) + (rowNum) + "*" + GetCellReference(columnaActual + j) + "$2),\"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleNumberDecimal_2);
+                                    numInicioColumnaInventoryOWNAverage = columnaActual;
+                                    inicioInventoryOwnMeses = columnaActual;
+                                    break;
+                                //Inventory OWN (end of month) [USD]
+                                case 13:
+                                    //=GS7*($AF7+$AI7)/$Z7
+                                    row[nombreCelda] = "=IFERROR(" + GetCellReference(numInicioColumnaInventoryOWNAverage + j) + (rowNum) + "*($" + refMaterialCostPart.celdaReferencia + (rowNum) + "+$" + refAdditionalMaterialCostPart.celdaReferencia + rowNum + ")/$" + refInitialWeightPart.celdaReferencia + rowNum + ",\"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleNumberDecimal_2);
+                                    break;
+                                //Freights Income USD/PART
+                                case 14:
+                                    //= SI.ERROR(SI($AA28 = \"WLD\", 0, SI($D28 = \"C&SLT\",$HW28 * AW28 / 1000,$HW28 * AW28 / 1000 *$X28)), \"--\")
+                                    row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + " = \"WLD\", 0, IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\",$" + GetCellReference(columnaActual) + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000,$" + GetCellReference(columnaActual) + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + " / 1000 *$" + refPartsAuto.celdaReferencia + (rowNum) + ")), \"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleCurrency);
+                                    numInicioColumnaFreightsIncomeUSD = columnaActual;
+                                    break;
+                                //Freights Maniobras USD/PART
+                                case 15:
+                                    //=SI.ERROR(SI($AA28="WLD",0,SI($D28="C&SLT",$IK28*AW28/1000,$IK28*AW28/1000*$X28)),"--")
+                                    row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + " = \"WLD\", 0, IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\",$" + GetCellReference(columnaActual) + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000,$" + GetCellReference(columnaActual) + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + " / 1000 *$" + refPartsAuto.celdaReferencia + (rowNum) + ")), \"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleCurrency);
+                                    numInicioColumnaManiobrasPart = columnaActual;
+                                    break;
+                                //Customs Expenses USD/PART
+                                case 16:
+                                    //=SI.ERROR(SI($AA28="WLD",0,SI($D28="C&SLT",$IY28*AW28/1000,$IY28*AW28/1000*$X28)),"--")
+                                    row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + " = \"WLD\", 0, IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\",$" + GetCellReference(columnaActual) + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000,$" + GetCellReference(columnaActual) + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + " / 1000 *$" + refPartsAuto.celdaReferencia + (rowNum) + ")), \"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleCurrency);
+                                    numInicioCustomExpenses = columnaActual;
+                                    break;
+                                //Shipment Tons[to]
+                                case 17:
+                                    //=SI.ERROR(SI($AA28="WLD",0,SI($D28="C&SLT",$AC28*AW28/1000,$AD28*AW28/1000*$X28)),"--")
+                                    row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + " = \"WLD\", 0, IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\",$" + refInitialWeightPart.celdaReferencia + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000,$" + refNetWeightPart.celdaReferencia + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + " / 1000 *$" + refPartsAuto.celdaReferencia + (rowNum) + ")), \"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + 11 + extra, styleCurrency);
+                                    //numInicioColumnaFreightsIncomeUSD = columnaActual;
+                                    break;
+                                case 18:
+                                    //pendiente
+                                    break;
+                                case 19:
+                                    //pendiente
+                                    break;
                             }
 
-                            dt.Rows.Add(row);
-
-                            int rowActual = index + 5;
-
-                            //agrega el estilo en caso de que no haya coincidencia con elemento de IHS
-                            if (String.IsNullOrEmpty(forecast_Item.id_asociacion_ihs))
-                                oSLDocument.SetCellStyle((rowActual), columnaActual, (rowActual), columnaActual + 11 + extra, styleMissedIHS);
-
-                            //agrega los campos de gross
-                            oSLDocument.SetCellValue(rowActual, refGrossPart.columnaNum, "=IFERROR((SUM(" + GetCellReference(numInicioColumnaTotalSales) + rowActual + ":" + GetCellReference(numInicioColumnaTotalSales + 11) + rowActual + ")*1000" +
-                                "+SUM(" + GetCellReference(numInicioColumnaEngScrap) + rowActual + ":" + GetCellReference(numInicioColumnaEngScrap + 11) + rowActual + ")*0" +
-                                "+SUM(" + GetCellReference(numInicioColumnaScrapConsolidation) + rowActual + ":" + GetCellReference(numInicioColumnaScrapConsolidation + 11) + rowActual + ")*0" +
-                                "-(SUM(" + GetCellReference(numInicioColumnaAditionalMaterialCost) + rowActual + ":" + GetCellReference(numInicioColumnaAditionalMaterialCost + 11) + rowActual + ")" +
-                                "+SUM(" + GetCellReference(numInicioColumnaOutgoingFreightTotal) + rowActual + ":" + GetCellReference(numInicioColumnaOutgoingFreightTotal + 11) + rowActual + "))*1000)" +
-                                "/(" + refStrokesAuto.celdaReferencia + rowActual + "*SUM(" + GetCellReference(numInicioColumnaDatosBase) + rowActual + ":" + GetCellReference(numInicioColumnaDatosBase + 11) + rowActual + ")),\"--\")");
-                            oSLDocument.SetColumnStyle(rowActual, refGrossPart.columnaNum, styleCurrency);
-                            oSLDocument.SetCellValue(rowActual, refGrossUSD.columnaNum, "=IFERROR(+" + refGrossPart.celdaReferencia + rowActual + "*1000/" + refInitialWeightPart.celdaReferencia + rowActual + ",\"--\")");
-                            oSLDocument.SetColumnStyle(rowActual, refGrossUSD.columnaNum, styleCurrency);
+                            mesFY = mesFY.AddMonths(1);
                         }
+
+                        dt.Rows.Add(row);
+
+                        int rowActual = 5;
+
+
+                        //agrega el valor de los extras
+                        int c = 0;
+                        foreach (var forecast_Item in reporte.BG_Forecast_item)
+                        {
+                            //Freights Income USD/PART
+                            oSLDocument.SetCellValue(rowActual + c, numInicioColumnaFreightsIncomeUSD, forecast_Item.freights_income_usd_part.HasValue ? forecast_Item.freights_income_usd_part.Value : 0.0);
+                            //Freights Maniobras USD/PART
+                            oSLDocument.SetCellValue(rowActual + c, numInicioColumnaManiobrasPart, forecast_Item.maniobras_usd_part.HasValue ? forecast_Item.maniobras_usd_part.Value : 0.0);
+                            //Customs Expenses USD/PART
+                            oSLDocument.SetCellValue(rowActual + c, numInicioCustomExpenses, forecast_Item.customs_expenses.HasValue ? forecast_Item.customs_expenses.Value : 0.0);
+                            c++;
+                        }
+
+                        //agrega los campos de gross
+                        oSLDocument.SetCellValue(rowActual, refGrossPart.columnaNum, "=IFERROR((SUM(" + GetCellReference(numInicioColumnaTotalSales) + rowActual + ":" + GetCellReference(numInicioColumnaTotalSales + 11) + rowActual + ")*1000" +
+                            "+SUM(" + GetCellReference(numInicioColumnaEngScrap) + rowActual + ":" + GetCellReference(numInicioColumnaEngScrap + 11) + rowActual + ")*0" +
+                            "+SUM(" + GetCellReference(numInicioColumnaScrapConsolidation) + rowActual + ":" + GetCellReference(numInicioColumnaScrapConsolidation + 11) + rowActual + ")*0" +
+                            "-(SUM(" + GetCellReference(numInicioColumnaAditionalMaterialCost) + rowActual + ":" + GetCellReference(numInicioColumnaAditionalMaterialCost + 11) + rowActual + ")" +
+                            "+SUM(" + GetCellReference(numInicioColumnaOutgoingFreightTotal) + rowActual + ":" + GetCellReference(numInicioColumnaOutgoingFreightTotal + 11) + rowActual + "))*1000)" +
+                            "/(" + refStrokesAuto.celdaReferencia + rowActual + "*SUM(" + GetCellReference(numInicioColumnaDatosBase) + rowActual + ":" + GetCellReference(numInicioColumnaDatosBase + 11) + rowActual + ")),\"--\")");
+                        oSLDocument.SetColumnStyle(rowActual, refGrossPart.columnaNum, styleCurrency);
+                        oSLDocument.SetCellValue(rowActual, refGrossUSD.columnaNum, "=IFERROR(+" + refGrossPart.celdaReferencia + rowActual + "*1000/" + refInitialWeightPart.celdaReferencia + rowActual + ",\"--\")");
+                        oSLDocument.SetColumnStyle(rowActual, refGrossUSD.columnaNum, styleCurrency);
 
                         //AGREGA LA SUMATORIA
                         //recorre todos los AÑOS FISCALES POR CADA CATEGORIA
@@ -4230,21 +4254,42 @@ namespace Portal_2_0.Models
                         }
                         oSLDocument.SetCellStyle(reporte.BG_Forecast_item.Count + 5, columnaActual + extra, reporte.BG_Forecast_item.Count + 5, columnaActual + extra + 12 - 1, styleTotales);
 
-
+                        //importa la tabla con los datos
                         oSLDocument.ImportDataTable(4, columnaActual, dt, true);
 
-                        //ajusta el tamaño de las filas
-                        oSLDocument.SetRowHeight(1, dt.Rows.Count + 4, 15.0);
-                        oSLDocument.SetRowHeight(4, 45.0);
+                        //copia la formula al resto de las celdas
+                        //copia Horizontalmente
+                        for (int j = 1; j < 12; j++)
+                        {
+                            oSLDocument.CopyCell(5, columnaActual + extra, 5, columnaActual + extra + j);
+                        }
+
+                        for (int k = 1; k < reporte.BG_Forecast_item.Count; k++)
+                        {
+                            //copia la fila original a la siguiente fila
+                            oSLDocument.CopyCell(5, columnaActual, 5, columnaActual + 11, 5 + k, columnaActual);  //5 = primera fila con datos
+                        }
+
 
                         //aplica formato condicional cuando el elemento está desactivado
                         SLConditionalFormatting cf;
-                        cf = new SLConditionalFormatting(GetCellReference(columnaActual) + "4", GetCellReference(columnaActual + 11 + extra) + (dt.Rows.Count + 4));
-                        cf.HighlightCellsWithFormula("=$D4=\"D\"", SLHighlightCellsStyleValues.LightRedFill);
+                        cf = new SLConditionalFormatting(5, columnaActual, 5 + reporte.BG_Forecast_item.Count, columnaActual + 11 + extra);
+                        cf.HighlightCellsWithFormula("=$D5=\"D\"", SLHighlightCellsStyleValues.LightRedFill);
                         oSLDocument.AddConditionalFormatting(cf);
 
                         //inmoviliza el encabezado
                         oSLDocument.FreezePanes(4, 4);
+
+                        c = 0;
+                        foreach (var forecast_Item in reporte.BG_Forecast_item)
+                        {
+                            //agrega el estilo en caso de que no haya coincidencia con elemento de IHS
+                            if (String.IsNullOrEmpty(forecast_Item.id_asociacion_ihs))
+                                oSLDocument.SetCellStyle((rowActual + c), columnaActual, (rowActual + c), columnaActual + 11 + extra, styleMissedIHS);
+
+                            c++;
+                        }
+
 
                         //aplica el estilo a cada hoja de FY
                         oSLDocument.SetCellStyle(4, columnaActual, 4, columnaActual + 11 + extra, styleCenterCenter);
@@ -4263,7 +4308,23 @@ namespace Portal_2_0.Models
                         //aumenta el valor de columnaActual para la siguiente iteración
                         columnaActual += 13 + extra;
 
+
+                        Debug.WriteLine(timeMeasure.Elapsed.Minutes + "m " + timeMeasure.Elapsed.Seconds % 60 + " -> tabla: " + indexTabla + "/" + tablasReferenciasIniciales.Count);
+
+
                     }
+                    Debug.WriteLine(timeMeasure.Elapsed.Minutes + "m " + timeMeasure.Elapsed.Seconds % 60 + " -> copia gross");
+                    for (int k = 1; k < reporte.BG_Forecast_item.Count; k++)
+                    {
+                        //copia las sumatorias de gross
+                        oSLDocument.CopyCell(5, refGrossPart.columnaNum, 5 + k, refGrossPart.columnaNum);
+                        oSLDocument.CopyCell(5, refGrossUSD.columnaNum, 5 + k, refGrossUSD.columnaNum);
+
+                    }
+
+                    //ajusta el tamaño de las filas
+                    oSLDocument.SetRowHeight(1, dt.Rows.Count + 4, 15.0);
+                    oSLDocument.SetRowHeight(4, 45.0);
 
                     //if (numInicioColumnaFreightsIncomeUSD != 0)
                     //    oSLDocument.SetColumnStyle(numInicioColumnaFreightsIncomeUSD, styleCurrency);
@@ -4274,8 +4335,10 @@ namespace Portal_2_0.Models
                     break;
                 }
 
-                Stopwatch timeMeasure = new Stopwatch();
-                timeMeasure.Start();
+                Debug.Print(timeMeasure.Elapsed.Minutes + "m " + timeMeasure.Elapsed.Seconds % 60 + "s -> Termina primera hoja de resumen.");
+
+
+                Debug.WriteLine(timeMeasure.Elapsed.Minutes + "m " + timeMeasure.Elapsed.Seconds % 60 + " -> Inicia copia plantillas: ");
 
                 //copia las plantillas antes de colocar los datos base
                 for (int i = 1; i < cabeceraAniosFY_conMeses.Count; i++)
@@ -4287,6 +4350,10 @@ namespace Portal_2_0.Models
                     oSLDocument.CopyWorksheet(baseSheetName, newSheetName);
 
                 }
+
+                Debug.WriteLine(timeMeasure.Elapsed.Minutes + "m " + timeMeasure.Elapsed.Seconds % 60 + " -> Termina copia de plantillas: ");
+                Debug.WriteLine(timeMeasure.Elapsed.Minutes + "m " + timeMeasure.Elapsed.Seconds % 60 + " -> Inicia reemplazo de datos base: ");
+
 
                 //coloca los datos base a las plantillas
                 for (int i = 0; i < cabeceraAniosFY_conMeses.Count; i++)
@@ -4300,28 +4367,32 @@ namespace Portal_2_0.Models
 
                     //actualiza las cantidades base
                     //Genera las referencias al reporte para cada elemento del reporte forecast
-                    indexElemento = 0;
-                    foreach (var forecast_Item in reporte.BG_Forecast_item)
+                  
+                    int rowNum = 5;
+                    //crea unicamente la primera fila
+                    DateTime mesFY = new DateTime(cabeceraAniosFY_conMeses[i].anio, 10, 01); //octubre del FY
+                    for (int j = 0; j < 12; j++)
                     {
-                        int rowNum = indexElemento + 5;
 
-                        DateTime mesFY = new DateTime(cabeceraAniosFY_conMeses[i].anio, 10, 01); //octubre del FY
-                        for (int j = 0; j < 12; j++)
-                        {
+                        var columnRef = referenciaColumnas.Where(x => x.fecha == mesFY).FirstOrDefault();
 
-                            var columnRef = referenciaColumnas.Where(x => x.fecha == mesFY).FirstOrDefault();
+                        if (columnRef != null && !string.IsNullOrEmpty(columnRef.celdaReferencia))
+                            oSLDocument.SetCellValue(rowNum, numInicioColumnaDatosBase + j, "=IF(" + refA_D.celdaReferencia + (rowNum) + " = \"A\", IFERROR(INDEX('" + hoja2 + "'!" + columnRef.celdaReferencia + ":" + columnRef.celdaReferencia + ", MATCH(" + claveRef + (rowNum) + ", '" + hoja2 + "'!B:B, 0)), \"N/D\"), \"--\")");
+                        else
+                            oSLDocument.SetCellValue(rowNum, numInicioColumnaDatosBase + j, "--");
 
-                            if (columnRef != null && !string.IsNullOrEmpty(columnRef.celdaReferencia))
-                                oSLDocument.SetCellValue(rowNum, numInicioColumnaDatosBase + j, "=IF(" + refA_D.celdaReferencia + (rowNum) + " = \"A\", IFERROR(INDEX('" + hoja2 + "'!" + columnRef.celdaReferencia + ":" + columnRef.celdaReferencia + ", MATCH(" + claveRef + (rowNum) + ", '" + hoja2 + "'!B:B, 0)), \"N/D\"), \"--\")");
-                            else
-                                oSLDocument.SetCellValue(rowNum, numInicioColumnaDatosBase + j, "--");
+                        mesFY = mesFY.AddMonths(1);
 
-
-                            mesFY = mesFY.AddMonths(1);
-
-                        }
-                        indexElemento++;
                     }
+
+                    //una vez creada la primera fila, copia el primer rango hacia las demas filas
+
+                    for (int k = 1; k < reporte.BG_Forecast_item.Count; k++)
+                    {
+                        //copia la fila original a la siguiente fila
+                        oSLDocument.CopyCell(rowNum, numInicioColumnaDatosBase, rowNum, numInicioColumnaDatosBase + 11, k + 5, columnaActual);
+                    }
+                  
 
                     //actualiza los titulos
                     for (int k = 0; k < tablasReferenciasIniciales.Count; k++)
@@ -4329,22 +4400,29 @@ namespace Portal_2_0.Models
                         int extra = !String.IsNullOrEmpty(tablasReferenciasIniciales[k].extra) ? 1 : 0;
 
                         //crea las columnas para los doce meses del año fiscal
-                        DateTime mesFY = new DateTime(cabeceraAniosFY_conMeses[i].anio, 10, 01); //octubre del FY
+                        DateTime mesFY2 = new DateTime(cabeceraAniosFY_conMeses[i].anio, 10, 01); //octubre del FY
 
                         for (int j = 0; j < 12; j++)
                         {
-                            oSLDocument.SetCellValue(4, columnaActual + extra + +j, mesFY.ToString("MMM yyyy").ToUpper().Replace(".", String.Empty));
+                            oSLDocument.SetCellValue(4, columnaActual + extra + +j, mesFY2.ToString("MMM yyyy").ToUpper().Replace(".", String.Empty));
                             //aumenta un mes
-                            mesFY = mesFY.AddMonths(1);
+                            mesFY2 = mesFY2.AddMonths(1);
                         }
 
                         columnaActual += (13 + extra);
                     }
                 }
 
+
+                Debug.WriteLine(timeMeasure.Elapsed.Minutes + "m " + timeMeasure.Elapsed.Seconds % 60 + " -> Termina reemplazo datos base plantilla: ");
+
+
                 //CREA LOS DATOS DEL RESUMEN DE fy
                 #region resumen FY
                 {
+
+                    Debug.WriteLine(timeMeasure.Elapsed.Minutes + "m " + timeMeasure.Elapsed.Seconds % 60 + " -> Inicia Resumen FY: ");
+
                     oSLDocument.SelectWorksheet("Aux"); //selecciona la hoja aux para no tener detalles a la hora de copiar la hoja actual
                     oSLDocument.CopyWorksheet(cabeceraAniosFY[0].text + " by Month", cabeceraAniosFY[0].text + " until " + cabeceraAniosFY[cabeceraAniosFY.Count - 1].text);
 
@@ -4367,6 +4445,8 @@ namespace Portal_2_0.Models
                     int numInicioColumnaFreightsIncomeUSD = 0;
                     int numInicioColumnaOutgoingFreightTotal = 0;
                     int numInicioColumnaAditionalMaterialCost = 0;
+                    int numInicioColumnaManiobrasPart = 0;
+                    int numInicioCustomExpenses = 0;
 
                     ////reinicia la tabla
 
@@ -4391,186 +4471,188 @@ namespace Portal_2_0.Models
                         }
                         int extra = !String.IsNullOrEmpty(t.extra) ? 1 : 0;
 
+                        int index = 5;
+                        System.Data.DataRow row = dt.NewRow();
 
-                        //Genera las referencias al reporte para cada elemento del reporte forecast
-                        foreach (var forecast_Item in reporte.BG_Forecast_item)
+                        //recorre todos los meses del año
+                        for (int j = 0; j < cabeceraAniosFY.Count; j++)
                         {
-                            int index = reporte.BG_Forecast_item.ToList().IndexOf(forecast_Item);
-                            System.Data.DataRow row = dt.NewRow();
-
-                            //recorre todos los meses del año
-                            for (int j = 0; j < cabeceraAniosFY.Count; j++)
+                            var columnRef = referenciaColumnasFY.Where(x => x.fecha.Year + 1 == cabeceraAniosFY[j].anio).FirstOrDefault();
+                            int rowNum = index;
+                            string nombreCelda = cabeceraAniosFY[j].text;
+                            //if (columnRef != null)
+                            //{
+                            switch (indexTabla)
                             {
-                                var columnRef = referenciaColumnasFY.Where(x => x.fecha.Year + 1 == cabeceraAniosFY[j].anio).FirstOrDefault();
-                                int rowNum = index + 5;
-                                string nombreCelda = cabeceraAniosFY[j].text;
-                                //if (columnRef != null)
-                                //{
-                                switch (indexTabla)
-                                {
-                                    //autos/month
-                                    case 0:
-                                        //= SI(D2 = "A", SI.ERROR(INDICE('Autos Modificados'!BH: BH, COINCIDIR(AO2, 'Autos Modificados'!B: B, 0)), "--"), "--")
-                                        if (columnRef != null)
-                                            oSLDocument.SetCellValue(rowNum, numInicioColumnaDatosBase + j, "=IF(" + refA_D.celdaReferencia + (rowNum) + " = \"A\", IFERROR(INDEX('" + hoja2 + "'!" + columnRef.celdaReferencia + ":" + columnRef.celdaReferencia + ", MATCH(" + claveRef + (rowNum) + ", '" + hoja2 + "'!B:B, 0)), \"N/D\"), \"--\")");
-                                        else
-                                            row[nombreCelda] = "--";
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleNumberDecimal_0);
-                                        break;
-                                    //total Sales [TUSD]
-                                    case 1:
-                                        //= SI($D28 = "C&SLT",$AH28 * AW28 / 1000,$AH28 * AW28 / 1000 *$X28)
-                                        row[nombreCelda] = "=IFERROR(IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\", $" + refVentasPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000, $" + refVentasPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + "),\"--\")";
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleCurrency);
-                                        numInicioColumnaTotalSales = columnaActual;
-                                        break;
-                                    //Material Cost
-                                    case 2:
-                                        //= SI($D28="C&SLT",$AI28*AW28/1000,$AI28*AW28/1000*$X28)
-                                        row[nombreCelda] = "=IFERROR(IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\", $" + refMaterialCostPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000, $" + refMaterialCostPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + "),\"--\")";
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleCurrency);
-                                        numInicioColumnaMaterialCost = columnaActual;
-                                        break;
-                                    //cost of out side procesor
-                                    case 3:
-                                        //=SI($D28="C&SLT",$AJ28*AW28/1000,$AJ28*AW28/1000*$X28)
-                                        row[nombreCelda] = "=IFERROR(IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\", $" + refCostOfOutsideProcessor.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000, $" + refCostOfOutsideProcessor.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + "),\"--\")";
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleCurrency);
-                                        numInicioColumnaCostOfOutsiteP = columnaActual;
-                                        break;
-                                    //Value Added Sales[TUSD]
-                                    case 4:
-                                        //=BJ28-BW28-CJ28
-                                        row[nombreCelda] = "=IFERROR((" + GetCellReference(numInicioColumnaTotalSales + j) + rowNum + "-" + GetCellReference(numInicioColumnaMaterialCost + j) + rowNum + "-" + GetCellReference(numInicioColumnaCostOfOutsiteP + j) + rowNum + "),\"--\")";
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleCurrency);
-                                        break;
-                                    //Processed Tons [to]
-                                    case 5:
-                                        //=SI($AA28="WLD",0,SI($D28="C&SLT",$AC28*AW28/1000,$AC28*AW28/1000*$X28))
-                                        row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + "=\"WLD\",0,IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\", $" + refInitialWeightPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000, $" + refInitialWeightPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + ")),\"--\")";
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleNumberDecimal_2);
-                                        numInicioColumnaProccessTon = columnaActual;
-                                        break;
-                                    //Engineered Scrap [to]
-                                    case 6:
-                                        //=SI($AA28="WLD",0,$AE28*AW28/1000*$X28)
-                                        row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + "=\"WLD\",0, $" + refEngineeredScrap.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + "),\"--\")";
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleNumberDecimal_2);
-                                        numInicioColumnaEngScrap = columnaActual;
-                                        break;
-                                    //scrapConsolidation
-                                    case 7:
-                                        //=SI($AF88="YES",-DX88,0)
-                                        row[nombreCelda] = "=IFERROR(IF($" + refScrapConsolidation.celdaReferencia + (rowNum) + "=\"YES\", -" + GetCellReference(numInicioColumnaEngScrap + j) + (rowNum) + ",0 ),\"--\")";
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleNumberDecimal_2);
-                                        numInicioColumnaScrapConsolidation = columnaActual;
-                                        break;
-                                    //Strokes [ - / 1000 ]  
-                                    case 8:
-                                        //=SI($AA88="WLD",0,$Y88*AW88/1000)
-                                        row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + "=\"WLD\",0, $" + refStrokesAuto.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000),\"--\")";
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleNumberDecimal_2);
-                                        break;
-                                    //Blanks [ - / 1000 ]
-                                    case 9:
-                                        //=SI($AA28="WLD",0,$X28*AW28/1000)
-                                        row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + "=\"WLD\",0, $" + refPartsAuto.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000),\"--\")";
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleNumberDecimal_2);
-                                        break;
-                                    //Additional material Cost
-                                    case 10:
-                                        //==SI($D28="C&SLT",$AL28*AW28/1000,$AL28*AW28/1000*$X28)
-                                        row[nombreCelda] = "=IFERROR(IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\", $" + refAdditionalMaterialCostPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000, $" + refAdditionalMaterialCostPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + "),\"--\")";
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleCurrency);
-                                        numInicioColumnaAditionalMaterialCost = columnaActual;
-                                        break;
-                                    //Outgoing freight total [USD]
-                                    case 11:
-                                        //=SI($D28="C&SLT",$AM28*AW28/1000,$AM28*AW28/1000*$X28)
-                                        row[nombreCelda] = "=IFERROR(IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\", $" + refOutgoingFreightPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000, $" + refOutgoingFreightPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + "),\"--\")";
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleCurrency);
-                                        numInicioColumnaOutgoingFreightTotal = columnaActual;
-                                        break;
-                                    //Inventory OWN (monthly average) [tons]
-                                    case 12:
-                                        //=SI(IZQUIERDA($M7,2)="CM",0,DJ7*GW$4)
-                                        //  row[nombreCelda] = "=IFERROR(IF(LEFT($" + refOwnCM.celdaReferencia + (rowNum) + ",2)=\"CM\",0," + GetCellReference(numInicioColumnaProccessTon + j) + (rowNum) + "*" + GetCellReference(columnaActual + j) + "2),\"--\")";
-                                        if (oSLDocument.GetSheetNames().Any(x => x.StartsWith(nombreCelda)))
-                                            //referencia al valor de septiembre de ese año
-                                            row[nombreCelda] = "='" + nombreCelda + " by Month'!" + GetCellReference(inicioInventoryOwnMeses + 11) + rowNum;
-                                        else
-                                            row[nombreCelda] = "--";
+                                //autos/month
+                                case 0:
+                                    //= SI(D2 = "A", SI.ERROR(INDICE('Autos Modificados'!BH: BH, COINCIDIR(AO2, 'Autos Modificados'!B: B, 0)), "--"), "--")
+                                    if (columnRef != null)
+                                        oSLDocument.SetCellValue(rowNum, numInicioColumnaDatosBase + j, "=IF($" + refA_D.celdaReferencia + (rowNum) + " = \"A\", IFERROR(INDEX('" + hoja2 + "'!" + columnRef.celdaReferencia + ":" + columnRef.celdaReferencia + ", MATCH($" + claveRef + (rowNum) + ", '" + hoja2 + "'!$B:$B, 0)), \"N/D\"), \"--\")");
+                                    else
+                                        row[nombreCelda] = "--";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleNumberDecimal_0);
+                                    break;
+                                //total Sales [TUSD]
+                                case 1:
+                                    //= SI($D28 = "C&SLT",$AH28 * AW28 / 1000,$AH28 * AW28 / 1000 *$X28)
+                                    row[nombreCelda] = "=IFERROR(IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\", $" + refVentasPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000, $" + refVentasPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + "),\"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleCurrency);
+                                    numInicioColumnaTotalSales = columnaActual;
+                                    break;
+                                //Material Cost
+                                case 2:
+                                    //= SI($D28="C&SLT",$AI28*AW28/1000,$AI28*AW28/1000*$X28)
+                                    row[nombreCelda] = "=IFERROR(IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\", $" + refMaterialCostPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000, $" + refMaterialCostPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + "),\"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleCurrency);
+                                    numInicioColumnaMaterialCost = columnaActual;
+                                    break;
+                                //cost of out side procesor
+                                case 3:
+                                    //=SI($D28="C&SLT",$AJ28*AW28/1000,$AJ28*AW28/1000*$X28)
+                                    row[nombreCelda] = "=IFERROR(IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\", $" + refCostOfOutsideProcessor.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000, $" + refCostOfOutsideProcessor.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + "),\"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleCurrency);
+                                    numInicioColumnaCostOfOutsiteP = columnaActual;
+                                    break;
+                                //Value Added Sales[TUSD]
+                                case 4:
+                                    //=BJ28-BW28-CJ28
+                                    row[nombreCelda] = "=IFERROR((" + GetCellReference(numInicioColumnaTotalSales + j) + rowNum + "-" + GetCellReference(numInicioColumnaMaterialCost + j) + rowNum + "-" + GetCellReference(numInicioColumnaCostOfOutsiteP + j) + rowNum + "),\"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleCurrency);
+                                    break;
+                                //Processed Tons [to]
+                                case 5:
+                                    //=SI($AA28="WLD",0,SI($D28="C&SLT",$AC28*AW28/1000,$AC28*AW28/1000*$X28))
+                                    row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + "=\"WLD\",0,IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\", $" + refInitialWeightPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000, $" + refInitialWeightPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + ")),\"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleNumberDecimal_2);
+                                    numInicioColumnaProccessTon = columnaActual;
+                                    break;
+                                //Engineered Scrap [to]
+                                case 6:
+                                    //=SI($AA28="WLD",0,$AE28*AW28/1000*$X28)
+                                    row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + "=\"WLD\",0, $" + refEngineeredScrap.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + "),\"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleNumberDecimal_2);
+                                    numInicioColumnaEngScrap = columnaActual;
+                                    break;
+                                //scrapConsolidation
+                                case 7:
+                                    //=SI($AF88="YES",-DX88,0)
+                                    row[nombreCelda] = "=IFERROR(IF($" + refScrapConsolidation.celdaReferencia + (rowNum) + "=\"YES\", -" + GetCellReference(numInicioColumnaEngScrap + j) + (rowNum) + ",0 ),\"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleNumberDecimal_2);
+                                    numInicioColumnaScrapConsolidation = columnaActual;
+                                    break;
+                                //Strokes [ - / 1000 ]  
+                                case 8:
+                                    //=SI($AA88="WLD",0,$Y88*AW88/1000)
+                                    row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + "=\"WLD\",0, $" + refStrokesAuto.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000),\"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleNumberDecimal_2);
+                                    break;
+                                //Blanks [ - / 1000 ]
+                                case 9:
+                                    //=SI($AA28="WLD",0,$X28*AW28/1000)
+                                    row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + "=\"WLD\",0, $" + refPartsAuto.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000),\"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleNumberDecimal_2);
+                                    break;
+                                //Additional material Cost
+                                case 10:
+                                    //==SI($D28="C&SLT",$AL28*AW28/1000,$AL28*AW28/1000*$X28)
+                                    row[nombreCelda] = "=IFERROR(IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\", $" + refAdditionalMaterialCostPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000, $" + refAdditionalMaterialCostPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + "),\"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleCurrency);
+                                    numInicioColumnaAditionalMaterialCost = columnaActual;
+                                    break;
+                                //Outgoing freight total [USD]
+                                case 11:
+                                    //=SI($D28="C&SLT",$AM28*AW28/1000,$AM28*AW28/1000*$X28)
+                                    row[nombreCelda] = "=IFERROR(IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\", $" + refOutgoingFreightPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000, $" + refOutgoingFreightPart.celdaReferencia + (rowNum) + "*" + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000*$" + refPartsAuto.celdaReferencia + (rowNum) + "),\"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleCurrency);
+                                    numInicioColumnaOutgoingFreightTotal = columnaActual;
+                                    break;
+                                //Inventory OWN (monthly average) [tons]
+                                case 12:
+                                    //=SI(IZQUIERDA($M7,2)="CM",0,DJ7*GW$4)
+                                    //  row[nombreCelda] = "=IFERROR(IF(LEFT($" + refOwnCM.celdaReferencia + (rowNum) + ",2)=\"CM\",0," + GetCellReference(numInicioColumnaProccessTon + j) + (rowNum) + "*" + GetCellReference(columnaActual + j) + "2),\"--\")";
+                                    if (oSLDocument.GetSheetNames().Any(x => x.StartsWith(nombreCelda)))
+                                        //referencia al valor de septiembre de ese año
+                                        row[nombreCelda] = "='" + nombreCelda + " by Month'!" + GetCellReference(inicioInventoryOwnMeses + 11) + rowNum;
+                                    else
+                                        row[nombreCelda] = "--";
 
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleNumberDecimal_2);
-                                        numInicioColumnaInventoryOWNAverage = columnaActual;
-                                        break;
-                                    //Inventory OWN (end of month) [USD]
-                                    case 13:
-                                        //=GS7*($AF7+$AI7)/$Z7
-                                        row[nombreCelda] = "=IFERROR(" + GetCellReference(numInicioColumnaInventoryOWNAverage + j) + (rowNum) + "*($" + refMaterialCostPart.celdaReferencia + (rowNum) + "+$" + refAdditionalMaterialCostPart.celdaReferencia + rowNum + ")/$" + refInitialWeightPart.celdaReferencia + rowNum + ",\"--\")";
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleNumberDecimal_2);
-                                        break;
-                                    //Freights Income USD/PART
-                                    case 14:
-                                        //= SI.ERROR(SI($AA28 = \"WLD\", 0, SI($D28 = \"C&SLT\",$HW28 * AW28 / 1000,$HW28 * AW28 / 1000 *$X28)), \"--\")
-                                        row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + " = \"WLD\", 0, IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\",$" + GetCellReference(columnaActual) + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000,$" + GetCellReference(columnaActual) + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + " / 1000 *$" + refPartsAuto.celdaReferencia + (rowNum) + ")), \"--\")";
-                                        row[t.extra] = forecast_Item.freights_income_usd_part.HasValue ? forecast_Item.freights_income_usd_part.Value : 0;
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleCurrency);
-                                        numInicioColumnaFreightsIncomeUSD = columnaActual;
-                                        break;
-                                    //Freights Maniobras USD/PART
-                                    case 15:
-                                        //=SI.ERROR(SI($AA28="WLD",0,SI($D28="C&SLT",$IK28*AW28/1000,$IK28*AW28/1000*$X28)),"--")
-                                        row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + " = \"WLD\", 0, IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\",$" + GetCellReference(columnaActual) + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000,$" + GetCellReference(columnaActual) + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + " / 1000 *$" + refPartsAuto.celdaReferencia + (rowNum) + ")), \"--\")";
-                                        row[t.extra] = forecast_Item.maniobras_usd_part.HasValue ? forecast_Item.maniobras_usd_part.Value : 0;
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleCurrency);
-                                        //numInicioColumnaFreightsIncomeUSD = columnaActual;
-                                        break;
-                                    //Customs Expenses USD/PART
-                                    case 16:
-                                        //=SI.ERROR(SI($AA28="WLD",0,SI($D28="C&SLT",$IY28*AW28/1000,$IY28*AW28/1000*$X28)),"--")
-                                        row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + " = \"WLD\", 0, IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\",$" + GetCellReference(columnaActual) + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000,$" + GetCellReference(columnaActual) + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + " / 1000 *$" + refPartsAuto.celdaReferencia + (rowNum) + ")), \"--\")";
-                                        row[t.extra] = forecast_Item.customs_expenses.HasValue ? forecast_Item.customs_expenses.Value : 0;
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleCurrency);
-                                        //numInicioColumnaFreightsIncomeUSD = columnaActual;
-                                        break;
-                                    //Shipment Tons[to]
-                                    case 17:
-                                        //=SI.ERROR(SI($AA28="WLD",0,SI($D28="C&SLT",$AC28*AW28/1000,$AD28*AW28/1000*$X28)),"--")
-                                        row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + " = \"WLD\", 0, IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\",$" + refInitialWeightPart.celdaReferencia + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000,$" + refNetWeightPart.celdaReferencia + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + " / 1000 *$" + refPartsAuto.celdaReferencia + (rowNum) + ")), \"--\")";
-                                        oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleCurrency);
-                                        //numInicioColumnaFreightsIncomeUSD = columnaActual;
-                                        break;
-                                    case 18:
-                                        //pendiente
-                                        break;
-                                    case 19:
-                                        //pendiente
-                                        break;
-                                }
-
-
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleNumberDecimal_2);
+                                    numInicioColumnaInventoryOWNAverage = columnaActual;
+                                    break;
+                                //Inventory OWN (end of month) [USD]
+                                case 13:
+                                    //=GS7*($AF7+$AI7)/$Z7
+                                    row[nombreCelda] = "=IFERROR(" + GetCellReference(numInicioColumnaInventoryOWNAverage + j) + (rowNum) + "*($" + refMaterialCostPart.celdaReferencia + (rowNum) + "+$" + refAdditionalMaterialCostPart.celdaReferencia + rowNum + ")/$" + refInitialWeightPart.celdaReferencia + rowNum + ",\"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleNumberDecimal_2);
+                                    break;
+                                //Freights Income USD/PART
+                                case 14:
+                                    //= SI.ERROR(SI($AA28 = \"WLD\", 0, SI($D28 = \"C&SLT\",$HW28 * AW28 / 1000,$HW28 * AW28 / 1000 *$X28)), \"--\")
+                                    row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + " = \"WLD\", 0, IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\",$" + GetCellReference(columnaActual) + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000,$" + GetCellReference(columnaActual) + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + " / 1000 *$" + refPartsAuto.celdaReferencia + (rowNum) + ")), \"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleCurrency);
+                                    numInicioColumnaFreightsIncomeUSD = columnaActual;
+                                    break;
+                                //Freights Maniobras USD/PART
+                                case 15:
+                                    //=SI.ERROR(SI($AA28="WLD",0,SI($D28="C&SLT",$IK28*AW28/1000,$IK28*AW28/1000*$X28)),"--")
+                                    row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + " = \"WLD\", 0, IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\",$" + GetCellReference(columnaActual) + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000,$" + GetCellReference(columnaActual) + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + " / 1000 *$" + refPartsAuto.celdaReferencia + (rowNum) + ")), \"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleCurrency);
+                                    numInicioColumnaManiobrasPart = columnaActual;
+                                    break;
+                                //Customs Expenses USD/PART
+                                case 16:
+                                    //=SI.ERROR(SI($AA28="WLD",0,SI($D28="C&SLT",$IY28*AW28/1000,$IY28*AW28/1000*$X28)),"--")
+                                    row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + " = \"WLD\", 0, IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\",$" + GetCellReference(columnaActual) + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000,$" + GetCellReference(columnaActual) + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + " / 1000 *$" + refPartsAuto.celdaReferencia + (rowNum) + ")), \"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleCurrency);
+                                    numInicioCustomExpenses = columnaActual;
+                                    break;
+                                //Shipment Tons[to]
+                                case 17:
+                                    //=SI.ERROR(SI($AA28="WLD",0,SI($D28="C&SLT",$AC28*AW28/1000,$AD28*AW28/1000*$X28)),"--")
+                                    row[nombreCelda] = "=IFERROR(IF($" + refShape.celdaReferencia + (rowNum) + " = \"WLD\", 0, IF($" + refBusinnessAndPlant.celdaReferencia + (rowNum) + " = \"C&SLT\",$" + refInitialWeightPart.celdaReferencia + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + "/1000,$" + refNetWeightPart.celdaReferencia + (rowNum) + " * " + GetCellReference(numInicioColumnaDatosBase + j) + (rowNum) + " / 1000 *$" + refPartsAuto.celdaReferencia + (rowNum) + ")), \"--\")";
+                                    oSLDocument.SetColumnStyle(columnaActual, columnaActual + cabeceraAniosFY.Count + 1 + extra, styleCurrency);
+                                    //numInicioColumnaFreightsIncomeUSD = columnaActual;
+                                    break;
+                                case 18:
+                                    //pendiente
+                                    break;
+                                case 19:
+                                    //pendiente
+                                    break;
                             }
 
-                            dt.Rows.Add(row);
 
-                            int rowActual = index + 5;
-
-                            //agrega el estilo en caso de que no haya coincidencia con elemento de IHS
-                            if (String.IsNullOrEmpty(forecast_Item.id_asociacion_ihs))
-                                oSLDocument.SetCellStyle((rowActual), columnaActual, (rowActual), columnaActual + cabeceraAniosFY.Count + 1 + extra, styleMissedIHS);
-
-                            //agrega los campos de gross
-                            oSLDocument.SetCellValue(rowActual, refGrossPart.columnaNum, "=IFERROR((SUM(" + GetCellReference(numInicioColumnaTotalSales) + rowActual + ":" + GetCellReference(numInicioColumnaTotalSales + cabeceraAniosFY.Count + 1) + rowActual + ")*1000" +
-                                "+SUM(" + GetCellReference(numInicioColumnaEngScrap) + rowActual + ":" + GetCellReference(numInicioColumnaEngScrap + cabeceraAniosFY.Count + 1) + rowActual + ")*0" +
-                                "+SUM(" + GetCellReference(numInicioColumnaScrapConsolidation) + rowActual + ":" + GetCellReference(numInicioColumnaScrapConsolidation + cabeceraAniosFY.Count + 1) + rowActual + ")*0" +
-                                "-(SUM(" + GetCellReference(numInicioColumnaAditionalMaterialCost) + rowActual + ":" + GetCellReference(numInicioColumnaAditionalMaterialCost + cabeceraAniosFY.Count + 1) + rowActual + ")" +
-                                "+SUM(" + GetCellReference(numInicioColumnaOutgoingFreightTotal) + rowActual + ":" + GetCellReference(numInicioColumnaOutgoingFreightTotal + cabeceraAniosFY.Count + 1) + rowActual + "))*1000)" +
-                                "/(" + refStrokesAuto.celdaReferencia + rowActual + "*SUM(" + GetCellReference(numInicioColumnaDatosBase) + rowActual + ":" + GetCellReference(numInicioColumnaDatosBase + cabeceraAniosFY.Count + 1) + rowActual + ")),\"--\")");
-                            oSLDocument.SetColumnStyle(rowActual, refGrossPart.columnaNum, styleCurrency);
-                            oSLDocument.SetCellValue(rowActual, refGrossUSD.columnaNum, "=IFERROR(+" + refGrossPart.celdaReferencia + rowActual + "*1000/" + refInitialWeightPart.celdaReferencia + rowActual + ",\"--\")");
-                            oSLDocument.SetColumnStyle(rowActual, refGrossUSD.columnaNum, styleCurrency);
                         }
+
+                        dt.Rows.Add(row);
+
+                        int rowActual = 5;
+
+                        //agrega el valor de los extras
+                        int c = 0;
+                        foreach (var forecast_Item in reporte.BG_Forecast_item)
+                        {
+                            //Freights Income USD/PART
+                            oSLDocument.SetCellValue(rowActual + c, numInicioColumnaFreightsIncomeUSD, forecast_Item.freights_income_usd_part.HasValue ? forecast_Item.freights_income_usd_part.Value : 0.0);
+                            //Freights Maniobras USD/PART
+                            oSLDocument.SetCellValue(rowActual + c, numInicioColumnaManiobrasPart, forecast_Item.maniobras_usd_part.HasValue ? forecast_Item.maniobras_usd_part.Value : 0.0);
+                            //Customs Expenses USD/PART
+                            oSLDocument.SetCellValue(rowActual + c, numInicioCustomExpenses, forecast_Item.customs_expenses.HasValue ? forecast_Item.customs_expenses.Value : 0.0);
+                            c++;
+                        }
+
+                        //agrega los campos de gross
+                        oSLDocument.SetCellValue(rowActual, refGrossPart.columnaNum, "=IFERROR((SUM(" + GetCellReference(numInicioColumnaTotalSales) + rowActual + ":" + GetCellReference(numInicioColumnaTotalSales + cabeceraAniosFY.Count + 1) + rowActual + ")*1000" +
+                            "+SUM(" + GetCellReference(numInicioColumnaEngScrap) + rowActual + ":" + GetCellReference(numInicioColumnaEngScrap + cabeceraAniosFY.Count + 1) + rowActual + ")*0" +
+                            "+SUM(" + GetCellReference(numInicioColumnaScrapConsolidation) + rowActual + ":" + GetCellReference(numInicioColumnaScrapConsolidation + cabeceraAniosFY.Count + 1) + rowActual + ")*0" +
+                            "-(SUM(" + GetCellReference(numInicioColumnaAditionalMaterialCost) + rowActual + ":" + GetCellReference(numInicioColumnaAditionalMaterialCost + cabeceraAniosFY.Count + 1) + rowActual + ")" +
+                            "+SUM(" + GetCellReference(numInicioColumnaOutgoingFreightTotal) + rowActual + ":" + GetCellReference(numInicioColumnaOutgoingFreightTotal + cabeceraAniosFY.Count + 1) + rowActual + "))*1000)" +
+                            "/(" + refStrokesAuto.celdaReferencia + rowActual + "*SUM(" + GetCellReference(numInicioColumnaDatosBase) + rowActual + ":" + GetCellReference(numInicioColumnaDatosBase + cabeceraAniosFY.Count + 1) + rowActual + ")),\"--\")");
+                        oSLDocument.SetColumnStyle(rowActual, refGrossPart.columnaNum, styleCurrency);
+                        oSLDocument.SetCellValue(rowActual, refGrossUSD.columnaNum, "=IFERROR(+" + refGrossPart.celdaReferencia + rowActual + "*1000/" + refInitialWeightPart.celdaReferencia + rowActual + ",\"--\")");
+                        oSLDocument.SetColumnStyle(rowActual, refGrossUSD.columnaNum, styleCurrency);
+
 
                         //AGREGA LA SUMATORIA
                         //recorre todos los AÑOS FISCALES POR CADA CATEGORIA
@@ -4584,6 +4666,19 @@ namespace Portal_2_0.Models
                         ///Aplica estilo a la tabla
                         oSLDocument.ImportDataTable(4, columnaActual, dt, true);
 
+                        //copia la formula al resto de las celdas
+                        //copia Horizontalmente
+                        for (int j = 1; j < cabeceraAniosFY.Count; j++)
+                        {
+                            oSLDocument.CopyCell(5, columnaActual + extra, 5, columnaActual + extra + j);
+                        }
+
+                        for (int k = 1; k < reporte.BG_Forecast_item.Count; k++)
+                        {
+                            //copia la fila original a la siguiente fila
+                            oSLDocument.CopyCell(5, columnaActual, 5, columnaActual + extra + cabeceraAniosFY.Count - 1, 5 + k, columnaActual);  //5 = primera fila con datos
+                        }
+
 
                         //ajusta el tamaño de las filas
                         oSLDocument.SetRowHeight(1, dt.Rows.Count + 4, 15.0);
@@ -4591,10 +4686,20 @@ namespace Portal_2_0.Models
 
                         //aplica formato condicional cuando el elemento está desactivado
                         SLConditionalFormatting cf;
-                        cf = new SLConditionalFormatting(GetCellReference(columnaActual) + "4", GetCellReference(columnaActual + cabeceraAniosFY.Count - 1 + extra) + (dt.Rows.Count + 4));
-                        cf.HighlightCellsWithFormula("=$D4=\"D\"", SLHighlightCellsStyleValues.LightRedFill);
+                        cf = new SLConditionalFormatting(5, columnaActual, 5 + reporte.BG_Forecast_item.Count, columnaActual + cabeceraAniosFY.Count - 1 + extra);
+                        cf.HighlightCellsWithFormula("=$D5=\"D\"", SLHighlightCellsStyleValues.LightRedFill);
                         oSLDocument.AddConditionalFormatting(cf);
 
+
+                        c = 0;
+                        foreach (var forecast_Item in reporte.BG_Forecast_item)
+                        {
+                            //agrega el estilo en caso de que no haya coincidencia con elemento de IHS
+                            if (String.IsNullOrEmpty(forecast_Item.id_asociacion_ihs))
+                                oSLDocument.SetCellStyle((rowActual + c), columnaActual, (rowActual + c), columnaActual + cabeceraAniosFY.Count - 1 + extra, styleMissedIHS);
+
+                            c++;
+                        }
 
                         //aplica el estilo a cada hoja de FY
                         oSLDocument.SetCellStyle(4, columnaActual, 4, columnaActual + cabeceraAniosFY.Count - 1 + extra, styleCenterCenter);
@@ -4602,6 +4707,7 @@ namespace Portal_2_0.Models
                         oSLDocument.SetCellStyle(4, columnaActual, 4, columnaActual + cabeceraAniosFY.Count - 1 + extra, styleHeaderFont);
                         oSLDocument.Filter(4, 1, 4, columnaActual + cabeceraAniosFY.Count - 1 + extra);
                         oSLDocument.SetColumnWidth(columnaActual, columnaActual + cabeceraAniosFY.Count - 1 + extra, 14);
+                        oSLDocument.AutoFitColumn(columnaActual, columnaActual + cabeceraAniosFY.Count - 1 + extra);
 
                         //realiza el merge para los titulos de cada tabla
                         oSLDocument.MergeWorksheetCells(3, columnaActual, 3, columnaActual + cabeceraAniosFY.Count - 1 + extra);
@@ -4613,14 +4719,12 @@ namespace Portal_2_0.Models
                         // aumenta el valor de columnaActual para la siguiente iteración
                         columnaActual += cabeceraAniosFY.Count + 1 + extra;
 
+                        Debug.WriteLine(timeMeasure.Elapsed.Minutes + "m " + timeMeasure.Elapsed.Seconds % 60 + " -> Terminia FY: " + t.celdaDescripcion);
+
                     }
                 }
 
-                #endregion
-
-
-                timeMeasure.Stop();
-                System.Diagnostics.Debug.WriteLine($"Tiempo: {timeMeasure.Elapsed.Seconds} ms");
+                #endregion               
 
             }
 
@@ -4636,6 +4740,9 @@ namespace Portal_2_0.Models
             oSLDocument.SaveAs(stream);
 
             byte[] array = Bitacoras.Util.StreamUtil.ToByteArray(stream);
+
+            timeMeasure.Stop();
+            Debug.WriteLine(timeMeasure.Elapsed.Minutes + "m " + timeMeasure.Elapsed.Seconds % 60 + " -> Terminia Reporte: ");
 
             return (array);
         }
