@@ -2588,25 +2588,26 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Id", typeof(string));                       //1
             dt.Columns.Add("Type", typeof(string));                     //2
             dt.Columns.Add("Plant", typeof(string));                    //3
-            dt.Columns.Add("Brand", typeof(string));                    //4
-            dt.Columns.Add("Model", typeof(string));                    //5
-            dt.Columns.Add("Serial Number", typeof(string));            //6
-            dt.Columns.Add("Inches", typeof(string));                   //7
-            dt.Columns.Add("Processor", typeof(string));                //8
-            dt.Columns.Add("Total Physical Memory (GB)", typeof(double));  //9
-            dt.Columns.Add("Storage (GB)", typeof(double));                //10
-            dt.Columns.Add("Operation System", typeof(string));         //11
-            dt.Columns.Add("MAC WLAN", typeof(string));                 //12
-            dt.Columns.Add("Purchase Date", typeof(DateTime));          //13             
-            dt.Columns.Add("End Warranty", typeof(DateTime));           //14
-            dt.Columns.Add("Is active?", typeof(bool));                 //15
-            dt.Columns.Add("Inactive Date?", typeof(DateTime));         //16
-            dt.Columns.Add("Comments", typeof(string));                 //17
+            dt.Columns.Add("Hostname", typeof(string));                    //4
+            dt.Columns.Add("Brand", typeof(string));                    //5
+            dt.Columns.Add("Model", typeof(string));                    //6
+            dt.Columns.Add("Serial Number", typeof(string));            //7
+            dt.Columns.Add("Inches", typeof(string));                   //8
+            dt.Columns.Add("Processor", typeof(string));                //9
+            dt.Columns.Add("Total Physical Memory (GB)", typeof(double));  //10
+            dt.Columns.Add("Storage (GB)", typeof(double));                //11
+            dt.Columns.Add("Operation System", typeof(string));         //12
+            dt.Columns.Add("MAC WLAN", typeof(string));                 //13
+            dt.Columns.Add("Purchase Date", typeof(DateTime));          //14             
+            dt.Columns.Add("End Warranty", typeof(DateTime));           //15
+            dt.Columns.Add("Is active?", typeof(bool));                 //16
+            dt.Columns.Add("Inactive Date?", typeof(DateTime));         //17
+            dt.Columns.Add("Comments", typeof(string));                 //18
 
             ////registros , rows
             foreach (IT_inventory_items item in listado)
             {
-                dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.brand, item.model, item.serial_number, item.inches,
+                dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.hostname, item.brand, item.model, item.serial_number, item.inches,
                     item.processor, item.total_physical_memory_gb, item.movil_device_storage_gb, item.operation_system, item.mac_wlan,
                     item.purchase_date, item.end_warranty,
                    item.active, item.inactive_date, item.comments
@@ -2648,8 +2649,8 @@ namespace Portal_2_0.Models
             ////estilo para fecha
             SLStyle styleShortDate = oSLDocument.CreateStyle();
             styleShortDate.FormatCode = "yyyy/MM/dd";
-            oSLDocument.SetColumnStyle(13, 14, styleShortDate);
-            oSLDocument.SetColumnStyle(16, styleShortDate);
+            oSLDocument.SetColumnStyle(14, 15, styleShortDate);
+            oSLDocument.SetColumnStyle(17, styleShortDate);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
@@ -2659,7 +2660,7 @@ namespace Portal_2_0.Models
             styleHeaderFont.Font.Bold = true;
 
             //da estilo a los numeros
-            oSLDocument.SetColumnStyle(9, 10, styleNumberDecimal);
+            oSLDocument.SetColumnStyle(10, 11, styleNumberDecimal);
 
             //da estilo a la hoja de excel
             //inmoviliza el encabezado

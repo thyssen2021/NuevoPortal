@@ -1087,7 +1087,6 @@ namespace Portal_2_0.Controllers
                   .OrderByDescending(x => x.id_planta)
                .ToList();
 
-                //** DE MOMENTO ES EL MISMO QUE DESKTOP ***//
                 byte[] stream = ExcelUtil.GeneraReporteITTabletExcel(listado);
 
 
