@@ -21,6 +21,7 @@ namespace Portal_2_0.Models
             this.GV_rel_gastos_solicitud = new HashSet<GV_rel_gastos_solicitud>();
             this.poliza_manual = new HashSet<poliza_manual>();
             this.GV_solicitud = new HashSet<GV_solicitud>();
+            this.GV_comprobacion_rel_gastos = new HashSet<GV_comprobacion_rel_gastos>();
         }
     
         public string CurrencyISO { get; set; }
@@ -38,5 +39,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<poliza_manual> poliza_manual { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<GV_solicitud> GV_solicitud { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<GV_comprobacion_rel_gastos> GV_comprobacion_rel_gastos { get; set; }
     }
 }

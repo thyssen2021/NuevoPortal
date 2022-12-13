@@ -30,6 +30,7 @@ namespace Portal_2_0.Models
             this.produccion_turnos = new HashSet<produccion_turnos>();
             this.IT_site = new HashSet<IT_site>();
             this.IT_inventory_cellular_line = new HashSet<IT_inventory_cellular_line>();
+            this.GV_centros_costo = new HashSet<GV_centros_costo>();
         }
     
         public int clave { get; set; }
@@ -63,5 +64,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<IT_site> IT_site { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_inventory_cellular_line> IT_inventory_cellular_line { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<GV_centros_costo> GV_centros_costo { get; set; }
     }
 }

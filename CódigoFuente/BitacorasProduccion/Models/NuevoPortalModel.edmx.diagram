@@ -275,6 +275,16 @@
         <AssociationConnector Association="Portal_2_0Model.FK_equipos_checklist_id_sistemas" />
         <AssociationConnector Association="Portal_2_0Model.FK_equipos_checklist_id_inventory_item" />
         <AssociationConnector Association="Portal_2_0Model.FK_site_checklist_id_equipo_checklist" />
+        <EntityTypeShape EntityType="Portal_2_0Model.GV_comprobacion_rel_gastos" Width="1.5" PointX="29" PointY="72.25" />
+        <EntityTypeShape EntityType="Portal_2_0Model.GV_comprobacion_tipo_gastos_viaje" Width="1.5" PointX="26.75" PointY="69.125" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_currency_iso" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_gastos_viaje" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_gv_solicitud" />
+        <EntityTypeShape EntityType="Portal_2_0Model.GV_centros_costo" Width="1.5" PointX="3" PointY="69" />
+        <EntityTypeShape EntityType="Portal_2_0Model.GV_comprobacion" Width="1.5" PointX="29" PointY="77.5" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_centros_costo_clave_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_id_centro_costo" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_id_gv_solicitud" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

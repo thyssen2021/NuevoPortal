@@ -77,6 +77,37 @@ namespace Portal_2_0.Controllers
             }
             return Json(list, JsonRequestBehavior.AllowGet);
         }
+        ///<summary>
+        ///Obtiene las areas segun la planta recibida para budget
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult obtieneGVCentros(int clavePlanta = 0)
+        {
+            //obtiene todos los posibles valores
+            List<GV_centros_costo> listado = db.GV_centros_costo.Where(p => p.clave_planta == clavePlanta && p.activo == true).ToList();
+
+
+            //inserta el valor por default
+            listado.Insert(0, new GV_centros_costo
+            {
+                id = 0,
+                centro_costo = "-- Seleccione un valor --"
+            });
+
+            //inicializa la lista de objetos
+            var list = new object[listado.Count];
+
+            //completa la lista de objetos
+            for (int i = 0; i < listado.Count; i++)
+            {
+                if (i == 0)//en caso de item por defecto
+                    list[i] = new { value = "", name = listado[i].centro_costo };
+                else
+                    list[i] = new { value = listado[i].id, name = listado[i].ConcatCentroDepto };
+            }
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
 
 
         ///<summary>

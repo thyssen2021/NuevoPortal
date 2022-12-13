@@ -34,9 +34,7 @@ namespace Portal_2_0.Controllers
             else
             {
                 return View("../Home/ErrorPermisos");
-            }
-
-            
+            }            
         }
 
         // GET: Puestos/Details/5
