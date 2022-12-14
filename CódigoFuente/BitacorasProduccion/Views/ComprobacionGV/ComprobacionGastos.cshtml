@@ -22,6 +22,7 @@
     <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/green.css")" rel="stylesheet">
     <!-- SweetAlert2 -->
     <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+
     <style>
 
         label {
@@ -426,7 +427,7 @@
                                     </thead>
                                     <tbody id="body_conceptos">
 
-                                        <tr>
+                                        @*<tr>
                                             <td>
                                                 1
                                             </td>
@@ -482,11 +483,11 @@
                                                 Total?
                                             </td>
                                             <td><button type="button" class="btn btn-danger float-lg-left"><i class="fa-solid fa-trash-can"></i></button></td>
-                                        </tr>
+                                        </tr>*@
                                     </tbody>
                                     <tfoot>
                                         <tr>
-                                            <th colspan="13" style="text-align:right">Total Modeda Origen</th>
+                                            <th colspan="13" style="text-align:right">Total Moneda Origen</th>
                                             <th id="total_gastos" style="text-align:right" nowrap>$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", Model.sumaGastosNacional) MXN</th>
                                         </tr>
                                         <tr>
@@ -506,8 +507,12 @@
                             </div>
                             <div class="ln_solid"></div>
                             <div class="form-group row">
-                                <span style="color:black"><b>CARGAR FACTURA</b></span>
+                                <span style="color:black"><b>CARGAR FACTURA NACIONAL</b></span>
                             </div>
+
+                            <div id="error-msj-div" class="alert alert-danger" role="alert" style="display:none">
+                            </div>
+
                             <div class="item form-group">
 
                                 <label class="control-label col-md-1 float-right">UUID</label>
@@ -517,16 +522,74 @@
                                 <div class="col-md-1 col-sm-1">
                                     <button type="button" class="btn btn-warning float-lg-left"><i class="fa-solid fa-magnifying-glass"></i>&nbsp; Buscar</button>
                                 </div>
-                                <label class="control-label col-md-1 float-right">XML</label>
-                                <div class="col-md-3">
+                                <label for="archivo1" class="control-label col-md-1">XML:</label>
+                                <div class="col-md-4">
                                     <div class="input-group">
                                         <div class="custom-file">
-                                            <input type="file" value="" />
+                                            <input type="file" id="archivo1" name="archivo1" class="custom-file-input" accept=".xml,.xml" />
+                                            <label class="custom-file-label" for="archivo1" style="text-align:left">Seleccione un archivo...</label>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-2 col-sm-2">
-                                    <button type="button" class="btn btn-warning float-lg-left"><i class="fa-solid fa-upload"></i>&nbsp; Cargar Factura</button>
+                                    <button id="cargar-factura-btn" type="button" class="btn btn-warning float-lg-left"><i class="fa-solid fa-upload"></i>&nbsp; Leer Factura</button>
+                                </div>
+                            </div>
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>CARGAR FACTURA EXTRANJERA</b></span>
+                            </div>
+
+                            <div id="error-msj-div" class="alert alert-danger" role="alert" style="display:none">
+                            </div>
+
+                            <div class="item form-group">
+
+                                <label class="control-label col-md-1 float-right">Fecha:</label>
+                                <div class="col-md-2">
+                                    <input type="text" class="form-control" value="" />
+                                </div>
+                                <label class="control-label col-md-1 float-right">Monto:</label>
+                                <div class="col-md-1">
+                                    <input type="text" class="form-control" value="" />
+                                </div>
+                                <label for="archivo1" class="control-label col-md-1">Comprobante:</label>
+                                <div class="col-md-4">
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            <input type="file" id="archivo2" name="archivo2" class="custom-file-input" accept=".xml,.xml" />
+                                            <label class="custom-file-label" for="archivo1" style="text-align:left">Seleccione un archivo...</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-1 col-sm-1">
+                                    <button type="button" class="btn btn-warning float-lg-left"><i class="fa-solid fa-plus"></i>&nbsp; Agregar Comprobante</button>
+                                </div>
+                            </div>
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>CONCEPTO SIN COMPROBANTES (Ej. PROPINAS)</b></span>
+                            </div>
+
+                            <div id="error-msj-div" class="alert alert-danger" role="alert" style="display:none">
+                            </div>
+
+                            <div class="item form-group">
+                                <label class="control-label col-md-1 float-right">Descripci&oacute;n:</label>
+                                <div class="col-md-2">
+                                    <input type="text" class="form-control" value="" />
+                                </div>
+                                <label class="control-label col-md-1 float-right">Fecha:</label>
+                                <div class="col-md-2">
+                                    <input type="text" class="form-control" value="" />
+                                </div>
+                                <label class="control-label col-md-1 float-right">Monto:</label>
+                                <div class="col-md-1">
+                                    <input type="text" class="form-control" value="" />
+                                </div>
+
+                                <div class="col-md-1 col-sm-1">
+                                    <button type="button" class="btn btn-warning float-lg-left"><i class="fa-solid fa-plus"></i>&nbsp; Agregar</button>
                                 </div>
                             </div>
                             <div class="ln_solid"></div>
@@ -560,11 +623,14 @@
     @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
     <!-- input mask -->
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
 
 
 
     <script>
         $(document).ready(function () {
+            //inicializa en input file
+            bsCustomFileInput.init();
 
             // Initialize Select2 Elements (debe ir después de asignar el valor)
             $('.select2bs4').select2({
@@ -606,10 +672,90 @@
 
             });
 
+            //evento para leer el archivo xml
+            $("#cargar-factura-btn").click(function () {
+                leeXML();
+            });
+
             //al cargar la página por primera vez
             verificaEstadoCombos();
 
         });
+
+        function leeXML(){
+            //var f = $(this);
+            var formData = new FormData(document.getElementById("formulario"));
+            formData.append("dato", "valor");
+            //formData.append(f.attr("name"), $(this)[0].files[0]);
+            $.ajax({
+                url: "/ComprobacionGV/ObtieneConceptos",
+                type: "post",
+                dataType: "html",
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    try {
+                        //convierte la respuesta en archivo json
+                        let datos = JSON.parse(data)
+                        let estatus = datos[0].status;
+
+                        console.log(datos);
+
+                        //verifica si se leyó correctamente el archivo xlsx
+                        if (estatus == "ERROR") {
+                            $("#error-msj-div").html(datos[0].value);
+                            $("#error-msj-div").show();
+                            $("#info-msj-div").hide();
+                            //borra la tabla
+                            $("#div_ocultos").html('');
+                            //recargaTabla('');
+                            $("#archivo1").val('');
+                            $('#archivo1').next('label').html('Seleccione un archivo...');
+
+                        } else if (datos[0].status == "OK") {
+
+                            $("#div_ocultos").html(datos[0].div_ocultos);
+                            //recargaTabla(datos[0].value);
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Mensaje',
+                                text: 'Se cargó la factura XML, verifique los datos obtenidos.',
+                                confirmButtonText: 'Aceptar',
+                            });
+                            $("#error-msj-div").hide();
+                            //borra el archivo una vez que se ha cargado
+                            $("#archivo1").val('');
+                            $('#archivo1').next('label').html('Seleccione un archivo...');
+
+                        }
+
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Ocurrió un error obteniendo la información: ' + error,
+                            confirmButtonText: 'Aceptar',
+                        })
+                        $("#archivo1").val('');
+                        $('#archivo1').next('label').html('Seleccione un archivo...');
+                    }
+
+                },
+                error: function (textStatus, errorThrown) {
+                    //en caso de error en la llamada ajax
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Ocurrió un error: ' + errorThrown,
+                        text: 'Intente nuevamente.'
+                    })
+                },
+                async: true
+
+            });
+        }
 
         //completa el selec con los datos recibidos
         function populateDropdown(select, data) {
