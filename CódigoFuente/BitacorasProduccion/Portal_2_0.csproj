@@ -434,8 +434,29 @@
     <Compile Include="Models\budget_responsables.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\CFDProveedor.cs">
+      <DependentUpon>CofidiModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CFDProveedorArchivos.cs">
+      <DependentUpon>CofidiModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\class_v3.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CofidiModel.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>CofidiModel.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CofidiModel.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>CofidiModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CofidiModel.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>CofidiModel.edmx</DependentUpon>
     </Compile>
     <Compile Include="Models\currency.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
@@ -5860,6 +5881,16 @@
     <Content Include="fonts\fontawesome-webfont.woff" />
     <Content Include="fonts\fontawesome-webfont.woff2" />
     <Content Include="fonts\FontAwesome.otf" />
+    <Content Include="Models\CofidiModel.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>CofidiModel.edmx</DependentUpon>
+      <LastGenOutput>CofidiModel.Context.cs</LastGenOutput>
+    </Content>
+    <Content Include="Models\CofidiModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>CofidiModel.edmx</DependentUpon>
+      <LastGenOutput>CofidiModel.cs</LastGenOutput>
+    </Content>
     <Content Include="Models\NuevoPortalModel.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
@@ -6742,6 +6773,13 @@
     </EntityDeploy>
     <Content Include="Models\NuevoPortalModel.edmx.diagram">
       <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
+    </Content>
+    <EntityDeploy Include="Models\CofidiModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>CofidiModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <Content Include="Models\CofidiModel.edmx.diagram">
+      <DependentUpon>CofidiModel.edmx</DependentUpon>
     </Content>
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />

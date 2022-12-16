@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
 using System.Xml.Serialization;
@@ -381,7 +382,8 @@ namespace Portal_2_0.Controllers
                     estatus = "OK";
                     body = "Factura Versión: " + factura_3_3.Version;
                 }
-                else if (factura_4_0 != null) {
+                else if (factura_4_0 != null)
+                {
                     estatus = "OK";
                     body = "Factura Versión: " + factura_4_0.Version;
                 }
@@ -395,7 +397,110 @@ namespace Portal_2_0.Controllers
                 var json = Json(result, JsonRequestBehavior.AllowGet);
                 return json;
             }
+        }
+        /// <summary>
+        /// Método que busca y lee el contenido de una factura xml desde cofidi
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public JsonResult BuscaCOFIDI(string uuid_field)
+        {
+            var result = new object[1];
 
+            string estatus = string.Empty;
+            string msj = string.Empty;
+            Comprobante factura_3_3 = null;
+            Bitacoras.CFDI_4_0.Comprobante factura_4_0 = null;
+
+            CFDProveedor factDB = null;
+
+            //valida uuid
+            if (String.IsNullOrEmpty(uuid_field))
+            {
+                estatus = "ERROR";
+                msj = "El campo UUID es requerido.";
+            }
+            else if (uuid_field.Contains("_"))
+            {
+                estatus = "ERROR";
+                msj = "El campo UUID no es válido. Favor de verificarlo.";
+            }
+            else //la longitud es valida
+            {
+                //busca en cofidi
+                string xmlText = String.Empty;
+                using (var db = new ATEBCOFIDIEntities())
+                {
+                    factDB = db.CFDProveedor.Where(x => x.UUID == uuid_field).FirstOrDefault();
+
+                    if (factDB == null)
+                    {
+                        estatus = "404";
+                        msj = "No se encontró una factura asociada.";
+                    }
+                    else
+                    { //si se encontro el uuid
+                      //primero trata de leer la factura 3.3
+                      // convert string to stream
+                        byte[] byteArray = Encoding.UTF8.GetBytes(factDB.CFDOriginal);
+                        //byte[] byteArray = Encoding.ASCII.GetBytes(contents);
+                        MemoryStream stream = new MemoryStream(byteArray);
+                        MemoryStream newStream = new MemoryStream();
+                        stream.CopyTo(newStream);
+
+                        try
+                        {
+                            stream.Position = 0;
+                            factura_3_3 = XmlUtil.LeeXML_3_3(stream);
+                        }
+                        catch (Exception e)
+                        {
+                            //si falla al leer la 3.3, trata de leer la 4.0
+                            try
+                            {
+                                newStream.Position = 0;
+                                factura_4_0 = XmlUtil.LeeXML_4_0(newStream);
+                            }
+                            catch (Exception ex)
+                            {
+                                estatus = "ERROR";
+                                msj = "Ocurrió un error al leer la estructura del XML: " + ex.Message;
+                            }
+
+                        }
+
+                    }
+                }
+            }
+
+            //si hubo algún error al leer el archivo
+            if (estatus.ToUpper() == "ERROR" || estatus.ToUpper() == "404")
+            {
+                result[0] = new { status = estatus, value = msj };
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+            else
+            { //si el archivo se lee correctamente
+
+                string body = string.Empty;
+                string div_ocultos = string.Empty;
+
+
+                if (factura_3_3 != null)
+                {
+                    estatus = "OK";
+                    body = "Factura Versión: " + factura_3_3.Version +" emisor: "+factura_3_3.Emisor.Rfc;
+                }
+                else if (factura_4_0 != null)
+                {
+                    estatus = "OK";
+                    body = "Factura Versión: " + factura_4_0.Version + " emisor: " + factura_4_0.Emisor.Rfc;
+                }
+
+                result[0] = new { status = estatus, value = body, div_ocultos = div_ocultos };
+                var json = Json(result, JsonRequestBehavior.AllowGet);
+                return json;
+            }
 
         }
     }

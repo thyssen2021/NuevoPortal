@@ -1,0 +1,270 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="ATEBCOFIDIModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="CFDProveedor">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Empresa" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="RFC" Type="varchar" MaxLength="15" />
+          <Property Name="Serie" Type="varchar" MaxLength="50" />
+          <Property Name="FolioFiscal" Type="varchar" MaxLength="40" Nullable="false" />
+          <Property Name="Proveedor" Type="varchar" MaxLength="20" />
+          <Property Name="TipoDocumento" Type="varchar" MaxLength="3" />
+          <Property Name="NoAprobacion" Type="varchar" MaxLength="14" />
+          <Property Name="AñoAprobacion" Type="varchar" MaxLength="4" />
+          <Property Name="RazonSocial" Type="varchar" MaxLength="150" />
+          <Property Name="Monto" Type="numeric" Precision="16" Scale="4" />
+          <Property Name="FechaEmision" Type="datetime" />
+          <Property Name="FechaRecepcion" Type="datetime" />
+          <Property Name="CFDStatus" Type="varchar" MaxLength="2" />
+          <Property Name="FacturaElectronica" Type="text" />
+          <Property Name="Addenda" Type="text" />
+          <Property Name="CFDOriginal" Type="text" />
+          <Property Name="Autoriza1" Type="varchar" MaxLength="200" />
+          <Property Name="Autoriza2" Type="varchar" MaxLength="200" />
+          <Property Name="Usuario" Type="varchar" MaxLength="20" />
+          <Property Name="Login" Type="varchar" MaxLength="50" />
+          <Property Name="TipoDocumentoRec" Type="varchar" MaxLength="3" />
+          <Property Name="XMLSAT" Type="text" />
+          <Property Name="Referencia" Type="varchar" MaxLength="200" />
+          <Property Name="Anexo" Type="text" />
+          <Property Name="UUID" Type="varchar" MaxLength="36" />
+          <Property Name="Referencia1" Type="varchar" MaxLength="200" />
+          <Property Name="Referencia2" Type="varchar" MaxLength="200" />
+          <Property Name="Exportado" Type="bit" />
+          <Property Name="TrackId" Type="bigint" />
+          <Property Name="Moneda" Type="varchar" MaxLength="50" />
+          <Property Name="Referencia3" Type="varchar" MaxLength="200" />
+          <Property Name="VersionCFD" Type="varchar" MaxLength="5" />
+          <Property Name="mailbox" Type="varchar" MaxLength="2" />
+          <Property Name="ExportaCancela" Type="bit" />
+          <Property Name="FechaCancelacion" Type="datetime" />
+          <Property Name="ReporteCancelacion" Type="bit" />
+          <Property Name="DescargaBan" Type="int" />
+          <Property Name="conAviso" Type="bit" />
+          <Property Name="ImporteIva" Type="numeric" Precision="14" Scale="2" />
+          <Property Name="Subtotal" Type="numeric" Precision="14" Scale="2" />
+          <Property Name="Modelo" Type="numeric" Precision="4" Scale="0" />
+          <Property Name="NumeroMotor" Type="varchar" MaxLength="50" />
+          <Property Name="Chasis" Type="varchar" MaxLength="18" />
+          <Property Name="noIndentificacion" Type="varchar" MaxLength="20" />
+          <Property Name="Descripcion" Type="varchar" MaxLength="256" />
+          <Property Name="Lote_ID" Type="bigint" />
+          <Property Name="FechaContable" Type="date" />
+          <Property Name="CFDStatusDatos" Type="bit" />
+          <Property Name="Division" Type="varchar" MaxLength="30" />
+          <Property Name="AcuseEnviado" Type="bit" />
+          <Property Name="se" Type="bit" />
+          <Property Name="Referencia4" Type="varchar" MaxLength="30" />
+          <Property Name="pais" Type="varchar" MaxLength="5" />
+          <Property Name="correoContactoAdd" Type="varchar" MaxLength="50" />
+          <Property Name="ordenCompra" Type="varchar" MaxLength="10" />
+          <Property Name="codigoImpuesto" Type="varchar" MaxLength="2" />
+          <Property Name="HC_Recepcion_Reportada" Type="bit" />
+        </EntityType>
+        <EntityType Name="CFDProveedorArchivos">
+          <Key>
+            <PropertyRef Name="ID" />
+            <PropertyRef Name="Consecutivo" />
+          </Key>
+          <Property Name="ID" Type="bigint" Nullable="false" />
+          <Property Name="Consecutivo" Type="int" Nullable="false" />
+          <Property Name="Archivo" Type="text" Nullable="false" />
+          <Property Name="Extension" Type="varchar" MaxLength="3" Nullable="false" />
+        </EntityType>
+        <EntityContainer Name="ATEBCOFIDIModelStoreContainer">
+          <EntitySet Name="CFDProveedor" EntityType="Self.CFDProveedor" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CFDProveedorArchivos" EntityType="Self.CFDProveedorArchivos" Schema="dbo" store:Type="Tables" />
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="ATEBCOFIDIModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="CFDProveedor">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Empresa" Type="String" MaxLength="10" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="RFC" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="Serie" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="FolioFiscal" Type="String" MaxLength="40" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Proveedor" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="TipoDocumento" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="NoAprobacion" Type="String" MaxLength="14" FixedLength="false" Unicode="false" />
+          <Property Name="AñoAprobacion" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="RazonSocial" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="Monto" Type="Decimal" Precision="16" Scale="4" />
+          <Property Name="FechaEmision" Type="DateTime" Precision="3" />
+          <Property Name="FechaRecepcion" Type="DateTime" Precision="3" />
+          <Property Name="CFDStatus" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="FacturaElectronica" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Addenda" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="CFDOriginal" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Autoriza1" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="Autoriza2" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="Usuario" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="Login" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="TipoDocumentoRec" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="XMLSAT" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Referencia" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="Anexo" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="UUID" Type="String" MaxLength="36" FixedLength="false" Unicode="false" />
+          <Property Name="Referencia1" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="Referencia2" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="Exportado" Type="Boolean" />
+          <Property Name="TrackId" Type="Int64" />
+          <Property Name="Moneda" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Referencia3" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="VersionCFD" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="mailbox" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="ExportaCancela" Type="Boolean" />
+          <Property Name="FechaCancelacion" Type="DateTime" Precision="3" />
+          <Property Name="ReporteCancelacion" Type="Boolean" />
+          <Property Name="DescargaBan" Type="Int32" />
+          <Property Name="conAviso" Type="Boolean" />
+          <Property Name="ImporteIva" Type="Decimal" Precision="14" Scale="2" />
+          <Property Name="Subtotal" Type="Decimal" Precision="14" Scale="2" />
+          <Property Name="Modelo" Type="Decimal" Precision="4" Scale="0" />
+          <Property Name="NumeroMotor" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Chasis" Type="String" MaxLength="18" FixedLength="false" Unicode="false" />
+          <Property Name="noIndentificacion" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="Descripcion" Type="String" MaxLength="256" FixedLength="false" Unicode="false" />
+          <Property Name="Lote_ID" Type="Int64" />
+          <Property Name="FechaContable" Type="DateTime" Precision="0" />
+          <Property Name="CFDStatusDatos" Type="Boolean" />
+          <Property Name="Division" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="AcuseEnviado" Type="Boolean" />
+          <Property Name="se" Type="Boolean" />
+          <Property Name="Referencia4" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="pais" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="correoContactoAdd" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ordenCompra" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="codigoImpuesto" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="HC_Recepcion_Reportada" Type="Boolean" />
+        </EntityType>
+        <EntityType Name="CFDProveedorArchivos">
+          <Key>
+            <PropertyRef Name="ID" />
+            <PropertyRef Name="Consecutivo" />
+          </Key>
+          <Property Name="ID" Type="Int64" Nullable="false" />
+          <Property Name="Consecutivo" Type="Int32" Nullable="false" />
+          <Property Name="Archivo" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Extension" Type="String" MaxLength="3" FixedLength="false" Unicode="false" Nullable="false" />
+        </EntityType>
+        <EntityContainer Name="ATEBCOFIDIEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="CFDProveedor" EntityType="Self.CFDProveedor" />
+          <EntitySet Name="CFDProveedorArchivos" EntityType="Self.CFDProveedorArchivos" />
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="ATEBCOFIDIModelStoreContainer" CdmEntityContainer="ATEBCOFIDIEntities">
+          <EntitySetMapping Name="CFDProveedor">
+            <EntityTypeMapping TypeName="ATEBCOFIDIModel.CFDProveedor">
+              <MappingFragment StoreEntitySet="CFDProveedor">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Empresa" ColumnName="Empresa" />
+                <ScalarProperty Name="RFC" ColumnName="RFC" />
+                <ScalarProperty Name="Serie" ColumnName="Serie" />
+                <ScalarProperty Name="FolioFiscal" ColumnName="FolioFiscal" />
+                <ScalarProperty Name="Proveedor" ColumnName="Proveedor" />
+                <ScalarProperty Name="TipoDocumento" ColumnName="TipoDocumento" />
+                <ScalarProperty Name="NoAprobacion" ColumnName="NoAprobacion" />
+                <ScalarProperty Name="AñoAprobacion" ColumnName="AñoAprobacion" />
+                <ScalarProperty Name="RazonSocial" ColumnName="RazonSocial" />
+                <ScalarProperty Name="Monto" ColumnName="Monto" />
+                <ScalarProperty Name="FechaEmision" ColumnName="FechaEmision" />
+                <ScalarProperty Name="FechaRecepcion" ColumnName="FechaRecepcion" />
+                <ScalarProperty Name="CFDStatus" ColumnName="CFDStatus" />
+                <ScalarProperty Name="FacturaElectronica" ColumnName="FacturaElectronica" />
+                <ScalarProperty Name="Addenda" ColumnName="Addenda" />
+                <ScalarProperty Name="CFDOriginal" ColumnName="CFDOriginal" />
+                <ScalarProperty Name="Autoriza1" ColumnName="Autoriza1" />
+                <ScalarProperty Name="Autoriza2" ColumnName="Autoriza2" />
+                <ScalarProperty Name="Usuario" ColumnName="Usuario" />
+                <ScalarProperty Name="Login" ColumnName="Login" />
+                <ScalarProperty Name="TipoDocumentoRec" ColumnName="TipoDocumentoRec" />
+                <ScalarProperty Name="XMLSAT" ColumnName="XMLSAT" />
+                <ScalarProperty Name="Referencia" ColumnName="Referencia" />
+                <ScalarProperty Name="Anexo" ColumnName="Anexo" />
+                <ScalarProperty Name="UUID" ColumnName="UUID" />
+                <ScalarProperty Name="Referencia1" ColumnName="Referencia1" />
+                <ScalarProperty Name="Referencia2" ColumnName="Referencia2" />
+                <ScalarProperty Name="Exportado" ColumnName="Exportado" />
+                <ScalarProperty Name="TrackId" ColumnName="TrackId" />
+                <ScalarProperty Name="Moneda" ColumnName="Moneda" />
+                <ScalarProperty Name="Referencia3" ColumnName="Referencia3" />
+                <ScalarProperty Name="VersionCFD" ColumnName="VersionCFD" />
+                <ScalarProperty Name="mailbox" ColumnName="mailbox" />
+                <ScalarProperty Name="ExportaCancela" ColumnName="ExportaCancela" />
+                <ScalarProperty Name="FechaCancelacion" ColumnName="FechaCancelacion" />
+                <ScalarProperty Name="ReporteCancelacion" ColumnName="ReporteCancelacion" />
+                <ScalarProperty Name="DescargaBan" ColumnName="DescargaBan" />
+                <ScalarProperty Name="conAviso" ColumnName="conAviso" />
+                <ScalarProperty Name="ImporteIva" ColumnName="ImporteIva" />
+                <ScalarProperty Name="Subtotal" ColumnName="Subtotal" />
+                <ScalarProperty Name="Modelo" ColumnName="Modelo" />
+                <ScalarProperty Name="NumeroMotor" ColumnName="NumeroMotor" />
+                <ScalarProperty Name="Chasis" ColumnName="Chasis" />
+                <ScalarProperty Name="noIndentificacion" ColumnName="noIndentificacion" />
+                <ScalarProperty Name="Descripcion" ColumnName="Descripcion" />
+                <ScalarProperty Name="Lote_ID" ColumnName="Lote_ID" />
+                <ScalarProperty Name="FechaContable" ColumnName="FechaContable" />
+                <ScalarProperty Name="CFDStatusDatos" ColumnName="CFDStatusDatos" />
+                <ScalarProperty Name="Division" ColumnName="Division" />
+                <ScalarProperty Name="AcuseEnviado" ColumnName="AcuseEnviado" />
+                <ScalarProperty Name="se" ColumnName="se" />
+                <ScalarProperty Name="Referencia4" ColumnName="Referencia4" />
+                <ScalarProperty Name="pais" ColumnName="pais" />
+                <ScalarProperty Name="correoContactoAdd" ColumnName="correoContactoAdd" />
+                <ScalarProperty Name="ordenCompra" ColumnName="ordenCompra" />
+                <ScalarProperty Name="codigoImpuesto" ColumnName="codigoImpuesto" />
+                <ScalarProperty Name="HC_Recepcion_Reportada" ColumnName="HC_Recepcion_Reportada" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CFDProveedorArchivos">
+            <EntityTypeMapping TypeName="ATEBCOFIDIModel.CFDProveedorArchivos">
+              <MappingFragment StoreEntitySet="CFDProveedorArchivos">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Consecutivo" ColumnName="Consecutivo" />
+                <ScalarProperty Name="Archivo" ColumnName="Archivo" />
+                <ScalarProperty Name="Extension" ColumnName="Extension" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="Ninguno" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

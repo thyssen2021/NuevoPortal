@@ -428,62 +428,62 @@
                                     <tbody id="body_conceptos">
 
                                         @*<tr>
-                                            <td>
-                                                1
-                                            </td>
-                                            <td width="10%">
-                                                <select name="planta" class="form-control select2bs4" style="width:100%">
-                                                    <option value="">-- Selecccionar --</option>
-                                                    <option value="1">No Deducibles (610010)</option>
-                                                    <option value="2">Hospedaje (610030)</option>
-                                                    <option value="3">Comidas (610040)</option>
-                                                    <option value="4">Vuelos (610070)</option>
-                                                    <option value="5">Transporte terrestre (610071)</option>
-                                                    <option value="6">Renta de automovil (610072)</option>
-                                                    <option value="7">Casetas (610073)</option>
-                                                    <option value="8">Combustible (610074)</option>
-                                                    <option value="9">Varios (610080)</option>
+                                                <td>
+                                                    1
+                                                </td>
+                                                <td width="10%">
+                                                    <select name="planta" class="form-control select2bs4" style="width:100%">
+                                                        <option value="">-- Selecccionar --</option>
+                                                        <option value="1">No Deducibles (610010)</option>
+                                                        <option value="2">Hospedaje (610030)</option>
+                                                        <option value="3">Comidas (610040)</option>
+                                                        <option value="4">Vuelos (610070)</option>
+                                                        <option value="5">Transporte terrestre (610071)</option>
+                                                        <option value="6">Renta de automovil (610072)</option>
+                                                        <option value="7">Casetas (610073)</option>
+                                                        <option value="8">Combustible (610074)</option>
+                                                        <option value="9">Varios (610080)</option>
 
-                                                </select>
-                                            </td>
-                                            <td>
-                                                610030
-                                            </td>
-                                            <td>
-                                                ¿?
-                                            </td>
-                                            <td>
-                                                @DateTime.Now.ToShortDateString()
-                                            </td>
-                                            <td>
-                                                4910a97d-0b1b-42b1-b579-2c8ae297eca3
-                                            </td>
-                                            <td>
-                                                MXN
-                                            </td>
-                                            <td>
-                                                $ 123.45
-                                            </td>
-                                            <td>
-                                                1
-                                            </td>
-                                            <td>
-                                                $ 100.00
-                                            </td>
-                                            <td>
-                                                $ 0.00
-                                            </td>
-                                            <td>
-                                                ¿?
-                                            </td>
-                                            <td>
-                                                $ 123.45
-                                            </td>
-                                            <td>
-                                                Total?
-                                            </td>
-                                            <td><button type="button" class="btn btn-danger float-lg-left"><i class="fa-solid fa-trash-can"></i></button></td>
-                                        </tr>*@
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    610030
+                                                </td>
+                                                <td>
+                                                    ¿?
+                                                </td>
+                                                <td>
+                                                    @DateTime.Now.ToShortDateString()
+                                                </td>
+                                                <td>
+                                                    4910a97d-0b1b-42b1-b579-2c8ae297eca3
+                                                </td>
+                                                <td>
+                                                    MXN
+                                                </td>
+                                                <td>
+                                                    $ 123.45
+                                                </td>
+                                                <td>
+                                                    1
+                                                </td>
+                                                <td>
+                                                    $ 100.00
+                                                </td>
+                                                <td>
+                                                    $ 0.00
+                                                </td>
+                                                <td>
+                                                    ¿?
+                                                </td>
+                                                <td>
+                                                    $ 123.45
+                                                </td>
+                                                <td>
+                                                    Total?
+                                                </td>
+                                                <td><button type="button" class="btn btn-danger float-lg-left"><i class="fa-solid fa-trash-can"></i></button></td>
+                                            </tr>*@
                                     </tbody>
                                     <tfoot>
                                         <tr>
@@ -509,21 +509,26 @@
                             <div class="form-group row">
                                 <span style="color:black"><b>CARGAR FACTURA NACIONAL</b></span>
                             </div>
-
                             <div id="error-msj-div" class="alert alert-danger" role="alert" style="display:none">
                             </div>
-
+                            <div class="form-group row">
+                                <span style="color:darkgray"><b>Opci&oacute;n 1 (a trav&eacute;s de COFIDI):</b></span>
+                            </div>
                             <div class="item form-group">
-
                                 <label class="control-label col-md-1 float-right">UUID</label>
-                                <div class="col-md-3">
-                                    <input type="text" class="form-control" value="" />
-                                </div>
-                                <div class="col-md-1 col-sm-1">
-                                    <button type="button" class="btn btn-warning float-lg-left"><i class="fa-solid fa-magnifying-glass"></i>&nbsp; Buscar</button>
-                                </div>
-                                <label for="archivo1" class="control-label col-md-1">XML:</label>
                                 <div class="col-md-4">
+                                    <input type="text" id="uuid_field" name="uuid_field" class="form-control" value="" />
+                                </div>
+                                <div class="col-md-2 col-sm-2">
+                                    <button type="button" id="buscar-uuid" class="btn btn-warning float-lg-left"><i class="fa-solid fa-magnifying-glass"></i>&nbsp; Buscar</button>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <span style="color:darkgray"><b>Opci&oacute;n 2 (Carga de archivo .xml):</b></span>
+                            </div>
+                            <div class="item form-group">
+                                <label for="archivo1" class="control-label col-md-1">XML:</label>
+                                <div class="col-md-5">
                                     <div class="input-group">
                                         <div class="custom-file">
                                             <input type="file" id="archivo1" name="archivo1" class="custom-file-input" accept=".xml,.xml" />
@@ -532,7 +537,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-2 col-sm-2">
-                                    <button id="cargar-factura-btn" type="button" class="btn btn-warning float-lg-left"><i class="fa-solid fa-upload"></i>&nbsp; Leer Factura</button>
+                                    <button id="cargar-factura-btn" type="button" class="btn btn-warning float-lg-left"><i class="fa-solid fa-upload"></i>&nbsp; Cargar Factura</button>
                                 </div>
                             </div>
                             <div class="ln_solid"></div>
@@ -614,6 +619,7 @@
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery-iu/jquery-ui.min.js"))
     @Scripts.Render(Url.Content("~/Scripts/MvcFoolproofJQueryValidation.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
@@ -650,6 +656,7 @@
             $('.precio').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'allowMinus': false, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
             $('.cantidad').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'allowMinus': false, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
             $('#@Html.IdFor(model => model.GV_comprobacion.business_card)').inputmask({ 'mask': '9999-9999-9999-9999', 'autoGroup': true, 'autoUnmask': true, 'removeMaskOnSubmit': true });
+            $('#uuid_field').inputmask( { 'mask': '********-****-****-****-************', 'autoGroup': true, 'autoUnmask': true, 'removeMaskOnSubmit': true });
 
             //asigna evento para valor de centros de costo
             $('#@Html.IdFor(model => model.GV_comprobacion.clave_planta)').change(function () {
@@ -675,6 +682,11 @@
             //evento para leer el archivo xml
             $("#cargar-factura-btn").click(function () {
                 leeXML();
+            });
+
+             //evento para buscar uuid desde cofidi
+            $("#buscar-uuid").click(function () {
+                BuscaXML();
             });
 
             //al cargar la página por primera vez
@@ -706,7 +718,7 @@
                         //verifica si se leyó correctamente el archivo xlsx
                         if (estatus == "ERROR") {
                             $("#error-msj-div").html(datos[0].value);
-                            $("#error-msj-div").show();
+                            $("#error-msj-div").hide().show('slide', 300);
                             $("#info-msj-div").hide();
                             //borra la tabla
                             $("#div_ocultos").html('');
@@ -722,7 +734,83 @@
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Mensaje',
-                                text: 'Se cargó la factura XML, verifique los datos obtenidos.',
+                                text: 'Se cargó la factura XML, verifique que los datos obtenidos sean correctos.',
+                                confirmButtonText: 'Aceptar',
+                            });
+                            $("#error-msj-div").hide();
+                            //borra el archivo una vez que se ha cargado
+                            $("#archivo1").val('');
+                            $('#archivo1').next('label').html('Seleccione un archivo...');
+                        }
+
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Ocurrió un error obteniendo la información: ' + error,
+                            confirmButtonText: 'Aceptar',
+                        })
+                        $("#archivo1").val('');
+                        $('#archivo1').next('label').html('Seleccione un archivo...');
+                    }
+
+                },
+                error: function (textStatus, errorThrown) {
+                    //en caso de error en la llamada ajax
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Ocurrió un error: ' + errorThrown,
+                        text: 'Intente nuevamente.'
+                    })
+                },
+                async: true
+
+            });
+        }
+
+        function BuscaXML() {
+            //var f = $(this);
+
+            var formData = new FormData(document.getElementById("formulario"));
+            formData.append("dato", "valor");
+
+            //formData.append(f.attr("name"), $(this)[0].files[0]);
+            $.ajax({
+                url: "/ComprobacionGV/BuscaCOFIDI",
+                type: "post",
+                dataType: "html",
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    try {
+                        //convierte la respuesta en archivo json
+                        let datos = JSON.parse(data)
+                        let estatus = datos[0].status;
+
+                        console.log(datos);
+
+                        //verifica si se leyó correctamente el archivo xlsx
+                        if (estatus == "ERROR") {
+                            $("#error-msj-div").html(datos[0].value);
+                            $("#error-msj-div").hide().show('slide', 300);
+                            $("#info-msj-div").hide();
+                            //borra la tabla
+                            $("#div_ocultos").html('');
+                            //recargaTabla('');
+                            $("#archivo1").val('');
+                            $('#archivo1').next('label').html('Seleccione un archivo...');
+
+                        } else if (datos[0].status == "OK") {
+
+                            $("#div_ocultos").html(datos[0].div_ocultos);
+                            //recargaTabla(datos[0].value);
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Mensaje',
+                                text: 'Se cargó la factura XML, verifique que los datos obtenidos sean correctos.',
                                 confirmButtonText: 'Aceptar',
                             });
                             $("#error-msj-div").hide();
@@ -730,6 +818,17 @@
                             $("#archivo1").val('');
                             $('#archivo1').next('label').html('Seleccione un archivo...');
 
+                        } else if (datos[0].status == "404") {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Mensaje',
+                                text: 'No se encontró una factura asociada. Verifique los datos y/o ingrese la factura de forma manual.',
+                                confirmButtonText: 'Aceptar',
+                            })
+                            $("#error-msj-div").hide();
+                            //borra el archivo una vez que se ha cargado
+                            $("#archivo1").val('');
+                            $('#archivo1').next('label').html('Seleccione un archivo...');
                         }
 
                     } catch (error) {
