@@ -136,9 +136,9 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_equipos_rel_checklist_actividades> IT_equipos_rel_checklist_actividades { get; set; }
         public virtual DbSet<IT_inventory_cellular_line> IT_inventory_cellular_line { get; set; }
         public virtual DbSet<IT_equipos_checklist> IT_equipos_checklist { get; set; }
-        public virtual DbSet<GV_comprobacion_rel_gastos> GV_comprobacion_rel_gastos { get; set; }
         public virtual DbSet<GV_comprobacion_tipo_gastos_viaje> GV_comprobacion_tipo_gastos_viaje { get; set; }
         public virtual DbSet<GV_centros_costo> GV_centros_costo { get; set; }
         public virtual DbSet<GV_comprobacion> GV_comprobacion { get; set; }
+        public virtual DbSet<GV_comprobacion_rel_gastos> GV_comprobacion_rel_gastos { get; set; }
     }
 }

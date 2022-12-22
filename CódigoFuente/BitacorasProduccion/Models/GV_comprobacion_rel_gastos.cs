@@ -16,15 +16,29 @@ namespace Portal_2_0.Models
     {
         public int id { get; set; }
         public int id_gv_solicitud { get; set; }
-        public int id_comprobacion_tipo_gastos_viaje { get; set; }
-        public string factura { get; set; }
+        public string concepto_tipo { get; set; }
+        public Nullable<int> id_comprobacion_tipo_gastos_viaje { get; set; }
+        public Nullable<int> num_concepto { get; set; }
         public Nullable<System.DateTime> fecha_factura { get; set; }
         public string uuid { get; set; }
-        public string currency_iso { get; set; }
-        public decimal importe_factura { get; set; }
         public Nullable<double> tipo_cambio { get; set; }
+        public string currency_iso { get; set; }
+        public string descripcion { get; set; }
+        public Nullable<double> cantidad { get; set; }
+        public Nullable<decimal> precio_unitario { get; set; }
+        public Nullable<decimal> importe { get; set; }
+        public Nullable<decimal> descuento { get; set; }
+        public Nullable<double> iva_porcentaje { get; set; }
+        public Nullable<double> iva_total { get; set; }
+        public Nullable<double> isr_porcentaje { get; set; }
+        public Nullable<double> isr_total { get; set; }
+        public Nullable<double> ieps_porcentaje { get; set; }
+        public Nullable<double> ieps_total { get; set; }
+        public Nullable<decimal> total_translados { get; set; }
+        public Nullable<decimal> total_retenciones { get; set; }
+        public Nullable<decimal> total_mxn { get; set; }
         public string validacion { get; set; }
-        public Nullable<double> iva { get; set; }
+        public string factura { get; set; }
     
         public virtual currency currency { get; set; }
         public virtual GV_comprobacion_tipo_gastos_viaje GV_comprobacion_tipo_gastos_viaje { get; set; }

@@ -18,20 +18,32 @@ GO
 *  ----------   ---------------   -------------------------------------
 ******************************************************************************/
 
-
 CREATE TABLE [GV_comprobacion_rel_gastos](
 	[id] [int] IDENTITY(1,1) NOT NULL,	
 	[id_gv_solicitud][int] NOT NULL, --FK
-	[id_comprobacion_tipo_gastos_viaje][int] NOT NULL, --FK
-	[factura][varchar](12) NUll,
+	[concepto_tipo][varchar](20),
+	[id_comprobacion_tipo_gastos_viaje][int] NULL, --FK	
+	[num_concepto][int] NULL,
 	[fecha_factura][datetime]NUll,
-	[uuid][varchar](32) NULL,
-	[currency_iso][varchar](3) NOT NUll, --FK
-	[importe_factura][decimal](14,2) NOT NULL, 
+	[uuid][varchar](32) NULL,	
 	[tipo_cambio][float] NULL,
+	[currency_iso][varchar](3) NUll, --FK
+	[descripcion][varchar](350) NULL,
+	[cantidad][float] NULL,
+	[precio_unitario][decimal](14,2) NULL, 
+	[importe][decimal](14,2) NULL,  --cantidad x precio unitario 
+	[descuento][decimal](14,2) NULL, 
+	[iva_porcentaje][float] NULL, 
+	[iva_total][float] NULL,
+	[isr_porcentaje][float] NULL, 
+	[isr_total][float] NULL,
+	[ieps_porcentaje][float] NULL, 
+	[ieps_total][float] NULL,
+	[total_translados][decimal](14,2) NULL,
+	[total_retenciones][decimal](14,2) NULL,
+	[total_mxn][decimal](14,2) NULL,
 	[validacion][varchar](51) NUll,  -- definir campo 
-	[iva][float] NULL,
-	
+	[factura][varchar](12) NUll, -- definir campo
  CONSTRAINT [PK_GV_comprobacion_rel_gastos] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
@@ -58,6 +70,12 @@ alter table [GV_comprobacion_rel_gastos]
  add constraint FK_GV_comprobacion_rel_gastos_id_gv_solicitud
   foreign key (id_gv_solicitud)
   references GV_solicitud(id);
+
+  -- restricion check
+ALTER TABLE [GV_comprobacion_rel_gastos] ADD CONSTRAINT CK_comprobacion_rel_gastos_concepto_tipo CHECK ([concepto_tipo] IN 
+('COFIDI_RESUMEN','COFIDI_CONCEPTO', 'XML_RESUMEN', 'XML_CONCEPTO', 'GASTO_EXTRANJERO', 'GASTO_SIN_COMPROBANTE')
+)
+ 	  
 
 GO
 

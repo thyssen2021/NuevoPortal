@@ -398,6 +398,8 @@ namespace Portal_2_0.Controllers
                 return json;
             }
         }
+       
+        
         /// <summary>
         /// Método que busca y lee el contenido de una factura xml desde cofidi
         /// </summary>
@@ -485,14 +487,94 @@ namespace Portal_2_0.Controllers
                 string body = string.Empty;
                 string div_ocultos = string.Empty;
 
-
                 if (factura_3_3 != null)
                 {
+                    List<GV_comprobacion_tipo_gastos_viaje> listaCuentas = db.GV_comprobacion_tipo_gastos_viaje.Where(x=>x.activo).ToList();
+
                     estatus = "OK";
-                    body = "Factura Versión: " + factura_3_3.Version +" emisor: "+factura_3_3.Emisor.Rfc;
+                    //lee cabecera de la factura
+                    body = String.Format(@"<tr style=""background-color:#FFEB9C"">
+                                                <td>1</td> 
+                                                <td>{0}</td> 
+                                                <td nowrap>{1}</td> 
+                                                <td>{2}</td> 
+                                                <td>{3}</td> 
+                                                <td>{4}</td> 
+                                                <td colspan=""4""></td>
+                                                <td nowrap>{5}</td> 
+                                                <td nowrap>{6}</td> 
+                                                <td></td> 
+                                                <td nowrap>{7}</td> 
+                                                <td></td> 
+                                                <td nowrap>{8}</td> 
+                                                <td></td> 
+                                                <td nowrap>{9}</td>                                                
+                                                <td nowrap>{10}</td> 
+                                                <td nowrap style=""color:red"">{11}</td> 
+                                                <td nowrap >{12}</td> 
+                                                <td>{13}</td>
+                                            </tr>
+                    ", factura_3_3.Fecha.ToShortDateString(), factura_3_3.TimbreFiscalDigital.UUID
+                    , @"<a href=""/Combos/MuestraArchivo/?uuid="+ factura_3_3.TimbreFiscalDigital.UUID + @""" class=""btn btn-danger"" title=""Deshabilitar"" target=""_blank""><i class=""fa-solid fa-file-pdf""></i></a>"
+                    , factura_3_3.TipoCambio == 0 ? 1 : factura_3_3.TipoCambio, factura_3_3.Moneda
+                    , "$ " + factura_3_3.SubTotal, factura_3_3.Descuento == 0 ? "--" : "$ " + factura_3_3.Descuento
+                    , factura_3_3.GetTotalIVAImporte() == 0 ? "--" :  factura_3_3.GetTotalIVAImporte().ToString("$ 0.00")
+                    , factura_3_3.GetTotalISRImporte() == 0 ? "--" : factura_3_3.GetTotalISRImporte().ToString("$ 0.00")
+                    , factura_3_3.GetTotalIEPSImporte() == 0 ? "--" :  factura_3_3.GetTotalIEPSImporte().ToString("$ 0.00")
+                    , factura_3_3.Impuestos.TotalImpuestosTrasladados == 0 ? "--" : factura_3_3.Impuestos.TotalImpuestosTrasladados.ToString("$ 0.00")
+                    , factura_3_3.Impuestos.TotalImpuestosRetenidos == 0 ? "--" : factura_3_3.Impuestos.TotalImpuestosRetenidos.ToString("$ 0.00")
+                    , factura_3_3.Total.ToString("$ 0.00")
+                    , @"<input type=""button"" value=""Borrar"" class=""btn btn-danger"" onclick=""borrarConcepto(` +num + `); return false; "">"
+                    );
+
+                    //crea el select para el tipo de cuenta
+                    string selectCuenta = @"<select name = 's_combo' id = 's_conbo' class=""form-control select2bs4"" style=""width:100%"" required>
+                                                <option value = '' > --Seleccione un valor --</option>";
+
+                    foreach (var cuenta in listaCuentas) {
+                        selectCuenta += @"<option value = """ + cuenta.id + @""">"+cuenta.ConcatCuenta+"</option>";
+                    }
+                                                
+                    selectCuenta += "</select>";             
+
+
+                    //agrega info para cada uno de los conceptos
+                    foreach (var concepto in factura_3_3.Conceptos)
+                    {
+                        body += String.Format(@"<tr style=""background-color:#C9DCC1"">                                              
+                                                <td colspan=""6""></td>
+                                                <td nowrap>{14}</td>
+                                                <td>{0}</td> 
+                                                <td>{1}</td> 
+                                                <td nowrap>{2}</td> 
+                                                <td nowrap>{3}</td> 
+                                                <td nowrap>{4}</td> 
+                                                <td nowrap>{5}</td> 
+                                                <td nowrap>{6}</td> 
+                                                <td nowrap>{7}</td> 
+                                                <td nowrap>{8}</td> 
+                                                <td nowrap>{9}</td> 
+                                                <td nowrap>{10}</td>                                              
+                                                <td nowrap>{11}</td> 
+                                                <td nowrap style=""color:red"">{12}</td> 
+                                                <td nowrap>{13}</td> 
+                                                <td></td>
+                                            </tr>
+                            ", concepto.Descripcion, concepto.Cantidad.ToString("0.00"), concepto.ValorUnitario.ToString("$ 0.00"), concepto.Importe.ToString("$ 0.00"), concepto.Descuento == 0 ? "--" : concepto.Descuento.ToString("$ 0.00")
+                            , concepto.GetIVATasa() == 0 ? "--" : (concepto.GetIVATasa() ).ToString("0.00 %"), concepto.GetIVAImporte() == 0 ? "--" : concepto.GetIVAImporte().ToString("$ 0.00")
+                            , concepto.GetISRTasa() == 0 ? "--" : (concepto.GetISRTasa() ).ToString("0.00 %"), concepto.GetISRImporte() == 0 ? "--" : concepto.GetISRImporte().ToString("$ 0.00")
+                            , concepto.GetIEPSTasa() == 0 ? "--" : (concepto.GetIEPSTasa() ).ToString("0.00 %"), concepto.GetIEPSImporte() == 0 ? "--" : concepto.GetIEPSImporte().ToString("$ 0.00")
+                            , concepto.GetTotalImpuestos() == 0 ? "--" : concepto.GetTotalImpuestos().ToString("$ 0.00")
+                            , concepto.GetTotalRetenciones() == 0 ? "--" : concepto.GetTotalRetenciones().ToString("$ 0.00")
+                            , concepto.GetTotalImporteConTransladosyRetenciones().ToString("$ 0.00")
+                            , selectCuenta
+                            );
+                    }
+
                 }
                 else if (factura_4_0 != null)
                 {
+
                     estatus = "OK";
                     body = "Factura Versión: " + factura_4_0.Version + " emisor: " + factura_4_0.Emisor.Rfc;
                 }

@@ -634,6 +634,7 @@
     <Compile Include="Models\MetadataModels\budget_plantasMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_centros_costoMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_comprobacionMetadata.cs" />
+    <Compile Include="Models\MetadataModels\GV_comprobacion_tipo_gastos_viajeMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_medios_transporteMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_rel_gastos_solicitudMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_solicitudMetadata.cs" />
