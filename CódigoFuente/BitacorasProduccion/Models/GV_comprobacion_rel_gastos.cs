@@ -16,8 +16,10 @@ namespace Portal_2_0.Models
     {
         public int id { get; set; }
         public int id_gv_solicitud { get; set; }
+        public Nullable<int> id_centro_costo { get; set; }
         public string concepto_tipo { get; set; }
         public Nullable<int> id_comprobacion_tipo_gastos_viaje { get; set; }
+        public Nullable<int> id_comprobacion_tipo_pago { get; set; }
         public Nullable<int> num_concepto { get; set; }
         public Nullable<System.DateTime> fecha_factura { get; set; }
         public string uuid { get; set; }
@@ -36,12 +38,15 @@ namespace Portal_2_0.Models
         public Nullable<double> ieps_total { get; set; }
         public Nullable<decimal> total_translados { get; set; }
         public Nullable<decimal> total_retenciones { get; set; }
+        public Nullable<decimal> impuestos_locales { get; set; }
         public Nullable<decimal> total_mxn { get; set; }
-        public string validacion { get; set; }
+        public string comentario { get; set; }
         public string factura { get; set; }
     
         public virtual currency currency { get; set; }
+        public virtual GV_centros_costo GV_centros_costo { get; set; }
         public virtual GV_comprobacion_tipo_gastos_viaje GV_comprobacion_tipo_gastos_viaje { get; set; }
+        public virtual GV_comprobacion_tipo_pago GV_comprobacion_tipo_pago { get; set; }
         public virtual GV_solicitud GV_solicitud { get; set; }
     }
 }

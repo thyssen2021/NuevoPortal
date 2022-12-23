@@ -12,21 +12,18 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class GV_centros_costo
+    public partial class GV_comprobacion_tipo_pago
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public GV_centros_costo()
+        public GV_comprobacion_tipo_pago()
         {
             this.GV_comprobacion_rel_gastos = new HashSet<GV_comprobacion_rel_gastos>();
         }
     
         public int id { get; set; }
-        public int clave_planta { get; set; }
-        public string centro_costo { get; set; }
-        public string departamento { get; set; }
+        public string descripcion { get; set; }
         public bool activo { get; set; }
     
-        public virtual plantas plantas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<GV_comprobacion_rel_gastos> GV_comprobacion_rel_gastos { get; set; }
     }

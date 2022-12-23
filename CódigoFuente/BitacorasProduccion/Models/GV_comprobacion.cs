@@ -15,7 +15,6 @@ namespace Portal_2_0.Models
     public partial class GV_comprobacion
     {
         public int id_gv_solicitud { get; set; }
-        public int id_centro_costo { get; set; }
         public string business_card { get; set; }
         public Nullable<System.DateTime> fecha_aceptacion_jefe_area { get; set; }
         public Nullable<System.DateTime> fecha_aceptacion_controlling { get; set; }
@@ -25,7 +24,6 @@ namespace Portal_2_0.Models
         public string comentario_adicional { get; set; }
         public string estatus { get; set; }
     
-        public virtual GV_centros_costo GV_centros_costo { get; set; }
         public virtual GV_solicitud GV_solicitud { get; set; }
     }
 }

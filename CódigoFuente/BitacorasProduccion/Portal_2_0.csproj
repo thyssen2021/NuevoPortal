@@ -476,6 +476,9 @@
     <Compile Include="Models\GV_comprobacion_tipo_gastos_viaje.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\GV_comprobacion_tipo_pago.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\GV_medios_transporte.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -5848,6 +5851,7 @@
     <Content Include="Content\vendors\starrr\index.html" />
     <Content Include="Content\vendors\sweetalert2-theme-bootstrap-4\bootstrap-4.css" />
     <Content Include="Content\vendors\sweetalert2-theme-bootstrap-4\bootstrap-4.min.css" />
+    <Content Include="Content\vendors\sweetalert2\sweetalert2%4011.js" />
     <Content Include="Content\vendors\sweetalert2\sweetalert2.all.js" />
     <Content Include="Content\vendors\sweetalert2\sweetalert2.all.min.js" />
     <Content Include="Content\vendors\sweetalert2\sweetalert2.css" />

@@ -140,5 +140,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<GV_centros_costo> GV_centros_costo { get; set; }
         public virtual DbSet<GV_comprobacion> GV_comprobacion { get; set; }
         public virtual DbSet<GV_comprobacion_rel_gastos> GV_comprobacion_rel_gastos { get; set; }
+        public virtual DbSet<GV_comprobacion_tipo_pago> GV_comprobacion_tipo_pago { get; set; }
     }
 }

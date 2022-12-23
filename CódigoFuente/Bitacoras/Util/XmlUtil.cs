@@ -48,6 +48,21 @@ namespace Bitacoras.Util
                             }
 
                         }
+                        //si el complemento es ImpLocales lo deserializamos
+                        if (oComplementoInterior.Name.Contains("ImpuestosLocales"))
+                        {
+
+                            //Objeto para aplicar ahora la deserialización del complemento timbre
+                            XmlSerializer oSerializerComplemento = new XmlSerializer(typeof(ImpuestosLocales));
+                            //creamos otro flujo para el complemento
+                            using (var readerComplemento = new StringReader(oComplementoInterior.OuterXml))
+                            {
+                                //y por ultimo deserializamos el complemento
+                                oComprobante.ImpuestosLocales =
+                                    (ImpuestosLocales)oSerializerComplemento.Deserialize(readerComplemento);
+                            }
+
+                        }
                     }
                 }
             }
@@ -88,6 +103,21 @@ namespace Bitacoras.Util
                                 //y por ultimo deserializamos el complemento
                                 oComprobante.TimbreFiscalDigital =
                                     (TimbreFiscalDigital)oSerializerComplemento.Deserialize(readerComplemento);
+                            }
+
+                        }
+                        //si el complemento es ImpLocales lo deserializamos
+                        if (oComplementoInterior.Name.Contains("ImpuestosLocales"))
+                        {
+
+                            //Objeto para aplicar ahora la deserialización del complemento timbre
+                            XmlSerializer oSerializerComplemento = new XmlSerializer(typeof(ImpuestosLocales));
+                            //creamos otro flujo para el complemento
+                            using (var readerComplemento = new StringReader(oComplementoInterior.OuterXml))
+                            {
+                                //y por ultimo deserializamos el complemento
+                                oComprobante.ImpuestosLocales =
+                                    (ImpuestosLocales)oSerializerComplemento.Deserialize(readerComplemento);
                             }
 
                         }

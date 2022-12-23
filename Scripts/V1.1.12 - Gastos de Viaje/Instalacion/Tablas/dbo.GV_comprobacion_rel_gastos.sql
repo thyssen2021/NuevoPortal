@@ -21,9 +21,11 @@ GO
 CREATE TABLE [GV_comprobacion_rel_gastos](
 	[id] [int] IDENTITY(1,1) NOT NULL,	
 	[id_gv_solicitud][int] NOT NULL, --FK
+	[id_centro_costo][int] NULL,
 	[concepto_tipo][varchar](20),
 	[id_comprobacion_tipo_gastos_viaje][int] NULL, --FK	
-	[num_concepto][int] NULL,
+	[id_comprobacion_tipo_pago][int] NULL, --FK	
+	[num_concepto][int] NULL,   --para identificar que pertenecen a la misma factura (utilizar uuid)
 	[fecha_factura][datetime]NUll,
 	[uuid][varchar](32) NULL,	
 	[tipo_cambio][float] NULL,
@@ -41,8 +43,9 @@ CREATE TABLE [GV_comprobacion_rel_gastos](
 	[ieps_total][float] NULL,
 	[total_translados][decimal](14,2) NULL,
 	[total_retenciones][decimal](14,2) NULL,
+	[impuestos_locales][decimal](14,2) NULL,
 	[total_mxn][decimal](14,2) NULL,
-	[validacion][varchar](51) NUll,  -- definir campo 
+	[comentario][varchar](150) NULL,
 	[factura][varchar](12) NUll, -- definir campo
  CONSTRAINT [PK_GV_comprobacion_rel_gastos] PRIMARY KEY CLUSTERED 
 (
@@ -65,11 +68,23 @@ alter table [GV_comprobacion_rel_gastos]
   foreign key (id_comprobacion_tipo_gastos_viaje)
   references GV_comprobacion_tipo_gastos_viaje(id);
 
+     -- restriccion de clave foranea
+  alter table [GV_comprobacion_rel_gastos]
+ add constraint FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_pago
+  foreign key (id_comprobacion_tipo_pago)
+  references GV_comprobacion_tipo_pago(id);
+
   -- restriccion de clave foranea
   alter table [GV_comprobacion_rel_gastos]
  add constraint FK_GV_comprobacion_rel_gastos_id_gv_solicitud
   foreign key (id_gv_solicitud)
   references GV_solicitud(id);
+
+  --  -- restriccion de clave foranea
+alter table [GV_comprobacion_rel_gastos]
+ add constraint FK_GV_comprobacion_rel_gastos_id_centro_costo
+  foreign key (id_centro_costo)
+  references GV_centros_costo(id);
 
   -- restricion check
 ALTER TABLE [GV_comprobacion_rel_gastos] ADD CONSTRAINT CK_comprobacion_rel_gastos_concepto_tipo CHECK ([concepto_tipo] IN 

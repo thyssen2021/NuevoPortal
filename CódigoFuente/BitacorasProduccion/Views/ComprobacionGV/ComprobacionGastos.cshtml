@@ -20,8 +20,6 @@
     @Styles.Render("~/Content/dataTables_css")
     <!-- iCheck -->
     <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/green.css")" rel="stylesheet">
-    <!-- SweetAlert2 -->
-    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
 
     <style>
 
@@ -48,6 +46,8 @@
             color: #221f1f;
             font-weight: bolder;
         }
+
+        
     </style>
 }
 
@@ -360,21 +360,22 @@
                                 </div>
 
                             </div>
-
-                            <div class="form-group row">
-                                <!--Planta-->
-                                <label class="control-label col-md-1 float-right">Planta</label>
-                                <div class="col-md-2">
-                                    @Html.DropDownListFor(m => m.GV_comprobacion.clave_planta, (IEnumerable<SelectListItem>)ViewBag.plantaClave, null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
-                                    @Html.ValidationMessageFor(model => model.GV_comprobacion.clave_planta, "", new { @class = "text-danger" })
+                            @*
+                                <div class="form-group row">
+                                    <!--Planta-->
+                                    <label class="control-label col-md-1 float-right">Planta</label>
+                                    <div class="col-md-2">
+                                        @Html.DropDownListFor(m => m.GV_comprobacion.clave_planta, (IEnumerable<SelectListItem>)ViewBag.plantaClave, null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                        @Html.ValidationMessageFor(model => model.GV_comprobacion.clave_planta, "", new { @class = "text-danger" })
+                                    </div>
+                                    <!--Planta-->
+                                    <label class="control-label col-md-1 float-right">Centro de Costo</label>
+                                    <div class="col-md-3">
+                                        @Html.DropDownListFor(m => m.GV_comprobacion.id_centro_costo, (IEnumerable<SelectListItem>)ViewBag.id_centro_costo, null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                        @Html.ValidationMessageFor(model => model.GV_comprobacion.id_centro_costo, "", new { @class = "text-danger" })
+                                    </div>
                                 </div>
-                                <!--Planta-->
-                                <label class="control-label col-md-1 float-right">Centro de Costo</label>
-                                <div class="col-md-3">
-                                    @Html.DropDownListFor(m => m.GV_comprobacion.id_centro_costo, (IEnumerable<SelectListItem>)ViewBag.id_centro_costo, null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
-                                    @Html.ValidationMessageFor(model => model.GV_comprobacion.id_centro_costo, "", new { @class = "text-danger" })
-                                </div>
-                            </div>
+                            *@
                             <br />
                             <div class="table-responsive">
                                 <table id="datatable_2" class="table table-striped table-bordered" cellspacing="0" width="100%">
@@ -383,19 +384,6 @@
                                             <th width="1%">
                                                 #
                                             </th>
-                                            <th style="background-color:#175f93">
-                                                Fecha Factura
-                                            </th>
-                                            <th style="background-color:#175f93" nowrap>
-                                                UUID
-                                            </th>
-                                            <th>PDF</th>
-                                            <th style="background-color:#175f93">
-                                                Tipo de Cambio
-                                            </th>
-                                            <th style="background-color:#175f93">
-                                                Moneda
-                                            </th>
                                             <th nowrap>
                                                 Cuenta @for (int i = 0; i < 15; i++)
                                                 {
@@ -403,7 +391,19 @@
                                                 }
                                             </th>
                                             <th nowrap>
+                                                Centro de Costo @for (int i = 0; i < 16; i++)
+                                                {
+                                                    <span>&ensp;</span>
+                                                }
+                                            </th>
+                                            <th nowrap>
                                                 Descripci&oacute;n @for (int i = 0; i < 20; i++)
+                                                {
+                                                    <span>&ensp;</span>
+                                                }
+                                            </th>
+                                            <th nowrap>
+                                                Tipo de Pago @for (int i = 0; i < 10; i++)
                                                 {
                                                     <span>&ensp;</span>
                                                 }
@@ -417,9 +417,9 @@
                                             <th>
                                                 Importe
                                             </th>
-                                            <th>
-                                                Descuento
-                                            </th>
+                                            @*<th>
+                                                    Descuento
+                                                </th>*@
                                             <th>
                                                 % IVA
                                             </th>
@@ -438,36 +438,49 @@
                                             <th>
                                                 Total IEPS
                                             </th>
-                                            <th>
-                                                Total Translados
-                                            </th>
+                                            @*<th>
+                                                    Total Translados
+                                                </th>*@
                                             <th>
                                                 Total Retenciones
+                                            </th>
+                                            <th>
+                                                Imp. Locales
                                             </th>
                                             <th>
                                                 Total MXN
                                             </th>
                                             <th></th>
+                                            <th nowrap>
+                                                Comentario @for (int i = 0; i < 20; i++)
+                                                {
+                                                    <span>&ensp;</span>
+                                                }
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody id="body_conceptos">
                                     </tbody>
                                     <tfoot>
                                         <tr>
-                                            <th colspan="14" style="text-align:right">Total Moneda Origen</th>
+                                            <th colspan="17" style="text-align:right">Total Moneda Origen</th>
                                             <th id="total_gastos" style="text-align:right" nowrap>$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", Model.sumaGastosNacional) MXN</th>
+                                            <th></th>
                                         </tr>
                                         <tr>
-                                            <th colspan="14" style="text-align:right">Total MXN</th>
+                                            <th colspan="17" style="text-align:right">Total MXN</th>
                                             <th id="total_gastos" style="text-align:right" nowrap>$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", Model.sumaGastosNacional) MXN</th>
+                                            <th></th>
                                         </tr>
                                         <tr>
-                                            <th colspan="14" style="text-align:right">ANTICIPO</th>
+                                            <th colspan="17" style="text-align:right">ANTICIPO</th>
                                             <th id="total_gastos" style="text-align:right" nowrap>$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", Model.sumaGastosNacional) MXN</th>
+                                            <th></th>
                                         </tr>
                                         <tr>
-                                            <th colspan="14" style="text-align:right">SALDO POR COMPROBAR</th>
+                                            <th colspan="17" style="text-align:right">SALDO POR COMPROBAR</th>
                                             <th id="total_gastos" style="text-align:right" nowrap>$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", Model.sumaGastosNacional) MXN</th>
+                                            <th></th>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -589,17 +602,15 @@
     @Scripts.Render(Url.Content("~/Content/vendors/jquery-iu/jquery-ui.min.js"))
     @Scripts.Render(Url.Content("~/Scripts/MvcFoolproofJQueryValidation.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
-    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
     @Scripts.Render("~/bundles/dataTables_js")
     @Scripts.Render(Url.Content("~/Content/vendors/moment/moment.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2@11.js"))
     <!-- iCheck -->
     @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
     <!-- input mask -->
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
     <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
-
-
-
+  
     <script>
         $(document).ready(function () {
             //inicializa en input file
@@ -625,7 +636,7 @@
             $('#@Html.IdFor(model => model.GV_comprobacion.business_card)').inputmask({ 'mask': '9999-9999-9999-9999', 'autoGroup': true, 'autoUnmask': true, 'removeMaskOnSubmit': true });
             $('#uuid_field').inputmask( { 'mask': '********-****-****-****-************', 'autoGroup': true, 'autoUnmask': true, 'removeMaskOnSubmit': true });
 
-            //asigna evento para valor de centros de costo
+            @*//asigna evento para valor de centros de costo
             $('#@Html.IdFor(model => model.GV_comprobacion.clave_planta)').change(function () {
                 $.ajax({
                     type: 'POST',
@@ -644,7 +655,7 @@
                     theme: 'bootstrap4'
                 })
 
-            });
+            });*@
 
             //evento para leer el archivo xml
             $("#cargar-factura-btn").click(function () {
@@ -659,9 +670,13 @@
 
 
             //al cargar la página por primera vez
-            verificaEstadoCombos();
+            /*  verificaEstadoCombos();*/
+            AsignaNumeroConcepto();
 
         });
+
+        //variables utilizadas para numeración de conceptos y facturas
+        var numConcepto = 0;
 
         function leeXML(){
             //var f = $(this);
@@ -681,8 +696,6 @@
                         //convierte la respuesta en archivo json
                         let datos = JSON.parse(data)
                         let estatus = datos[0].status;
-
-                        console.log(datos);
 
                         //verifica si se leyó correctamente el archivo xlsx
                         if (estatus == "ERROR") {
@@ -741,89 +754,117 @@
             //var f = $(this);
 
             var formData = new FormData(document.getElementById("formulario"));
-            formData.append("dato", "valor");
+            formData.append("numConcepto", numConcepto);
 
-            //formData.append(f.attr("name"), $(this)[0].files[0]);
-            $.ajax({
-                url: "/ComprobacionGV/BuscaCOFIDI",
-                type: "post",
-                dataType: "html",
-                data: formData,
-                cache: false,
-                contentType: false,
-                processData: false,
-                success: function (data) {
-                    try {
-                        //convierte la respuesta en archivo json
-                        let datos = JSON.parse(data)
-                        let estatus = datos[0].status;
+            //verifica si existe el uuid
+            let uuid = $("#uuid_field").val();
+            var existeUUID = ExisteUUID(uuid);
 
-                        //verifica si se leyó correctamente el archivo xlsx
-                        if (estatus == "ERROR") {
-                            $("#error-msj-div").html(datos[0].value);
-                            $("#error-msj-div").hide().show('slide', 300);
-                            $("#info-msj-div").hide();
-                            //borra la tabla
-                            $("#div_ocultos").html('');
-                            //recargaTabla('');
-                            $("#archivo1").val('');
-                            $('#archivo1').next('label').html('Seleccione un archivo...');
+            if (existeUUID) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Mensaje',
+                    text: 'El UUID ya ha sido agregado a la comprobación. Favor de verificar los datos.'
+                })
+            } else {
 
-                        } else if (datos[0].status == "OK") {
+                $.ajax({
+                    url: "/ComprobacionGV/BuscaCOFIDI",
+                    type: "post",
+                    dataType: "html",
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        try {
+                            //convierte la respuesta en archivo json
+                            let datos = JSON.parse(data)
+                            let estatus = datos[0].status;
 
-                            AgregaConcepto(datos[0].value);
+                            //verifica si se leyó correctamente el archivo xlsx
+                            if (estatus == "ERROR") {
+                                $("#error-msj-div").html(datos[0].value);
+                                $("#error-msj-div").hide().show('slide', 300);
+                                $("#info-msj-div").hide();
+                                //borra la tabla
+                                $("#div_ocultos").html('');
+                                //recargaTabla('');
+                                $("#archivo1").val('');
+                                $('#archivo1').next('label').html('Seleccione un archivo...');
 
+                            } else if (datos[0].status == "OK") {
+
+                                //console.log(datos[0].value);
+
+                                AgregaConcepto(datos[0].value);
+                                const Toast = Swal.mixin({
+                                    toast: true,
+                                    position: 'top-right',
+                                    iconColor: 'white',
+                                    customClass: {
+                                        popup: 'colored-toast'
+                                    },
+                                    showConfirmButton: false,
+                                    timer: 4000,
+                                    timerProgressBar: true
+                                })
+                                Toast.fire({
+                                    icon: 'success',
+                                    title: 'Success',
+                                    text: 'Se cargó correctamente. Verifique los datos.'
+                                })
+
+                                $("#error-msj-div").hide();
+                                //borra el archivo una vez que se ha cargado
+                                $("#archivo1").val('');
+                                $('#archivo1').next('label').html('Seleccione un archivo...');
+
+                                $('.select2bs4').select2({
+                                    theme: 'bootstrap4'
+                                })
+
+                                numConcepto += datos[0].num_conceptos;
+                                //aumenta en uno el número de comprobantes cargados
+                                AsignaNumeroConcepto();
+
+                            } else if (datos[0].status == "404") {
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Mensaje',
+                                    text: 'No se encontró una factura asociada. Verifique los datos y/o ingrese la factura de forma manual.',
+                                    confirmButtonText: 'Aceptar',
+                                })
+                                $("#error-msj-div").hide();
+                                //borra el archivo una vez que se ha cargado
+                                $("#archivo1").val('');
+                                $('#archivo1').next('label').html('Seleccione un archivo...');
+                            }
+
+                        } catch (error) {
                             Swal.fire({
-                                icon: 'success',
-                                title: 'Mensaje',
-                                text: 'Se cargó la factura XML, verifique que los datos obtenidos sean correctos.',
-                                confirmButtonText: 'Aceptar',
-                            });
-                            $("#error-msj-div").hide();
-                            //borra el archivo una vez que se ha cargado
-                            $("#archivo1").val('');
-                            $('#archivo1').next('label').html('Seleccione un archivo...');
-
-                            $('.select2bs4').select2({
-                                theme: 'bootstrap4'
-                            })
-
-                        } else if (datos[0].status == "404") {
-                            Swal.fire({
-                                icon: 'warning',
-                                title: 'Mensaje',
-                                text: 'No se encontró una factura asociada. Verifique los datos y/o ingrese la factura de forma manual.',
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
                                 confirmButtonText: 'Aceptar',
                             })
-                            $("#error-msj-div").hide();
-                            //borra el archivo una vez que se ha cargado
                             $("#archivo1").val('');
                             $('#archivo1').next('label').html('Seleccione un archivo...');
                         }
 
-                    } catch (error) {
+                    },
+                    error: function (textStatus, errorThrown) {
+                        //en caso de error en la llamada ajax
                         Swal.fire({
                             icon: 'error',
-                            title: 'Error',
-                            text: 'Ocurrió un error obteniendo la información: ' + error,
-                            confirmButtonText: 'Aceptar',
+                            title: 'Ocurrió un error: ' + errorThrown,
+                            text: 'Intente nuevamente.'
                         })
-                        $("#archivo1").val('');
-                        $('#archivo1').next('label').html('Seleccione un archivo...');
-                    }
+                    },
+                    async: true
 
-                },
-                error: function (textStatus, errorThrown) {
-                    //en caso de error en la llamada ajax
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Ocurrió un error: ' + errorThrown,
-                        text: 'Intente nuevamente.'
-                    })
-                },
-                async: true
-
-            });
+                });
+            }
         }
 
         //completa el selec con los datos recibidos
@@ -835,7 +876,7 @@
         }
 
         //activa y desactiva los combos
-    function verificaEstadoCombos() {
+    @*function verificaEstadoCombos() {
 
             var planta = $("#@Html.IdFor(model => model.GV_comprobacion.clave_planta) option:selected").val();
 
@@ -846,11 +887,10 @@
                 $('#@Html.IdFor(model => model.GV_comprobacion.id_centro_costo)').prop("disabled", false);
             }
 
-        }
+        }*@
 
         //Agrega Concepto leido a la tabla
         function AgregaConcepto(texto) {
-            console.log(texto);
             $("#body_conceptos").append(texto);
         }
 
@@ -860,6 +900,46 @@
             currency: 'USD'
         });
 
+
+        //verifica si existe el uuid
+        function ExisteUUID(uuid) {
+            let existe = false;
+
+            $('.class-uuid').each(function (index) {
+                var u = $(this).html();
+                //elimina los '-' del uuid para hacer la comparacion
+                u = u.replace('-', '').replace('-', '').replace('-', '').replace('-', '');
+
+                if (uuid.toUpperCase() == u.toUpperCase())
+                    existe = true;
+            });
+
+            return existe;
+        }
+
+        //numera los concepto
+        function AsignaNumeroConcepto() {
+            let indice = 1;
+
+            $('.input-contador-conceptos').each(function (index) {
+                $(this).html(indice);
+                indice++;
+            });
+        }
+
+        //borra un concepto
+        function borrarConcepto(uuid) {
+
+            console.log(uuid)
+
+            $('.div_' + uuid).each(function (index) {
+                $(this).fadeOut(300, function () {
+                    $(this).remove();
+                });
+            });
+
+            AsignaNumeroConcepto()
+        }
 
     //Calcula los dias del viaje
         function calculaDias() {

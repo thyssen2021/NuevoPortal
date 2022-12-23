@@ -12,11 +12,7 @@ namespace Portal_2_0.Models
 
         [Display(Name = "Folio Solicitud")]
         public int id_gv_solicitud { get; set; }
-
-        [Required]
-        [Display(Name = "Centro de Costo")]
-        public int id_centro_costo { get; set; }
-
+               
         [Required]
         [StringLength(16, MinimumLength =16, ErrorMessage ="La longitud debe ser de 16 dígitos.")]
         [Display(Name = "Business Card")]

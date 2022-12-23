@@ -38,7 +38,7 @@ namespace Portal_2_0.Models
         {
             get
             {
-                return string.Format("{0} ({1})", descripcion, cuenta).ToUpper();
+                return string.Format("{0} ({1})",cuenta, descripcion).ToUpper();
             }
         }
     }

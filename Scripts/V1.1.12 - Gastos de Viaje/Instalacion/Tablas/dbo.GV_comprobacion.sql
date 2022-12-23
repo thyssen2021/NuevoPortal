@@ -21,7 +21,7 @@ GO
 
 CREATE TABLE [dbo].[GV_comprobacion](	
 	[id_gv_solicitud][int] NOT NULL,	
-	[id_centro_costo][int] NOT NULL,
+	--[id_centro_costo][int] NOT NULL,
 	[business_card][varchar](16) NULL,
 	[fecha_aceptacion_jefe_area][datetime]  NULL,
 	[fecha_aceptacion_controlling][datetime]  NULL,
@@ -30,8 +30,7 @@ CREATE TABLE [dbo].[GV_comprobacion](
 	[comentario_rechazo][varchar](355) NULL,
 	[comentario_adicional][varchar](355) NULL,
 	[estatus][varchar](30) NOT NULL,
-	
- CONSTRAINT [PK_GV_comprobacion] PRIMARY KEY CLUSTERED 
+	CONSTRAINT [PK_GV_comprobacion] PRIMARY KEY CLUSTERED 
 (
 	[id_gv_solicitud] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
@@ -44,11 +43,11 @@ alter table [GV_comprobacion]
   foreign key (id_gv_solicitud)
   references GV_solicitud(id);
 
-  -- restriccion de clave foranea
-alter table [GV_comprobacion]
- add constraint FK_GV_comprobacion_id_centro_costo
-  foreign key (id_centro_costo)
-  references GV_centros_costo(id);
+--  -- restriccion de clave foranea
+--alter table [GV_comprobacion]
+-- add constraint FK_GV_comprobacion_id_centro_costo
+--  foreign key (id_centro_costo)
+--  references GV_centros_costo(id);
 
 GO
 

@@ -89,6 +89,7 @@ namespace Bitacoras.CFDI_4_0
         private string confirmacionField;
 
         public TimbreFiscalDigital TimbreFiscalDigital;
+        public ImpuestosLocales ImpuestosLocales;
         public Comprobante()
         {
             this.versionField = "4.0";

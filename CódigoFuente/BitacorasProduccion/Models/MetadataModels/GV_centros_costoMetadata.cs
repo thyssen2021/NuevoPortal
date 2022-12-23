@@ -44,5 +44,14 @@ namespace Portal_2_0.Models
                 return string.Format("{0} ({1})", centro_costo, departamento).ToUpper();
             }
         }
+        //concatena el nombre
+        [NotMapped]
+        public string ConcatCentroDeptoPlanta
+        {
+            get
+            {
+                return string.Format("{0} ({1}-{2})", centro_costo, plantas.descripcion, departamento).ToUpper();
+            }
+        }
     }
 }

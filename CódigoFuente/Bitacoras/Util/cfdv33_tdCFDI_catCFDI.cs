@@ -90,6 +90,7 @@ public partial class Comprobante
     public string xsiSchemaLocation = "http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv33.xsd";
 
     public TimbreFiscalDigital TimbreFiscalDigital;
+    public ImpuestosLocales ImpuestosLocales;
 
     public Comprobante()
     {

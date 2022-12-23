@@ -254,7 +254,6 @@
             <PropertyRef Name="id_gv_solicitud" />
           </Key>
           <Property Name="id_gv_solicitud" Type="int" Nullable="false" />
-          <Property Name="id_centro_costo" Type="int" Nullable="false" />
           <Property Name="business_card" Type="varchar" MaxLength="16" />
           <Property Name="fecha_aceptacion_jefe_area" Type="datetime" />
           <Property Name="fecha_aceptacion_controlling" Type="datetime" />
@@ -270,8 +269,10 @@
           </Key>
           <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="id_gv_solicitud" Type="int" Nullable="false" />
+          <Property Name="id_centro_costo" Type="int" />
           <Property Name="concepto_tipo" Type="varchar" MaxLength="20" />
           <Property Name="id_comprobacion_tipo_gastos_viaje" Type="int" />
+          <Property Name="id_comprobacion_tipo_pago" Type="int" />
           <Property Name="num_concepto" Type="int" />
           <Property Name="fecha_factura" Type="datetime" />
           <Property Name="uuid" Type="varchar" MaxLength="32" />
@@ -290,8 +291,9 @@
           <Property Name="ieps_total" Type="float" />
           <Property Name="total_translados" Type="decimal" Precision="14" Scale="2" />
           <Property Name="total_retenciones" Type="decimal" Precision="14" Scale="2" />
+          <Property Name="impuestos_locales" Type="decimal" Precision="14" Scale="2" />
           <Property Name="total_mxn" Type="decimal" Precision="14" Scale="2" />
-          <Property Name="validacion" Type="varchar" MaxLength="51" />
+          <Property Name="comentario" Type="varchar" MaxLength="150" />
           <Property Name="factura" Type="varchar" MaxLength="12" />
         </EntityType>
         <EntityType Name="GV_comprobacion_tipo_gastos_viaje">
@@ -301,6 +303,14 @@
           <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="descripcion" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="cuenta" Type="varchar" MaxLength="6" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="GV_comprobacion_tipo_pago">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="GV_medios_transporte">
@@ -1817,18 +1827,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_GV_comprobacion_id_centro_costo">
-          <End Role="GV_centros_costo" Type="Self.GV_centros_costo" Multiplicity="1" />
-          <End Role="GV_comprobacion" Type="Self.GV_comprobacion" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="GV_centros_costo">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="GV_comprobacion">
-              <PropertyRef Name="id_centro_costo" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_GV_comprobacion_id_gv_solicitud">
           <End Role="GV_solicitud" Type="Self.GV_solicitud" Multiplicity="1" />
           <End Role="GV_comprobacion" Type="Self.GV_comprobacion" Multiplicity="0..1" />
@@ -1853,6 +1851,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_GV_comprobacion_rel_gastos_id_centro_costo">
+          <End Role="GV_centros_costo" Type="Self.GV_centros_costo" Multiplicity="0..1" />
+          <End Role="GV_comprobacion_rel_gastos" Type="Self.GV_comprobacion_rel_gastos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GV_centros_costo">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="GV_comprobacion_rel_gastos">
+              <PropertyRef Name="id_centro_costo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_gastos_viaje">
           <End Role="GV_comprobacion_tipo_gastos_viaje" Type="Self.GV_comprobacion_tipo_gastos_viaje" Multiplicity="0..1" />
           <End Role="GV_comprobacion_rel_gastos" Type="Self.GV_comprobacion_rel_gastos" Multiplicity="*" />
@@ -1862,6 +1872,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Principal>
             <Dependent Role="GV_comprobacion_rel_gastos">
               <PropertyRef Name="id_comprobacion_tipo_gastos_viaje" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_pago">
+          <End Role="GV_comprobacion_tipo_pago" Type="Self.GV_comprobacion_tipo_pago" Multiplicity="0..1" />
+          <End Role="GV_comprobacion_rel_gastos" Type="Self.GV_comprobacion_rel_gastos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GV_comprobacion_tipo_pago">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="GV_comprobacion_rel_gastos">
+              <PropertyRef Name="id_comprobacion_tipo_pago" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -3546,6 +3568,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySet Name="GV_comprobacion" EntityType="Self.GV_comprobacion" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="GV_comprobacion_rel_gastos" EntityType="Self.GV_comprobacion_rel_gastos" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="GV_comprobacion_tipo_gastos_viaje" EntityType="Self.GV_comprobacion_tipo_gastos_viaje" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="GV_comprobacion_tipo_pago" EntityType="Self.GV_comprobacion_tipo_pago" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="GV_medios_transporte" EntityType="Self.GV_medios_transporte" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="GV_rel_gastos_solicitud" EntityType="Self.GV_rel_gastos_solicitud" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="GV_solicitud" EntityType="Self.GV_solicitud" Schema="dbo" store:Type="Tables" />
@@ -3855,10 +3878,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="plantas" EntitySet="plantas" />
             <End Role="GV_centros_costo" EntitySet="GV_centros_costo" />
           </AssociationSet>
-          <AssociationSet Name="FK_GV_comprobacion_id_centro_costo" Association="Self.FK_GV_comprobacion_id_centro_costo">
-            <End Role="GV_centros_costo" EntitySet="GV_centros_costo" />
-            <End Role="GV_comprobacion" EntitySet="GV_comprobacion" />
-          </AssociationSet>
           <AssociationSet Name="FK_GV_comprobacion_id_gv_solicitud" Association="Self.FK_GV_comprobacion_id_gv_solicitud">
             <End Role="GV_solicitud" EntitySet="GV_solicitud" />
             <End Role="GV_comprobacion" EntitySet="GV_comprobacion" />
@@ -3867,8 +3886,16 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="currency" EntitySet="currency" />
             <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
           </AssociationSet>
+          <AssociationSet Name="FK_GV_comprobacion_rel_gastos_id_centro_costo" Association="Self.FK_GV_comprobacion_rel_gastos_id_centro_costo">
+            <End Role="GV_centros_costo" EntitySet="GV_centros_costo" />
+            <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
+          </AssociationSet>
           <AssociationSet Name="FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_gastos_viaje" Association="Self.FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_gastos_viaje">
             <End Role="GV_comprobacion_tipo_gastos_viaje" EntitySet="GV_comprobacion_tipo_gastos_viaje" />
+            <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_pago" Association="Self.FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_pago">
+            <End Role="GV_comprobacion_tipo_pago" EntitySet="GV_comprobacion_tipo_pago" />
             <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
           </AssociationSet>
           <AssociationSet Name="FK_GV_comprobacion_rel_gastos_id_gv_solicitud" Association="Self.FK_GV_comprobacion_rel_gastos_id_gv_solicitud">
@@ -8403,26 +8430,31 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           </AssociationSet>
           <EntitySet Name="GV_comprobacion_tipo_gastos_viaje" EntityType="Portal_2_0Model.GV_comprobacion_tipo_gastos_viaje" />
           <EntitySet Name="GV_centros_costo" EntityType="Portal_2_0Model.GV_centros_costo" />
-          <EntitySet Name="GV_comprobacion" EntityType="Portal_2_0Model.GV_comprobacion" />
           <AssociationSet Name="FK_GV_centros_costo_clave_planta" Association="Portal_2_0Model.FK_GV_centros_costo_clave_planta">
             <End Role="plantas" EntitySet="plantas" />
             <End Role="GV_centros_costo" EntitySet="GV_centros_costo" />
           </AssociationSet>
-          <AssociationSet Name="FK_GV_comprobacion_id_centro_costo" Association="Portal_2_0Model.FK_GV_comprobacion_id_centro_costo">
+          <EntitySet Name="GV_comprobacion" EntityType="Portal_2_0Model.GV_comprobacion" />
+          <EntitySet Name="GV_comprobacion_rel_gastos" EntityType="Portal_2_0Model.GV_comprobacion_rel_gastos" />
+          <EntitySet Name="GV_comprobacion_tipo_pago" EntityType="Portal_2_0Model.GV_comprobacion_tipo_pago" />
+          <AssociationSet Name="FK_GV_comprobacion_rel_gastos_currency_iso" Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_currency_iso">
+            <End Role="currency" EntitySet="currency" />
+            <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_comprobacion_rel_gastos_id_centro_costo" Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_centro_costo">
             <End Role="GV_centros_costo" EntitySet="GV_centros_costo" />
-            <End Role="GV_comprobacion" EntitySet="GV_comprobacion" />
+            <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
           </AssociationSet>
           <AssociationSet Name="FK_GV_comprobacion_id_gv_solicitud" Association="Portal_2_0Model.FK_GV_comprobacion_id_gv_solicitud">
             <End Role="GV_solicitud" EntitySet="GV_solicitud" />
             <End Role="GV_comprobacion" EntitySet="GV_comprobacion" />
           </AssociationSet>
-          <EntitySet Name="GV_comprobacion_rel_gastos" EntityType="Portal_2_0Model.GV_comprobacion_rel_gastos" />
-          <AssociationSet Name="FK_GV_comprobacion_rel_gastos_currency_iso" Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_currency_iso">
-            <End Role="currency" EntitySet="currency" />
-            <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
-          </AssociationSet>
           <AssociationSet Name="FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_gastos_viaje" Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_gastos_viaje">
             <End Role="GV_comprobacion_tipo_gastos_viaje" EntitySet="GV_comprobacion_tipo_gastos_viaje" />
+            <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_pago" Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_pago">
+            <End Role="GV_comprobacion_tipo_pago" EntitySet="GV_comprobacion_tipo_pago" />
             <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
           </AssociationSet>
           <AssociationSet Name="FK_GV_comprobacion_rel_gastos_id_gv_solicitud" Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_gv_solicitud">
@@ -8891,24 +8923,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="departamento" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="activo" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_GV_centros_costo_clave_planta" FromRole="GV_centros_costo" ToRole="plantas" />
-          <NavigationProperty Name="GV_comprobacion" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_centro_costo" FromRole="GV_centros_costo" ToRole="GV_comprobacion" />
-        </EntityType>
-        <EntityType Name="GV_comprobacion">
-          <Key>
-            <PropertyRef Name="id_gv_solicitud" />
-          </Key>
-          <Property Name="id_gv_solicitud" Type="Int32" Nullable="false" />
-          <Property Name="id_centro_costo" Type="Int32" Nullable="false" />
-          <Property Name="business_card" Type="String" MaxLength="16" FixedLength="false" Unicode="false" />
-          <Property Name="fecha_aceptacion_jefe_area" Type="DateTime" Precision="3" />
-          <Property Name="fecha_aceptacion_controlling" Type="DateTime" Precision="3" />
-          <Property Name="fecha_aceptacion_contabilidad" Type="DateTime" Precision="3" />
-          <Property Name="fecha_aceptacion_nomina" Type="DateTime" Precision="3" />
-          <Property Name="comentario_rechazo" Type="String" MaxLength="355" FixedLength="false" Unicode="false" />
-          <Property Name="comentario_adicional" Type="String" MaxLength="355" FixedLength="false" Unicode="false" />
-          <Property Name="estatus" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="GV_centros_costo" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_centro_costo" FromRole="GV_comprobacion" ToRole="GV_centros_costo" />
-          <NavigationProperty Name="GV_solicitud" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_gv_solicitud" FromRole="GV_comprobacion" ToRole="GV_solicitud" />
+          <NavigationProperty Name="GV_comprobacion_rel_gastos" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_centro_costo" FromRole="GV_centros_costo" ToRole="GV_comprobacion_rel_gastos" />
         </EntityType>
         <Association Name="FK_GV_centros_costo_clave_planta">
           <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="1" />
@@ -8922,38 +8937,31 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_GV_comprobacion_id_centro_costo">
-          <End Type="Portal_2_0Model.GV_centros_costo" Role="GV_centros_costo" Multiplicity="1" />
-          <End Type="Portal_2_0Model.GV_comprobacion" Role="GV_comprobacion" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="GV_centros_costo">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="GV_comprobacion">
-              <PropertyRef Name="id_centro_costo" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_GV_comprobacion_id_gv_solicitud">
-          <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="1" />
-          <End Type="Portal_2_0Model.GV_comprobacion" Role="GV_comprobacion" Multiplicity="0..1" />
-          <ReferentialConstraint>
-            <Principal Role="GV_solicitud">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="GV_comprobacion">
-              <PropertyRef Name="id_gv_solicitud" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
+        <EntityType Name="GV_comprobacion">
+          <Key>
+            <PropertyRef Name="id_gv_solicitud" />
+          </Key>
+          <Property Name="id_gv_solicitud" Type="Int32" Nullable="false" />
+          <Property Name="business_card" Type="String" MaxLength="16" FixedLength="false" Unicode="false" />
+          <Property Name="fecha_aceptacion_jefe_area" Type="DateTime" Precision="3" />
+          <Property Name="fecha_aceptacion_controlling" Type="DateTime" Precision="3" />
+          <Property Name="fecha_aceptacion_contabilidad" Type="DateTime" Precision="3" />
+          <Property Name="fecha_aceptacion_nomina" Type="DateTime" Precision="3" />
+          <Property Name="comentario_rechazo" Type="String" MaxLength="355" FixedLength="false" Unicode="false" />
+          <Property Name="comentario_adicional" Type="String" MaxLength="355" FixedLength="false" Unicode="false" />
+          <Property Name="estatus" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="GV_solicitud" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_gv_solicitud" FromRole="GV_comprobacion" ToRole="GV_solicitud" />
+        </EntityType>
         <EntityType Name="GV_comprobacion_rel_gastos">
           <Key>
             <PropertyRef Name="id" />
           </Key>
           <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="id_gv_solicitud" Type="Int32" Nullable="false" />
+          <Property Name="id_centro_costo" Type="Int32" />
           <Property Name="concepto_tipo" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="id_comprobacion_tipo_gastos_viaje" Type="Int32" />
+          <Property Name="id_comprobacion_tipo_pago" Type="Int32" />
           <Property Name="num_concepto" Type="Int32" />
           <Property Name="fecha_factura" Type="DateTime" Precision="3" />
           <Property Name="uuid" Type="String" MaxLength="32" FixedLength="false" Unicode="false" />
@@ -8972,12 +8980,24 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="ieps_total" Type="Double" />
           <Property Name="total_translados" Type="Decimal" Precision="14" Scale="2" />
           <Property Name="total_retenciones" Type="Decimal" Precision="14" Scale="2" />
+          <Property Name="impuestos_locales" Type="Decimal" Precision="14" Scale="2" />
           <Property Name="total_mxn" Type="Decimal" Precision="14" Scale="2" />
-          <Property Name="validacion" Type="String" MaxLength="51" FixedLength="false" Unicode="false" />
+          <Property Name="comentario" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
           <Property Name="factura" Type="String" MaxLength="12" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="currency" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_currency_iso" FromRole="GV_comprobacion_rel_gastos" ToRole="currency" />
+          <NavigationProperty Name="GV_centros_costo" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_centro_costo" FromRole="GV_comprobacion_rel_gastos" ToRole="GV_centros_costo" />
           <NavigationProperty Name="GV_comprobacion_tipo_gastos_viaje" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_gastos_viaje" FromRole="GV_comprobacion_rel_gastos" ToRole="GV_comprobacion_tipo_gastos_viaje" />
+          <NavigationProperty Name="GV_comprobacion_tipo_pago" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_pago" FromRole="GV_comprobacion_rel_gastos" ToRole="GV_comprobacion_tipo_pago" />
           <NavigationProperty Name="GV_solicitud" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_gv_solicitud" FromRole="GV_comprobacion_rel_gastos" ToRole="GV_solicitud" />
+        </EntityType>
+        <EntityType Name="GV_comprobacion_tipo_pago">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="GV_comprobacion_rel_gastos" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_pago" FromRole="GV_comprobacion_tipo_pago" ToRole="GV_comprobacion_rel_gastos" />
         </EntityType>
         <Association Name="FK_GV_comprobacion_rel_gastos_currency_iso">
           <End Type="Portal_2_0Model.currency" Role="currency" Multiplicity="0..1" />
@@ -8991,6 +9011,30 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_GV_comprobacion_rel_gastos_id_centro_costo">
+          <End Type="Portal_2_0Model.GV_centros_costo" Role="GV_centros_costo" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.GV_comprobacion_rel_gastos" Role="GV_comprobacion_rel_gastos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GV_centros_costo">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="GV_comprobacion_rel_gastos">
+              <PropertyRef Name="id_centro_costo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_comprobacion_id_gv_solicitud">
+          <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="1" />
+          <End Type="Portal_2_0Model.GV_comprobacion" Role="GV_comprobacion" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="GV_solicitud">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="GV_comprobacion">
+              <PropertyRef Name="id_gv_solicitud" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_gastos_viaje">
           <End Type="Portal_2_0Model.GV_comprobacion_tipo_gastos_viaje" Role="GV_comprobacion_tipo_gastos_viaje" Multiplicity="0..1" />
           <End Type="Portal_2_0Model.GV_comprobacion_rel_gastos" Role="GV_comprobacion_rel_gastos" Multiplicity="*" />
@@ -9000,6 +9044,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Principal>
             <Dependent Role="GV_comprobacion_rel_gastos">
               <PropertyRef Name="id_comprobacion_tipo_gastos_viaje" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_pago">
+          <End Type="Portal_2_0Model.GV_comprobacion_tipo_pago" Role="GV_comprobacion_tipo_pago" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.GV_comprobacion_rel_gastos" Role="GV_comprobacion_rel_gastos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GV_comprobacion_tipo_pago">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="GV_comprobacion_rel_gastos">
+              <PropertyRef Name="id_comprobacion_tipo_pago" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -10599,7 +10655,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
                 <ScalarProperty Name="fecha_aceptacion_controlling" ColumnName="fecha_aceptacion_controlling" />
                 <ScalarProperty Name="fecha_aceptacion_jefe_area" ColumnName="fecha_aceptacion_jefe_area" />
                 <ScalarProperty Name="business_card" ColumnName="business_card" />
-                <ScalarProperty Name="id_centro_costo" ColumnName="id_centro_costo" />
                 <ScalarProperty Name="id_gv_solicitud" ColumnName="id_gv_solicitud" />
               </MappingFragment>
             </EntityTypeMapping>
@@ -10608,8 +10663,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <EntityTypeMapping TypeName="Portal_2_0Model.GV_comprobacion_rel_gastos">
               <MappingFragment StoreEntitySet="GV_comprobacion_rel_gastos">
                 <ScalarProperty Name="factura" ColumnName="factura" />
-                <ScalarProperty Name="validacion" ColumnName="validacion" />
+                <ScalarProperty Name="comentario" ColumnName="comentario" />
                 <ScalarProperty Name="total_mxn" ColumnName="total_mxn" />
+                <ScalarProperty Name="impuestos_locales" ColumnName="impuestos_locales" />
                 <ScalarProperty Name="total_retenciones" ColumnName="total_retenciones" />
                 <ScalarProperty Name="total_translados" ColumnName="total_translados" />
                 <ScalarProperty Name="ieps_total" ColumnName="ieps_total" />
@@ -10628,9 +10684,20 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
                 <ScalarProperty Name="uuid" ColumnName="uuid" />
                 <ScalarProperty Name="fecha_factura" ColumnName="fecha_factura" />
                 <ScalarProperty Name="num_concepto" ColumnName="num_concepto" />
+                <ScalarProperty Name="id_comprobacion_tipo_pago" ColumnName="id_comprobacion_tipo_pago" />
                 <ScalarProperty Name="id_comprobacion_tipo_gastos_viaje" ColumnName="id_comprobacion_tipo_gastos_viaje" />
                 <ScalarProperty Name="concepto_tipo" ColumnName="concepto_tipo" />
+                <ScalarProperty Name="id_centro_costo" ColumnName="id_centro_costo" />
                 <ScalarProperty Name="id_gv_solicitud" ColumnName="id_gv_solicitud" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="GV_comprobacion_tipo_pago">
+            <EntityTypeMapping TypeName="Portal_2_0Model.GV_comprobacion_tipo_pago">
+              <MappingFragment StoreEntitySet="GV_comprobacion_tipo_pago">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
