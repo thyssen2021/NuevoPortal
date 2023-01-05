@@ -294,6 +294,9 @@
     <Compile Include="Controllers\EChartsController.cs" />
     <Compile Include="Controllers\empleadosController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
+    <Compile Include="Controllers\GV_centros_costoController.cs" />
+    <Compile Include="Controllers\GV_comprobacion_tipo_gastos_viajeController.cs" />
+    <Compile Include="Controllers\GV_comprobacion_tipo_pagoController.cs" />
     <Compile Include="Controllers\GV_medios_transporteController.cs" />
     <Compile Include="Controllers\GV_solicitudController.cs" />
     <Compile Include="Controllers\GV_tipo_gastos_viajeController.cs" />
@@ -639,6 +642,7 @@
     <Compile Include="Models\MetadataModels\GV_comprobacionMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_comprobacion_rel_gastosMetaData.cs" />
     <Compile Include="Models\MetadataModels\GV_comprobacion_tipo_gastos_viajeMetadata.cs" />
+    <Compile Include="Models\MetadataModels\GV_comprobacion_tipo_pagoMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_medios_transporteMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_rel_gastos_solicitudMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_solicitudMetadata.cs" />
@@ -7353,6 +7357,24 @@
     <Content Include="Views\ComprobacionGV\AutorizarControlling.cshtml" />
     <Content Include="Views\ComprobacionGV\AutorizarContabilidad.cshtml" />
     <Content Include="Views\ComprobacionGV\AutorizarNomina.cshtml" />
+    <Content Include="Views\GV_centros_costo\Create.cshtml" />
+    <Content Include="Views\GV_centros_costo\Details.cshtml" />
+    <Content Include="Views\GV_centros_costo\Disable.cshtml" />
+    <Content Include="Views\GV_centros_costo\Enable.cshtml" />
+    <Content Include="Views\GV_centros_costo\Edit.cshtml" />
+    <Content Include="Views\GV_centros_costo\Index.cshtml" />
+    <Content Include="Views\GV_comprobacion_tipo_gastos_viaje\Create.cshtml" />
+    <Content Include="Views\GV_comprobacion_tipo_gastos_viaje\Details.cshtml" />
+    <Content Include="Views\GV_comprobacion_tipo_gastos_viaje\Disable.cshtml" />
+    <Content Include="Views\GV_comprobacion_tipo_gastos_viaje\Edit.cshtml" />
+    <Content Include="Views\GV_comprobacion_tipo_gastos_viaje\Enable.cshtml" />
+    <Content Include="Views\GV_comprobacion_tipo_gastos_viaje\Index.cshtml" />
+    <Content Include="Views\GV_comprobacion_tipo_pago\Create.cshtml" />
+    <Content Include="Views\GV_comprobacion_tipo_pago\Details.cshtml" />
+    <Content Include="Views\GV_comprobacion_tipo_pago\Disable.cshtml" />
+    <Content Include="Views\GV_comprobacion_tipo_pago\Edit.cshtml" />
+    <Content Include="Views\GV_comprobacion_tipo_pago\Enable.cshtml" />
+    <Content Include="Views\GV_comprobacion_tipo_pago\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -285,7 +285,7 @@
                                                 @if (User.IsInRole(TipoRoles.GV_SOLICITUD))
                                                 {
                                                     <h3>SOLICITUDES</h3>
-                                                    <li class="@(ViewBag.SegundoNivel == "GV_solicitud" ? "current-page" : null )"><a href="@Url.Action( "Solicitudes", "GV_solicitud")">En proceso</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "GV_solicitud" ? "current-page" : null )"><a href="@Url.Action( "Solicitudes", "GV_solicitud")">Mis solicitudes</a></li>
                                                 }
                                                 @if (User.IsInRole(TipoRoles.GV_JEFE_DIRECTO))
                                                 {
@@ -374,15 +374,13 @@
                                                 @if (User.IsInRole(TipoRoles.GV_CATALOGOS) || User.IsInRole(TipoRoles.ADMIN))
                                                 {
                                                     <h3>CAT&Aacute;LOGOS</h3>
-                                                    <li class="link @(ViewBag.SegundoNivel == "GV_catalogos" ? "active" : "" )">
+                                                    <li class="link @(ViewBag.SegundoNivel == "GV_comprobacion_catalogos" ? "active" : "" )">
                                                         <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
-                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "GV_catalogos" ? "display:block" : null )">
-                                                            <li class="@(ViewBag.TercelNivel == "GV_tipo_gastos_viaje" ? "current-page" : null )"><a href="@Url.Action( "Index", "GV_tipo_gastos_viaje")">Tipos de Gastos de Viaje</a></li>
-                                                            <li class="@(ViewBag.TercelNivel == "GV_medios_transporte" ? "current-page" : null )"><a href="@Url.Action( "Index", "GV_medios_transporte")">Medios de Transporte</a></li>
-                                                            @if (User.IsInRole(TipoRoles.ADMIN))
-                                                            {
-                                                                <li class="@(ViewBag.TercelNivel == "GV_usuarios" ? "current-page" : null )"><a href="@Url.Action( "Index", "GV_comprobacion")">Usuarios - Deptos</a></li>
-                                                            }
+                                                        <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "GV_comprobacion_catalogos" ? "display:block" : null )">
+                                                            <li class="@(ViewBag.TercelNivel == "GV_centros_costo" ? "current-page" : null )"><a href="@Url.Action( "Index", "GV_centros_costo")">Centros de Costo</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "GV_comprobacion_tipo_gastos_viaje" ? "current-page" : null )"><a href="@Url.Action( "Index", "GV_comprobacion_tipo_gastos_viaje")">Cuentas</a></li>
+                                                            <li class="@(ViewBag.TercelNivel == "GV_comprobacion_tipo_pago" ? "current-page" : null )"><a href="@Url.Action( "Index", "GV_comprobacion_tipo_pago")">Tipos de Pago</a></li>
+                                                           
                                                         </ul>
                                                     </li>
                                                 }

@@ -1,0 +1,95 @@
+﻿@model Portal_2_0.Models.GV_comprobacion_tipo_gastos_viaje
+
+@{
+    ViewBag.Title = "Detalle de Cuenta";
+    ViewBag.PrimerNivel = "gastos_viaje_comprobacion";
+    ViewBag.SegundoNivel = "GV_comprobacion_catalogos";
+    ViewBag.ControllerName = "GV_comprobacion_tipo_gastos_viaje";
+}
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+}
+
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <br />
+                        <h4>Datos generales</h4>
+                        <hr />
+
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.id, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-3 col-sm-3 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.id)" readonly />
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.cuenta, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-3 col-sm-3 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.cuenta)" readonly />
+                            </div>
+                        </div>
+
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.descripcion, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-3 col-sm-3 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.descripcion)" readonly />
+                            </div>
+                        </div>
+                       
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.activo, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input type="text" class="form-control" value="@(Model.activo?"Activo":"Inanctivo")" readonly />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="javascript: history.go(-1)" class="btn btn-round btn-info btm-sm float-left" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/inputmask/inputmask.extensions.js"))
+
+    <script>
+
+          $(document).ready(function () {
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+
+        });
+    </script>
+
+}
