@@ -4982,6 +4982,7 @@ ul.notifications {
 
 .colored-toast.swal2-icon-success {
     background-color: #a5dc86 !important;
+    font-size: 0.9rem !important;
 }
 
 .colored-toast.swal2-icon-error {

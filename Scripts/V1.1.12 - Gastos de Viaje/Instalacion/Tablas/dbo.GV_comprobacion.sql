@@ -23,6 +23,11 @@ CREATE TABLE [dbo].[GV_comprobacion](
 	[id_gv_solicitud][int] NOT NULL,	
 	--[id_centro_costo][int] NOT NULL,
 	[business_card][varchar](16) NULL,
+	[fecha_comprobacion][datetime]  NULL,
+	[id_jefe_directo][int] NOT NULL, --de la tabla empleados
+	[id_controlling][int] NULL, --de la tabla empleados
+	[id_contabilidad][int] NULL, --de la tabla empleados
+	[id_nomina][int] NULL, --de la tabla empleados
 	[fecha_aceptacion_jefe_area][datetime]  NULL,
 	[fecha_aceptacion_controlling][datetime]  NULL,
 	[fecha_aceptacion_contabilidad][datetime]  NULL,
@@ -43,20 +48,36 @@ alter table [GV_comprobacion]
   foreign key (id_gv_solicitud)
   references GV_solicitud(id);
 
---  -- restriccion de clave foranea
---alter table [GV_comprobacion]
--- add constraint FK_GV_comprobacion_id_centro_costo
---  foreign key (id_centro_costo)
---  references GV_centros_costo(id);
+ -- restriccion de clave foranea
+  alter table [GV_comprobacion]
+ add constraint FK_GV_comprobacion_id_jefe_directo
+  foreign key (id_jefe_directo)
+  references empleados(id);
 
-GO
+   -- restriccion de clave foranea
+  alter table [GV_comprobacion]    
+ add constraint FK_GV_comprobacion_contabilidad
+  foreign key (id_contabilidad)
+  references empleados(id);
+
+     -- restriccion de clave foranea
+  alter table [GV_comprobacion]
+ add constraint FK_GV_comprobacion_id_controlling
+  foreign key (id_controlling)
+  references empleados(id);
+
+      -- restriccion de clave foranea
+  alter table [GV_comprobacion]
+ add constraint FK_GV_comprobacion_id_nomina
+  foreign key (id_nomina)
+  references empleados(id);
 
 GO
 
 -- restricion check
 ALTER TABLE [GV_comprobacion] ADD CONSTRAINT CK_GV_comprobacion_Estatus CHECK ([estatus] IN 
 ('CREADO', 'ENVIADO_A_JEFE', 'RECHAZADO_JEFE', 'ENVIADO_CONTROLLING', 'RECHAZADO_CONTROLLING',
-'ENVIADO_NOMINA','RECHAZADO_NOMINA', 'CONFIRMADO_NOMINA', 'RECHAZADO_CONTABILIDAD', 'CONFIRMADO_CONTABILIDAD', 
+'ENVIADO_NOMINA','RECHAZADO_NOMINA', 'CONFIRMADO_NOMINA', 'ENVIADO_CONTABILIDAD', 'RECHAZADO_CONTABILIDAD', 'CONFIRMADO_CONTABILIDAD', 
 'FINALIZADO')
 )
  	  

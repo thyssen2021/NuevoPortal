@@ -154,8 +154,7 @@ namespace Portal_2_0.Models
 
         //para filtros de búsqueda
         [NotMapped]
-        public string s_estatus { get; set; }
-
+        public string s_estatus { get; set; }        
 
     }
 }

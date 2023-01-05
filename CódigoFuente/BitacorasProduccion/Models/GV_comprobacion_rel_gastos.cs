@@ -42,7 +42,13 @@ namespace Portal_2_0.Models
         public Nullable<decimal> total_mxn { get; set; }
         public string comentario { get; set; }
         public string factura { get; set; }
+        public Nullable<int> id_archivo_xml { get; set; }
+        public Nullable<int> id_archivo_pdf { get; set; }
+        public Nullable<int> id_archivo_comprobante_extranjero { get; set; }
     
+        public virtual biblioteca_digital biblioteca_digital { get; set; }
+        public virtual biblioteca_digital biblioteca_digital1 { get; set; }
+        public virtual biblioteca_digital biblioteca_digital2 { get; set; }
         public virtual currency currency { get; set; }
         public virtual GV_centros_costo GV_centros_costo { get; set; }
         public virtual GV_comprobacion_tipo_gastos_viaje GV_comprobacion_tipo_gastos_viaje { get; set; }

@@ -8,6 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using System.Linq;
 using System.Xml.Serialization;
 
 // 
@@ -93,6 +94,52 @@ namespace Bitacoras.CFDI_4_0
         public Comprobante()
         {
             this.versionField = "4.0";
+        }
+
+        /// <summary>
+        /// Obtiene el Importe Total IVA
+        /// </summary>
+        /// <returns></returns>
+        public decimal GetTotalIVAImporte()
+        {
+            try
+            {
+                return Impuestos.Traslados.Where(x => x.Impuesto.Contains("2")).Sum(x => x.Importe);
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+        /// <summary>
+        /// Obtiene el Importe Total ISR
+        /// </summary>
+        /// <returns></returns>
+        public decimal GetTotalISRImporte()
+        {
+            try
+            {
+                return Impuestos.Traslados.Where(x => x.Impuesto.Contains("1")).Sum(x => x.Importe);
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+        /// <summary>
+        /// Obtiene el Importe Total IEPS
+        /// </summary>
+        /// <returns></returns>
+        public decimal GetTotalIEPSImporte()
+        {
+            try
+            {
+                return Impuestos.Traslados.Where(x => x.Impuesto.Contains("3")).Sum(x => x.Importe);
+            }
+            catch
+            {
+                return 0;
+            }
         }
 
         /// <remarks/>
@@ -1143,6 +1190,148 @@ namespace Bitacoras.CFDI_4_0
             set
             {
                 this.objetoImpField = value;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene el Importe de IVA
+        /// </summary>
+        /// <returns></returns>
+        public decimal GetIVAImporte()
+        {
+            try
+            {
+                return Impuestos.Traslados.Where(x => x.Impuesto.Contains("2")).Sum(x => x.Importe);
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene la tasa del iva
+        /// </summary>
+        /// <returns></returns>
+        public decimal GetIVATasa()
+        {
+            try
+            {
+                return Impuestos.Traslados.Where(x => x.Impuesto.Contains("2")).Sum(x => x.TasaOCuota);
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+        /// <summary>
+        /// Obtiene el Importe de ISR
+        /// </summary>
+        /// <returns></returns>
+        public decimal GetISRImporte()
+        {
+            try
+            {
+                return Impuestos.Traslados.Where(x => x.Impuesto.Contains("1")).Sum(x => x.Importe);
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene la tasa del ISR
+        /// </summary>
+        /// <returns></returns>
+        public decimal GetISRTasa()
+        {
+            try
+            {
+                return Impuestos.Traslados.Where(x => x.Impuesto.Contains("1")).Sum(x => x.TasaOCuota);
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+        /// <summary>
+        /// Obtiene el Importe de IEPS
+        /// </summary>
+        /// <returns></returns>
+        public decimal GetIEPSImporte()
+        {
+            try
+            {
+                return Impuestos.Traslados.Where(x => x.Impuesto.Contains("3")).Sum(x => x.Importe);
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene la tasa del IEPS
+        /// </summary>
+        /// <returns></returns>
+        public decimal GetIEPSTasa()
+        {
+            try
+            {
+                return Impuestos.Traslados.Where(x => x.Impuesto.Contains("3")).Sum(x => x.TasaOCuota);
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene el total de los impuestos
+        /// </summary>
+        /// <returns></returns>
+        public decimal GetTotalImpuestos()
+        {
+            try
+            {
+                return Impuestos.Traslados.Sum(x => x.Importe);
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene el Total de Retenciones
+        /// </summary>
+        /// <returns></returns>
+        public decimal GetTotalRetenciones()
+        {
+            try
+            {
+                return Impuestos.Retenciones.Sum(x => x.Importe);
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Obtiene el Total de Importe + traslados - retenciones
+        /// </summary>
+        /// <returns></returns>
+        public decimal GetTotalImporteConTransladosyRetenciones()
+        {
+            try
+            {
+                return Importe + GetTotalImpuestos() - GetTotalRetenciones();
+            }
+            catch
+            {
+                return 0;
             }
         }
     }

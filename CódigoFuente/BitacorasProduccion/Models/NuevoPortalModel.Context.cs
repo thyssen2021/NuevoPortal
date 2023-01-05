@@ -126,7 +126,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<view_historico_resultado> view_historico_resultado { get; set; }
         public virtual DbSet<view_valores_fiscal_year> view_valores_fiscal_year { get; set; }
         public virtual DbSet<GV_usuarios> GV_usuarios { get; set; }
-        public virtual DbSet<GV_solicitud> GV_solicitud { get; set; }
         public virtual DbSet<IT_site> IT_site { get; set; }
         public virtual DbSet<IT_site_actividades> IT_site_actividades { get; set; }
         public virtual DbSet<IT_site_checklist_rel_actividades> IT_site_checklist_rel_actividades { get; set; }
@@ -138,8 +137,9 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_equipos_checklist> IT_equipos_checklist { get; set; }
         public virtual DbSet<GV_comprobacion_tipo_gastos_viaje> GV_comprobacion_tipo_gastos_viaje { get; set; }
         public virtual DbSet<GV_centros_costo> GV_centros_costo { get; set; }
-        public virtual DbSet<GV_comprobacion> GV_comprobacion { get; set; }
-        public virtual DbSet<GV_comprobacion_rel_gastos> GV_comprobacion_rel_gastos { get; set; }
         public virtual DbSet<GV_comprobacion_tipo_pago> GV_comprobacion_tipo_pago { get; set; }
+        public virtual DbSet<GV_comprobacion_rel_gastos> GV_comprobacion_rel_gastos { get; set; }
+        public virtual DbSet<GV_comprobacion> GV_comprobacion { get; set; }
+        public virtual DbSet<GV_solicitud> GV_solicitud { get; set; }
     }
 }

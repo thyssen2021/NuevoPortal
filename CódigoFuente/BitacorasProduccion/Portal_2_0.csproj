@@ -637,6 +637,7 @@
     <Compile Include="Models\MetadataModels\budget_plantasMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_centros_costoMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_comprobacionMetadata.cs" />
+    <Compile Include="Models\MetadataModels\GV_comprobacion_rel_gastosMetaData.cs" />
     <Compile Include="Models\MetadataModels\GV_comprobacion_tipo_gastos_viajeMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_medios_transporteMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_rel_gastos_solicitudMetadata.cs" />
@@ -7345,6 +7346,13 @@
     <Content Include="Views\ComprobacionGV\Solicitudes.cshtml" />
     <Content Include="Views\ComprobacionGV\ComprobacionGastos.cshtml" />
     <Content Include="Views\ComprobacionGV\Pendientes.cshtml" />
+    <Content Include="Views\ComprobacionGV\Edit.cshtml" />
+    <Content Include="Views\ComprobacionGV\Details.cshtml" />
+    <Content Include="Views\ComprobacionGV\EnviarAJefeDirecto.cshtml" />
+    <Content Include="Views\ComprobacionGV\AutorizarJefeDirecto.cshtml" />
+    <Content Include="Views\ComprobacionGV\AutorizarControlling.cshtml" />
+    <Content Include="Views\ComprobacionGV\AutorizarContabilidad.cshtml" />
+    <Content Include="Views\ComprobacionGV\AutorizarNomina.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

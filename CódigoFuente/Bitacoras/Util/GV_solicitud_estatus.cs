@@ -18,6 +18,7 @@ namespace Bitacoras.Util
         public const string ENVIADO_NOMINA = "ENVIADO_NOMINA";
         public const string RECHAZADO_NOMINA = "RECHAZADO_NOMINA";
         public const string CONFIRMADO_CONTABILIDAD = "CONFIRMADO_CONTABILIDAD";
+        public const string ENVIADO_CONTABILIDAD = "ENVIADO_CONTABILIDAD";
         public const string CONFIRMADO_USUARIO = "CONFIRMADO_USUARIO";
         public const string RECHAZADO_USUARIO = "RECHAZADO_USUARIO";
         public const string FINALIZADO = "FINALIZADO";
@@ -50,6 +51,8 @@ namespace Bitacoras.Util
                     return "Finalizado";
                 case GV_solicitud_estatus.CONFIRMADO_CONTABILIDAD:
                     return "Confirmado Cuentas por Pagar";
+                 case GV_solicitud_estatus.ENVIADO_CONTABILIDAD:
+                    return "Enviado a Cuentas por Pagar";
                 case GV_solicitud_estatus.CONFIRMADO_USUARIO:
                     return "Confirmado usuario";
                 case GV_solicitud_estatus.RECHAZADO_USUARIO:

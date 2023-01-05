@@ -82,9 +82,9 @@ namespace Portal_2_0.Controllers
 
             Paginacion paginacion = new Paginacion
             {
-                PaginaActual = 1,
-                TotalDeRegistros = 1,
-                RegistrosPorPagina = 20,
+                PaginaActual = pagina,
+                TotalDeRegistros = totalDeRegistros,
+                RegistrosPorPagina = cantidadRegistrosPorPagina,
                 ValoresQueryString = routeValues
             };
 
@@ -161,9 +161,9 @@ namespace Portal_2_0.Controllers
 
             Paginacion paginacion = new Paginacion
             {
-                PaginaActual = 1,
-                TotalDeRegistros = 1,
-                RegistrosPorPagina = 20,
+                PaginaActual = pagina,
+                TotalDeRegistros = totalDeRegistros,
+                RegistrosPorPagina = cantidadRegistrosPorPagina,
                 ValoresQueryString = routeValues
             };
 
@@ -239,9 +239,9 @@ namespace Portal_2_0.Controllers
 
             Paginacion paginacion = new Paginacion
             {
-                PaginaActual = 1,
-                TotalDeRegistros = 1,
-                RegistrosPorPagina = 20,
+                PaginaActual = pagina,
+                TotalDeRegistros = totalDeRegistros,
+                RegistrosPorPagina = cantidadRegistrosPorPagina,
                 ValoresQueryString = routeValues
             };
 
@@ -317,9 +317,9 @@ namespace Portal_2_0.Controllers
 
             Paginacion paginacion = new Paginacion
             {
-                PaginaActual = 1,
-                TotalDeRegistros = 1,
-                RegistrosPorPagina = 20,
+                PaginaActual = pagina,
+                TotalDeRegistros = totalDeRegistros,
+                RegistrosPorPagina = cantidadRegistrosPorPagina,
                 ValoresQueryString = routeValues
             };
 
@@ -388,9 +388,9 @@ namespace Portal_2_0.Controllers
 
             Paginacion paginacion = new Paginacion
             {
-                PaginaActual = 1,
-                TotalDeRegistros = 1,
-                RegistrosPorPagina = 20,
+                PaginaActual = pagina,
+                TotalDeRegistros = totalDeRegistros,
+                RegistrosPorPagina = cantidadRegistrosPorPagina,
                 ValoresQueryString = routeValues
             };
 

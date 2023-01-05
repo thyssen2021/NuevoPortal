@@ -22,12 +22,12 @@ CREATE TABLE [GV_comprobacion_rel_gastos](
 	[id] [int] IDENTITY(1,1) NOT NULL,	
 	[id_gv_solicitud][int] NOT NULL, --FK
 	[id_centro_costo][int] NULL,
-	[concepto_tipo][varchar](20),
+	[concepto_tipo][varchar](30),
 	[id_comprobacion_tipo_gastos_viaje][int] NULL, --FK	
 	[id_comprobacion_tipo_pago][int] NULL, --FK	
 	[num_concepto][int] NULL,   --para identificar que pertenecen a la misma factura (utilizar uuid)
 	[fecha_factura][datetime]NUll,
-	[uuid][varchar](32) NULL,	
+	[uuid][varchar](36) NULL,	
 	[tipo_cambio][float] NULL,
 	[currency_iso][varchar](3) NUll, --FK
 	[descripcion][varchar](350) NULL,
@@ -47,6 +47,11 @@ CREATE TABLE [GV_comprobacion_rel_gastos](
 	[total_mxn][decimal](14,2) NULL,
 	[comentario][varchar](150) NULL,
 	[factura][varchar](12) NUll, -- definir campo
+	--para archivos
+	[id_archivo_xml][INT] NULL,
+	[id_archivo_pdf][INT] NULL,
+	[id_archivo_comprobante_extranjero][INT] NULL,
+
  CONSTRAINT [PK_GV_comprobacion_rel_gastos] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
@@ -55,6 +60,25 @@ CREATE TABLE [GV_comprobacion_rel_gastos](
 GO
 
 --agregar FK
+
+ -- restriccion de clave foranea
+alter table [GV_comprobacion_rel_gastos]
+ add constraint FK_GV_comprobacion_rel_gastos_id_archivo_xml
+  foreign key (id_archivo_xml)
+  references biblioteca_digital(id);
+
+  -- restriccion de clave foranea
+alter table [GV_comprobacion_rel_gastos]
+ add constraint FK_GV_comprobacion_rel_gastos_id_archivo_pdf
+  foreign key (id_archivo_pdf)
+  references biblioteca_digital(id);
+
+  -- restriccion de clave foranea
+alter table [GV_comprobacion_rel_gastos]
+ add constraint FK_GV_comprobacion_rel_gastos_id_archivo_comprobante_extranjero
+  foreign key (id_archivo_comprobante_extranjero)
+  references biblioteca_digital(id);
+
 
   -- restriccion de clave foranea
 alter table [GV_comprobacion_rel_gastos]
@@ -88,7 +112,7 @@ alter table [GV_comprobacion_rel_gastos]
 
   -- restricion check
 ALTER TABLE [GV_comprobacion_rel_gastos] ADD CONSTRAINT CK_comprobacion_rel_gastos_concepto_tipo CHECK ([concepto_tipo] IN 
-('COFIDI_RESUMEN','COFIDI_CONCEPTO', 'XML_RESUMEN', 'XML_CONCEPTO', 'GASTO_EXTRANJERO', 'GASTO_SIN_COMPROBANTE')
+('COFIDI_RESUMEN','COFIDI_CONCEPTO','COFIDI_TOTALES','XML_RESUMEN', 'XML_CONCEPTO', 'XML_TOTALES' , 'GASTO_EXTRANJERO', 'GASTO_SIN_COMPROBANTE')
 )
  	  
 

@@ -1,0 +1,997 @@
+﻿@model Portal_2_0.Models.GV_solicitud
+@using Portal_2_0.Models
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Editar Comprobación de Gastos de Viaje";
+    ViewBag.PrimerNivel = "gastos_viaje_comprobacion";
+    ViewBag.SegundoNivel = "GV_comprobacion";
+    ViewBag.ControllerName = "ComprobacionGV";
+
+    int contador = 0;
+
+    //obtiene los ViewBag para los select
+    List<GV_comprobacion_tipo_gastos_viaje> listaCuentas = (List<GV_comprobacion_tipo_gastos_viaje>)ViewBag.ListaCuentas;
+    List<GV_comprobacion_tipo_pago> listaTipoPago = (List<GV_comprobacion_tipo_pago>)ViewBag.ListaTipoPago;
+    List<GV_centros_costo> listaCentroCosto = (List<GV_centros_costo>)ViewBag.ListaCentroCosto;
+
+}
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/green.css")" rel="stylesheet">
+
+    <style>
+
+        label {
+            text-align: right;
+        }
+
+        label::after {
+            content: ":";
+        }
+
+        nolabel > label::after {
+            content: "";
+        }
+
+        .fondo_verde {
+            background-color: green;
+            color: #fffdf0;
+            font-weight: bolder;
+        }
+
+        .fondo_amarillo {
+            background-color: orange;
+            color: #221f1f;
+            font-weight: bolder;
+        }
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    @*<div class="x_title">
+                            <h2>@ViewBag.Title</h2>
+                            <div class="clearfix"></div>
+                        </div>*@
+                    <div class="x_content">
+                        <br />
+
+                        <div id="accordion">
+                            <div class="card">
+                                <div class="card-header" id="headingOne">
+                                    <h5 class="mb-0">
+                                        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                            <span class="green" style="font-size:large"><i class="fa-solid fa-plane-departure"></i> DETALLES DE SOLICITUD DE GASTOS DE VIAJE (Haga clic para ver los detalles)</span>
+                                        </button>
+                                    </h5>
+                                </div>
+                                <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+                                    <div class="card-body" style="background-color: #ecf8f8">
+                                        <div class="form-group row">
+                                            <span style="color:black"><b>DATOS GENERALES (SOLICITUD)</b></span>
+                                        </div>
+                                        <div class="form-group row">
+                                            <!--Folio-->
+                                            <div class="col-md-10">
+                                            </div>
+                                            @Html.LabelFor(model => model.id, new { @class = "control-label col-md-1 float-right" })
+                                            <div class="col-md-1">
+                                                @Html.EditorFor(model => model.id, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <!--SOLICITANTE-->
+                                            @Html.LabelFor(model => model.id_solicitante, new { @class = "control-label col-md-1 float-right" })
+                                            <div class="col-md-4">
+                                                <input class="form-control" value="@Html.DisplayFor(model => model.empleados5.ConcatNombre)" readonly />
+                                            </div>
+
+                                            <!--Estatus-->
+                                            @Html.LabelFor(model => model.estatus, new { @class = "control-label col-md-1 float-right" })
+                                            <div class="col-md-2">
+                                                <input type="text" class="form-control" value="@Bitacoras.Util.GV_solicitud_estatus.DescripcionStatus(Model.estatus)" readonly />
+                                            </div>
+
+                                            <!--Fecha-->
+                                            @Html.LabelFor(model => model.fecha_solicitud, new { @class = "control-label col-md-2 float-right" })
+                                            <div class="col-md-2">
+                                                <input type="text" class="form-control" value="@DateTime.Now" readonly />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <!-- Empleado -->
+                                            @Html.LabelFor(model => model.id_empleado, new { @class = "control-label col-md-1" })
+                                            <div class="col-md-4">
+                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.empleados2.ConcatNombre)" readonly />
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group row">
+                                            <!--Planta-->
+                                            @Html.LabelFor(model => model.empleados2.planta_clave, new { @class = "control-label col-md-1 float-right" })
+                                            <div class="col-md-3">
+                                                <input class="form-control" id="empleado_planta" value="@Html.DisplayFor(model => model.empleados2.plantas.descripcion)" readonly />
+                                            </div>
+                                            <!--Departamento-->
+                                            @Html.LabelFor(model => model.empleados2.id_area, new { @class = "control-label col-md-1 float-right" })
+                                            <div class="col-md-3">
+                                                <input class="form-control" id="empleado_area" value="@Html.DisplayFor(model => model.empleados2.Area.descripcion)" readonly />
+                                            </div>
+                                            <!--Puesto-->
+                                            @Html.LabelFor(model => model.empleados2.puesto, new { @class = "control-label col-md-1 float-right" })
+                                            <div class="col-md-3">
+                                                <input class="form-control" id="empleado_puesto" value="@Html.DisplayFor(model => model.empleados2.puesto1.descripcion)" readonly />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <!--Planta-->
+                                            @Html.LabelFor(model => model.id_jefe_directo, new { @class = "control-label col-md-1 float-right" })
+                                            <div class="col-md-5">
+                                                <input class="form-control" id="empleado_jefe" value="@Html.DisplayFor(model => model.empleados2.empleados2.ConcatNombre)" readonly />
+                                            </div>
+
+                                        </div>
+                                        <div class="ln_solid"></div>
+
+                                        <div class="form-group row">
+                                            <span style="color:black"><b>INFORMACI&Oacute;N DEL VIAJE</b></span>
+                                        </div>
+                                        <!-- Tipo de Viaje -->
+                                        <div class="form-group row">
+                                            @Html.LabelFor(model => model.tipo_viaje, new { @class = "control-label col-md-1 float-right" })
+                                            <div class="col-md-1 col-sm-1 offset-md-1">
+                                                <input type="radio" id="nacional" name="tipo_viaje" value="NACIONAL" @(Model.tipo_viaje == Bitacoras.Util.GV_tipo_viaje.NACIONAL || String.IsNullOrEmpty(Model.tipo_viaje) ? "checked" : String.Empty) disabled>
+                                                <nolabel>
+                                                    <label for="nacional">Nacional</label>
+                                                </nolabel>
+                                            </div>
+                                            <div class="col-md-1 col-sm-1">
+                                                <input type="radio" id="extranjero" name="tipo_viaje" value="EXTRANJERO" @(Model.tipo_viaje == Bitacoras.Util.GV_tipo_viaje.EXTRANJERO ? "checked" : String.Empty) disabled>
+                                                <nolabel>
+                                                    <label for="extranjero">Extranjero</label>
+                                                </nolabel>
+                                            </div>
+                                            @Html.ValidationMessageFor(model => model.tipo_viaje, "", new { @class = "text-danger" })
+                                        </div>
+                                        <div class="form-group row">
+                                            @Html.LabelFor(model => model.origen, new { @class = "control-label col-md-1 float-right" })
+                                            <div class="col-md-5">
+                                                @Html.EditorFor(model => model.origen, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                            </div>
+                                            @Html.LabelFor(model => model.destino, new { @class = "control-label col-md-1 float-right" })
+                                            <div class="col-md-5">
+                                                @Html.EditorFor(model => model.destino, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                            </div>
+
+                                        </div>
+                                        <div class="form-group row">
+                                            @Html.LabelFor(model => model.fecha_salida, new { @class = "control-label col-md-1 float-right" })
+                                            <div class="col-md-2">
+                                                @Html.EditorFor(model => model.fecha_salida, new { htmlAttributes = new { @class = "form-control", @disabled = "disabled" } })
+                                            </div>
+
+                                            @Html.LabelFor(model => model.fecha_regreso, new { @class = "control-label col-md-2 float-right" })
+                                            <div class="col-md-2">
+                                                @Html.EditorFor(model => model.fecha_regreso, new { htmlAttributes = new { @class = "form-control", @disabled = "disabled" } })
+                                            </div>
+                                            <label class="control-label col-md-1 float-right">Días</label>
+                                            <div class="col-md-1">
+                                                <input type="text" id="num_dias" name="num_dias" class="form-control" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <span style="color:black"><b>MOTIVO DE VIAJE</b></span>
+                                        </div>
+                                        <div class="item form-group">
+                                            <div class="col-md-12">
+                                                @Html.TextAreaFor(model => model.motivo_viaje, new { @class = "form-control", @rows = "4", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                        <div class="ln_solid"></div>
+
+                                        @if (Model.moneda_extranjera)
+                                        {
+                                            <!-- Solo aplica con moneda extranjera -->
+                                            <div id="div_moneda_extranjera">
+                                                <div class="form-group row">
+                                                    <span style="color:black"><b>ESTIMACI&Oacute;N DE GASTOS A REALIZAR (MONEDA EXTRANJERA)</b></span>
+
+                                                </div>
+                                                <div class="form-group row">
+
+                                                </div>
+                                                <div class="form-group row">
+                                                    @Html.LabelFor(model => model.moneda_extranjera, new { @class = "control-label col-md-1 text_derecha" })
+                                                    <div class="col-md-1">
+                                                        @Html.EditorFor(m => m.moneda_extranjera, new { htmlAttributes = new { disabled = "disabled" } })
+                                                    </div>
+                                                    <!-- Moneda -->
+                                                    @Html.LabelFor(model => model.iso_moneda_extranjera, new { @class = "control-label col-md-1" })
+                                                    <div class="col-md-3">
+                                                        <input type="text" class="form-control" value="@Model.iso_moneda_extranjera" readonly />
+                                                    </div>
+                                                    @Html.LabelFor(model => model.moneda_extranjera_monto, new { @class = "control-label col-md-1 text_derecha" })
+                                                    <div class="col-md-2">
+                                                        @Html.EditorFor(m => m.moneda_extranjera_monto, new { htmlAttributes = new { @class = "precio form-control", @readonly = "readonly" } })
+                                                    </div>
+                                                </div>
+
+                                                <div class="item form-group">
+                                                    @Html.LabelFor(model => model.moneda_extranjera_comentarios, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align:left" })
+
+                                                </div>
+                                                <div class="item form-group">
+                                                    <div class="col-md-12">
+                                                        @Html.TextAreaFor(model => model.moneda_extranjera_comentarios, new { @class = "form-control", @rows = "4", @readonly = "readonly" })
+                                                    </div>
+                                                </div>
+
+                                                <div class="ln_solid"></div>
+                                            </div>
+
+                                        }
+
+                                        <div class="table-responsive">
+                                            <table id="datatable_1" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                                                <thead>
+                                                    <tr style=" background-color: #0094ff; color: azure;">
+                                                        <th width="20%">
+                                                            Concepto
+                                                        </th>
+                                                        <th width="12%">
+                                                            Importe
+                                                        </th>
+                                                        <th width="12%">
+                                                            Cantidad o días
+                                                        </th>
+                                                        <th width="12%">
+                                                            Total
+                                                        </th>
+                                                        <th width="40%">
+                                                            Comentarios
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var item in Model.GV_rel_gastos_solicitud)
+                                                    {
+                                                        <tr>
+                                                            <td style="font-weight:bold">@item.GV_tipo_gastos_viaje.descripcion</td>
+                                                            <td style="text-align:right">
+                                                                $ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.importe)
+                                                            </td>
+                                                            <td style="text-align:right">
+                                                                @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.cantidad)
+                                                            </td>
+                                                            <td id="total_fila_@contador" style="text-align:right" nowrap>
+                                                                $ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.total)
+                                                            </td>
+                                                            <td>
+                                                                @item.comentarios
+                                                            </td>
+                                                        </tr>
+                                                        contador++;
+                                                    }
+                                                </tbody>
+
+                                                <tfoot>
+                                                    <tr>
+                                                        <th colspan="3" style="text-align:right">Total</th>
+                                                        <th id="total_gastos" style="text-align:right" nowrap>$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", Model.sumaGastosNacional) MXN</th>
+                                                        <th></th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+
+                                        <div class="form-group row">
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <div class="col-md-12" style="text-align:center">
+                                <span class="green" style="font-size:x-large"><i class="fa-solid fa-check-to-slot"></i> COMPROBACI&Oacute;N DE GASTOS DE VIAJE</span>
+                            </div>
+                        </div>
+                        <div class="ln_solid"></div>
+
+                        <div class="form-group row">
+                            <span style="color:black"><b>CENTRO DE COSTO</b></span>
+                        </div>
+                        <div class="form-group row">
+                            <!--Estatus-->
+                            @Html.LabelFor(model => model.estatus, new { @class = "control-label col-md-9 float-right" })
+                            <div class="col-md-3">
+                                <input class="form-control" value="@Bitacoras.Util.GV_comprobacion_estatus.DescripcionStatus(Model.GV_comprobacion.estatus)" readonly />
+                            </div>
+
+                        </div>
+                        <div class="form-group row">
+                            <!--Empleado-->
+                            @Html.LabelFor(model => model.id_empleado, new { @class = "control-label col-md-1 float-right" })
+                            <div class="col-md-4">
+                                <input class="form-control" value="@Html.DisplayFor(model => model.empleados2.ConcatNombre)" readonly />
+                            </div>
+
+                            <!--Empleado-->
+                            @Html.LabelFor(model => model.empleados2.numeroEmpleado, new { @class = "control-label col-md-1 float-right" })
+                            <div class="col-md-1">
+                                <input class="form-control" value="@Html.DisplayFor(model => model.empleados2.numeroEmpleado)" readonly />
+                            </div>
+
+                            <!--tarjeta Business card-->
+                            @Html.LabelFor(model => model.GV_comprobacion.business_card, new { @class = "control-label col-md-1 float-right" })
+                            <div class="col-md-3">
+                                @Html.EditorFor(model => model.GV_comprobacion.business_card, new { htmlAttributes = new { @class = "form-control col-md-12", @readonly = "readonly" } })
+                            </div>
+
+                        </div>
+
+                        <br />
+                        <div class="table-responsive">
+                            <table id="datatable_2" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                                <thead>
+                                    <tr style=" background-color: #0094ff; color: azure;">
+                                        <th width="1%">
+                                            #
+                                        </th>
+                                        <th>Origen</th>
+                                        <th nowrap>
+                                            Cuenta @for (int i = 0; i < 15; i++)
+                                            {
+                                                <span>&ensp;</span>
+                                            }
+                                        </th>
+                                        <th nowrap>
+                                            Centro de Costo @for (int i = 0; i < 16; i++)
+                                            {
+                                                <span>&ensp;</span>
+                                            }
+                                        </th>
+                                        <th nowrap>
+                                            Descripci&oacute;n @for (int i = 0; i < 20; i++)
+                                            {
+                                                <span>&ensp;</span>
+                                            }
+                                        </th>
+                                        <th nowrap>
+                                            Tipo de Pago @for (int i = 0; i < 10; i++)
+                                            {
+                                                <span>&ensp;</span>
+                                            }
+                                        </th>
+                                        <th>
+                                            Cantidad
+                                        </th>
+                                        <th>
+                                            Precio Unitario
+                                        </th>
+                                        <th>
+                                            Importe
+                                        </th>
+                                        @*<th>
+                                                Descuento
+                                            </th>*@
+                                        <th>
+                                            % IVA
+                                        </th>
+                                        <th>
+                                            Total IVA
+                                        </th>
+                                        <th>
+                                            % ISR
+                                        </th>
+                                        <th>
+                                            Total ISR
+                                        </th>
+                                        <th>
+                                            % IEPS
+                                        </th>
+                                        <th>
+                                            Total IEPS
+                                        </th>
+                                        @*<th>
+                                                Total Translados
+                                            </th>*@
+                                        <th>
+                                            Total Retenciones
+                                        </th>
+                                        <th>
+                                            Imp. Locales
+                                        </th>
+                                        <th>
+                                            Total
+                                        </th>
+                                        <th>Total MXN</th>
+                                        <th nowrap>
+                                            Comentario @for (int i = 0; i < 20; i++)
+                                            {
+                                                <span>&ensp;</span>
+                                            }
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="body_conceptos">
+                                    @foreach (var concepto in Model.GV_comprobacion_rel_gastos)
+                                    {
+                                        switch (concepto.concepto_tipo)
+                                        {
+                                            case Bitacoras.Util.GV_comprobacion_origen.COFIDI_RESUMEN:
+                                            case Bitacoras.Util.GV_comprobacion_origen.XML_RESUMEN:
+                                                <tr style="background-color:#FFEB9C" class="div_@concepto.uuid">
+                                                    <td class=" input-contador-conceptos"></td>
+                                                    <td>@Bitacoras.Util.GV_comprobacion_origen.DescripcionOrigen(concepto.concepto_tipo)</td>
+                                                    <td><b>Fecha:</b> @concepto.fecha_factura.Value.ToShortDateString()</td>
+                                                    <td colspan="2" nowrap><b>UUID:</b> <custom-div class=" class-uuid">@concepto.uuid</custom-div></td>
+                                                    <td colspan="1"> <b>Tipo de Cambio:</b> @String.Format("{0:0.00}", concepto.tipo_cambio)</td>
+                                                    <td colspan="2"> <b>Moneda:</b> @concepto.currency_iso</td>
+                                                    <td colspan="8">
+                                                        @if (concepto.id > 0 && concepto.concepto_tipo == Bitacoras.Util.GV_comprobacion_origen.XML_RESUMEN)
+                                                        {
+                                                            <a href="/Combos/DownloadFile/?idDocumento=@concepto.id_archivo_pdf&inline=true" class="btn btn-info" title="Ver PDF" target="_blank"><i class="fa-solid fa-file-pdf"></i></a>
+                                                            <a href="/Combos/DownloadFile/?idDocumento=@concepto.id_archivo_xml&inline=true" class="btn btn-info" title="Ver XML" target="_blank"><i class="fa-solid fa-code"></i></a>
+                                                        }
+                                                        else if ((concepto.ExisteEnCOFIDI.HasValue && concepto.ExisteEnCOFIDI.Value) || (concepto.id > 0 && concepto.concepto_tipo == Bitacoras.Util.GV_comprobacion_origen.COFIDI_RESUMEN))
+                                                        {
+                                                            <a href="/Combos/MuestraArchivo/?uuid=@concepto.uuid" class="btn btn-info" title="Ver PDF" target="_blank"><i class="fa-solid fa-file-pdf"></i></a>
+                                                            <a href="/Combos/MuestraArchivoXML/?uuid=@concepto.uuid" class="btn btn-info" title="Ver XML" target="_blank"><i class="fa-solid fa-code"></i></a>
+                                                        }
+                                                    </td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td>
+                                                        <i>@Html.DisplayFor(model => concepto.comentario)</i>
+                                                    </td>
+                                                    <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].ExisteEnCOFIDI" name="GV_comprobacion_rel_gastos[@contador].ExisteEnCOFIDI" value="@(concepto.ExisteEnCOFIDI.HasValue && !concepto.ExisteEnCOFIDI.Value ? " false" : "true" )">
+
+                                                </tr>
+                                                break;
+                                            case Bitacoras.Util.GV_comprobacion_origen.COFIDI_CONCEPTO:
+                                            case Bitacoras.Util.GV_comprobacion_origen.XML_CONCEPTO:
+                                                <tr style="background-color:#C9DCC1" class="div_@concepto.uuid">
+                                                    <td colspan="1"></td>
+                                                    <td colspan="1"></td>
+                                                    <td nowrap>
+                                                        @Html.DisplayFor(model => concepto.GV_comprobacion_tipo_gastos_viaje.ConcatCuenta)
+                                                    </td>
+                                                    <td nowrap>
+                                                        @Html.DisplayFor(model => concepto.GV_centros_costo.ConcatCentroDeptoPlanta)
+                                                    </td>
+                                                    <td>@Html.DisplayFor(model => concepto.descripcion)</td>
+                                                    <td>
+                                                        @Html.DisplayFor(model => concepto.GV_comprobacion_tipo_pago.descripcion)
+                                                    </td>
+                                                    <td> @(concepto.cantidad.HasValue ? concepto.cantidad.Value.ToString("0.00") : "--")</td>
+                                                    <td nowrap style="text-align:right">@(concepto.precio_unitario.HasValue ? concepto.precio_unitario.Value.ToString("$ #,##0.00") : "--")</td>
+                                                    <td nowrap style="text-align:right">@(concepto.importe.HasValue ? concepto.importe.Value.ToString("$ #,##0.00") : "--")</td>
+                                                    <td nowrap style="text-align:right">@(concepto.iva_porcentaje.HasValue ? concepto.iva_porcentaje.Value.ToString("0.00 %") : "--")</td>
+                                                    <td nowrap style="text-align:right">@(concepto.iva_total.HasValue ? concepto.iva_total.Value.ToString("$ #,##0.00") : "--")</td>
+                                                    <td nowrap style="text-align:right">@(concepto.isr_porcentaje.HasValue ? concepto.isr_porcentaje.Value.ToString("0.00 %") : "--")</td>
+                                                    <td nowrap style="text-align:right">@(concepto.isr_total.HasValue ? concepto.isr_total.Value.ToString("$ #,##0.00") : "--")</td>
+                                                    <td nowrap style="text-align:right">@(concepto.ieps_porcentaje.HasValue ? concepto.ieps_porcentaje.Value.ToString("0.00 %") : "--")</td>
+                                                    <td nowrap style="text-align:right">@(concepto.ieps_total.HasValue ? concepto.ieps_total.Value.ToString("$ #,##0.00") : "--")</td>
+                                                    <td nowrap style="color:#C10000; text-align:right">@(concepto.total_retenciones.HasValue ? concepto.total_retenciones.Value.ToString("$ #,##0.00") : "--")</td>
+                                                    <td></td>
+                                                    <td nowrap style="text-align:right">@(concepto.total_mxn.HasValue ? concepto.total_mxn.Value.ToString("$ #,##0.00") : "--")</td>
+                                                    <td colspan="2"></td>
+                                                </tr>
+                                                break;
+                                            case Bitacoras.Util.GV_comprobacion_origen.COFIDI_TOTALES:
+                                            case Bitacoras.Util.GV_comprobacion_origen.XML_TOTALES:
+                                                <tr style="background-color:#AAE0FF" class="div_@concepto.uuid">
+                                                    <td></td>
+                                                    <td colspan="7" style="text-align:right"><b>Totales Factura:</b></td>
+                                                    <td nowrap style="text-align:right">@(concepto.importe.HasValue ? concepto.importe.Value.ToString("$ #,##0.00") : "--")</td>
+                                                    <td></td>
+                                                    <td nowrap style="text-align:right">@(concepto.iva_total.HasValue ? concepto.iva_total.Value.ToString("$ #,##0.00") : "--")</td>
+                                                    <td></td>
+                                                    <td nowrap style="text-align:right">@(concepto.isr_total.HasValue ? concepto.isr_total.Value.ToString("$ #,##0.00") : "--")</td>
+                                                    <td></td>
+                                                    <td nowrap style="text-align:right">@(concepto.ieps_total.HasValue ? concepto.ieps_total.Value.ToString("$ #,##0.00") : "--")</td>
+                                                    <td nowrap style="color:#C10000; text-align:right">@(concepto.total_retenciones.HasValue ? concepto.total_retenciones.Value.ToString("$ #,##0.00") : "--")</td>
+                                                    <td nowrap style="text-align:right">@(concepto.impuestos_locales.HasValue ? concepto.impuestos_locales.Value.ToString("$ #,##0.00") : "--")</td>
+                                                    <td nowrap style="text-align:right">@(concepto.total_mxn.HasValue ? concepto.total_mxn.Value.ToString("$ #,##0.00") : "--")</td>
+                                                    <td nowrap class="item-total-mxn" style="text-align:right; font-weight:bold">@(concepto.total_mxn.HasValue ? concepto.total_mxn.Value.ToString("$ #,##0.00") : "--")</td>
+                                                    <td colspan="1"></td>
+                                                </tr>
+                                                break;
+                                            case Bitacoras.Util.GV_comprobacion_origen.GASTO_EXTRANJERO:
+                                                <tr style="background-color:#FFEB9C" class="div_@contador">
+                                                    <td class="input-contador-conceptos"></td>
+                                                    <td>@Bitacoras.Util.GV_comprobacion_origen.DescripcionOrigen(concepto.concepto_tipo)</td>
+                                                    <td>
+                                                        <b>Fecha:</b> @Html.DisplayFor(model => concepto.fecha_factura)
+                                                    </td>
+                                                    <td>
+                                                        <b>Cuenta:</b> @Html.DisplayFor(model => concepto.GV_comprobacion_tipo_gastos_viaje.ConcatCuenta)
+                                                    </td>
+                                                    <td>
+                                                        <b>Centro de Costo:</b> @Html.DisplayFor(model => concepto.GV_centros_costo.ConcatCentroDeptoPlanta)
+                                                    </td>
+                                                    <td colspan="1" data-row="@contador">
+                                                        <b>Tipo de Cambio: </b><tipo-cambio id="GV_comprobacion_rel_gastos[@contador].tipo_cambio">@String.Format("{0:0.00}", concepto.tipo_cambio)</tipo-cambio>
+                                                    </td>
+                                                    <td colspan="2">
+                                                        <b>Moneda:</b> @Html.DisplayFor(model => concepto.currency.CurrencyISO)
+                                                    </td>
+                                                    <td colspan="8">
+                                                        @if (concepto.id > 0)
+                                                        {
+                                                            <a href="/Combos/DownloadFile/?idDocumento=@concepto.id_archivo_comprobante_extranjero&inline=true" class="btn btn-info" title="Ver PDF" target="_blank"><i class="fa-solid fa-file-pdf"></i></a>
+                                                        }
+                                                    </td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td>
+                                                        <i>@Html.DisplayFor(model => concepto.comentario)</i>
+                                                    </td>
+                                                </tr>
+                                                <!-- Segunda linea-->
+                                                <tr style="background-color: #C9DCC1" class="div_@contador">
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td colspan="2">
+                                                        <b>Descripción:</b> <br /> @Html.DisplayFor(model => concepto.descripcion)
+                                                    </td>
+                                                    <td nowrap>
+                                                        <b>Tipo Pago:</b> <br /> @Html.DisplayFor(model => concepto.GV_comprobacion_tipo_pago.descripcion)
+                                                    </td>
+                                                    <td colspan="2"></td>
+                                                    <td colspan="3" class="concepto-extranjero" data-row="@contador">
+                                                        <b>Importe:</b> <br /> <importe id="GV_comprobacion_rel_gastos[@contador].importe">$ @Html.DisplayFor(model => concepto.importe)</importe>
+                                                    </td>
+                                                    <td colspan="6"></td>
+                                                    <td colspan="1"></td>
+                                                    <td colspan="1" class="item-total-mxn" id="total-mxn_@contador" style="font-weight: bold; text-align: right;"></td>
+                                                    <td colspan="1"></td>
+                                                </tr>
+                                                break;
+                                            case Bitacoras.Util.GV_comprobacion_origen.GASTO_SIN_COMPROBANTE:
+                                                <tr style="background-color:#FFEB9C" class="div_@contador">
+                                                    <td class="input-contador-conceptos"></td>
+                                                    <td>@Bitacoras.Util.GV_comprobacion_origen.DescripcionOrigen(concepto.concepto_tipo)</td>
+                                                    <td>
+                                                        <b>Fecha:</b> @Html.DisplayFor(model => concepto.fecha_factura)
+                                                    </td>
+                                                    <td>
+                                                        <b>Cuenta:</b> @Html.DisplayFor(model => concepto.GV_comprobacion_tipo_gastos_viaje.ConcatCuenta)
+                                                    </td>
+                                                    <td nowrap>
+                                                        <b>Centro de Costo:</b> @Html.DisplayFor(model => concepto.GV_centros_costo.ConcatCentroDeptoPlanta)
+                                                    </td>
+                                                    <td colspan="1" data-row="@contador">
+                                                        <b>Tipo de Cambio: </b><tipo-cambio id="GV_comprobacion_rel_gastos[@contador].tipo_cambio">@String.Format("{0:0.00}", concepto.tipo_cambio)</tipo-cambio>
+                                                    </td>
+                                                    <td colspan="2">
+                                                        <b>Moneda:</b> @Html.DisplayFor(model => concepto.currency.CurrencyISO)
+                                                    </td>
+                                                    <td colspan="8">
+                                                    </td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td>
+                                                        <i>@Html.DisplayFor(model => concepto.comentario)</i>
+                                                    </td>
+                                                </tr>
+                                                <!-- Segunda linea-->
+                                                <tr style="background-color: #C9DCC1" class="div_@contador">
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td colspan="2">
+                                                        <b>Descripción:</b> <br /> @Html.DisplayFor(model => concepto.descripcion)
+                                                    </td>
+                                                    <td nowrap>
+                                                        <b>Tipo Pago:</b> <br /> @Html.DisplayFor(model => concepto.GV_comprobacion_tipo_pago.descripcion)
+                                                    </td>
+                                                    <td colspan="2"></td>
+                                                    <td colspan="3" class="concepto-extranjero" data-row="@contador">
+                                                        <b>Importe:</b> <br /> <importe id="GV_comprobacion_rel_gastos[@contador].importe">$ @Html.DisplayFor(model => concepto.importe)</importe>
+                                                    </td>
+                                                    <td colspan="6"></td>
+                                                    <td colspan="1"></td>
+                                                    <td colspan="1" class="item-total-mxn" id="total-mxn_@contador" style="font-weight: bold; text-align: right;"></td>
+                                                    <td colspan="1"></td>
+                                                </tr>
+                                                break;
+                                        }
+                                        contador++;
+                                    }
+
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="18" style="text-align:right">Total MXN</th>
+                                        <th id="total_gastos_mxn" style="text-align:right" nowrap>$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", Model.sumaGastosNacional)</th>
+                                        <th colspan="1"></th>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="18" style="text-align:right">ANTICIPO</th>
+                                        <th id="anticipo_mxn" style="text-align:right" nowrap>$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", Model.sumaGastosNacional)</th>
+                                        <th colspan="1"></th>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="18" style="text-align:right">SALDO POR COMPROBAR</th>
+                                        <th id="saldo_por_comprobar_mxn" style="text-align:right" nowrap>$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", Model.sumaGastosNacional)</th>
+                                        <th colspan="1"></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>COMENTARIOS ADICIONALES</b></span>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.GV_comprobacion.comentario_adicional, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align:left" })
+                        </div>
+                        <div class="item form-group">
+                            <div class="col-md-12">
+                                @Html.TextAreaFor(model => model.GV_comprobacion.comentario_adicional, new { @class = "form-control", @rows = "4", @autocomplete = "off", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="ln_solid"></div>
+
+                        @if (!String.IsNullOrEmpty(Model.GV_comprobacion.comentario_rechazo))
+                        {
+                            <div class="form-group row">
+                                <span style="color:black"><b>RAZ&Oacute;N DE RECHAZO ANTERIOR</b></span>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.GV_comprobacion.comentario_rechazo, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align:left" })
+                            </div>
+                            <div class="item form-group">
+                                <div class="col-md-12">
+                                    @Html.TextAreaFor(model => model.GV_comprobacion.comentario_rechazo, new { @class = "form-control", @rows = "4", @autocomplete = "off", @readonly = "readonly" })
+                                </div>
+                            </div>
+                            <div class="ln_solid"></div>
+                        }
+
+                        <div class="col-md-12">
+                            <div class="item form-group">
+                                <div class="col-md-6 col-sm-6 ">
+                                    <button type="submit" class="btn btn-danger btn-lg" onclick="mostrarModalRechazar()">Rechazar</button>
+                                </div>
+                                <div class="col-md-6 col-sm-6 ">
+                                    <button type="submit" class="btn btn-success btn-lg float-lg-right" onclick="mostrarModalAutorizar()">Autorizar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="javascript: history.go(-1)" class="btn btn-round btn-info btm-sm float-left" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Autorizar -->
+<div class="modal fade" id="modalAutorizar" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Autorizar</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm(null, null, FormMethod.Post, new { }))
+            {
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <h6>¿Desea autorizar esta Comprobaci&oacute;n de Gastos de Viaje y enviarla a N&oacute;minas para su autorizaci&oacute;n?</h6>
+                    </div>
+                    <br />
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(model => model.id)
+                    <input type="hidden" id="s_estatus" name="s_estatus" value="@Model.s_estatus" />
+
+                    <div class="form-group row">
+                        <!-- Empleado -->
+                        <div class="col-md-12">
+                            @Html.LabelFor(model => model.GV_comprobacion.id_nomina, new { @class = "control-label col-md-12", @style = "text-align:left" })
+                        </div>
+                        <div class="col-md-12">
+                            @Html.DropDownList("id_nomina", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                            @Html.ValidationMessageFor(model => model.GV_comprobacion.id_nomina, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Autorizar</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal Rechazar -->
+<div class="modal fade" id="modalRechazar" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Rechazar</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("RechazarContabilidad", null, FormMethod.Post, new { }))
+            {
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <h6>¿Realmente desea rechazar esta solicitud?</h6>
+                        <br />
+                        <div class="col-md-12">
+                            <h6>Raz&oacute;n de Rechazo:</h6>
+                        </div>
+                        <div class="col-md-12">
+
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(model => model.id)
+                            <input type="hidden" id="s_estatus" name="s_estatus" value="@Model.s_estatus" />
+                            @Html.TextAreaFor(model => model.GV_comprobacion.comentario_rechazo, new { @class = "form-control", @rows = "4", @autocomplete = "off", @required = "required" })
+                            @Html.ValidationMessageFor(model => model.GV_comprobacion.comentario_rechazo, "", new { @class = "text-danger" })
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning">Rechazar</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery-iu/jquery-ui.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/MvcFoolproofJQueryValidation.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render("~/bundles/dataTables_js")
+    @Scripts.Render(Url.Content("~/Content/vendors/moment/moment.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2@11.js"))
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/inputmask/inputmask.extensions.js"))
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+    //inicializa en input file
+
+    // Initialize Select2 Elements (debe ir después de asignar el valor)
+    $('.select2bs4').select2({
+        theme: 'bootstrap4'
+    })
+
+    $('input').iCheck({
+        checkboxClass: 'icheckbox_square-green',
+        radioClass: 'iradio_square-green',
+        increaseArea: '20%' // optional
+    });
+
+    //agrega evento para cambio de empleado
+    calculaDias();
+
+    //input mask
+    $('.precio').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'allowMinus': false, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
+    $('.cantidad').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'allowMinus': false, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
+    $('#@Html.IdFor(model => model.GV_comprobacion.business_card)').inputmask({ 'mask': '9999-9999-9999-9999', 'autoGroup': true, 'autoUnmask': true, 'removeMaskOnSubmit': true });
+    $('#uuid_field').inputmask({ 'mask': '********-****-****-****-************', 'autoGroup': true, 'autoUnmask': true, 'removeMaskOnSubmit': true });
+
+
+    //al cargar la página por primera vez
+    /*  verificaEstadoCombos();*/
+    AsignaNumeroConcepto();
+    asignaEventosInput();
+    CargaValoresIniciales();
+
+        });
+
+        //muestra el modal para enviar
+        function mostrarModalEnviar() {
+            $('#modalConfirmacion').modal('show')
+        }
+
+        //muestra el modal de autorizar
+        function mostrarModalAutorizar() {
+            $('#modalAutorizar').modal('show')
+        }
+
+        //muestra el modal de rechazar
+        function mostrarModalRechazar() {
+            $('#modalRechazar').modal('show')
+        }
+
+
+function CalculaTotales() {
+
+    let totalMXN = 0;
+    $(".item-total-mxn").each(function () {
+        let cantidad = $(this).html();
+        totalMXN += CurrencyToFloat(cantidad);
+    });
+
+    $("#total_gastos_mxn").html(FloatToCurrency(totalMXN));
+
+
+    //calcula el valor por comprobar
+    let anticipoMXN = CurrencyToFloat($("#anticipo_mxn").html());
+    let porComprobarMXN = anticipoMXN - totalMXN;
+    // muestra la cantidad por comprobar
+    $("#saldo_por_comprobar_mxn").html(FloatToCurrency(porComprobarMXN));
+
+
+}
+
+function CurrencyToFloat(currency) {
+    let c = currency.replace('$', '').replace(',', '').replace(',', '');
+    return TryParseFloat(c, 0);
+}
+function FloatToCurrency(currency) {
+    //aplica formato de moneda
+    const resultd = (currency).toLocaleString('en-US', {
+        style: 'currency',
+        currency: 'USD'
+    });
+    return resultd;
+}
+
+function CargaValoresIniciales() {
+    //agrega evento para calculo de gasto extranjero
+    $(".concepto-extranjero").each(function () {
+        let row = $(this).attr("data-row");
+        let tipoCambio = document.getElementById("GV_comprobacion_rel_gastos[" + row + "].tipo_cambio").innerHTML;
+        let importe = document.getElementById("GV_comprobacion_rel_gastos[" + row + "].importe").innerHTML;
+
+        let totalmxn = TryParseFloat(tipoCambio, 0) * CurrencyToFloat(importe);
+
+        //aplica formato de moneda
+        const resultd = (totalmxn).toLocaleString('en-US', {
+            style: 'currency',
+            currency: 'USD'
+        });
+
+        //asigna el valor a la tabla
+        $('#total-mxn_' + row).html(resultd);
+    });
+
+    CalculaTotales();
+}
+
+//funcion para agregar los eventos de cantidades a los input
+function asignaEventosInput() {
+
+
+    //aplica los estilos a los input
+    $('.numero-decimal').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'allowMinus': false, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
+    $('.importe').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'allowMinus': false, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
+
+
+}
+
+//funcion para agregar concepto sin factura
+function AgregaConceptoSinFactura() {
+
+}
+
+//funcion para agregar concepto extranjero
+function AgregaConceptoExtranjero() {
+
+}
+
+//variables utilizadas para numeración de conceptos y facturas
+var numConcepto = 200;
+//variable para saber si ha cambiado el formulario y asi no se detenga por doble submit
+var documento_soporte_cambios = 1;
+
+
+
+//variable para formatear numeros
+internationalNumberFormat = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD'
+});
+
+
+
+//numera los concepto
+function AsignaNumeroConcepto() {
+    let indice = 1;
+
+    $('.input-contador-conceptos').each(function (index) {
+        $(this).html(indice);
+        indice++;
+    });
+    CalculaTotales();
+}
+
+
+//Calcula los dias del viaje
+function calculaDias() {
+    var inicial = $('#@Html.IdFor(model => model.fecha_salida)').val();
+    var regreso = $('#@Html.IdFor(model => model.fecha_regreso)').val();
+
+    var a = moment(inicial);
+    var b = moment(regreso)
+
+    if (moment(inicial).isValid() && moment(regreso).isValid()) {
+        //calcula la diferencia y actualiza los días
+        var dias = b.diff(a, 'days');
+        dias = dias + 1;
+
+        $('#num_dias').val(dias);
+
+        if (dias < 1) {
+            $('#num_dias').val("--");
+        }
+    } else {
+        $('#num_dias').val("--");
+    }
+
+}
+
+//convierte texto a float
+function TryParseFloat(str, defaultValue) {
+
+    var retValue = defaultValue;
+    if (str !== undefined && str !== null) {
+        if (str.length > 0) {
+            if (!isNaN(str)) {
+                retValue = parseFloat(str);
+            }
+        }
+    }
+    return retValue;
+}
+
+window.onload = function () {
+    clicMenu(1);
+}
+    </script>
+
+
+}

@@ -2431,11 +2431,9 @@ namespace Portal_2_0.Controllers
                 //agrega el id del departamento que autoriza
                 poliza_manual.id_autorizador = user.PM_departamentos.PM_departamentos2.id_empleado_jefe;
 
-
                 db.poliza_manual.Add(poliza_manual);
 
                 TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);
-
 
                 db.SaveChanges();
                 return RedirectToAction("CapturistaCreadas");

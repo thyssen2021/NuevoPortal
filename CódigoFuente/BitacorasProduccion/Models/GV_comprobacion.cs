@@ -16,6 +16,11 @@ namespace Portal_2_0.Models
     {
         public int id_gv_solicitud { get; set; }
         public string business_card { get; set; }
+        public Nullable<System.DateTime> fecha_comprobacion { get; set; }
+        public int id_jefe_directo { get; set; }
+        public Nullable<int> id_controlling { get; set; }
+        public Nullable<int> id_contabilidad { get; set; }
+        public Nullable<int> id_nomina { get; set; }
         public Nullable<System.DateTime> fecha_aceptacion_jefe_area { get; set; }
         public Nullable<System.DateTime> fecha_aceptacion_controlling { get; set; }
         public Nullable<System.DateTime> fecha_aceptacion_contabilidad { get; set; }
@@ -24,6 +29,10 @@ namespace Portal_2_0.Models
         public string comentario_adicional { get; set; }
         public string estatus { get; set; }
     
+        public virtual empleados empleados { get; set; }
+        public virtual empleados empleados1 { get; set; }
+        public virtual empleados empleados2 { get; set; }
+        public virtual empleados empleados3 { get; set; }
         public virtual GV_solicitud GV_solicitud { get; set; }
     }
 }

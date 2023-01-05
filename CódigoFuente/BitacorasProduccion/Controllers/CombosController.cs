@@ -724,6 +724,43 @@ namespace Portal_2_0.Controllers
 
                 return File(buffer, "application/pdf");
             }         
+        } 
+        /// <summary>
+        /// Metodo de prueba para obtener el pdf de facturas
+        /// </summary>
+        /// <param name="inline"></param>
+        /// <returns></returns>
+        public ActionResult MuestraArchivoXML(string uuid, bool inline = true)
+        {
+            //si el uuid es null
+            if (String.IsNullOrEmpty(uuid))
+            {
+                ViewBag.Titulo = "¡Lo sentimos!¡La estructura del UUID buscado no es correcta!";
+                ViewBag.Descripcion = "El UUID enviado es vacío o nulo.";
+                return View("../Home/ErrorGenerico");
+            }
+
+            using (var db = new ATEBCOFIDIEntities())
+            {
+
+                var factura = db.CFDProveedor.Where(x => x.UUID == uuid).FirstOrDefault();
+
+                if (factura == null)
+                {
+                    ViewBag.Titulo = "¡Lo sentimos!¡No se encontró el UUID indicado en la base de datos de COFIDI!";
+                    ViewBag.Descripcion = "La factura no se encuentra disponible en la base de datos de COFIDI.";
+                    return View("../Home/ErrorGenerico");
+                }
+
+                if (String.IsNullOrEmpty(factura.CFDOriginal))
+                {
+                    ViewBag.Titulo = "¡Lo sentimos!¡No se encontró el documento XML!";
+                    ViewBag.Descripcion = "La factura se encuentra en COFIDI, pero no hay un XML asociado.";
+                    return View("../Home/ErrorGenerico");
+                }
+
+                return Content(factura.CFDOriginal, "text/xml");
+            }         
         }
     }
 }

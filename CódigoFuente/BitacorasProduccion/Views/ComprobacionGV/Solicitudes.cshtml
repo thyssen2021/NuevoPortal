@@ -5,7 +5,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 
     ViewBag.PrimerNivel = "gastos_viaje_comprobacion";
-    ViewBag.ControllerName = "GV_solicitud";
+    ViewBag.ControllerName = "ComprobacionGV";
 
     Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
 
@@ -93,7 +93,6 @@
                                         <hr />
 
                                     </div>
-
                                     @if (String.IsNullOrEmpty(estatus))
                                     {
                                         <div class="alert alert-info" role="alert">
@@ -106,8 +105,11 @@
                                             <thead>
                                                 <tr>
                                                     <th>
-                                                        @Html.DisplayNameFor(model => model.GV_solicitud.id)
-                                                    </th>                                                  
+                                                        @Html.DisplayNameFor(model => model.id_gv_solicitud)
+                                                    </th>
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.fecha_comprobacion)
+                                                    </th>
                                                     <th>
                                                         @Html.DisplayNameFor(model => model.GV_solicitud.id_solicitante)
                                                     </th>
@@ -144,9 +146,12 @@
                                                     <th>
                                                         @Html.DisplayNameFor(model => model.GV_solicitud.fecha_regreso)
                                                     </th>
-                                                    <th>
-                                                        @Html.DisplayNameFor(model => model.GV_solicitud.comentario_rechazo)
-                                                    </th>
+                                                    @if (estatus == "RECHAZADAS")
+                                                    {
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.GV_solicitud.comentario_rechazo)
+                                                        </th>
+                                                    }
                                                     <th>
                                                         @Html.DisplayNameFor(model => model.estatus)
                                                     </th>
@@ -159,7 +164,10 @@
                                                     <tr>
                                                         <td>
                                                             @Html.DisplayFor(modelItem => item.GV_solicitud.id)
-                                                        </td>                                                    
+                                                        </td>
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.fecha_comprobacion)
+                                                        </td>
                                                         <td>
                                                             @Html.DisplayFor(modelItem => item.GV_solicitud.empleados5.ConcatNombre)
                                                         </td>
@@ -169,19 +177,19 @@
                                                         @if (action_result == "SOLICITUDESCONTROLLING")
                                                         {
                                                             <td>
-                                                                @Html.DisplayFor(modelItem => item.GV_solicitud.empleados1.ConcatNombre)
+                                                                @Html.DisplayFor(modelItem => item.empleados1.ConcatNombre)
                                                             </td>
                                                         }
                                                         @if (action_result == "SOLICITUDESNOMINA")
                                                         {
                                                             <td>
-                                                                @Html.DisplayFor(modelItem => item.GV_solicitud.empleados4.ConcatNombre)
+                                                                @Html.DisplayFor(modelItem => item.empleados3.ConcatNombre)
                                                             </td>
                                                         }
                                                         @if (action_result == "SOLICITUDESCONTABILIDAD")
                                                         {
                                                             <td>
-                                                                @Html.DisplayFor(modelItem => item.GV_solicitud.empleados.ConcatNombre)
+                                                                @Html.DisplayFor(modelItem => item.empleados.ConcatNombre)
                                                             </td>
                                                         }
                                                         <td>
@@ -196,9 +204,12 @@
                                                         <td>
                                                             @Html.DisplayFor(modelItem => item.GV_solicitud.fecha_regreso)
                                                         </td>
-                                                        <td style="font-weight: bold; color:red">
-                                                            @Html.DisplayFor(modelItem => item.GV_solicitud.comentario_rechazo)
-                                                        </td>
+                                                        @if (estatus == "RECHAZADAS")
+                                                        {
+                                                            <td style="font-weight: bold; color:red">
+                                                                @Html.DisplayFor(modelItem => item.comentario_rechazo)
+                                                            </td>
+                                                        }
                                                         <td>
                                                             @Bitacoras.Util.GV_comprobacion_estatus.DescripcionStatus(item.estatus)
                                                         </td>
@@ -242,7 +253,7 @@
                                                                 </a>
                                                             }
                                                             @if (User.IsInRole(TipoRoles.GV_NOMINA) && action_result == "SOLICITUDESNOMINA" &&
-                                                             (item.estatus == Bitacoras.Util.GV_comprobacion_estatus.ENVIADO_NOMINA ))
+                                                             (item.estatus == Bitacoras.Util.GV_comprobacion_estatus.ENVIADO_NOMINA))
                                                             {
 
                                                                 <a href="@Url.Action("AutorizarNomina", ViewBag.ControllerName, new { id = item.GV_solicitud.id, s_estatus = estatus })" class="btn btn-success " title="Confirmar">
@@ -250,7 +261,7 @@
                                                                 </a>
                                                             }
                                                             @if (User.IsInRole(TipoRoles.GV_CONTABILIDAD) && action_result == "SOLICITUDESCONTABILIDAD" &&
-                                                             (item.estatus == Bitacoras.Util.GV_comprobacion_estatus.CONFIRMADO_NOMINA ))
+                                                             (item.estatus == Bitacoras.Util.GV_comprobacion_estatus.ENVIADO_CONTABILIDAD))
                                                             {
 
                                                                 <a href="@Url.Action("AutorizarContabilidad", ViewBag.ControllerName, new { id = item.GV_solicitud.id, s_estatus = estatus })" class="btn btn-success " title="Confirmar">

@@ -347,22 +347,22 @@
                                                 @if (User.IsInRole(TipoRoles.GV_JEFE_DIRECTO))
                                                 {
                                                     <h3>JEFE DIRECTO</h3>
-                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_jefe_directo" ? "current-page" : null )"><a href="@Url.Action( "SolicitudesJefeDirecto", "GV_comprobacion")">(Jefe Directo) Solicitudes</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_jefe_directo" ? "current-page" : null )"><a href="@Url.Action( "SolicitudesJefeDirecto", "ComprobacionGV")">(Jefe Directo) Solicitudes</a></li>
                                                 }
                                                 @if (User.IsInRole(TipoRoles.GV_CONTROLLING))
                                                 {
                                                     <h3>CONTROLLING</h3>
-                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_controlling" ? "current-page" : null )"><a href="@Url.Action( "SolicitudesControlling", "GV_comprobacion")">(Controlling) Solicitudes</a></li>
-                                                }
-                                                @if (User.IsInRole(TipoRoles.GV_NOMINA))
-                                                {
-                                                    <h3>N&Oacute;MINA</h3>
-                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_nomina" ? "current-page" : null )"><a href="@Url.Action( "SolicitudesNomina", "GV_comprobacion")">(N&oacute;mina) Solicitudes</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_controlling" ? "current-page" : null )"><a href="@Url.Action( "SolicitudesControlling", "ComprobacionGV")">(Controlling) Solicitudes</a></li>
                                                 }
                                                 @if (User.IsInRole(TipoRoles.GV_CONTABILIDAD))
                                                 {
                                                     <h3>CUENTAS POR PAGAR</h3>
-                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_contabilidad" ? "current-page" : null )"><a href="@Url.Action( "SolicitudesContabilidad", "GV_comprobacion")">(Ctas. por pagar) Solicitudes</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_contabilidad" ? "current-page" : null )"><a href="@Url.Action( "SolicitudesContabilidad", "ComprobacionGV")">(Ctas. por pagar) Solicitudes</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.GV_NOMINA))
+                                                {
+                                                    <h3>N&Oacute;MINA</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "solicitudes_nomina" ? "current-page" : null )"><a href="@Url.Action( "SolicitudesNomina", "ComprobacionGV")">(N&oacute;mina) Solicitudes</a></li>
                                                 }
 
                                                 @if (User.IsInRole(TipoRoles.GV_REPORTES))
@@ -390,7 +390,6 @@
                                                 <li class="@(ViewBag.SegundoNivel == "GV_manual_usuario" ? "current-page" : null )"><a href="@Url.Action( "Manual", "GV_comprobacion")">Manual de Usuario</a></li>
                                             </ul>
                                         </li>
-
                                     }
 
 
@@ -404,8 +403,6 @@
                                             </ul>
                                         </li>
                                     }
-
-
 
                                     @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS) || User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REGISTRO) || User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REPORTE))
                                     {
@@ -706,8 +703,8 @@
                                                 {
                                                     <h3>Centros de Costo</h3>
                                                     @*<li class="@(ViewBag.SegundoNivel == "actual" ? "current-page" : null )"><a href="@Url.Action("Actual", "ResponsableBudget")">ACT FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)))</a></li>
-                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
-                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
+                                                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
+                                                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
                                                     <li class="@(ViewBag.SegundoNivel == "centros" ? "current-page" : null )"><a href="@Url.Action("Centros", "ResponsableBudget")">Mis Centros</a></li>
                                                 }
 
