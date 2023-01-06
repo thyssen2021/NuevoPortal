@@ -313,6 +313,12 @@
                                                     <h3>REPORTES</h3>
                                                     <li class="@(ViewBag.SegundoNivel == "gv_reportes" ? "current-page" : null )"><a href="@Url.Action( "Reportes", "GV_solicitud")">Reportes</a></li>
                                                 }
+                                                
+                                                @if (User.IsInRole(TipoRoles.GV_AUTORIZACION))
+                                                {
+                                                    <h3>AUTORIZACI&Oacute;N ESPECIAL</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "gv_autorizaciones" ? "current-page" : null )"><a href="@Url.Action( "Autorizaciones", "GV_solicitud")">Autorizaciones Especiales</a></li>
+                                                }
 
                                                 @if (User.IsInRole(TipoRoles.GV_CATALOGOS) || User.IsInRole(TipoRoles.ADMIN))
                                                 {
@@ -368,7 +374,12 @@
                                                 @if (User.IsInRole(TipoRoles.GV_REPORTES))
                                                 {
                                                     <h3>REPORTES</h3>
-                                                    <li class="@(ViewBag.SegundoNivel == "gv_reportes" ? "current-page" : null )"><a href="@Url.Action( "Reportes", "GV_comprobacion")">Reportes</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "gv_reportes" ? "current-page" : null )"><a href="@Url.Action( "Reportes", "ComprobacionGV")">Reportes</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.GV_AUTORIZACION))
+                                                {
+                                                    <h3>AUTORIZACI&Oacute;N ESPECIAL</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "gv_autorizaciones" ? "current-page" : null )"><a href="@Url.Action( "Autorizaciones", "ComprobacionGV")">Autorizaciones Especiales</a></li>
                                                 }
 
                                                 @if (User.IsInRole(TipoRoles.GV_CATALOGOS) || User.IsInRole(TipoRoles.ADMIN))
@@ -380,7 +391,7 @@
                                                             <li class="@(ViewBag.TercelNivel == "GV_centros_costo" ? "current-page" : null )"><a href="@Url.Action( "Index", "GV_centros_costo")">Centros de Costo</a></li>
                                                             <li class="@(ViewBag.TercelNivel == "GV_comprobacion_tipo_gastos_viaje" ? "current-page" : null )"><a href="@Url.Action( "Index", "GV_comprobacion_tipo_gastos_viaje")">Cuentas</a></li>
                                                             <li class="@(ViewBag.TercelNivel == "GV_comprobacion_tipo_pago" ? "current-page" : null )"><a href="@Url.Action( "Index", "GV_comprobacion_tipo_pago")">Tipos de Pago</a></li>
-                                                           
+
                                                         </ul>
                                                     </li>
                                                 }

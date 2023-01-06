@@ -353,11 +353,11 @@
                                             <tr>
                                                 <td style="font-weight:bold">@item.GV_tipo_gastos_viaje.descripcion</td>
                                                 <td>
-                                                    <input id="GV_rel_gastos_solicitud[@contador].importe" name="GV_rel_gastos_solicitud[@contador].importe" style="font-size: 12px;" type="text" class="precio importe form-control col-md-12" value="@item.importe" data-row="@contador" maxlength="80" autocomplete="off">
+                                                    <input id="GV_rel_gastos_solicitud[@contador].importe" name="GV_rel_gastos_solicitud[@contador].importe" style="font-size: 12px;" type="text" class="precio importe form-control col-md-12" value="@item.importe" data-row="@contador" maxlength="80" autocomplete="off" required>
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="GV_rel_gastos_solicitud[@contador].importe" data-valmsg-replace="true"></span>
                                                 </td>
                                                 <td>
-                                                    <input id="GV_rel_gastos_solicitud[@contador].cantidad" name="GV_rel_gastos_solicitud[@contador].cantidad" style="text-align: right; font-size: 12px;" type="text" class="cantidad form-control col-md-12" value="@item.cantidad" data-row="@contador" maxlength="80" autocomplete="off">
+                                                    <input id="GV_rel_gastos_solicitud[@contador].cantidad" name="GV_rel_gastos_solicitud[@contador].cantidad" style="text-align: right; font-size: 12px;" type="text" class="cantidad form-control col-md-12" value="@item.cantidad" data-row="@contador" maxlength="80" autocomplete="off" required>
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="GV_rel_gastos_solicitud[@contador].cantidad" data-valmsg-replace="true"></span>
                                                 </td>
                                                 <td id="total_fila_@contador" style="text-align:right" nowrap>
@@ -525,14 +525,14 @@
 
             //agrega los eventos para el cambio de importe
             $(".importe").each(function () {
-                $(this).on('input', function (e) {
+                $(this).on('keyup change blur', function (e) {
                     calculaTotal();
                 });
             });
 
             //agrega los eventos para el cambio de cantidad
             $(".cantidad").each(function () {
-                $(this).on('input', function (e) {
+                $(this).on('keyup change blur', function (e) {
                     calculaTotal();
                 });
             });
@@ -560,10 +560,15 @@
                 let row = $(this).attr("data-row");
                 let importe = $(this).val();
                 let cantidad = document.getElementById('GV_rel_gastos_solicitud[' + row + '].cantidad').value;
+                        
+                if (importe == '')
+                    $(this).val("0");
+                if (cantidad == null)
+                    document.getElementById('GV_rel_gastos_solicitud[' + row + '].cantidad').value = "0";
 
                 //convierte a floar
-                importe = parseFloat(importe);
-                cantidad = parseFloat(cantidad);
+                importe = TryParseFloat(importe, 0);
+                cantidad = TryParseFloat(cantidad, 0);
                 let totalFila = importe * cantidad;
 
                 if (!isNaN(totalFila)) {
@@ -682,7 +687,21 @@
             },
             async: false
         });
-    }
+        }
+
+        //convierte texto a float
+        function TryParseFloat(str, defaultValue) {
+
+            var retValue = defaultValue;
+            if (str !== undefined && str !== null) {
+                if (str.length > 0) {
+                    if (!isNaN(str)) {
+                        retValue = parseFloat(str);
+                    }
+                }
+            }
+            return retValue;
+        }
 
         window.onload = function () {
             clicMenu(1);

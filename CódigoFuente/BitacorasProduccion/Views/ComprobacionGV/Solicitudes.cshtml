@@ -134,6 +134,12 @@
                                                             @Html.DisplayNameFor(model => model.GV_solicitud.id_contabilidad)
                                                         </th>
                                                     }
+                                                    @if (action_result == "AUTORIZACIONES")
+                                                    {
+                                                        <th>
+                                                            @Html.DisplayNameFor(model => model.id_jefe_directo)
+                                                        </th>
+                                                    }
                                                     <th>
                                                         @Html.DisplayNameFor(model => model.GV_solicitud.origen)
                                                     </th>
@@ -192,6 +198,12 @@
                                                                 @Html.DisplayFor(modelItem => item.empleados.ConcatNombre)
                                                             </td>
                                                         }
+                                                        @if (action_result == "AUTORIZACIONES")
+                                                        {
+                                                            <td>
+                                                                <b>@Html.DisplayFor(modelItem => item.GV_solicitud.empleados2.empleados2.ConcatNombre)</b>
+                                                            </td>
+                                                        }
                                                         <td>
                                                             @Html.DisplayFor(modelItem => item.GV_solicitud.origen)
                                                         </td>
@@ -238,8 +250,14 @@
                                                             @if (User.IsInRole(TipoRoles.GV_JEFE_DIRECTO) && action_result == "SOLICITUDESJEFEDIRECTO" &&
                                                              (item.estatus == Bitacoras.Util.GV_comprobacion_estatus.ENVIADO_A_JEFE))
                                                             {
-
                                                                 <a href="@Url.Action("AutorizarJefeDirecto", ViewBag.ControllerName, new { id = item.GV_solicitud.id, s_estatus = estatus })" class="btn btn-success " title="Autorizar/Rechazar">
+                                                                    <i class="fa-regular fa-circle-check"></i>
+                                                                </a>
+                                                            }
+
+                                                            @if ((User.IsInRole(TipoRoles.GV_AUTORIZACION) && action_result == "AUTORIZACIONES" && item.estatus == Bitacoras.Util.GV_comprobacion_estatus.ENVIADO_A_JEFE))
+                                                            {
+                                                                <a onclick="muestraModal('@item.GV_solicitud.empleados2.empleados2.ConcatNombre', '@item.id_gv_solicitud')" class="btn btn-success " title="Autorizar/Rechazar" style="color:white">
                                                                     <i class="fa-regular fa-circle-check"></i>
                                                                 </a>
                                                             }
@@ -320,7 +338,7 @@
 @section scripts
 {
     <!-- SweetAlert2 -->
-    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2@11.js"))
     @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
     @Scripts.Render("~/bundles/dataTables_js")
@@ -351,7 +369,21 @@
 
         });
 
-
+        function muestraModal(nombre, id) {
+            Swal.fire({
+                icon: 'warning',
+                html: 'Se mostrará el formulario para autorizar una comprobación asignada a: ' + nombre + '.<br>¿Desea continuar?',
+                showDenyButton: true,
+                denyButtonText: 'Cancelar',
+                confirmButtonText: 'Continuar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "AutorizarJefeDirecto/" + id + "?s_estatus=Autorizacion";
+                } else if (result.isDenied) {
+                    //do nothing
+                }
+            })
+        }
 
         //agranda el tamaño de la barra
         window.onload = function () {

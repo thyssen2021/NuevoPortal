@@ -63,6 +63,7 @@ namespace Clases.Util
         public const string GV_NOMINA = "GV_NOMINA";
         public const string GV_REPORTES = "GV_CONTABILIDAD";
         public const string GV_CATALOGOS = "GV_CATALOGOS";
+        public const string GV_AUTORIZACION = "GV_AUTORIZACION";
         //Módulo IT - Mantenimiento
         public const string IT_MANTENIMIENTO_REGISTRO = "IT_Mantenimento_registro";
         //Modulo IT - Checklists

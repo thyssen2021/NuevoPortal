@@ -145,7 +145,7 @@
 
                                         </div>
                                         <div class="form-group row">
-                                            <!--Planta-->
+                                            <!--jefe directo-->
                                             @Html.LabelFor(model => model.id_jefe_directo, new { @class = "control-label col-md-1 float-right" })
                                             <div class="col-md-5">
                                                 <input class="form-control" id="empleado_jefe" value="@Html.DisplayFor(model => model.empleados2.empleados2.ConcatNombre)" readonly />
@@ -1102,7 +1102,7 @@ function asignaEventosInput() {
     //agrega evento para calculo de gasto extranjero
     $(".concepto-extranjero").each(function () {
 
-        $(this).on('input', function (e) {
+        $(this).on('keyup change blur', function (e) {
             let row = $(this).attr("data-row");
             let tipoCambio = document.getElementById("GV_comprobacion_rel_gastos[" + row + "].tipo_cambio").value;
             let importe = document.getElementById("GV_comprobacion_rel_gastos[" + row + "].importe").value;
@@ -1636,9 +1636,8 @@ function AsignaNumeroConcepto() {
 //borra un concepto
 function borrarConcepto(uuid) {
 
-
     $('.div_' + uuid).each(function (index) {
-        $(this).fadeOut(300, function () {
+        $(this).fadeOut(0, function () {
             $(this).remove();
         });
     });

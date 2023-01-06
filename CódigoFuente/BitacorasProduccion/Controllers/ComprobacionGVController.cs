@@ -98,7 +98,7 @@ namespace Portal_2_0.Controllers
             List<SelectListItem> newList = new List<SelectListItem>();
 
             //Agrega el estatus al selectListItem
-            newList.Add(new SelectListItem() { Text = "Pendientes", Value = "PENDIENTES" });
+            newList.Add(new SelectListItem() { Text = "Pendientes (sin comprobar)", Value = "PENDIENTES" });
             newList.Add(new SelectListItem() { Text = "Por enviar", Value = GV_comprobacion_estatus.CREADO });
             newList.Add(new SelectListItem() { Text = "En proceso", Value = "EN_PROCESO" });
             newList.Add(new SelectListItem() { Text = "Rechazadas", Value = "RECHAZADAS" });
@@ -166,7 +166,7 @@ namespace Portal_2_0.Controllers
             List<SelectListItem> newList = new List<SelectListItem>();
 
             //Agrega el estatus al selectListItem
-            newList.Add(new SelectListItem() { Text = "Pendientes", Value = "PENDIENTES" });
+            newList.Add(new SelectListItem() { Text = "Pendientes (sin comprobar)", Value = "PENDIENTES" });
             newList.Add(new SelectListItem() { Text = "Por enviar", Value = GV_comprobacion_estatus.CREADO });
             newList.Add(new SelectListItem() { Text = "En proceso", Value = "EN_PROCESO" });
             newList.Add(new SelectListItem() { Text = "Rechazadas", Value = "RECHAZADAS" });
@@ -398,11 +398,74 @@ namespace Portal_2_0.Controllers
             return View("solicitudes", listado);
 
         }
+        // GET: Autorizaciones
+        public ActionResult Autorizaciones(string estatus = "", int pagina = 1)
+        {
+            if (!TieneRol(TipoRoles.GV_AUTORIZACION))
+                return View("../Home/ErrorPermisos");
+
+            //mensaje en caso de crear, editar, etc
+            if (TempData["Mensaje"] != null)
+            {
+                ViewBag.MensajeAlert = TempData["Mensaje"];
+            }
+
+            var cantidadRegistrosPorPagina = 20; // parámetro
+
+            var empleado = obtieneEmpleadoLogeado();
+            var listado = db.GV_comprobacion
+                           .Where(x => (x.estatus == estatus) || ((estatus == "EN_PROCESO" && (x.estatus == GV_comprobacion_estatus.ENVIADO_NOMINA
+                                                               || x.estatus == GV_comprobacion_estatus.ENVIADO_CONTROLLING
+                                                               || x.estatus == GV_comprobacion_estatus.ENVIADO_CONTABILIDAD)) && x.id_jefe_directo == empleado.id)
+                           )
+                           .OrderByDescending(x => x.GV_solicitud.fecha_solicitud)
+                           .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                          .Take(cantidadRegistrosPorPagina).ToList();
+
+            var totalDeRegistros = db.GV_comprobacion
+                  .Where(x => (x.estatus == estatus) || ((estatus == "EN_PROCESO" && (x.estatus == GV_comprobacion_estatus.ENVIADO_NOMINA
+                                                               || x.estatus == GV_comprobacion_estatus.ENVIADO_CONTROLLING
+                                                               || x.estatus == GV_comprobacion_estatus.ENVIADO_CONTABILIDAD)) && x.id_jefe_directo == empleado.id)
+                           )
+                .Count();
+
+            System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+            routeValues["estatus"] = estatus;
+            routeValues["action_result"] = System.Reflection.MethodBase.GetCurrentMethod().Name.ToUpper();  //obtiene el nombre del metodo actual
+
+            Paginacion paginacion = new Paginacion
+            {
+                PaginaActual = pagina,
+                TotalDeRegistros = totalDeRegistros,
+                RegistrosPorPagina = cantidadRegistrosPorPagina,
+                ValoresQueryString = routeValues
+            };
+
+            //crea un Select  list para el estatus
+            List<SelectListItem> newList = new List<SelectListItem>();
+
+            //Agrega el estatus al selectListItem
+            newList.Add(new SelectListItem() { Text = "Pendientes", Value = GV_comprobacion_estatus.ENVIADO_A_JEFE });
+            //newList.Add(new SelectListItem() { Text = "Por enviar", Value = GV_comprobacion_estatus.CREADO });
+            newList.Add(new SelectListItem() { Text = "En proceso", Value = "EN_PROCESO" });
+            //newList.Add(new SelectListItem() { Text = "Rechazadas", Value = "RECHAZADAS" });
+            //newList.Add(new SelectListItem() { Text = "Finalizadas", Value = GV_comprobacion_estatus.FINALIZADO });
+
+            SelectList selectListItemsStatus = new SelectList(newList, "Value", "Text", estatus);
+            ViewBag.estatus = AddFirstItem(selectListItemsStatus, textoPorDefecto: "-- Seleccionar --");
+            ViewBag.Paginacion = paginacion;
+            ViewBag.SegundoNivel = "gv_autorizaciones";
+            ViewBag.Title = "Autorización de comprobaciones (casos especiales)";
+
+            //ordenar por fecha de solicitud más reciente
+            return View("solicitudes", listado);
+
+        }
 
         // GET: GV_solicitud/AutorizarJefeDirecto/5
         public ActionResult AutorizarJefeDirecto(int? id, string s_estatus)
         {
-            if (!TieneRol(TipoRoles.GV_JEFE_DIRECTO)) //Todos los usuarios van a tener permiso para crear solicitudes de GV, Por lo que solo se necesita validar este permiso
+            if (!TieneRol(TipoRoles.GV_JEFE_DIRECTO) && !TieneRol(TipoRoles.GV_AUTORIZACION))
                 return View("../Home/ErrorPermisos");
 
             if (id == null)
@@ -423,6 +486,17 @@ namespace Portal_2_0.Controllers
 
                 return View("../Home/ErrorGenerico");
             }
+
+            //verifica si es el usuario asignado o si tiene el permiso especial
+            var empleado = obtieneEmpleadoLogeado();
+            if (gV_solicitud.GV_comprobacion.id_jefe_directo != empleado.id && !TieneRol(TipoRoles.GV_AUTORIZACION))
+            {
+                ViewBag.Titulo = "¡Lo sentimos!¡No se puede validar esta solicitud!";
+                ViewBag.Descripcion = "No se puede autorizar esta solicitud, ya que no se encuentra asignado a la solicitud actual.";
+
+                return View("../Home/ErrorGenerico");
+            }
+
 
             //envia los filtros de búsqueda previos
             gV_solicitud.s_estatus = s_estatus;
@@ -456,8 +530,6 @@ namespace Portal_2_0.Controllers
                 return View("../Error/NotFound");
             }
 
-            ////necesario para poder guardar los cambios
-            //solicitud.medio_transporte_aplica_otro = !solicitud.id_medio_transporte.HasValue;
 
             solicitud.estatus = GV_comprobacion_estatus.ENVIADO_CONTROLLING;
             solicitud.id_controlling = id_controlling;
@@ -467,6 +539,13 @@ namespace Portal_2_0.Controllers
             solicitud.fecha_aceptacion_controlling = null;
             solicitud.fecha_aceptacion_contabilidad = null;
             solicitud.fecha_aceptacion_nomina = null;
+
+            //determina si viene de una autorización especial
+            bool esAutorizacionEspecial = s_estatus == "Autorizacion";
+
+            //sustituye el id_jefe_directo por el del usuario actual
+            var empleado = obtieneEmpleadoLogeado();
+            solicitud.id_jefe_directo = empleado.id;
 
             db.Entry(solicitud).State = EntityState.Modified;
             try
@@ -483,6 +562,10 @@ namespace Portal_2_0.Controllers
                     correos.Add(controlling.correo);
                 envioCorreo.SendEmailAsync(correos, "Ha recibido una Comprobación Gastos de Viaje.", envioCorreo.getBodyGVComprobacionNotificacionEnvioControlling(solicitud));
 
+                //en caso de ser autorización especial envía notificacion al JEFE
+                if (esAutorizacionEspecial)
+                    envioCorreo.SendEmailAsync(correos, "Se ha autorizado una comprobación de Gastos de Viaje pendiente.", envioCorreo.getBodyGVComprobacionNotificacionJefeDirectoEspecial(solicitud));
+
             }
             catch (System.Data.Entity.Validation.DbEntityValidationException ex)
             {
@@ -498,16 +581,25 @@ namespace Portal_2_0.Controllers
                 var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
 
                 TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
-                return RedirectToAction("SolicitudesJefeDirecto", new { estatus = s_estatus });
+                if (esAutorizacionEspecial)
+                    return RedirectToAction("Autorizaciones", new { estatus = GV_comprobacion_estatus.ENVIADO_A_JEFE });
+                else
+                    return RedirectToAction("SolicitudesJefeDirecto", new { estatus = s_estatus });
 
             }
             catch (Exception e)
             {
                 TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
-                return RedirectToAction("SolicitudesJefeDirecto", new { estatus = s_estatus });
+                if (esAutorizacionEspecial)
+                    return RedirectToAction("Autorizaciones", new { estatus = GV_comprobacion_estatus.ENVIADO_A_JEFE });
+                else
+                    return RedirectToAction("SolicitudesJefeDirecto", new { estatus = s_estatus });
             }
             TempData["Mensaje"] = new MensajesSweetAlert("La solicitud ha sido autorizada.", TipoMensajesSweetAlerts.SUCCESS);
-            return RedirectToAction("SolicitudesJefeDirecto", new { estatus = s_estatus });
+            if (esAutorizacionEspecial)
+                return RedirectToAction("Autorizaciones", new { estatus = GV_comprobacion_estatus.ENVIADO_A_JEFE });
+            else
+                return RedirectToAction("SolicitudesJefeDirecto", new { estatus = s_estatus });
 
         }
 
@@ -527,9 +619,13 @@ namespace Portal_2_0.Controllers
             solicitud.fecha_aceptacion_nomina = null;
             solicitud.fecha_aceptacion_contabilidad = null;
 
-            //necesario para poder guardar los cambios
-            //solicitud.medio_transporte_aplica_otro = !solicitud.id_medio_transporte.HasValue;
-            //db.Entry(solicitud).State = EntityState.Modified;
+            //sustituye el id_jefe_directo por el del usuario actual
+            var empleado = obtieneEmpleadoLogeado();
+            //gv.id_jefe_directo = empleado.id;
+
+            //determina si viene de una autorización especial
+            bool esAutorizacionEspecial = s_estatus == "Autorizacion";
+
             try
             {
                 db.SaveChanges();
@@ -542,7 +638,7 @@ namespace Portal_2_0.Controllers
                 if (!String.IsNullOrEmpty(solicitud.GV_solicitud.empleados5.correo))
                     correos.Add(solicitud.GV_solicitud.empleados5.correo); //agrega correo de solicitantes
 
-                envioCorreo.SendEmailAsync(correos, "Se ha rechazado su Comprobación de Gastos de Viaje.", envioCorreo.getBodyGVComprobacionNotificacionRechazo(solicitud, solicitud.empleados2.ConcatNombre));
+                envioCorreo.SendEmailAsync(correos, "Se ha rechazado su Comprobación de Gastos de Viaje.", envioCorreo.getBodyGVComprobacionNotificacionRechazo(solicitud, empleado.ConcatNombre));
 
             }
             catch (System.Data.Entity.Validation.DbEntityValidationException ex)
@@ -559,16 +655,25 @@ namespace Portal_2_0.Controllers
                 var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
 
                 TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
-                return RedirectToAction("SolicitudesJefeDirecto", new { estatus = s_estatus });
+                if (esAutorizacionEspecial)
+                    return RedirectToAction("Autorizaciones", new { estatus = GV_comprobacion_estatus.ENVIADO_A_JEFE });
+                else
+                    return RedirectToAction("SolicitudesJefeDirecto", new { estatus = s_estatus });
 
             }
             catch (Exception e)
             {
                 TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
-                return RedirectToAction("SolicitudesJefeDirecto", new { estatus = s_estatus });
+                if (esAutorizacionEspecial)
+                    return RedirectToAction("Autorizaciones", new { estatus = GV_comprobacion_estatus.ENVIADO_A_JEFE });
+                else
+                    return RedirectToAction("SolicitudesJefeDirecto", new { estatus = s_estatus });
             }
             TempData["Mensaje"] = new MensajesSweetAlert("La solicitud ha sido rechazada correctamente.", TipoMensajesSweetAlerts.SUCCESS);
-            return RedirectToAction("SolicitudesJefeDirecto", new { estatus = s_estatus });
+            if (esAutorizacionEspecial)
+                return RedirectToAction("Autorizaciones", new { estatus = GV_comprobacion_estatus.ENVIADO_A_JEFE });
+            else
+                return RedirectToAction("SolicitudesJefeDirecto", new { estatus = s_estatus });
         }
 
         // GET: SolicitudesControlling
@@ -1256,7 +1361,7 @@ namespace Portal_2_0.Controllers
                 //elimina los correos repetidos
                 correos = correos.Distinct().ToList();
 
-                envioCorreo.SendEmailAsync(correos, "El proceso de Comprobación de Gastos para el folio #"+solicitud.id_gv_solicitud+" ha finalizado.", envioCorreo.getBodyGVComprobacionNotificacionFinalizado(solicitud));
+                envioCorreo.SendEmailAsync(correos, "El proceso de Comprobación de Gastos para el folio #" + solicitud.id_gv_solicitud + " ha finalizado.", envioCorreo.getBodyGVComprobacionNotificacionFinalizado(solicitud));
 
             }
             catch (System.Data.Entity.Validation.DbEntityValidationException ex)
@@ -1425,7 +1530,7 @@ namespace Portal_2_0.Controllers
 
                 //si existe lo modifica
                 GV_solicitud solicitudBD = db.GV_solicitud.Find(solicitud.id);
-                solicitud.GV_comprobacion.id_jefe_directo = solicitudBD.id_jefe_directo;
+                solicitud.GV_comprobacion.id_jefe_directo = solicitudBD.empleados2.empleados2.id; //id del jefe directo del empleado de la solictud
                 solicitudBD.GV_comprobacion = solicitud.GV_comprobacion;
                 solicitudBD.GV_comprobacion_rel_gastos = solicitud.GV_comprobacion_rel_gastos;
                 db.SaveChanges();

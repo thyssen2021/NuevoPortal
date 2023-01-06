@@ -45,7 +45,11 @@ BEGIN
 	BEGIN
 		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'GV_CATALOGOS')
 	END
-
+	--Permiso de autorizacion especial
+	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='GV_AUTORIZACION' )
+	BEGIN
+		INSERT INTO [dbo].[AspNetRoles]([Id],[Name])VALUES(LOWER(NEWID()) ,'GV_AUTORIZACION')
+	END
 
 PRINT '<<<CORRECTO: La TABLA dbo.AspNetRoles ha sido INICIALIZADA en la Base de Datos: ' + db_name() + ' en el Servidor: ' + @@servername + '  >>>'     	
 

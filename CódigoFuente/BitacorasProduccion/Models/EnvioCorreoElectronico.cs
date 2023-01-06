@@ -988,6 +988,42 @@ namespace Portal_2_0.Models
 
             return body;
         }
+         public string getBodyGVNotificacionJefeDirectoEspecial(GV_solicitud solicitud)
+        {
+            //obtiene la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+
+            string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/Notificacion_solicitud_generica.html"));
+            string tablaContenido = String.Empty;
+
+            //crea un diccionario para los valores de la tabla
+            Dictionary<string, string> tablaContentDictionary = new Dictionary<string, string>();
+
+            //agrega los valores al diccionario
+            tablaContentDictionary.Add("Folio", solicitud.id.ToString());
+            tablaContentDictionary.Add("Estatus", Bitacoras.Util.GV_solicitud_estatus.DescripcionStatus(solicitud.estatus));
+            tablaContentDictionary.Add("Solicitante", solicitud.empleados5.ConcatNombre);
+            tablaContentDictionary.Add("Empleado", solicitud.empleados2.ConcatNombre);
+            tablaContentDictionary.Add("Origen", solicitud.origen);
+            tablaContentDictionary.Add("Destino", solicitud.destino);
+            tablaContentDictionary.Add("Motivo del viaje", solicitud.motivo_viaje);
+
+            if (!String.IsNullOrEmpty(solicitud.comentario_adicional))
+                tablaContentDictionary.Add("Comentarios Adicionales", solicitud.comentario_adicional);
+
+            //agrega los valores del diccionario al contenido de la tabla
+            foreach (KeyValuePair<string, string> kvp in tablaContentDictionary)
+                tablaContenido += FILA_GENERICA.Replace("#CONCEPTO", kvp.Key).Replace("#VALOR", kvp.Value);
+
+            //reemplaza los valores en la plantilla
+            body = body.Replace("#TITULO", "¡Hola, se ha autorizado una solicitud pendiente!");
+            body = body.Replace("#SUBTITULO", "El usuario " + solicitud.empleados3.ConcatNombre + ", ha autorizado una solicitud de Anticipo de Gastos de Viaje que usted tenía pendiente. Para ver los detalles de la solicitud, haga en el enlace a continuación."); //elaborador
+            body = body.Replace("#TABLA_CONTENIDO", tablaContenido);
+            body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
+            body = body.Replace("#ENLACE", domainName + "/GV_solicitud/Details/" + solicitud.id);
+
+            return body;
+        }
         public string getBodyGVNotificacionEnvioNominas(GV_solicitud solicitud)
         {
             //obtiene la direccion del dominio
@@ -1209,6 +1245,42 @@ namespace Portal_2_0.Models
             return body;
         }
 
+        public string getBodyGVComprobacionNotificacionJefeDirectoEspecial(GV_comprobacion solicitud)
+        {
+            //obtiene la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+
+            string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/Notificacion_solicitud_generica.html"));
+            string tablaContenido = String.Empty;
+
+            //crea un diccionario para los valores de la tabla
+            Dictionary<string, string> tablaContentDictionary = new Dictionary<string, string>();
+
+            //agrega los valores al diccionario
+            tablaContentDictionary.Add("Folio", solicitud.id_gv_solicitud.ToString());
+            tablaContentDictionary.Add("Estatus", Bitacoras.Util.GV_comprobacion_estatus.DescripcionStatus(solicitud.estatus));
+            tablaContentDictionary.Add("Solicitante", solicitud.GV_solicitud.empleados5.ConcatNombre);
+            tablaContentDictionary.Add("Empleado", solicitud.GV_solicitud.empleados2.ConcatNombre);
+            tablaContentDictionary.Add("Origen", solicitud.GV_solicitud.origen);
+            tablaContentDictionary.Add("Destino", solicitud.GV_solicitud.destino);
+            tablaContentDictionary.Add("Motivo del viaje", solicitud.GV_solicitud.motivo_viaje);
+
+            if (!String.IsNullOrEmpty(solicitud.comentario_adicional))
+                tablaContentDictionary.Add("Comentarios Adicionales", solicitud.comentario_adicional);
+
+            //agrega los valores del diccionario al contenido de la tabla
+            foreach (KeyValuePair<string, string> kvp in tablaContentDictionary)
+                tablaContenido += FILA_GENERICA.Replace("#CONCEPTO", kvp.Key).Replace("#VALOR", kvp.Value);
+
+            //reemplaza los valores en la plantilla
+            body = body.Replace("#TITULO", "¡Hola, se ha autorizado una comprobación de Gastos de Viaje pendiente!");
+            body = body.Replace("#SUBTITULO", "El usuario " + solicitud.empleados2.ConcatNombre + ", ha autorizado una Comprobación de Gastos de Viaje que usted tenía pendiente. Para ver los detalles de la solicitud, haga en el enlace a continuación."); //elaborador
+            body = body.Replace("#TABLA_CONTENIDO", tablaContenido);
+            body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
+            body = body.Replace("#ENLACE", domainName + "/ComprobacionGV/Details/" + solicitud.id_gv_solicitud);
+
+            return body;
+        }
 
         public string getBodyGVComprobacionNotificacionEnvioNomina(GV_comprobacion solicitud)
         {
