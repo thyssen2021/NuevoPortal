@@ -290,6 +290,7 @@
     <Compile Include="Controllers\budget_departamentosController.cs" />
     <Compile Include="Controllers\class_v3Controller.cs" />
     <Compile Include="Controllers\CombosController.cs" />
+    <Compile Include="Controllers\ContactsController.cs" />
     <Compile Include="Controllers\EChartsController.cs" />
     <Compile Include="Controllers\empleadosController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
@@ -906,6 +907,7 @@
     <Content Include="Content\images\logo_3.png" />
     <Content Include="Content\images\logo_4_200px.png" />
     <Content Include="Content\images\logo_ico.png" />
+    <Content Include="Content\images\user.png" />
     <Content Include="Content\login.css" />
     <Content Include="Content\menu-css.css" />
     <Content Include="Content\not-found.css" />
@@ -7284,6 +7286,7 @@
     <Content Include="Views\IT_equipos_checklist_actividades\Index.cshtml" />
     <Content Include="Views\IT_equipos_checklist_actividades\Disable.cshtml" />
     <Content Include="Views\IT_equipos_checklist_actividades\Enable.cshtml" />
+    <Content Include="Views\Contacts\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

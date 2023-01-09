@@ -233,7 +233,7 @@
                                                 {
                                                     <li class="@(ViewBag.SegundoNivel == "IT_site_checklist" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_site_checklist")">Site</a></li>
                                                 }
-                                                 @if (User.IsInRole(TipoRoles.IT_CHECKLIST_EQUIPOS))
+                                                @if (User.IsInRole(TipoRoles.IT_CHECKLIST_EQUIPOS))
                                                 {
                                                     <li class="@(ViewBag.SegundoNivel == "IT_equipos_checklist" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_equipos_checklist")">Nuevos Equipos</a></li>
                                                 }
@@ -255,7 +255,7 @@
                                                     </ul>
                                                 </li>
 
-                                                
+
                                             </ul>
 
                                         </li>
@@ -648,8 +648,8 @@
                                                 {
                                                     <h3>Centros de Costo</h3>
                                                     @*<li class="@(ViewBag.SegundoNivel == "actual" ? "current-page" : null )"><a href="@Url.Action("Actual", "ResponsableBudget")">ACT FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)))</a></li>
-                                                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
-                                                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
+                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
+                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
                                                     <li class="@(ViewBag.SegundoNivel == "centros" ? "current-page" : null )"><a href="@Url.Action("Centros", "ResponsableBudget")">Mis Centros</a></li>
                                                 }
 
@@ -692,6 +692,18 @@
                                             <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "usuarios" ? "display:block" : null )">
                                                 <li class="@(ViewBag.SegundoNivel == "roles" ? "current-page" : null )"><a href="@Url.Action( "Index", "RolesAdmin")">Roles</a></li>
                                                 <li class="@(ViewBag.SegundoNivel == "usuarios" ? "current-page" : null )"><a href="@Url.Action("Index", "UsersAdmin")">Usuarios</a></li>
+                                            </ul>
+                                        </li>
+                                    }
+
+                                    @*DIRECTORIO*@
+
+                                    @if (User.IsInRole(TipoRoles.ADMIN))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "directorio" ? "active" : null )">
+                                            <a><i class="fa fa-address-book"></i> Contacto <span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "directorio" ? "display:block" : null )">
+                                                <li class="@(ViewBag.SegundoNivel == "directorio" ? "current-page" : null )"><a href="@Url.Action( "Index", "Contacts")">Directorio</a></li>
                                             </ul>
                                         </li>
                                     }
