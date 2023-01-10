@@ -254,8 +254,8 @@ namespace Portal_2_0.Controllers
             string estatusAnterior = solicitudBD.estatus;
             // Activity already exist in database and modify it
             solicitudBD.estatus = Bitacoras.Util.GV_comprobacion_estatus.ENVIADO_A_JEFE;
-            //asigna el mismo jefe directo de la solicitud original
-            solicitudBD.id_jefe_directo = solicitudBD.GV_solicitud.id_jefe_directo;
+            //asigna el jefe del empleado de la solicitud, segun la base de datos
+            solicitudBD.id_jefe_directo = solicitudBD.GV_solicitud.empleados2.empleados2.id;
 
             //db.Entry(solicitudBD).CurrentValues.SetValues(solicitud.GV_comprobacion);
             db.Entry(solicitudBD).State = EntityState.Modified;
@@ -329,7 +329,7 @@ namespace Portal_2_0.Controllers
 
             var empleado = obtieneEmpleadoLogeado();
             var listado = db.GV_comprobacion
-                           .Where(x => (x.GV_solicitud.id_jefe_directo == empleado.id)
+                            .Where(x => (x.id_jefe_directo == empleado.id)
                                && (
                                 x.estatus == estatus ||
                                (estatus == "PENDIENTES" && (x.estatus == GV_comprobacion_estatus.ENVIADO_A_JEFE
@@ -349,7 +349,7 @@ namespace Portal_2_0.Controllers
                           .Take(cantidadRegistrosPorPagina).ToList();
 
             var totalDeRegistros = db.GV_comprobacion
-                     .Where(x => (x.GV_solicitud.id_jefe_directo == empleado.id)
+                         .Where(x => (x.id_jefe_directo == empleado.id)
                                && (
                                 x.estatus == estatus ||
                                (estatus == "PENDIENTES" && (x.estatus == GV_comprobacion_estatus.ENVIADO_A_JEFE
@@ -392,7 +392,7 @@ namespace Portal_2_0.Controllers
             ViewBag.estatus = AddFirstItem(selectListItemsStatus, textoPorDefecto: "-- Seleccionar --");
             ViewBag.Paginacion = paginacion;
             ViewBag.SegundoNivel = "solicitudes_jefe_directo";
-            ViewBag.Title = "Solicitudes (Jefe Dierecto)";
+            ViewBag.Title = "Solicitudes (Jefe Directo)";
 
             //ordenar por fecha de solicitud más reciente
             return View("solicitudes", listado);
@@ -474,6 +474,10 @@ namespace Portal_2_0.Controllers
             }
             GV_solicitud gV_solicitud = db.GV_solicitud.Find(id);
             if (gV_solicitud == null)
+            {
+                return HttpNotFound();
+            }
+            if (gV_solicitud.GV_comprobacion == null)
             {
                 return HttpNotFound();
             }
@@ -692,7 +696,7 @@ namespace Portal_2_0.Controllers
 
             var empleado = obtieneEmpleadoLogeado();
             var listado = db.GV_comprobacion
-                           .Where(x => (x.GV_solicitud.id_controlling == empleado.id)
+                           .Where(x => (x.id_controlling == empleado.id || x.estatus == GV_comprobacion_estatus.FINALIZADO)
                                && (
                                x.estatus == estatus ||
                                (estatus == "PENDIENTES" && (x.estatus == GV_comprobacion_estatus.ENVIADO_CONTROLLING
@@ -711,7 +715,7 @@ namespace Portal_2_0.Controllers
                           .Take(cantidadRegistrosPorPagina).ToList();
 
             var totalDeRegistros = db.GV_comprobacion
-                    .Where(x => (x.GV_solicitud.id_controlling == empleado.id)
+                           .Where(x => (x.id_controlling == empleado.id || x.estatus == GV_comprobacion_estatus.FINALIZADO)
                                && (
                                x.estatus == estatus ||
                                (estatus == "PENDIENTES" && (x.estatus == GV_comprobacion_estatus.ENVIADO_CONTROLLING
@@ -959,7 +963,9 @@ namespace Portal_2_0.Controllers
                                                                || x.estatus == GV_comprobacion_estatus.RECHAZADO_CONTABILIDAD
                                                                ))
                                                || (estatus == "EN_PROCESO" && (x.estatus == GV_comprobacion_estatus.ENVIADO_NOMINA
-                                                               || x.estatus == GV_comprobacion_estatus.ENVIADO_CONTABILIDAD))
+                                                               // || x.estatus == GV_comprobacion_estatus.ENVIADO_CONTABILIDAD
+                                                               )
+                                                               )
                                                                )
                            )
                            .OrderByDescending(x => x.GV_solicitud.fecha_solicitud)
@@ -978,7 +984,9 @@ namespace Portal_2_0.Controllers
                                                                || x.estatus == GV_comprobacion_estatus.RECHAZADO_CONTABILIDAD
                                                                ))
                                                || (estatus == "EN_PROCESO" && (x.estatus == GV_comprobacion_estatus.ENVIADO_NOMINA
-                                                               || x.estatus == GV_comprobacion_estatus.ENVIADO_CONTABILIDAD))
+                                                               // || x.estatus == GV_comprobacion_estatus.ENVIADO_CONTABILIDAD
+                                                               )
+                                                               )
                                                                )
                            )
                 .Count();
@@ -1198,7 +1206,7 @@ namespace Portal_2_0.Controllers
 
             var empleado = obtieneEmpleadoLogeado();
             var listado = db.GV_comprobacion
-                           .Where(x => (x.GV_solicitud.id_nomina == empleado.id)
+                                     .Where(x => (x.id_nomina == empleado.id)
                                && (
                                x.estatus == estatus ||
                                (estatus == "PENDIENTES" && (x.estatus == GV_comprobacion_estatus.ENVIADO_NOMINA
@@ -1219,7 +1227,7 @@ namespace Portal_2_0.Controllers
                           .Take(cantidadRegistrosPorPagina).ToList();
 
             var totalDeRegistros = db.GV_comprobacion
-                    .Where(x => (x.GV_solicitud.id_nomina == empleado.id)
+                            .Where(x => (x.id_nomina == empleado.id)
                                && (
                                x.estatus == estatus ||
                                (estatus == "PENDIENTES" && (x.estatus == GV_comprobacion_estatus.ENVIADO_NOMINA
@@ -1484,7 +1492,7 @@ namespace Portal_2_0.Controllers
             if (solicitud.GV_comprobacion_rel_gastos.Count == 0)
                 ModelState.AddModelError("", "No se agregaron conceptos a la comprobación de gastos.");
 
-           // ModelState.AddModelError("", "Error Prueba");
+            // ModelState.AddModelError("", "Error Prueba");
 
             //obtiene todos los posibles archivos
 

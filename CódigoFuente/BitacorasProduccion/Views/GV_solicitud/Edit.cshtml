@@ -675,6 +675,15 @@
                     $('#empleado_puesto').val(data[0].puesto);
                     $('#id_jefe_directo').val(data[0].id_jefe_directo);
                     $('#empleado_jefe').val(data[0].nombre_jefe_directo);
+
+                    if ($('#empleado_jefe').val() == '--') {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Mensaje',
+                            text: 'El jefe inmediato del usuario seleccionado no se encuentra registrado en el sistema. Favor de contactar a sistemas para continuar.',
+                            confirmButtonText: 'Aceptar',
+                        })
+                    }
                 }
                 catch (error) {
                     Swal.fire({

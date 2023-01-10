@@ -1,12 +1,23 @@
-﻿
+﻿@using Clases.Util;
 @{
     ViewBag.Title = "Bienvenido";
 }
 
+@section estilos
+{
+    <style>
+        .mision {
+            height: 200px;
+        }
 
+        .widget-style {
+            height: 200px;
+        }
+    </style>
+}
 <div class="right_col" role="main">
     <div class="">
-       
+
 
         <div class="clearfix"></div>
 
@@ -14,8 +25,8 @@
             <div class="col-md-12 col-sm-12 text-thyssen-color">
                 <h3>thyssenkrupp Materials de M&eacute;xico S.A de C.V.</h3>
             </div>
-            <div class="col-md-4 col-sm-4">
-                <div class="x_panel">
+            <div class="col-md-4 col-sm-6">
+                <div class="x_panel mision">
                     <div class="x_title">
                         <h2>Misi&oacute;n</h2>
                         <ul class="nav navbar-right panel_toolbox">
@@ -24,7 +35,6 @@
                             <li>
                                 <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                             </li>
-
                         </ul>
                         <div class="clearfix"></div>
                     </div>
@@ -37,8 +47,8 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 col-sm-4">
-                <div class="x_panel">
+            <div class="col-md-4 col-sm-6">
+                <div class="x_panel mision">
                     <div class="x_title">
                         <h2>Visi&oacute;n</h2>
                         <ul class="nav navbar-right panel_toolbox">
@@ -60,8 +70,8 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 col-sm-4">
-                <div class="x_panel">
+            <div class="col-md-4 col-sm-6">
+                <div class="x_panel mision">
                     <div class="x_title">
                         <h2>Valores</h2>
                         <ul class="nav navbar-right panel_toolbox">
@@ -76,19 +86,455 @@
                     </div>
                     <div class="x_content">
                         <div class="bs-example" data-example-id="simple-jumbotron">
-                            <p>
-                                El cumplimiento de nuestras metas estrat&eacute;gicas es resultado del apego a nuestros valores corporativos:
-                                <ul>
-                                    <li>FIABILIDAD</li>
-                                    <li>SINCERIDAD</li>
-                                    <li>CREDIBILIDAD</li>
-                                    <li>INTEGRIDAD</li>
-                                </ul>
-                            </p>
+
+                            El cumplimiento de nuestras metas estrat&eacute;gicas es resultado del apego a nuestros valores corporativos:
+                            <ul>
+                                <li>FIABILIDAD</li>
+                                <li>SINCERIDAD</li>
+                                <li>CREDIBILIDAD</li>
+                                <li>INTEGRIDAD</li>
+                            </ul>
+
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!--#region Widgets Solicitudes GV -->
+            <!-- Mis solicitudes -->
+            @if (User.IsInRole(TipoRoles.GV_SOLICITUD) && ViewBag.EnlacesMisSolicitudesAnticipoGV != null)
+            {
+                <div class="col-md-4 col-sm-6">
+                    <div class="x_panel widget-style">
+                        <div class="x_title">
+                            <span style="color:#3473cb; font-size:16px;" ><i class="fa fa-person-walking-luggage"></i> Anticipo Gastos de Viaje</span>
+                            <ul class="nav navbar-right panel_toolbox">
+                                @*Utilizado para mover a la derecha los iconos del card*@
+                                <span style="visibility:hidden">_______</span>
+                                <li>
+                                    <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <div class="bs-example" data-example-id="simple-jumbotron">
+
+                                <div>
+                                    <ul class="list-inline widget_tally">
+
+                                        @foreach (var enlace in (List<Bitacoras.Util.EnlaceWidget>)ViewBag.EnlacesMisSolicitudesAnticipoGV)
+                                        {
+                                            <li>
+                                                <p>
+                                                    <span class="month">@enlace.Descripcion <span class="badge badge-@enlace.tipo">@enlace.cantidad</span></span>
+                                                    <span class="count">
+                                                        <a href="@enlace.Enlace" class="btn btn-@enlace.tipo badge">Ver solicitudes</a>
+                                                    </span>
+                                                </p>
+                                            </li>
+                                        }
+
+                                    </ul>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            <!-- Jefe directo -->
+            @if (User.IsInRole(TipoRoles.GV_JEFE_DIRECTO) && ViewBag.EnlacesSolicitudesJefeDirectoAnticipoGV != null)
+            {
+                <div class="col-md-4 col-sm-6">
+                    <div class="x_panel widget-style">
+                        <div class="x_title">
+                            <span style="color: #3473cb; font-size: 16px;"><i class="fa fa-person-walking-luggage"></i> Anticipo G.V. (Jefe Directo)</span>
+                            <ul class="nav navbar-right panel_toolbox">
+                                @*Utilizado para mover a la derecha los iconos del card*@
+                                <span style="visibility:hidden">_______</span>
+                                <li>
+                                    <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <div class="bs-example" data-example-id="simple-jumbotron">
+
+                                <div>
+                                    <ul class="list-inline widget_tally">
+
+                                        @foreach (var enlace in (List<Bitacoras.Util.EnlaceWidget>)ViewBag.EnlacesSolicitudesJefeDirectoAnticipoGV)
+                                        {
+                                            <li>
+                                                <p>
+                                                    <span class="month">@enlace.Descripcion <span class="badge badge-@enlace.tipo">@enlace.cantidad</span></span>
+                                                    <span class="count">
+                                                        <a href="@enlace.Enlace" class="btn btn-@enlace.tipo badge">Ver solicitudes</a>
+                                                    </span>
+                                                </p>
+                                            </li>
+                                        }
+
+                                    </ul>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            <!-- Controlling -->
+            @if (User.IsInRole(TipoRoles.GV_CONTROLLING) && ViewBag.EnlacesSolicitudesControllingAnticipoGV != null)
+            {
+                <div class="col-md-4 col-sm-6">
+                    <div class="x_panel widget-style">
+                        <div class="x_title">
+                            <span style="color: #3473cb; font-size: 16px;"><i class="fa fa-person-walking-luggage"></i> Anticipo G.V. (Controlling)</span>
+                            <ul class="nav navbar-right panel_toolbox">
+                                @*Utilizado para mover a la derecha los iconos del card*@
+                                <span style="visibility:hidden">_______</span>
+                                <li>
+                                    <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <div class="bs-example" data-example-id="simple-jumbotron">
+
+                                <div>
+                                    <ul class="list-inline widget_tally">
+
+                                        @foreach (var enlace in (List<Bitacoras.Util.EnlaceWidget>)ViewBag.EnlacesSolicitudesControllingAnticipoGV)
+                                        {
+                                            <li>
+                                                <p>
+                                                    <span class="month">@enlace.Descripcion <span class="badge badge-@enlace.tipo">@enlace.cantidad</span></span>
+                                                    <span class="count">
+                                                        <a href="@enlace.Enlace" class="btn btn-@enlace.tipo badge">Ver solicitudes</a>
+                                                    </span>
+                                                </p>
+                                            </li>
+                                        }
+
+                                    </ul>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            <!-- Nómina -->
+            @if (User.IsInRole(TipoRoles.GV_NOMINA) && ViewBag.EnlacesSolicitudesNominaAnticipoGV != null)
+            {
+                <div class="col-md-4 col-sm-6">
+                    <div class="x_panel widget-style">
+                        <div class="x_title">
+                            <span style="color: #3473cb; font-size: 16px;"><i class="fa fa-person-walking-luggage"></i> Anticipo G.V. (N&oacute;mina)</span>
+                            <ul class="nav navbar-right panel_toolbox">
+                                @*Utilizado para mover a la derecha los iconos del card*@
+                                <span style="visibility:hidden">_______</span>
+                                <li>
+                                    <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <div class="bs-example" data-example-id="simple-jumbotron">
+
+                                <div>
+                                    <ul class="list-inline widget_tally">
+                                        @foreach (var enlace in (List<Bitacoras.Util.EnlaceWidget>)ViewBag.EnlacesSolicitudesNominaAnticipoGV)
+                                        {
+                                            <li>
+                                                <p>
+                                                    <span class="month">@enlace.Descripcion <span class="badge badge-@enlace.tipo">@enlace.cantidad</span></span>
+                                                    <span class="count">
+                                                        <a href="@enlace.Enlace" class="btn btn-@enlace.tipo badge">Ver solicitudes</a>
+                                                    </span>
+                                                </p>
+                                            </li>
+                                        }
+
+                                    </ul>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            <!-- Ctas x pagar -->
+            @if (User.IsInRole(TipoRoles.GV_CONTABILIDAD) && ViewBag.EnlacesSolicitudesContabilidadAnticipoGV != null)
+            {
+                <div class="col-md-4 col-sm-6">
+                    <div class="x_panel widget-style">
+                        <div class="x_title">
+                            <span style="color: #3473cb; font-size: 16px;"><i class="fa fa-person-walking-luggage"></i> Anticipo G.V. (Ctas. por pagar)</span>
+                            <ul class="nav navbar-right panel_toolbox">
+                                @*Utilizado para mover a la derecha los iconos del card*@
+                                <span style="visibility:hidden">_______</span>
+                                <li>
+                                    <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <div class="bs-example" data-example-id="simple-jumbotron">
+
+                                <div>
+                                    <ul class="list-inline widget_tally">
+                                        @foreach (var enlace in (List<Bitacoras.Util.EnlaceWidget>)ViewBag.EnlacesSolicitudesContabilidadAnticipoGV)
+                                        {
+                                            <li>
+                                                <p>
+                                                    <span class="month">@enlace.Descripcion <span class="badge badge-@enlace.tipo">@enlace.cantidad</span></span>
+                                                    <span class="count">
+                                                        <a href="@enlace.Enlace" class="btn btn-@enlace.tipo badge">Ver solicitudes</a>
+                                                    </span>
+                                                </p>
+                                            </li>
+                                        }
+
+                                    </ul>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!--#endregion Widgets Solicitudes GV -->
+
+            <!--#region Widgets Comprobacion GV -->
+            <!-- Mis solicitudes -->
+            @if (User.IsInRole(TipoRoles.GV_SOLICITUD) && ViewBag.EnlacesMisSolicitudesComprobacionGV != null)
+            {
+                <div class="col-md-4 col-sm-6">
+                    <div class="x_panel widget-style">
+                        <div class="x_title">
+                            <span style="color: #1c9c28; font-size: 16px;"><i class="fa fa-check-to-slot"></i> Comprobaci&oacute;n Gastos de Viaje</span>
+                            <ul class="nav navbar-right panel_toolbox">
+                                @*Utilizado para mover a la derecha los iconos del card*@
+                                <span style="visibility:hidden">_______</span>
+                                <li>
+                                    <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <div class="bs-example" data-example-id="simple-jumbotron">
+
+                                <div>
+                                    <ul class="list-inline widget_tally">
+
+                                        @foreach (var enlace in (List<Bitacoras.Util.EnlaceWidget>)ViewBag.EnlacesMisSolicitudesComprobacionGV)
+                                        {
+                                            <li>
+                                                <p>
+                                                    <span class="month">@enlace.Descripcion <span class="badge badge-@enlace.tipo">@enlace.cantidad</span></span>
+                                                    <span class="count">
+                                                        <a href="@enlace.Enlace" class="btn btn-@enlace.tipo badge">Ver solicitudes</a>
+                                                    </span>
+                                                </p>
+                                            </li>
+                                        }
+
+                                    </ul>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            <!-- Jefe directo -->
+            @if (User.IsInRole(TipoRoles.GV_JEFE_DIRECTO) && ViewBag.EnlacesSolicitudesJefeDirectoComprobacionGV != null)
+            {
+                <div class="col-md-4 col-sm-6">
+                    <div class="x_panel widget-style">
+                        <div class="x_title">
+                           <span style="color: #1c9c28; font-size: 16px;"><i class="fa fa-check-to-slot"></i> Comprobaci&oacute;n G.V. (Jefe Directo)</span>
+                            <ul class="nav navbar-right panel_toolbox">
+                                @*Utilizado para mover a la derecha los iconos del card*@
+                                <span style="visibility:hidden">_______</span>
+                                <li>
+                                    <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <div class="bs-example" data-example-id="simple-jumbotron">
+
+                                <div>
+                                    <ul class="list-inline widget_tally">
+
+                                        @foreach (var enlace in (List<Bitacoras.Util.EnlaceWidget>)ViewBag.EnlacesSolicitudesJefeDirectoComprobacionGV)
+                                        {
+                                            <li>
+                                                <p>
+                                                    <span class="month">@enlace.Descripcion <span class="badge badge-@enlace.tipo">@enlace.cantidad</span></span>
+                                                    <span class="count">
+                                                        <a href="@enlace.Enlace" class="btn btn-@enlace.tipo badge">Ver solicitudes</a>
+                                                    </span>
+                                                </p>
+                                            </li>
+                                        }
+
+                                    </ul>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            <!-- Controlling -->
+            @if (User.IsInRole(TipoRoles.GV_CONTROLLING) && ViewBag.EnlacesSolicitudesControllingComprobacionGV != null)
+            {
+                <div class="col-md-4 col-sm-6">
+                    <div class="x_panel widget-style">
+                        <div class="x_title">
+                            <span style="color: #1c9c28; font-size: 16px;"><i class="fa fa-check-to-slot"></i> Comprobaci&oacute;n G.V. (Controlling)</span>
+                            <ul class="nav navbar-right panel_toolbox">
+                                @*Utilizado para mover a la derecha los iconos del card*@
+                                <span style="visibility:hidden">_______</span>
+                                <li>
+                                    <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <div class="bs-example" data-example-id="simple-jumbotron">
+
+                                <div>
+                                    <ul class="list-inline widget_tally">
+
+                                        @foreach (var enlace in (List<Bitacoras.Util.EnlaceWidget>)ViewBag.EnlacesSolicitudesControllingComprobacionGV)
+                                        {
+                                            <li>
+                                                <p>
+                                                    <span class="month">@enlace.Descripcion <span class="badge badge-@enlace.tipo">@enlace.cantidad</span></span>
+                                                    <span class="count">
+                                                        <a href="@enlace.Enlace" class="btn btn-@enlace.tipo badge">Ver solicitudes</a>
+                                                    </span>
+                                                </p>
+                                            </li>
+                                        }
+
+                                    </ul>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            <!-- Nómina -->
+            @if (User.IsInRole(TipoRoles.GV_NOMINA) && ViewBag.EnlacesSolicitudesNominaComprobacionGV != null)
+            {
+                <div class="col-md-4 col-sm-6">
+                    <div class="x_panel widget-style">
+                        <div class="x_title">
+                            <span style="color: #1c9c28; font-size: 16px;"><i class="fa fa-check-to-slot"></i> Comprobaci&oacute;n G.V. (N&oacute;mina)</span>
+                            <ul class="nav navbar-right panel_toolbox">
+                                @*Utilizado para mover a la derecha los iconos del card*@
+                                <span style="visibility:hidden">_______</span>
+                                <li>
+                                    <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <div class="bs-example" data-example-id="simple-jumbotron">
+
+                                <div>
+                                    <ul class="list-inline widget_tally">
+                                        @foreach (var enlace in (List<Bitacoras.Util.EnlaceWidget>)ViewBag.EnlacesSolicitudesNominaComprobacionGV)
+                                        {
+                                            <li>
+                                                <p>
+                                                    <span class="month">@enlace.Descripcion <span class="badge badge-@enlace.tipo">@enlace.cantidad</span></span>
+                                                    <span class="count">
+                                                        <a href="@enlace.Enlace" class="btn btn-@enlace.tipo badge">Ver solicitudes</a>
+                                                    </span>
+                                                </p>
+                                            </li>
+                                        }
+
+                                    </ul>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            <!-- Ctas x pagar -->
+            @if (User.IsInRole(TipoRoles.GV_CONTABILIDAD) && ViewBag.EnlacesSolicitudesContabilidadComprobacionGV != null)
+            {
+                <div class="col-md-4 col-sm-6">
+                    <div class="x_panel widget-style">
+                        <div class="x_title">
+                            <span style="color: #1c9c28; font-size: 16px;"><i class="fa fa-check-to-slot"></i> Comprobaci&oacute;n G.V. (Ctas. por pagar)</span>
+                            <ul class="nav navbar-right panel_toolbox">
+                                @*Utilizado para mover a la derecha los iconos del card*@
+                                <span style="visibility:hidden">_______</span>
+                                <li>
+                                    <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <div class="bs-example" data-example-id="simple-jumbotron">
+
+                                <div>
+                                    <ul class="list-inline widget_tally">
+                                        @foreach (var enlace in (List<Bitacoras.Util.EnlaceWidget>)ViewBag.EnlacesSolicitudesContabilidadComprobacionGV)
+                                        {
+                                            <li>
+                                                <p>
+                                                    <span class="month">@enlace.Descripcion <span class="badge badge-@enlace.tipo">@enlace.cantidad</span></span>
+                                                    <span class="count">
+                                                        <a href="@enlace.Enlace" class="btn btn-@enlace.tipo badge">Ver solicitudes</a>
+                                                    </span>
+                                                </p>
+                                            </li>
+                                        }
+
+                                    </ul>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!--#endregion Widgets Comprobacion GV  -->
+
+
         </div>
     </div>
 </div>

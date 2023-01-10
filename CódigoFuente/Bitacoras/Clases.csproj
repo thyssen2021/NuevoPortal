@@ -65,6 +65,7 @@
     <Compile Include="Util\cfdv33_tdCFDI_catCFDI.cs" />
     <Compile Include="Util\cfdv40_tdCFDI_catCFDI.cs" />
     <Compile Include="Util\DocumentosProcesos.cs" />
+    <Compile Include="Util\EnlaceWidget.cs" />
     <Compile Include="Util\GV_comprobacion_estatus.cs" />
     <Compile Include="Util\GV_comprobacion_origen.cs" />
     <Compile Include="Util\GV_solicitud_estatus.cs" />
