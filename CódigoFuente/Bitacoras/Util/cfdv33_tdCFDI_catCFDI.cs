@@ -92,10 +92,23 @@ public partial class Comprobante
     public TimbreFiscalDigital TimbreFiscalDigital;
     public ImpuestosLocales ImpuestosLocales;
 
+  
     public Comprobante()
     {
         this.versionField = "3.3";
     }
+
+    /// <summary>
+    /// Campo para deternira la referencia de la Factura
+    /// </summary>
+    public string FacturaReferencia
+    {
+        get
+        {
+            return string.Format("{0}{1}", Serie, Folio).ToUpper();
+        }
+    }
+
 
     /// <summary>
     /// Obtiene el Importe Total IVA

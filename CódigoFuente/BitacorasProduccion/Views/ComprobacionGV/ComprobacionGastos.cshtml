@@ -465,6 +465,8 @@
                                                     <tr style="background-color:#FFEB9C" class="div_@concepto.uuid">
                                                         <input type="hidden" name="GV_comprobacion_rel_gastos.Index" id="GV_comprobacion_rel_gastos.Index" value=@contador />
                                                         <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].concepto_tipo" name=" GV_comprobacion_rel_gastos[@contador].concepto_tipo" value="@concepto.concepto_tipo">
+                                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].factura" name=" GV_comprobacion_rel_gastos[@contador].factura" value="@concepto.factura">
+                                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].fecha_factura" name=" GV_comprobacion_rel_gastos[@contador].fecha_factura" value="@concepto.fecha_factura">
                                                         <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].importe" name=" GV_comprobacion_rel_gastos[@contador].importe" value="@concepto.importe">
                                                         <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].iva_total" name=" GV_comprobacion_rel_gastos[@contador].iva_total" value="@concepto.iva_total">
                                                         <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].isr_total" name=" GV_comprobacion_rel_gastos[@contador].isr_total" value="@concepto.isr_total">
@@ -475,7 +477,10 @@
                                                         <td class=" input-contador-conceptos"></td>
                                                         <td>@Bitacoras.Util.GV_comprobacion_origen.DescripcionOrigen(concepto.concepto_tipo)</td>
                                                         <td><b>Fecha:</b> @concepto.fecha_factura.Value.ToShortDateString()</td>
-                                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].fecha_factura" name="GV_comprobacion_rel_gastos[@contador].fecha_factura" value="@concepto.fecha_factura">
+                                                        <td colspan="2" nowrap>
+                                                            <b>UUID:</b> <custom-div class=" class-uuid">@concepto.uuid</custom-div>
+                                                            <br /><b>Factura: </b> @concepto.factura
+                                                        </td>
                                                         <td colspan="2" nowrap><b>UUID:</b> <custom-div class=" class-uuid">@concepto.uuid</custom-div></td>
                                                         <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].uuid" name="GV_comprobacion_rel_gastos[@contador].uuid" value="@concepto.uuid">
                                                         <td colspan="1"> <b>Tipo de Cambio:</b> @concepto.tipo_cambio</td>
@@ -526,75 +531,75 @@
                                                     break;
                                                 case Bitacoras.Util.GV_comprobacion_origen.COFIDI_CONCEPTO:
                                                 case Bitacoras.Util.GV_comprobacion_origen.XML_CONCEPTO:
-                                                    <tr style="background-color:#C9DCC1" class="div_@concepto.uuid">
-                                                        <input type="hidden" name="GV_comprobacion_rel_gastos.Index" id="GV_comprobacion_rel_gastos.Index" value="@contador" />
-                                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].concepto_tipo" name="GV_comprobacion_rel_gastos[@contador].concepto_tipo" value="@concepto.concepto_tipo">
-                                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].uuid" name="GV_comprobacion_rel_gastos[@contador].uuid" value="@concepto.uuid">
-                                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].descripcion" name="GV_comprobacion_rel_gastos[@contador].descripcion" value="@concepto.descripcion">
-                                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].cantidad" name="GV_comprobacion_rel_gastos[@contador].cantidad" value="@concepto.cantidad">
-                                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].precio_unitario" name="GV_comprobacion_rel_gastos[@contador].precio_unitario" value="@concepto.precio_unitario">
-                                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].importe" name="GV_comprobacion_rel_gastos[@contador].importe" value="@concepto.importe">
-                                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].iva_porcentaje" name="GV_comprobacion_rel_gastos[@contador].iva_porcentaje" value="@concepto.iva_porcentaje">
-                                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].iva_total" name="GV_comprobacion_rel_gastos[@contador].iva_total" value="@concepto.iva_total">
-                                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].isr_porcentaje" name="GV_comprobacion_rel_gastos[@contador].isr_porcentaje" value="@concepto.isr_porcentaje">
-                                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].isr_total" name="GV_comprobacion_rel_gastos[@contador].isr_total" value="@concepto.isr_total">
-                                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].ieps_porcentaje" name="GV_comprobacion_rel_gastos[@contador].ieps_porcentaje" value="@concepto.ieps_porcentaje">
-                                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].ieps_total" name="GV_comprobacion_rel_gastos[@contador].ieps_total" value="@concepto.ieps_total">
-                                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].total_retenciones" name="GV_comprobacion_rel_gastos[@contador].total_retenciones" value="@concepto.total_retenciones">
-                                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].total_mxn" name="GV_comprobacion_rel_gastos[@contador].total_mxn" value="@concepto.total_mxn">
-                                                        <td colspan="1"></td>
-                                                        <td colspan="1"></td>
-                                                        <td nowrap>
-                                                            <select name="GV_comprobacion_rel_gastos[@contador].id_comprobacion_tipo_gastos_viaje" id="GV_comprobacion_rel_gastos[@contador].id_comprobacion_tipo_gastos_viaje" class="form-control select2bs4" style="width:100%" required>
-                                                                <option value=''>-- Seleccione un valor --</option>
-                                                                @foreach (var item in listaCuentas)
-                                                                {
-                                                                    <option value="@item.id" @(concepto.id_comprobacion_tipo_gastos_viaje==item.id ? "selected" : null )>@item.ConcatCuenta</option>
-                                                                }
-                                                            </select>
-                                                            <span class="field-validation-valid text-danger" data-valmsg-for="GV_comprobacion_rel_gastos[@contador].id_comprobacion_tipo_gastos_viaje" data-valmsg-replace="true"></span>
-                                                        </td>
-                                                        <td nowrap>
-                                                            <select name="GV_comprobacion_rel_gastos[@contador].id_centro_costo" id="GV_comprobacion_rel_gastos[@contador].id_centro_costo" class="form-control select2bs4" style="width:100%" required>
-                                                                <option value=''>-- Seleccione un valor --</option>
-                                                                @foreach (var planta in listaCentroCosto.Select(x => x.plantas).Distinct())
-                                                                {
+                                    <tr style="background-color:#C9DCC1" class="div_@concepto.uuid">
+                                        <input type="hidden" name="GV_comprobacion_rel_gastos.Index" id="GV_comprobacion_rel_gastos.Index" value="@contador" />
+                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].concepto_tipo" name="GV_comprobacion_rel_gastos[@contador].concepto_tipo" value="@concepto.concepto_tipo">
+                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].uuid" name="GV_comprobacion_rel_gastos[@contador].uuid" value="@concepto.uuid">
+                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].descripcion" name="GV_comprobacion_rel_gastos[@contador].descripcion" value="@concepto.descripcion">
+                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].cantidad" name="GV_comprobacion_rel_gastos[@contador].cantidad" value="@concepto.cantidad">
+                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].precio_unitario" name="GV_comprobacion_rel_gastos[@contador].precio_unitario" value="@concepto.precio_unitario">
+                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].importe" name="GV_comprobacion_rel_gastos[@contador].importe" value="@concepto.importe">
+                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].iva_porcentaje" name="GV_comprobacion_rel_gastos[@contador].iva_porcentaje" value="@concepto.iva_porcentaje">
+                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].iva_total" name="GV_comprobacion_rel_gastos[@contador].iva_total" value="@concepto.iva_total">
+                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].isr_porcentaje" name="GV_comprobacion_rel_gastos[@contador].isr_porcentaje" value="@concepto.isr_porcentaje">
+                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].isr_total" name="GV_comprobacion_rel_gastos[@contador].isr_total" value="@concepto.isr_total">
+                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].ieps_porcentaje" name="GV_comprobacion_rel_gastos[@contador].ieps_porcentaje" value="@concepto.ieps_porcentaje">
+                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].ieps_total" name="GV_comprobacion_rel_gastos[@contador].ieps_total" value="@concepto.ieps_total">
+                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].total_retenciones" name="GV_comprobacion_rel_gastos[@contador].total_retenciones" value="@concepto.total_retenciones">
+                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].total_mxn" name="GV_comprobacion_rel_gastos[@contador].total_mxn" value="@concepto.total_mxn">
+                                        <td colspan="1"></td>
+                                        <td colspan="1"></td>
+                                        <td nowrap>
+                                            <select name="GV_comprobacion_rel_gastos[@contador].id_comprobacion_tipo_gastos_viaje" id="GV_comprobacion_rel_gastos[@contador].id_comprobacion_tipo_gastos_viaje" class="form-control select2bs4 cuenta" data-uuid="@concepto.uuid" style="width:100%" required>
+                                                <option value=''>-- Seleccione un valor --</option>
+                                                @foreach (var item in listaCuentas)
+                                                {
+                                                    <option value="@item.id" @(concepto.id_comprobacion_tipo_gastos_viaje==item.id ? "selected" : null )>@item.ConcatCuenta</option>
+                                                }
+                                            </select>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="GV_comprobacion_rel_gastos[@contador].id_comprobacion_tipo_gastos_viaje" data-valmsg-replace="true"></span>
+                                        </td>
+                                        <td nowrap>
+                                            <select name="GV_comprobacion_rel_gastos[@contador].id_centro_costo" id="GV_comprobacion_rel_gastos[@contador].id_centro_costo" class="form-control select2bs4 centro-costo" data-uuid="@concepto.uuid" style="width:100%" required>
+                                                <option value=''>-- Seleccione un valor --</option>
+                                                @foreach (var planta in listaCentroCosto.Select(x => x.plantas).Distinct())
+                                                {
 
-                                                                    <optgroup label="@planta.descripcion">
-                                                                        @foreach (var cc in listaCentroCosto.Where(x => x.clave_planta == planta.clave))
-                                                                        {
-                                                                            <option value="@cc.id" @(concepto.id_centro_costo==cc.id ? "selected" : null )>@cc.ConcatCentroDeptoPlanta</option>
-                                                                        }
-                                                                    </optgroup>
-                                                                }
-                                                            </select>
-                                                            <span class="field-validation-valid text-danger" data-valmsg-for="GV_comprobacion_rel_gastos[@contador].id_centro_costo" data-valmsg-replace="true"></span>
-                                                        </td>
-                                                        <td>@concepto.descripcion</td>
-                                                        <td>
-                                                            <select name="GV_comprobacion_rel_gastos[@contador].id_comprobacion_tipo_pago" id="GV_comprobacion_rel_gastos[@contador].id_comprobacion_tipo_pago" class="form-control select2bs4" style="width:100%" required>
-                                                                <option value=''>-- Seleccione un valor --</option>
-                                                                @foreach (var item in listaTipoPago)
-                                                                {
-                                                                    <option value="@item.id" @(concepto.id_comprobacion_tipo_pago==item.id ? "selected" : null )>@item.descripcion</option>
-                                                                }
-                                                            </select>
-                                                            <span class="field-validation-valid text-danger" data-valmsg-for="GV_comprobacion_rel_gastos[@contador].id_comprobacion_tipo_pago" data-valmsg-replace="true"></span>
-                                                        </td>
-                                                        <td> @(concepto.cantidad.HasValue ? concepto.cantidad.Value.ToString("0.00") : "--")</td>
-                                                        <td nowrap style="text-align:right">@(concepto.precio_unitario.HasValue ? concepto.precio_unitario.Value.ToString("$ #,##0.00") : "--")</td>
-                                                        <td nowrap style="text-align:right">@(concepto.importe.HasValue ? concepto.importe.Value.ToString("$ #,##0.00") : "--")</td>
-                                                        <td nowrap style="text-align:right">@(concepto.iva_porcentaje.HasValue ? concepto.iva_porcentaje.Value.ToString("0.00 %") : "--")</td>
-                                                        <td nowrap style="text-align:right">@(concepto.iva_total.HasValue ? concepto.iva_total.Value.ToString("$ #,##0.00") : "--")</td>
-                                                        <td nowrap style="text-align:right">@(concepto.isr_porcentaje.HasValue ? concepto.isr_porcentaje.Value.ToString("0.00 %") : "--")</td>
-                                                        <td nowrap style="text-align:right">@(concepto.isr_total.HasValue ? concepto.isr_total.Value.ToString("$ #,##0.00") : "--")</td>
-                                                        <td nowrap style="text-align:right">@(concepto.ieps_porcentaje.HasValue ? concepto.ieps_porcentaje.Value.ToString("0.00 %") : "--")</td>
-                                                        <td nowrap style="text-align:right">@(concepto.ieps_total.HasValue ? concepto.ieps_total.Value.ToString("$ #,##0.00") : "--")</td>
-                                                        <td nowrap style="color:#C10000; text-align:right">@(concepto.total_retenciones.HasValue ? concepto.total_retenciones.Value.ToString("$ #,##0.00") : "--")</td>
-                                                        <td></td>
-                                                        <td nowrap style="text-align:right">@(concepto.total_mxn.HasValue ? concepto.total_mxn.Value.ToString("$ #,##0.00") : "--")</td>
-                                                        <td colspan="3"></td>
-                                                    </tr>
+                                                    <optgroup label="@planta.descripcion">
+                                                        @foreach (var cc in listaCentroCosto.Where(x => x.clave_planta == planta.clave))
+                                                        {
+                                                            <option value="@cc.id" @(concepto.id_centro_costo==cc.id ? "selected" : null )>@cc.ConcatCentroDeptoPlanta</option>
+                                                        }
+                                                    </optgroup>
+                                                }
+                                            </select>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="GV_comprobacion_rel_gastos[@contador].id_centro_costo" data-valmsg-replace="true"></span>
+                                        </td>
+                                        <td>@concepto.descripcion</td>
+                                        <td>
+                                            <select name="GV_comprobacion_rel_gastos[@contador].id_comprobacion_tipo_pago" id="GV_comprobacion_rel_gastos[@contador].id_comprobacion_tipo_pago" class="form-control select2bs4 tipo-pago" data-uuid="@concepto.uuid" style="width:100%" required>
+                                                <option value=''>-- Seleccione un valor --</option>
+                                                @foreach (var item in listaTipoPago)
+                                                {
+                                                    <option value="@item.id" @(concepto.id_comprobacion_tipo_pago==item.id ? "selected" : null )>@item.descripcion</option>
+                                                }
+                                            </select>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="GV_comprobacion_rel_gastos[@contador].id_comprobacion_tipo_pago" data-valmsg-replace="true"></span>
+                                        </td>
+                                        <td> @(concepto.cantidad.HasValue ? concepto.cantidad.Value.ToString("0.00") : "--")</td>
+                                        <td nowrap style="text-align:right">@(concepto.precio_unitario.HasValue ? concepto.precio_unitario.Value.ToString("$ #,##0.00") : "--")</td>
+                                        <td nowrap style="text-align:right">@(concepto.importe.HasValue ? concepto.importe.Value.ToString("$ #,##0.00") : "--")</td>
+                                        <td nowrap style="text-align:right">@(concepto.iva_porcentaje.HasValue ? concepto.iva_porcentaje.Value.ToString("0.00 %") : "--")</td>
+                                        <td nowrap style="text-align:right">@(concepto.iva_total.HasValue ? concepto.iva_total.Value.ToString("$ #,##0.00") : "--")</td>
+                                        <td nowrap style="text-align:right">@(concepto.isr_porcentaje.HasValue ? concepto.isr_porcentaje.Value.ToString("0.00 %") : "--")</td>
+                                        <td nowrap style="text-align:right">@(concepto.isr_total.HasValue ? concepto.isr_total.Value.ToString("$ #,##0.00") : "--")</td>
+                                        <td nowrap style="text-align:right">@(concepto.ieps_porcentaje.HasValue ? concepto.ieps_porcentaje.Value.ToString("0.00 %") : "--")</td>
+                                        <td nowrap style="text-align:right">@(concepto.ieps_total.HasValue ? concepto.ieps_total.Value.ToString("$ #,##0.00") : "--")</td>
+                                        <td nowrap style="color:#C10000; text-align:right">@(concepto.total_retenciones.HasValue ? concepto.total_retenciones.Value.ToString("$ #,##0.00") : "--")</td>
+                                        <td></td>
+                                        <td nowrap style="text-align:right">@(concepto.total_mxn.HasValue ? concepto.total_mxn.Value.ToString("$ #,##0.00") : "--")</td>
+                                        <td colspan="3"></td>
+                                    </tr>
                                                     break;
                                                 case Bitacoras.Util.GV_comprobacion_origen.COFIDI_TOTALES:
                                                 case Bitacoras.Util.GV_comprobacion_origen.XML_TOTALES:
@@ -825,7 +830,7 @@
                                         }
 
                                     </tbody>
-                                    <tfoot>                                       
+                                    <tfoot>
                                         <tr>
                                             <th colspan="18" style="text-align:right">Total MXN</th>
                                             <th id="total_gastos_mxn" style="text-align:right" nowrap>$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", Model.sumaGastosNacional)</th>
@@ -1122,6 +1127,73 @@ function asignaEventosInput() {
         });
 
 
+    });
+
+    //Evento cada vez que se cambia un combo
+    $(".cuenta").each(function () {
+
+        $(this).change(function (e) {
+            let uuid_select = $(this).attr("data-uuid");
+            let val = $(this).val();
+
+            $(".cuenta").each(function () {
+
+                let secondUUID = $(this).attr("data-uuid");
+                if (uuid_select == secondUUID) {
+                    $(this).val(val);
+                    // Initialize Select2 Elements (debe ir después de asignar el valor)
+                    if ($(this) != null) {
+                        $(this).select2({
+                            theme: 'bootstrap4'
+                        })
+                    }                 
+                }
+            });
+        });
+    });
+     //Evento cada vez que se cambia un combo
+    $(".centro-costo").each(function () {
+
+        $(this).change(function (e) {
+            let uuid_select = $(this).attr("data-uuid");
+            let val = $(this).val();
+
+            $(".centro-costo").each(function () {
+
+                let secondUUID = $(this).attr("data-uuid");
+                if (uuid_select == secondUUID) {
+                    $(this).val(val);
+                    // Initialize Select2 Elements (debe ir después de asignar el valor)
+                    if ($(this) != null) {
+                        $(this).select2({
+                            theme: 'bootstrap4'
+                        })
+                    }                 
+                }
+            });
+        });
+    });
+     //Evento cada vez que se cambia un combo
+    $(".tipo-pago").each(function () {
+
+        $(this).change(function (e) {
+            let uuid_select = $(this).attr("data-uuid");
+            let val = $(this).val();
+
+            $(".tipo-pago").each(function () {
+
+                let secondUUID = $(this).attr("data-uuid");
+                if (uuid_select == secondUUID) {
+                    $(this).val(val);
+                    // Initialize Select2 Elements (debe ir después de asignar el valor)
+                    if ($(this) != null) {
+                        $(this).select2({
+                            theme: 'bootstrap4'
+                        })
+                    }                 
+                }
+            });
+        });
     });
 
 }
@@ -1538,6 +1610,8 @@ function BuscaXML() {
                         numConcepto += datos[0].num_conceptos;
                         //aumenta en uno el número de comprobantes cargados
                         AsignaNumeroConcepto();
+
+                        asignaEventosInput();
 
                     } else if (datos[0].status == "404") {
                         Swal.fire({

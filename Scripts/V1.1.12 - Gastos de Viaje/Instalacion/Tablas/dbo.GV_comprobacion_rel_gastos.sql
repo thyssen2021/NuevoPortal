@@ -46,7 +46,7 @@ CREATE TABLE [GV_comprobacion_rel_gastos](
 	[impuestos_locales][decimal](14,2) NULL,
 	[total_mxn][decimal](14,2) NULL,
 	[comentario][varchar](150) NULL,
-	[factura][varchar](12) NUll, -- definir campo
+	[factura][varchar](25) NUll, -- definir campo
 	--para archivos
 	[id_archivo_xml][INT] NULL,
 	[id_archivo_pdf][INT] NULL,

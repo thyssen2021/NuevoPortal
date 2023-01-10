@@ -1484,6 +1484,8 @@ namespace Portal_2_0.Controllers
             if (solicitud.GV_comprobacion_rel_gastos.Count == 0)
                 ModelState.AddModelError("", "No se agregaron conceptos a la comprobación de gastos.");
 
+           // ModelState.AddModelError("", "Error Prueba");
+
             //obtiene todos los posibles archivos
 
             //valida archivos, en caso de existir
@@ -1625,6 +1627,8 @@ namespace Portal_2_0.Controllers
         {
             if (solicitud.GV_comprobacion_rel_gastos.Count == 0)
                 ModelState.AddModelError("", "No se agregaron conceptos a la comprobación de gastos.");
+
+            //ModelState.AddModelError("", "Error Prueba");
 
             //obtiene todos los posibles archivos
 
@@ -2081,6 +2085,7 @@ namespace Portal_2_0.Controllers
                 body = String.Format(@"<tr style=""background-color:#FFEB9C"" class=""div_" + factura_3_3.TimbreFiscalDigital.UUID + @""">
                                                 <input type=""hidden"" name=""GV_comprobacion_rel_gastos.Index"" id=""GV_comprobacion_rel_gastos.Index"" value=""" + numConcepto + @""" />
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].concepto_tipo"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].concepto_tipo"" value=""" + (existeEnCOFIDI ? GV_comprobacion_origen.COFIDI_RESUMEN : GV_comprobacion_origen.XML_RESUMEN) + @""">
+                                                <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].factura"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].factura"" value=""" + (factura_3_3.FacturaReferencia) + @""">
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].importe"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].importe"" value=""" + factura_3_3.SubTotal + @""">                                                
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].iva_total"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].iva_total"" value=""" + factura_3_3.GetTotalIVAImporte() + @""">
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].isr_total"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].isr_total"" value=""" + factura_3_3.GetTotalISRImporte() + @""">
@@ -2092,7 +2097,9 @@ namespace Portal_2_0.Controllers
                                                 <td>" + Bitacoras.Util.GV_comprobacion_origen.DescripcionOrigen((existeEnCOFIDI ? GV_comprobacion_origen.COFIDI_RESUMEN : GV_comprobacion_origen.XML_RESUMEN)) + @" </td> 
                                                 <td><b>Fecha:</b> {0}</td> 
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].fecha_factura"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].fecha_factura"" value=""" + factura_3_3.Fecha + @""">
-                                                <td colspan=""2"" nowrap><b>UUID:</b> <custom-div class=""class-uuid"">{1}</custom-div></td> 
+                                                <td colspan=""2"" nowrap><b>UUID:</b> <custom-div class=""class-uuid"">{1}</custom-div>
+                                                                        <br/><b>Factura:</b> " + factura_3_3.FacturaReferencia + @"
+                                                </td> 
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].uuid"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].uuid"" value=""" + factura_3_3.TimbreFiscalDigital.UUID + @""">
                                                 <td colspan=""1""> <b>Tipo de Cambio:</b> {2}</td> 
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].tipo_cambio"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].tipo_cambio"" value=""{2}"">
@@ -2122,7 +2129,7 @@ namespace Portal_2_0.Controllers
 
                 #region selects
                 //crea el select para el tipo de cuenta
-                string selectCuenta = @"<select name = 'GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_gastos_viaje' id = 'GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_gastos_viaje' class=""form-control select2bs4"" style=""width:100%"" required>
+                string selectCuenta = @"<select name = 'GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_gastos_viaje' id = 'GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_gastos_viaje' class=""form-control select2bs4 cuenta"" data-uuid=" + factura_3_3.TimbreFiscalDigital.UUID + @" style=""width:100%"" required>
                                                 <option value = '' > --Seleccione un valor --</option>";
 
                 foreach (var cuenta in listaCuentas)
@@ -2131,7 +2138,7 @@ namespace Portal_2_0.Controllers
                 selectCuenta += @"</select><span class=""field-validation-valid text-danger"" data-valmsg-for=GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_gastos_viaje data-valmsg-replace=""true""></span> ";
 
                 //crea el select para el tipo de pago
-                string selectTipoPago = @"<select name = 'GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_pago' id = 'GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_pago' class=""form-control select2bs4"" style=""width:100%"" required>
+                string selectTipoPago = @"<select name = 'GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_pago' id = 'GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_pago' class=""form-control select2bs4 centro-costo"" data-uuid=" + factura_3_3.TimbreFiscalDigital.UUID + @" style=""width:100%"" required>
                                                 <option value = '' > --Seleccione un valor --</option>";
 
                 foreach (var tipo in listaTipoPago)
@@ -2140,7 +2147,7 @@ namespace Portal_2_0.Controllers
                 selectTipoPago += @"</select><span class=""field-validation-valid text-danger"" data-valmsg-for=GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_pago data-valmsg-replace=""true""></span> ";
 
                 //crea el select para el centro d costo
-                string selectCentroCosto = @"<select name = 'GV_comprobacion_rel_gastos[#ID].id_centro_costo' id = 'GV_comprobacion_rel_gastos[#ID].id_centro_costo' class=""form-control select2bs4"" style=""width:100%"" required>
+                string selectCentroCosto = @"<select name = 'GV_comprobacion_rel_gastos[#ID].id_centro_costo' id = 'GV_comprobacion_rel_gastos[#ID].id_centro_costo' class=""form-control select2bs4 tipo-pago"" data-uuid=" + factura_3_3.TimbreFiscalDigital.UUID + @" style=""width:100%"" required>
                                                 <option value = '' > --Seleccione un valor --</option>";
 
                 foreach (var planta in listaCentroCosto.Select(x => x.plantas).Distinct())
@@ -2297,6 +2304,7 @@ namespace Portal_2_0.Controllers
                 body = String.Format(@"<tr style=""background-color:#FFEB9C"" class=""div_" + factura_4_0.TimbreFiscalDigital.UUID + @""">
                                                 <input type=""hidden"" name=""GV_comprobacion_rel_gastos.Index"" id=""GV_comprobacion_rel_gastos.Index"" value=""" + numConcepto + @""" />
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].concepto_tipo"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].concepto_tipo"" value=""" + (existeEnCOFIDI ? GV_comprobacion_origen.COFIDI_RESUMEN : GV_comprobacion_origen.XML_RESUMEN) + @""">
+                                                <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].factura"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].factura"" value=""" + (factura_4_0.FacturaReferencia) + @""">                                              
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].importe"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].importe"" value=""" + factura_4_0.SubTotal + @""">                                                
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].iva_total"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].iva_total"" value=""" + factura_4_0.GetTotalIVAImporte() + @""">
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].isr_total"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].isr_total"" value=""" + factura_4_0.GetTotalISRImporte() + @""">
@@ -2308,7 +2316,9 @@ namespace Portal_2_0.Controllers
                                                 <td>" + Bitacoras.Util.GV_comprobacion_origen.DescripcionOrigen(existeEnCOFIDI ? GV_comprobacion_origen.COFIDI_RESUMEN : GV_comprobacion_origen.XML_RESUMEN) + @" </td> 
                                                 <td><b>Fecha:</b> {0}</td> 
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].fecha_factura"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].fecha_factura"" value=""" + factura_4_0.Fecha + @""">
-                                                <td colspan=""2"" nowrap><b>UUID:</b> <custom-div class=""class-uuid"">{1}</custom-div></td> 
+                                                <td colspan=""2"" nowrap><b>UUID:</b> <custom-div class=""class-uuid"">{1}</custom-div>
+                                                                        <br/><b>Factura:</b> " + factura_4_0.FacturaReferencia + @"
+                                                </td>  
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].uuid"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].uuid"" value=""" + factura_4_0.TimbreFiscalDigital.UUID + @""">
                                                 <td colspan=""1""> <b>Tipo de Cambio:</b> {2}</td> 
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].tipo_cambio"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].tipo_cambio"" value=""{2}"">
@@ -2338,7 +2348,7 @@ namespace Portal_2_0.Controllers
 
                 #region selects
                 //crea el select para el tipo de cuenta
-                string selectCuenta = @"<select name = 'GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_gastos_viaje' id = 'GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_gastos_viaje' class=""form-control select2bs4"" style=""width:100%"" required>
+                string selectCuenta = @"<select name = 'GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_gastos_viaje' id = 'GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_gastos_viaje' class=""form-control select2bs4 cuenta"" data-uuid=" + factura_4_0.TimbreFiscalDigital.UUID + @" style=""width:100%"" required>
                                                 <option value = '' > --Seleccione un valor --</option>";
 
                 foreach (var cuenta in listaCuentas)
@@ -2347,7 +2357,7 @@ namespace Portal_2_0.Controllers
                 selectCuenta += @"</select><span class=""field-validation-valid text-danger"" data-valmsg-for=GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_gastos_viaje data-valmsg-replace=""true""></span> ";
 
                 //crea el select para el tipo de pago
-                string selectTipoPago = @"<select name = 'GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_pago' id = 'GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_pago' class=""form-control select2bs4"" style=""width:100%"" required>
+                string selectTipoPago = @"<select name = 'GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_pago' id = 'GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_pago' class=""form-control select2bs4 centro-costo"" data-uuid=" + factura_4_0.TimbreFiscalDigital.UUID + @" style=""width:100%"" required>
                                                 <option value = '' > --Seleccione un valor --</option>";
 
                 foreach (var tipo in listaTipoPago)
@@ -2356,7 +2366,7 @@ namespace Portal_2_0.Controllers
                 selectTipoPago += @"</select><span class=""field-validation-valid text-danger"" data-valmsg-for=GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_pago data-valmsg-replace=""true""></span> ";
 
                 //crea el select para el centro d costo
-                string selectCentroCosto = @"<select name = 'GV_comprobacion_rel_gastos[#ID].id_centro_costo' id = 'GV_comprobacion_rel_gastos[#ID].id_centro_costo' class=""form-control select2bs4"" style=""width:100%"" required>
+                string selectCentroCosto = @"<select name = 'GV_comprobacion_rel_gastos[#ID].id_centro_costo' id = 'GV_comprobacion_rel_gastos[#ID].id_centro_costo' class=""form-control select2bs4 tipo-pago"" data-uuid=" + factura_4_0.TimbreFiscalDigital.UUID + @" style=""width:100%"" required>
                                                 <option value = '' > --Seleccione un valor --</option>";
 
                 foreach (var planta in listaCentroCosto.Select(x => x.plantas).Distinct())

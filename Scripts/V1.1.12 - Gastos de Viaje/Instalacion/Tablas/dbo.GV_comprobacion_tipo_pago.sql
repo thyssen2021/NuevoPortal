@@ -38,8 +38,9 @@ GO
 SET IDENTITY_INSERT [GV_comprobacion_tipo_pago] ON 
 
 INSERT [GV_comprobacion_tipo_pago] ([id], [descripcion], [activo]) VALUES (1, N'Efectivo', 1)
-INSERT [GV_comprobacion_tipo_pago] ([id], [descripcion], [activo]) VALUES (2, N'Tarjeta', 1)
-INSERT [GV_comprobacion_tipo_pago] ([id], [descripcion], [activo]) VALUES (3, N'Otro', 1)
+INSERT [GV_comprobacion_tipo_pago] ([id], [descripcion], [activo]) VALUES (2, N'Tarjeta AMEX', 1)
+INSERT [GV_comprobacion_tipo_pago] ([id], [descripcion], [activo]) VALUES (3, N'Tarjeta Si Vale', 1)
+INSERT [GV_comprobacion_tipo_pago] ([id], [descripcion], [activo]) VALUES (4, N'Tarjeta Personal', 1)
 
 SET IDENTITY_INSERT [GV_comprobacion_tipo_pago] OFF
 GO

@@ -299,7 +299,7 @@
           <Property Name="impuestos_locales" Type="decimal" Precision="14" Scale="2" />
           <Property Name="total_mxn" Type="decimal" Precision="14" Scale="2" />
           <Property Name="comentario" Type="varchar" MaxLength="150" />
-          <Property Name="factura" Type="varchar" MaxLength="12" />
+          <Property Name="factura" Type="varchar" MaxLength="25" />
           <Property Name="id_archivo_xml" Type="int" />
           <Property Name="id_archivo_pdf" Type="int" />
           <Property Name="id_archivo_comprobante_extranjero" Type="int" />
@@ -4817,8 +4817,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="budget_cantidad" Relationship="Self.FK_budget_cantidad_currency_iso" FromRole="currency" ToRole="budget_cantidad" />
           <NavigationProperty Name="GV_rel_gastos_solicitud" Relationship="Self.FK_GV_rel_gastos_solicitud_currency_iso" FromRole="currency" ToRole="GV_rel_gastos_solicitud" />
           <NavigationProperty Name="poliza_manual" Relationship="Self.FK_poliza_manual_currency" FromRole="currency" ToRole="poliza_manual" />
-          <NavigationProperty Name="GV_comprobacion_rel_gastos" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_currency_iso" FromRole="currency" ToRole="GV_comprobacion_rel_gastos" />
           <NavigationProperty Name="GV_solicitud" Relationship="Portal_2_0Model.FK_GV_solicitud_iso_moneda_extranjera" FromRole="currency" ToRole="GV_solicitud" />
+          <NavigationProperty Name="GV_comprobacion_rel_gastos" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_currency_iso" FromRole="currency" ToRole="GV_comprobacion_rel_gastos" />
         </EntityType>
         <EntityType Name="empleados">
           <Key>
@@ -8525,35 +8525,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="GV_centros_costo" EntitySet="GV_centros_costo" />
           </AssociationSet>
           <EntitySet Name="GV_comprobacion_tipo_pago" EntityType="Portal_2_0Model.GV_comprobacion_tipo_pago" />
-          <EntitySet Name="GV_comprobacion_rel_gastos" EntityType="Portal_2_0Model.GV_comprobacion_rel_gastos" />
-          <AssociationSet Name="FK_GV_comprobacion_rel_gastos_id_archivo_comprobante_extranjero" Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_archivo_comprobante_extranjero">
-            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
-            <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
-          </AssociationSet>
-          <AssociationSet Name="FK_GV_comprobacion_rel_gastos_id_archivo_pdf" Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_archivo_pdf">
-            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
-            <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
-          </AssociationSet>
-          <AssociationSet Name="FK_GV_comprobacion_rel_gastos_id_archivo_xml" Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_archivo_xml">
-            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
-            <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
-          </AssociationSet>
-          <AssociationSet Name="FK_GV_comprobacion_rel_gastos_currency_iso" Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_currency_iso">
-            <End Role="currency" EntitySet="currency" />
-            <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
-          </AssociationSet>
-          <AssociationSet Name="FK_GV_comprobacion_rel_gastos_id_centro_costo" Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_centro_costo">
-            <End Role="GV_centros_costo" EntitySet="GV_centros_costo" />
-            <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
-          </AssociationSet>
-          <AssociationSet Name="FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_gastos_viaje" Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_gastos_viaje">
-            <End Role="GV_comprobacion_tipo_gastos_viaje" EntitySet="GV_comprobacion_tipo_gastos_viaje" />
-            <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
-          </AssociationSet>
-          <AssociationSet Name="FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_pago" Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_pago">
-            <End Role="GV_comprobacion_tipo_pago" EntitySet="GV_comprobacion_tipo_pago" />
-            <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
-          </AssociationSet>
           <EntitySet Name="GV_comprobacion" EntityType="Portal_2_0Model.GV_comprobacion" />
           <AssociationSet Name="FK_GV_comprobacion_contabilidad" Association="Portal_2_0Model.FK_GV_comprobacion_contabilidad">
             <End Role="empleados" EntitySet="empleados" />
@@ -8604,10 +8575,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="GV_solicitud" EntitySet="GV_solicitud" />
             <End Role="GV_comprobacion" EntitySet="GV_comprobacion" />
           </AssociationSet>
-          <AssociationSet Name="FK_GV_comprobacion_rel_gastos_id_gv_solicitud" Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_gv_solicitud">
-            <End Role="GV_solicitud" EntitySet="GV_solicitud" />
-            <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
-          </AssociationSet>
           <AssociationSet Name="FK_GV_solicitud_id_medio_transporte" Association="Portal_2_0Model.FK_GV_solicitud_id_medio_transporte">
             <End Role="GV_medios_transporte" EntitySet="GV_medios_transporte" />
             <End Role="GV_solicitud" EntitySet="GV_solicitud" />
@@ -8615,6 +8582,39 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <AssociationSet Name="FK_GV_rel_gastos_solicitud_id_gv_solicitud" Association="Portal_2_0Model.FK_GV_rel_gastos_solicitud_id_gv_solicitud">
             <End Role="GV_solicitud" EntitySet="GV_solicitud" />
             <End Role="GV_rel_gastos_solicitud" EntitySet="GV_rel_gastos_solicitud" />
+          </AssociationSet>
+          <EntitySet Name="GV_comprobacion_rel_gastos" EntityType="Portal_2_0Model.GV_comprobacion_rel_gastos" />
+          <AssociationSet Name="FK_GV_comprobacion_rel_gastos_id_archivo_comprobante_extranjero" Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_archivo_comprobante_extranjero">
+            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
+            <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_comprobacion_rel_gastos_id_archivo_pdf" Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_archivo_pdf">
+            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
+            <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_comprobacion_rel_gastos_id_archivo_xml" Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_archivo_xml">
+            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
+            <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_comprobacion_rel_gastos_currency_iso" Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_currency_iso">
+            <End Role="currency" EntitySet="currency" />
+            <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_comprobacion_rel_gastos_id_centro_costo" Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_centro_costo">
+            <End Role="GV_centros_costo" EntitySet="GV_centros_costo" />
+            <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_gastos_viaje" Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_gastos_viaje">
+            <End Role="GV_comprobacion_tipo_gastos_viaje" EntitySet="GV_comprobacion_tipo_gastos_viaje" />
+            <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_pago" Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_pago">
+            <End Role="GV_comprobacion_tipo_pago" EntitySet="GV_comprobacion_tipo_pago" />
+            <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_comprobacion_rel_gastos_id_gv_solicitud" Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_gv_solicitud">
+            <End Role="GV_solicitud" EntitySet="GV_solicitud" />
+            <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="GV_usuarios">
@@ -8946,134 +8946,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="activo" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="GV_comprobacion_rel_gastos" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_pago" FromRole="GV_comprobacion_tipo_pago" ToRole="GV_comprobacion_rel_gastos" />
         </EntityType>
-        <EntityType Name="GV_comprobacion_rel_gastos">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_gv_solicitud" Type="Int32" Nullable="false" />
-          <Property Name="id_centro_costo" Type="Int32" />
-          <Property Name="concepto_tipo" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="id_comprobacion_tipo_gastos_viaje" Type="Int32" />
-          <Property Name="id_comprobacion_tipo_pago" Type="Int32" />
-          <Property Name="num_concepto" Type="Int32" />
-          <Property Name="fecha_factura" Type="DateTime" Precision="3" />
-          <Property Name="uuid" Type="String" MaxLength="36" FixedLength="false" Unicode="false" />
-          <Property Name="tipo_cambio" Type="Double" />
-          <Property Name="currency_iso" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
-          <Property Name="descripcion" Type="String" MaxLength="350" FixedLength="false" Unicode="false" />
-          <Property Name="cantidad" Type="Double" />
-          <Property Name="precio_unitario" Type="Decimal" Precision="14" Scale="2" />
-          <Property Name="importe" Type="Decimal" Precision="14" Scale="2" />
-          <Property Name="descuento" Type="Decimal" Precision="14" Scale="2" />
-          <Property Name="iva_porcentaje" Type="Double" />
-          <Property Name="iva_total" Type="Double" />
-          <Property Name="isr_porcentaje" Type="Double" />
-          <Property Name="isr_total" Type="Double" />
-          <Property Name="ieps_porcentaje" Type="Double" />
-          <Property Name="ieps_total" Type="Double" />
-          <Property Name="total_translados" Type="Decimal" Precision="14" Scale="2" />
-          <Property Name="total_retenciones" Type="Decimal" Precision="14" Scale="2" />
-          <Property Name="impuestos_locales" Type="Decimal" Precision="14" Scale="2" />
-          <Property Name="total_mxn" Type="Decimal" Precision="14" Scale="2" />
-          <Property Name="comentario" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="factura" Type="String" MaxLength="12" FixedLength="false" Unicode="false" />
-          <Property Name="id_archivo_xml" Type="Int32" />
-          <Property Name="id_archivo_pdf" Type="Int32" />
-          <Property Name="id_archivo_comprobante_extranjero" Type="Int32" />
-          <NavigationProperty Name="biblioteca_digital" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_archivo_comprobante_extranjero" FromRole="GV_comprobacion_rel_gastos" ToRole="biblioteca_digital" />
-          <NavigationProperty Name="biblioteca_digital1" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_archivo_pdf" FromRole="GV_comprobacion_rel_gastos" ToRole="biblioteca_digital" />
-          <NavigationProperty Name="biblioteca_digital2" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_archivo_xml" FromRole="GV_comprobacion_rel_gastos" ToRole="biblioteca_digital" />
-          <NavigationProperty Name="currency" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_currency_iso" FromRole="GV_comprobacion_rel_gastos" ToRole="currency" />
-          <NavigationProperty Name="GV_centros_costo" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_centro_costo" FromRole="GV_comprobacion_rel_gastos" ToRole="GV_centros_costo" />
-          <NavigationProperty Name="GV_comprobacion_tipo_gastos_viaje" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_gastos_viaje" FromRole="GV_comprobacion_rel_gastos" ToRole="GV_comprobacion_tipo_gastos_viaje" />
-          <NavigationProperty Name="GV_comprobacion_tipo_pago" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_pago" FromRole="GV_comprobacion_rel_gastos" ToRole="GV_comprobacion_tipo_pago" />
-          <NavigationProperty Name="GV_solicitud" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_gv_solicitud" FromRole="GV_comprobacion_rel_gastos" ToRole="GV_solicitud" />
-        </EntityType>
-        <Association Name="FK_GV_comprobacion_rel_gastos_id_archivo_comprobante_extranjero">
-          <End Type="Portal_2_0Model.biblioteca_digital" Role="biblioteca_digital" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.GV_comprobacion_rel_gastos" Role="GV_comprobacion_rel_gastos" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="biblioteca_digital">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="GV_comprobacion_rel_gastos">
-              <PropertyRef Name="id_archivo_comprobante_extranjero" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_GV_comprobacion_rel_gastos_id_archivo_pdf">
-          <End Type="Portal_2_0Model.biblioteca_digital" Role="biblioteca_digital" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.GV_comprobacion_rel_gastos" Role="GV_comprobacion_rel_gastos" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="biblioteca_digital">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="GV_comprobacion_rel_gastos">
-              <PropertyRef Name="id_archivo_pdf" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_GV_comprobacion_rel_gastos_id_archivo_xml">
-          <End Type="Portal_2_0Model.biblioteca_digital" Role="biblioteca_digital" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.GV_comprobacion_rel_gastos" Role="GV_comprobacion_rel_gastos" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="biblioteca_digital">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="GV_comprobacion_rel_gastos">
-              <PropertyRef Name="id_archivo_xml" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_GV_comprobacion_rel_gastos_currency_iso">
-          <End Type="Portal_2_0Model.currency" Role="currency" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.GV_comprobacion_rel_gastos" Role="GV_comprobacion_rel_gastos" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="currency">
-              <PropertyRef Name="CurrencyISO" />
-            </Principal>
-            <Dependent Role="GV_comprobacion_rel_gastos">
-              <PropertyRef Name="currency_iso" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_GV_comprobacion_rel_gastos_id_centro_costo">
-          <End Type="Portal_2_0Model.GV_centros_costo" Role="GV_centros_costo" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.GV_comprobacion_rel_gastos" Role="GV_comprobacion_rel_gastos" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="GV_centros_costo">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="GV_comprobacion_rel_gastos">
-              <PropertyRef Name="id_centro_costo" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_gastos_viaje">
-          <End Type="Portal_2_0Model.GV_comprobacion_tipo_gastos_viaje" Role="GV_comprobacion_tipo_gastos_viaje" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.GV_comprobacion_rel_gastos" Role="GV_comprobacion_rel_gastos" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="GV_comprobacion_tipo_gastos_viaje">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="GV_comprobacion_rel_gastos">
-              <PropertyRef Name="id_comprobacion_tipo_gastos_viaje" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_pago">
-          <End Type="Portal_2_0Model.GV_comprobacion_tipo_pago" Role="GV_comprobacion_tipo_pago" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.GV_comprobacion_rel_gastos" Role="GV_comprobacion_rel_gastos" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="GV_comprobacion_tipo_pago">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="GV_comprobacion_rel_gastos">
-              <PropertyRef Name="id_comprobacion_tipo_pago" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityType Name="GV_comprobacion">
           <Key>
             <PropertyRef Name="id_gv_solicitud" />
@@ -9189,9 +9061,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="empleados4" Relationship="Portal_2_0Model.FK_GV_solicitud_id_nomina" FromRole="GV_solicitud" ToRole="empleados" />
           <NavigationProperty Name="empleados5" Relationship="Portal_2_0Model.FK_GV_solicitud_id_solicitante" FromRole="GV_solicitud" ToRole="empleados" />
           <NavigationProperty Name="GV_comprobacion" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_gv_solicitud" FromRole="GV_solicitud" ToRole="GV_comprobacion" />
-          <NavigationProperty Name="GV_comprobacion_rel_gastos" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_gv_solicitud" FromRole="GV_solicitud" ToRole="GV_comprobacion_rel_gastos" />
           <NavigationProperty Name="GV_medios_transporte" Relationship="Portal_2_0Model.FK_GV_solicitud_id_medio_transporte" FromRole="GV_solicitud" ToRole="GV_medios_transporte" />
           <NavigationProperty Name="GV_rel_gastos_solicitud" Relationship="Portal_2_0Model.FK_GV_rel_gastos_solicitud_id_gv_solicitud" FromRole="GV_solicitud" ToRole="GV_rel_gastos_solicitud" />
+          <NavigationProperty Name="GV_comprobacion_rel_gastos" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_gv_solicitud" FromRole="GV_solicitud" ToRole="GV_comprobacion_rel_gastos" />
         </EntityType>
         <Association Name="FK_GV_solicitud_iso_moneda_extranjera">
           <End Type="Portal_2_0Model.currency" Role="currency" Multiplicity="0..1" />
@@ -9289,18 +9161,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_GV_comprobacion_rel_gastos_id_gv_solicitud">
-          <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="1" />
-          <End Type="Portal_2_0Model.GV_comprobacion_rel_gastos" Role="GV_comprobacion_rel_gastos" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="GV_solicitud">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="GV_comprobacion_rel_gastos">
-              <PropertyRef Name="id_gv_solicitud" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_GV_solicitud_id_medio_transporte">
           <End Type="Portal_2_0Model.GV_medios_transporte" Role="GV_medios_transporte" Multiplicity="0..1" />
           <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="*" />
@@ -9321,6 +9181,146 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
               <PropertyRef Name="id" />
             </Principal>
             <Dependent Role="GV_rel_gastos_solicitud">
+              <PropertyRef Name="id_gv_solicitud" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="GV_comprobacion_rel_gastos">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_gv_solicitud" Type="Int32" Nullable="false" />
+          <Property Name="id_centro_costo" Type="Int32" />
+          <Property Name="concepto_tipo" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="id_comprobacion_tipo_gastos_viaje" Type="Int32" />
+          <Property Name="id_comprobacion_tipo_pago" Type="Int32" />
+          <Property Name="num_concepto" Type="Int32" />
+          <Property Name="fecha_factura" Type="DateTime" Precision="3" />
+          <Property Name="uuid" Type="String" MaxLength="36" FixedLength="false" Unicode="false" />
+          <Property Name="tipo_cambio" Type="Double" />
+          <Property Name="currency_iso" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="descripcion" Type="String" MaxLength="350" FixedLength="false" Unicode="false" />
+          <Property Name="cantidad" Type="Double" />
+          <Property Name="precio_unitario" Type="Decimal" Precision="14" Scale="2" />
+          <Property Name="importe" Type="Decimal" Precision="14" Scale="2" />
+          <Property Name="descuento" Type="Decimal" Precision="14" Scale="2" />
+          <Property Name="iva_porcentaje" Type="Double" />
+          <Property Name="iva_total" Type="Double" />
+          <Property Name="isr_porcentaje" Type="Double" />
+          <Property Name="isr_total" Type="Double" />
+          <Property Name="ieps_porcentaje" Type="Double" />
+          <Property Name="ieps_total" Type="Double" />
+          <Property Name="total_translados" Type="Decimal" Precision="14" Scale="2" />
+          <Property Name="total_retenciones" Type="Decimal" Precision="14" Scale="2" />
+          <Property Name="impuestos_locales" Type="Decimal" Precision="14" Scale="2" />
+          <Property Name="total_mxn" Type="Decimal" Precision="14" Scale="2" />
+          <Property Name="comentario" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="factura" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="id_archivo_xml" Type="Int32" />
+          <Property Name="id_archivo_pdf" Type="Int32" />
+          <Property Name="id_archivo_comprobante_extranjero" Type="Int32" />
+          <NavigationProperty Name="biblioteca_digital" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_archivo_comprobante_extranjero" FromRole="GV_comprobacion_rel_gastos" ToRole="biblioteca_digital" />
+          <NavigationProperty Name="biblioteca_digital1" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_archivo_pdf" FromRole="GV_comprobacion_rel_gastos" ToRole="biblioteca_digital" />
+          <NavigationProperty Name="biblioteca_digital2" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_archivo_xml" FromRole="GV_comprobacion_rel_gastos" ToRole="biblioteca_digital" />
+          <NavigationProperty Name="currency" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_currency_iso" FromRole="GV_comprobacion_rel_gastos" ToRole="currency" />
+          <NavigationProperty Name="GV_centros_costo" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_centro_costo" FromRole="GV_comprobacion_rel_gastos" ToRole="GV_centros_costo" />
+          <NavigationProperty Name="GV_comprobacion_tipo_gastos_viaje" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_gastos_viaje" FromRole="GV_comprobacion_rel_gastos" ToRole="GV_comprobacion_tipo_gastos_viaje" />
+          <NavigationProperty Name="GV_comprobacion_tipo_pago" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_pago" FromRole="GV_comprobacion_rel_gastos" ToRole="GV_comprobacion_tipo_pago" />
+          <NavigationProperty Name="GV_solicitud" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_gv_solicitud" FromRole="GV_comprobacion_rel_gastos" ToRole="GV_solicitud" />
+        </EntityType>
+        <Association Name="FK_GV_comprobacion_rel_gastos_id_archivo_comprobante_extranjero">
+          <End Type="Portal_2_0Model.biblioteca_digital" Role="biblioteca_digital" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.GV_comprobacion_rel_gastos" Role="GV_comprobacion_rel_gastos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="biblioteca_digital">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="GV_comprobacion_rel_gastos">
+              <PropertyRef Name="id_archivo_comprobante_extranjero" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_comprobacion_rel_gastos_id_archivo_pdf">
+          <End Type="Portal_2_0Model.biblioteca_digital" Role="biblioteca_digital" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.GV_comprobacion_rel_gastos" Role="GV_comprobacion_rel_gastos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="biblioteca_digital">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="GV_comprobacion_rel_gastos">
+              <PropertyRef Name="id_archivo_pdf" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_comprobacion_rel_gastos_id_archivo_xml">
+          <End Type="Portal_2_0Model.biblioteca_digital" Role="biblioteca_digital" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.GV_comprobacion_rel_gastos" Role="GV_comprobacion_rel_gastos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="biblioteca_digital">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="GV_comprobacion_rel_gastos">
+              <PropertyRef Name="id_archivo_xml" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_comprobacion_rel_gastos_currency_iso">
+          <End Type="Portal_2_0Model.currency" Role="currency" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.GV_comprobacion_rel_gastos" Role="GV_comprobacion_rel_gastos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="currency">
+              <PropertyRef Name="CurrencyISO" />
+            </Principal>
+            <Dependent Role="GV_comprobacion_rel_gastos">
+              <PropertyRef Name="currency_iso" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_comprobacion_rel_gastos_id_centro_costo">
+          <End Type="Portal_2_0Model.GV_centros_costo" Role="GV_centros_costo" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.GV_comprobacion_rel_gastos" Role="GV_comprobacion_rel_gastos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GV_centros_costo">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="GV_comprobacion_rel_gastos">
+              <PropertyRef Name="id_centro_costo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_gastos_viaje">
+          <End Type="Portal_2_0Model.GV_comprobacion_tipo_gastos_viaje" Role="GV_comprobacion_tipo_gastos_viaje" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.GV_comprobacion_rel_gastos" Role="GV_comprobacion_rel_gastos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GV_comprobacion_tipo_gastos_viaje">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="GV_comprobacion_rel_gastos">
+              <PropertyRef Name="id_comprobacion_tipo_gastos_viaje" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_pago">
+          <End Type="Portal_2_0Model.GV_comprobacion_tipo_pago" Role="GV_comprobacion_tipo_pago" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.GV_comprobacion_rel_gastos" Role="GV_comprobacion_rel_gastos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GV_comprobacion_tipo_pago">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="GV_comprobacion_rel_gastos">
+              <PropertyRef Name="id_comprobacion_tipo_pago" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_comprobacion_rel_gastos_id_gv_solicitud">
+          <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="1" />
+          <End Type="Portal_2_0Model.GV_comprobacion_rel_gastos" Role="GV_comprobacion_rel_gastos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GV_solicitud">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="GV_comprobacion_rel_gastos">
               <PropertyRef Name="id_gv_solicitud" />
             </Dependent>
           </ReferentialConstraint>
@@ -10870,43 +10870,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="GV_comprobacion_rel_gastos">
-            <EntityTypeMapping TypeName="Portal_2_0Model.GV_comprobacion_rel_gastos">
-              <MappingFragment StoreEntitySet="GV_comprobacion_rel_gastos">
-                <ScalarProperty Name="id_archivo_comprobante_extranjero" ColumnName="id_archivo_comprobante_extranjero" />
-                <ScalarProperty Name="id_archivo_pdf" ColumnName="id_archivo_pdf" />
-                <ScalarProperty Name="id_archivo_xml" ColumnName="id_archivo_xml" />
-                <ScalarProperty Name="factura" ColumnName="factura" />
-                <ScalarProperty Name="comentario" ColumnName="comentario" />
-                <ScalarProperty Name="total_mxn" ColumnName="total_mxn" />
-                <ScalarProperty Name="impuestos_locales" ColumnName="impuestos_locales" />
-                <ScalarProperty Name="total_retenciones" ColumnName="total_retenciones" />
-                <ScalarProperty Name="total_translados" ColumnName="total_translados" />
-                <ScalarProperty Name="ieps_total" ColumnName="ieps_total" />
-                <ScalarProperty Name="ieps_porcentaje" ColumnName="ieps_porcentaje" />
-                <ScalarProperty Name="isr_total" ColumnName="isr_total" />
-                <ScalarProperty Name="isr_porcentaje" ColumnName="isr_porcentaje" />
-                <ScalarProperty Name="iva_total" ColumnName="iva_total" />
-                <ScalarProperty Name="iva_porcentaje" ColumnName="iva_porcentaje" />
-                <ScalarProperty Name="descuento" ColumnName="descuento" />
-                <ScalarProperty Name="importe" ColumnName="importe" />
-                <ScalarProperty Name="precio_unitario" ColumnName="precio_unitario" />
-                <ScalarProperty Name="cantidad" ColumnName="cantidad" />
-                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
-                <ScalarProperty Name="currency_iso" ColumnName="currency_iso" />
-                <ScalarProperty Name="tipo_cambio" ColumnName="tipo_cambio" />
-                <ScalarProperty Name="uuid" ColumnName="uuid" />
-                <ScalarProperty Name="fecha_factura" ColumnName="fecha_factura" />
-                <ScalarProperty Name="num_concepto" ColumnName="num_concepto" />
-                <ScalarProperty Name="id_comprobacion_tipo_pago" ColumnName="id_comprobacion_tipo_pago" />
-                <ScalarProperty Name="id_comprobacion_tipo_gastos_viaje" ColumnName="id_comprobacion_tipo_gastos_viaje" />
-                <ScalarProperty Name="concepto_tipo" ColumnName="concepto_tipo" />
-                <ScalarProperty Name="id_centro_costo" ColumnName="id_centro_costo" />
-                <ScalarProperty Name="id_gv_solicitud" ColumnName="id_gv_solicitud" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="GV_comprobacion">
             <EntityTypeMapping TypeName="Portal_2_0Model.GV_comprobacion">
               <MappingFragment StoreEntitySet="GV_comprobacion">
@@ -10960,6 +10923,43 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
                 <ScalarProperty Name="id_jefe_directo" ColumnName="id_jefe_directo" />
                 <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
                 <ScalarProperty Name="id_solicitante" ColumnName="id_solicitante" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="GV_comprobacion_rel_gastos">
+            <EntityTypeMapping TypeName="Portal_2_0Model.GV_comprobacion_rel_gastos">
+              <MappingFragment StoreEntitySet="GV_comprobacion_rel_gastos">
+                <ScalarProperty Name="id_archivo_comprobante_extranjero" ColumnName="id_archivo_comprobante_extranjero" />
+                <ScalarProperty Name="id_archivo_pdf" ColumnName="id_archivo_pdf" />
+                <ScalarProperty Name="id_archivo_xml" ColumnName="id_archivo_xml" />
+                <ScalarProperty Name="factura" ColumnName="factura" />
+                <ScalarProperty Name="comentario" ColumnName="comentario" />
+                <ScalarProperty Name="total_mxn" ColumnName="total_mxn" />
+                <ScalarProperty Name="impuestos_locales" ColumnName="impuestos_locales" />
+                <ScalarProperty Name="total_retenciones" ColumnName="total_retenciones" />
+                <ScalarProperty Name="total_translados" ColumnName="total_translados" />
+                <ScalarProperty Name="ieps_total" ColumnName="ieps_total" />
+                <ScalarProperty Name="ieps_porcentaje" ColumnName="ieps_porcentaje" />
+                <ScalarProperty Name="isr_total" ColumnName="isr_total" />
+                <ScalarProperty Name="isr_porcentaje" ColumnName="isr_porcentaje" />
+                <ScalarProperty Name="iva_total" ColumnName="iva_total" />
+                <ScalarProperty Name="iva_porcentaje" ColumnName="iva_porcentaje" />
+                <ScalarProperty Name="descuento" ColumnName="descuento" />
+                <ScalarProperty Name="importe" ColumnName="importe" />
+                <ScalarProperty Name="precio_unitario" ColumnName="precio_unitario" />
+                <ScalarProperty Name="cantidad" ColumnName="cantidad" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="currency_iso" ColumnName="currency_iso" />
+                <ScalarProperty Name="tipo_cambio" ColumnName="tipo_cambio" />
+                <ScalarProperty Name="uuid" ColumnName="uuid" />
+                <ScalarProperty Name="fecha_factura" ColumnName="fecha_factura" />
+                <ScalarProperty Name="num_concepto" ColumnName="num_concepto" />
+                <ScalarProperty Name="id_comprobacion_tipo_pago" ColumnName="id_comprobacion_tipo_pago" />
+                <ScalarProperty Name="id_comprobacion_tipo_gastos_viaje" ColumnName="id_comprobacion_tipo_gastos_viaje" />
+                <ScalarProperty Name="concepto_tipo" ColumnName="concepto_tipo" />
+                <ScalarProperty Name="id_centro_costo" ColumnName="id_centro_costo" />
+                <ScalarProperty Name="id_gv_solicitud" ColumnName="id_gv_solicitud" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

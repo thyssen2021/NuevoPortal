@@ -97,6 +97,17 @@ namespace Bitacoras.CFDI_4_0
         }
 
         /// <summary>
+        /// Campo para deternira la referencia de la Factura
+        /// </summary>
+        public string FacturaReferencia
+        {
+            get
+            {
+                return string.Format("{0}{1}", Serie, Folio).ToUpper();
+            }
+        }
+
+        /// <summary>
         /// Obtiene el Importe Total IVA
         /// </summary>
         /// <returns></returns>

@@ -478,6 +478,8 @@
                                                         <input type="hidden" name="GV_comprobacion_rel_gastos.Index" id="GV_comprobacion_rel_gastos.Index" value=@contador />
                                                         <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].id" name=" GV_comprobacion_rel_gastos[@contador].id" value="@concepto.id">
                                                         <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].concepto_tipo" name=" GV_comprobacion_rel_gastos[@contador].concepto_tipo" value="@concepto.concepto_tipo">
+                                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].factura" name=" GV_comprobacion_rel_gastos[@contador].factura" value="@concepto.factura">
+                                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].fecha_factura" name=" GV_comprobacion_rel_gastos[@contador].fecha_factura" value="@concepto.fecha_factura">
                                                         <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].importe" name=" GV_comprobacion_rel_gastos[@contador].importe" value="@concepto.importe">
                                                         <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].iva_total" name=" GV_comprobacion_rel_gastos[@contador].iva_total" value="@concepto.iva_total">
                                                         <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].isr_total" name=" GV_comprobacion_rel_gastos[@contador].isr_total" value="@concepto.isr_total">
@@ -489,7 +491,10 @@
                                                         <td>@Bitacoras.Util.GV_comprobacion_origen.DescripcionOrigen(concepto.concepto_tipo)</td>
                                                         <td><b>Fecha:</b> @concepto.fecha_factura.Value.ToShortDateString()</td>
                                                         <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].fecha_factura" name="GV_comprobacion_rel_gastos[@contador].fecha_factura" value="@concepto.fecha_factura">
-                                                        <td colspan="2" nowrap><b>UUID:</b> <custom-div class=" class-uuid">@concepto.uuid</custom-div></td>
+                                                        <td colspan="2" nowrap>
+                                                            <b>UUID:</b> <custom-div class=" class-uuid">@concepto.uuid</custom-div>
+                                                            <br /><b>Factura: </b>@concepto.factura
+                                                        </td>
                                                         <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].uuid" name="GV_comprobacion_rel_gastos[@contador].uuid" value="@concepto.uuid">
                                                         <td colspan="1"> <b>Tipo de Cambio:</b> @concepto.tipo_cambio</td>
                                                         <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].tipo_cambio" name="GV_comprobacion_rel_gastos[@contador].tipo_cambio" value="@concepto.tipo_cambio">
@@ -564,7 +569,7 @@
                                                         <td colspan="1"></td>
                                                         <td colspan="1"></td>
                                                         <td nowrap>
-                                                            <select name="GV_comprobacion_rel_gastos[@contador].id_comprobacion_tipo_gastos_viaje" id="GV_comprobacion_rel_gastos[@contador].id_comprobacion_tipo_gastos_viaje" class="form-control select2bs4" style="width:100%" required>
+                                                            <select name="GV_comprobacion_rel_gastos[@contador].id_comprobacion_tipo_gastos_viaje" id="GV_comprobacion_rel_gastos[@contador].id_comprobacion_tipo_gastos_viaje" class="form-control select2bs4 cuenta" data-uuid="@concepto.uuid" style="width:100%" required>
                                                                 <option value=''>-- Seleccione un valor --</option>
                                                                 @foreach (var item in listaCuentas)
                                                                 {
@@ -574,7 +579,7 @@
                                                             <span class="field-validation-valid text-danger" data-valmsg-for="GV_comprobacion_rel_gastos[@contador].id_comprobacion_tipo_gastos_viaje" data-valmsg-replace="true"></span>
                                                         </td>
                                                         <td nowrap>
-                                                            <select name="GV_comprobacion_rel_gastos[@contador].id_centro_costo" id="GV_comprobacion_rel_gastos[@contador].id_centro_costo" class="form-control select2bs4" style="width:100%" required>
+                                                            <select name="GV_comprobacion_rel_gastos[@contador].id_centro_costo" id="GV_comprobacion_rel_gastos[@contador].id_centro_costo" class="form-control select2bs4 centro-costo" data-uuid="@concepto.uuid" style="width:100%" required>
                                                                 <option value=''>-- Seleccione un valor --</option>
                                                                 @foreach (var planta in listaCentroCosto.Select(x => x.plantas).Distinct())
                                                                 {
@@ -591,7 +596,7 @@
                                                         </td>
                                                         <td>@concepto.descripcion</td>
                                                         <td>
-                                                            <select name="GV_comprobacion_rel_gastos[@contador].id_comprobacion_tipo_pago" id="GV_comprobacion_rel_gastos[@contador].id_comprobacion_tipo_pago" class="form-control select2bs4" style="width:100%" required>
+                                                            <select name="GV_comprobacion_rel_gastos[@contador].id_comprobacion_tipo_pago" id="GV_comprobacion_rel_gastos[@contador].id_comprobacion_tipo_pago" class="form-control select2bs4 tipo-pago" data-uuid="@concepto.uuid" style="width:100%" required>
                                                                 <option value=''>-- Seleccione un valor --</option>
                                                                 @foreach (var item in listaTipoPago)
                                                                 {
@@ -1256,8 +1261,73 @@ function asignaEventosInput() {
 
             CalculaTotales();
         });
+    });
 
+    //Evento cada vez que se cambia un combo
+    $(".cuenta").each(function () {
 
+        $(this).change(function (e) {
+            let uuid_select = $(this).attr("data-uuid");
+            let val = $(this).val();
+
+            $(".cuenta").each(function () {
+
+                let secondUUID = $(this).attr("data-uuid");
+                if (uuid_select == secondUUID) {
+                    $(this).val(val);
+                    // Initialize Select2 Elements (debe ir después de asignar el valor)
+                    if ($(this) != null) {
+                        $(this).select2({
+                            theme: 'bootstrap4'
+                        })
+                    }
+                }
+            });
+        });
+    });
+    //Evento cada vez que se cambia un combo
+    $(".centro-costo").each(function () {
+
+        $(this).change(function (e) {
+            let uuid_select = $(this).attr("data-uuid");
+            let val = $(this).val();
+
+            $(".centro-costo").each(function () {
+
+                let secondUUID = $(this).attr("data-uuid");
+                if (uuid_select == secondUUID) {
+                    $(this).val(val);
+                    // Initialize Select2 Elements (debe ir después de asignar el valor)
+                    if ($(this) != null) {
+                        $(this).select2({
+                            theme: 'bootstrap4'
+                        })
+                    }
+                }
+            });
+        });
+    });
+    //Evento cada vez que se cambia un combo
+    $(".tipo-pago").each(function () {
+
+        $(this).change(function (e) {
+            let uuid_select = $(this).attr("data-uuid");
+            let val = $(this).val();
+
+            $(".tipo-pago").each(function () {
+
+                let secondUUID = $(this).attr("data-uuid");
+                if (uuid_select == secondUUID) {
+                    $(this).val(val);
+                    // Initialize Select2 Elements (debe ir después de asignar el valor)
+                    if ($(this) != null) {
+                        $(this).select2({
+                            theme: 'bootstrap4'
+                        })
+                    }
+                }
+            });
+        });
     });
 
 }
@@ -1674,6 +1744,8 @@ function BuscaXML() {
                         numConcepto += datos[0].num_conceptos;
                         //aumenta en uno el número de comprobantes cargados
                         AsignaNumeroConcepto();
+
+                        asignaEventosInput();
 
                     } else if (datos[0].status == "404") {
                         Swal.fire({

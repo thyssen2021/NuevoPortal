@@ -449,7 +449,10 @@
                                                     <td class=" input-contador-conceptos"></td>
                                                     <td>@Bitacoras.Util.GV_comprobacion_origen.DescripcionOrigen(concepto.concepto_tipo)</td>
                                                     <td><b>Fecha:</b> @concepto.fecha_factura.Value.ToShortDateString()</td>
-                                                    <td colspan="2" nowrap><b>UUID:</b> <custom-div class=" class-uuid">@concepto.uuid</custom-div></td>
+                                                    <td colspan="2" nowrap>
+                                                        <b>UUID:</b> <custom-div class=" class-uuid">@concepto.uuid</custom-div>
+                                                        <br /><b>Factura: </b>@concepto.factura
+                                                    </td>
                                                     <td colspan="1"> <b>Tipo de Cambio:</b> @String.Format("{0:0.00}", concepto.tipo_cambio)</td>
                                                     <td colspan="2"> <b>Moneda:</b> @concepto.currency_iso</td>
                                                     <td colspan="8">
