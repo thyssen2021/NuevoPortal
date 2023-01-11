@@ -34,8 +34,8 @@ namespace Portal_2_0.Models
         public virtual empleados empleados { get; set; }
         public virtual empleados empleados1 { get; set; }
         public virtual IATF_revisiones IATF_revisiones { get; set; }
-        public virtual IT_inventory_items IT_inventory_items { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_mantenimientos_rel_checklist> IT_mantenimientos_rel_checklist { get; set; }
+        public virtual IT_inventory_items IT_inventory_items { get; set; }
     }
 }

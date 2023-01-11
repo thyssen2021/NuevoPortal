@@ -65,10 +65,17 @@
                     </div>
                     <div class="x_content">
 
+                        @if (Model.baja)
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                Este equipo se encuentra dado de baja en el sistema.
+                            </div>
+                        }
 
                         <div class="form-group row">
                             <span style="color:black"><b>GENERAL INFORMATION</b></span>
                         </div>
+
 
                         <div class="item form-group row">
                             @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.id_inventory_type)))
@@ -412,6 +419,19 @@
                             @Html.LabelFor(model => model.inactive_date, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                             <div class="col-md-3 col-sm-3 ">
                                 @Html.EditorFor(model => model.inactive_date, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>
+
+                        </div>
+                        <div class="item form-group">
+
+                            @Html.LabelFor(model => model.baja, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            <div class="col-md-1 col-sm-1 " @*rel="tooltip" data-title="Autorizar"*@>
+
+                                @Html.EditorFor(model => model.baja, new { htmlAttributes = new { @class = "form-control", @disabled = "true" } })
+                            </div>
+                            @Html.LabelFor(model => model.fecha_baja, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            <div class="col-md-3 col-sm-3 ">
+                                @Html.EditorFor(model => model.fecha_baja, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                             </div>
 
                         </div>

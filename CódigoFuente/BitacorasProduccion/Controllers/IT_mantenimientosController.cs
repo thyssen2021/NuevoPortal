@@ -616,7 +616,7 @@ namespace Portal_2_0.Controllers
             }
             // return new FileContentResult(pdfBytes, "application/pdf");
 
-            string filename = IT_matriz_requerimientosController.itfNumber + "_Responsiva de Equipo_" + item.empleados.ConcatNombre.Trim() + ".pdf";
+            string filename = IT_matriz_requerimientosController.itfNumber + "_Hoja de Vida_" + item.empleados.ConcatNombre.Trim() + ".pdf";
 
             var cd = new System.Net.Mime.ContentDisposition
             {

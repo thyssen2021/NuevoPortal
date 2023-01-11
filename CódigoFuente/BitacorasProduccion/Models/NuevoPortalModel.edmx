@@ -560,6 +560,8 @@
           <Property Name="accessories" Type="varchar" MaxLength="50" />
           <Property Name="physical_server" Type="int" />
           <Property Name="id_tipo_accesorio" Type="int" />
+          <Property Name="baja" Type="bit" Nullable="false" />
+          <Property Name="fecha_baja" Type="datetime" />
         </EntityType>
         <EntityType Name="IT_inventory_items_genericos">
           <Key>
@@ -1669,6 +1671,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_empleados_inventory_type">
+          <End Role="IT_inventory_hardware_type" Type="Self.IT_inventory_hardware_type" Multiplicity="1" />
+          <End Role="IT_inventory_items" Type="Self.IT_inventory_items" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_inventory_hardware_type">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_inventory_items">
+              <PropertyRef Name="id_inventory_type" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_empleados_jefe_directo">
           <End Role="empleados" Type="Self.empleados" Multiplicity="0..1" />
           <End Role="empleados1" Type="Self.empleados" Multiplicity="*" />
@@ -2193,18 +2207,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
               <PropertyRef Name="id" />
             </Principal>
             <Dependent Role="IT_inventory_items_genericos">
-              <PropertyRef Name="id_inventory_type" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_IT_inventory_items_id_inventory_type">
-          <End Role="IT_inventory_hardware_type" Type="Self.IT_inventory_hardware_type" Multiplicity="1" />
-          <End Role="IT_inventory_items" Type="Self.IT_inventory_items" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="IT_inventory_hardware_type">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_inventory_items">
               <PropertyRef Name="id_inventory_type" />
             </Dependent>
           </ReferentialConstraint>
@@ -3687,6 +3689,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="Area" EntitySet="Area" />
             <End Role="empleados" EntitySet="empleados" />
           </AssociationSet>
+          <AssociationSet Name="FK_empleados_inventory_type" Association="Self.FK_empleados_inventory_type">
+            <End Role="IT_inventory_hardware_type" EntitySet="IT_inventory_hardware_type" />
+            <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
+          </AssociationSet>
           <AssociationSet Name="FK_empleados_jefe_directo" Association="Self.FK_empleados_jefe_directo">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="empleados1" EntitySet="empleados" />
@@ -3862,10 +3868,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <AssociationSet Name="FK_IT_inventory_items_genericos_id_inventory_type" Association="Self.FK_IT_inventory_items_genericos_id_inventory_type">
             <End Role="IT_inventory_hardware_type" EntitySet="IT_inventory_hardware_type" />
             <End Role="IT_inventory_items_genericos" EntitySet="IT_inventory_items_genericos" />
-          </AssociationSet>
-          <AssociationSet Name="FK_IT_inventory_items_id_inventory_type" Association="Self.FK_IT_inventory_items_id_inventory_type">
-            <End Role="IT_inventory_hardware_type" EntitySet="IT_inventory_hardware_type" />
-            <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
           </AssociationSet>
           <AssociationSet Name="FK_IT_inventory_items_id_planta" Association="Self.FK_IT_inventory_items_id_planta">
             <End Role="plantas" EntitySet="plantas" />
@@ -4720,7 +4722,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="comments" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="IT_asignacion_hardware" Relationship="Self.FK_IT_inventory_item_id_asignacion_hardware" FromRole="IT_asignacion_hardware_rel_items" ToRole="IT_asignacion_hardware" />
           <NavigationProperty Name="IT_inventory_items_genericos" Relationship="Self.FK_IT_inventory_item_id_it_inventory_generico" FromRole="IT_asignacion_hardware_rel_items" ToRole="IT_inventory_items_genericos" />
-          <NavigationProperty Name="IT_inventory_items" Relationship="Self.FK_IT_inventory_item_id_it_inventory_item" FromRole="IT_asignacion_hardware_rel_items" ToRole="IT_inventory_items" />
+          <NavigationProperty Name="IT_inventory_items" Relationship="Portal_2_0Model.FK_IT_inventory_item_id_it_inventory_item" FromRole="IT_asignacion_hardware_rel_items" ToRole="IT_inventory_items" />
         </EntityType>
         <EntityType Name="IT_asignacion_software">
           <Key>
@@ -4795,7 +4797,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="disk_name" Type="String" MaxLength="1" FixedLength="true" Unicode="false" Nullable="false" />
           <Property Name="total_drive_space_mb" Type="Int32" />
           <Property Name="type_drive" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="IT_inventory_items" Relationship="Self.FK_IT_inventory_item" FromRole="IT_inventory_hard_drives" ToRole="IT_inventory_items" />
+          <NavigationProperty Name="IT_inventory_items" Relationship="Portal_2_0Model.FK_IT_inventory_item" FromRole="IT_inventory_hard_drives" ToRole="IT_inventory_items" />
         </EntityType>
         <EntityType Name="IT_inventory_hardware_type">
           <Key>
@@ -4806,53 +4808,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="activo" Type="Boolean" Nullable="false" />
           <Property Name="puede_asignarse" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="IT_inventory_items_genericos" Relationship="Self.FK_IT_inventory_items_genericos_id_inventory_type" FromRole="IT_inventory_hardware_type" ToRole="IT_inventory_items_genericos" />
-          <NavigationProperty Name="IT_inventory_items" Relationship="Self.FK_IT_inventory_items_id_inventory_type" FromRole="IT_inventory_hardware_type" ToRole="IT_inventory_items" />
-        </EntityType>
-        <EntityType Name="IT_inventory_items">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_planta" Type="Int32" Nullable="false" />
-          <Property Name="id_inventory_type" Type="Int32" Nullable="false" />
-          <Property Name="active" Type="Boolean" Nullable="false" />
-          <Property Name="purchase_date" Type="DateTime" Precision="3" />
-          <Property Name="inactive_date" Type="DateTime" Precision="3" />
-          <Property Name="comments" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
-          <Property Name="hostname" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="brand" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
-          <Property Name="model" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
-          <Property Name="serial_number" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
-          <Property Name="end_warranty" Type="DateTime" Precision="3" />
-          <Property Name="mac_lan" Type="String" MaxLength="17" FixedLength="false" Unicode="false" />
-          <Property Name="mac_wlan" Type="String" MaxLength="17" FixedLength="false" Unicode="false" />
-          <Property Name="processor" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="total_physical_memory_mb" Type="Decimal" Precision="8" Scale="2" />
-          <Property Name="maintenance_period_months" Type="Int32" />
-          <Property Name="cpu_speed_mhz" Type="Int32" />
-          <Property Name="operation_system" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="bits_operation_system" Type="Int32" />
-          <Property Name="number_of_cpus" Type="Int32" />
-          <Property Name="printer_ubication" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="ip_adress" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
-          <Property Name="cost_center" Type="String" MaxLength="8" FixedLength="false" Unicode="false" />
-          <Property Name="movil_device_storage_mb" Type="Int32" />
-          <Property Name="inches" Type="Decimal" Precision="4" Scale="2" />
-          <Property Name="imei_1" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="imei_2" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="code" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="accessories" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="physical_server" Type="Int32" />
-          <Property Name="id_tipo_accesorio" Type="Int32" />
-          <NavigationProperty Name="IT_asignacion_hardware_rel_items" Relationship="Self.FK_IT_inventory_item_id_it_inventory_item" FromRole="IT_inventory_items" ToRole="IT_asignacion_hardware_rel_items" />
-          <NavigationProperty Name="IT_inventory_hard_drives" Relationship="Self.FK_IT_inventory_item" FromRole="IT_inventory_items" ToRole="IT_inventory_hard_drives" />
-          <NavigationProperty Name="IT_inventory_hardware_type" Relationship="Self.FK_IT_inventory_items_id_inventory_type" FromRole="IT_inventory_items" ToRole="IT_inventory_hardware_type" />
-          <NavigationProperty Name="plantas" Relationship="Self.FK_IT_inventory_items_id_planta" FromRole="IT_inventory_items" ToRole="plantas" />
-          <NavigationProperty Name="IT_mantenimientos" Relationship="Self.FK_IT_mantenimientos_id_it_inventory_item" FromRole="IT_inventory_items" ToRole="IT_mantenimientos" />
-          <NavigationProperty Name="IT_inventory_tipos_accesorios" Relationship="Self.FK_notificaciones_id_tipo_accesorio" FromRole="IT_inventory_items" ToRole="IT_inventory_tipos_accesorios" />
-          <NavigationProperty Name="IT_inventory_items1" Relationship="Self.FK_notificaciones_virtual_server" FromRole="IT_inventory_items" ToRole="IT_inventory_items1" />
-          <NavigationProperty Name="IT_inventory_items2" Relationship="Self.FK_notificaciones_virtual_server" FromRole="IT_inventory_items1" ToRole="IT_inventory_items" />
-          <NavigationProperty Name="IT_equipos_checklist" Relationship="Portal_2_0Model.FK_equipos_checklist_id_inventory_item" FromRole="IT_inventory_items" ToRole="IT_equipos_checklist" />
+          <NavigationProperty Name="IT_inventory_items" Relationship="Portal_2_0Model.FK_empleados_inventory_type" FromRole="IT_inventory_hardware_type" ToRole="IT_inventory_items" />
         </EntityType>
         <EntityType Name="IT_inventory_items_genericos">
           <Key>
@@ -4886,8 +4842,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="descripcion" Type="String" MaxLength="60" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="activo" Type="Boolean" Nullable="false" />
           <Property Name="es_accesorio" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="IT_inventory_items" Relationship="Self.FK_notificaciones_id_tipo_accesorio" FromRole="IT_inventory_tipos_accesorios" ToRole="IT_inventory_items" />
           <NavigationProperty Name="IT_inventory_items_genericos" Relationship="Self.FK_inventory_items_genericos_id_tipo_accesorio" FromRole="IT_inventory_tipos_accesorios" ToRole="IT_inventory_items_genericos" />
+          <NavigationProperty Name="IT_inventory_items" Relationship="Portal_2_0Model.FK_notificaciones_id_tipo_accesorio" FromRole="IT_inventory_tipos_accesorios" ToRole="IT_inventory_items" />
         </EntityType>
         <EntityType Name="IT_mantenimientos">
           <Key>
@@ -4906,8 +4862,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="empleados" Relationship="Self.FK_IT_mantenimientos_id_empleado_responsable" FromRole="IT_mantenimientos" ToRole="empleados" />
           <NavigationProperty Name="empleados1" Relationship="Self.FK_IT_mantenimientos_id_empleado_sistemas" FromRole="IT_mantenimientos" ToRole="empleados" />
           <NavigationProperty Name="IATF_revisiones" Relationship="Self.FK_IT_mantenimientos_id_iatf_version" FromRole="IT_mantenimientos" ToRole="IATF_revisiones" />
-          <NavigationProperty Name="IT_inventory_items" Relationship="Self.FK_IT_mantenimientos_id_it_inventory_item" FromRole="IT_mantenimientos" ToRole="IT_inventory_items" />
           <NavigationProperty Name="IT_mantenimientos_rel_checklist" Relationship="Self.FK_IT_mantenimientos_rel_checklist_id_mantenimiento" FromRole="IT_mantenimientos" ToRole="IT_mantenimientos_rel_checklist" />
+          <NavigationProperty Name="IT_inventory_items" Relationship="Portal_2_0Model.FK_IT_mantenimientos_id_it_inventory_item" FromRole="IT_mantenimientos" ToRole="IT_inventory_items" />
         </EntityType>
         <EntityType Name="IT_mantenimientos_checklist_categorias">
           <Key>
@@ -5353,7 +5309,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="Area" Relationship="Self.FK_areas_planta_clave" FromRole="plantas" ToRole="Area" />
           <NavigationProperty Name="empleados" Relationship="Self.FK_empleados_planta_clave" FromRole="plantas" ToRole="empleados" />
           <NavigationProperty Name="IATF_documentos" Relationship="Self.FK_IATF_documentos_id_planta" FromRole="plantas" ToRole="IATF_documentos" />
-          <NavigationProperty Name="IT_inventory_items" Relationship="Self.FK_IT_inventory_items_id_planta" FromRole="plantas" ToRole="IT_inventory_items" />
           <NavigationProperty Name="IT_solicitud_usuarios" Relationship="Self.FK_IT_solicitud_usuarios_id_planta" FromRole="plantas" ToRole="IT_solicitud_usuarios" />
           <NavigationProperty Name="notificaciones_correo" Relationship="Self.FK_notificaciones_correo_planta" FromRole="plantas" ToRole="notificaciones_correo" />
           <NavigationProperty Name="poliza_manual" Relationship="Self.FK_poliza_manual_planta" FromRole="plantas" ToRole="poliza_manual" />
@@ -5363,6 +5318,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="produccion_turnos" Relationship="Self.FK_produccion_turnos_planta_clave" FromRole="plantas" ToRole="produccion_turnos" />
           <NavigationProperty Name="IT_site" Relationship="Portal_2_0Model.FK_id_planta" FromRole="plantas" ToRole="IT_site" />
           <NavigationProperty Name="IT_inventory_cellular_line" Relationship="Portal_2_0Model.FK_IT_inventory_cellular_line_id_planta" FromRole="plantas" ToRole="IT_inventory_cellular_line" />
+          <NavigationProperty Name="IT_inventory_items" Relationship="Portal_2_0Model.FK_IT_inventory_items_id_planta" FromRole="plantas" ToRole="IT_inventory_items" />
         </EntityType>
         <EntityType Name="PM_conceptos">
           <Key>
@@ -6751,18 +6707,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_IT_inventory_item_id_it_inventory_item">
-          <End Role="IT_inventory_items" Type="Self.IT_inventory_items" Multiplicity="0..1" />
-          <End Role="IT_asignacion_hardware_rel_items" Type="Self.IT_asignacion_hardware_rel_items" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="IT_inventory_items">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_asignacion_hardware_rel_items">
-              <PropertyRef Name="id_it_inventory_item" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_IT_asignacion_software_id_inventory_software">
           <End Role="IT_inventory_software" Type="Self.IT_inventory_software" Multiplicity="1" />
           <End Role="IT_asignacion_software" Type="Self.IT_asignacion_software" Multiplicity="*" />
@@ -6823,18 +6767,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_IT_inventory_item">
-          <End Role="IT_inventory_items" Type="Self.IT_inventory_items" Multiplicity="1" />
-          <End Role="IT_inventory_hard_drives" Type="Self.IT_inventory_hard_drives" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="IT_inventory_items">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_inventory_hard_drives">
-              <PropertyRef Name="id_inventory_item" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_IT_inventory_items_genericos_id_inventory_type">
           <End Role="IT_inventory_hardware_type" Type="Self.IT_inventory_hardware_type" Multiplicity="1" />
           <End Role="IT_inventory_items_genericos" Type="Self.IT_inventory_items_genericos" Multiplicity="*" />
@@ -6844,66 +6776,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Principal>
             <Dependent Role="IT_inventory_items_genericos">
               <PropertyRef Name="id_inventory_type" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_IT_inventory_items_id_inventory_type">
-          <End Role="IT_inventory_hardware_type" Type="Self.IT_inventory_hardware_type" Multiplicity="1" />
-          <End Role="IT_inventory_items" Type="Self.IT_inventory_items" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="IT_inventory_hardware_type">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_inventory_items">
-              <PropertyRef Name="id_inventory_type" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_IT_inventory_items_id_planta">
-          <End Role="plantas" Type="Self.plantas" Multiplicity="1" />
-          <End Role="IT_inventory_items" Type="Self.IT_inventory_items" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="plantas">
-              <PropertyRef Name="clave" />
-            </Principal>
-            <Dependent Role="IT_inventory_items">
-              <PropertyRef Name="id_planta" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_IT_mantenimientos_id_it_inventory_item">
-          <End Role="IT_inventory_items" Type="Self.IT_inventory_items" Multiplicity="1" />
-          <End Role="IT_mantenimientos" Type="Self.IT_mantenimientos" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="IT_inventory_items">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_mantenimientos">
-              <PropertyRef Name="id_it_inventory_item" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_notificaciones_id_tipo_accesorio">
-          <End Role="IT_inventory_tipos_accesorios" Type="Self.IT_inventory_tipos_accesorios" Multiplicity="0..1" />
-          <End Role="IT_inventory_items" Type="Self.IT_inventory_items" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="IT_inventory_tipos_accesorios">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_inventory_items">
-              <PropertyRef Name="id_tipo_accesorio" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_notificaciones_virtual_server">
-          <End Role="IT_inventory_items" Type="Self.IT_inventory_items" Multiplicity="0..1" />
-          <End Role="IT_inventory_items1" Type="Self.IT_inventory_items" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="IT_inventory_items">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_inventory_items1">
-              <PropertyRef Name="physical_server" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -7526,7 +7398,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySet Name="IT_inventory_cellular_plans" EntityType="Self.IT_inventory_cellular_plans" />
           <EntitySet Name="IT_inventory_hard_drives" EntityType="Self.IT_inventory_hard_drives" />
           <EntitySet Name="IT_inventory_hardware_type" EntityType="Self.IT_inventory_hardware_type" />
-          <EntitySet Name="IT_inventory_items" EntityType="Self.IT_inventory_items" />
           <EntitySet Name="IT_inventory_items_genericos" EntityType="Self.IT_inventory_items_genericos" />
           <EntitySet Name="IT_inventory_software" EntityType="Self.IT_inventory_software" />
           <EntitySet Name="IT_inventory_tipos_accesorios" EntityType="Self.IT_inventory_tipos_accesorios" />
@@ -7884,10 +7755,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="IT_inventory_items_genericos" EntitySet="IT_inventory_items_genericos" />
             <End Role="IT_asignacion_hardware_rel_items" EntitySet="IT_asignacion_hardware_rel_items" />
           </AssociationSet>
-          <AssociationSet Name="FK_IT_inventory_item_id_it_inventory_item" Association="Self.FK_IT_inventory_item_id_it_inventory_item">
-            <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
-            <End Role="IT_asignacion_hardware_rel_items" EntitySet="IT_asignacion_hardware_rel_items" />
-          </AssociationSet>
           <AssociationSet Name="FK_IT_asignacion_software_id_inventory_software" Association="Self.FK_IT_asignacion_software_id_inventory_software">
             <End Role="IT_inventory_software" EntitySet="IT_inventory_software" />
             <End Role="IT_asignacion_software" EntitySet="IT_asignacion_software" />
@@ -7908,33 +7775,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="IT_internet_tipo" EntitySet="IT_internet_tipo" />
             <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
           </AssociationSet>
-          <AssociationSet Name="FK_IT_inventory_item" Association="Self.FK_IT_inventory_item">
-            <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
-            <End Role="IT_inventory_hard_drives" EntitySet="IT_inventory_hard_drives" />
-          </AssociationSet>
           <AssociationSet Name="FK_IT_inventory_items_genericos_id_inventory_type" Association="Self.FK_IT_inventory_items_genericos_id_inventory_type">
             <End Role="IT_inventory_hardware_type" EntitySet="IT_inventory_hardware_type" />
             <End Role="IT_inventory_items_genericos" EntitySet="IT_inventory_items_genericos" />
-          </AssociationSet>
-          <AssociationSet Name="FK_IT_inventory_items_id_inventory_type" Association="Self.FK_IT_inventory_items_id_inventory_type">
-            <End Role="IT_inventory_hardware_type" EntitySet="IT_inventory_hardware_type" />
-            <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
-          </AssociationSet>
-          <AssociationSet Name="FK_IT_inventory_items_id_planta" Association="Self.FK_IT_inventory_items_id_planta">
-            <End Role="plantas" EntitySet="plantas" />
-            <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
-          </AssociationSet>
-          <AssociationSet Name="FK_IT_mantenimientos_id_it_inventory_item" Association="Self.FK_IT_mantenimientos_id_it_inventory_item">
-            <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
-            <End Role="IT_mantenimientos" EntitySet="IT_mantenimientos" />
-          </AssociationSet>
-          <AssociationSet Name="FK_notificaciones_id_tipo_accesorio" Association="Self.FK_notificaciones_id_tipo_accesorio">
-            <End Role="IT_inventory_tipos_accesorios" EntitySet="IT_inventory_tipos_accesorios" />
-            <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
-          </AssociationSet>
-          <AssociationSet Name="FK_notificaciones_virtual_server" Association="Self.FK_notificaciones_virtual_server">
-            <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
-            <End Role="IT_inventory_items1" EntitySet="IT_inventory_items" />
           </AssociationSet>
           <AssociationSet Name="FK_inventory_items_genericos_id_tipo_accesorio" Association="Self.FK_inventory_items_genericos_id_tipo_accesorio">
             <End Role="IT_inventory_tipos_accesorios" EntitySet="IT_inventory_tipos_accesorios" />
@@ -8227,13 +8070,42 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="empleados" EntitySet="empleados" />
             <End Role="IT_equipos_checklist" EntitySet="IT_equipos_checklist" />
           </AssociationSet>
+          <AssociationSet Name="FK_site_checklist_id_equipo_checklist" Association="Portal_2_0Model.FK_site_checklist_id_equipo_checklist">
+            <End Role="IT_equipos_checklist" EntitySet="IT_equipos_checklist" />
+            <End Role="IT_equipos_rel_checklist_actividades" EntitySet="IT_equipos_rel_checklist_actividades" />
+          </AssociationSet>
+          <EntitySet Name="IT_inventory_items" EntityType="Portal_2_0Model.IT_inventory_items" />
+          <AssociationSet Name="FK_IT_inventory_item_id_it_inventory_item" Association="Portal_2_0Model.FK_IT_inventory_item_id_it_inventory_item">
+            <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
+            <End Role="IT_asignacion_hardware_rel_items" EntitySet="IT_asignacion_hardware_rel_items" />
+          </AssociationSet>
           <AssociationSet Name="FK_equipos_checklist_id_inventory_item" Association="Portal_2_0Model.FK_equipos_checklist_id_inventory_item">
             <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
             <End Role="IT_equipos_checklist" EntitySet="IT_equipos_checklist" />
           </AssociationSet>
-          <AssociationSet Name="FK_site_checklist_id_equipo_checklist" Association="Portal_2_0Model.FK_site_checklist_id_equipo_checklist">
-            <End Role="IT_equipos_checklist" EntitySet="IT_equipos_checklist" />
-            <End Role="IT_equipos_rel_checklist_actividades" EntitySet="IT_equipos_rel_checklist_actividades" />
+          <AssociationSet Name="FK_IT_inventory_item" Association="Portal_2_0Model.FK_IT_inventory_item">
+            <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
+            <End Role="IT_inventory_hard_drives" EntitySet="IT_inventory_hard_drives" />
+          </AssociationSet>
+          <AssociationSet Name="FK_empleados_inventory_type" Association="Portal_2_0Model.FK_empleados_inventory_type">
+            <End Role="IT_inventory_hardware_type" EntitySet="IT_inventory_hardware_type" />
+            <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_inventory_items_id_planta" Association="Portal_2_0Model.FK_IT_inventory_items_id_planta">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_mantenimientos_id_it_inventory_item" Association="Portal_2_0Model.FK_IT_mantenimientos_id_it_inventory_item">
+            <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
+            <End Role="IT_mantenimientos" EntitySet="IT_mantenimientos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_notificaciones_id_tipo_accesorio" Association="Portal_2_0Model.FK_notificaciones_id_tipo_accesorio">
+            <End Role="IT_inventory_tipos_accesorios" EntitySet="IT_inventory_tipos_accesorios" />
+            <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
+          </AssociationSet>
+          <AssociationSet Name="FK_notificaciones_virtual_server" Association="Portal_2_0Model.FK_notificaciones_virtual_server">
+            <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
+            <End Role="IT_inventory_items1" EntitySet="IT_inventory_items" />
           </AssociationSet>
         </EntityContainer>
         <EntityType Name="GV_usuarios">
@@ -8636,8 +8508,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="fecha" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="estatus" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_equipos_checklist_id_sistemas" FromRole="IT_equipos_checklist" ToRole="empleados" />
-          <NavigationProperty Name="IT_inventory_items" Relationship="Portal_2_0Model.FK_equipos_checklist_id_inventory_item" FromRole="IT_equipos_checklist" ToRole="IT_inventory_items" />
           <NavigationProperty Name="IT_equipos_rel_checklist_actividades" Relationship="Portal_2_0Model.FK_site_checklist_id_equipo_checklist" FromRole="IT_equipos_checklist" ToRole="IT_equipos_rel_checklist_actividades" />
+          <NavigationProperty Name="IT_inventory_items" Relationship="Portal_2_0Model.FK_equipos_checklist_id_inventory_item" FromRole="IT_equipos_checklist" ToRole="IT_inventory_items" />
         </EntityType>
         <Association Name="FK_equipos_checklist_id_sistemas">
           <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
@@ -8648,6 +8520,78 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Principal>
             <Dependent Role="IT_equipos_checklist">
               <PropertyRef Name="id_sistemas" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_site_checklist_id_equipo_checklist">
+          <End Type="Portal_2_0Model.IT_equipos_checklist" Role="IT_equipos_checklist" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_equipos_rel_checklist_actividades" Role="IT_equipos_rel_checklist_actividades" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_equipos_checklist">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_equipos_rel_checklist_actividades">
+              <PropertyRef Name="id_equipo_checklist" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="IT_inventory_items">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_planta" Type="Int32" Nullable="false" />
+          <Property Name="id_inventory_type" Type="Int32" Nullable="false" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="purchase_date" Type="DateTime" Precision="3" />
+          <Property Name="inactive_date" Type="DateTime" Precision="3" />
+          <Property Name="comments" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="hostname" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="brand" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
+          <Property Name="model" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
+          <Property Name="serial_number" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="end_warranty" Type="DateTime" Precision="3" />
+          <Property Name="mac_lan" Type="String" MaxLength="17" FixedLength="false" Unicode="false" />
+          <Property Name="mac_wlan" Type="String" MaxLength="17" FixedLength="false" Unicode="false" />
+          <Property Name="processor" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="total_physical_memory_mb" Type="Decimal" Precision="8" Scale="2" />
+          <Property Name="maintenance_period_months" Type="Int32" />
+          <Property Name="cpu_speed_mhz" Type="Int32" />
+          <Property Name="operation_system" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="bits_operation_system" Type="Int32" />
+          <Property Name="number_of_cpus" Type="Int32" />
+          <Property Name="printer_ubication" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ip_adress" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="cost_center" Type="String" MaxLength="8" FixedLength="false" Unicode="false" />
+          <Property Name="movil_device_storage_mb" Type="Int32" />
+          <Property Name="inches" Type="Decimal" Precision="4" Scale="2" />
+          <Property Name="imei_1" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="imei_2" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="code" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="accessories" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="physical_server" Type="Int32" />
+          <Property Name="id_tipo_accesorio" Type="Int32" />
+          <Property Name="baja" Type="Boolean" Nullable="false" />
+          <Property Name="fecha_baja" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="IT_asignacion_hardware_rel_items" Relationship="Portal_2_0Model.FK_IT_inventory_item_id_it_inventory_item" FromRole="IT_inventory_items" ToRole="IT_asignacion_hardware_rel_items" />
+          <NavigationProperty Name="IT_equipos_checklist" Relationship="Portal_2_0Model.FK_equipos_checklist_id_inventory_item" FromRole="IT_inventory_items" ToRole="IT_equipos_checklist" />
+          <NavigationProperty Name="IT_inventory_hard_drives" Relationship="Portal_2_0Model.FK_IT_inventory_item" FromRole="IT_inventory_items" ToRole="IT_inventory_hard_drives" />
+          <NavigationProperty Name="IT_inventory_hardware_type" Relationship="Portal_2_0Model.FK_empleados_inventory_type" FromRole="IT_inventory_items" ToRole="IT_inventory_hardware_type" />
+          <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_IT_inventory_items_id_planta" FromRole="IT_inventory_items" ToRole="plantas" />
+          <NavigationProperty Name="IT_mantenimientos" Relationship="Portal_2_0Model.FK_IT_mantenimientos_id_it_inventory_item" FromRole="IT_inventory_items" ToRole="IT_mantenimientos" />
+          <NavigationProperty Name="IT_inventory_tipos_accesorios" Relationship="Portal_2_0Model.FK_notificaciones_id_tipo_accesorio" FromRole="IT_inventory_items" ToRole="IT_inventory_tipos_accesorios" />
+          <NavigationProperty Name="IT_inventory_items1" Relationship="Portal_2_0Model.FK_notificaciones_virtual_server" FromRole="IT_inventory_items" ToRole="IT_inventory_items1" />
+          <NavigationProperty Name="IT_inventory_items2" Relationship="Portal_2_0Model.FK_notificaciones_virtual_server" FromRole="IT_inventory_items1" ToRole="IT_inventory_items" />
+        </EntityType>
+        <Association Name="FK_IT_inventory_item_id_it_inventory_item">
+          <End Type="Portal_2_0Model.IT_inventory_items" Role="IT_inventory_items" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.IT_asignacion_hardware_rel_items" Role="IT_asignacion_hardware_rel_items" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_inventory_items">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_asignacion_hardware_rel_items">
+              <PropertyRef Name="id_it_inventory_item" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -8663,15 +8607,75 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_site_checklist_id_equipo_checklist">
-          <End Type="Portal_2_0Model.IT_equipos_checklist" Role="IT_equipos_checklist" Multiplicity="1" />
-          <End Type="Portal_2_0Model.IT_equipos_rel_checklist_actividades" Role="IT_equipos_rel_checklist_actividades" Multiplicity="*" />
+        <Association Name="FK_IT_inventory_item">
+          <End Type="Portal_2_0Model.IT_inventory_items" Role="IT_inventory_items" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_inventory_hard_drives" Role="IT_inventory_hard_drives" Multiplicity="*" />
           <ReferentialConstraint>
-            <Principal Role="IT_equipos_checklist">
+            <Principal Role="IT_inventory_items">
               <PropertyRef Name="id" />
             </Principal>
-            <Dependent Role="IT_equipos_rel_checklist_actividades">
-              <PropertyRef Name="id_equipo_checklist" />
+            <Dependent Role="IT_inventory_hard_drives">
+              <PropertyRef Name="id_inventory_item" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_empleados_inventory_type">
+          <End Type="Portal_2_0Model.IT_inventory_hardware_type" Role="IT_inventory_hardware_type" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_inventory_items" Role="IT_inventory_items" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_inventory_hardware_type">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_inventory_items">
+              <PropertyRef Name="id_inventory_type" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_inventory_items_id_planta">
+          <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_inventory_items" Role="IT_inventory_items" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="IT_inventory_items">
+              <PropertyRef Name="id_planta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_mantenimientos_id_it_inventory_item">
+          <End Type="Portal_2_0Model.IT_inventory_items" Role="IT_inventory_items" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_mantenimientos" Role="IT_mantenimientos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_inventory_items">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_mantenimientos">
+              <PropertyRef Name="id_it_inventory_item" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_notificaciones_id_tipo_accesorio">
+          <End Type="Portal_2_0Model.IT_inventory_tipos_accesorios" Role="IT_inventory_tipos_accesorios" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.IT_inventory_items" Role="IT_inventory_items" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_inventory_tipos_accesorios">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_inventory_items">
+              <PropertyRef Name="id_tipo_accesorio" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_notificaciones_virtual_server">
+          <End Type="Portal_2_0Model.IT_inventory_items" Role="IT_inventory_items" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.IT_inventory_items" Role="IT_inventory_items1" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_inventory_items">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_inventory_items1">
+              <PropertyRef Name="physical_server" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -9127,44 +9131,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
                 <ScalarProperty Name="descripcion" ColumnName="descripcion" />
                 <ScalarProperty Name="activo" ColumnName="activo" />
                 <ScalarProperty Name="puede_asignarse" ColumnName="puede_asignarse" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="IT_inventory_items">
-            <EntityTypeMapping TypeName="Portal_2_0Model.IT_inventory_items">
-              <MappingFragment StoreEntitySet="IT_inventory_items">
-                <ScalarProperty Name="id" ColumnName="id" />
-                <ScalarProperty Name="id_planta" ColumnName="id_planta" />
-                <ScalarProperty Name="id_inventory_type" ColumnName="id_inventory_type" />
-                <ScalarProperty Name="active" ColumnName="active" />
-                <ScalarProperty Name="purchase_date" ColumnName="purchase_date" />
-                <ScalarProperty Name="inactive_date" ColumnName="inactive_date" />
-                <ScalarProperty Name="comments" ColumnName="comments" />
-                <ScalarProperty Name="hostname" ColumnName="hostname" />
-                <ScalarProperty Name="brand" ColumnName="brand" />
-                <ScalarProperty Name="model" ColumnName="model" />
-                <ScalarProperty Name="serial_number" ColumnName="serial_number" />
-                <ScalarProperty Name="end_warranty" ColumnName="end_warranty" />
-                <ScalarProperty Name="mac_lan" ColumnName="mac_lan" />
-                <ScalarProperty Name="mac_wlan" ColumnName="mac_wlan" />
-                <ScalarProperty Name="processor" ColumnName="processor" />
-                <ScalarProperty Name="total_physical_memory_mb" ColumnName="total_physical_memory_mb" />
-                <ScalarProperty Name="maintenance_period_months" ColumnName="maintenance_period_months" />
-                <ScalarProperty Name="cpu_speed_mhz" ColumnName="cpu_speed_mhz" />
-                <ScalarProperty Name="operation_system" ColumnName="operation_system" />
-                <ScalarProperty Name="bits_operation_system" ColumnName="bits_operation_system" />
-                <ScalarProperty Name="number_of_cpus" ColumnName="number_of_cpus" />
-                <ScalarProperty Name="printer_ubication" ColumnName="printer_ubication" />
-                <ScalarProperty Name="ip_adress" ColumnName="ip_adress" />
-                <ScalarProperty Name="cost_center" ColumnName="cost_center" />
-                <ScalarProperty Name="movil_device_storage_mb" ColumnName="movil_device_storage_mb" />
-                <ScalarProperty Name="inches" ColumnName="inches" />
-                <ScalarProperty Name="imei_1" ColumnName="imei_1" />
-                <ScalarProperty Name="imei_2" ColumnName="imei_2" />
-                <ScalarProperty Name="code" ColumnName="code" />
-                <ScalarProperty Name="accessories" ColumnName="accessories" />
-                <ScalarProperty Name="physical_server" ColumnName="physical_server" />
-                <ScalarProperty Name="id_tipo_accesorio" ColumnName="id_tipo_accesorio" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -10223,6 +10189,46 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
                 <ScalarProperty Name="comentario_general" ColumnName="comentario_general" />
                 <ScalarProperty Name="id_inventory_item" ColumnName="id_inventory_item" />
                 <ScalarProperty Name="id_sistemas" ColumnName="id_sistemas" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IT_inventory_items">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_inventory_items">
+              <MappingFragment StoreEntitySet="IT_inventory_items">
+                <ScalarProperty Name="fecha_baja" ColumnName="fecha_baja" />
+                <ScalarProperty Name="baja" ColumnName="baja" />
+                <ScalarProperty Name="id_tipo_accesorio" ColumnName="id_tipo_accesorio" />
+                <ScalarProperty Name="physical_server" ColumnName="physical_server" />
+                <ScalarProperty Name="accessories" ColumnName="accessories" />
+                <ScalarProperty Name="code" ColumnName="code" />
+                <ScalarProperty Name="imei_2" ColumnName="imei_2" />
+                <ScalarProperty Name="imei_1" ColumnName="imei_1" />
+                <ScalarProperty Name="inches" ColumnName="inches" />
+                <ScalarProperty Name="movil_device_storage_mb" ColumnName="movil_device_storage_mb" />
+                <ScalarProperty Name="cost_center" ColumnName="cost_center" />
+                <ScalarProperty Name="ip_adress" ColumnName="ip_adress" />
+                <ScalarProperty Name="printer_ubication" ColumnName="printer_ubication" />
+                <ScalarProperty Name="number_of_cpus" ColumnName="number_of_cpus" />
+                <ScalarProperty Name="bits_operation_system" ColumnName="bits_operation_system" />
+                <ScalarProperty Name="operation_system" ColumnName="operation_system" />
+                <ScalarProperty Name="cpu_speed_mhz" ColumnName="cpu_speed_mhz" />
+                <ScalarProperty Name="maintenance_period_months" ColumnName="maintenance_period_months" />
+                <ScalarProperty Name="total_physical_memory_mb" ColumnName="total_physical_memory_mb" />
+                <ScalarProperty Name="processor" ColumnName="processor" />
+                <ScalarProperty Name="mac_wlan" ColumnName="mac_wlan" />
+                <ScalarProperty Name="mac_lan" ColumnName="mac_lan" />
+                <ScalarProperty Name="end_warranty" ColumnName="end_warranty" />
+                <ScalarProperty Name="serial_number" ColumnName="serial_number" />
+                <ScalarProperty Name="model" ColumnName="model" />
+                <ScalarProperty Name="brand" ColumnName="brand" />
+                <ScalarProperty Name="hostname" ColumnName="hostname" />
+                <ScalarProperty Name="comments" ColumnName="comments" />
+                <ScalarProperty Name="inactive_date" ColumnName="inactive_date" />
+                <ScalarProperty Name="purchase_date" ColumnName="purchase_date" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="id_inventory_type" ColumnName="id_inventory_type" />
+                <ScalarProperty Name="id_planta" ColumnName="id_planta" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
