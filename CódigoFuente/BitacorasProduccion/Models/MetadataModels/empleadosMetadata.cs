@@ -89,6 +89,12 @@ namespace Portal_2_0.Models
         [Required]
         [Display(Name = "Jefe Directo")]
         public Nullable<int> id_jefe_directo { get; set; }
+
+        [Display(Name = "Fotografía")]
+        public Nullable<int> id_fotografia { get; set; }
+
+        [Display(Name = "Mostrar Teléfono")]
+        public bool mostrar_telefono { get; set; }
     }
 
     [MetadataType(typeof(empleadosMetadata))]
@@ -111,7 +117,7 @@ namespace Portal_2_0.Models
             get
             {
                 if (String.IsNullOrEmpty(this.numeroEmpleado))
-                    return string.Format("{0} {1} {2}",  nombre, apellido1, apellido2).ToUpper();
+                    return string.Format("{0} {1} {2}", nombre, apellido1, apellido2).ToUpper();
                 else
                     return string.Format("({0}) {1} {2} {3}", numeroEmpleado, nombre, apellido1, apellido2).ToUpper();
             }
@@ -121,7 +127,8 @@ namespace Portal_2_0.Models
         /// Obtiene todas las lineas activas para un empleado según sus asignaciones
         /// </summary>
         /// <returns></returns>
-        public List<IT_inventory_cellular_line> GetIT_Inventory_Cellular_LinesActivas() {
+        public List<IT_inventory_cellular_line> GetIT_Inventory_Cellular_LinesActivas()
+        {
             List<IT_inventory_cellular_line> lineas = new List<IT_inventory_cellular_line>();
 
             using (var db = new Portal_2_0Entities())
@@ -139,5 +146,19 @@ namespace Portal_2_0.Models
 
             return lineas;
         }
+
+        public string ImageToBase64()
+        {
+            string result = string.Empty;
+
+            //string imageBase64 = Convert.ToBase64String(Models.Foto);
+            //string imgSrc = string.Format("data:image/gif;base64,{0}", imageBase64);
+
+
+            return result;
+        }
+
+        [NotMapped]
+        public HttpPostedFileBase ArchivoImagen { get; set; }
     }
 }

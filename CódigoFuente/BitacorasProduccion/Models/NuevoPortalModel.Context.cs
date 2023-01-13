@@ -43,7 +43,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<budget_responsables> budget_responsables { get; set; }
         public virtual DbSet<class_v3> class_v3 { get; set; }
         public virtual DbSet<currency> currency { get; set; }
-        public virtual DbSet<empleados> empleados { get; set; }
         public virtual DbSet<GV_medios_transporte> GV_medios_transporte { get; set; }
         public virtual DbSet<GV_rel_gastos_solicitud> GV_rel_gastos_solicitud { get; set; }
         public virtual DbSet<GV_tipo_gastos_viaje> GV_tipo_gastos_viaje { get; set; }
@@ -136,5 +135,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_equipos_rel_checklist_actividades> IT_equipos_rel_checklist_actividades { get; set; }
         public virtual DbSet<IT_inventory_cellular_line> IT_inventory_cellular_line { get; set; }
         public virtual DbSet<IT_equipos_checklist> IT_equipos_checklist { get; set; }
+        public virtual DbSet<empleados> empleados { get; set; }
     }
 }

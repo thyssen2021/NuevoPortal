@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -143,6 +144,57 @@ namespace Portal_2_0.Controllers
             if (!String.IsNullOrEmpty(collection["puesto"]))
                 Int32.TryParse(collection["puesto"].ToString(), out c_puesto);
 
+            //valida el archivo de imagen
+            if (empleados.ArchivoImagen != null)
+            {
+
+                //valida el tamaño del archivo
+                if (empleados.ArchivoImagen.InputStream.Length > (1048576 * 4))
+                    ModelState.AddModelError("", "Sólo se permiten archivos menores a 4MB");
+                else
+                {
+                    //valida que la extensión del archivo sea válida
+                    string extension = Path.GetExtension(empleados.ArchivoImagen.FileName);
+                    if (extension.ToUpper() != ".PNG"   //si no contiene una extensión válida
+                        && extension.ToUpper() != ".JPEG"
+                        && extension.ToUpper() != ".JPG"
+                        && extension.ToUpper() != ".GIF"
+                        && extension.ToUpper() != ".BMP"
+                        )
+                    {
+                        ModelState.AddModelError("", "Sólo se permiten archivos con extensión .png, .jpeg, .jpg, .gif, .bmp");
+                    }
+                    else
+                    {
+                        //La extensión y el tamaño son válidos
+                        String nombreArchivo = empleados.ArchivoImagen.FileName;
+
+                        //recorta el nombre del archivo en caso de ser necesario
+                        if (nombreArchivo.Length > 80)
+                        {
+                            nombreArchivo = nombreArchivo.Substring(0, 78 - extension.Length) + extension;
+                        }
+
+                        //lee el archivo en un arreglo de bytes
+                        byte[] fileData = null;
+                        using (var binaryReader = new BinaryReader(empleados.ArchivoImagen.InputStream))
+                        {
+                            fileData = binaryReader.ReadBytes(empleados.ArchivoImagen.ContentLength);
+                        }
+
+                        //genera el archivo de biblioce digital
+                        empleados.biblioteca_digital = new biblioteca_digital
+                        {
+                            Nombre = nombreArchivo,
+                            MimeType = UsoStrings.RecortaString(empleados.ArchivoImagen.ContentType, 80),
+                            Datos = fileData
+                        };
+
+                    }
+                }
+
+            }
+
             if (ModelState.IsValid)
             {
                 //busca si ya existe un empleado con ese numero de empleado
@@ -159,6 +211,7 @@ namespace Portal_2_0.Controllers
                     {
 
                         empleados.activo = true;
+                        empleados.mostrar_telefono = true;
                         //convierte a mayúsculas
                         empleados.nombre = empleados.nombre.ToUpper();
                         empleados.apellido1 = empleados.apellido1.ToUpper();
@@ -270,6 +323,95 @@ namespace Portal_2_0.Controllers
             if (!String.IsNullOrEmpty(collection["puesto"]))
                 Int32.TryParse(collection["puesto"].ToString(), out c_puesto);
 
+            //valida el archivo de imagen
+            if (empleados.ArchivoImagen != null)        //se remplaza o se sube nuevo
+            {
+                //valida el tamaño del archivo
+                if (empleados.ArchivoImagen.InputStream.Length > (1048576 * 4))
+                    ModelState.AddModelError("", "Sólo se permiten archivos menores a 4MB");
+                else
+                {
+                    //valida que la extensión del archivo sea válida
+                    string extension = Path.GetExtension(empleados.ArchivoImagen.FileName);
+                    if (extension.ToUpper() != ".PNG"   //si no contiene una extensión válida
+                        && extension.ToUpper() != ".JPEG"
+                        && extension.ToUpper() != ".JPG"
+                        && extension.ToUpper() != ".GIF"
+                        && extension.ToUpper() != ".BMP"
+                        )
+                    {
+                        ModelState.AddModelError("", "Sólo se permiten archivos con extensión .png, .jpeg, .jpg, .gif, .bmp");
+                    }
+                    else
+                    {
+                        //La extensión y el tamaño son válidos
+                        String nombreArchivo = empleados.ArchivoImagen.FileName;
+
+                        //recorta el nombre del archivo en caso de ser necesario
+                        if (nombreArchivo.Length > 80)
+                        {
+                            nombreArchivo = nombreArchivo.Substring(0, 78 - extension.Length) + extension;
+                        }
+
+                        //lee el archivo en un arreglo de bytes
+                        byte[] fileData = null;
+                        using (var binaryReader = new BinaryReader(empleados.ArchivoImagen.InputStream))
+                        {
+                            fileData = binaryReader.ReadBytes(empleados.ArchivoImagen.ContentLength);
+                        }
+
+                        //se reemplaza el ya existente
+                        if (empleados.id_fotografia.HasValue)
+                        {
+                            //modifica los valores del archivo anterior
+                            var archivoAnteriorBD = db.biblioteca_digital.Find(empleados.id_fotografia.Value);
+                            archivoAnteriorBD.Nombre = nombreArchivo;
+                            archivoAnteriorBD.MimeType = UsoStrings.RecortaString(empleados.ArchivoImagen.ContentType, 80);
+                            archivoAnteriorBD.Datos = fileData;
+                        }
+                        //se crea nuevo archivo
+                        else
+                        {
+                            //genera el archivo de biblioce digital
+                             var archivo = new biblioteca_digital
+                            {
+                                Nombre = nombreArchivo,
+                                MimeType = UsoStrings.RecortaString(empleados.ArchivoImagen.ContentType, 80),
+                                Datos = fileData
+                            };
+                            //guarda el archivo en la BD
+                            try
+                            {
+                                db.biblioteca_digital.Add(archivo);
+                                db.SaveChanges();
+                                empleados.id_fotografia = archivo.Id;
+                            }
+                            catch (Exception ex)
+                            {
+                                ModelState.AddModelError("", "Error al guardar en BD_ " + ex.Message);
+                            }
+
+                            
+                        }
+
+
+
+                    }
+                }
+            }
+            //en caso de que no se haya enviado archivo lo elimina de la BD
+            else
+            {
+                //elimina el archivo en caso de existir
+                if (empleados.id_fotografia.HasValue)
+                {                  
+                    var archivoAnteriorBD = db.biblioteca_digital.Find(empleados.id_fotografia.Value);
+                    db.biblioteca_digital.Remove(archivoAnteriorBD);
+
+                    empleados.id_fotografia = null;
+                }
+            }
+
             if (ModelState.IsValid)
             {
                 //busca si ya existe un empleado con ese numero de empleado
@@ -307,7 +449,14 @@ namespace Portal_2_0.Controllers
 
                         db.Entry(empleados).State = EntityState.Modified;
 
-                        db.SaveChanges();
+                        try
+                        {
+                            db.SaveChanges();
+                        }
+                        catch (Exception ex)
+                        {
+                            ModelState.AddModelError("", "Error al guardar en BD_ " + ex.Message);
+                        }
                         TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
                         return RedirectToAction("Index");
                     }

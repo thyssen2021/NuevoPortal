@@ -27,11 +27,11 @@ namespace Portal_2_0.Models
         public Nullable<int> id_departamento_validacion { get; set; }
         public bool activo { get; set; }
     
-        public virtual empleados empleados { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PM_departamentos> PM_departamentos1 { get; set; }
         public virtual PM_departamentos PM_departamentos2 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PM_usuarios_capturistas> PM_usuarios_capturistas { get; set; }
+        public virtual empleados empleados { get; set; }
     }
 }

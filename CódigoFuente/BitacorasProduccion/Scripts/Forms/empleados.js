@@ -1,5 +1,15 @@
 ﻿$(document).ready(function () {
 
+
+    //inicializa en input file
+    bsCustomFileInput.init()
+
+
+    //aumenta en uso cada vez que se hace un cambio en el archivo de soporte
+    $("#ArchivoImagen").on("change", function () {
+        document.getElementById('cambio_documento_soporte').value = ++documento_soporte_cambios;
+    });
+
        //carga los valores cuando se cambia la planta
     $("#planta_clave").change(function () {
         //obtiene las areas
@@ -47,6 +57,31 @@
     seleccionaValoresDefault();
 
 });
+
+
+//variable para saber si ha cambiado el formulario y asi no se detenga por doble submit
+var documento_soporte_cambios = 1;
+
+//muestra el formulario de carga de archivo
+function muestraFileInput() {
+    $("#div_document_support").fadeOut(500, function () {
+        $("#ArchivoImagen").val('');
+    });
+    $("#div_document_support_2").fadeIn(500);
+
+    document.getElementById('cambio_documento_soporte').value = ++documento_soporte_cambios;
+}
+
+//oculta el formulario de carga de archivo
+function ocultaFileInput() {
+    $("#div_document_support").fadeIn(700, function () {
+        $("#ArchivoImagen").val('');
+    });
+    $("#div_document_support_2").fadeOut(700);
+
+    document.getElementById('cambio_documento_soporte').value = ++documento_soporte_cambios;
+}
+
 
 //completa el selec con los datos recibidos
 function populateDropdown(select, data) {

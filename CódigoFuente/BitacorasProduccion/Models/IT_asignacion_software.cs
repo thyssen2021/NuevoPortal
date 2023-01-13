@@ -20,8 +20,8 @@ namespace Portal_2_0.Models
         public int id_empleado { get; set; }
         public string usuario { get; set; }
     
+        public virtual IT_inventory_software IT_inventory_software { get; set; }
         public virtual empleados empleados { get; set; }
         public virtual empleados empleados1 { get; set; }
-        public virtual IT_inventory_software IT_inventory_software { get; set; }
     }
 }

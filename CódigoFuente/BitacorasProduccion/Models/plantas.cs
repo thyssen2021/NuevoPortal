@@ -18,7 +18,6 @@ namespace Portal_2_0.Models
         public plantas()
         {
             this.Area = new HashSet<Area>();
-            this.empleados = new HashSet<empleados>();
             this.IATF_documentos = new HashSet<IATF_documentos>();
             this.IT_inventory_items = new HashSet<IT_inventory_items>();
             this.IT_solicitud_usuarios = new HashSet<IT_solicitud_usuarios>();
@@ -30,6 +29,7 @@ namespace Portal_2_0.Models
             this.produccion_turnos = new HashSet<produccion_turnos>();
             this.IT_site = new HashSet<IT_site>();
             this.IT_inventory_cellular_line = new HashSet<IT_inventory_cellular_line>();
+            this.empleados = new HashSet<empleados>();
         }
     
         public int clave { get; set; }
@@ -39,8 +39,6 @@ namespace Portal_2_0.Models
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Area> Area { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<empleados> empleados { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IATF_documentos> IATF_documentos { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -63,5 +61,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<IT_site> IT_site { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_inventory_cellular_line> IT_inventory_cellular_line { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<empleados> empleados { get; set; }
     }
 }

@@ -17,10 +17,10 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Area()
         {
-            this.empleados = new HashSet<empleados>();
             this.orden_trabajo = new HashSet<orden_trabajo>();
             this.OT_rel_depto_aplica_linea = new HashSet<OT_rel_depto_aplica_linea>();
             this.puesto = new HashSet<puesto>();
+            this.empleados = new HashSet<empleados>();
         }
     
         public int clave { get; set; }
@@ -31,12 +31,12 @@ namespace Portal_2_0.Models
     
         public virtual plantas plantas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<empleados> empleados { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<orden_trabajo> orden_trabajo { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<OT_rel_depto_aplica_linea> OT_rel_depto_aplica_linea { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<puesto> puesto { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<empleados> empleados { get; set; }
     }
 }

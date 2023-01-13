@@ -19,7 +19,7 @@ namespace Portal_2_0.Models
         public int id_departamento { get; set; }
         public bool activo { get; set; }
     
-        public virtual empleados empleados { get; set; }
         public virtual PM_departamentos PM_departamentos { get; set; }
+        public virtual empleados empleados { get; set; }
     }
 }

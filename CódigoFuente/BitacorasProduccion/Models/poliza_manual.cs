@@ -45,14 +45,14 @@ namespace Portal_2_0.Models
         public virtual biblioteca_digital biblioteca_digital { get; set; }
         public virtual biblioteca_digital biblioteca_digital1 { get; set; }
         public virtual currency currency { get; set; }
+        public virtual plantas plantas { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<PM_conceptos> PM_conceptos { get; set; }
+        public virtual PM_tipo_poliza PM_tipo_poliza { get; set; }
         public virtual empleados empleados { get; set; }
         public virtual empleados empleados1 { get; set; }
         public virtual empleados empleados2 { get; set; }
         public virtual empleados empleados3 { get; set; }
         public virtual empleados empleados4 { get; set; }
-        public virtual plantas plantas { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<PM_conceptos> PM_conceptos { get; set; }
-        public virtual PM_tipo_poliza PM_tipo_poliza { get; set; }
     }
 }

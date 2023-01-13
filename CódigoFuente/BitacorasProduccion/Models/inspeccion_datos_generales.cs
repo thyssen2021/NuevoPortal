@@ -18,7 +18,7 @@ namespace Portal_2_0.Models
         public int id_empleado_inspector { get; set; }
         public string comentarios { get; set; }
     
-        public virtual empleados empleados { get; set; }
         public virtual produccion_registros produccion_registros { get; set; }
+        public virtual empleados empleados { get; set; }
     }
 }

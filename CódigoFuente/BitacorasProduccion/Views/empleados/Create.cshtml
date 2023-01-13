@@ -31,11 +31,6 @@
 
 <div class="right_col" role="main">
     <div class="">
-        <div class="page-title">
-            <div class="title_left">
-                <h3>@ViewBag.ControllerName</h3>
-            </div>
-        </div>
 
         <div class="clearfix"></div>
 
@@ -48,7 +43,7 @@
                     </div>
                     <div class="x_content">
                         <br />
-                        @using (Html.BeginForm("Create", "Empleados", FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                        @using (Html.BeginForm("Create", "Empleados", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal form-label-left" }))
                         {
                             @Html.AntiForgeryToken()
                             <h4>Datos del Empleado</h4>
@@ -59,7 +54,8 @@
                                     @Html.ValidationSummary("", new { @class = "text-white" })
                                 </div>
                             }
-
+                            @* input para saber si está o no activo el campo de soporte *@
+                            <input type="hidden" name="cambio_documento_soporte" id="cambio_documento_soporte" value="0" />
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.numeroEmpleado, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                 <div class="col-md-6 col-sm-6 ">
@@ -109,27 +105,27 @@
                                     @Html.ValidationMessageFor(model => model.nueva_fecha_nacimiento, "", new { @class = "text-danger" })
                                 </div>
                             </div>
-                            <div class="item form-group">
-                                @Html.LabelFor(model => model.telefono, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
-                                <div class="col-md-6 col-sm-6 ">
-                                    @Html.EditorFor(model => model.telefono, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                                    @Html.ValidationMessageFor(model => model.telefono, "", new { @class = "text-danger" })
-                                </div>
-                            </div>
-                            <div class="item form-group">
-                                @Html.LabelFor(model => model.extension, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
-                                <div class="col-md-6 col-sm-6 ">
-                                    @Html.EditorFor(model => model.extension, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                                    @Html.ValidationMessageFor(model => model.extension, "", new { @class = "text-danger" })
-                                </div>
-                            </div>
-                            <div class="item form-group">
-                                @Html.LabelFor(model => model.celular, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
-                                <div class="col-md-6 col-sm-6 ">
-                                    @Html.EditorFor(model => model.celular, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                                    @Html.ValidationMessageFor(model => model.celular, "", new { @class = "text-danger" })
-                                </div>
-                            </div>
+                            @*<div class="item form-group">
+                @Html.LabelFor(model => model.telefono, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                <div class="col-md-6 col-sm-6 ">
+                    @Html.EditorFor(model => model.telefono, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                    @Html.ValidationMessageFor(model => model.telefono, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="item form-group">
+                @Html.LabelFor(model => model.extension, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                <div class="col-md-6 col-sm-6 ">
+                    @Html.EditorFor(model => model.extension, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                    @Html.ValidationMessageFor(model => model.extension, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="item form-group">
+                @Html.LabelFor(model => model.celular, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                <div class="col-md-6 col-sm-6 ">
+                    @Html.EditorFor(model => model.celular, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                    @Html.ValidationMessageFor(model => model.celular, "", new { @class = "text-danger" })
+                </div>
+            </div>*@
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.ingresoFecha, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                 <div class="col-md-6 col-sm-6 ">
@@ -176,6 +172,19 @@
                                 </div>
                             </div>
 
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id_fotografia, htmlAttributes: new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            @Html.TextBoxFor(m => m.ArchivoImagen, new { @class = "custom-file-input", type = "file", @accept = ".png, .jpeg, .jpg, .gif, .bmp" })
+                                            <label class="custom-file-label" for="@Html.IdFor(model => model.ArchivoImagen)" style="text-align:left">Seleccione un archivo...</label>
+                                        </div>
+                                    </div>
+                                    @Html.ValidationMessageFor(m => m.ArchivoImagen, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
                             <div class="ln_solid"></div>
                             <div class="item form-group">
                                 <div class="col-md-6 col-sm-6 offset-md-3">
@@ -200,6 +209,8 @@
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
-    @Scripts.Render(Url.Content("~/Scripts/Forms/empleados.js"))
+    @Scripts.Render(Url.Content("~/Scripts/Forms/empleados.js?" + DateTime.Now))
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+}
 }
 

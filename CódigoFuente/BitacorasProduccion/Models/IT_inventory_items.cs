@@ -56,6 +56,8 @@ namespace Portal_2_0.Models
         public string accessories { get; set; }
         public Nullable<int> physical_server { get; set; }
         public Nullable<int> id_tipo_accesorio { get; set; }
+        public bool baja { get; set; }
+        public Nullable<System.DateTime> fecha_baja { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_asignacion_hardware_rel_items> IT_asignacion_hardware_rel_items { get; set; }
