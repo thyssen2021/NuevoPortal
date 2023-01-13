@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.IO;
 using System.Linq;
 using System.Web;
 
@@ -151,9 +152,10 @@ namespace Portal_2_0.Models
         {
             string result = string.Empty;
 
-            //string imageBase64 = Convert.ToBase64String(Models.Foto);
-            //string imgSrc = string.Format("data:image/gif;base64,{0}", imageBase64);
-
+            if (this.biblioteca_digital!=null) {
+                string imageBase64 = Convert.ToBase64String(this.biblioteca_digital.Datos);
+                result = string.Format("data:image/"+ (Path.GetExtension(biblioteca_digital.Nombre).Replace(".","")) + ";base64,{0}", imageBase64);
+            }
 
             return result;
         }

@@ -30,6 +30,12 @@
     <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
 
+    <style>
+        .profile-picture {
+            width: 170px !important;
+            height: 170px !important;
+        }
+    </style>
 }
 
 @*Para SweetAlert*@
@@ -144,7 +150,15 @@
                                                         </ul>
                                                     </div>
                                                     <div class="right col-sm-5 text-center">
-                                                        <img src="/Content/images/user.png" alt="" class="img-circle img-fluid">
+                                                        @if (empleado.id_fotografia.HasValue)
+                                                        {
+                                                            <img src="@empleado.ImageToBase64()" alt="" class=" profile-picture img-circle img-fluid" >
+                                                        }
+                                                        else
+                                                        {
+                                                            <img src="/Content/images/user.png" alt="" class="img-circle img-fluid">
+                                                        }
+
                                                     </div>
                                                 </div>
                                                 <div class=" bottom text-right">
