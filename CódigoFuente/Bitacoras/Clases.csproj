@@ -45,6 +45,7 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
     <Reference Include="System.Xml.Linq" />
@@ -65,6 +66,7 @@
     <Compile Include="Util\DocumentosProcesos.cs" />
     <Compile Include="Util\GV_solicitud_estatus.cs" />
     <Compile Include="Util\GV_tipo_departamento.cs" />
+    <Compile Include="Util\ImageUtil.cs" />
     <Compile Include="Util\IT_equipos_actividad_estatus.cs" />
     <Compile Include="Util\IT_equipos_checklist_estatus.cs" />
     <Compile Include="Util\IT_matenimiento_Estatus.cs" />

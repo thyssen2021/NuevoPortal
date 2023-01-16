@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Web;
@@ -154,6 +155,24 @@ namespace Portal_2_0.Models
 
             if (this.biblioteca_digital!=null) {
                 string imageBase64 = Convert.ToBase64String(this.biblioteca_digital.Datos);
+                result = string.Format("data:image/"+ (Path.GetExtension(biblioteca_digital.Nombre).Replace(".","")) + ";base64,{0}", imageBase64);
+            }
+
+            return result;
+        }
+        public string ImageToBase64(int newWidth, int newHeight)
+        {
+            string result = string.Empty;
+
+            if (this.biblioteca_digital!=null) {
+                //convirte los datos a un tipo Image
+                Image imagen = Image.FromStream(new MemoryStream(this.biblioteca_digital.Datos));
+
+                byte[] newData =Bitacoras.Util.ImageUtil.ResizeImage(imagen, newWidth, newHeight);
+                
+                string imageBase64 = Convert.ToBase64String(newData);
+
+
                 result = string.Format("data:image/"+ (Path.GetExtension(biblioteca_digital.Nombre).Replace(".","")) + ";base64,{0}", imageBase64);
             }
 

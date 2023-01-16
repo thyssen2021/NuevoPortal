@@ -97,6 +97,9 @@ namespace Portal_2_0.Controllers
                 {
                     return View("../Error/NotFound");
                 }
+                ViewBag.PrimerNivel = "recursos_humanos";
+                ViewBag.SegundoNivel = "empleados";
+                ViewBag.ControllerName = "Empleados";
                 return View(empleados);
             }
             else

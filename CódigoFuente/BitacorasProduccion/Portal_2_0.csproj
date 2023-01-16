@@ -310,6 +310,7 @@
     <Compile Include="Controllers\IT_equipos_checklistController.cs" />
     <Compile Include="Controllers\IT_equipos_checklist_actividadesController.cs" />
     <Compile Include="Controllers\IT_equipos_checklist_categoriasController.cs" />
+    <Compile Include="Controllers\IT_extensionesController.cs" />
     <Compile Include="Controllers\IT_hardware_tipoController.cs" />
     <Compile Include="Controllers\IT_internet_tipoController.cs" />
     <Compile Include="Controllers\IT_inventory_cellular_lineController.cs" />
@@ -7287,6 +7288,9 @@
     <Content Include="Views\IT_equipos_checklist_actividades\Disable.cshtml" />
     <Content Include="Views\IT_equipos_checklist_actividades\Enable.cshtml" />
     <Content Include="Views\Contacts\Index.cshtml" />
+    <Content Include="Views\IT_extensiones\Index.cshtml" />
+    <Content Include="Views\IT_extensiones\Details.cshtml" />
+    <Content Include="Views\IT_extensiones\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
