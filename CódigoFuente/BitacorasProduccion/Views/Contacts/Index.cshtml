@@ -125,6 +125,7 @@
 
                                 @foreach (var empleado in Model)
                                 {
+                                    string telefono = string.Empty;
                                     <div class="col-md-4 col-sm-6">
                                         <div class="x_panel table-responsive" style="height: 350px; background-color: #f9f9ff">
                                             <div class="x_title" style="background-color:#0094ff">
@@ -142,17 +143,27 @@
                                                             <li><i class="fa fa-building"></i> <strong>Departamento: </strong>  @Html.DisplayFor(model => empleado.Area.descripcion) </li>
                                                             <li><i class="fa fa-briefcase"></i> <strong>Puesto: </strong>  @Html.DisplayFor(model => empleado.puesto1.descripcion)</li>
                                                             <li><i class="fa fa-envelope"></i> <strong>Correo: </strong>  @Html.DisplayFor(model => empleado.correo) </li>
-                                                            @foreach (var linea in empleado.GetIT_Inventory_Cellular_LinesActivas())
+
+                                                            @if (empleado.mostrar_telefono)
                                                             {
-                                                                <li><i class="fa fa-phone"></i> <strong>Teléfono: </strong> @Html.DisplayFor(model => linea.GetPhoneNumberFormat) </li>
+                                                                var lineas = empleado.GetIT_Inventory_Cellular_LinesActivas();
+                                                                foreach (var linea in lineas)
+                                                                {
+                                                                    <li><i class="fa fa-phone"></i> <strong>Teléfono: </strong> @Html.DisplayFor(model => linea.GetPhoneNumberFormat) </li>
+                                                                    telefono += linea.numero_celular;
+                                                                    if (lineas.Count > 1)
+                                                                    {
+                                                                        telefono += "; ";
+                                                                    }
+                                                                }
+                                                                <li><i class="fa fa-external-link"></i> <strong>Ext.: </strong> @Html.DisplayFor(model => empleado.extension) </li>
                                                             }
-                                                            <li><i class="fa fa-external-link"></i> <strong>Ext.: </strong> @Html.DisplayFor(model => empleado.extension) </li>
                                                         </ul>
                                                     </div>
                                                     <div class="right col-md-5 col-sm-12 text-center">
                                                         @if (empleado.id_fotografia.HasValue)
                                                         {
-                                                            <img src="@empleado.ImageToBase64(220,220)" alt="" class="img-circle img-fluid" >
+                                                            <img src="@empleado.ImageToBase64(220,220)" alt="" class="img-circle img-fluid">
                                                         }
                                                         else
                                                         {
@@ -163,10 +174,10 @@
                                                 </div>
                                                 <div class=" bottom text-right">
                                                     <div class=" col-sm-12 emphasis">
-                                                        <button type="button" class="btn btn-success btn-sm">
+                                                        <button type="button" class="btn btn-success btn-sm" onclick="CopiarTexto('@empleado.correo')" @(string.IsNullOrEmpty(empleado.correo) ? "disabled" : "")>
                                                             <i class="fa fa-copy"></i> Correo
                                                         </button>
-                                                        <button type="button" class="btn btn-primary btn-sm">
+                                                        <button type="button" class="btn btn-primary btn-sm" onclick="CopiarTexto('@telefono')" @(string.IsNullOrEmpty(telefono) ? "disabled" : "")>
                                                             <i class="fa fa-copy"></i> Tel&eacute;fono
                                                         </button>
                                                     </div>
@@ -239,6 +250,58 @@
 
 
         });
+
+        var Toast = Swal.mixin({
+            toast: true,
+            icon: 'success',
+            title: 'General Title',
+            animation: false,
+            position: 'top-right',
+            showConfirmButton: true,
+            timer: 3500,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+
+        //Envía el formulario de búsqueda
+        function CopiarTexto(texto) {
+
+            copiarAlPortapapeles(texto);
+
+            Toast.fire({
+                icon: 'success',
+                title: ' Se copió al portapapeles.'
+            })
+
+        }
+
+        function copiarAlPortapapeles(texto) {
+
+            // Crea un campo de texto "oculto", este por un textarea
+
+            var aux = document.createElement("textarea");
+
+            // Asigna el contenido del elemento especificado al valor del campo
+            // este para vaciar el contenido
+
+            aux.innerHTML = texto;
+
+            // Añade el campo a la página
+            document.body.appendChild(aux);
+
+            // Selecciona el contenido del campo
+            aux.select();
+
+            // Copia el texto seleccionado
+            document.execCommand("copy");
+
+            // Elimina el campo de la página
+            document.body.removeChild(aux);
+
+        }
 
         //Envía el formulario de búsqueda
         function EnviaFormulario() {

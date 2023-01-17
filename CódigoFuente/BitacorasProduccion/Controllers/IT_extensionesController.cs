@@ -142,8 +142,8 @@ namespace Portal_2_0.Controllers
         public async Task<ActionResult> Edit(empleados empleados)
         {                                 
             
-            if (ModelState.IsValid)
-            {
+            //if (ModelState.IsValid)
+            //{
                 var empBD = db.empleados.Find(empleados.id);
 
                 empBD.extension = empleados.extension;
@@ -159,9 +159,9 @@ namespace Portal_2_0.Controllers
                 }
                 TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
                 return RedirectToAction("Index");
-            }
+            //}
 
-              return View(empleados);
+             // return View(empleados);
         }
 
         protected override void Dispose(bool disposing)

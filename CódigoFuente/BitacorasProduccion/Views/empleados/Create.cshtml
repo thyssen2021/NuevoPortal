@@ -59,7 +59,7 @@
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.numeroEmpleado, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                 <div class="col-md-6 col-sm-6 ">
-                                    @Html.EditorFor(model => model.numeroEmpleado, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.EditorFor(model => model.numeroEmpleado, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @required = "required" } })
                                     @Html.ValidationMessageFor(model => model.numeroEmpleado, "", new { @class = "text-danger" })
                                 </div>
                             </div>
@@ -129,7 +129,7 @@
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.ingresoFecha, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                 <div class="col-md-6 col-sm-6 ">
-                                    @Html.EditorFor(model => model.ingresoFecha, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.EditorFor(model => model.ingresoFecha, new { htmlAttributes = new { @class = "form-control", @required="required" } })
                                     @Html.ValidationMessageFor(model => model.ingresoFecha, "", new { @class = "text-danger" })
                                 </div>
                             </div>
