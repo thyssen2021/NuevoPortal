@@ -172,22 +172,24 @@ namespace IdentitySample.Controllers
 
             totalDeRegistros = db.GV_solicitud
                 .Where(x => (x.id_empleado == empleado.id || x.id_solicitante == empleado.id)
-                  && (x.estatus == estatus || estatus == "ALL"
-                                  || (estatus == "EN_PROCESO" && (x.estatus == GV_solicitud_estatus.ENVIADO_CONTROLLING
-                                                  || x.estatus == GV_solicitud_estatus.CONFIRMADO_NOMINA
-                                                  || x.estatus == GV_solicitud_estatus.ENVIADO_NOMINA
-                                                  || x.estatus == GV_solicitud_estatus.CONFIRMADO_USUARIO
-                                                  || x.estatus == GV_solicitud_estatus.CONFIRMADO_CONTABILIDAD
-                                                   || x.estatus == GV_solicitud_estatus.RECHAZADO_USUARIO
-                                                  ))
-                                  || (estatus == "POR_CONFIRMAR" && (x.estatus == GV_solicitud_estatus.CONFIRMADO_NOMINA
-                                                  || x.estatus == GV_solicitud_estatus.CONFIRMADO_CONTABILIDAD
-                                                  ) && !x.fecha_confirmacion_usuario.HasValue)
-                                  || (estatus == "RECHAZADAS" && (x.estatus == GV_solicitud_estatus.RECHAZADO_JEFE
-                                                  || x.estatus == GV_solicitud_estatus.RECHAZADO_CONTROLLING
-                                                  || x.estatus == GV_solicitud_estatus.RECHAZADO_NOMINA || x.estatus == GV_solicitud_estatus.RECHAZADO_CONTABILIDAD))
-                                                  )
-              )
+                    && (x.estatus == estatus || estatus == "ALL"
+                                    || (estatus == "EN_PROCESO" && (x.estatus == GV_solicitud_estatus.ENVIADO_CONTROLLING
+                                                    || x.estatus == GV_solicitud_estatus.CONFIRMADO_NOMINA
+                                                    || x.estatus == GV_solicitud_estatus.ENVIADO_NOMINA
+                                                    || x.estatus == GV_solicitud_estatus.ENVIADO_A_JEFE
+                                                    || x.estatus == GV_solicitud_estatus.ENVIADO_CONTABILIDAD
+                                                    || x.estatus == GV_solicitud_estatus.CONFIRMADO_USUARIO
+                                                    || x.estatus == GV_solicitud_estatus.CONFIRMADO_CONTABILIDAD
+                                                    || x.estatus == GV_solicitud_estatus.RECHAZADO_USUARIO
+                                                    ))
+                                    || (estatus == "POR_CONFIRMAR" && (x.estatus == GV_solicitud_estatus.CONFIRMADO_NOMINA
+                                                    || x.estatus == GV_solicitud_estatus.CONFIRMADO_CONTABILIDAD
+                                                    ) && !x.fecha_confirmacion_usuario.HasValue)
+                                    || (estatus == "RECHAZADAS" && (x.estatus == GV_solicitud_estatus.RECHAZADO_JEFE
+                                                    || x.estatus == GV_solicitud_estatus.RECHAZADO_CONTROLLING
+                                                    || x.estatus == GV_solicitud_estatus.RECHAZADO_NOMINA || x.estatus == GV_solicitud_estatus.RECHAZADO_CONTABILIDAD))
+                                                    )
+                )
               .Count();
 
             return totalDeRegistros;
@@ -205,6 +207,7 @@ namespace IdentitySample.Controllers
                      (estatus == "PENDIENTES_PROPIAS" && x.estatus == GV_solicitud_estatus.ENVIADO_CONTROLLING) ||
                      (estatus == "AUTORIZADAS_CONTROLLING" && (x.estatus == GV_solicitud_estatus.CONFIRMADO_NOMINA
                                                      || x.estatus == GV_solicitud_estatus.ENVIADO_NOMINA
+                                                     || x.estatus == GV_solicitud_estatus.ENVIADO_CONTABILIDAD
                                                      || x.estatus == GV_solicitud_estatus.CONFIRMADO_USUARIO
                                                      || x.estatus == GV_solicitud_estatus.CONFIRMADO_CONTABILIDAD
                                                       || x.estatus == GV_solicitud_estatus.RECHAZADO_USUARIO
@@ -268,6 +271,7 @@ namespace IdentitySample.Controllers
               && (x.estatus == estatus || (estatus == "ALL" && x.estatus != GV_solicitud_estatus.CREADO) ||
               (estatus == "AUTORIZADAS_JEFE" && (x.estatus == GV_solicitud_estatus.ENVIADO_CONTROLLING || x.estatus == GV_solicitud_estatus.CONFIRMADO_NOMINA
                                               || x.estatus == GV_solicitud_estatus.ENVIADO_NOMINA
+                                              || x.estatus == GV_solicitud_estatus.ENVIADO_CONTABILIDAD
                                               || x.estatus == GV_solicitud_estatus.CONFIRMADO_USUARIO
                                                || x.estatus == GV_solicitud_estatus.RECHAZADO_USUARIO
                                               || x.estatus == GV_solicitud_estatus.CONFIRMADO_CONTABILIDAD

@@ -39,6 +39,8 @@ namespace Portal_2_0.Controllers
                                     || (estatus == "EN_PROCESO" && (x.estatus == GV_solicitud_estatus.ENVIADO_CONTROLLING
                                                     || x.estatus == GV_solicitud_estatus.CONFIRMADO_NOMINA
                                                     || x.estatus == GV_solicitud_estatus.ENVIADO_NOMINA
+                                                    || x.estatus == GV_solicitud_estatus.ENVIADO_A_JEFE
+                                                    || x.estatus == GV_solicitud_estatus.ENVIADO_CONTABILIDAD
                                                     || x.estatus == GV_solicitud_estatus.CONFIRMADO_USUARIO
                                                     || x.estatus == GV_solicitud_estatus.CONFIRMADO_CONTABILIDAD
                                                     || x.estatus == GV_solicitud_estatus.RECHAZADO_USUARIO
@@ -61,9 +63,11 @@ namespace Portal_2_0.Controllers
                                     || (estatus == "EN_PROCESO" && (x.estatus == GV_solicitud_estatus.ENVIADO_CONTROLLING
                                                     || x.estatus == GV_solicitud_estatus.CONFIRMADO_NOMINA
                                                     || x.estatus == GV_solicitud_estatus.ENVIADO_NOMINA
+                                                    || x.estatus == GV_solicitud_estatus.ENVIADO_A_JEFE
+                                                    || x.estatus == GV_solicitud_estatus.ENVIADO_CONTABILIDAD
                                                     || x.estatus == GV_solicitud_estatus.CONFIRMADO_USUARIO
                                                     || x.estatus == GV_solicitud_estatus.CONFIRMADO_CONTABILIDAD
-                                                     || x.estatus == GV_solicitud_estatus.RECHAZADO_USUARIO
+                                                    || x.estatus == GV_solicitud_estatus.RECHAZADO_USUARIO
                                                     ))
                                     || (estatus == "POR_CONFIRMAR" && (x.estatus == GV_solicitud_estatus.CONFIRMADO_NOMINA
                                                     || x.estatus == GV_solicitud_estatus.CONFIRMADO_CONTABILIDAD
@@ -132,6 +136,7 @@ namespace Portal_2_0.Controllers
                     && (x.estatus == estatus || (estatus == "ALL" && x.estatus != GV_solicitud_estatus.CREADO) ||
                     (estatus == "AUTORIZADAS_JEFE" && (x.estatus == GV_solicitud_estatus.ENVIADO_CONTROLLING || x.estatus == GV_solicitud_estatus.CONFIRMADO_NOMINA
                                                     || x.estatus == GV_solicitud_estatus.ENVIADO_NOMINA
+                                                    || x.estatus == GV_solicitud_estatus.ENVIADO_CONTABILIDAD
                                                     || x.estatus == GV_solicitud_estatus.CONFIRMADO_USUARIO
                                                     || x.estatus == GV_solicitud_estatus.CONFIRMADO_CONTABILIDAD
                                                      || x.estatus == GV_solicitud_estatus.RECHAZADO_USUARIO
@@ -147,6 +152,7 @@ namespace Portal_2_0.Controllers
                     && (x.estatus == estatus || (estatus == "ALL" && x.estatus != GV_solicitud_estatus.CREADO) ||
                     (estatus == "AUTORIZADAS_JEFE" && (x.estatus == GV_solicitud_estatus.ENVIADO_CONTROLLING || x.estatus == GV_solicitud_estatus.CONFIRMADO_NOMINA
                                                     || x.estatus == GV_solicitud_estatus.ENVIADO_NOMINA
+                                                    || x.estatus == GV_solicitud_estatus.ENVIADO_CONTABILIDAD
                                                     || x.estatus == GV_solicitud_estatus.CONFIRMADO_USUARIO
                                                      || x.estatus == GV_solicitud_estatus.RECHAZADO_USUARIO
                                                     || x.estatus == GV_solicitud_estatus.CONFIRMADO_CONTABILIDAD
@@ -286,6 +292,7 @@ namespace Portal_2_0.Controllers
                     (estatus == "PENDIENTES_PROPIAS" && x.estatus == GV_solicitud_estatus.ENVIADO_CONTROLLING) ||
                     (estatus == "AUTORIZADAS_CONTROLLING" && (x.estatus == GV_solicitud_estatus.CONFIRMADO_NOMINA
                                                     || x.estatus == GV_solicitud_estatus.ENVIADO_NOMINA
+                                                    || x.estatus == GV_solicitud_estatus.ENVIADO_CONTABILIDAD
                                                     || x.estatus == GV_solicitud_estatus.CONFIRMADO_USUARIO
                                                     || x.estatus == GV_solicitud_estatus.CONFIRMADO_CONTABILIDAD
                                                      || x.estatus == GV_solicitud_estatus.RECHAZADO_USUARIO
@@ -302,6 +309,7 @@ namespace Portal_2_0.Controllers
                     (estatus == "PENDIENTES_PROPIAS" && x.estatus == GV_solicitud_estatus.ENVIADO_CONTROLLING) ||
                     (estatus == "AUTORIZADAS_CONTROLLING" && (x.estatus == GV_solicitud_estatus.CONFIRMADO_NOMINA
                                                     || x.estatus == GV_solicitud_estatus.ENVIADO_NOMINA
+                                                    || x.estatus == GV_solicitud_estatus.ENVIADO_CONTABILIDAD
                                                     || x.estatus == GV_solicitud_estatus.CONFIRMADO_USUARIO
                                                     || x.estatus == GV_solicitud_estatus.CONFIRMADO_CONTABILIDAD
                                                      || x.estatus == GV_solicitud_estatus.RECHAZADO_USUARIO
@@ -567,6 +575,10 @@ namespace Portal_2_0.Controllers
             if (solicitud.GV_rel_gastos_solicitud.Sum(x => x.importe) <= 0)
                 ModelState.AddModelError("", "No se agregaron gastos a la estimación.");
 
+            var relAlimentos = solicitud.GV_rel_gastos_solicitud.Where(x => x.id_tipo_gastos_viaje == 1).FirstOrDefault();
+            if (relAlimentos != null && relAlimentos.importe > 750)
+                ModelState.AddModelError("", "El importe para Alimentos no puede superar $750.00.");
+
             //busca coceptos en cero
             int i = 1;
             foreach (var item in solicitud.GV_rel_gastos_solicitud)
@@ -679,6 +691,10 @@ namespace Portal_2_0.Controllers
             //verifica que se haya ingresado al menos una cantidad
             if (gV_solicitud.GV_rel_gastos_solicitud.Sum(x => x.importe) <= 0)
                 ModelState.AddModelError("", "No se agregaron gastos a la estimación.");
+
+            var relAlimentos = gV_solicitud.GV_rel_gastos_solicitud.Where(x => x.id_tipo_gastos_viaje == 1).FirstOrDefault();
+            if (relAlimentos != null && relAlimentos.importe > 750)
+                ModelState.AddModelError("", "El importe para Alimentos no puede superar $750.00.");
 
             //busca coceptos en cero
             int i = 1;
