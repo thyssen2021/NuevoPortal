@@ -590,7 +590,7 @@ namespace Portal_2_0.Controllers
                 ViewBag.listSoftware = db.IT_software_tipo.Where(x => x.activo == true).ToList();
                 ViewBag.id_internet_tipo = AddFirstItem(new SelectList(db.IT_internet_tipo.Where(p => p.activo == true), "id", "descripcion"), selected: matriz.id_internet_tipo.ToString());
                 ViewBag.listCarpetas = db.IT_carpetas_red.Where(x => x.activo == true).ToList();
-                ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(p => p.activo == true), "id", "ConcatNumEmpleadoNombre"), selected: matriz.id_jefe_directo.ToString());
+                ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(p => p.activo == true), "id", "ConcatNumEmpleadoNombre"), selected: empleados.empleados2 != null ? empleados.empleados2.id.ToString() : String.Empty);
                 ViewBag.listComunicaciones = db.IT_comunicaciones_tipo.Where(x => x.activo == true).ToList();
                 return View(matriz);
             }

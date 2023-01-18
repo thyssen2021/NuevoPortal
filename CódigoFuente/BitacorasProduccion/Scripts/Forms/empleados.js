@@ -4,7 +4,6 @@
     //inicializa en input file
     bsCustomFileInput.init()
 
-
     //aumenta en uso cada vez que se hace un cambio en el archivo de soporte
     $("#ArchivoImagen").on("change", function () {
         document.getElementById('cambio_documento_soporte').value = ++documento_soporte_cambios;
@@ -70,6 +69,7 @@ function muestraFileInput() {
     $("#div_document_support_2").fadeIn(500);
 
     document.getElementById('cambio_documento_soporte').value = ++documento_soporte_cambios;
+    document.getElementById('elimina_documento').value = 'true';
 }
 
 //oculta el formulario de carga de archivo
@@ -80,6 +80,7 @@ function ocultaFileInput() {
     $("#div_document_support_2").fadeOut(700);
 
     document.getElementById('cambio_documento_soporte').value = ++documento_soporte_cambios;
+    document.getElementById('elimina_documento').value = 'false';
 }
 
 

@@ -313,7 +313,7 @@ namespace Portal_2_0.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(empleados empleados, FormCollection collection)
+        public async Task<ActionResult> Edit(empleados empleados, FormCollection collection, bool elimina_documento)
         {
             //valores enviados previamente
             int c_planta = 0;
@@ -406,7 +406,7 @@ namespace Portal_2_0.Controllers
             else
             {
                 //elimina el archivo en caso de existir
-                if (empleados.id_fotografia.HasValue)
+                if (empleados.id_fotografia.HasValue && elimina_documento)
                 {                  
                     var archivoAnteriorBD = db.biblioteca_digital.Find(empleados.id_fotografia.Value);
                     db.biblioteca_digital.Remove(archivoAnteriorBD);
