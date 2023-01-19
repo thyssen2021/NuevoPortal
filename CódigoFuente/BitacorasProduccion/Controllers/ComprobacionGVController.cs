@@ -1767,6 +1767,48 @@ namespace Portal_2_0.Controllers
             return View(solicitud);
         }
 
+
+        /// <summary>
+        /// Muestra Formulario para crear una solicitud de anticipos
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult SolicitudSinAnticipo()
+        {
+            if (!TieneRol(TipoRoles.GV_SOLICITUD))
+                return View("../Home/ErrorPermisos");
+
+            //obtiene el usuario logeado
+            empleados solicitante = obtieneEmpleadoLogeado();
+
+            GV_solicitud solicitud = new GV_solicitud
+            {
+                id_solicitante = solicitante.id,
+                empleados5 = solicitante,
+                fecha_salida = DateTime.Now,
+                fecha_regreso = DateTime.Now,
+            };
+
+            //agrega elementos para los rel checklist            
+            foreach (var item in db.GV_tipo_gastos_viaje.Where(x => x.activo))
+            {
+                //solo agrega si no existe previamente 
+                if (!solicitud.GV_rel_gastos_solicitud.Any(x => x.id_tipo_gastos_viaje == item.id))
+                    solicitud.GV_rel_gastos_solicitud.Add(new GV_rel_gastos_solicitud
+                    {
+                        id_tipo_gastos_viaje = item.id,
+                        currency_iso = "MXN",
+                        GV_tipo_gastos_viaje = item,
+                    });
+            }
+
+            ViewBag.iso_moneda_extranjera = AddFirstItem(new SelectList(db.currency.Where(x => x.activo && (x.CurrencyISO == "USD" || x.CurrencyISO == "EUR")), "CurrencyISO", "CocatCurrency"), selected: "USD");
+            ViewBag.id_empleado = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo.HasValue && x.activo.Value), "id", "ConcatNumEmpleadoNombre"), selected: solicitante.id.ToString());
+            ViewBag.id_medio_transporte = AddFirstItem(new SelectList(db.GV_medios_transporte.Where(x => x.activo), "id", "descripcion"));
+
+            return View(solicitud);
+        }
+
+
         /// <summary>
         /// Método que lee el contenido de una factura xml
         /// </summary>

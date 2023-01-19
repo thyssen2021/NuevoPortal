@@ -1407,6 +1407,9 @@ function AgregaConceptoSinFactura() {
     //agrega evento para cambios en asigna eventos
     asignaEventosInput();
 
+    //seleccciona el valor del combo por defecto;
+    document.getElementById("GV_comprobacion_rel_gastos[" + numConcepto + "].id_comprobacion_tipo_gastos_viaje").value = "1";
+
     //Aumenta el número de concepto en 1
     numConcepto++;
     //aumenta en uno el número de comprobantes cargados
