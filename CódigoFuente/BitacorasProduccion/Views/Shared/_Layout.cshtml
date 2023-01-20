@@ -23,9 +23,9 @@
     <!-- Custom Theme Style -->
     <link href="@Url.Content("~/Content/build/css/custom.css")" rel="stylesheet">
 
-    @if (!@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":9010")
-        && !@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":localhost")
-        )
+    @if (@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":9030")
+      || @HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":9040")
+      )
     {
         <!-- Toastr -->
         <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.css" rel="stylesheet">
@@ -67,8 +67,8 @@
         }
     </style>
 
-    @if (!@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":9010")
-     && !@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains("localhost")
+    @if (@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":9030")
+     || @HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":9040")
      )
     {
         <style>
@@ -233,7 +233,7 @@
                                                 {
                                                     <li class="@(ViewBag.SegundoNivel == "IT_site_checklist" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_site_checklist")">Site</a></li>
                                                 }
-                                                 @if (User.IsInRole(TipoRoles.IT_CHECKLIST_EQUIPOS))
+                                                @if (User.IsInRole(TipoRoles.IT_CHECKLIST_EQUIPOS))
                                                 {
                                                     <li class="@(ViewBag.SegundoNivel == "IT_equipos_checklist" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_equipos_checklist")">Nuevos Equipos</a></li>
                                                 }
@@ -255,7 +255,7 @@
                                                     </ul>
                                                 </li>
 
-                                                
+
                                             </ul>
 
                                         </li>
