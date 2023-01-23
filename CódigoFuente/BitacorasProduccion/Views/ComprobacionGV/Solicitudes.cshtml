@@ -91,10 +91,12 @@
                                             </div>
                                         }
 
-                                        <a href="@Url.Action("SolicitudSinAnticipo", ViewBag.ControllerName, new { s_estatus = estatus })" class="btn btn-success btn-sm" title="Comprobación Sin Anticipo">
-                                            <i class="fa-regular fa-plus-square"></i> Comprobaci&oacute;n Sin Anticipo
-                                        </a>
-
+                                        @if (User.IsInRole(TipoRoles.GV_SOLICITUD) && action_result == "SOLICITUDES")
+                                        {
+                                            <a href="@Url.Action("SolicitudSinAnticipo", ViewBag.ControllerName, new { s_estatus = estatus })" class="btn btn-success btn-sm" title="Comprobación Sin Anticipo">
+                                                <i class="fa-regular fa-plus-square"></i> Comprobaci&oacute;n Sin Anticipo
+                                            </a>
+                                        }
                                         <hr />
 
                                     </div>
@@ -306,8 +308,8 @@
                                                             {
 
                                                                 @*<a href="@Url.Action("ComprobacionGastos", "ComprobacionGV", new { id = item.GV_solicitud.id, s_estatus = estatus })" class="btn btn-success " title="Comprobar gastos">
-                                        <i class="fa-solid fa-check-to-slot"></i>
-                                    </a>*@
+                                                                        <i class="fa-solid fa-check-to-slot"></i>
+                                                                    </a>*@
                                                             }
 
 

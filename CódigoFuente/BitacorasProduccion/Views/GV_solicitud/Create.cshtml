@@ -7,6 +7,9 @@
     ViewBag.SegundoNivel = "GV_solicitud";
     ViewBag.ControllerName = "GV_solicitud";
 
+    //determina si es una solicitud con o sin anticipo
+    bool sinAnticipo = ViewBag.sin_anticipo != null ? (bool)ViewBag.sin_anticipo : false;
+
     int contador = 0;
 
 }
@@ -71,7 +74,7 @@
                     <div class="x_content">
                         <br />
 
-                        @using (Html.BeginForm("Create", null, FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal form-label-left", @id = "formulario" }))
+                        @using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal form-label-left", @id = "formulario" }))
                         {
                             @Html.AntiForgeryToken()
 
@@ -92,7 +95,7 @@
                             //Valores ocultos
                             @Html.HiddenFor(model => model.id_solicitante)
                             @Html.HiddenFor(model => model.id_jefe_directo)
-
+                           
                             <div class="ln_solid"></div>
 
                             <div class="form-group row">
@@ -158,7 +161,7 @@
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.tipo_viaje, new { @class = "control-label col-md-1 float-right" })
                                 <div class="col-md-1 col-sm-1 offset-md-1">
-                                    <input type="radio" id="nacional" name="tipo_viaje" value="NACIONAL" @(Model.tipo_viaje == Bitacoras.Util.GV_tipo_viaje.NACIONAL || String.IsNullOrEmpty(Model.tipo_viaje) ? "checked" : String.Empty)>
+                                    <input type="radio" id="nacional" name="tipo_viaje" value="NACIONAL" @(String.IsNullOrEmpty(Model.tipo_viaje) || Model.tipo_viaje == Bitacoras.Util.GV_tipo_viaje.NACIONAL ? "checked" : String.Empty)>
                                     <nolabel>
                                         <label for="nacional">Nacional</label>
                                     </nolabel>
@@ -286,15 +289,14 @@
                                 </div>
                             </div>
 
-                            <div class="ln_solid">
+                            <div class="ln_solid" style="@(sinAnticipo?"display:none":string.Empty)">
 
                             </div>
-                            <div class="form-group row">
+                            <div class="form-group row" style="@(sinAnticipo?"display:none":string.Empty)">
                                 <span style="color:black"><b>ESTIMACI&Oacute;N DE GASTOS A REALIZAR (MONEDA NACIONAL)</b></span>
-
                             </div>
 
-                            <div class="table-responsive">
+                            <div class="table-responsive" style="@(sinAnticipo?"display:none":string.Empty)">
                                 <table id="datatable_1" class="table table-striped table-bordered" cellspacing="0" width="100%">
                                     <thead>
                                         <tr style=" background-color: #0094ff; color: azure;">
@@ -320,24 +322,33 @@
                                         {
                                             <input type="hidden" name="GV_rel_gastos_solicitud[@contador].id_tipo_gastos_viaje" id="GV_rel_gastos_solicitud[@contador].id_tipo_gastos_viaje" value="@item.id_tipo_gastos_viaje" />
                                             <input type="hidden" name="GV_rel_gastos_solicitud[@contador].currency_iso" id="GV_rel_gastos_solicitud[@contador].currency_iso" value="MXN" />
-                                            <tr>
-                                                <td style="font-weight:bold">@item.GV_tipo_gastos_viaje.descripcion</td>
-                                                <td>
-                                                    <input id="GV_rel_gastos_solicitud[@contador].importe" name="GV_rel_gastos_solicitud[@contador].importe" style="font-size: 12px;" type="text" class="precio importe form-control col-md-12" value="@item.importe" data-row="@contador" maxlength="80" autocomplete="off" required>
-                                                    <span class="field-validation-valid text-danger" data-valmsg-for="GV_rel_gastos_solicitud[@contador].importe" data-valmsg-replace="true"></span>
-                                                </td>
-                                                <td>
-                                                    <input id="GV_rel_gastos_solicitud[@contador].cantidad" name="GV_rel_gastos_solicitud[@contador].cantidad" style="text-align: right; font-size: 12px;" type="text" class="cantidad form-control col-md-12" value="@item.cantidad" data-row="@contador" maxlength="80" autocomplete="off" required>
-                                                    <span class="field-validation-valid text-danger" data-valmsg-for="GV_rel_gastos_solicitud[@contador].cantidad" data-valmsg-replace="true"></span>
-                                                </td>
-                                                <td id="total_fila_@contador" style="text-align:right" nowrap>
-                                                    $ 0.00 MXN
-                                                </td>
-                                                <td>
-                                                    <textarea style="font-size: 12px;" type="text" name="GV_rel_gastos_solicitud[@contador].comentarios" id="GV_rel_gastos_solicitud[@contador].comentarios" class="form-control col-md-12" autocomplete="off" maxlength="120" rows="2">@item.comentarios</textarea>
-                                                    <span class="field-validation-valid text-danger" data-valmsg-for="GV_rel_gastos_solicitud[@contador].comentarios" data-valmsg-replace="true"></span>
-                                                </td>
-                                            </tr>
+                                            if (sinAnticipo)
+                                            {
+                                                <input type="hidden" id="GV_rel_gastos_solicitud[@contador].importe" name="GV_rel_gastos_solicitud[@contador].importe" value="0">
+                                                <input type="hidden" id="GV_rel_gastos_solicitud[@contador].cantidad" name="GV_rel_gastos_solicitud[@contador].cantidad" value="0">
+
+                                            }
+                                            else
+                                            {
+                                                <tr>
+                                                    <td style="font-weight:bold">@item.GV_tipo_gastos_viaje.descripcion</td>
+                                                    <td>
+                                                        <input id="GV_rel_gastos_solicitud[@contador].importe" name="GV_rel_gastos_solicitud[@contador].importe" style="font-size: 12px;" type="text" class="precio importe form-control col-md-12" value="@item.importe" data-row="@contador" maxlength="80" autocomplete="off" required>
+                                                        <span class="field-validation-valid text-danger" data-valmsg-for="GV_rel_gastos_solicitud[@contador].importe" data-valmsg-replace="true"></span>
+                                                    </td>
+                                                    <td>
+                                                        <input id="GV_rel_gastos_solicitud[@contador].cantidad" name="GV_rel_gastos_solicitud[@contador].cantidad" style="text-align: right; font-size: 12px;" type="text" class="cantidad form-control col-md-12" value="@item.cantidad" data-row="@contador" maxlength="80" autocomplete="off" required>
+                                                        <span class="field-validation-valid text-danger" data-valmsg-for="GV_rel_gastos_solicitud[@contador].cantidad" data-valmsg-replace="true"></span>
+                                                    </td>
+                                                    <td id="total_fila_@contador" style="text-align:right" nowrap>
+                                                        $ 0.00 MXN
+                                                    </td>
+                                                    <td>
+                                                        <textarea style="font-size: 12px;" type="text" name="GV_rel_gastos_solicitud[@contador].comentarios" id="GV_rel_gastos_solicitud[@contador].comentarios" class="form-control col-md-12" autocomplete="off" maxlength="120" rows="2">@item.comentarios</textarea>
+                                                        <span class="field-validation-valid text-danger" data-valmsg-for="GV_rel_gastos_solicitud[@contador].comentarios" data-valmsg-replace="true"></span>
+                                                    </td>
+                                                </tr>
+                                            }
                                             contador++;
                                         }
                                     </tbody>
@@ -504,7 +515,7 @@
 
             //agrega los eventos para el cambio de cantidad
             $(".cantidad").each(function () {
-                $(this).on('keyup change blur', function (e) {                    
+                $(this).on('keyup change blur', function (e) {
                     calculaTotal();
                 });
             });
@@ -533,7 +544,7 @@
                 let importe = $(this).val();
                 let cantidad = document.getElementById('GV_rel_gastos_solicitud[' + row + '].cantidad').value;
 
-                //en caso de que se borre el input coloca un cero   
+                //en caso de que se borre el input coloca un cero
                 if (importe=='')
                     $(this).val("0");
                 if (cantidad==null)

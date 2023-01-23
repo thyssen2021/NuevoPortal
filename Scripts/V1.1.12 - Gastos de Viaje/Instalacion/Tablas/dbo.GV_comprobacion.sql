@@ -34,6 +34,8 @@ CREATE TABLE [dbo].[GV_comprobacion](
 	[fecha_aceptacion_nomina][datetime]  NULL,
 	[comentario_rechazo][varchar](355) NULL,
 	[comentario_adicional][varchar](355) NULL,
+	[american_express][bit] NOT NULL,
+	[id_extracto_cuenta][int] NULL,
 	[estatus][varchar](30) NOT NULL,
 	CONSTRAINT [PK_GV_comprobacion] PRIMARY KEY CLUSTERED 
 (
@@ -71,6 +73,13 @@ alter table [GV_comprobacion]
  add constraint FK_GV_comprobacion_id_nomina
   foreign key (id_nomina)
   references empleados(id);
+
+    -- restriccion de clave foranea
+  alter table [GV_comprobacion]
+ add constraint FK_GV_comprobacion_id_extracto_cuenta
+  foreign key (id_extracto_cuenta)
+  references biblioteca_digital(id);
+
 
 GO
 

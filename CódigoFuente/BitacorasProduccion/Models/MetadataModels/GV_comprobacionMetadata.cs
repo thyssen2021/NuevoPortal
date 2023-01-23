@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Foolproof;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -59,6 +60,12 @@ namespace Portal_2_0.Models
         [Display(Name = "Nóminas")]
         public Nullable<int> id_nomina { get; set; }
 
+        [Display(Name = "¿American Express?")]
+        public bool american_express { get; set; }
+
+        [Display(Name = "Extracto de Cuenta")]
+        public Nullable<int> id_extracto_cuenta { get; set; }
+
     }
 
     [MetadataType(typeof(GV_comprobacionMetadata))]
@@ -68,6 +75,11 @@ namespace Portal_2_0.Models
         [NotMapped]
         [Display(Name = "Planta")]
         public int clave_planta { get; set; }
+
+        [NotMapped]
+        [Display(Name = "Extracto de Cuenta")]
+       // [RequiredIf("american_express", true, ErrorMessage = "Anexe extracto de cuenta.")]
+        public HttpPostedFileBase PostedFileExtractoCuenta { get; set; }
 
     }
 }

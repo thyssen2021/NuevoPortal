@@ -266,6 +266,8 @@
           <Property Name="fecha_aceptacion_nomina" Type="datetime" />
           <Property Name="comentario_rechazo" Type="varchar" MaxLength="355" />
           <Property Name="comentario_adicional" Type="varchar" MaxLength="355" />
+          <Property Name="american_express" Type="bit" Nullable="false" />
+          <Property Name="id_extracto_cuenta" Type="int" />
           <Property Name="estatus" Type="varchar" MaxLength="30" Nullable="false" />
         </EntityType>
         <EntityType Name="GV_comprobacion_rel_gastos">
@@ -1856,6 +1858,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Principal>
             <Dependent Role="GV_comprobacion">
               <PropertyRef Name="id_controlling" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_comprobacion_id_extracto_cuenta">
+          <End Role="biblioteca_digital" Type="Self.biblioteca_digital" Multiplicity="0..1" />
+          <End Role="GV_comprobacion" Type="Self.GV_comprobacion" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="biblioteca_digital">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="GV_comprobacion">
+              <PropertyRef Name="id_extracto_cuenta" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -3978,6 +3992,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="empleados" EntitySet="empleados" />
             <End Role="GV_comprobacion" EntitySet="GV_comprobacion" />
           </AssociationSet>
+          <AssociationSet Name="FK_GV_comprobacion_id_extracto_cuenta" Association="Self.FK_GV_comprobacion_id_extracto_cuenta">
+            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
+            <End Role="GV_comprobacion" EntitySet="GV_comprobacion" />
+          </AssociationSet>
           <AssociationSet Name="FK_GV_comprobacion_id_gv_solicitud" Association="Self.FK_GV_comprobacion_id_gv_solicitud">
             <End Role="GV_solicitud" EntitySet="GV_solicitud" />
             <End Role="GV_comprobacion" EntitySet="GV_comprobacion" />
@@ -4637,6 +4655,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="GV_comprobacion_rel_gastos" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_archivo_comprobante_extranjero" FromRole="biblioteca_digital" ToRole="GV_comprobacion_rel_gastos" />
           <NavigationProperty Name="GV_comprobacion_rel_gastos1" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_archivo_pdf" FromRole="biblioteca_digital" ToRole="GV_comprobacion_rel_gastos" />
           <NavigationProperty Name="GV_comprobacion_rel_gastos2" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_archivo_xml" FromRole="biblioteca_digital" ToRole="GV_comprobacion_rel_gastos" />
+          <NavigationProperty Name="GV_comprobacion" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_extracto_cuenta" FromRole="biblioteca_digital" ToRole="GV_comprobacion" />
           </EntityType>
         <EntityType Name="bom_en_sap">
           <Key>
@@ -4888,16 +4907,16 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="GV_usuarios" Relationship="Portal_2_0Model.FK_GV_usuarios_id_empleado" FromRole="empleados" ToRole="GV_usuarios" />
           <NavigationProperty Name="IT_site_checklist" Relationship="Portal_2_0Model.FK_site_checklist_id_sistemas" FromRole="empleados" ToRole="IT_site_checklist" />
           <NavigationProperty Name="IT_equipos_checklist" Relationship="Portal_2_0Model.FK_equipos_checklist_id_sistemas" FromRole="empleados" ToRole="IT_equipos_checklist" />
-          <NavigationProperty Name="GV_comprobacion" Relationship="Portal_2_0Model.FK_GV_comprobacion_contabilidad" FromRole="empleados" ToRole="GV_comprobacion" />
-          <NavigationProperty Name="GV_comprobacion1" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_controlling" FromRole="empleados" ToRole="GV_comprobacion" />
-          <NavigationProperty Name="GV_comprobacion2" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_jefe_directo" FromRole="empleados" ToRole="GV_comprobacion" />
-          <NavigationProperty Name="GV_comprobacion3" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_nomina" FromRole="empleados" ToRole="GV_comprobacion" />
           <NavigationProperty Name="GV_solicitud" Relationship="Portal_2_0Model.FK_GV_solicitud_contabilidad" FromRole="empleados" ToRole="GV_solicitud" />
           <NavigationProperty Name="GV_solicitud1" Relationship="Portal_2_0Model.FK_GV_solicitud_id_controlling" FromRole="empleados" ToRole="GV_solicitud" />
           <NavigationProperty Name="GV_solicitud2" Relationship="Portal_2_0Model.FK_GV_solicitud_id_empleado" FromRole="empleados" ToRole="GV_solicitud" />
           <NavigationProperty Name="GV_solicitud3" Relationship="Portal_2_0Model.FK_GV_solicitud_id_jefe_directo" FromRole="empleados" ToRole="GV_solicitud" />
           <NavigationProperty Name="GV_solicitud4" Relationship="Portal_2_0Model.FK_GV_solicitud_id_nomina" FromRole="empleados" ToRole="GV_solicitud" />
           <NavigationProperty Name="GV_solicitud5" Relationship="Portal_2_0Model.FK_GV_solicitud_id_solicitante" FromRole="empleados" ToRole="GV_solicitud" />
+          <NavigationProperty Name="GV_comprobacion" Relationship="Portal_2_0Model.FK_GV_comprobacion_contabilidad" FromRole="empleados" ToRole="GV_comprobacion" />
+          <NavigationProperty Name="GV_comprobacion1" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_controlling" FromRole="empleados" ToRole="GV_comprobacion" />
+          <NavigationProperty Name="GV_comprobacion2" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_jefe_directo" FromRole="empleados" ToRole="GV_comprobacion" />
+          <NavigationProperty Name="GV_comprobacion3" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_nomina" FromRole="empleados" ToRole="GV_comprobacion" />
           </EntityType>
         <EntityType Name="GV_medios_transporte">
           <Key>
@@ -8525,23 +8544,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="GV_centros_costo" EntitySet="GV_centros_costo" />
           </AssociationSet>
           <EntitySet Name="GV_comprobacion_tipo_pago" EntityType="Portal_2_0Model.GV_comprobacion_tipo_pago" />
-          <EntitySet Name="GV_comprobacion" EntityType="Portal_2_0Model.GV_comprobacion" />
-          <AssociationSet Name="FK_GV_comprobacion_contabilidad" Association="Portal_2_0Model.FK_GV_comprobacion_contabilidad">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="GV_comprobacion" EntitySet="GV_comprobacion" />
-          </AssociationSet>
-          <AssociationSet Name="FK_GV_comprobacion_id_controlling" Association="Portal_2_0Model.FK_GV_comprobacion_id_controlling">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="GV_comprobacion" EntitySet="GV_comprobacion" />
-          </AssociationSet>
-          <AssociationSet Name="FK_GV_comprobacion_id_jefe_directo" Association="Portal_2_0Model.FK_GV_comprobacion_id_jefe_directo">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="GV_comprobacion" EntitySet="GV_comprobacion" />
-          </AssociationSet>
-          <AssociationSet Name="FK_GV_comprobacion_id_nomina" Association="Portal_2_0Model.FK_GV_comprobacion_id_nomina">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="GV_comprobacion" EntitySet="GV_comprobacion" />
-          </AssociationSet>
           <EntitySet Name="GV_solicitud" EntityType="Portal_2_0Model.GV_solicitud" />
           <AssociationSet Name="FK_GV_solicitud_iso_moneda_extranjera" Association="Portal_2_0Model.FK_GV_solicitud_iso_moneda_extranjera">
             <End Role="currency" EntitySet="currency" />
@@ -8570,10 +8572,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <AssociationSet Name="FK_GV_solicitud_id_solicitante" Association="Portal_2_0Model.FK_GV_solicitud_id_solicitante">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="GV_solicitud" EntitySet="GV_solicitud" />
-          </AssociationSet>
-          <AssociationSet Name="FK_GV_comprobacion_id_gv_solicitud" Association="Portal_2_0Model.FK_GV_comprobacion_id_gv_solicitud">
-            <End Role="GV_solicitud" EntitySet="GV_solicitud" />
-            <End Role="GV_comprobacion" EntitySet="GV_comprobacion" />
           </AssociationSet>
           <AssociationSet Name="FK_GV_solicitud_id_medio_transporte" Association="Portal_2_0Model.FK_GV_solicitud_id_medio_transporte">
             <End Role="GV_medios_transporte" EntitySet="GV_medios_transporte" />
@@ -8615,6 +8613,31 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <AssociationSet Name="FK_GV_comprobacion_rel_gastos_id_gv_solicitud" Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_gv_solicitud">
             <End Role="GV_solicitud" EntitySet="GV_solicitud" />
             <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
+          </AssociationSet>
+          <EntitySet Name="GV_comprobacion" EntityType="Portal_2_0Model.GV_comprobacion" />
+          <AssociationSet Name="FK_GV_comprobacion_id_extracto_cuenta" Association="Portal_2_0Model.FK_GV_comprobacion_id_extracto_cuenta">
+            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
+            <End Role="GV_comprobacion" EntitySet="GV_comprobacion" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_comprobacion_contabilidad" Association="Portal_2_0Model.FK_GV_comprobacion_contabilidad">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="GV_comprobacion" EntitySet="GV_comprobacion" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_comprobacion_id_controlling" Association="Portal_2_0Model.FK_GV_comprobacion_id_controlling">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="GV_comprobacion" EntitySet="GV_comprobacion" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_comprobacion_id_jefe_directo" Association="Portal_2_0Model.FK_GV_comprobacion_id_jefe_directo">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="GV_comprobacion" EntitySet="GV_comprobacion" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_comprobacion_id_nomina" Association="Portal_2_0Model.FK_GV_comprobacion_id_nomina">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="GV_comprobacion" EntitySet="GV_comprobacion" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_comprobacion_id_gv_solicitud" Association="Portal_2_0Model.FK_GV_comprobacion_id_gv_solicitud">
+            <End Role="GV_solicitud" EntitySet="GV_solicitud" />
+            <End Role="GV_comprobacion" EntitySet="GV_comprobacion" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="GV_usuarios">
@@ -8946,78 +8969,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="activo" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="GV_comprobacion_rel_gastos" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_pago" FromRole="GV_comprobacion_tipo_pago" ToRole="GV_comprobacion_rel_gastos" />
         </EntityType>
-        <EntityType Name="GV_comprobacion">
-          <Key>
-            <PropertyRef Name="id_gv_solicitud" />
-          </Key>
-          <Property Name="id_gv_solicitud" Type="Int32" Nullable="false" />
-          <Property Name="business_card" Type="String" MaxLength="16" FixedLength="false" Unicode="false" />
-          <Property Name="fecha_comprobacion" Type="DateTime" Precision="3" />
-          <Property Name="id_jefe_directo" Type="Int32" Nullable="false" />
-          <Property Name="id_controlling" Type="Int32" />
-          <Property Name="id_contabilidad" Type="Int32" />
-          <Property Name="id_nomina" Type="Int32" />
-          <Property Name="fecha_aceptacion_jefe_area" Type="DateTime" Precision="3" />
-          <Property Name="fecha_aceptacion_controlling" Type="DateTime" Precision="3" />
-          <Property Name="fecha_aceptacion_contabilidad" Type="DateTime" Precision="3" />
-          <Property Name="fecha_aceptacion_nomina" Type="DateTime" Precision="3" />
-          <Property Name="comentario_rechazo" Type="String" MaxLength="355" FixedLength="false" Unicode="false" />
-          <Property Name="comentario_adicional" Type="String" MaxLength="355" FixedLength="false" Unicode="false" />
-          <Property Name="estatus" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_GV_comprobacion_contabilidad" FromRole="GV_comprobacion" ToRole="empleados" />
-          <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_controlling" FromRole="GV_comprobacion" ToRole="empleados" />
-          <NavigationProperty Name="empleados2" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_jefe_directo" FromRole="GV_comprobacion" ToRole="empleados" />
-          <NavigationProperty Name="empleados3" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_nomina" FromRole="GV_comprobacion" ToRole="empleados" />
-          <NavigationProperty Name="GV_solicitud" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_gv_solicitud" FromRole="GV_comprobacion" ToRole="GV_solicitud" />
-        </EntityType>
-        <Association Name="FK_GV_comprobacion_contabilidad">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.GV_comprobacion" Role="GV_comprobacion" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="GV_comprobacion">
-              <PropertyRef Name="id_contabilidad" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_GV_comprobacion_id_controlling">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.GV_comprobacion" Role="GV_comprobacion" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="GV_comprobacion">
-              <PropertyRef Name="id_controlling" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_GV_comprobacion_id_jefe_directo">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
-          <End Type="Portal_2_0Model.GV_comprobacion" Role="GV_comprobacion" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="GV_comprobacion">
-              <PropertyRef Name="id_jefe_directo" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_GV_comprobacion_id_nomina">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.GV_comprobacion" Role="GV_comprobacion" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="GV_comprobacion">
-              <PropertyRef Name="id_nomina" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityType Name="GV_solicitud">
           <Key>
             <PropertyRef Name="id" />
@@ -9060,10 +9011,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="empleados3" Relationship="Portal_2_0Model.FK_GV_solicitud_id_jefe_directo" FromRole="GV_solicitud" ToRole="empleados" />
           <NavigationProperty Name="empleados4" Relationship="Portal_2_0Model.FK_GV_solicitud_id_nomina" FromRole="GV_solicitud" ToRole="empleados" />
           <NavigationProperty Name="empleados5" Relationship="Portal_2_0Model.FK_GV_solicitud_id_solicitante" FromRole="GV_solicitud" ToRole="empleados" />
-          <NavigationProperty Name="GV_comprobacion" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_gv_solicitud" FromRole="GV_solicitud" ToRole="GV_comprobacion" />
           <NavigationProperty Name="GV_medios_transporte" Relationship="Portal_2_0Model.FK_GV_solicitud_id_medio_transporte" FromRole="GV_solicitud" ToRole="GV_medios_transporte" />
           <NavigationProperty Name="GV_rel_gastos_solicitud" Relationship="Portal_2_0Model.FK_GV_rel_gastos_solicitud_id_gv_solicitud" FromRole="GV_solicitud" ToRole="GV_rel_gastos_solicitud" />
           <NavigationProperty Name="GV_comprobacion_rel_gastos" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_gv_solicitud" FromRole="GV_solicitud" ToRole="GV_comprobacion_rel_gastos" />
+          <NavigationProperty Name="GV_comprobacion" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_gv_solicitud" FromRole="GV_solicitud" ToRole="GV_comprobacion" />
         </EntityType>
         <Association Name="FK_GV_solicitud_iso_moneda_extranjera">
           <End Type="Portal_2_0Model.currency" Role="currency" Multiplicity="0..1" />
@@ -9146,18 +9097,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Principal>
             <Dependent Role="GV_solicitud">
               <PropertyRef Name="id_solicitante" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_GV_comprobacion_id_gv_solicitud">
-          <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="1" />
-          <End Type="Portal_2_0Model.GV_comprobacion" Role="GV_comprobacion" Multiplicity="0..1" />
-          <ReferentialConstraint>
-            <Principal Role="GV_solicitud">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="GV_comprobacion">
-              <PropertyRef Name="id_gv_solicitud" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -9321,6 +9260,105 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
               <PropertyRef Name="id" />
             </Principal>
             <Dependent Role="GV_comprobacion_rel_gastos">
+              <PropertyRef Name="id_gv_solicitud" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="GV_comprobacion">
+          <Key>
+            <PropertyRef Name="id_gv_solicitud" />
+          </Key>
+          <Property Name="id_gv_solicitud" Type="Int32" Nullable="false" />
+          <Property Name="business_card" Type="String" MaxLength="16" FixedLength="false" Unicode="false" />
+          <Property Name="fecha_comprobacion" Type="DateTime" Precision="3" />
+          <Property Name="id_jefe_directo" Type="Int32" Nullable="false" />
+          <Property Name="id_controlling" Type="Int32" />
+          <Property Name="id_contabilidad" Type="Int32" />
+          <Property Name="id_nomina" Type="Int32" />
+          <Property Name="fecha_aceptacion_jefe_area" Type="DateTime" Precision="3" />
+          <Property Name="fecha_aceptacion_controlling" Type="DateTime" Precision="3" />
+          <Property Name="fecha_aceptacion_contabilidad" Type="DateTime" Precision="3" />
+          <Property Name="fecha_aceptacion_nomina" Type="DateTime" Precision="3" />
+          <Property Name="comentario_rechazo" Type="String" MaxLength="355" FixedLength="false" Unicode="false" />
+          <Property Name="comentario_adicional" Type="String" MaxLength="355" FixedLength="false" Unicode="false" />
+          <Property Name="american_express" Type="Boolean" Nullable="false" />
+          <Property Name="id_extracto_cuenta" Type="Int32" />
+          <Property Name="estatus" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="biblioteca_digital" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_extracto_cuenta" FromRole="GV_comprobacion" ToRole="biblioteca_digital" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_GV_comprobacion_contabilidad" FromRole="GV_comprobacion" ToRole="empleados" />
+          <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_controlling" FromRole="GV_comprobacion" ToRole="empleados" />
+          <NavigationProperty Name="empleados2" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_jefe_directo" FromRole="GV_comprobacion" ToRole="empleados" />
+          <NavigationProperty Name="empleados3" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_nomina" FromRole="GV_comprobacion" ToRole="empleados" />
+          <NavigationProperty Name="GV_solicitud" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_gv_solicitud" FromRole="GV_comprobacion" ToRole="GV_solicitud" />
+        </EntityType>
+        <Association Name="FK_GV_comprobacion_id_extracto_cuenta">
+          <End Type="Portal_2_0Model.biblioteca_digital" Role="biblioteca_digital" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.GV_comprobacion" Role="GV_comprobacion" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="biblioteca_digital">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="GV_comprobacion">
+              <PropertyRef Name="id_extracto_cuenta" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_comprobacion_contabilidad">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.GV_comprobacion" Role="GV_comprobacion" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="GV_comprobacion">
+              <PropertyRef Name="id_contabilidad" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_comprobacion_id_controlling">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.GV_comprobacion" Role="GV_comprobacion" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="GV_comprobacion">
+              <PropertyRef Name="id_controlling" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_comprobacion_id_jefe_directo">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.GV_comprobacion" Role="GV_comprobacion" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="GV_comprobacion">
+              <PropertyRef Name="id_jefe_directo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_comprobacion_id_nomina">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.GV_comprobacion" Role="GV_comprobacion" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="GV_comprobacion">
+              <PropertyRef Name="id_nomina" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_comprobacion_id_gv_solicitud">
+          <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="1" />
+          <End Type="Portal_2_0Model.GV_comprobacion" Role="GV_comprobacion" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="GV_solicitud">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="GV_comprobacion">
               <PropertyRef Name="id_gv_solicitud" />
             </Dependent>
           </ReferentialConstraint>
@@ -10870,26 +10908,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="GV_comprobacion">
-            <EntityTypeMapping TypeName="Portal_2_0Model.GV_comprobacion">
-              <MappingFragment StoreEntitySet="GV_comprobacion">
-                <ScalarProperty Name="estatus" ColumnName="estatus" />
-                <ScalarProperty Name="comentario_adicional" ColumnName="comentario_adicional" />
-                <ScalarProperty Name="comentario_rechazo" ColumnName="comentario_rechazo" />
-                <ScalarProperty Name="fecha_aceptacion_nomina" ColumnName="fecha_aceptacion_nomina" />
-                <ScalarProperty Name="fecha_aceptacion_contabilidad" ColumnName="fecha_aceptacion_contabilidad" />
-                <ScalarProperty Name="fecha_aceptacion_controlling" ColumnName="fecha_aceptacion_controlling" />
-                <ScalarProperty Name="fecha_aceptacion_jefe_area" ColumnName="fecha_aceptacion_jefe_area" />
-                <ScalarProperty Name="id_nomina" ColumnName="id_nomina" />
-                <ScalarProperty Name="id_contabilidad" ColumnName="id_contabilidad" />
-                <ScalarProperty Name="id_controlling" ColumnName="id_controlling" />
-                <ScalarProperty Name="id_jefe_directo" ColumnName="id_jefe_directo" />
-                <ScalarProperty Name="fecha_comprobacion" ColumnName="fecha_comprobacion" />
-                <ScalarProperty Name="business_card" ColumnName="business_card" />
-                <ScalarProperty Name="id_gv_solicitud" ColumnName="id_gv_solicitud" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="GV_solicitud">
             <EntityTypeMapping TypeName="Portal_2_0Model.GV_solicitud">
               <MappingFragment StoreEntitySet="GV_solicitud">
@@ -10961,6 +10979,28 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
                 <ScalarProperty Name="id_centro_costo" ColumnName="id_centro_costo" />
                 <ScalarProperty Name="id_gv_solicitud" ColumnName="id_gv_solicitud" />
                 <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="GV_comprobacion">
+            <EntityTypeMapping TypeName="Portal_2_0Model.GV_comprobacion">
+              <MappingFragment StoreEntitySet="GV_comprobacion">
+                <ScalarProperty Name="estatus" ColumnName="estatus" />
+                <ScalarProperty Name="id_extracto_cuenta" ColumnName="id_extracto_cuenta" />
+                <ScalarProperty Name="american_express" ColumnName="american_express" />
+                <ScalarProperty Name="comentario_adicional" ColumnName="comentario_adicional" />
+                <ScalarProperty Name="comentario_rechazo" ColumnName="comentario_rechazo" />
+                <ScalarProperty Name="fecha_aceptacion_nomina" ColumnName="fecha_aceptacion_nomina" />
+                <ScalarProperty Name="fecha_aceptacion_contabilidad" ColumnName="fecha_aceptacion_contabilidad" />
+                <ScalarProperty Name="fecha_aceptacion_controlling" ColumnName="fecha_aceptacion_controlling" />
+                <ScalarProperty Name="fecha_aceptacion_jefe_area" ColumnName="fecha_aceptacion_jefe_area" />
+                <ScalarProperty Name="id_nomina" ColumnName="id_nomina" />
+                <ScalarProperty Name="id_contabilidad" ColumnName="id_contabilidad" />
+                <ScalarProperty Name="id_controlling" ColumnName="id_controlling" />
+                <ScalarProperty Name="id_jefe_directo" ColumnName="id_jefe_directo" />
+                <ScalarProperty Name="fecha_comprobacion" ColumnName="fecha_comprobacion" />
+                <ScalarProperty Name="business_card" ColumnName="business_card" />
+                <ScalarProperty Name="id_gv_solicitud" ColumnName="id_gv_solicitud" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

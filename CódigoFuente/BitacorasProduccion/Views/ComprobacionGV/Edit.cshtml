@@ -330,6 +330,7 @@
                             @Html.HiddenFor(model => model.GV_comprobacion.fecha_comprobacion)
                             @Html.HiddenFor(model => model.GV_comprobacion.comentario_rechazo)
                             @Html.HiddenFor(model => model.GV_comprobacion.id_jefe_directo)
+                            @Html.HiddenFor(model => model.GV_comprobacion.id_extracto_cuenta)
                             <input type="hidden" name="cambio_documento_formulario" id="cambio_documento_formulario" value="0" />
                       
                             <div class="ln_solid"></div>
@@ -356,32 +357,73 @@
                                 <div class="alert alert-danger" role="alert">
                                     @Html.ValidationSummary("", new { @class = "text-white" })
                                 </div>
-                            }
-                            <div class="form-group row">
-                                <span style="color:black"><b>CENTRO DE COSTO</b></span>
-                            </div>
-                            <div class="form-group row">
+                            }                          
+                             <div class="form-group row">
                                 <!--Empleado-->
                                 @Html.LabelFor(model => model.id_empleado, new { @class = "control-label col-md-1 float-right" })
                                 <div class="col-md-4">
                                     <input class="form-control" value="@Html.DisplayFor(model => model.empleados2.ConcatNombre)" readonly />
                                 </div>
 
-                                <!--Empleado-->
-                                @Html.LabelFor(model => model.empleados2.numeroEmpleado, new { @class = "control-label col-md-1 float-right" })
+                                <!--American Express-->
+                                @Html.LabelFor(model => model.GV_comprobacion.american_express, new { @class = "control-label col-md-2 float-right" })
                                 <div class="col-md-1">
-                                    <input class="form-control" value="@Html.DisplayFor(model => model.empleados2.numeroEmpleado)" readonly />
+                                    @Html.EditorFor(model => model.GV_comprobacion.american_express, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
                                 </div>
 
                                 <!--tarjeta Business card-->
                                 @Html.LabelFor(model => model.GV_comprobacion.business_card, new { @class = "control-label col-md-1 float-right" })
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     @Html.EditorFor(model => model.GV_comprobacion.business_card, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off" } })
                                     @Html.ValidationMessageFor(model => model.GV_comprobacion.business_card, "", new { @class = "text-danger" })
                                 </div>
 
                             </div>
 
+                             <div class="form-group row" id="div_document_support_info">
+                                 @if (Model.GV_comprobacion.id_extracto_cuenta.HasValue)
+                                 {
+                                 @Html.LabelFor(model => model.GV_comprobacion.id_extracto_cuenta, new { @class = "control-label col-md-1" })
+                                 <div class="col-md-4">
+                                     <input type="text" class="form-control col-md-12" style="text-align: right;" value="@Model.GV_comprobacion.biblioteca_digital.Nombre" readonly>
+                                 </div>
+                                 <div class="col-md-4">
+                                     <a href="@Url.Action("DownloadFile", "Combos", new { idDocumento = Model.GV_comprobacion.id_extracto_cuenta })" class="btn btn-success btm-sm" title="Download">
+                                         <i class="fa fa-download"></i>
+                                     </a>
+                                     <a href="@Url.Action("DownloadFile", "Combos", new { idDocumento = Model.GV_comprobacion.id_extracto_cuenta, inline = true })" class="btn btn-info btm-sm" target="_blank" title="Inline">
+                                         <i class="fa-regular fa-eye"></i>
+                                     </a>
+                                     <a onclick="muestraFileInput()" class="btn btn-danger btm-sm" title="Delete" style="color:white">
+                                         <i class="fa fa-close"></i>
+                                     </a>
+                                 </div>
+                                 }
+                             </div>
+                            
+                             <div class="form-group row" id="div_document_extracto_cuenta" style="@(Model.GV_comprobacion!=null && Model.GV_comprobacion.american_express && !Model.GV_comprobacion.id_extracto_cuenta.HasValue ? "" : "display:none" )">
+                                 @Html.LabelFor(model => model.GV_comprobacion.id_extracto_cuenta, new { @class = "control-label col-md-1" })
+                                 <div class="col-md-4">
+
+                                     <div class="input-group">
+                                         <div class="custom-file">
+                                             @Html.TextBoxFor(m => m.GV_comprobacion.PostedFileExtractoCuenta, new { @class = "custom-file-input", type = "file", @accept = ".png, .jpeg, .jpg, .pdf, .doc, .docx, .zip, .eml", @required="required" })
+                                             <label class="custom-file-label" for="@(nameof(GV_comprobacion.PostedFileExtractoCuenta))" style="text-align:left">Seleccione un archivo...</label>
+                                         </div>
+                                     </div>
+                                     @Html.ValidationMessageFor(m => m.GV_comprobacion.PostedFileExtractoCuenta, "", new { @class = "text-danger" })
+                                 </div>
+                                 <div class="col-md-1">
+                                     <div class="input-group">
+                                         @if (Model.GV_comprobacion.id_extracto_cuenta.HasValue)
+                                         {
+                                             <a onclick="ocultaFileInput()" class="btn btn-warning btm-sm" title="Deshacer" style="color:white">
+                                                 <i class="fa fa-refresh"></i>
+                                             </a>
+                                         }
+                                     </div>
+                                 </div>
+                             </div>
                             <br />
                             <div class="table-responsive">
                                 <table id="datatable_2" class="table table-striped table-bordered" cellspacing="0" width="100%">
@@ -423,10 +465,7 @@
                                             </th>
                                             <th>
                                                 Importe
-                                            </th>
-                                            @*<th>
-                                Descuento
-                            </th>*@
+                                            </th>                                          
                                             <th>
                                                 % IVA
                                             </th>
@@ -444,10 +483,7 @@
                                             </th>
                                             <th>
                                                 Total IEPS
-                                            </th>
-                                            @*<th>
-                                Total Translados
-                            </th>*@
+                                            </th>                                          
                                             <th>
                                                 Total Retenciones
                                             </th>
@@ -1186,7 +1222,14 @@ function CalculaTotales() {
     //calcula el valor por comprobar
     let anticipoMXN = CurrencyToFloat($("#anticipo_mxn").html());
     let porComprobarMXN = anticipoMXN - totalMXN;
+
     // muestra la cantidad por comprobar
+    if (porComprobarMXN >= 0) {
+        $("#saldo_por_comprobar_mxn").css('color', '#00DD00')
+    } else {
+        $("#saldo_por_comprobar_mxn").css('color', '#EE0000')
+    }
+
     $("#saldo_por_comprobar_mxn").html(FloatToCurrency(porComprobarMXN));
 
 
@@ -1203,9 +1246,54 @@ function FloatToCurrency(currency) {
         currency: 'USD'
     });
     return resultd;
-}
+        }
 
-function CargaValoresIniciales() {
+        //muestra el formulario de carga de archivo
+        function muestraFileInput() {
+            $("#div_document_support_info").fadeOut(700, function () {
+                $("#@Html.IdFor(model => model.GV_comprobacion.PostedFileExtractoCuenta)").val
+                $('#@Html.IdFor(model => model.GV_comprobacion.PostedFileExtractoCuenta)').next('label').html('Seleccione un archivo...');
+            });
+            $("#div_document_extracto_cuenta").fadeIn(700);
+
+            document.getElementById('cambio_documento_formulario').value = ++documento_soporte_cambios;
+
+        }
+
+        //oculta el formulario de carga de archivo
+        function ocultaFileInput() {
+            $("#div_document_support_info").fadeIn(700, function () {
+                $("#@Html.IdFor(model => model.GV_comprobacion.PostedFileExtractoCuenta)").val('');
+                $('#@Html.IdFor(model => model.GV_comprobacion.PostedFileExtractoCuenta)').next('label').html('Seleccione un archivo...');
+            });
+            $("#div_document_extracto_cuenta").fadeOut(700);
+
+            document.getElementById('cambio_documento_formulario').value = ++documento_soporte_cambios;
+        }
+
+    function CargaValoresIniciales() {
+    //agrega evento de de transporte
+    $('#@Html.IdFor(model => model.GV_comprobacion.american_express)').on('ifChanged', function (event) {
+        if (event.target.checked) {
+
+            if (@(Model.GV_comprobacion.id_extracto_cuenta.HasValue?1:0)) {
+                $("#div_document_support_info").fadeIn(700);
+            } else {
+                $("#div_document_extracto_cuenta").fadeIn(700);
+            }
+
+        } else {
+            $("#div_document_extracto_cuenta").fadeOut(700, function () {
+                $("#@Html.IdFor(model => model.GV_comprobacion.PostedFileExtractoCuenta)").val('');
+                $('#@Html.IdFor(model => model.GV_comprobacion.PostedFileExtractoCuenta)').next('label').html('Seleccione un archivo...');
+            });
+            $("#div_document_support_info").fadeOut(700, function () {
+                $("#@Html.IdFor(model => model.GV_comprobacion.PostedFileExtractoCuenta)").val('');
+                  $('#@Html.IdFor(model => model.GV_comprobacion.PostedFileExtractoCuenta)').next('label').html('Seleccione un archivo...');
+            });
+        }
+    });
+
     //agrega evento para calculo de gasto extranjero
     $(".concepto-extranjero").each(function () {
         let row = $(this).attr("data-row");

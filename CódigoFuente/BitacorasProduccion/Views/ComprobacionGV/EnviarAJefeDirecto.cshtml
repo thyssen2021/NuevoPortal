@@ -312,8 +312,6 @@
                             </div>
                         </div>
 
-
-
                         <div class="ln_solid"></div>
                         <div class="form-group row">
                             <div class="col-md-12" style="text-align:center">
@@ -323,15 +321,11 @@
                         <div class="ln_solid"></div>
 
                         <div class="form-group row">
-                            <span style="color:black"><b>CENTRO DE COSTO</b></span>
-                        </div>
-                        <div class="form-group row">
                             <!--Estatus-->
                             @Html.LabelFor(model => model.estatus, new { @class = "control-label col-md-9 float-right" })
                             <div class="col-md-3">
                                 <input class="form-control" value="@Bitacoras.Util.GV_comprobacion_estatus.DescripcionStatus(Model.GV_comprobacion.estatus)" readonly />
                             </div>
-
                         </div>
                         <div class="form-group row">
                             <!--Empleado-->
@@ -340,18 +334,35 @@
                                 <input class="form-control" value="@Html.DisplayFor(model => model.empleados2.ConcatNombre)" readonly />
                             </div>
 
-                            <!--Empleado-->
-                            @Html.LabelFor(model => model.empleados2.numeroEmpleado, new { @class = "control-label col-md-1 float-right" })
+                            <!--American Express-->
+                            @Html.LabelFor(model => model.GV_comprobacion.american_express, new { @class = "control-label col-md-2 float-right" })
                             <div class="col-md-1">
-                                <input class="form-control" value="@Html.DisplayFor(model => model.empleados2.numeroEmpleado)" readonly />
+                                @Html.EditorFor(model => model.GV_comprobacion.american_express, new { htmlAttributes = new { @class = "form-control col-md-12", @disabled = "disabled" } })
                             </div>
 
                             <!--tarjeta Business card-->
                             @Html.LabelFor(model => model.GV_comprobacion.business_card, new { @class = "control-label col-md-1 float-right" })
-                            <div class="col-md-3">
-                                @Html.EditorFor(model => model.GV_comprobacion.business_card, new { htmlAttributes = new { @class = "form-control col-md-12", @readonly = "readonly" } })
+                            <div class="col-md-2">
+                                @Html.EditorFor(model => model.GV_comprobacion.business_card, new { htmlAttributes = new { @class = "form-control col-md-12", @disabled = "disabled" } })
                             </div>
 
+                        </div>
+                        <div class="form-group row" id="div_document_support_info">
+                            @if (Model.GV_comprobacion.id_extracto_cuenta.HasValue)
+                            {
+                                @Html.LabelFor(model => model.GV_comprobacion.id_extracto_cuenta, new { @class = "control-label col-md-1" })
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control col-md-12" style="text-align: right;" value="@Model.GV_comprobacion.biblioteca_digital.Nombre" readonly>
+                                </div>
+                                <div class="col-md-4">
+                                    <a href="@Url.Action("DownloadFile", "Combos", new { idDocumento = Model.GV_comprobacion.id_extracto_cuenta })" class="btn btn-success btm-sm" title="Download">
+                                        <i class="fa fa-download"></i>
+                                    </a>
+                                    <a href="@Url.Action("DownloadFile", "Combos", new { idDocumento = Model.GV_comprobacion.id_extracto_cuenta, inline = true })" class="btn btn-info btm-sm" target="_blank" title="Inline">
+                                        <i class="fa-regular fa-eye"></i>
+                                    </a>
+                                </div>
+                            }
                         </div>
 
                         <br />
@@ -397,8 +408,8 @@
                                             Importe
                                         </th>
                                         @*<th>
-                                                Descuento
-                                            </th>*@
+                            Descuento
+                        </th>*@
                                         <th>
                                             % IVA
                                         </th>
@@ -418,8 +429,8 @@
                                             Total IEPS
                                         </th>
                                         @*<th>
-                                                Total Translados
-                                            </th>*@
+                            Total Translados
+                        </th>*@
                                         <th>
                                             Total Retenciones
                                         </th>

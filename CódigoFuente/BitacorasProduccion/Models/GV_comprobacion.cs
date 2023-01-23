@@ -27,8 +27,11 @@ namespace Portal_2_0.Models
         public Nullable<System.DateTime> fecha_aceptacion_nomina { get; set; }
         public string comentario_rechazo { get; set; }
         public string comentario_adicional { get; set; }
+        public bool american_express { get; set; }
+        public Nullable<int> id_extracto_cuenta { get; set; }
         public string estatus { get; set; }
     
+        public virtual biblioteca_digital biblioteca_digital { get; set; }
         public virtual empleados empleados { get; set; }
         public virtual empleados empleados1 { get; set; }
         public virtual empleados empleados2 { get; set; }

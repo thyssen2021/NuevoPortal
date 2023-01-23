@@ -549,6 +549,7 @@ namespace Portal_2_0.Controllers
 
             //sustituye el id_jefe_directo por el del usuario actual
             var empleado = obtieneEmpleadoLogeado();
+            var jefeDirectoAnterior = db.empleados.Find(solicitud.id_jefe_directo);
             solicitud.id_jefe_directo = empleado.id;
 
             db.Entry(solicitud).State = EntityState.Modified;
@@ -567,9 +568,12 @@ namespace Portal_2_0.Controllers
                 envioCorreo.SendEmailAsync(correos, "Ha recibido una Comprobación Gastos de Viaje.", envioCorreo.getBodyGVComprobacionNotificacionEnvioControlling(solicitud));
 
                 //en caso de ser autorización especial envía notificacion al JEFE
-                if (esAutorizacionEspecial)
+                if (esAutorizacionEspecial && jefeDirectoAnterior != null)
+                {
+                    correos = new List<string>();
+                    correos.Add(jefeDirectoAnterior.correo);
                     envioCorreo.SendEmailAsync(correos, "Se ha autorizado una comprobación de Gastos de Viaje pendiente.", envioCorreo.getBodyGVComprobacionNotificacionJefeDirectoEspecial(solicitud));
-
+                }
             }
             catch (System.Data.Entity.Validation.DbEntityValidationException ex)
             {
@@ -1457,6 +1461,8 @@ namespace Portal_2_0.Controllers
         }
 
         // GET: ComprobacionGV/Details/5
+
+
         public ActionResult ComprobacionGastos(int? id)
         {
             if (!TieneRol(TipoRoles.GV_SOLICITUD)) //Todos los usuarios van a tener permiso para crear solicitudes de GV, Por lo que solo se necesita validar este permiso
@@ -1470,6 +1476,12 @@ namespace Portal_2_0.Controllers
             if (gV_solicitud == null)
             {
                 return HttpNotFound();
+            }
+
+            //mensaje en caso de crear, editar, etc
+            if (TempData["Mensaje"] != null)
+            {
+                ViewBag.MensajeAlert = TempData["Mensaje"];
             }
 
             //determina si aplica otro o no
@@ -1494,7 +1506,17 @@ namespace Portal_2_0.Controllers
 
             // ModelState.AddModelError("", "Error Prueba");
 
-            //obtiene todos los posibles archivos
+            //valida si el archivo de extracto de cuenta es válido
+            if (solicitud.GV_comprobacion.PostedFileExtractoCuenta != null && solicitud.GV_comprobacion.american_express)
+            {
+                string msjRetorno = String.Empty;
+                biblioteca_digital archivoExtracto = ValidaArchivo(solicitud.GV_comprobacion.PostedFileExtractoCuenta, 3,
+                    new List<string> { ".png", ".jpeg", ".jpg", ".pdf", ".doc", ".docx", ".zip", ".eml" }, ref msjRetorno);
+                if (archivoExtracto == null)//hubo un error
+                    ModelState.AddModelError("", msjRetorno);
+                else //hubo exito
+                    solicitud.GV_comprobacion.biblioteca_digital = archivoExtracto;  //documento soporte
+            }
 
             //valida archivos, en caso de existir
             foreach (var concepto in solicitud.GV_comprobacion_rel_gastos)
@@ -1522,7 +1544,7 @@ namespace Portal_2_0.Controllers
                 //3.- valida archivo extranjero
                 if (concepto.PostedFileExtranjero != null)
                 {
-                    biblioteca_digital archivoExtranjero = ValidaArchivo(concepto.PostedFileExtranjero, 5, new List<string> { ".png", ".jpeg", ".png", ".rar", ".zip", ".pdf", ".xml" }, ref msj);
+                    biblioteca_digital archivoExtranjero = ValidaArchivo(concepto.PostedFileExtranjero, 5, new List<string> { ".png", ".jpeg", ".jpg", ".rar", ".zip", ".pdf", ".xml" }, ref msj);
                     if (archivoExtranjero == null)//hubo un error
                         ModelState.AddModelError("", msj);
                     else //hubo exito
@@ -1638,7 +1660,43 @@ namespace Portal_2_0.Controllers
 
             //ModelState.AddModelError("", "Error Prueba");
 
-            //obtiene todos los posibles archivos
+            //procesa archivo de extracto
+            if (solicitud.GV_comprobacion.american_express)
+            {
+                //valida si el archivo de extracto de cuenta es válido
+                if (solicitud.GV_comprobacion.PostedFileExtractoCuenta != null && solicitud.GV_comprobacion.american_express)
+                {
+                    string msjRetorno = String.Empty;
+                    biblioteca_digital archivoExtracto = ValidaArchivo(solicitud.GV_comprobacion.PostedFileExtractoCuenta, 3,
+                        new List<string> { ".png", ".jpeg", ".jpg", ".pdf", ".doc", ".docx", ".zip", ".eml" }, ref msjRetorno);
+                    if (archivoExtracto == null)//hubo un error
+                        ModelState.AddModelError("", msjRetorno);
+                    else //hubo exito
+                    {
+                        //si no tiene valor crea
+                        if (!solicitud.GV_comprobacion.id_extracto_cuenta.HasValue)
+                        {
+                            var newFile = db.biblioteca_digital.Add(archivoExtracto);
+                            solicitud.GV_comprobacion.id_extracto_cuenta = newFile.Id;  //documento soporte
+                        }
+                        else  //si ya tiene valor edita
+                        {
+                            var archivoAnterior = db.biblioteca_digital.Find(solicitud.GV_comprobacion.id_extracto_cuenta);
+                            archivoAnterior.Datos = archivoExtracto.Datos;
+                            archivoAnterior.Nombre = archivoExtracto.Nombre;
+                            archivoExtracto.MimeType = archivoExtracto.MimeType;
+                        }
+
+                    }
+                }
+            }
+            else if (solicitud.GV_comprobacion.id_extracto_cuenta.HasValue)
+            {
+                //elimina en caso de existir                
+                db.biblioteca_digital.Remove(db.biblioteca_digital.Find(solicitud.GV_comprobacion.id_extracto_cuenta));
+                solicitud.GV_comprobacion.id_extracto_cuenta = null;
+            }
+
 
             //valida y asigna archivos, en caso de existir
             foreach (var concepto in solicitud.GV_comprobacion_rel_gastos)
@@ -1756,6 +1814,7 @@ namespace Portal_2_0.Controllers
             solicitud = db.GV_solicitud.Find(solicitud.id);
             solicitud.GV_comprobacion = gV_ComprobacionRecibida;
             solicitud.GV_comprobacion_rel_gastos = gV_Comprobacion_Rel_Gastos;
+            solicitud.GV_comprobacion.biblioteca_digital = db.biblioteca_digital.FirstOrDefault(x => x.Id == gV_ComprobacionRecibida.id_extracto_cuenta);
 
             //determina si aplica otro o no
             solicitud.medio_transporte_aplica_otro = !solicitud.id_medio_transporte.HasValue;
@@ -1804,8 +1863,62 @@ namespace Portal_2_0.Controllers
             ViewBag.iso_moneda_extranjera = AddFirstItem(new SelectList(db.currency.Where(x => x.activo && (x.CurrencyISO == "USD" || x.CurrencyISO == "EUR")), "CurrencyISO", "CocatCurrency"), selected: "USD");
             ViewBag.id_empleado = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo.HasValue && x.activo.Value), "id", "ConcatNumEmpleadoNombre"), selected: solicitante.id.ToString());
             ViewBag.id_medio_transporte = AddFirstItem(new SelectList(db.GV_medios_transporte.Where(x => x.activo), "id", "descripcion"));
+            ViewBag.sin_anticipo = true;
 
-            return View(solicitud);
+            return View("../GV_solicitud/create", solicitud);
+        }
+
+        // POST: ComprobacionGV/SolicitudSinAnticipo
+        // Para protegerse de ataques de publicación excesiva, habilite las propiedades específicas a las que quiere enlazarse. Para obtener 
+        // más detalles, vea https://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SolicitudSinAnticipo(GV_solicitud solicitud)
+        {
+            //obtiene el usuario logeado
+            empleados solicitante = obtieneEmpleadoLogeado();
+
+            if (ModelState.IsValid)
+            {
+                //borra los conceptos anteriores
+                var list = db.GV_rel_gastos_solicitud.Where(x => x.id_gv_solicitud == solicitud.id);
+                foreach (var itemRemove in list)
+                    db.GV_rel_gastos_solicitud.Remove(itemRemove);
+
+                //agrega los nuevos items rel 
+                foreach (var iteamAdd in solicitud.GV_rel_gastos_solicitud)
+                    db.GV_rel_gastos_solicitud.Add(iteamAdd);
+
+                solicitud.fecha_solicitud = DateTime.Now;
+                solicitud.estatus = Bitacoras.Util.GV_solicitud_estatus.FINALIZADO;
+
+                db.GV_solicitud.Add(solicitud);
+
+                try
+                {
+                    db.SaveChanges();
+                    TempData["Mensaje"] = new MensajesSweetAlert("Se creado el registro correctamente. A continuación, ingrese los conceptos de comprobación.", TipoMensajesSweetAlerts.SUCCESS);
+                    return RedirectToAction("ComprobacionGastos", new { id = solicitud.id, estatus = "PENDIENTES" });
+                }
+                catch (Exception e)
+                {
+                    TempData["Mensaje"] = new MensajesSweetAlert(e.Message, TipoMensajesSweetAlerts.ERROR);
+                    return RedirectToAction("Solicitudes", new { estatus = "PENDIENTES" });
+                }
+            }
+            //relaciona el solicitante con la solitud
+            solicitud.empleados5 = solicitante;
+
+            //obtiene la propiedades para rels
+            foreach (var rel in solicitud.GV_rel_gastos_solicitud)
+                rel.GV_tipo_gastos_viaje = db.GV_tipo_gastos_viaje.Find(rel.id_tipo_gastos_viaje);
+
+            ViewBag.iso_moneda_extranjera = AddFirstItem(new SelectList(db.currency.Where(x => x.activo && (x.CurrencyISO == "USD" || x.CurrencyISO == "EUR")), "CurrencyISO", "CocatCurrency"), selected: solicitud.iso_moneda_extranjera);
+            ViewBag.id_empleado = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo.HasValue && x.activo.Value), "id", "ConcatNumEmpleadoNombre"), selected: solicitud.id_empleado.ToString());
+            ViewBag.id_medio_transporte = AddFirstItem(new SelectList(db.GV_medios_transporte.Where(x => x.activo), "id", "descripcion"), selected: solicitud.id_medio_transporte.ToString());
+            ViewBag.sin_anticipo = true;
+
+            return View("../GV_solicitud/create", solicitud);
         }
 
 

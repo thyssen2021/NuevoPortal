@@ -909,6 +909,7 @@ namespace Portal_2_0.Controllers
 
                 //sustituye el id_jefe_directo por el del usuario actual
                 var empleado = obtieneEmpleadoLogeado();
+                var jefeDirectoAnterior = db.empleados.Find(solicitud.id_jefe_directo);
                 solicitud.id_jefe_directo = empleado.id;
 
                 //necesario para poder guardar los cambios
@@ -939,9 +940,13 @@ namespace Portal_2_0.Controllers
                     envioCorreo.SendEmailAsync(correos, "Ha recibido una solicitud de Anticipo de Gastos de Viaje.", envioCorreo.getBodyGVNotificacionEnvioControlling(solicitud));
 
                     //en caso de ser autorización especial envía notificacion al JEFE
-                    if (esAutorizacionEspecial)
+                    if (esAutorizacionEspecial && jefeDirectoAnterior != null)
+                    {
+                        correos = new List<string>();
+                        correos.Add(jefeDirectoAnterior.correo);
                         envioCorreo.SendEmailAsync(correos, "Se ha autorizado una solicitud de Anticipo de Gastos de Viaje pendiente.", envioCorreo.getBodyGVNotificacionJefeDirectoEspecial(solicitud));
-
+                    }
+                  
                 }
                 catch (System.Data.Entity.Validation.DbEntityValidationException ex)
                 {

@@ -26,6 +26,7 @@ namespace Portal_2_0.Models
             this.GV_comprobacion_rel_gastos = new HashSet<GV_comprobacion_rel_gastos>();
             this.GV_comprobacion_rel_gastos1 = new HashSet<GV_comprobacion_rel_gastos>();
             this.GV_comprobacion_rel_gastos2 = new HashSet<GV_comprobacion_rel_gastos>();
+            this.GV_comprobacion = new HashSet<GV_comprobacion>();
         }
     
         public int Id { get; set; }
@@ -51,5 +52,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<GV_comprobacion_rel_gastos> GV_comprobacion_rel_gastos1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<GV_comprobacion_rel_gastos> GV_comprobacion_rel_gastos2 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<GV_comprobacion> GV_comprobacion { get; set; }
     }
 }
