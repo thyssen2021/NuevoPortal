@@ -279,7 +279,14 @@
         <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_solicitante" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_medio_transporte" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_rel_gastos_solicitud_id_gv_solicitud" />
-        <EntityTypeShape EntityType="Portal_2_0Model.GV_comprobacion_rel_gastos" Width="1.5" PointX="29" PointY="69.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.GV_comprobacion" Width="1.5" PointX="29" PointY="79.375" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_id_extracto_cuenta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_contabilidad" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_id_controlling" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_id_jefe_directo" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_id_nomina" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_id_gv_solicitud" />
+        <EntityTypeShape EntityType="Portal_2_0Model.GV_comprobacion_rel_gastos" Width="1.5" PointX="29" PointY="69.625" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_archivo_comprobante_extranjero" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_archivo_pdf" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_archivo_xml" />
@@ -288,13 +295,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_gastos_viaje" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_pago" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_gv_solicitud" />
-        <EntityTypeShape EntityType="Portal_2_0Model.GV_comprobacion" Width="1.5" PointX="29" PointY="79.375" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_id_extracto_cuenta" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_contabilidad" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_id_controlling" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_id_jefe_directo" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_id_nomina" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_id_gv_solicitud" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

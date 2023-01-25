@@ -16,6 +16,8 @@ namespace Bitacoras.Util
         public const string XML_TOTALES = "XML_TOTALES";
         public const string GASTO_EXTRANJERO = "GASTO_EXTRANJERO";
         public const string GASTO_SIN_COMPROBANTE = "GASTO_SIN_COMPROBANTE";
+        public const string COFIDI_CONCEPTO_CC = "COFIDI_CONCEPTO_CC";
+        public const string XML_CONCEPTO_CC = "XML_CONCEPTO_CC";
 
         public static string DescripcionOrigen(String status)
         {
@@ -46,9 +48,12 @@ namespace Bitacoras.Util
                 case GV_comprobacion_origen.COFIDI_CONCEPTO:
                 case GV_comprobacion_origen.XML_CONCEPTO:
                     return 2;
+                case GV_comprobacion_origen.XML_CONCEPTO_CC:
+                case GV_comprobacion_origen.COFIDI_CONCEPTO_CC:
+                    return 3;
                 case GV_comprobacion_origen.COFIDI_TOTALES:
                 case GV_comprobacion_origen.XML_TOTALES:
-                    return 3;
+                    return 4;
                 default:
                     return 0;
 

@@ -410,8 +410,8 @@
                                             Importe
                                         </th>
                                         @*<th>
-                            Descuento
-                        </th>*@
+                        Descuento
+                    </th>*@
                                         <th>
                                             % IVA
                                         </th>
@@ -431,8 +431,8 @@
                                             Total IEPS
                                         </th>
                                         @*<th>
-                            Total Translados
-                        </th>*@
+                        Total Translados
+                    </th>*@
                                         <th>
                                             Total Retenciones
                                         </th>
@@ -441,6 +441,9 @@
                                         </th>
                                         <th>
                                             Total
+                                        </th>
+                                        <th>
+                                            Total CC
                                         </th>
                                         <th>Total MXN</th>
                                         <th nowrap>
@@ -483,6 +486,7 @@
                                                     <td></td>
                                                     <td></td>
                                                     <td></td>
+                                                    <td></td>
                                                     <td>
                                                         <i>@Html.DisplayFor(model => concepto.comentario)</i>
                                                     </td>
@@ -517,6 +521,21 @@
                                                     <td nowrap style="color:#C10000; text-align:right">@(concepto.total_retenciones.HasValue ? concepto.total_retenciones.Value.ToString("$ #,##0.00") : "--")</td>
                                                     <td></td>
                                                     <td nowrap style="text-align:right">@(concepto.total_mxn.HasValue ? concepto.total_mxn.Value.ToString("$ #,##0.00") : "--")</td>
+                                                    <td colspan="3"></td>
+                                                </tr>
+                                                break;
+                                            case Bitacoras.Util.GV_comprobacion_origen.COFIDI_CONCEPTO_CC:
+                                            case Bitacoras.Util.GV_comprobacion_origen.XML_CONCEPTO_CC:
+                                                <tr style="background-color:#C9DCC1" class="div_@concepto.uuid">
+                                                    <td colspan="9"></td>
+                                                    <td colspan="9" style="text-align: right; font-style: italic;" nowrap>
+                                                        @Html.DisplayFor(model => Model.GV_comprobacion_rel_gastos.FirstOrDefault(x => x.num_cc == concepto.num_cc
+                                                                            && concepto.uuid == x.uuid
+                                                                            && (x.concepto_tipo == Bitacoras.Util.GV_comprobacion_origen.COFIDI_CONCEPTO || x.concepto_tipo == Bitacoras.Util.GV_comprobacion_origen.XML_CONCEPTO)).GV_centros_costo.ConcatCentroDeptoPlanta)
+                                                    </td>
+                                                    <td colspan="1" style="text-align:right" nowrap>
+                                                        @(concepto.importe_cc.HasValue ? concepto.importe_cc.Value.ToString("$ #,##0.00") : "--")
+                                                    </td>
                                                     <td colspan="2"></td>
                                                 </tr>
                                                 break;
@@ -535,6 +554,13 @@
                                                     <td nowrap style="color:#C10000; text-align:right">@(concepto.total_retenciones.HasValue ? concepto.total_retenciones.Value.ToString("$ #,##0.00") : "--")</td>
                                                     <td nowrap style="text-align:right">@(concepto.impuestos_locales.HasValue ? concepto.impuestos_locales.Value.ToString("$ #,##0.00") : "--")</td>
                                                     <td nowrap style="text-align:right">@(concepto.total_mxn.HasValue ? concepto.total_mxn.Value.ToString("$ #,##0.00") : "--")</td>
+                                                    <td colspan="1" id="suma-cc-@concepto.uuid" style="text-align:right; font-weight:bold;">
+                                                        @(Model.GV_comprobacion_rel_gastos.Where(x=>
+                                                                (x.concepto_tipo == Bitacoras.Util.GV_comprobacion_origen.COFIDI_CONCEPTO_CC
+                                                                || x.concepto_tipo == Bitacoras.Util.GV_comprobacion_origen.XML_CONCEPTO_CC)
+                                                                && x.uuid == concepto.uuid
+                                                                ).Sum(x=>x.importe_cc).Value.ToString("$ #,##0.00"))
+                                                    </td>
                                                     <td nowrap class="item-total-mxn" style="text-align:right; font-weight:bold">@(concepto.total_mxn.HasValue ? concepto.total_mxn.Value.ToString("$ #,##0.00") : "--")</td>
                                                     <td colspan="1"></td>
                                                 </tr>
@@ -567,6 +593,7 @@
                                                     <td></td>
                                                     <td></td>
                                                     <td></td>
+                                                    <td></td>
                                                     <td>
                                                         <i>@Html.DisplayFor(model => concepto.comentario)</i>
                                                     </td>
@@ -587,6 +614,7 @@
                                                         <b>Importe:</b> <br /> <importe id="GV_comprobacion_rel_gastos[@contador].importe">$ @Html.DisplayFor(model => concepto.importe)</importe>
                                                     </td>
                                                     <td colspan="6"></td>
+                                                    <td colspan="1"></td>
                                                     <td colspan="1"></td>
                                                     <td colspan="1" class="item-total-mxn" id="total-mxn_@contador" style="font-weight: bold; text-align: right;"></td>
                                                     <td colspan="1"></td>
@@ -616,6 +644,7 @@
                                                     <td></td>
                                                     <td></td>
                                                     <td></td>
+                                                    <td></td>
                                                     <td>
                                                         <i>@Html.DisplayFor(model => concepto.comentario)</i>
                                                     </td>
@@ -637,6 +666,7 @@
                                                     </td>
                                                     <td colspan="6"></td>
                                                     <td colspan="1"></td>
+                                                    <td colspan="1"></td>
                                                     <td colspan="1" class="item-total-mxn" id="total-mxn_@contador" style="font-weight: bold; text-align: right;"></td>
                                                     <td colspan="1"></td>
                                                 </tr>
@@ -648,17 +678,17 @@
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <th colspan="18" style="text-align:right">Total MXN</th>
+                                        <th colspan="19" style="text-align:right">Total MXN</th>
                                         <th id="total_gastos_mxn" style="text-align:right" nowrap>$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", Model.sumaGastosNacional)</th>
                                         <th colspan="1"></th>
                                     </tr>
                                     <tr>
-                                        <th colspan="18" style="text-align:right">ANTICIPO</th>
+                                        <th colspan="19" style="text-align:right">ANTICIPO</th>
                                         <th id="anticipo_mxn" style="text-align:right" nowrap>$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", Model.sumaGastosNacional)</th>
                                         <th colspan="1"></th>
                                     </tr>
                                     <tr>
-                                        <th colspan="18" style="text-align:right">SALDO POR COMPROBAR</th>
+                                        <th colspan="19" style="text-align:right">SALDO POR COMPROBAR</th>
                                         <th id="saldo_por_comprobar_mxn" style="text-align:right" nowrap>$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", Model.sumaGastosNacional)</th>
                                         <th colspan="1"></th>
                                     </tr>
@@ -984,6 +1014,13 @@ function CalculaTotales() {
     //calcula el valor por comprobar
     let anticipoMXN = CurrencyToFloat($("#anticipo_mxn").html());
     let porComprobarMXN = anticipoMXN - totalMXN;
+    // muestra la cantidad por comprobar
+    if (porComprobarMXN >= 0) {
+        $("#saldo_por_comprobar_mxn").css('color', '#00DD00')
+    } else {
+        $("#saldo_por_comprobar_mxn").css('color', '#EE0000')
+    }
+
     // muestra la cantidad por comprobar
     $("#saldo_por_comprobar_mxn").html(FloatToCurrency(porComprobarMXN));
 

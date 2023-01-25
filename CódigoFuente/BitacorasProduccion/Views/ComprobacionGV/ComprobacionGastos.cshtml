@@ -380,7 +380,7 @@
 
                                     <div class="input-group">
                                         <div class="custom-file">
-                                            @Html.TextBoxFor(m => m.GV_comprobacion.PostedFileExtractoCuenta, new { @class = "custom-file-input", type = "file", @accept = ".png, .jpeg, .jpg, .pdf, .doc, .docx, .zip, .eml", @required="required" })
+                                            @Html.TextBoxFor(m => m.GV_comprobacion.PostedFileExtractoCuenta, new { @class = "custom-file-input", type = "file", @accept = ".png, .jpeg, .jpg, .pdf, .doc, .docx, .zip, .eml", @required = "required" })
                                             <label class="custom-file-label" for="@(nameof(GV_comprobacion.PostedFileExtractoCuenta))" style="text-align:left">Seleccione un archivo...</label>
                                         </div>
                                     </div>
@@ -429,7 +429,7 @@
                                             </th>
                                             <th>
                                                 Importe
-                                            </th>                                          
+                                            </th>
                                             <th>
                                                 % IVA
                                             </th>
@@ -447,7 +447,7 @@
                                             </th>
                                             <th>
                                                 Total IEPS
-                                            </th>                                         
+                                            </th>
                                             <th>
                                                 Total Retenciones
                                             </th>
@@ -456,6 +456,9 @@
                                             </th>
                                             <th>
                                                 Total
+                                            </th>
+                                            <th>
+                                                Total CC
                                             </th>
                                             <th>Total MXN</th>
                                             <th nowrap>
@@ -530,7 +533,7 @@
                                                             }
                                                         </td>
                                                         <td></td>
-                                                      
+                                                        <td></td>
                                                         <td>
                                                             <textarea style="font-size:12px;" type="text" name="GV_comprobacion_rel_gastos[@contador].comentario" id="GV_comprobacion_rel_gastos[@contador].comentario" class="form-control col-md-12" autocomplete="off" maxlength="150" rows="5">@concepto.comentario</textarea>
                                                             <span class="field-validation-valid text-danger" data-valmsg-for="GV_comprobacion_rel_gastos[@contador].comentario" data-valmsg-replace="true"></span>
@@ -545,6 +548,7 @@
                                                     <tr style="background-color:#C9DCC1" class="div_@concepto.uuid">
                                                         <input type="hidden" name="GV_comprobacion_rel_gastos.Index" id="GV_comprobacion_rel_gastos.Index" value="@contador" />
                                                         <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].concepto_tipo" name="GV_comprobacion_rel_gastos[@contador].concepto_tipo" value="@concepto.concepto_tipo">
+                                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].num_cc" name="GV_comprobacion_rel_gastos[@contador].num_cc" value="@concepto.num_cc">
                                                         <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].uuid" name="GV_comprobacion_rel_gastos[@contador].uuid" value="@concepto.uuid">
                                                         <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].descripcion" name="GV_comprobacion_rel_gastos[@contador].descripcion" value="@concepto.descripcion">
                                                         <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].cantidad" name="GV_comprobacion_rel_gastos[@contador].cantidad" value="@concepto.cantidad">
@@ -571,7 +575,7 @@
                                                             <span class="field-validation-valid text-danger" data-valmsg-for="GV_comprobacion_rel_gastos[@contador].id_comprobacion_tipo_gastos_viaje" data-valmsg-replace="true"></span>
                                                         </td>
                                                         <td nowrap>
-                                                            <select name="GV_comprobacion_rel_gastos[@contador].id_centro_costo" id="GV_comprobacion_rel_gastos[@contador].id_centro_costo" class="form-control select2bs4 centro-costo" data-uuid="@concepto.uuid" style="width:100%" required>
+                                                            <select name="GV_comprobacion_rel_gastos[@contador].id_centro_costo" id="GV_comprobacion_rel_gastos[@contador].id_centro_costo" class="form-control select2bs4 centro-costo" data-uuid="@concepto.uuid" data-num-cc="@concepto.num_cc" style="width:100%" required>
                                                                 <option value=''>-- Seleccione un valor --</option>
                                                                 @foreach (var planta in listaCentroCosto.Select(x => x.plantas).Distinct())
                                                                 {
@@ -609,6 +613,22 @@
                                                         <td nowrap style="color:#C10000; text-align:right">@(concepto.total_retenciones.HasValue ? concepto.total_retenciones.Value.ToString("$ #,##0.00") : "--")</td>
                                                         <td></td>
                                                         <td nowrap style="text-align:right">@(concepto.total_mxn.HasValue ? concepto.total_mxn.Value.ToString("$ #,##0.00") : "--")</td>
+                                                        <td colspan="4"></td>
+                                                    </tr>
+                                                    break;
+                                                case Bitacoras.Util.GV_comprobacion_origen.COFIDI_CONCEPTO_CC:
+                                                case Bitacoras.Util.GV_comprobacion_origen.XML_CONCEPTO_CC:
+                                                    <tr style="background-color:#C9DCC1" class="div_@concepto.uuid">
+                                                        <td colspan="17" style="text-align: right; font-style: italic;"  id="cc_@(concepto.uuid+"_"+concepto.num_cc)"></td>
+                                                        <td colspan="2" nowrap>
+                                                        <input type="hidden" name="GV_comprobacion_rel_gastos.Index" id="GV_comprobacion_rel_gastos.Index" value="@contador" />
+                                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].uuid" name="GV_comprobacion_rel_gastos[@contador].uuid" value="@concepto.uuid">
+                                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].concepto_tipo" name="GV_comprobacion_rel_gastos[@contador].concepto_tipo" value="@concepto.concepto_tipo">
+                                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].num_cc" name="GV_comprobacion_rel_gastos[@contador].num_cc" value="@concepto.num_cc">
+                                                        <input type="hidden" id="GV_comprobacion_rel_gastos[@contador].total_mxn" name="GV_comprobacion_rel_gastos[@contador].total_mxn" value="@concepto.total_mxn">
+                                                        <b>Total CC:</b> <input type="text" class="importe form-control importe-cc" name="GV_comprobacion_rel_gastos[@contador].importe_cc" id="GV_comprobacion_rel_gastos[@contador].importe_cc" data-uuid="@concepto.uuid" value="@concepto.importe_cc" required>
+                                                                <span class="field-validation-valid text-danger control-label" data-valmsg-for=GV_comprobacion_rel_gastos[@contador].importe_cc data-valmsg-replace="true"></span>
+                                                        </td>
                                                         <td colspan="3"></td>
                                                     </tr>
                                                     break;
@@ -639,7 +659,8 @@
                                                         <td nowrap style="color:#C10000; text-align:right">@(concepto.total_retenciones.HasValue ? concepto.total_retenciones.Value.ToString("$ #,##0.00") : "--")</td>
                                                         <td nowrap style="text-align:right">@(concepto.impuestos_locales.HasValue ? concepto.impuestos_locales.Value.ToString("$ #,##0.00") : "--")</td>
                                                         <td nowrap style="text-align:right">@(concepto.total_mxn.HasValue ? concepto.total_mxn.Value.ToString("$ #,##0.00") : "--")</td>
-                                                        <td nowrap class="item-total-mxn" style="text-align:right; font-weight:bold">@(concepto.total_mxn.HasValue ? concepto.total_mxn.Value.ToString("$ #,##0.00") : "--")</td>
+                                                        <td colspan="1" id="suma-cc-@concepto.uuid" style="text-align:right; font-weight:bold;"></td>
+                                                        <td nowrap class="item-total-mxn" style="text-align:right; font-weight:bold" data-uuid="@concepto.uuid">@(concepto.total_mxn.HasValue ? concepto.total_mxn.Value.ToString("$ #,##0.00") : "--")</td>
                                                         <td colspan="2"></td>
                                                     </tr>
                                                     break;
@@ -708,6 +729,7 @@
                                                         <td></td>
                                                         <td></td>
                                                         <td></td>
+                                                        <td></td>
                                                         <td>
                                                             <textarea style="font-size:12px;" type="text" name="GV_comprobacion_rel_gastos[@contador].comentario" id="GV_comprobacion_rel_gastos[@contador].comentario" class="form-control col-md-12" autocomplete="off" maxlength="150" rows="4">@concepto.comentario</textarea>
                                                             <span class="field-validation-valid text-danger" data-valmsg-for="GV_comprobacion_rel_gastos[@contador].comentario" data-valmsg-replace="true"></span>
@@ -739,6 +761,7 @@
                                                             <span class=" field-validation-valid text-danger control-label" data-valmsg-for=GV_comprobacion_rel_gastos[@contador].importe data-valmsg-replace="true"></span>
                                                         </td>
                                                         <td colspan="6"></td>
+                                                        <td colspan="1"></td>
                                                         <td colspan="1"></td>
                                                         <td colspan="1" class="item-total-mxn" id="total-mxn_@contador" style="font-weight: bold; text-align: right;"></td>
                                                         <td colspan="2"></td>
@@ -800,6 +823,7 @@
                                                         <td></td>
                                                         <td></td>
                                                         <td></td>
+                                                        <td></td>
                                                         <td>
                                                             <textarea style="font-size:12px;" type="text" name="GV_comprobacion_rel_gastos[@contador].comentario" id="GV_comprobacion_rel_gastos[@contador].comentario" class="form-control col-md-12" autocomplete="off" maxlength="150" rows="4">@concepto.comentario</textarea>
                                                             <span class="field-validation-valid text-danger" data-valmsg-for="GV_comprobacion_rel_gastos[@contador].comentario" data-valmsg-replace="true"></span>
@@ -832,6 +856,7 @@
                                                         </td>
                                                         <td colspan="6"></td>
                                                         <td colspan="1"></td>
+                                                        <td colspan="1"></td>
                                                         <td colspan="1" class="item-total-mxn" id="total-mxn_@contador" style="font-weight: bold; text-align: right;"></td>
                                                         <td colspan="2"></td>
                                                     </tr>
@@ -843,17 +868,17 @@
                                     </tbody>
                                     <tfoot>
                                         <tr>
-                                            <th colspan="18" style="text-align:right">Total MXN</th>
+                                            <th colspan="19" style="text-align:right">Total MXN</th>                                          
                                             <th id="total_gastos_mxn" style="text-align:right" nowrap>$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", Model.sumaGastosNacional)</th>
                                             <th colspan="2"></th>
                                         </tr>
                                         <tr>
-                                            <th colspan="18" style="text-align:right">ANTICIPO</th>
+                                            <th colspan="19" style="text-align:right">ANTICIPO</th>
                                             <th id="anticipo_mxn" style="text-align:right" nowrap>$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", Model.sumaGastosNacional)</th>
                                             <th colspan="2"></th>
                                         </tr>
                                         <tr>
-                                            <th colspan="18" style="text-align:right">SALDO POR COMPROBAR</th>
+                                            <th colspan="19" style="text-align:right">SALDO POR COMPROBAR</th>
                                             <th id="saldo_por_comprobar_mxn" style="text-align:right" nowrap>$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", Model.sumaGastosNacional)</th>
                                             <th colspan="2"></th>
                                         </tr>
@@ -874,7 +899,13 @@
                                 <div class="col-md-4">
                                     <input type="text" id="uuid_field" name="uuid_field" class="form-control" value="" />
                                 </div>
-                                <div class="col-md-2 col-sm-2">
+                                <label class="control-label col-md-1 float-right">Centros de Costo</label>
+                                <div class="col-md-1">
+                                    <input type="number" id="cc_cofidi" name="cc_cofidi" class="form-control" value="1" min="1" max="10" />
+                                </div>
+
+                                <div class="col-md-3 col-sm-3">
+                                    <button type="button" id="btn_info_cc" class="btn btn-info float-lg-left"><i class="fa-solid fa-info-circle"></i></button>
                                     <button type="button" id="buscar-uuid" class="btn btn-warning float-lg-left"><i class="fa-solid fa-magnifying-glass"></i>&nbsp; Buscar</button>
                                 </div>
                             </div>
@@ -891,7 +922,12 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-2 col-sm-2">
+                                <label class="control-label col-md-1 float-right">Centros de Costo</label>
+                                <div class="col-md-1">
+                                    <input type="number" id="cc_xml" name="cc_xml" class="form-control" value="1" min="1" max="10" />
+                                </div>
+                                <div class="col-md-3 col-sm-3">
+                                    <button type="button" id="btn_info_cc_2" class="btn btn-info float-lg-left"><i class="fa-solid fa-info-circle"></i></button>
                                     <button id="cargar-factura-btn" type="button" class="btn btn-warning float-lg-left"><i class="fa-solid fa-upload"></i>&nbsp; Leer Factura</button>
                                 </div>
                             </div>
@@ -1030,6 +1066,15 @@
         BuscaXML();
     });
 
+    //evento para mostrar info de numero de CC
+    $("#btn_info_cc").click(function () {
+        MuestraInfoCC();
+    });
+    //evento para mostrar info de numero de CC
+    $("#btn_info_cc_2").click(function () {
+        MuestraInfoCC();
+    });
+
     //evento para agregar factura extranjera
     $("#cargar-factura-extranjera-btn").click(function () {
         AgregaConceptoExtranjero();
@@ -1047,6 +1092,15 @@
     CargaValoresIniciales();
 
 });
+
+        function MuestraInfoCC() {
+            Swal.fire({
+                icon: 'info',
+                title: 'Mensaje',
+                html: 'Indique el número de Centros de Costo en los que desea dividir el total de la factura.',
+                confirmButtonText: 'Aceptar'
+            });
+        }
 
 function CalculaTotales() {
 
@@ -1100,10 +1154,10 @@ function FloatToCurrency(currency) {
                 $("#@Html.IdFor(model => model.GV_comprobacion.PostedFileExtractoCuenta)").val('');
                 $('#@Html.IdFor(model => model.GV_comprobacion.PostedFileExtractoCuenta)').next('label').html('Seleccione un archivo...');
             });
-        }
+        }        
     });
 
-
+        
 
     //agrega evento para calculo de gasto extranjero
     $(".concepto-extranjero").each(function () {
@@ -1123,7 +1177,20 @@ function FloatToCurrency(currency) {
         $('#total-mxn_' + row).html(resultd);
     });
 
-    CalculaTotales();
+        $(".importe-cc").each(function () {
+            $(this).change();
+        });        
+
+        CalculaTotales();
+
+        $(".centro-costo").each(function () {
+            try {
+                $(this).change();
+            } catch (e) {
+                //do nothing
+            }
+        });
+
 }
 
 //funcion para agregar los eventos de cantidades a los input
@@ -1138,6 +1205,51 @@ function asignaEventosInput() {
     //aplica los estilos a los input
     $('.numero-decimal').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'allowMinus': false, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
     $('.importe').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': false, 'prefix': '$ ', 'allowMinus': false, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
+
+
+    //agrega evento para calculo de gasto extranjero
+    $(".importe-cc").each(function () {
+
+        $(this).on('keyup change blur', function (e) {
+            let uuid_select = $(this).attr("data-uuid");
+            let suma = 0;
+
+            $(".importe-cc").each(function () {
+
+                let secondUUID = $(this).attr("data-uuid");
+                if (uuid_select == secondUUID) {
+                    suma += TryParseFloat($(this).val(),0);
+                }
+            });
+
+           
+            //aplica formato de moneda
+            const resultd = (suma).toLocaleString('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            });
+
+            $('#suma-cc-' + uuid_select).html(resultd);
+           
+
+            $(".item-total-mxn").each(function () {
+                let secondUUID = $(this).attr("data-uuid");
+                if (uuid_select == secondUUID) {
+                    let totalFactura = CurrencyToFloat($(this).html());
+                    //cambia de color el total
+                    if (totalFactura == suma) {
+                        $('#suma-cc-' + uuid_select).css('color', '#00DD00')
+                    } else {
+                        $('#suma-cc-' + uuid_select).css('color', '#EE0000')
+                    } 
+
+                }
+            });
+
+        });
+
+
+    });
 
     //agrega evento para calculo de gasto extranjero
     $(".concepto-extranjero").each(function () {
@@ -1191,21 +1303,34 @@ function asignaEventosInput() {
 
         $(this).change(function (e) {
             let uuid_select = $(this).attr("data-uuid");
+            let num_cc = $(this).attr("data-num-cc");
             let val = $(this).val();
+                        
+            //muestra el centro de costo seleccionado
+            try {
+                $("#cc_" + uuid_select + "_" + num_cc).html($(this).find('option:selected').text());
+            } catch (e) {
+                //do nothing
+            }
 
             $(".centro-costo").each(function () {
-
-                let secondUUID = $(this).attr("data-uuid");
-                if (uuid_select == secondUUID) {
-                    $(this).val(val);
-                    // Initialize Select2 Elements (debe ir después de asignar el valor)
-                    if ($(this) != null) {
-                        $(this).select2({
-                            theme: 'bootstrap4'
-                        })
+                try {
+                    let secondUUID = $(this).attr("data-uuid");
+                    let secondCC = $(this).attr("data-num-cc");
+                    if (uuid_select == secondUUID && num_cc == secondCC) {
+                        $(this).val(val);
+                        // Initialize Select2 Elements (debe ir después de asignar el valor)
+                        if ($(this) != null) {
+                            $(this).select2({
+                                theme: 'bootstrap4'
+                            })
+                        }
                     }
+                } catch (e) {
+                    //do nothing
                 }
             });
+
         });
     });
      //Evento cada vez que se cambia un combo
@@ -1268,6 +1393,7 @@ function AgregaConceptoSinFactura() {
                                             <td></td>
                                             <td></td>
                                             <td></td>
+                                            <td></td>
                                             <td>
                                                 <textarea style="font-size:12px;" type="text" name="GV_comprobacion_rel_gastos[`+ numConcepto + `].comentario" id="GV_comprobacion_rel_gastos[` + numConcepto + `].comentario" class="form-control col-md-12" autocomplete="off" maxlength="150" rows="4"></textarea>
                                                 <span class="field-validation-valid text-danger" data-valmsg-for="GV_comprobacion_rel_gastos[`+ numConcepto + `].comentario" data-valmsg-replace="true"></span>
@@ -1295,6 +1421,7 @@ function AgregaConceptoSinFactura() {
                                                  <span class=" field-validation-valid text-danger control-label" data-valmsg-for=GV_comprobacion_rel_gastos[`+ numConcepto + `].importe data-valmsg-replace="true"></span>
                                             </td>
                                             <td colspan="6"></td>
+                                            <td colspan="1"></td>
                                             <td colspan="1"></td>
                                             <td colspan="1" class="item-total-mxn" id="total-mxn_`+ numConcepto + `" style="font-weight:bold; text-align: right;"></td>
                                             <td colspan="2"></td>
@@ -1372,6 +1499,7 @@ function AgregaConceptoExtranjero() {
                                             <td></td>
                                             <td></td>
                                             <td></td>
+                                            <td></td>
                                             <td>
                                                 <textarea style="font-size:12px;" type="text" name="GV_comprobacion_rel_gastos[`+ numConcepto + `].comentario" id="GV_comprobacion_rel_gastos[` + numConcepto + `].comentario" class="form-control col-md-12" autocomplete="off" maxlength="150" rows="4"></textarea>
                                                 <span class="field-validation-valid text-danger" data-valmsg-for="GV_comprobacion_rel_gastos[`+ numConcepto + `].comentario" data-valmsg-replace="true"></span>
@@ -1399,6 +1527,7 @@ function AgregaConceptoExtranjero() {
                                                  <span class=" field-validation-valid text-danger control-label" data-valmsg-for=GV_comprobacion_rel_gastos[`+ numConcepto + `].importe data-valmsg-replace="true"></span>
                                             </td>
                                             <td colspan="6"></td>
+                                            <td colspan="1"></td>
                                             <td colspan="1"></td>
                                             <td colspan="1" class="item-total-mxn" id ="total-mxn_`+ numConcepto + `" style="font-weight:bold; text-align: right"></td>
                                             <td colspan="2"></td>
@@ -1520,17 +1649,22 @@ function leeXML() {
                         //borra el archivo una vez que se ha cargado
                         $("#archivo_nacional_xml").val('');
                         $('#archivo_nacional_xml').next('label').html('Seleccione un archivo...');
-                        //$("#archivo_nacional_pdf").val('');
+                        $('#cc_xml').val('1');                        //$("#archivo_nacional_pdf").val('');
                         //$('#archivo_nacional_pdf').next('label').html('Seleccione un archivo...');
 
                         $('.select2bs4').select2({
                             theme: 'bootstrap4'
                         })
+                        
 
                         //inicializa en input file
                         bsCustomFileInput.init();
 
                         asignaEventosInput();
+
+                        $(".importe-cc").each(function () {
+                            $(this).change();
+                        });
 
                         numConcepto += datos[0].num_conceptos;
                         //aumenta en uno el número de comprobantes cargados
@@ -1546,8 +1680,8 @@ function leeXML() {
                     })
                     $("#error-msj-div").hide();
                     //borra el archivo una vez que se ha cargado
-                    $("#archivo_nacional_xml").val('');
-                    $('#archivo_nacional_xml').next('label').html('Seleccione un archivo...');
+                    //$("#archivo_nacional_xml").val('');
+                    //$('#archivo_nacional_xml').next('label').html('Seleccione un archivo...');
                     //$("#archivo_nacional_pdf").val('');
                     //$('#archivo_nacional_pdf').next('label').html('Seleccione un archivo...');
                 }
@@ -1619,11 +1753,7 @@ function BuscaXML() {
                         //borra la tabla
                         $("#div_ocultos").html('');
                         //recargaTabla('');
-                        $("#archivo_nacional_xml").val('');
-                        $('#archivo_nacional_xml').next('label').html('Seleccione un archivo...');
-                        $("#archivo_nacional_pdf").val('');
-                        $('#archivo_nacional_pdf').next('label').html('Seleccione un archivo...');
-
+                       
                     } else if (datos[0].status == "OK") {
 
                         //console.log(datos[0].value);
@@ -1638,20 +1768,25 @@ function BuscaXML() {
 
                         $("#error-msj-div").hide();
                         //borra el archivo una vez que se ha cargado
-                        $("#archivo_nacional_xml").val('');
-                        $('#archivo_nacional_xml').next('label').html('Seleccione un archivo...');
-                        $("#archivo_nacional_pdf").val('');
-                        $('#archivo_nacional_pdf').next('label').html('Seleccione un archivo...');
+                        $("#uuid_field").val('');
+                         $('#cc_cofidi').val('1');                        //$("#archivo_nacional_pdf").val('');
+
 
                         $('.select2bs4').select2({
                             theme: 'bootstrap4'
                         })
+
 
                         numConcepto += datos[0].num_conceptos;
                         //aumenta en uno el número de comprobantes cargados
                         AsignaNumeroConcepto();
 
                         asignaEventosInput();
+
+
+                        $(".importe-cc").each(function () {
+                            $(this).change();
+                        });
 
                     } else if (datos[0].status == "404") {
                         Swal.fire({
@@ -1662,10 +1797,8 @@ function BuscaXML() {
                         })
                         $("#error-msj-div").hide();
                         //borra el archivo una vez que se ha cargado
-                        $("#archivo_nacional_xml").val('');
-                        $('#archivo_nacional_xml').next('label').html('Seleccione un archivo...');
-                        $("#archivo_nacional_pdf").val('');
-                        $('#archivo_nacional_pdf').next('label').html('Seleccione un archivo...');
+                        $("#uuid_field").val('');
+                        $('#cc_cofidi').val('1');    
                     }
 
                 } catch (error) {
@@ -1675,10 +1808,8 @@ function BuscaXML() {
                         text: 'Ocurrió un error obteniendo la información: ' + error,
                         confirmButtonText: 'Aceptar',
                     })
-                    $("#archivo_nacional_xml").val('');
-                    $('#archivo_nacional_xml').next('label').html('Seleccione un archivo...');
-                    $("#archivo_nacional_pdf").val('');
-                    $('#archivo_nacional_pdf').next('label').html('Seleccione un archivo...');
+                    $("#uuid_field").val('');
+                    $('#cc_cofidi').val('1');    
                 }
 
             },

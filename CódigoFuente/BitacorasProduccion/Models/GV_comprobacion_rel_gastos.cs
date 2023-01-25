@@ -16,6 +16,7 @@ namespace Portal_2_0.Models
     {
         public int id { get; set; }
         public int id_gv_solicitud { get; set; }
+        public Nullable<int> num_cc { get; set; }
         public Nullable<int> id_centro_costo { get; set; }
         public string concepto_tipo { get; set; }
         public Nullable<int> id_comprobacion_tipo_gastos_viaje { get; set; }
@@ -29,6 +30,7 @@ namespace Portal_2_0.Models
         public Nullable<double> cantidad { get; set; }
         public Nullable<decimal> precio_unitario { get; set; }
         public Nullable<decimal> importe { get; set; }
+        public Nullable<decimal> importe_cc { get; set; }
         public Nullable<decimal> descuento { get; set; }
         public Nullable<double> iva_porcentaje { get; set; }
         public Nullable<double> iva_total { get; set; }

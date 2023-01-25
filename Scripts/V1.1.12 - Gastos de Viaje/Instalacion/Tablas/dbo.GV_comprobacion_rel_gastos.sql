@@ -21,6 +21,7 @@ GO
 CREATE TABLE [GV_comprobacion_rel_gastos](
 	[id] [int] IDENTITY(1,1) NOT NULL,	
 	[id_gv_solicitud][int] NOT NULL, --FK
+	[num_cc][int] NULL, 
 	[id_centro_costo][int] NULL,
 	[concepto_tipo][varchar](30),
 	[id_comprobacion_tipo_gastos_viaje][int] NULL, --FK	
@@ -34,6 +35,7 @@ CREATE TABLE [GV_comprobacion_rel_gastos](
 	[cantidad][float] NULL,
 	[precio_unitario][decimal](14,2) NULL, 
 	[importe][decimal](14,2) NULL,  --cantidad x precio unitario 
+	[importe_cc][decimal](14,2) NULL,  --total del CC
 	[descuento][decimal](14,2) NULL, 
 	[iva_porcentaje][float] NULL, 
 	[iva_total][float] NULL,
@@ -112,7 +114,9 @@ alter table [GV_comprobacion_rel_gastos]
 
   -- restricion check
 ALTER TABLE [GV_comprobacion_rel_gastos] ADD CONSTRAINT CK_comprobacion_rel_gastos_concepto_tipo CHECK ([concepto_tipo] IN 
-('COFIDI_RESUMEN','COFIDI_CONCEPTO','COFIDI_TOTALES','XML_RESUMEN', 'XML_CONCEPTO', 'XML_TOTALES' , 'GASTO_EXTRANJERO', 'GASTO_SIN_COMPROBANTE')
+('COFIDI_RESUMEN','COFIDI_CONCEPTO','COFIDI_TOTALES','XML_RESUMEN', 'XML_CONCEPTO', 'XML_TOTALES' , 'GASTO_EXTRANJERO', 'GASTO_SIN_COMPROBANTE'
+,'XML_CONCEPTO_CC','COFIDI_CONCEPTO_CC'
+)
 )
  	  
 

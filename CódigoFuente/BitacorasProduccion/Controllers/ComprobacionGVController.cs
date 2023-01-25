@@ -205,7 +205,7 @@ namespace Portal_2_0.Controllers
             gV_solicitud.medio_transporte_aplica_otro = !gV_solicitud.id_medio_transporte.HasValue;
 
             //ordena los rel de la comprobacion
-            gV_solicitud.GV_comprobacion_rel_gastos = gV_solicitud.GV_comprobacion_rel_gastos.OrderByDescending(x => x.uuid).ThenBy(x => x.orden).ToList();
+            gV_solicitud.GV_comprobacion_rel_gastos = OrdenaConceptos(gV_solicitud.GV_comprobacion_rel_gastos.ToList());
 
             ViewBag.ListaCuentas = db.GV_comprobacion_tipo_gastos_viaje.Where(x => x.activo).ToList();
             ViewBag.ListaTipoPago = db.GV_comprobacion_tipo_pago.Where(x => x.activo).ToList();
@@ -236,7 +236,7 @@ namespace Portal_2_0.Controllers
             gV_solicitud.medio_transporte_aplica_otro = !gV_solicitud.id_medio_transporte.HasValue;
 
             //ordena los rel de la comprobacion
-            gV_solicitud.GV_comprobacion_rel_gastos = gV_solicitud.GV_comprobacion_rel_gastos.OrderByDescending(x => x.uuid).ThenBy(x => x.orden).ToList();
+            gV_solicitud.GV_comprobacion_rel_gastos = OrdenaConceptos(gV_solicitud.GV_comprobacion_rel_gastos.ToList());
 
             ViewBag.ListaCuentas = db.GV_comprobacion_tipo_gastos_viaje.Where(x => x.activo).ToList();
             ViewBag.ListaTipoPago = db.GV_comprobacion_tipo_pago.Where(x => x.activo).ToList();
@@ -509,7 +509,7 @@ namespace Portal_2_0.Controllers
             gV_solicitud.medio_transporte_aplica_otro = !gV_solicitud.id_medio_transporte.HasValue;
 
             //ordena los rel de la comprobacion
-            gV_solicitud.GV_comprobacion_rel_gastos = gV_solicitud.GV_comprobacion_rel_gastos.OrderByDescending(x => x.uuid).ThenBy(x => x.orden).ToList();
+            gV_solicitud.GV_comprobacion_rel_gastos = OrdenaConceptos(gV_solicitud.GV_comprobacion_rel_gastos.ToList());
 
             ViewBag.ListaCuentas = db.GV_comprobacion_tipo_gastos_viaje.Where(x => x.activo).ToList();
             ViewBag.ListaTipoPago = db.GV_comprobacion_tipo_pago.Where(x => x.activo).ToList();
@@ -800,7 +800,7 @@ namespace Portal_2_0.Controllers
             gV_solicitud.medio_transporte_aplica_otro = !gV_solicitud.id_medio_transporte.HasValue;
 
             //ordena los rel de la comprobacion
-            gV_solicitud.GV_comprobacion_rel_gastos = gV_solicitud.GV_comprobacion_rel_gastos.OrderByDescending(x => x.uuid).ThenBy(x => x.orden).ToList();
+            gV_solicitud.GV_comprobacion_rel_gastos = OrdenaConceptos(gV_solicitud.GV_comprobacion_rel_gastos.ToList());
 
             ViewBag.ListaCuentas = db.GV_comprobacion_tipo_gastos_viaje.Where(x => x.activo).ToList();
             ViewBag.ListaTipoPago = db.GV_comprobacion_tipo_pago.Where(x => x.activo).ToList();
@@ -1060,7 +1060,7 @@ namespace Portal_2_0.Controllers
             gV_solicitud.medio_transporte_aplica_otro = !gV_solicitud.id_medio_transporte.HasValue;
 
             //ordena los rel de la comprobacion
-            gV_solicitud.GV_comprobacion_rel_gastos = gV_solicitud.GV_comprobacion_rel_gastos.OrderByDescending(x => x.uuid).ThenBy(x => x.orden).ToList();
+            gV_solicitud.GV_comprobacion_rel_gastos = OrdenaConceptos(gV_solicitud.GV_comprobacion_rel_gastos.ToList());
 
             ViewBag.ListaCuentas = db.GV_comprobacion_tipo_gastos_viaje.Where(x => x.activo).ToList();
             ViewBag.ListaTipoPago = db.GV_comprobacion_tipo_pago.Where(x => x.activo).ToList();
@@ -1314,7 +1314,7 @@ namespace Portal_2_0.Controllers
             gV_solicitud.medio_transporte_aplica_otro = !gV_solicitud.id_medio_transporte.HasValue;
 
             //ordena los rel de la comprobacion
-            gV_solicitud.GV_comprobacion_rel_gastos = gV_solicitud.GV_comprobacion_rel_gastos.OrderByDescending(x => x.uuid).ThenBy(x => x.orden).ToList();
+            gV_solicitud.GV_comprobacion_rel_gastos = OrdenaConceptos(gV_solicitud.GV_comprobacion_rel_gastos.ToList());
 
             ViewBag.ListaCuentas = db.GV_comprobacion_tipo_gastos_viaje.Where(x => x.activo).ToList();
             ViewBag.ListaTipoPago = db.GV_comprobacion_tipo_pago.Where(x => x.activo).ToList();
@@ -1504,7 +1504,49 @@ namespace Portal_2_0.Controllers
             if (solicitud.GV_comprobacion_rel_gastos.Count == 0)
                 ModelState.AddModelError("", "No se agregaron conceptos a la comprobación de gastos.");
 
-            // ModelState.AddModelError("", "Error Prueba");
+        
+            //valida que un centro de costo no haya sido definido más de dos veces para una misma factura
+            //1.- obtiene todos los conceptos de XXX_CONCEPTO_CC
+            foreach (var c in solicitud.GV_comprobacion_rel_gastos.Where(x => x.concepto_tipo == GV_comprobacion_origen.COFIDI_CONCEPTO_CC || x.concepto_tipo == GV_comprobacion_origen.XML_CONCEPTO_CC))
+            {
+                //2. Obtiene la primer coincidencia de un concepto con el mismo num_cc y uuid
+                var primerCoincidencia = solicitud.GV_comprobacion_rel_gastos.FirstOrDefault(x =>
+                    x.num_cc == c.num_cc
+                    && (x.concepto_tipo == GV_comprobacion_origen.COFIDI_CONCEPTO || x.concepto_tipo == GV_comprobacion_origen.XML_CONCEPTO)
+                    && x.uuid == c.uuid
+                );
+
+                //3. valida si exite algun concepto con mismo centro de costo y uuid, pero con diferente num_cc
+                if (primerCoincidencia != null && solicitud.GV_comprobacion_rel_gastos.Any(x =>
+                        (x.concepto_tipo == GV_comprobacion_origen.COFIDI_CONCEPTO || x.concepto_tipo == GV_comprobacion_origen.XML_CONCEPTO)
+                        && x.id_centro_costo == primerCoincidencia.id_centro_costo
+                        && x.num_cc != primerCoincidencia.num_cc
+                        && x.uuid == primerCoincidencia.uuid
+                        ))
+                {
+                    var centro = db.GV_centros_costo.Find(primerCoincidencia.id_centro_costo);
+
+                    string errorMessage = "El Centro de Costo " + centro.ConcatCentroDeptoPlanta + " se encuentra definido más de una vez para la factura: " + primerCoincidencia.uuid;
+                    var errores = ModelState.Values.Where(x => x.Errors.Count > 0).Select(x => x.Errors).ToList().FirstOrDefault();
+                    if (errores == null || (errores != null && !errores.Any(x => x.ErrorMessage == errorMessage)))
+                    {
+                        ModelState.AddModelError("", errorMessage);
+                    }
+                }
+
+            }
+
+            foreach (var total in solicitud.GV_comprobacion_rel_gastos.Where(x => x.concepto_tipo == GV_comprobacion_origen.COFIDI_TOTALES || x.concepto_tipo == GV_comprobacion_origen.XML_TOTALES))
+            {
+                var totalFactura = total.total_mxn;
+                var suma = solicitud.GV_comprobacion_rel_gastos.Where(x => (x.concepto_tipo == GV_comprobacion_origen.COFIDI_CONCEPTO_CC || x.concepto_tipo == GV_comprobacion_origen.XML_CONCEPTO_CC)
+                                    && x.uuid == total.uuid).Sum(x => x.importe_cc);
+
+                if (totalFactura != suma)
+                    ModelState.AddModelError("", "La suma del importe de lo centros de Costo, no es igual al total de la factura. Verifique la factura: " + total.uuid);
+
+            }
+
 
             //valida si el archivo de extracto de cuenta es válido
             if (solicitud.GV_comprobacion.PostedFileExtractoCuenta != null && solicitud.GV_comprobacion.american_express)
@@ -1639,8 +1681,8 @@ namespace Portal_2_0.Controllers
             gV_solicitud.medio_transporte_aplica_otro = !gV_solicitud.id_medio_transporte.HasValue;
 
             //ordena los rel de la comprobacion
-            gV_solicitud.GV_comprobacion_rel_gastos = gV_solicitud.GV_comprobacion_rel_gastos.OrderByDescending(x => x.uuid).ThenBy(x => x.orden).ToList();
-
+            gV_solicitud.GV_comprobacion_rel_gastos = OrdenaConceptos(gV_solicitud.GV_comprobacion_rel_gastos.ToList());
+            ViewBag.RelGastos = gV_solicitud.GV_comprobacion_rel_gastos;
 
             ViewBag.ListaCuentas = db.GV_comprobacion_tipo_gastos_viaje.Where(x => x.activo).ToList();
             ViewBag.ListaTipoPago = db.GV_comprobacion_tipo_pago.Where(x => x.activo).ToList();
@@ -1659,6 +1701,49 @@ namespace Portal_2_0.Controllers
                 ModelState.AddModelError("", "No se agregaron conceptos a la comprobación de gastos.");
 
             //ModelState.AddModelError("", "Error Prueba");
+
+
+            //valida que un centro de costo no haya sido definido más de dos veces para una misma factura
+            //1.- obtiene todos los conceptos de XXX_CONCEPTO_CC
+            foreach (var c in solicitud.GV_comprobacion_rel_gastos.Where(x => x.concepto_tipo == GV_comprobacion_origen.COFIDI_CONCEPTO_CC || x.concepto_tipo == GV_comprobacion_origen.XML_CONCEPTO_CC))
+            {
+                //2. Obtiene la primer coincidencia de un concepto con el mismo num_cc y uuid
+                var primerCoincidencia = solicitud.GV_comprobacion_rel_gastos.FirstOrDefault(x =>
+                    x.num_cc == c.num_cc
+                    && (x.concepto_tipo == GV_comprobacion_origen.COFIDI_CONCEPTO || x.concepto_tipo == GV_comprobacion_origen.XML_CONCEPTO)
+                    && x.uuid == c.uuid
+                );
+
+                //3. valida si exite algun concepto con mismo centro de costo y uuid, pero con diferente num_cc
+                if (primerCoincidencia != null && solicitud.GV_comprobacion_rel_gastos.Any(x =>
+                        (x.concepto_tipo == GV_comprobacion_origen.COFIDI_CONCEPTO || x.concepto_tipo == GV_comprobacion_origen.XML_CONCEPTO)
+                        && x.id_centro_costo == primerCoincidencia.id_centro_costo
+                        && x.num_cc != primerCoincidencia.num_cc
+                        && x.uuid == primerCoincidencia.uuid
+                        ))
+                {
+                    var centro = db.GV_centros_costo.Find(primerCoincidencia.id_centro_costo);
+
+                    string errorMessage = "El Centro de Costo " + centro.ConcatCentroDeptoPlanta + " se encuentra definido más de una vez para la factura: " + primerCoincidencia.uuid;
+                    var errores = ModelState.Values.Where(x => x.Errors.Count > 0).Select(x => x.Errors).ToList().FirstOrDefault();
+                    if (errores == null || (errores != null && !errores.Any(x => x.ErrorMessage == errorMessage)))
+                    {
+                        ModelState.AddModelError("", errorMessage);
+                    }
+                }
+
+            }
+
+            foreach (var total in solicitud.GV_comprobacion_rel_gastos.Where(x => x.concepto_tipo == GV_comprobacion_origen.COFIDI_TOTALES || x.concepto_tipo == GV_comprobacion_origen.XML_TOTALES))
+            {
+                var totalFactura = total.total_mxn;
+                var suma = solicitud.GV_comprobacion_rel_gastos.Where(x => (x.concepto_tipo == GV_comprobacion_origen.COFIDI_CONCEPTO_CC || x.concepto_tipo == GV_comprobacion_origen.XML_CONCEPTO_CC)
+                                    && x.uuid == total.uuid).Sum(x => x.importe_cc);
+
+                if (totalFactura != suma)
+                    ModelState.AddModelError("", "La suma del importe de lo centros de Costo, no es igual al total de la factura. Verifique la factura: " + total.uuid);
+
+            }
 
             //procesa archivo de extracto
             if (solicitud.GV_comprobacion.american_express)
@@ -1684,7 +1769,7 @@ namespace Portal_2_0.Controllers
                             var archivoAnterior = db.biblioteca_digital.Find(solicitud.GV_comprobacion.id_extracto_cuenta);
                             archivoAnterior.Datos = archivoExtracto.Datos;
                             archivoAnterior.Nombre = archivoExtracto.Nombre;
-                            archivoExtracto.MimeType = archivoExtracto.MimeType;
+                            archivoAnterior.MimeType = archivoExtracto.MimeType;
                         }
 
                     }
@@ -1808,12 +1893,13 @@ namespace Portal_2_0.Controllers
             GV_comprobacion gV_ComprobacionRecibida = solicitud.GV_comprobacion;
 
             //guarda temporalmente los conceptos 
-            var gV_Comprobacion_Rel_Gastos = solicitud.GV_comprobacion_rel_gastos;
+            var gV_Comprobacion_Rel_Gastos = OrdenaConceptos(solicitud.GV_comprobacion_rel_gastos.ToList());
+            ViewBag.RelGastos = gV_Comprobacion_Rel_Gastos;
 
             //asigna los valores te
             solicitud = db.GV_solicitud.Find(solicitud.id);
             solicitud.GV_comprobacion = gV_ComprobacionRecibida;
-            solicitud.GV_comprobacion_rel_gastos = gV_Comprobacion_Rel_Gastos;
+
             solicitud.GV_comprobacion.biblioteca_digital = db.biblioteca_digital.FirstOrDefault(x => x.Id == gV_ComprobacionRecibida.id_extracto_cuenta);
 
             //determina si aplica otro o no
@@ -1822,6 +1908,9 @@ namespace Portal_2_0.Controllers
             ViewBag.ListaCuentas = db.GV_comprobacion_tipo_gastos_viaje.Where(x => x.activo).ToList();
             ViewBag.ListaTipoPago = db.GV_comprobacion_tipo_pago.Where(x => x.activo).ToList();
             ViewBag.ListaCentroCosto = db.GV_centros_costo.Where(x => x.activo).OrderBy(x => x.plantas.clave).ToList();
+
+            solicitud.GV_comprobacion_rel_gastos = new List<GV_comprobacion_rel_gastos>();
+            solicitud.GV_comprobacion_rel_gastos = gV_Comprobacion_Rel_Gastos;
 
             return View(solicitud);
         }
@@ -1927,7 +2016,7 @@ namespace Portal_2_0.Controllers
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public JsonResult LeeArchivoXML(int numConcepto = 0)
+        public JsonResult LeeArchivoXML(int numConcepto = 0, int cc_xml = 1)
         {
             var result = new object[1];
 
@@ -1950,6 +2039,12 @@ namespace Portal_2_0.Controllers
             if (extensionXML.ToUpper() != ".XML")
             {
                 result[0] = new { status = "ERROR", value = "Sólo se permiten archivos con extensión .xml." };
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+
+            if (cc_xml <= 0 || cc_xml >= 11)
+            {
+                result[0] = new { status = "ERROR", value = "Ingrese un valor válido para el campo Centros de Costo (1-10)." };
                 return Json(result, JsonRequestBehavior.AllowGet);
             }
 
@@ -2051,7 +2146,7 @@ namespace Portal_2_0.Controllers
             {
                 //si el archivo se lee correctamente               
                 //llama al método que lee la factura
-                result = GetRowsFactura(factura_3_3, factura_4_0, numConcepto: numConcepto);
+                result = GetRowsFactura(factura_3_3, factura_4_0, numConcepto: numConcepto, num_cc: cc_xml);
                 var json = Json(result, JsonRequestBehavior.AllowGet);
                 return json;
             }
@@ -2063,7 +2158,7 @@ namespace Portal_2_0.Controllers
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public JsonResult BuscaCOFIDI(string uuid_field, int numConcepto = 0)
+        public JsonResult BuscaCOFIDI(string uuid_field, int cc_cofidi = 1, int numConcepto = 0)
         {
             var result = new object[1];
 
@@ -2084,6 +2179,11 @@ namespace Portal_2_0.Controllers
             {
                 estatus = "ERROR";
                 msj = "El campo UUID no es válido. Favor de verificarlo.";
+            }
+            else if (cc_cofidi <= 0 || cc_cofidi >= 11)
+            {
+                estatus = "ERROR";
+                msj = "Ingrese un valor válido para el campo Centros de Costo (1-10).";
             }
             else //la longitud es valida
             {
@@ -2142,11 +2242,62 @@ namespace Portal_2_0.Controllers
             else
             { //si el archivo se lee correctamente               
                 //llama al método que lee la factura
-                result = GetRowsFactura(factura_3_3, factura_4_0, numConcepto: numConcepto);
+                result = GetRowsFactura(factura_3_3, factura_4_0, numConcepto: numConcepto, num_cc: cc_cofidi);
                 var json = Json(result, JsonRequestBehavior.AllowGet);
                 return json;
             }
 
+        }
+
+        [NonAction]
+        public List<GV_comprobacion_rel_gastos> OrdenaConceptos(List<GV_comprobacion_rel_gastos> originalList)
+        {
+            //ordena los rel gastos
+            List<GV_comprobacion_rel_gastos> SortedList = new List<GV_comprobacion_rel_gastos>();
+
+            foreach (var resumen in originalList.Where(x => x.concepto_tipo == GV_comprobacion_origen.XML_RESUMEN || x.concepto_tipo == GV_comprobacion_origen.COFIDI_RESUMEN))
+            {
+                //agrega el resumen a la lista
+                SortedList.Add(resumen);
+
+                //agrega los conceptos
+                int contador = 0;
+                var listConceptos = originalList.Where(x => (x.concepto_tipo == GV_comprobacion_origen.COFIDI_CONCEPTO || x.concepto_tipo == GV_comprobacion_origen.XML_CONCEPTO)
+                && x.uuid == resumen.uuid).OrderBy(x => x.num_cc).ToList();
+                foreach (var concepto in listConceptos)
+                {
+                    SortedList.Add(concepto);
+                    contador++;
+
+                    var numElementos = listConceptos.Where(x => x.num_cc == concepto.num_cc).Count();
+                    //si llego al final de num_cc
+                    if (contador == numElementos)
+                    {
+                        SortedList.Add(originalList.FirstOrDefault(x => x.num_cc == concepto.num_cc && x.uuid == concepto.uuid && (x.concepto_tipo == GV_comprobacion_origen.COFIDI_CONCEPTO_CC || x.concepto_tipo == GV_comprobacion_origen.XML_CONCEPTO_CC)));
+                        contador = 0;
+                    }
+
+
+                }
+
+                //agrega los totales
+                foreach (var total in originalList.Where(x => (x.concepto_tipo == GV_comprobacion_origen.XML_TOTALES || x.concepto_tipo == GV_comprobacion_origen.COFIDI_TOTALES)
+                && x.uuid == resumen.uuid))
+                {
+                    SortedList.Add(total);
+                }
+
+
+
+            }
+
+            //agrega los gastos en extranjero y otros gastos
+            foreach (var gasto in originalList.Where(x => (x.concepto_tipo == GV_comprobacion_origen.GASTO_SIN_COMPROBANTE || x.concepto_tipo == GV_comprobacion_origen.GASTO_EXTRANJERO)))
+            {
+                SortedList.Add(gasto);
+            }
+
+            return SortedList;
         }
 
         [NonAction]
@@ -2177,7 +2328,7 @@ namespace Portal_2_0.Controllers
         }
 
         [NonAction]
-        public object[] GetRowsFactura(Comprobante factura_3_3 = null, Bitacoras.CFDI_4_0.Comprobante factura_4_0 = null, int numConcepto = 0)
+        public object[] GetRowsFactura(Comprobante factura_3_3 = null, Bitacoras.CFDI_4_0.Comprobante factura_4_0 = null, int numConcepto = 0, int num_cc = 1)
         {
             var result = new object[1];
             string body = string.Empty;
@@ -2272,6 +2423,7 @@ namespace Portal_2_0.Controllers
                                                 <td></td>
                                                 <td></td>
                                                 <td></td>
+                                                <td></td>
                                                 <td>
                                                     <textarea style=""font-size:12px;"" type=""text"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].comentario"" id=""GV_comprobacion_rel_gastos[@contador].comentario"" class=""form-control col-md-12"" autocomplete=""off"" maxlength=""150"" rows=""5""></textarea>
                                                     <span class=""field-validation-valid text-danger"" data-valmsg-for=""GV_comprobacion_rel_gastos[" + numConcepto + @"].comentario"" data-valmsg-replace=""true""></span>
@@ -2301,7 +2453,7 @@ namespace Portal_2_0.Controllers
                 selectCuenta += @"</select><span class=""field-validation-valid text-danger"" data-valmsg-for=GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_gastos_viaje data-valmsg-replace=""true""></span> ";
 
                 //crea el select para el tipo de pago
-                string selectTipoPago = @"<select name = 'GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_pago' id = 'GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_pago' class=""form-control select2bs4 centro-costo"" data-uuid=" + factura_3_3.TimbreFiscalDigital.UUID + @" style=""width:100%"" required>
+                string selectTipoPago = @"<select name = 'GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_pago' id = 'GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_pago' class=""form-control select2bs4 tipo-pago"" data-uuid=" + factura_3_3.TimbreFiscalDigital.UUID + @" style=""width:100%"" required>
                                                 <option value = '' > --Seleccione un valor --</option>";
 
                 foreach (var tipo in listaTipoPago)
@@ -2310,7 +2462,7 @@ namespace Portal_2_0.Controllers
                 selectTipoPago += @"</select><span class=""field-validation-valid text-danger"" data-valmsg-for=GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_pago data-valmsg-replace=""true""></span> ";
 
                 //crea el select para el centro d costo
-                string selectCentroCosto = @"<select name = 'GV_comprobacion_rel_gastos[#ID].id_centro_costo' id = 'GV_comprobacion_rel_gastos[#ID].id_centro_costo' class=""form-control select2bs4 tipo-pago"" data-uuid=" + factura_3_3.TimbreFiscalDigital.UUID + @" style=""width:100%"" required>
+                string selectCentroCosto = @"<select name = 'GV_comprobacion_rel_gastos[#ID].id_centro_costo' id = 'GV_comprobacion_rel_gastos[#ID].id_centro_costo' class=""form-control select2bs4 centro-costo"" data-num-cc=""#CC"" data-uuid=" + factura_3_3.TimbreFiscalDigital.UUID + @" style=""width:100%"" required>
                                                 <option value = '' > --Seleccione un valor --</option>";
 
                 foreach (var planta in listaCentroCosto.Select(x => x.plantas).Distinct())
@@ -2324,11 +2476,15 @@ namespace Portal_2_0.Controllers
 
                 #endregion
 
-                //agrega info para cada uno de los conceptos
-                foreach (var concepto in factura_3_3.Conceptos)
+                //Conceptos, según cantidad de Centros de Costo
+                for (int i = 1; i <= num_cc; i++)
                 {
-                    body += String.Format(@"<tr style=""background-color:#C9DCC1"" class=""div_" + factura_3_3.TimbreFiscalDigital.UUID + @""">   
+                    //agrega info para cada uno de los conceptos
+                    foreach (var concepto in factura_3_3.Conceptos)
+                    {
+                        body += String.Format(@"<tr style=""background-color:#C9DCC1"" class=""div_" + factura_3_3.TimbreFiscalDigital.UUID + @""">   
                                                 <input type=""hidden"" name=""GV_comprobacion_rel_gastos.Index"" id=""GV_comprobacion_rel_gastos.Index"" value=""" + numConcepto + @""" />
+                                                <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].num_cc"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].num_cc"" value=""" + i + @""">
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].concepto_tipo"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].concepto_tipo"" value=""" + (existeEnCOFIDI ? GV_comprobacion_origen.COFIDI_CONCEPTO : GV_comprobacion_origen.XML_CONCEPTO) + @""">
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].uuid"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].uuid"" value=""" + factura_3_3.TimbreFiscalDigital.UUID + @""">
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].descripcion"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].descripcion"" value=""" + UsoStrings.RecortaString(concepto.Descripcion, 350) + @""">
@@ -2361,23 +2517,45 @@ namespace Portal_2_0.Controllers
                                                 <td nowrap style=""color:#C10000;text-align:right"">{10}</td> 
                                                 <td></td>
                                                 <td nowrap style=""text-align:right"">{11}</td> 
+                                                <td colspan=""1""></td>
                                                 <td colspan=""3""></td>
                                             </tr>
                             ", UsoStrings.RecortaString(concepto.Descripcion, 350), concepto.Cantidad.ToString("0.00"), concepto.ValorUnitario.ToString("$ #,##0.00"), concepto.Importe.ToString("$ #,##0.00")
-                        , concepto.GetIVATasa() == 0 ? "--" : (concepto.GetIVATasa()).ToString("0.00 %"), concepto.GetIVAImporte() == 0 ? "--" : concepto.GetIVAImporte().ToString("$ #,##0.00")
-                        , concepto.GetISRTasa() == 0 ? "--" : (concepto.GetISRTasa()).ToString("0.00 %"), concepto.GetISRImporte() == 0 ? "--" : concepto.GetISRImporte().ToString("$ #,##0.00")
-                        , concepto.GetIEPSTasa() == 0 ? "--" : (concepto.GetIEPSTasa()).ToString("0.00 %"), concepto.GetIEPSImporte() == 0 ? "--" : concepto.GetIEPSImporte().ToString("$ #,##0.00")
-                        //, concepto.GetTotalImpuestos() == 0 ? "--" : concepto.GetTotalImpuestos().ToString("$ #,##0.00")
-                        , concepto.GetTotalRetenciones() == 0 ? "--" : concepto.GetTotalRetenciones().ToString("$ #,##0.00")
-                        , concepto.GetTotalImporteConTransladosyRetenciones().ToString("$ #,##0.00")
-                        , selectCuenta.Replace("#ID", numConcepto.ToString())
-                        , selectCentroCosto.Replace("#ID", numConcepto.ToString())
-                        , selectTipoPago.Replace("#ID", numConcepto.ToString())
-                        );
+                            , concepto.GetIVATasa() == 0 ? "--" : (concepto.GetIVATasa()).ToString("0.00 %"), concepto.GetIVAImporte() == 0 ? "--" : concepto.GetIVAImporte().ToString("$ #,##0.00")
+                            , concepto.GetISRTasa() == 0 ? "--" : (concepto.GetISRTasa()).ToString("0.00 %"), concepto.GetISRImporte() == 0 ? "--" : concepto.GetISRImporte().ToString("$ #,##0.00")
+                            , concepto.GetIEPSTasa() == 0 ? "--" : (concepto.GetIEPSTasa()).ToString("0.00 %"), concepto.GetIEPSImporte() == 0 ? "--" : concepto.GetIEPSImporte().ToString("$ #,##0.00")
+                            //, concepto.GetTotalImpuestos() == 0 ? "--" : concepto.GetTotalImpuestos().ToString("$ #,##0.00")
+                            , concepto.GetTotalRetenciones() == 0 ? "--" : concepto.GetTotalRetenciones().ToString("$ #,##0.00")
+                            , concepto.GetTotalImporteConTransladosyRetenciones().ToString("$ #,##0.00")
+                            , selectCuenta.Replace("#ID", numConcepto.ToString())
+                            , selectCentroCosto.Replace("#ID", numConcepto.ToString()).Replace("#CC", i.ToString())
+                            , selectTipoPago.Replace("#ID", numConcepto.ToString())
+                            );
 
-                    //aumenta en 1 el número de concepto (por cada concepto dentro de la factura)
+                        //aumenta en 1 el número de concepto (por cada concepto dentro de la factura)
+                        numConcepto++;
+                    }
+
+                    //agrega el campo para dividir centros de costo
+                    body += @"<tr style=""background-color:#C9DCC1"" class=""div_" + factura_3_3.TimbreFiscalDigital.UUID + @"""> 
+                            <td style=""text-align: right; font-style: italic;""  id=""cc_" + (factura_3_3.TimbreFiscalDigital.UUID + "_" + i) + @"""  colspan=""17""></td>
+                            <td colspan=""2"" nowrap>
+                                            <input type=""hidden"" name=""GV_comprobacion_rel_gastos.Index"" id=""GV_comprobacion_rel_gastos.Index"" value=""" + numConcepto + @""" />
+                                           <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].uuid"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].uuid"" value=""" + factura_3_3.TimbreFiscalDigital.UUID + @""">
+                                               <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].concepto_tipo"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].concepto_tipo"" value=""" + (existeEnCOFIDI ? GV_comprobacion_origen.COFIDI_CONCEPTO_CC : GV_comprobacion_origen.XML_CONCEPTO_CC) + @""">
+                                              <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].num_cc"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].num_cc"" value=""" + i + @""">
+                                              <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].total_mxn"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].total_mxn"" value=""" + factura_3_3.Total + @""">
+                                            <b>Total CC:</b> <input type=""text"" class=""importe form-control importe-cc"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].importe_cc"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].importe_cc"" data-uuid=""" + factura_3_3.TimbreFiscalDigital.UUID + @"""  value=""" + (num_cc == 1 ? factura_3_3.Total.ToString() : string.Empty) + @""" " + (num_cc == 1 ? "readonly" : string.Empty) + @" required>
+                                                 <span class=""field-validation-valid text-danger control-label"" data-valmsg-for=GV_comprobacion_rel_gastos[" + numConcepto + @"].importe_cc data-valmsg-replace=""true""></span>
+                                            </td>
+                            <td colspan=""3""></td>
+                        </tr>";
+                    //aumenta en 1 el número de concepto (por cada total de CC)
                     numConcepto++;
                 }
+
+
+
 
                 //agrega los TOTALES de la factura
                 body += String.Format(@"<tr style=""background-color:#AAE0FF"" class=""div_" + factura_3_3.TimbreFiscalDigital.UUID + @""">
@@ -2405,7 +2583,8 @@ namespace Portal_2_0.Controllers
                                                 <td nowrap style=""color:#C10000;text-align:right"">{4}</td> 
                                                 <td nowrap style=""text-align:right"">{5}</td>
                                                 <td nowrap style=""text-align:right"">{6}</td> 
-                                                <td nowrap class=""item-total-mxn"" style=""text-align:right; font-weight:bold;"">{7}</td>
+                                                <td colspan=""1"" id=""suma-cc-" + factura_3_3.TimbreFiscalDigital.UUID + @""" style=""text-align:right; font-weight:bold;""></td>
+                                                <td nowrap class=""item-total-mxn"" style=""text-align:right; font-weight:bold;"" data-uuid=""" + factura_3_3.TimbreFiscalDigital.UUID + @""">{7}</td>
                                                 <td colspan=""2""></td>
                                             </tr>
                     "
@@ -2424,7 +2603,7 @@ namespace Portal_2_0.Controllers
                 numConcepto++;
 
                 //indica el número de conceptos de la factura + la cabecera
-                cantidadConceptos = factura_3_3.Conceptos.Count() + 2;
+                cantidadConceptos = (factura_3_3.Conceptos.Count() * num_cc) + num_cc + 2;
             }
             else if (factura_4_0 != null)
             {
@@ -2467,7 +2646,7 @@ namespace Portal_2_0.Controllers
                 body = String.Format(@"<tr style=""background-color:#FFEB9C"" class=""div_" + factura_4_0.TimbreFiscalDigital.UUID + @""">
                                                 <input type=""hidden"" name=""GV_comprobacion_rel_gastos.Index"" id=""GV_comprobacion_rel_gastos.Index"" value=""" + numConcepto + @""" />
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].concepto_tipo"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].concepto_tipo"" value=""" + (existeEnCOFIDI ? GV_comprobacion_origen.COFIDI_RESUMEN : GV_comprobacion_origen.XML_RESUMEN) + @""">
-                                                <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].factura"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].factura"" value=""" + (factura_4_0.FacturaReferencia) + @""">                                              
+                                                <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].factura"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].factura"" value=""" + (factura_4_0.FacturaReferencia) + @""">
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].importe"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].importe"" value=""" + factura_4_0.SubTotal + @""">                                                
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].iva_total"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].iva_total"" value=""" + factura_4_0.GetTotalIVAImporte() + @""">
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].isr_total"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].isr_total"" value=""" + factura_4_0.GetTotalISRImporte() + @""">
@@ -2476,18 +2655,19 @@ namespace Portal_2_0.Controllers
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].impuestos_locales"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].impuestos_locales"" value=""" + impuestosLocales + @""">
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].total_mxn"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].total_mxn"" value=""" + factura_4_0.Total + @""">
                                                 <td class=""input-contador-conceptos""></td> 
-                                                <td>" + Bitacoras.Util.GV_comprobacion_origen.DescripcionOrigen(existeEnCOFIDI ? GV_comprobacion_origen.COFIDI_RESUMEN : GV_comprobacion_origen.XML_RESUMEN) + @" </td> 
+                                                <td>" + Bitacoras.Util.GV_comprobacion_origen.DescripcionOrigen((existeEnCOFIDI ? GV_comprobacion_origen.COFIDI_RESUMEN : GV_comprobacion_origen.XML_RESUMEN)) + @" </td> 
                                                 <td><b>Fecha:</b> {0}</td> 
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].fecha_factura"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].fecha_factura"" value=""" + factura_4_0.Fecha + @""">
                                                 <td colspan=""2"" nowrap><b>UUID:</b> <custom-div class=""class-uuid"">{1}</custom-div>
                                                                         <br/><b>Factura:</b> " + factura_4_0.FacturaReferencia + @"
-                                                </td>  
+                                                </td> 
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].uuid"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].uuid"" value=""" + factura_4_0.TimbreFiscalDigital.UUID + @""">
                                                 <td colspan=""1""> <b>Tipo de Cambio:</b> {2}</td> 
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].tipo_cambio"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].tipo_cambio"" value=""{2}"">
                                                 <td colspan=""2""> <b>Moneda:</b> {3}</td>                                                
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].currency_iso"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].currency_iso"" value=""" + factura_4_0.Moneda + @""">
                                                 <td colspan=""8"">{6}{4}</td>                                               
+                                                <td></td>
                                                 <td></td>
                                                 <td></td>
                                                 <td></td>
@@ -2520,7 +2700,7 @@ namespace Portal_2_0.Controllers
                 selectCuenta += @"</select><span class=""field-validation-valid text-danger"" data-valmsg-for=GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_gastos_viaje data-valmsg-replace=""true""></span> ";
 
                 //crea el select para el tipo de pago
-                string selectTipoPago = @"<select name = 'GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_pago' id = 'GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_pago' class=""form-control select2bs4 centro-costo"" data-uuid=" + factura_4_0.TimbreFiscalDigital.UUID + @" style=""width:100%"" required>
+                string selectTipoPago = @"<select name = 'GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_pago' id = 'GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_pago' class=""form-control select2bs4 tipo-pago"" data-uuid=" + factura_4_0.TimbreFiscalDigital.UUID + @" style=""width:100%"" required>
                                                 <option value = '' > --Seleccione un valor --</option>";
 
                 foreach (var tipo in listaTipoPago)
@@ -2529,7 +2709,7 @@ namespace Portal_2_0.Controllers
                 selectTipoPago += @"</select><span class=""field-validation-valid text-danger"" data-valmsg-for=GV_comprobacion_rel_gastos[#ID].id_comprobacion_tipo_pago data-valmsg-replace=""true""></span> ";
 
                 //crea el select para el centro d costo
-                string selectCentroCosto = @"<select name = 'GV_comprobacion_rel_gastos[#ID].id_centro_costo' id = 'GV_comprobacion_rel_gastos[#ID].id_centro_costo' class=""form-control select2bs4 tipo-pago"" data-uuid=" + factura_4_0.TimbreFiscalDigital.UUID + @" style=""width:100%"" required>
+                string selectCentroCosto = @"<select name = 'GV_comprobacion_rel_gastos[#ID].id_centro_costo' id = 'GV_comprobacion_rel_gastos[#ID].id_centro_costo' class=""form-control select2bs4 centro-costo"" data-num-cc=""#CC"" data-uuid=" + factura_4_0.TimbreFiscalDigital.UUID + @" style=""width:100%"" required>
                                                 <option value = '' > --Seleccione un valor --</option>";
 
                 foreach (var planta in listaCentroCosto.Select(x => x.plantas).Distinct())
@@ -2543,11 +2723,15 @@ namespace Portal_2_0.Controllers
 
                 #endregion
 
-                //agrega info para cada uno de los conceptos
-                foreach (var concepto in factura_4_0.Conceptos)
+                //Conceptos, según cantidad de Centros de Costo
+                for (int i = 1; i <= num_cc; i++)
                 {
-                    body += String.Format(@"<tr style=""background-color:#C9DCC1"" class=""div_" + factura_4_0.TimbreFiscalDigital.UUID + @""">   
+                    //agrega info para cada uno de los conceptos
+                    foreach (var concepto in factura_4_0.Conceptos)
+                    {
+                        body += String.Format(@"<tr style=""background-color:#C9DCC1"" class=""div_" + factura_4_0.TimbreFiscalDigital.UUID + @""">   
                                                 <input type=""hidden"" name=""GV_comprobacion_rel_gastos.Index"" id=""GV_comprobacion_rel_gastos.Index"" value=""" + numConcepto + @""" />
+                                                <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].num_cc"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].num_cc"" value=""" + i + @""">
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].concepto_tipo"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].concepto_tipo"" value=""" + (existeEnCOFIDI ? GV_comprobacion_origen.COFIDI_CONCEPTO : GV_comprobacion_origen.XML_CONCEPTO) + @""">
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].uuid"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].uuid"" value=""" + factura_4_0.TimbreFiscalDigital.UUID + @""">
                                                 <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].descripcion"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].descripcion"" value=""" + UsoStrings.RecortaString(concepto.Descripcion, 350) + @""">
@@ -2580,23 +2764,45 @@ namespace Portal_2_0.Controllers
                                                 <td nowrap style=""color:#C10000;text-align:right"">{10}</td> 
                                                 <td></td>
                                                 <td nowrap style=""text-align:right"">{11}</td> 
+                                                <td colspan=""1""></td>
                                                 <td colspan=""3""></td>
                                             </tr>
                             ", UsoStrings.RecortaString(concepto.Descripcion, 350), concepto.Cantidad.ToString("0.00"), concepto.ValorUnitario.ToString("$ #,##0.00"), concepto.Importe.ToString("$ #,##0.00")
-                        , concepto.GetIVATasa() == 0 ? "--" : (concepto.GetIVATasa()).ToString("0.00 %"), concepto.GetIVAImporte() == 0 ? "--" : concepto.GetIVAImporte().ToString("$ #,##0.00")
-                        , concepto.GetISRTasa() == 0 ? "--" : (concepto.GetISRTasa()).ToString("0.00 %"), concepto.GetISRImporte() == 0 ? "--" : concepto.GetISRImporte().ToString("$ #,##0.00")
-                        , concepto.GetIEPSTasa() == 0 ? "--" : (concepto.GetIEPSTasa()).ToString("0.00 %"), concepto.GetIEPSImporte() == 0 ? "--" : concepto.GetIEPSImporte().ToString("$ #,##0.00")
-                        //, concepto.GetTotalImpuestos() == 0 ? "--" : concepto.GetTotalImpuestos().ToString("$ #,##0.00")
-                        , concepto.GetTotalRetenciones() == 0 ? "--" : concepto.GetTotalRetenciones().ToString("$ #,##0.00")
-                        , concepto.GetTotalImporteConTransladosyRetenciones().ToString("$ #,##0.00")
-                        , selectCuenta.Replace("#ID", numConcepto.ToString())
-                        , selectCentroCosto.Replace("#ID", numConcepto.ToString())
-                        , selectTipoPago.Replace("#ID", numConcepto.ToString())
-                        );
+                            , concepto.GetIVATasa() == 0 ? "--" : (concepto.GetIVATasa()).ToString("0.00 %"), concepto.GetIVAImporte() == 0 ? "--" : concepto.GetIVAImporte().ToString("$ #,##0.00")
+                            , concepto.GetISRTasa() == 0 ? "--" : (concepto.GetISRTasa()).ToString("0.00 %"), concepto.GetISRImporte() == 0 ? "--" : concepto.GetISRImporte().ToString("$ #,##0.00")
+                            , concepto.GetIEPSTasa() == 0 ? "--" : (concepto.GetIEPSTasa()).ToString("0.00 %"), concepto.GetIEPSImporte() == 0 ? "--" : concepto.GetIEPSImporte().ToString("$ #,##0.00")
+                            //, concepto.GetTotalImpuestos() == 0 ? "--" : concepto.GetTotalImpuestos().ToString("$ #,##0.00")
+                            , concepto.GetTotalRetenciones() == 0 ? "--" : concepto.GetTotalRetenciones().ToString("$ #,##0.00")
+                            , concepto.GetTotalImporteConTransladosyRetenciones().ToString("$ #,##0.00")
+                            , selectCuenta.Replace("#ID", numConcepto.ToString())
+                            , selectCentroCosto.Replace("#ID", numConcepto.ToString()).Replace("#CC", i.ToString())
+                            , selectTipoPago.Replace("#ID", numConcepto.ToString())
+                            );
 
-                    //aumenta en 1 el número de concepto (por cada concepto dentro de la factura)
+                        //aumenta en 1 el número de concepto (por cada concepto dentro de la factura)
+                        numConcepto++;
+                    }
+
+                    //agrega el campo para dividir centros de costo
+                    body += @"<tr style=""background-color:#C9DCC1"" class=""div_" + factura_4_0.TimbreFiscalDigital.UUID + @"""> 
+                            <td style=""text-align: right; font-style: italic;""  id=""cc_" + (factura_4_0.TimbreFiscalDigital.UUID + "_" + i) + @"""  colspan=""17""></td>
+                            <td colspan=""2"" nowrap>
+                                            <input type=""hidden"" name=""GV_comprobacion_rel_gastos.Index"" id=""GV_comprobacion_rel_gastos.Index"" value=""" + numConcepto + @""" />
+                                           <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].uuid"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].uuid"" value=""" + factura_4_0.TimbreFiscalDigital.UUID + @""">
+                                               <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].concepto_tipo"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].concepto_tipo"" value=""" + (existeEnCOFIDI ? GV_comprobacion_origen.COFIDI_CONCEPTO_CC : GV_comprobacion_origen.XML_CONCEPTO_CC) + @""">
+                                              <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].num_cc"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].num_cc"" value=""" + i + @""">
+                                              <input type=""hidden"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].total_mxn"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].total_mxn"" value=""" + factura_4_0.Total + @""">
+                                            <b>Total CC:</b> <input type=""text"" class=""importe form-control importe-cc"" name=""GV_comprobacion_rel_gastos[" + numConcepto + @"].importe_cc"" id=""GV_comprobacion_rel_gastos[" + numConcepto + @"].importe_cc"" data-uuid=""" + factura_4_0.TimbreFiscalDigital.UUID + @"""  value=""" + (num_cc == 1 ? factura_4_0.Total.ToString() : string.Empty) + @""" " + (num_cc == 1 ? "readonly" : string.Empty) + @" required>
+                                                 <span class=""field-validation-valid text-danger control-label"" data-valmsg-for=GV_comprobacion_rel_gastos[" + numConcepto + @"].importe_cc data-valmsg-replace=""true""></span>
+                                            </td>
+                            <td colspan=""3""></td>
+                        </tr>";
+                    //aumenta en 1 el número de concepto (por cada total de CC)
                     numConcepto++;
                 }
+
+
+
 
                 //agrega los TOTALES de la factura
                 body += String.Format(@"<tr style=""background-color:#AAE0FF"" class=""div_" + factura_4_0.TimbreFiscalDigital.UUID + @""">
@@ -2624,7 +2830,8 @@ namespace Portal_2_0.Controllers
                                                 <td nowrap style=""color:#C10000;text-align:right"">{4}</td> 
                                                 <td nowrap style=""text-align:right"">{5}</td>
                                                 <td nowrap style=""text-align:right"">{6}</td> 
-                                                <td nowrap class=""item-total-mxn"" style=""text-align:right; font-weight:bold;"">{7}</td>
+                                                <td colspan=""1"" id=""suma-cc-" + factura_4_0.TimbreFiscalDigital.UUID + @""" style=""text-align:right; font-weight:bold;""></td>
+                                                <td nowrap class=""item-total-mxn"" style=""text-align:right; font-weight:bold;"" data-uuid=""" + factura_4_0.TimbreFiscalDigital.UUID + @""">{7}</td>
                                                 <td colspan=""2""></td>
                                             </tr>
                     "
@@ -2643,7 +2850,7 @@ namespace Portal_2_0.Controllers
                 numConcepto++;
 
                 //indica el número de conceptos de la factura + la cabecera
-                cantidadConceptos = factura_4_0.Conceptos.Count() + 2;
+                cantidadConceptos = (factura_4_0.Conceptos.Count() * num_cc) + num_cc + 2;
             }
             result[0] = new { status = estatus, value = body, num_conceptos = cantidadConceptos, uuid = uuid, msj = msj, div_ocultos = div_ocultos };
             return result;
