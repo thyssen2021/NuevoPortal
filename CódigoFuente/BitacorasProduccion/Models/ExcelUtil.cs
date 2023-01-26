@@ -618,6 +618,286 @@ namespace Portal_2_0.Models
 
             return (array);
         }
+        public static byte[] GeneraReporteGVSolicitudAnticipo(List<GV_solicitud> listado)
+        {
+
+            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+
+            System.Data.DataTable dt = new System.Data.DataTable();
+
+            //columnas          
+            dt.Columns.Add("Folio", typeof(string));
+            dt.Columns.Add("Estatus", typeof(string));
+            dt.Columns.Add("Fecha Solicitud", typeof(DateTime));
+            dt.Columns.Add("Solicitante", typeof(string));
+            dt.Columns.Add("Empleado", typeof(string));
+            dt.Columns.Add("Origen", typeof(string));
+            dt.Columns.Add("Destino", typeof(string));
+            dt.Columns.Add("Fecha de Salida", typeof(DateTime));
+            dt.Columns.Add("Fecha de Regreso", typeof(DateTime));
+            dt.Columns.Add("Tipo de Viaje", typeof(string));
+            dt.Columns.Add("Medio de Transporte", typeof(string));
+            dt.Columns.Add("Medio Transforte (otro)", typeof(string));
+            dt.Columns.Add("Motivo de Viaje", typeof(string));
+            dt.Columns.Add("¿Moneda Extranjera?", typeof(bool));
+            dt.Columns.Add("Moneda Extranjera (Moneda)", typeof(string));
+            dt.Columns.Add("Moneda Extranjera (Monto)", typeof(decimal));
+            dt.Columns.Add("Moneda Extranjera (comentarios)", typeof(string));
+            dt.Columns.Add("Boletos Avión", typeof(bool));
+            dt.Columns.Add("Hospedaje", typeof(bool));
+            dt.Columns.Add("Reservaciones (comentarios)", typeof(string));
+            dt.Columns.Add("Monto Anticipo", typeof(decimal));
+            dt.Columns.Add("Jefe Directo", typeof(string));
+            dt.Columns.Add("Jefe Directo (aceptación)", typeof(DateTime));
+            dt.Columns.Add("Controlling", typeof(string));
+            dt.Columns.Add("Controlling (aceptación)", typeof(DateTime));
+            dt.Columns.Add("Nómina", typeof(string));
+            dt.Columns.Add("Nómina (aceptación)", typeof(DateTime));
+            dt.Columns.Add("Contabilidad", typeof(string));
+            dt.Columns.Add("Contabilidad (aceptación)", typeof(DateTime));
+            dt.Columns.Add("Comentario Adicional", typeof(string));
+            dt.Columns.Add("Comentario Rechazo", typeof(string));
+
+            ////registros , rows
+            foreach (GV_solicitud item in listado)
+            {
+                System.Data.DataRow row = dt.NewRow();
+                row["Folio"] = item.id;
+                row["Estatus"] = GV_comprobacion_estatus.DescripcionStatus(item.estatus);
+                row["Fecha Solicitud"] = item.fecha_solicitud;
+                row["Solicitante"] = item.empleados5.ConcatNombre;
+                row["Empleado"] = item.empleados2.ConcatNombre;
+                row["Origen"] = item.origen;
+                row["Destino"] = item.destino;
+                row["Fecha de Salida"] = item.fecha_salida;
+                row["Fecha de Regreso"] = item.fecha_regreso;
+                row["Tipo de Viaje"] = item.tipo_viaje;
+                row["Medio de Transporte"] = item.id_medio_transporte.HasValue ? item.GV_medios_transporte.descripcion : String.Empty;
+                row["Medio Transforte (otro)"] = item.medio_transporte_otro;
+                row["Motivo de Viaje"] = item.motivo_viaje;
+                row["¿Moneda Extranjera?"] = item.moneda_extranjera;
+                row["Moneda Extranjera (Moneda)"] = item.iso_moneda_extranjera;
+                if (item.moneda_extranjera_monto.HasValue)
+                    row["Moneda Extranjera (Monto)"] = item.moneda_extranjera_monto;
+                row["Moneda Extranjera (comentarios)"] = item.moneda_extranjera_comentarios;
+                row["Boletos Avión"] = item.boletos_avion;
+                row["Hospedaje"] = item.hospedaje;
+                row["Reservaciones (comentarios)"] = item.reservaciones_comentarios;
+                row["Monto Anticipo"] = item.Anticipo;
+                //jefe Directo
+                row["Jefe Directo"] = item.empleados3.ConcatNombre;
+                if (item.fecha_aceptacion_jefe_area.HasValue)
+                    row["Jefe Directo (aceptación)"] = item.fecha_aceptacion_jefe_area;
+                //controlling
+                if (item.id_controlling.HasValue)
+                    row["Controlling"] = item.empleados1.ConcatNombre;
+                if (item.fecha_aceptacion_controlling.HasValue)
+                    row["Controlling (aceptación)"] = item.fecha_aceptacion_controlling;
+                //nomina
+                if (item.id_contabilidad.HasValue)
+                    row["Nómina"] = item.empleados4.ConcatNombre;
+                if (item.fecha_aceptacion_nomina.HasValue)
+                    row["Nómina (aceptación)"] = item.fecha_aceptacion_nomina;
+                //contabilidad
+                if (item.id_contabilidad.HasValue)
+                    row["Contabilidad"] = item.empleados.ConcatNombre;
+                if (item.fecha_aceptacion_contabilidad.HasValue)
+                    row["Contabilidad (aceptación)"] = item.fecha_aceptacion_contabilidad;
+
+                row["Comentario Adicional"] = item.comentario_adicional;
+                row["Comentario Rechazo"] = item.comentario_rechazo;
+
+                dt.Rows.Add(row);
+
+            }
+            string hoja1 = "Reporte Solicitud de Anticipo";
+
+            //crea la hoja de FACTURAS y la selecciona
+            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, hoja1);
+            oSLDocument.ImportDataTable(1, 1, dt, true);
+
+            //estilo para ajustar al texto
+            SLStyle styleWrap = oSLDocument.CreateStyle();
+            styleWrap.SetWrapText(true);
+            styleWrap.Alignment.Vertical = VerticalAlignmentValues.Top;
+            //estilo para ajustar al texto
+            SLStyle styleNoWrap = oSLDocument.CreateStyle();
+            styleNoWrap.SetWrapText(false);
+            styleNoWrap.Alignment.Vertical = VerticalAlignmentValues.Top;
+
+            //estilo para el encabezado
+            SLStyle styleHeader = oSLDocument.CreateStyle();
+            styleHeader.Font.Bold = true;
+            styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
+
+            //estilo para el encabezado de cada fila
+            SLStyle styleHeaderRow = oSLDocument.CreateStyle();
+            styleHeaderRow.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#daeef3"), System.Drawing.ColorTranslator.FromHtml("#daeef3"));
+
+
+            ////estilo para fecha
+            SLStyle styleShortDate = oSLDocument.CreateStyle();
+            styleShortDate.FormatCode = "yyyy/MM/dd";
+            //oSLDocument.SetColumnStyle(7, styleShortDate);
+
+            SLStyle styleLongDate = oSLDocument.CreateStyle();
+            styleLongDate.FormatCode = "yyyy/MM/dd h:mm AM/PM";
+
+            //oSLDocument.SetColumnStyle(25, styleLongDate);
+
+            SLStyle styleHeaderFont = oSLDocument.CreateStyle();
+            styleHeaderFont.Font.FontName = "Calibri";
+            styleHeaderFont.Font.FontSize = 11;
+            styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
+            styleHeaderFont.Font.Bold = true;
+
+            //estilo para numeros
+            SLStyle styleNumber = oSLDocument.CreateStyle();
+            styleNumber.FormatCode = "$ #,##0.00;[Red]-$ #,##0.00";
+
+            //da estilo a los numero
+            //oSLDocument.SetColumnStyle(12, 15, styleNumber);
+
+            //aplica formatos
+            oSLDocument.SetColumnStyle(3, styleShortDate);
+            oSLDocument.SetColumnStyle(8, styleShortDate);
+            oSLDocument.SetColumnStyle(9, styleShortDate);
+            oSLDocument.SetColumnStyle(23, styleShortDate);
+            oSLDocument.SetColumnStyle(25, styleShortDate);
+            oSLDocument.SetColumnStyle(27, styleShortDate);
+            oSLDocument.SetColumnStyle(29, styleShortDate);
+
+            oSLDocument.SetColumnStyle(16, styleNumber);
+            oSLDocument.SetColumnStyle(21, styleNumber);
+
+
+            //da estilo a la hoja de excel
+            //inmoviliza el encabezado
+            oSLDocument.FreezePanes(1, 0);
+
+            oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
+
+            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
+            //oSLDocument.SetRowStyle(2, dt.Columns.Count, styleNoWrap);
+
+            oSLDocument.SetRowStyle(1, styleHeader);
+            oSLDocument.SetRowStyle(1, styleHeaderFont);
+
+            oSLDocument.SetRowHeight(1, dt.Rows.Count + 1, 15.0);
+            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+
+
+            //COMPROBACION DE GASTOS
+            string hoja2 = "Reporte Comprobación de Gastos";
+            oSLDocument.AddWorksheet(hoja2);
+            oSLDocument.SelectWorksheet(hoja2);
+
+            //reinicia la tabla
+            dt = new System.Data.DataTable();
+            dt.Columns.Add("Folio", typeof(string));
+            dt.Columns.Add("Estatus", typeof(string));
+            dt.Columns.Add("Fecha Comprobación", typeof(DateTime));
+            dt.Columns.Add("Business Card", typeof(string));
+            dt.Columns.Add("American Express", typeof(bool));
+            dt.Columns.Add("Anticipo", typeof(decimal));
+            dt.Columns.Add("Comprobado", typeof(decimal));
+            dt.Columns.Add("Saldo por Comprobar", typeof(decimal));
+            dt.Columns.Add("Jefe Directo", typeof(string));
+            dt.Columns.Add("Jefe Directo (aceptación)", typeof(DateTime));
+            dt.Columns.Add("Controlling", typeof(string));
+            dt.Columns.Add("Controlling (aceptación)", typeof(DateTime));
+            dt.Columns.Add("Contabilidad", typeof(string));
+            dt.Columns.Add("Contabilidad (aceptación)", typeof(DateTime));
+            dt.Columns.Add("Nómina", typeof(string));
+            dt.Columns.Add("Nómina (aceptación)", typeof(DateTime));
+            dt.Columns.Add("Comentarios Adicionales", typeof(String));
+            dt.Columns.Add("Comentarios Rechazo", typeof(String));
+
+            ////registros , rows
+            foreach (GV_solicitud item in listado)
+            {
+
+                System.Data.DataRow row = dt.NewRow();
+
+                row["Folio"] = item.id;
+
+                //valida si existe un comprobación de anticipo
+                if (item.GV_comprobacion == null)
+                {
+                    row["Estatus"] = "SIN INICIAR";
+                    dt.Rows.Add(row);
+                    continue;
+                }
+
+                row["Estatus"] = Bitacoras.Util.GV_comprobacion_estatus.DescripcionStatus(item.GV_comprobacion.estatus);
+
+                //si existe la comprobación
+                if (item.GV_comprobacion.fecha_comprobacion.HasValue)
+                    row["Fecha Comprobación"] = item.GV_comprobacion.fecha_comprobacion;
+                row["Business Card"] = item.GV_comprobacion.business_card;
+                row["American Express"] = item.GV_comprobacion.american_express;
+                row["Anticipo"] = item.Anticipo;
+                row["Comprobado"] = item.TotalComprobado;
+                row["Saldo por Comprobar"] = item.PorComprobar;
+                //jefe directo
+                row["Jefe Directo"] = item.GV_comprobacion.empleados2.ConcatNombre;
+                if (item.GV_comprobacion.fecha_aceptacion_jefe_area.HasValue)
+                    row["Jefe Directo (aceptación)"] = item.GV_comprobacion.fecha_aceptacion_jefe_area;
+                //controlling
+                if (item.GV_comprobacion.id_controlling.HasValue)
+                    row["Controlling"] = item.GV_comprobacion.empleados1.ConcatNombre;
+                if (item.GV_comprobacion.fecha_aceptacion_controlling.HasValue)
+                    row["Controlling (aceptación)"] = item.GV_comprobacion.fecha_aceptacion_controlling;
+                //contabilidad
+                if (item.GV_comprobacion.id_contabilidad.HasValue)
+                    row["Contabilidad"] = item.GV_comprobacion.empleados.ConcatNombre;
+                if (item.GV_comprobacion.fecha_aceptacion_contabilidad.HasValue)
+                    row["Contabilidad (aceptación)"] = item.GV_comprobacion.fecha_aceptacion_contabilidad;
+                //nómina
+                if (item.GV_comprobacion.id_nomina.HasValue)
+                    row["Nómina"] = item.GV_comprobacion.empleados3.ConcatNombre;
+                if (item.GV_comprobacion.fecha_aceptacion_nomina.HasValue)
+                    row["Nómina (aceptación)"] = item.GV_comprobacion.fecha_aceptacion_nomina;
+
+                row["Comentarios Adicionales"] = item.GV_comprobacion.comentario_adicional;
+                row["Comentarios Rechazo"] = item.GV_comprobacion.comentario_rechazo;
+
+
+                dt.Rows.Add(row);
+            }
+            oSLDocument.ImportDataTable(1, 1, dt, true);
+
+            oSLDocument.SetColumnStyle(3, styleShortDate);
+            oSLDocument.SetColumnStyle(10, styleLongDate);
+            oSLDocument.SetColumnStyle(12, styleLongDate);
+            oSLDocument.SetColumnStyle(14, styleLongDate);
+            oSLDocument.SetColumnStyle(16, styleLongDate);
+
+            oSLDocument.SetColumnStyle(6, 8, styleNumber);
+
+            //inmoviliza el encabezado
+            oSLDocument.FreezePanes(1, 0);
+
+            oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
+
+            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
+            //oSLDocument.SetRowStyle(2, dt.Columns.Count, styleNoWrap);
+
+            oSLDocument.SetRowStyle(1, styleHeader);
+            oSLDocument.SetRowStyle(1, styleHeaderFont);
+
+            oSLDocument.SetRowHeight(1, dt.Rows.Count + 1, 15.0);
+            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+
+
+            oSLDocument.SelectWorksheet(hoja1);
+            System.IO.Stream stream = new System.IO.MemoryStream();
+            oSLDocument.SaveAs(stream);
+
+            byte[] array = Bitacoras.Util.StreamUtil.ToByteArray(stream);
+
+            return (array);
+        }
 
         /// <summary>
         /// Crea un archivo excel para los datos por centro de costo
@@ -1404,7 +1684,7 @@ namespace Portal_2_0.Models
                     fecha_cierre = item.fecha_cierre.Value;
                 else
                     fecha_cierre = DBNull.Value;
-                             
+
                 dt.Rows.Add(item.id, item.empleados2.ConcatNombre, item.fecha_solicitud, OT_Status.DescripcionStatus(item.estatus), item.Area.descripcion, OT_nivel_urgencia.DescripcionStatus(item.nivel_urgencia),
                     linea, item.id_zona_falla.HasValue ? item.OT_zona_falla.zona_falla : String.Empty, tPM, noTarjeta, grupoTrabajo, item.titulo, item.descripcion, responsable, fecha_asignacion, fecha_en_proceso, fecha_cierre, null, null, null, null, item.comentario
                     );
@@ -1562,12 +1842,12 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Número Celular", typeof(string));
             dt.Columns.Add("Compañia", typeof(string));
             dt.Columns.Add("Plan Celular", typeof(string));
-            dt.Columns.Add("Fecha de Corte", typeof(DateTime)); 
+            dt.Columns.Add("Fecha de Corte", typeof(DateTime));
             dt.Columns.Add("Fecha de Renovación(inicio)", typeof(DateTime));
             dt.Columns.Add("Fecha de Renovación(fin)", typeof(DateTime));
             dt.Columns.Add("Asignación (Responsable)", typeof(string));
             dt.Columns.Add("Departamento", typeof(string));
-            dt.Columns.Add("Estado", typeof(string));          
+            dt.Columns.Add("Estado", typeof(string));
 
             ////registros , rows
             foreach (IT_inventory_cellular_line item in listado)
@@ -1581,8 +1861,8 @@ namespace Portal_2_0.Models
                 if (asignacion != null && asignacion.empleados != null && asignacion.empleados.Area != null)
                     departamentoAsignacion = asignacion.empleados.Area.descripcion;
 
-                dt.Rows.Add(item.plantas.descripcion,item.numero_celular, item.IT_inventory_cellular_plans.nombre_compania, item.IT_inventory_cellular_plans.nombre_plan,
-                    item.fecha_corte,item.fecha_renovacion_inicio, item.fecha_renovacion,nombreAsignacion, departamentoAsignacion, item.activo? "Activo":"Inactivo"
+                dt.Rows.Add(item.plantas.descripcion, item.numero_celular, item.IT_inventory_cellular_plans.nombre_compania, item.IT_inventory_cellular_plans.nombre_plan,
+                    item.fecha_corte, item.fecha_renovacion_inicio, item.fecha_renovacion, nombreAsignacion, departamentoAsignacion, item.activo ? "Activo" : "Inactivo"
                     );
             }
 
@@ -1616,7 +1896,7 @@ namespace Portal_2_0.Models
             //inmoviliza el encabezado
             oSLDocument.FreezePanes(1, 0);
 
-            oSLDocument.Filter(1,1,1,dt.Columns.Count);
+            oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
             oSLDocument.AutoFitColumn(1, dt.Columns.Count);
 
             oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
@@ -1632,7 +1912,7 @@ namespace Portal_2_0.Models
             byte[] array = Bitacoras.Util.StreamUtil.ToByteArray(stream);
 
             return (array);
-        } 
+        }
         public static byte[] GeneraReportePFAExcel(List<PFA> listado)
         {
 

@@ -371,11 +371,11 @@
                                                     <li class="@(ViewBag.SegundoNivel == "solicitudes_nomina" ? "current-page" : null )"><a href="@Url.Action( "SolicitudesNomina", "ComprobacionGV")">(N&oacute;mina) Solicitudes</a></li>
                                                 }
 
-                                                @if (User.IsInRole(TipoRoles.GV_REPORTES))
+                                                @*@if (User.IsInRole(TipoRoles.GV_REPORTES))
                                                 {
                                                     <h3>REPORTES</h3>
                                                     <li class="@(ViewBag.SegundoNivel == "gv_reportes" ? "current-page" : null )"><a href="@Url.Action( "Reportes", "ComprobacionGV")">Reportes</a></li>
-                                                }
+                                                }*@
                                                 @if (User.IsInRole(TipoRoles.GV_AUTORIZACION))
                                                 {
                                                     <h3>AUTORIZACI&Oacute;N ESPECIAL</h3>

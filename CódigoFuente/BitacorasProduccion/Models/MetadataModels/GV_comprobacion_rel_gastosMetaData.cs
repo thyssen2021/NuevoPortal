@@ -22,8 +22,17 @@ namespace Portal_2_0.Models
         [NotMapped]
         public int orden
         {
-            get { 
-                return Bitacoras.Util.GV_comprobacion_origen.GetOrden(this.concepto_tipo); 
+            get
+            {
+                return Bitacoras.Util.GV_comprobacion_origen.GetOrden(this.concepto_tipo);
+            }
+        }
+        [NotMapped]
+        public decimal? TotalOtroGasto
+        {
+            get
+            {
+                return importe * (decimal?)tipo_cambio;
             }
         }
 

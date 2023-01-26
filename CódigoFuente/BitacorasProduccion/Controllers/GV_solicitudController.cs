@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Web;
@@ -946,7 +947,7 @@ namespace Portal_2_0.Controllers
                         correos.Add(jefeDirectoAnterior.correo);
                         envioCorreo.SendEmailAsync(correos, "Se ha autorizado una solicitud de Anticipo de Gastos de Viaje pendiente.", envioCorreo.getBodyGVNotificacionJefeDirectoEspecial(solicitud));
                     }
-                  
+
                 }
                 catch (System.Data.Entity.Validation.DbEntityValidationException ex)
                 {
@@ -995,7 +996,7 @@ namespace Portal_2_0.Controllers
         {
 
             //determina si viene de una autorización especial
-            bool esAutorizacionEspecial = s_estatus == "Autorizacion";          
+            bool esAutorizacionEspecial = s_estatus == "Autorizacion";
 
             GV_solicitud gv = db.GV_solicitud.Find(id);
             gv.estatus = GV_solicitud_estatus.RECHAZADO_JEFE;
@@ -1846,6 +1847,131 @@ namespace Portal_2_0.Controllers
         }
         #endregion
 
+        #region reportes
+        //Generación de Reportes
+        public ActionResult Reportes(int? folio, int? id_empleado, string estado, DateTime? fecha_solicitud_inicio, DateTime? fecha_solicitud_fin, int pagina = 1)
+        {
+            if (TieneRol(TipoRoles.GV_REPORTES))
+            {
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
+
+                var cantidadRegistrosPorPagina = 20; // parámetro
+
+                if (fecha_solicitud_fin.HasValue)
+                    fecha_solicitud_fin=fecha_solicitud_fin.Value.AddHours(23).AddMinutes(59).AddSeconds(59);
+
+                var listado = db.GV_solicitud
+                    .Where(x =>
+                            (id_empleado == null || x.id_empleado == id_empleado)
+                            && (folio == null || x.id == folio)
+                            && (String.IsNullOrEmpty(estado) || x.estatus == estado)
+                            && (!fecha_solicitud_inicio.HasValue || x.fecha_solicitud >= fecha_solicitud_inicio)
+                            && (!fecha_solicitud_fin.HasValue || x.fecha_solicitud <= fecha_solicitud_fin)
+                            )
+                   .OrderBy(x => x.id)
+                   .Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                   .Take(cantidadRegistrosPorPagina).ToList();
+
+                var totalDeRegistros = db.GV_solicitud
+                      .Where(x =>
+                            (id_empleado == null || x.id_empleado == id_empleado)
+                              && (folio == null || x.id == folio)
+                            && (String.IsNullOrEmpty(estado) || x.estatus == estado)
+                            && (!fecha_solicitud_inicio.HasValue || x.fecha_solicitud >= fecha_solicitud_inicio)
+                            && (!fecha_solicitud_fin.HasValue || x.fecha_solicitud <= fecha_solicitud_fin)
+                            )
+                   .Count();
+
+                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
+                routeValues["folio"] = folio;
+                routeValues["id_empleado"] = id_empleado;
+                routeValues["estado"] = estado;
+                routeValues["fecha_solicitud_inicio"] = fecha_solicitud_inicio;
+                routeValues["fecha_solicitud_fin"] = fecha_solicitud_fin;
+                routeValues["pagina"] = pagina;
+
+                Paginacion paginacion = new Paginacion
+                {
+                    PaginaActual = pagina,
+                    TotalDeRegistros = totalDeRegistros,
+                    RegistrosPorPagina = cantidadRegistrosPorPagina,
+                    ValoresQueryString = routeValues
+                };
+
+                List<int> idsEmpleados = db.GV_solicitud.Select(x => x.id_empleado).Distinct().ToList();
+                List<string> estatusList = db.GV_solicitud.Select(x => x.estatus).Distinct().ToList();
+
+                //crea un Select  list para el estatus
+                List<SelectListItem> newList = new List<SelectListItem>();
+
+                foreach (string statusItem in estatusList)
+                {
+                    newList.Add(new SelectListItem()
+                    {
+                        Text = GV_solicitud_estatus.DescripcionStatus(statusItem),
+                        Value = statusItem
+                    });
+                }
+
+                SelectList selectListItemsStatus = new SelectList(newList, "Value", "Text", string.Empty);
+
+
+                ViewBag.id_empleado = AddFirstItem(new SelectList(db.empleados.Where(x => idsEmpleados.Contains(x.id)), "id", "ConcatNombre"), "-- Todos --");
+                ViewBag.estado = AddFirstItem(selectListItemsStatus, "-- Todos --");
+                ViewBag.Paginacion = paginacion;
+                return View(listado);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+        }
+
+        public ActionResult Exportar(int? folio, int? id_empleado, string estado, DateTime? fecha_solicitud_inicio, DateTime? fecha_solicitud_fin)
+        {
+            if (TieneRol(TipoRoles.GV_REPORTES))
+            {
+                var listado = db.GV_solicitud
+                    .Where(x =>
+                            (id_empleado == null || x.id_empleado == id_empleado)
+                            && (folio == null || x.id == folio)
+                            && (String.IsNullOrEmpty(estado) || x.estatus == estado)
+                            && (!fecha_solicitud_inicio.HasValue || x.fecha_solicitud >= fecha_solicitud_inicio)
+                            && (!fecha_solicitud_fin.HasValue || x.fecha_solicitud <= fecha_solicitud_fin)
+                            )
+                   .OrderBy(x => x.id)
+                   .ToList();
+
+                byte[] stream = ExcelUtil.GeneraReporteGVSolicitudAnticipo(listado);
+
+
+                var cd = new System.Net.Mime.ContentDisposition
+                {
+                    // for example foo.bak
+                    FileName = "Reporte_GV_Solicitud_Acticipo_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+                    // always prompt the user for downloading, set to true if you want 
+                    // the browser to try to show the file inline
+                    Inline = false,
+                };
+
+                Response.AppendHeader("Content-Disposition", cd.ToString());
+
+                return File(stream, "application/vnd.ms-excel");
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+        #endregion
 
         protected override void Dispose(bool disposing)
         {

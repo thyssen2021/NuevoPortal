@@ -659,7 +659,7 @@
                                                         <td nowrap style="color:#C10000; text-align:right">@(concepto.total_retenciones.HasValue ? concepto.total_retenciones.Value.ToString("$ #,##0.00") : "--")</td>
                                                         <td nowrap style="text-align:right">@(concepto.impuestos_locales.HasValue ? concepto.impuestos_locales.Value.ToString("$ #,##0.00") : "--")</td>
                                                         <td nowrap style="text-align:right">@(concepto.total_mxn.HasValue ? concepto.total_mxn.Value.ToString("$ #,##0.00") : "--")</td>
-                                                        <td colspan="1" id="suma-cc-@concepto.uuid" style="text-align:right; font-weight:bold;"></td>
+                                                        <td nowrap colspan="1" id="suma-cc-@concepto.uuid" style="text-align:right; font-weight:bold;"></td>
                                                         <td nowrap class="item-total-mxn" style="text-align:right; font-weight:bold" data-uuid="@concepto.uuid">@(concepto.total_mxn.HasValue ? concepto.total_mxn.Value.ToString("$ #,##0.00") : "--")</td>
                                                         <td colspan="2"></td>
                                                     </tr>

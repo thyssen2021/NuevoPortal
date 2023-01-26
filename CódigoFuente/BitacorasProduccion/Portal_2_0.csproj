@@ -7375,6 +7375,7 @@
     <Content Include="Views\GV_comprobacion_tipo_pago\Edit.cshtml" />
     <Content Include="Views\GV_comprobacion_tipo_pago\Enable.cshtml" />
     <Content Include="Views\GV_comprobacion_tipo_pago\Index.cshtml" />
+    <Content Include="Views\GV_solicitud\Reportes.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

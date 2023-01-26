@@ -138,23 +138,78 @@ namespace Portal_2_0.Models
 
     [MetadataType(typeof(GV_solicitudMetadata))]
     public partial class GV_solicitud
-    {       
+    {
 
         [NotMapped]
         [Display(Name = "Otro")]
         public bool medio_transporte_aplica_otro { get; set; }
-       
+
         [NotMapped]
         [Display(Name = "Suma Gastos Nacional")]
-        public decimal sumaGastosNacional {
-            get {
-                return this.GV_rel_gastos_solicitud.Sum(x => x.total);            
-            }        
+        public decimal sumaGastosNacional
+        {
+            get
+            {
+                return this.GV_rel_gastos_solicitud.Sum(x => x.total);
+            }
+        }
+        
+        [NotMapped]
+        [Display(Name = "Estatus Comprobación")]
+        public string EstatusComprobacion
+        {
+            get
+            {
+                if (this.GV_comprobacion == null)
+                    return "Sin Iniciar";
+                else
+                    return Bitacoras.Util.GV_comprobacion_estatus.DescripcionStatus(this.GV_comprobacion.estatus);
+            }
+        }
+
+        [NotMapped]
+        [Display(Name = "Anticipo")]
+        public decimal Anticipo
+        {
+            get
+            {
+                return this.GV_rel_gastos_solicitud.Sum(x => x.total);
+            }
+        }
+
+        [NotMapped]
+        [Display(Name = "Total comprobado")]
+        public decimal? TotalComprobado
+        {
+            get
+            {
+                //total de facturas
+                var result = this.GV_comprobacion_rel_gastos.Where(x =>
+                x.concepto_tipo == Bitacoras.Util.GV_comprobacion_origen.XML_TOTALES
+                || x.concepto_tipo == Bitacoras.Util.GV_comprobacion_origen.COFIDI_TOTALES
+                    ).Sum(x => x.total_mxn);
+                //total gasto extranjero y otros gastos
+                result +=this.GV_comprobacion_rel_gastos.Where(x =>  
+                 x.concepto_tipo == Bitacoras.Util.GV_comprobacion_origen.GASTO_EXTRANJERO
+                || x.concepto_tipo == Bitacoras.Util.GV_comprobacion_origen.GASTO_SIN_COMPROBANTE
+                ).Sum(x => x.TotalOtroGasto);
+                return result;
+            }
+        }
+
+        [NotMapped]
+        [Display(Name = "Por Comprobar")]
+        public decimal? PorComprobar
+        {
+            get
+            {
+                return this.Anticipo - this.TotalComprobado;
+            }
         }
 
         //para filtros de búsqueda
         [NotMapped]
-        public string s_estatus { get; set; }        
+        public string s_estatus { get; set; }
 
     }
 }

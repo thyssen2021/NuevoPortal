@@ -553,7 +553,7 @@
                                                     <td nowrap style="color:#C10000; text-align:right">@(concepto.total_retenciones.HasValue ? concepto.total_retenciones.Value.ToString("$ #,##0.00") : "--")</td>
                                                     <td nowrap style="text-align:right">@(concepto.impuestos_locales.HasValue ? concepto.impuestos_locales.Value.ToString("$ #,##0.00") : "--")</td>
                                                     <td nowrap style="text-align:right">@(concepto.total_mxn.HasValue ? concepto.total_mxn.Value.ToString("$ #,##0.00") : "--")</td>
-                                                    <td colspan="1" id="suma-cc-@concepto.uuid" style="text-align:right; font-weight:bold;">
+                                                    <td nowrap colspan="1" id="suma-cc-@concepto.uuid" style="text-align:right; font-weight:bold;">
                                                         @(Model.GV_comprobacion_rel_gastos.Where(x=>
                                                                 (x.concepto_tipo == Bitacoras.Util.GV_comprobacion_origen.COFIDI_CONCEPTO_CC
                                                                 || x.concepto_tipo == Bitacoras.Util.GV_comprobacion_origen.XML_CONCEPTO_CC)
