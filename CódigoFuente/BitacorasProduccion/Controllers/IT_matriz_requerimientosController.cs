@@ -726,6 +726,9 @@ namespace Portal_2_0.Controllers
                     ))
                     )
                 {
+                    //elimina el comentario de rechazo en caso de existir
+                    matriz.comentario_rechazo = null;
+                    matriz.comentario_cierre = null;
                     db.IT_matriz_requerimientos.Add(matriz);
                 }
                 else
