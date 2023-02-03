@@ -78,15 +78,21 @@
                                             <div class="col-md-3 col-sm-3 ">
                                                 <input type="text" id="nombre" name="nombre" class="form-control" value="@nombre" autocomplete="off" />
                                             </div>
-                                            <label class="control-label col-md-1 col-sm-1" for="nombre_equipo" style="text-align:right">Planta:</label>
+                                            <label class="control-label col-md-1 col-sm-1" for="planta_clave" style="text-align:right">Planta:</label>
                                             <div class="col-md-2 col-sm-2 ">
                                                 @Html.DropDownList("planta_clave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                            </div>
+                                            <label class="control-label col-md-1 col-sm-1" for="id_area" style="text-align:right">Área:</label>
+                                            <div class="col-md-2 col-sm-2 ">
+                                                @Html.DropDownList("id_area", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                             </div>
                                             <div class="col-md-1 col-sm-1">
                                                 <a href="@Url.Action( "Index", ViewBag.ControllerName)" class="btn btn-warning">
                                                     <i class="fa fa-refresh"></i>
                                                 </a>
                                             </div>
+                                            
+                                           
                                             <div class="col-md-1 col-sm-1">
                                                 <input type="submit" value="Buscar" class="btn btn-info float-right" />
                                             </div>
@@ -127,7 +133,7 @@
                                 {
                                     string telefono = string.Empty;
                                     <div class="col-md-4 col-sm-6">
-                                        <div class="x_panel table-responsive" style="height: 350px; background-color: #f9f9ff">
+                                        <div class="x_panel table-responsive" style="height: 300px; background-color: #f9f9ff">
                                             <div class="x_title" style="background-color:#0094ff">
                                                 <span style="font-size:18px; font-weight:bold; color:white">@Html.DisplayFor(model => empleado.ConcatNombre) </span>
                                                 <div class="clearfix"></div>
@@ -172,7 +178,7 @@
 
                                                     </div>
                                                 </div>
-                                                <div class=" bottom text-right">
+                                                @*<div class=" bottom text-right">
                                                     <div class=" col-sm-12 emphasis">
                                                         <button type="button" class="btn btn-success btn-sm" onclick="CopiarTexto('@empleado.correo')" @(string.IsNullOrEmpty(empleado.correo) ? "disabled" : "")>
                                                             <i class="fa fa-copy"></i> Correo
@@ -181,7 +187,7 @@
                                                             <i class="fa fa-copy"></i> Tel&eacute;fono
                                                         </button>
                                                     </div>
-                                                </div>
+                                                </div>*@
                                             </div>
                                         </div>
                                     </div>
