@@ -42,10 +42,14 @@
         dt::after {
             content: ":";
         }
-             
+
 
         .text_derecha {
             text-align: right;
+        }
+
+        .colored-toast.swal2-icon-success {
+            background-color: #a5dc86 !important;
         }
     </style>
 }
@@ -179,36 +183,64 @@
                                             <th width="35%">
                                                 Comentarios
                                             </th>
+                                            <th width="5%">
+                                                Asignaci&oacute;n
+                                            </th>
+                                            <th width="5%">
+
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach (var item in Model.matriz.IT_matriz_hardware)
                                         {
-                                        <tr>
-                                            <td>@(Model.matriz.IT_matriz_hardware.ToList().IndexOf(item)+1)</td>
-                                            <td>
-                                                @item.IT_hardware_tipo.descripcion
-                                            </td>
-                                            <td>
-                                                @item.descripcion
-                                            </td>
-                                            <td>
-                                                <select name="hardware_@(item.id)_estado" id="hardware_@(item.id)_estado" class="form-control select2bs4" style="width:100%" required="required">
-                                                    <option value="">-- Selecionar -- </option>
-                                                    <option value="false" @(item.completado.HasValue && !item.completado.Value ? "selected" : null)>No</option>
-                                                    <option value="true" @(item.completado.HasValue && item.completado.Value ? "selected" : null)>Sí</option>
-                                                </select>
-                                                <span class="field-validation-valid text-danger" data-valmsg-for="hardware_@(item.id)_estado" data-valmsg-replace="true"></span>
-                                            </td>
-                                            <td>
-                                                <textarea style="font-size: 12px;" type="text" name="hardware_@(item.id)_comentarios" id="hardware_@(item.id)_comentarios" class="form-control col-md-12" autocomplete="off" maxlength="90">@item.comentario</textarea>
-                                                <span class="field-validation-valid text-danger" data-valmsg-for="hardware_@(item.id)_comentarios" data-valmsg-replace="true"></span>
-                                            </td>
-                                        </tr>
+                                            <tr>
+                                                <td>
+                                                    @(Model.matriz.IT_matriz_hardware.ToList().IndexOf(item)+1)
+                                                    <input type="hidden" name="hardware_@(item.id)_asignacion" id="hardware_@(item.id)_asignacion" value="@item.id_it_asignacion_hardware" />
+                                                </td>
+                                                <td>
+                                                    @item.IT_inventory_hardware_type.descripcion
+                                                </td>
+                                                <td>
+                                                    @item.descripcion
+                                                </td>
+                                                <td>
+                                                    <select name="hardware_@(item.id)_estado" id="hardware_@(item.id)_estado" class="form-control select2bs4" style="width:100%" required="required">
+                                                        <option value="">-- Selecionar -- </option>
+                                                        <option value="false" @(item.completado.HasValue && !item.completado.Value ? "selected" : null)>No</option>
+                                                        <option value="true" @(item.completado.HasValue && item.completado.Value ? "selected" : null)>Sí</option>
+                                                    </select>
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="hardware_@(item.id)_estado" data-valmsg-replace="true"></span>
+                                                </td>
+                                                <td>
+                                                    <textarea style="font-size: 12px;" type="text" name="hardware_@(item.id)_comentarios" id="hardware_@(item.id)_comentarios" class="form-control col-md-12" autocomplete="off" maxlength="150">@item.comentario</textarea>
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="hardware_@(item.id)_comentarios" data-valmsg-replace="true"></span>
+                                                </td>
+                                                <td id="hardware_view_asignacion_@(item.id)">
+                                                    @if (item.id_it_asignacion_hardware.HasValue)
+                                                    {
+                                                        <button type="button" onclick="detallesAsignacion(@item.id_it_asignacion_hardware); return false;" class="btn btn-info btn-sm" title="Ver Asignación"> <i class="fa-solid fa-eye"></i></button>
+                                                    }
+                                                    else
+                                                    {
+                                                        @("NO DISPONIBLE")
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <button type="button" id="" onclick="asignarHardware(@Model.matriz.id_empleado, @item.id_it_hardware); return false;" class="btn btn-success btn-sm" title="Asignar"> <i class="fa-solid fa-external-link"></i></button>
+                                                </td>
+                                            </tr>
                                         }
                                     </tbody>
                                 </table>
-
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-9 col-sm-9">
+                                </div>
+                                <div class="col-md-3 col-sm-3 ">
+                                    <button type="button" id="btn-actualizar-hardware" class="btn btn-warning float-md-right"><i class="fa-solid fa-arrows-rotate"></i> Actualizar Hardware</button>
+                                </div>
                             </div>
                             <div class="ln_solid"></div>
                             <div class="form-group row">
@@ -233,6 +265,11 @@
                                             <th width="35%">
                                                 Comentarios
                                             </th>
+                                            <th width="5%">
+                                                Asignaci&oacute;n
+                                            </th>
+                                            <th width="5%">
+                                            </th>
 
                                         </tr>
                                     </thead>
@@ -241,9 +278,12 @@
                                         {
 
                                             <tr>
-                                                <td>@(Model.matriz.IT_matriz_software.ToList().IndexOf(item)+1)</td>
                                                 <td>
-                                                    @item.IT_software_tipo.descripcion
+                                                    @(Model.matriz.IT_matriz_software.ToList().IndexOf(item)+1)
+                                                    <input type="hidden" name="software_@(item.id)_asignacion" id="software_@(item.id)_asignacion" value="@item.id_it_asignacion_software" />
+                                                </td>
+                                                <td>
+                                                    @item.IT_inventory_software.descripcion
                                                 </td>
                                                 <td>
                                                     @item.descripcion
@@ -261,12 +301,31 @@
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="software_@(item.id)_comentarios" data-valmsg-replace="true"></span>
 
                                                 </td>
+                                                <td id="software_view_asignacion_@(item.id)">
+                                                    @if (item.id_it_asignacion_software.HasValue)
+                                                    {
+                                                        <button type="button" onclick="detallesAsignacionSoftware(@Model.matriz.id_empleado); return false;" class="btn btn-info btn-sm" title="Ver Asignación"> <i class="fa-solid fa-eye"></i></button>
+                                                    }
+                                                    else
+                                                    {
+                                                        @("NO DISPONIBLE")
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <button type="button" id="" onclick="asignarSoftware(@Model.matriz.id_empleado, @item.id_it_software); return false;" class="btn btn-success btn-sm" title="Ver Asignar"> <i class="fa-solid fa-external-link"></i></button>
+                                                </td>
                                             </tr>
                                         }
                                     </tbody>
                                 </table>
                             </div>
-
+                            <div class="form-group row">
+                                <div class="col-md-9 col-sm-9">
+                                </div>
+                                <div class="col-md-3 col-sm-3 ">
+                                    <button type="button" id="btn-actualizar-software" class="btn btn-warning float-md-right"><i class="fa-solid fa-arrows-rotate"></i> Actualizar Software</button>
+                                </div>
+                            </div>
                             <div class="ln_solid"></div>
                             <div class="form-group row">
                                 <span style="color:dimgrey"><b>&emsp; 3.3- INTERNET</b></span>
@@ -570,7 +629,7 @@
     @Scripts.Render("~/bundles/dataTables_js")
 
 
-    <script>
+<script>
 
         $(document).ready(function () {
 
@@ -675,7 +734,132 @@
                 });
 
             });
+            $('form #btn-actualizar-hardware').click(function (e) {
+                 //llamada ajax para obtener el detalle del item  seleccionado
+                $.ajax({
+                    type: 'POST',
+                    url: '/IT_matriz_requerimientos/GetAsignacionesHardware',
+                    data: { id: @Model.id },
+                    success: function (data) {
+                        try {
+                            //console.log(data)
+                            //tieneUsuario = data[0].existe;
+                            $.each(data, function (ind, elem) {
+
+                                //si tiene una asignación asociada
+                                if (data[ind].estado == 1) {
+                                    $('#hardware_' + data[ind].id + '_estado').val('true')
+                                    $('#hardware_' + data[ind].id + '_asignacion').val(data[ind].id_asignacion)
+                                    $('#hardware_view_asignacion_' + data[ind].id).html('<button type="button" id="" onclick="detallesAsignacion(' + data[ind].id_asignacion + '); return false;" class="btn btn-info btn-sm" title="Ver Asignación"> <i class="fa-solid fa-eye"></i></button>');
+                                } else {
+                                    $('#hardware_' + data[ind].id + '_asignacion').val('')
+                                    $('#hardware_view_asignacion_' + data[ind].id).html("SIN DETALLES")
+                                }
+                                if (data[ind].comentarios != '') {
+                                    $('#hardware_' + data[ind].id + '_comentarios').val(data[ind].comentarios)
+                                }
+                            });
+                            //muestra el toast
+
+                            Toast.fire({
+                                icon: 'success',
+                                text: 'Se actualizaron las asignaciones de hardware.'
+                            })
+
+                            // Initialize Select2 Elements (debe ir después de asignar el valor)
+                            $('.select2bs4').select2({
+                                theme: 'bootstrap4'
+                            })
+                        }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    async: false
+                });
+            });
+
+            $('form #btn-actualizar-software').click(function (e) {
+               //llamada ajax para obtener el detalle del item  seleccionado
+                $.ajax({
+                    type: 'POST',
+                    url: '/IT_matriz_requerimientos/GetAsignacionesSoftware',
+                    data: { id: @Model.id },
+                    success: function (data) {
+                        try {
+                            //console.log(data)
+                            //tieneUsuario = data[0].existe;
+                            $.each(data, function (ind, elem) {
+
+                                //si tiene una asignación asociada
+                                if (data[ind].estado == 1) {
+                                    $('#software_' + data[ind].id + '_estado').val('true')
+                                    $('#software_' + data[ind].id + '_asignacion').val(data[ind].id_asignacion)
+                                    $('#software_view_asignacion_' + data[ind].id).html('<button type="button" id="" onclick="detallesAsignacionSoftware(@Model.matriz.id_empleado); return false;" class="btn btn-info btn-sm" title="Ver Asignación"> <i class="fa-solid fa-eye"></i></button>');
+                                } else {
+                                    $('#software_' + data[ind].id + '_asignacion').val('')
+                                    $('#sofware_view_asignacion_' + data[ind].id).html("SIN DETALLES")
+                                }
+                                if (data[ind].comentarios != '') {
+                                    $('#software_' + data[ind].id + '_comentarios').val(data[ind].comentarios)
+                                }
+                            });
+                            //muestra el toast
+
+                            Toast.fire({
+                                icon: 'success',
+                                text: 'Se actualizaron las asignaciones de software.'
+                            })
+
+                            // Initialize Select2 Elements (debe ir después de asignar el valor)
+                            $('.select2bs4').select2({
+                                theme: 'bootstrap4'
+                            })
+                        }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    async: false
+                });
+            });
+
         });
+
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-right',
+            iconColor: 'white',
+            customClass: {
+                popup: 'colored-toast'
+            },
+            showConfirmButton: false,
+            timer: 3500,
+            timerProgressBar: true
+        })
+
+        function asignarSoftware(num_empleado, tipo_software = '') {
+            window.open('/IT_asignacion_software/asignar?id_empleado=' + num_empleado + '&id_tipo_software=' + tipo_software, 'popup', "width=" + screen.width * .70 + ",height=" + screen.height * .70 + "");
+        }
+        function asignarHardware(num_empleado, tipo_hardware) {
+            window.open('/it_asignacion_hardware/asignar?id_empleado=' + num_empleado + '&id_tipo_hardware=' + tipo_hardware, 'popup', "width=" + screen.width * .70 + ",height=" + screen.height * .70 + "");
+        }
+        function detallesAsignacion(id_asignacion) {
+            window.open('/it_asignacion_hardware/Details/' + id_asignacion, 'popup', "width=" + screen.width * .70 + ",height=" + screen.height * .70 + "");
+        }
+        function detallesAsignacionSoftware(id_empleado) {
+            window.open('/it_asignacion_hardware/DetailsEmpleado/' + id_empleado, 'popup', "width=" + screen.width * .70 + ",height=" + screen.height * .70 + "");
+        }
 
         //agranda el tamaño de la barra
         window.onload = function () {
@@ -703,5 +887,5 @@
             // disable unload warning
             $(window).off('beforeunload');
         });
-    </script>
+</script>
 }

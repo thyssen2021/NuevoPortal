@@ -530,8 +530,8 @@ namespace Portal_2_0.Controllers
 
                 }
 
-                ViewBag.listHardware = db.IT_hardware_tipo.Where(x => x.activo == true).ToList();
-                ViewBag.listSoftware = db.IT_software_tipo.Where(x => x.activo == true).ToList();
+                ViewBag.listHardware = db.IT_inventory_hardware_type.Where(x => x.activo == true && x.disponible_en_matriz_rh).ToList();
+                ViewBag.listSoftware = db.IT_inventory_software.Where(x => x.activo == true && x.disponible_en_matriz_rh).ToList();
                 ViewBag.listComunicaciones = db.IT_comunicaciones_tipo.Where(x => x.activo == true).ToList();
                 ViewBag.listCarpetas = db.IT_carpetas_red.Where(x => x.activo == true).ToList();
 
@@ -545,7 +545,7 @@ namespace Portal_2_0.Controllers
         }
 
         // GET: IT_matriz_requerimientos/CrearMatriz
-        public ActionResult CrearMatriz(int? id)
+        public ActionResult CrearMatriz(int? id, string tipo = "")
         {
             if (TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CREAR))
             {
@@ -560,7 +560,8 @@ namespace Portal_2_0.Controllers
 
                 }
 
-                IT_matriz_requerimientos matriz = db.IT_matriz_requerimientos.Where(x => x.id_empleado == id).FirstOrDefault();
+                IT_matriz_requerimientos matriz = db.IT_matriz_requerimientos.Where(x => x.id_empleado == id).OrderByDescending(x=>x.id).FirstOrDefault();
+                
                 if (matriz == null)
                 {
                     //crea una matriz nueva con el empleado asociado
@@ -583,11 +584,13 @@ namespace Portal_2_0.Controllers
                     }
                 }
 
-
+                //agrega el tipo de solicitud 
+                if (!String.IsNullOrEmpty(tipo) && (tipo == Bitacoras.Util.IT_MR_tipo.CREACION || tipo == Bitacoras.Util.IT_MR_tipo.MODIFICACION))
+                    matriz.tipo = tipo;
 
                 //obtiene la lista de hardware
-                ViewBag.listHardware = db.IT_hardware_tipo.Where(x => x.activo == true).ToList();
-                ViewBag.listSoftware = db.IT_software_tipo.Where(x => x.activo == true).ToList();
+                ViewBag.listHardware = db.IT_inventory_hardware_type.Where(x => x.activo == true && x.disponible_en_matriz_rh).ToList();
+                ViewBag.listSoftware = db.IT_inventory_software.Where(x => x.activo == true && x.disponible_en_matriz_rh).ToList();
                 ViewBag.id_internet_tipo = AddFirstItem(new SelectList(db.IT_internet_tipo.Where(p => p.activo == true), "id", "descripcion"), selected: matriz.id_internet_tipo.ToString());
                 ViewBag.listCarpetas = db.IT_carpetas_red.Where(x => x.activo == true).ToList();
                 ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(p => p.activo == true), "id", "ConcatNumEmpleadoNombre"), selected: empleados.empleados2 != null ? empleados.empleados2.id.ToString() : String.Empty);
@@ -716,8 +719,12 @@ namespace Portal_2_0.Controllers
                 string mensaje = "Se ha enviado la solicitud correctamente.";
                 TipoMensajesSweetAlerts tipoMensaje = TipoMensajesSweetAlerts.SUCCESS;
 
-                //si existe un registro con el mismo id empleado 
-                if (!db.IT_matriz_requerimientos.Any(x => x.id_empleado == matriz.id_empleado))
+                //si NO existe un registro con el mismo id empleado 
+                if (!db.IT_matriz_requerimientos.Any(x => x.id_empleado == matriz.id_empleado)
+                    ||(matriz.tipo == Bitacoras.Util.IT_MR_tipo.MODIFICACION && !db.IT_matriz_requerimientos.Any(x=>x.id_empleado == matriz.id_empleado
+                        && x.estatus != IT_MR_Status.FINALIZADO 
+                    ))
+                    )
                 {
                     db.IT_matriz_requerimientos.Add(matriz);
                 }
@@ -753,6 +760,33 @@ namespace Portal_2_0.Controllers
                 try
                 {
                     db.SaveChanges();
+
+
+                    try
+                    {
+                        //envia correo electronico
+                        EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+
+                        List<String> correos = new List<string>(); //correos TO
+
+                        //obtiene el empleado asociado
+                        empleados emp = db.empleados.Find(matriz.id_jefe_directo);
+
+                        if (emp != null && !String.IsNullOrEmpty(emp.correo))
+                            correos.Add(emp.correo); //agrega correo de validador
+
+                        //agrega las referencias al empleados y empleados2
+                        matriz.empleados = db.empleados.Find(matriz.id_empleado);
+                        matriz.empleados3 = solicitante;
+
+                        envioCorreo.SendEmailAsync(correos, "Ha recibido una Solicitud de Requerimiento de Usuario para su aprobación.", envioCorreo.getBody_IT_MR_Notificacion_Jefe_Directo(matriz));
+                    }
+                    catch (Exception e)
+                    {
+                        mensaje = "Se ha enviado correctamente la solicitud, pero ha surgido un error al mandar el correo electrónico.";
+                        tipoMensaje = TipoMensajesSweetAlerts.WARNING;
+                        EscribeExcepcion(e, Clases.Models.EntradaRegistroEvento.TipoEntradaRegistroEvento.Error);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -761,31 +795,6 @@ namespace Portal_2_0.Controllers
                     EscribeExcepcion(ex, Clases.Models.EntradaRegistroEvento.TipoEntradaRegistroEvento.Error);
                 }
 
-                try
-                {
-                    //envia correo electronico
-                    EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
-
-                    List<String> correos = new List<string>(); //correos TO
-
-                    //obtiene el empleado asociado
-                    empleados emp = db.empleados.Find(matriz.id_jefe_directo);
-
-                    if (emp != null && !String.IsNullOrEmpty(emp.correo))
-                        correos.Add(emp.correo); //agrega correo de validador
-
-                    //agrega las referencias al empleados y empleados2
-                    matriz.empleados = db.empleados.Find(matriz.id_empleado);
-                    matriz.empleados3 = solicitante;
-
-                    envioCorreo.SendEmailAsync(correos, "Ha recibido una Solicitud de Requerimiento de Usuario para su aprobación.", envioCorreo.getBody_IT_MR_Notificacion_Jefe_Directo(matriz));
-                }
-                catch (Exception e)
-                {
-                    mensaje = "Se ha enviado correctamente la solicitud, pero ha surgido un error al mandar el correo electrónico.";
-                    tipoMensaje = TipoMensajesSweetAlerts.WARNING;
-                    EscribeExcepcion(e, Clases.Models.EntradaRegistroEvento.TipoEntradaRegistroEvento.Error);
-                }
 
                 TempData["Mensaje"] = new MensajesSweetAlert(mensaje, tipoMensaje);
 
@@ -797,8 +806,8 @@ namespace Portal_2_0.Controllers
             matriz.empleados = empleados;
 
 
-            ViewBag.listHardware = db.IT_hardware_tipo.Where(x => x.activo == true).ToList();
-            ViewBag.listSoftware = db.IT_software_tipo.Where(x => x.activo == true).ToList();
+            ViewBag.listHardware = db.IT_inventory_hardware_type.Where(x => x.activo == true && x.disponible_en_matriz_rh).ToList();
+            ViewBag.listSoftware = db.IT_inventory_software.Where(x => x.activo == true && x.disponible_en_matriz_rh).ToList();
             ViewBag.id_internet_tipo = AddFirstItem(new SelectList(db.IT_internet_tipo.Where(p => p.activo == true), "id", "descripcion"));
             ViewBag.listComunicaciones = db.IT_comunicaciones_tipo.Where(x => x.activo == true).ToList();
             ViewBag.listCarpetas = db.IT_carpetas_red.Where(x => x.activo == true).ToList();
@@ -835,8 +844,8 @@ namespace Portal_2_0.Controllers
                 }
 
 
-                ViewBag.listHardware = db.IT_hardware_tipo.Where(x => x.activo == true).ToList();
-                ViewBag.listSoftware = db.IT_software_tipo.Where(x => x.activo == true).ToList();
+                ViewBag.listHardware = db.IT_inventory_hardware_type.Where(x => x.activo == true && x.disponible_en_matriz_rh).ToList();
+                ViewBag.listSoftware = db.IT_inventory_software.Where(x => x.activo == true && x.disponible_en_matriz_rh).ToList();
                 ViewBag.listComunicaciones = db.IT_comunicaciones_tipo.Where(x => x.activo == true).ToList();
                 ViewBag.listCarpetas = db.IT_carpetas_red.Where(x => x.activo == true).ToList();
 
@@ -1017,6 +1026,17 @@ namespace Portal_2_0.Controllers
                     return View("../Error/NotFound");
                 }
 
+                //asigna valor por defecto a todos los combo
+                foreach (var item in matriz.IT_matriz_hardware)
+                    item.completado = true;
+                foreach (var item in matriz.IT_matriz_software)
+                    item.completado = true;
+                foreach (var item in matriz.IT_matriz_comunicaciones)
+                    item.completado = true;
+                 foreach (var item in matriz.IT_matriz_carpetas)
+                    item.completado = true;
+
+
 
                 return View(new IT_matriz_requerimientosCerrarModel { matriz = matriz, id = matriz.id, correo = matriz.empleados.correo, C8ID = matriz.empleados.C8ID, comentario_cierre = matriz.comentario_cierre });
             }
@@ -1056,10 +1076,16 @@ namespace Portal_2_0.Controllers
                 //obtiene el estado
                 bool completado = Convert.ToBoolean(collection["hardware_" + id_hardware + "_estado"]);
                 string comentario = null;
+                int? asignacion = null;
 
                 //comentario
                 if (keysCollection.Contains("hardware_" + id_hardware + "_comentarios") && !String.IsNullOrEmpty(collection["hardware_" + id_hardware + "_comentarios"]))
                     comentario = collection["hardware_" + id_hardware + "_comentarios"];
+
+                //obtiene el id_asignación en caso de existir
+                if (keysCollection.Contains("hardware_" + id_hardware + "_asignacion") && !String.IsNullOrEmpty(collection["hardware_" + id_hardware + "_asignacion"]))
+                    asignacion = Convert.ToInt32(collection["hardware_" + id_hardware + "_asignacion"]);
+
 
                 //obtiene el objeto asociado
                 IT_matriz_hardware item = matriz.IT_matriz_hardware.Where(x => x.id == id_hardware).FirstOrDefault();
@@ -1068,6 +1094,7 @@ namespace Portal_2_0.Controllers
                 {
                     item.completado = completado;
                     item.comentario = comentario;
+                    item.id_it_asignacion_hardware = asignacion;
                 }
             }
 
@@ -1084,18 +1111,25 @@ namespace Portal_2_0.Controllers
                 //obtiene el estado
                 bool completado = Convert.ToBoolean(collection["software_" + id_software + "_estado"]);
                 string comentario = null;
+                int? asignacion = null;
 
                 //comentario
                 if (keysCollection.Contains("software_" + id_software + "_comentarios") && !String.IsNullOrEmpty(collection["software_" + id_software + "_comentarios"]))
                     comentario = collection["software_" + id_software + "_comentarios"];
 
+                //obtiene el id_asignación en caso de existir
+                if (keysCollection.Contains("software_" + id_software + "_asignacion") && !String.IsNullOrEmpty(collection["software_" + id_software + "_asignacion"]))
+                    asignacion = Convert.ToInt32(collection["software_" + id_software + "_asignacion"]);
+
+
                 //obtiene el objeto asociado
                 IT_matriz_software item = matriz.IT_matriz_software.Where(x => x.id == id_software).FirstOrDefault();
-
+                            
                 if (item != null)
                 {
                     item.completado = completado;
                     item.comentario = comentario;
+                    item.id_it_asignacion_software = asignacion;
                 }
             }
 
@@ -1385,7 +1419,7 @@ namespace Portal_2_0.Controllers
                 foreach (var item in matriz.IT_matriz_hardware)
                 {
                     table.AddCell(new Cell().Add(new Paragraph((matriz.IT_matriz_hardware.ToList().IndexOf(item) + 1).ToString()).AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
-                    table.AddCell(new Cell().Add(new Paragraph(item.IT_hardware_tipo.descripcion).AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                    table.AddCell(new Cell().Add(new Paragraph(item.IT_inventory_hardware_type.descripcion).AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
                     table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.descripcion) ? item.descripcion : String.Empty).AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
                     table.AddCell(new Cell().Add(new Paragraph(!item.completado.HasValue ? "PENDIENTE" : item.completado.Value ? "SÍ" : "NO").AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
                     table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.comentario) ? item.comentario : String.Empty).AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
@@ -1405,7 +1439,7 @@ namespace Portal_2_0.Controllers
                 foreach (var item in matriz.IT_matriz_software)
                 {
                     table.AddCell(new Cell().Add(new Paragraph((matriz.IT_matriz_software.ToList().IndexOf(item) + 1).ToString()).AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
-                    table.AddCell(new Cell().Add(new Paragraph(item.IT_software_tipo.descripcion).AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                    table.AddCell(new Cell().Add(new Paragraph(item.IT_inventory_software.descripcion).AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
                     table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.descripcion) ? item.descripcion : String.Empty).AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
                     table.AddCell(new Cell().Add(new Paragraph(!item.completado.HasValue ? "PENDIENTE" : item.completado.Value ? "SÍ" : "NO").AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
                     table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.comentario) ? item.comentario : String.Empty).AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
@@ -1551,7 +1585,7 @@ namespace Portal_2_0.Controllers
                     "\nSe quita la baja del usuario, ese proceso ahora es de RH." +
                     "\nSe agrega el Aviso para el uso correcto de las cuentas.").AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
                 //tercer cambio
-                table.AddCell(new Cell().Add(new Paragraph("20/05/2022").AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
+                table.AddCell(new Cell().Add(new Paragraph("01/02/2023").AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
                 table.AddCell(new Cell().Add(new Paragraph("Alfredo Xochitemol").AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
                 table.AddCell(new Cell().Add(new Paragraph("Desarrollador de Software").AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
                 table.AddCell(new Cell().Add(new Paragraph("1.2").AddStyle(styleTextoNegroRegular)).SetBorder(new SolidBorder(ColorConstants.LIGHT_GRAY, 1)));
@@ -1583,6 +1617,105 @@ namespace Portal_2_0.Controllers
 
             return File(pdfBytes, "application/pdf");
 
+        }
+
+
+        ///<summary>
+        ///Obtiene las asignaciones más recientes según una matriz de requerimientos
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult GetAsignacionesHardware(int id = 0)
+        {
+            //obtiene todos los posibles valores
+            var matriz = db.IT_matriz_requerimientos.Where(p => p.id == id).FirstOrDefault();
+
+            List<IT_matriz_hardware> listadoHardware = new List<IT_matriz_hardware>();
+
+            if (matriz != null) //crea un empleado por defecto
+                listadoHardware = matriz.IT_matriz_hardware.ToList();
+
+
+            //inicializa la lista de objetos
+            var result = new object[listadoHardware.Count];
+
+            for (int i = 0; i < listadoHardware.Count; i++)
+            {
+                string comentarios = string.Empty;
+                int tipoHardware = listadoHardware[i].id_it_hardware;
+                IT_asignacion_hardware asignacion = db.IT_asignacion_hardware.Where(x => x.es_asignacion_actual
+                    && (
+                    x.IT_asignacion_hardware_rel_items.Any(y => y.IT_inventory_items.id_inventory_type == tipoHardware)
+                    || x.IT_asignacion_hardware_rel_items.Any(y => y.IT_inventory_items_genericos.id_inventory_type == tipoHardware)
+                    ) && x.id_empleado == matriz.id_empleado)
+                    .FirstOrDefault();
+
+                //busca el item asignado para agregarel comentario
+                if (asignacion != null)
+                {
+                    var it_inventory_item = asignacion.IT_asignacion_hardware_rel_items.FirstOrDefault(y => y.IT_inventory_items != null && y.IT_inventory_items.id_inventory_type == tipoHardware);
+                    var it_inventory_generico = asignacion.IT_asignacion_hardware_rel_items.FirstOrDefault(y => y.IT_inventory_items_genericos != null && y.IT_inventory_items_genericos.id_inventory_type == tipoHardware);
+
+                    if (it_inventory_item != null)
+                        comentarios = it_inventory_item.IT_inventory_items.ConcatInfoGeneral;
+                    else if (it_inventory_generico != null)
+                        comentarios = it_inventory_generico.IT_inventory_items_genericos.ConcatInfoGeneral;
+                }
+
+
+                result[i] = new
+                {
+                    id = listadoHardware[i].id,
+                    comentarios = comentarios,
+                    estado = asignacion != null ? 1 : 0,
+                    id_asignacion = asignacion != null ? asignacion.id : 0
+                };
+            }
+
+
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+         ///<summary>
+        ///Obtiene las asignaciones más recientes según una matriz de requerimientos
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult GetAsignacionesSoftware(int id = 0)
+        {
+            //obtiene todos los posibles valores
+            var matriz = db.IT_matriz_requerimientos.Where(p => p.id == id).FirstOrDefault();
+
+            List<IT_matriz_software> listadoSoftware = new List<IT_matriz_software>();
+
+            if (matriz != null) 
+                listadoSoftware = matriz.IT_matriz_software.ToList();
+
+
+            //inicializa la lista de objetos
+            var result = new object[listadoSoftware.Count];
+
+            for (int i = 0; i < listadoSoftware.Count; i++)
+            {
+                string comentarios = string.Empty;
+                int? tipoSoftware = listadoSoftware[i].id_it_software;
+
+                var asignacion = db.IT_asignacion_software.FirstOrDefault(x => x.id_inventory_software == tipoSoftware
+                && x.id_empleado == matriz.id_empleado);
+
+                if (asignacion != null)
+                    comentarios = asignacion.ConcatSearch;
+
+                result[i] = new
+                {
+                    id = listadoSoftware[i].id,
+                    comentarios = comentarios,
+                    estado = asignacion != null ? 1 : 0,
+                    id_asignacion = asignacion != null ? asignacion.id : 0
+                };
+            }
+
+
+            return Json(result, JsonRequestBehavior.AllowGet);
         }
 
     }
@@ -1657,7 +1790,9 @@ namespace Portal_2_0.Controllers
             return tableEvent;
 
         }
+
     }
+
 
     public class FooterEventHandlerPDF : IEventHandler
     {

@@ -18,6 +18,7 @@ namespace Portal_2_0.Models
         public IT_asignacion_hardware()
         {
             this.IT_asignacion_hardware_rel_items = new HashSet<IT_asignacion_hardware_rel_items>();
+            this.IT_matriz_hardware = new HashSet<IT_matriz_hardware>();
         }
     
         public int id { get; set; }
@@ -41,5 +42,7 @@ namespace Portal_2_0.Models
         public virtual empleados empleados { get; set; }
         public virtual empleados empleados1 { get; set; }
         public virtual empleados empleados2 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_matriz_hardware> IT_matriz_hardware { get; set; }
     }
 }

@@ -3012,6 +3012,7 @@ namespace Portal_2_0.Models
             //columnas          
             dt.Columns.Add("Id", typeof(string));
             dt.Columns.Add("Name", typeof(string));
+            dt.Columns.Add("Matriz RH?", typeof(bool));
             dt.Columns.Add("Active?", typeof(bool));
             //dt.Columns.Add("Version", typeof(string));
             //dt.Columns.Add("Version Active?", typeof(bool));
@@ -3020,7 +3021,7 @@ namespace Portal_2_0.Models
             ////registros , rows
             foreach (IT_inventory_software item in listado)
             {
-                dt.Rows.Add(item.id, item.descripcion, item.activo, null, null
+                dt.Rows.Add(item.id, item.descripcion, item.disponible_en_matriz_rh, item.activo
                     );
 
                 filasEncabezados.Add(true);
@@ -3101,19 +3102,7 @@ namespace Portal_2_0.Models
             //inmoviliza el encabezado
             oSLDocument.FreezePanes(1, 0);
             //aplica formato a las filas de encabezado
-            for (int i = 0; i < filasEncabezados.Count; i++)
-            {
-                if (filasEncabezados[i])
-                {
-                    oSLDocument.SetCellStyle(i + 1, 1, i + 1, dt.Columns.Count, styleHeaderRow);
-                }
-                else
-                {
-                    oSLDocument.SetCellStyle(i + 1, 4, i + 1, 5, styleLoteInfo);
-                }
-                //colapsa todas las filas
-                oSLDocument.CollapseRows(i + 2);
-            }
+            oSLDocument.SetCellStyle(1, 1,1, dt.Columns.Count, styleHeaderRow);
 
 
 
@@ -3125,11 +3114,11 @@ namespace Portal_2_0.Models
             oSLDocument.SetRowStyle(1, styleHeaderFont);
 
             //da color gris a cabeceras expandibles
-            oSLDocument.SetCellStyle(1, 4, 1, 5, styleHeaderRowDrive);
+            //oSLDocument.SetCellStyle(1, 4, 1, 5, styleHeaderRowDrive);
             oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
 
             oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
-            oSLDocument.SetColumnWidth(3, 12.0);
+            oSLDocument.SetColumnWidth(3,4, 12.0);
 
             System.IO.Stream stream = new System.IO.MemoryStream();
 

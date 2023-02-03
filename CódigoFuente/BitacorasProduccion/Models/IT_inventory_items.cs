@@ -63,7 +63,6 @@ namespace Portal_2_0.Models
         public virtual ICollection<IT_asignacion_hardware_rel_items> IT_asignacion_hardware_rel_items { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_inventory_hard_drives> IT_inventory_hard_drives { get; set; }
-        public virtual IT_inventory_hardware_type IT_inventory_hardware_type { get; set; }
         public virtual plantas plantas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_mantenimientos> IT_mantenimientos { get; set; }
@@ -73,5 +72,6 @@ namespace Portal_2_0.Models
         public virtual IT_inventory_items IT_inventory_items2 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_equipos_checklist> IT_equipos_checklist { get; set; }
+        public virtual IT_inventory_hardware_type IT_inventory_hardware_type { get; set; }
     }
 }

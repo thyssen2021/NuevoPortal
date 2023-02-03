@@ -140,19 +140,19 @@
                                                         </a>
                                                         @if (item.IT_matriz_requerimientos.Count == 0)
                                                         {
-                                                            <a href="@Url.Action("CrearMatriz", ViewBag.ControllerName, new { id = item.id })" class="btn btn-primary btn-sm" rel="tooltip" data-title="Crear solicitud">
+                                                            <a href="@Url.Action("CrearMatriz", ViewBag.ControllerName, new { id = item.id,tipo = Bitacoras.Util.IT_MR_tipo.CREACION })" class="btn btn-primary btn-sm" rel="tooltip" data-title="Crear solicitud">
                                                                 <i class="fa fa-users"></i>
                                                             </a>
                                                         }
-                                                        else if (item.IT_matriz_requerimientos.FirstOrDefault().estatus == Bitacoras.Util.IT_MR_Status.FINALIZADO)
+                                                        else if (item.IT_matriz_requerimientos.OrderByDescending(x=>x.id).FirstOrDefault().estatus == Bitacoras.Util.IT_MR_Status.FINALIZADO)
                                                         {
-                                                            <a href="@Url.Action("CrearMatriz", ViewBag.ControllerName, new { id = item.id })" class="btn btn-warning btn-sm" rel="tooltip" data-title="Modificación de Usuario">
+                                                            <a href="@Url.Action("CrearMatriz", ViewBag.ControllerName, new { id = item.id, tipo = Bitacoras.Util.IT_MR_tipo.MODIFICACION})" class="btn btn-warning btn-sm" rel="tooltip" data-title="Modificación de Usuario">
                                                                 <i class="fa fa-users"></i>
                                                             </a>
                                                         }
                                                         else
                                                         {
-                                                            <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.IT_matriz_requerimientos.FirstOrDefault().id })" class="btn btn-secondary btn-sm" rel="tooltip" data-title="Solicitud en Proceso">
+                                                            <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.IT_matriz_requerimientos.OrderByDescending(x=>x.id).FirstOrDefault().id })" class="btn btn-secondary btn-sm" rel="tooltip" data-title="Solicitud en Proceso">
                                                                 <i class="fa fa-users"></i>
                                                             </a>
                                                         }

@@ -57,14 +57,11 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_asignacion_software> IT_asignacion_software { get; set; }
         public virtual DbSet<IT_carpetas_red> IT_carpetas_red { get; set; }
         public virtual DbSet<IT_comunicaciones_tipo> IT_comunicaciones_tipo { get; set; }
-        public virtual DbSet<IT_hardware_tipo> IT_hardware_tipo { get; set; }
         public virtual DbSet<IT_internet_tipo> IT_internet_tipo { get; set; }
         public virtual DbSet<IT_inventory_cellular_plans> IT_inventory_cellular_plans { get; set; }
         public virtual DbSet<IT_inventory_hard_drives> IT_inventory_hard_drives { get; set; }
-        public virtual DbSet<IT_inventory_hardware_type> IT_inventory_hardware_type { get; set; }
         public virtual DbSet<IT_inventory_items> IT_inventory_items { get; set; }
         public virtual DbSet<IT_inventory_items_genericos> IT_inventory_items_genericos { get; set; }
-        public virtual DbSet<IT_inventory_software> IT_inventory_software { get; set; }
         public virtual DbSet<IT_inventory_tipos_accesorios> IT_inventory_tipos_accesorios { get; set; }
         public virtual DbSet<IT_mantenimientos> IT_mantenimientos { get; set; }
         public virtual DbSet<IT_mantenimientos_checklist_categorias> IT_mantenimientos_checklist_categorias { get; set; }
@@ -72,10 +69,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_mantenimientos_rel_checklist> IT_mantenimientos_rel_checklist { get; set; }
         public virtual DbSet<IT_matriz_carpetas> IT_matriz_carpetas { get; set; }
         public virtual DbSet<IT_matriz_comunicaciones> IT_matriz_comunicaciones { get; set; }
-        public virtual DbSet<IT_matriz_hardware> IT_matriz_hardware { get; set; }
-        public virtual DbSet<IT_matriz_requerimientos> IT_matriz_requerimientos { get; set; }
-        public virtual DbSet<IT_matriz_software> IT_matriz_software { get; set; }
-        public virtual DbSet<IT_software_tipo> IT_software_tipo { get; set; }
         public virtual DbSet<IT_solicitud_usuarios> IT_solicitud_usuarios { get; set; }
         public virtual DbSet<log_acceso_email> log_acceso_email { get; set; }
         public virtual DbSet<log_inicio_sesion> log_inicio_sesion { get; set; }
@@ -136,5 +129,10 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_inventory_cellular_line> IT_inventory_cellular_line { get; set; }
         public virtual DbSet<IT_equipos_checklist> IT_equipos_checklist { get; set; }
         public virtual DbSet<empleados> empleados { get; set; }
+        public virtual DbSet<IT_inventory_software> IT_inventory_software { get; set; }
+        public virtual DbSet<IT_inventory_hardware_type> IT_inventory_hardware_type { get; set; }
+        public virtual DbSet<IT_matriz_hardware> IT_matriz_hardware { get; set; }
+        public virtual DbSet<IT_matriz_software> IT_matriz_software { get; set; }
+        public virtual DbSet<IT_matriz_requerimientos> IT_matriz_requerimientos { get; set; }
     }
 }

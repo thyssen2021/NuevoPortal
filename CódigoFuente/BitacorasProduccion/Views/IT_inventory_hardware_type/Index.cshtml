@@ -1,11 +1,11 @@
-﻿@model IEnumerable<Portal_2_0.Models.IT_inventory_software>
+﻿@model IEnumerable<Portal_2_0.Models.IT_inventory_hardware_type>
 
 @{
-    ViewBag.Title = "Software List";
+    ViewBag.Title = "Hardware List";
     ViewBag.PrimerNivel = "sistemas";
-    ViewBag.SegundoNivel = "IT_Catalogos_inventory_software";
-    ViewBag.TercerNivel = "IT_Inventory_software";
-    ViewBag.ControllerName = "IT_inventory_software";
+    ViewBag.SegundoNivel = "IT_Catalogos_RH";
+    ViewBag.TercerNivel = "IT_inventory_hardware_type";
+    ViewBag.ControllerName = "IT_inventory_hardware_type";
 
     Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
 
@@ -70,7 +70,7 @@
 
                                             <div class="form-group row ">
 
-                                                <label class="control-label col-md-1 col-sm-1" for="description" style="text-align:right">Software Name:</label>
+                                                <label class="control-label col-md-1 col-sm-1" for="description" style="text-align:right">Hardware Name:</label>
                                                 <div class="col-md-4 col-sm-4">
                                                     <input type="text" id="description" name="description" class="form-control" value="@description" autocomplete="off" />
                                                 </div>
@@ -109,6 +109,9 @@
                                                     @Html.DisplayNameFor(model => model.aplica_descripcion)
                                                 </th>
                                                 <th>
+                                                    @Html.DisplayNameFor(model => model.puede_asignarse)
+                                                </th>
+                                                <th>
                                                     @Html.DisplayNameFor(model => model.activo)
                                                 </th>
 
@@ -136,6 +139,16 @@
                                                     </td>
                                                     <td>
                                                         @if (item.aplica_descripcion)
+                                                        {
+                                                            <span>True</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>False</span>
+                                                        }
+                                                    </td>
+                                                      <td>
+                                                        @if (item.puede_asignarse)
                                                         {
                                                             <span>True</span>
                                                         }
@@ -175,13 +188,13 @@
                                     </nav>
                                     <div class="form-group">
 
-                                        <a href="@Url.Action("Export", ViewBag.ControllerName, new
+                                        @*<a href="@Url.Action("Export", ViewBag.ControllerName, new
                                             {
                                                description = description
 
                                             })" class="btn btn-success btm-sm" target="_blank" title="Report">
                                             <i class="fa-regular fa-file-excel"></i> Export Excel
-                                        </a>
+                                        </a>*@
 
 
                                     </div>

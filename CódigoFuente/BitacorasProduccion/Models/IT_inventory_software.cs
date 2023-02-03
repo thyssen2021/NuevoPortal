@@ -18,13 +18,18 @@ namespace Portal_2_0.Models
         public IT_inventory_software()
         {
             this.IT_asignacion_software = new HashSet<IT_asignacion_software>();
+            this.IT_matriz_software = new HashSet<IT_matriz_software>();
         }
     
         public int id { get; set; }
         public string descripcion { get; set; }
         public bool activo { get; set; }
+        public bool disponible_en_matriz_rh { get; set; }
+        public bool aplica_descripcion { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_asignacion_software> IT_asignacion_software { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_matriz_software> IT_matriz_software { get; set; }
     }
 }

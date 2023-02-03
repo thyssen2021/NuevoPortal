@@ -57,8 +57,8 @@ namespace Portal_2_0.Controllers
 
             //envia el listado de software activos
             List<IT_inventory_software> listadoSoftware = db.IT_inventory_software.Where(p => p.activo == true).ToList();
-     
-            ViewBag.ListadoSoftware = listadoSoftware;            
+
+            ViewBag.ListadoSoftware = listadoSoftware;
 
             return View(model);
         }
@@ -101,7 +101,7 @@ namespace Portal_2_0.Controllers
                         new IT_asignacion_software
                         {
                             id_inventory_software = id_sofware,
-                            usuario=usuario,
+                            usuario = usuario,
                             id_empleado = model.id_empleado,
                             id_sistemas = model.id_sistemas,
                         }
@@ -120,9 +120,27 @@ namespace Portal_2_0.Controllers
             {
                 //elimina los items previos del empleado
                 var listBD = db.IT_asignacion_software.Where(x => x.id_empleado == model.id_empleado);
+
+                //pone en null todas las asignaciones de la matriz
+                foreach (var asig in listBD)
+                {
+                    var matriz = db.IT_matriz_software.Where(x => x.id_it_asignacion_software == asig.id).FirstOrDefault();
+                    if (matriz != null)
+                        matriz.id_it_asignacion_software = null;
+                }
+
                 db.IT_asignacion_software.RemoveRange(listBD);
 
                 db.IT_asignacion_software.AddRange(model.IT_asignacion_software);
+
+                //vuelve a colocar el id de asignacion a la matriz en caso de existir
+                foreach (var asig in model.IT_asignacion_software)
+                {
+                    var matriz = db.IT_matriz_software.Where(x => x.id_it_asignacion_software == asig.id).FirstOrDefault();
+                    if (matriz != null)
+                        matriz.id_it_asignacion_software = asig.id;
+                }
+
                 db.SaveChanges();
                 TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);
                 return RedirectToAction("ListadoAsignaciones", "IT_asignacion_hardware", new { id = model.id_empleado });
@@ -132,12 +150,12 @@ namespace Portal_2_0.Controllers
 
             //envia el listado de software activos
             List<IT_inventory_software> listadoSoftware = db.IT_inventory_software.Where(p => p.activo == true).ToList();
-           
+
             ViewBag.ListadoSoftware = listadoSoftware;
-            
+
             return View(model);
         }
- 
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)

@@ -1,11 +1,11 @@
-﻿@model Portal_2_0.Models.IT_inventory_software
+﻿@model Portal_2_0.Models.IT_inventory_hardware_type
 
 @{
-    ViewBag.Title = "Edit Software";
+    ViewBag.Title = "Edit Hardware";
     ViewBag.PrimerNivel = "sistemas";
-    ViewBag.SegundoNivel = "IT_Catalogos_inventory_software";
-    ViewBag.TercerNivel = "IT_Inventory_software";
-    ViewBag.ControllerName = "IT_inventory_software";
+    ViewBag.SegundoNivel = "IT_Catalogos_RH";
+    ViewBag.TercerNivel = "IT_inventory_hardware_type";
+    ViewBag.ControllerName = "IT_inventory_hardware_type";
 
 
     int contador = 100;
@@ -69,7 +69,15 @@
                                     @Html.ValidationMessageFor(model => model.aplica_descripcion, "", new { @class = "text-danger" })
                                 </div>
                             </div>
+
                             <div class="item form-group">
+                                @Html.LabelFor(model => model.puede_asignarse, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    @Html.EditorFor(model => model.puede_asignarse, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.puede_asignarse, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                             <div class="item form-group">
                                 @Html.LabelFor(model => model.activo, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                 <div class="col-md-3 col-sm-3 ">
                                     @Html.EditorFor(model => model.activo, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })

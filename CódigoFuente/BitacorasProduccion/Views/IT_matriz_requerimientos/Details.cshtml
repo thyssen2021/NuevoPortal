@@ -1,13 +1,13 @@
 ﻿@model Portal_2_0.Models.IT_matriz_requerimientos
-
+@using Clases.Util;
 @{
     ViewBag.Title = "Requerimientos de Usuario";
     ViewBag.PrimerNivel = "recursos_humanos";
     //ViewBag.SegundoNivel = "empleados";
     ViewBag.ControllerName = "IT_matriz_requerimientos";
 
-    List<Portal_2_0.Models.IT_hardware_tipo> listHardware = (List<Portal_2_0.Models.IT_hardware_tipo>)ViewBag.listHardware;
-    List<Portal_2_0.Models.IT_software_tipo> listSoftware = (List<Portal_2_0.Models.IT_software_tipo>)ViewBag.listSoftware;
+    List<Portal_2_0.Models.IT_inventory_hardware_type> listHardware = (List<Portal_2_0.Models.IT_inventory_hardware_type>)ViewBag.listHardware;
+    List<Portal_2_0.Models.IT_inventory_software> listSoftware = (List<Portal_2_0.Models.IT_inventory_software>)ViewBag.listSoftware;
     List<Portal_2_0.Models.IT_comunicaciones_tipo> listComunicaciones = (List<Portal_2_0.Models.IT_comunicaciones_tipo>)ViewBag.listComunicaciones;
     List<Portal_2_0.Models.IT_carpetas_red> listCarpetas = (List<Portal_2_0.Models.IT_carpetas_red>)ViewBag.listCarpetas;
 
@@ -173,7 +173,12 @@
                                         <th width="35%">
                                             Comentarios
                                         </th>
-
+                                        @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR))
+                                        {
+                                            <th width="5%">
+                                                Asignaci&oacute;n
+                                            </th>
+                                        }
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -182,7 +187,7 @@
                                         <tr>
                                             <td>@(Model.IT_matriz_hardware.ToList().IndexOf(item)+1)</td>
                                             <td>
-                                                @item.IT_hardware_tipo.descripcion
+                                                @item.IT_inventory_hardware_type.descripcion
                                             </td>
                                             <td>
                                                 @item.descripcion
@@ -193,6 +198,19 @@
                                             <td>
                                                 <span>@item.comentario</span>
                                             </td>
+                                            @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR))
+                                            {
+                                                <td id="hardware_view_asignacion_@(item.id)">
+                                                    @if (item.id_it_asignacion_hardware.HasValue)
+                                                    {
+                                                        <button type="button" onclick="detallesAsignacion(@item.id_it_asignacion_hardware); return false;" class="btn btn-info btn-sm" title="Ver Asignación"> <i class="fa-solid fa-eye"></i></button>
+                                                    }
+                                                    else
+                                                    {
+                                                        @("NO DISPONIBLE")
+                                                    }
+                                                </td>
+                                            }
                                         </tr>
                                     }
                                 </tbody>
@@ -222,7 +240,12 @@
                                         <th width="35%">
                                             Comentarios
                                         </th>
-
+                                        @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR))
+                                        {
+                                            <th width="5%">
+                                                Asignaci&oacute;n
+                                            </th>
+                                        }
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -231,7 +254,7 @@
                                         <tr>
                                             <td>@(Model.IT_matriz_software.ToList().IndexOf(item)+1)</td>
                                             <td>
-                                                @item.IT_software_tipo.descripcion
+                                                @item.IT_inventory_software.descripcion
                                             </td>
                                             <td>
                                                 @item.descripcion
@@ -242,6 +265,12 @@
                                             <td>
                                                 <span>@item.comentario</span>
                                             </td>
+                                            @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR))
+                                            {
+                                                <td>
+                                                    <button type="button" onclick="detallesAsignacionSoftware(@Model.id_empleado); return false;" class="btn btn-info btn-sm" title="Ver Asignación"> <i class="fa-solid fa-eye"></i></button>
+                                                </td>
+                                            }
                                         </tr>
                                     }
                                 </tbody>
@@ -492,20 +521,21 @@
                                 </p>
                             </div>
                         </div>
-                        @if (Model.estatus == Bitacoras.Util.IT_MR_Status.FINALIZADO) {
-                        <div class="ln_solid"></div>
-                        <div class="form-group row">
-                            <div class="col-md-6 col-sm-6">
-                                <a href="@Url.Action("GenerarPDF", ViewBag.ControllerName, new { id = Model.id })" target="_blank" class="btn btn-info btn-lg float-left" rel="tooltip" data-title="Ver PDF" data-placement="right">
-                                     <i class="fa-solid fa-file-pdf"></i>  Ver Solicitud
-                                </a>
+                        @if (Model.estatus == Bitacoras.Util.IT_MR_Status.FINALIZADO)
+                        {
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <div class="col-md-6 col-sm-6">
+                                    <a href="@Url.Action("GenerarPDF", ViewBag.ControllerName, new { id = Model.id })" target="_blank" class="btn btn-info btn-lg float-left" rel="tooltip" data-title="Ver PDF" data-placement="right">
+                                        <i class="fa-solid fa-file-pdf"></i>  Ver Solicitud
+                                    </a>
+                                </div>
+                                <div class="col-md-6 col-sm-6">
+                                    <a href="@Url.Action("GenerarPDF", ViewBag.ControllerName, new { id = Model.id, inline=false })" target="_blank" class="btn btn-danger btn-lg float-right" rel="tooltip" data-title="Descargar PDF" data-placement="right">
+                                        <i class="fa-solid fa-file-pdf"></i> Descargar Solicitud
+                                    </a>
+                                </div>
                             </div>
-                            <div class="col-md-6 col-sm-6">
-                                <a href="@Url.Action("GenerarPDF", ViewBag.ControllerName, new { id = Model.id, inline=false })" target="_blank" class="btn btn-danger btn-lg float-right" rel="tooltip" data-title="Descargar PDF" data-placement="right">
-                                    <i class="fa-solid fa-file-pdf"></i> Descargar Solicitud
-                                </a>
-                            </div>
-                        </div>
                         }
                     </div>
                 </div>
@@ -550,6 +580,13 @@
             });
 
         });
+
+        function detallesAsignacion(id_asignacion) {
+            window.open('/it_asignacion_hardware/Details/' + id_asignacion, 'popup', "width=" + screen.width * .70 + ",height=" + screen.height * .70 + "");
+        }
+        function detallesAsignacionSoftware(id_empleado) {
+            window.open('/it_asignacion_hardware/DetailsEmpleado/' + id_empleado, 'popup', "width=" + screen.width * .70 + ",height=" + screen.height * .70 + "");
+        }
 
         //inicializa los data table
         var tabla = $('.table').DataTable({

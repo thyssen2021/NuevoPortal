@@ -18,6 +18,12 @@ namespace Portal_2_0.Models
 
         [Display(Name = "Active?")]
         public bool activo { get; set; }
+
+        [Display(Name = "¿Disponible en Matriz RH?")]
+        public bool disponible_en_matriz_rh { get; set; }
+
+        [Display(Name = "¿Aplica descripción (Matriz RH)?")]
+        public bool aplica_descripcion { get; set; }
     }
 
     [MetadataType(typeof(IT_inventory_softwareMetadata))]
