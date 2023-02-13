@@ -150,7 +150,7 @@
                                         <tbody>
                                             @foreach (var item in Model)
                                             {
-                                                <tr style="@(item.activo == false ? "color:red" :"" )">
+                                                <tr style="@(item.activo == false ? "background-color:#FF5050; color:#990000; font-weight:600" :"" )">
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.ConcatNombre)
                                                     </td>

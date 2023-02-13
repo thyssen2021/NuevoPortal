@@ -1,7 +1,10 @@
 ﻿@model Portal_2_0.Models.empleados
 
 @{
-   
+    ViewBag.Title = "Detalles de Empleado";
+    ViewBag.PrimerNivel = "recursos_humanos";
+    ViewBag.SegundoNivel = "empleados";
+    ViewBag.ControllerName = "Empleados";
 }
 
 @section estilos
@@ -38,6 +41,18 @@
                                     <div id="crop-avatar">
                                         <!-- Current avatar -->
                                         <img class="img-responsive avatar-view profile-picture" src="@Model.ImageToBase64()" alt="Avatar" title="Change the avatar">
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id_fotografia, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-4 col-sm-4 ">
+                                    <div id="crop-avatar">
+                                        <!-- Current avatar -->
+                                        <img class="img-responsive avatar-view profile-picture" src="/Content/images/user.png" alt="Avatar" title="Change the avatar">
                                     </div>
                                 </div>
                             </div>
@@ -127,13 +142,7 @@
                             </div>
                         </div>
 
-                        <div class="ln_solid"></div>
-                        @*<div class="item form-group">
-                                <div class="col-md-6 col-sm-6 offset-md-3">
-                                    <button type="submit" class="btn btn-success">Guardar</button>
-                                </div>
-                            </div>*@
-
+                       
                     </div>
                 </div>
                 <div>

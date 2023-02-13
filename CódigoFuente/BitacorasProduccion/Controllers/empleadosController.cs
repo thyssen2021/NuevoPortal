@@ -376,7 +376,7 @@ namespace Portal_2_0.Controllers
                         else
                         {
                             //genera el archivo de biblioce digital
-                             var archivo = new biblioteca_digital
+                            var archivo = new biblioteca_digital
                             {
                                 Nombre = nombreArchivo,
                                 MimeType = UsoStrings.RecortaString(empleados.ArchivoImagen.ContentType, 80),
@@ -394,7 +394,7 @@ namespace Portal_2_0.Controllers
                                 ModelState.AddModelError("", "Error al guardar en BD_ " + ex.Message);
                             }
 
-                            
+
                         }
 
 
@@ -407,7 +407,7 @@ namespace Portal_2_0.Controllers
             {
                 //elimina el archivo en caso de existir
                 if (empleados.id_fotografia.HasValue && elimina_documento)
-                {                  
+                {
                     var archivoAnteriorBD = db.biblioteca_digital.Find(empleados.id_fotografia.Value);
                     db.biblioteca_digital.Remove(archivoAnteriorBD);
 
@@ -547,6 +547,12 @@ namespace Portal_2_0.Controllers
             DateTime bajaFecha = DateTime.Now;
             string stringFecha = collection["bajaFecha"];
 
+            bool notificacionIT = false;
+            if (collection.AllKeys.Any(x => x == "notificacion_it"))
+                notificacionIT = true;
+
+           
+
             try
             {
                 if (!String.IsNullOrEmpty(stringFecha))
@@ -564,11 +570,35 @@ namespace Portal_2_0.Controllers
                 ModelState.AddModelError("", "Error al convertir: " + ex.Message);
             }
 
+            //deshabilita del lado del servidor la validadcion 
+            db.Configuration.ValidateOnSaveEnabled = false;
 
-            db.Entry(empleado).State = EntityState.Modified;
+            //db.Entry(empleado).State = EntityState.Modified;
             try
             {
                 db.SaveChanges();
+
+                //se envia notificación a IT en caso de haber seleccionado la opción
+                if (notificacionIT)
+                {
+
+                    //OBTIENE EL CORREO DE NOTIFICACION
+                    var itEmail = db.notificaciones_correo.Where(x => x.descripcion == "IT_TKMM").FirstOrDefault();
+                    if (itEmail != null)
+                    {
+
+                        //envia correo electronico
+                        EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+
+                        List<String> correos = new List<string>(); //correos TO
+
+                        if (!String.IsNullOrEmpty(itEmail.correo))
+                            correos.Add(itEmail.correo); //agrega correo de validador
+
+                        envioCorreo.SendEmailAsync(correos, "Notificación de Baja de Empleado", envioCorreo.getBodyITBajaEmpleado(empleado));
+                    }
+
+                }
             }
             catch (System.Data.Entity.Validation.DbEntityValidationException ex)
             {
@@ -592,6 +622,12 @@ namespace Portal_2_0.Controllers
                 TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
                 return RedirectToAction("Index");
             }
+            finally
+            {
+                //vuelve a activa la validadcion de la entidad
+                db.Configuration.ValidateOnSaveEnabled = true;
+            }
+
             TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.DISABLED, TipoMensajesSweetAlerts.SUCCESS);
             return RedirectToAction("Index");
         }
@@ -628,6 +664,9 @@ namespace Portal_2_0.Controllers
             empleado.activo = true;
             empleado.bajaFecha = null;
 
+            //deshabilita del lado del servidor la validadcion 
+            db.Configuration.ValidateOnSaveEnabled = false;
+
             db.Entry(empleado).State = EntityState.Modified;
             try
             {
@@ -655,6 +694,13 @@ namespace Portal_2_0.Controllers
                 TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
                 return RedirectToAction("Index");
             }
+            finally
+            {
+                //vuelve a activa la validadcion de la entidad
+                db.Configuration.ValidateOnSaveEnabled = true;
+            }
+
+
             TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.ENABLED, TipoMensajesSweetAlerts.SUCCESS);
             return RedirectToAction("Index");
         }
