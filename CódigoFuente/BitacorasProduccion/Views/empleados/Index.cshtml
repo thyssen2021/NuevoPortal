@@ -8,26 +8,13 @@
 
     Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
 
-    //obtiene los filtros
-    Portal_2_0.Models.Paginacion paginacionFiltros = (Portal_2_0.Models.Paginacion)ViewBag.Paginacion;
 
-    string nombre = string.Empty;
-    if (paginacionFiltros.ValoresQueryString["nombre"] != null)
-    {
-        nombre = paginacionFiltros.ValoresQueryString["nombre"].ToString();
-    }
-
-    string num_empleado = string.Empty;
-    if (paginacionFiltros.ValoresQueryString["num_empleado"] != null)
-    {
-        num_empleado = paginacionFiltros.ValoresQueryString["num_empleado"].ToString();
-    }
 }
 
 @section estilos
 {
     <!-- DataTables -->
-    @Styles.Render("~/Content/dataTables_css")
+    @Styles.Render("~/Content/dataTables_css")    
 
     <!-- SweetAlert2 -->
     <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
@@ -35,7 +22,23 @@
     <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
 
+    <style>
+        tfoot input {
+            width: 100%;
+            padding: 3px;
+            box-sizing: border-box;
+        }
+
+        .carga {
+            padding: 15px;
+            background-color: black;
+            opacity: .3;
+            color: red;
+        }
+    </style>
 }
+
+@{Html.RenderPartial("_BlockUI", Model);}
 
 @*Para SweetAlert*@
 @if (mensajeAlerta != null)
@@ -44,9 +47,9 @@
     <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
 }
 
-
-
 <div class="right_col" role="main">
+
+
     <div class="">
         <div class="page-title">
             <div class="title_left">
@@ -75,49 +78,20 @@
                             <div class="col-sm-12">
                                 <div class="card-box table-responsive">
                                     <div class="form-group">
-                                        @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
-                                        {
 
-                                            <div class="form-group row ">
-                                                <label class="control-label col-md-1 col-sm-1" for="nombre" style="text-align:right">Nombre:</label>
-                                                <div class="col-md-3 col-sm-3 ">
-                                                    <input type="text" id="nombre" name="nombre" class="form-control" value="@nombre" autocomplete="off" />
-                                                </div>
-                                                <label class="control-label col-md-1 col-sm-1" for="nombre_equipo" style="text-align:right">Planta:</label>
-                                                <div class="col-md-2 col-sm-2 ">
-                                                    @Html.DropDownList("planta_clave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
-                                                </div>
-                                                <label class="control-label col-md-1 col-sm-1" for="num_empleado" style="text-align:right">N&uacute;m. Empleado:</label>
-                                                <div class="col-md-2 col-sm-2 ">
-                                                    <input type="text" id="num_empleado" name="num_empleado" class="form-control" value="@num_empleado" autocomplete="off" />
-                                                </div>
-
-                                            </div>
-                                            <div class="form-group row ">
-
-                                                <label class="control-label col-md-1 col-sm-1" for="id_jefe_directo" style="text-align:right">Jefe directo:</label>
-                                                <div class="col-md-3 col-sm-3 ">
-                                                    @Html.DropDownList("id_jefe_directo", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
-                                                </div>
-
-                                                <div class="col-md-1 col-sm-1">
-                                                    <a href="@Url.Action( "Index", ViewBag.ControllerName)" class="btn btn-warning">
-                                                        <i class="fa fa-refresh"></i>
-                                                    </a>
-                                                </div>
-                                                <div class="col-md-1 col-sm-1">
-                                                    <input type="submit" value="Buscar" class="btn btn-info float-right" />
-                                                </div>
-                                            </div>
-
-                                        }
-                                        <hr />
                                         <a href="@Url.Action( "Create", ViewBag.ControllerName)" class="btn btn-success">
                                             <i class="fa fa-plus-square"></i>
                                             Crear nuevo
                                         </a>
                                     </div>
-                                    <table id="datatable_1" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                                     <div class="form-group" style="text-align:right;color:black">
+
+                                        <a  class="btn btn-warning" id="limpiar-btn">
+                                            <i class="fa-solid fa-arrows-rotate"></i>
+                                            Limpiar Filtros
+                                        </a>
+                                    </div>
+                                    <table id="datatable_individual_searching" class="table table-striped table-bordered" cellspacing="0" style="width:100%">
                                         <thead>
                                             <tr>
                                                 <th>
@@ -177,11 +151,11 @@
                                                     <td>
                                                         @if (item.activo.HasValue && item.activo.Value)
                                                         {
-                                                            <span>Activo</span>
+                                                            <span>SI</span>
                                                         }
                                                         else
                                                         {
-                                                            <span>Inactivo</span>
+                                                            <span>NO</span>
                                                         }
                                                     </td>
                                                     <td nowrap>
@@ -219,15 +193,39 @@
                                                 </tr>
                                             }
                                         </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.nombre)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.numeroEmpleado)
+                                                </th>
+                                                <th>
+                                                    Planta
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.id_area)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.id_jefe_directo)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.C8ID)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.correo)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.activo)
+                                                </th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </tfoot>
                                     </table>
                                 </div>
                                 <br />
-                                @if (Model.Count() > 0)
-                                {
-                                    <nav id="nav_paginacion" aria-label="...">
-                                        @{Html.RenderPartial("_Paginacion", Model);}
-                                    </nav>
-                                }
+
                             </div>
                         </div>
                     </div>
@@ -236,6 +234,8 @@
         </div>
     </div>
 </div>
+
+
 @section scripts
 {
     <!-- SweetAlert2 -->
@@ -245,51 +245,61 @@
     @Scripts.Render("~/bundles/dataTables_js")
 
     <script>
+
         $(document).ready(function () {
 
-            //inicializa los data table
-            var tabla = $('#datatable_1').DataTable({
-                "paging": false,
-                "ordering": false,
-                "searching": false,
-                "scrollX": true,
-                "info": false
+            //maneja el envió el del formulario
+            $('#limpiar-btn').click(function (e) {
+                BloqueaPantalla();
+              
+                //Actualizamos la página
+                location.reload();
+              
             });
 
-            // Initialize Select2 Elements (debe ir después de asignar el valor)
-            $('.select2bs4').select2({
-                theme: 'bootstrap4'
-            })
-
-            //Agrega el evento a todos los input
-            $(".select2bs4").each(function () {
-                $(this).on('input', function (e) {
-                    EnviaFormulario();
-                });
+            // Setup - add a text input to each footer cell
+            $('#datatable_individual_searching tfoot th').each(function () {
+                var title = $(this).text();
+                $(this).html('<input type="text" placeholder="' + title.trim() + '"/>');
             });
 
+            // DataTable
+            var table = $('#datatable_individual_searching').DataTable({
+                buttons: [
+                    'copy', 'excel', 'pdf'
+                ],
+                initComplete: function () {
+                    //coloca los filtros al inicio de la tabla
+                    var r = $('#datatable_individual_searching tfoot tr');
+                    r.find('th').each(function () {
+                        $(this).css('padding', 8);
+                    });
+                    $('#datatable_individual_searching thead').append(r);
+                    $('#search_0').css('text-align', 'center');
+                    // Apply the search
+                    this.api()
+                        .columns()
+                        .every(function () {
+                            var that = this;
+
+                            $('input', this.footer()).on('keyup change clear', function () {
+                                if (that.search() !== this.value) {
+                                    that.search(this.value).draw();
+                                }
+                            });
+                        });
+                },
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json"
+                },
+              
+            });
+
+            $.unblockUI();
 
         });
 
-        //Envía el formulario de búsqueda
-        function EnviaFormulario() {
 
-            $("#buscarForm").submit();
-            $.blockUI({
-                css: {
-                    border: 'none',
-                    padding: '15px',
-                    backgroundColor: '#000',
-                    '-webkit-border-radius': '10px',
-                    '-moz-border-radius': '10px',
-                    opacity: .3,
-                    color: '#fff'
-                },
-                message: '<h3>Cargando...</h3>'
-
-            });
-
-        }
         //agranda el tamaño de la barra
         window.onload = function () {
             document.getElementById('menu_toggle').click();

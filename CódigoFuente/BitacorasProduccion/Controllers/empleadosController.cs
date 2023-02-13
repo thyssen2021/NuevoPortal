@@ -20,7 +20,7 @@ namespace Portal_2_0.Controllers
 
 
         // GET: empleados
-        public ActionResult Index(string nombre, string num_empleado, int? id_jefe_directo, int planta_clave = 0, int pagina = 1)
+        public ActionResult Index()
         {
             if (TieneRol(TipoRoles.RH))
             {
@@ -30,50 +30,10 @@ namespace Portal_2_0.Controllers
                     ViewBag.MensajeAlert = TempData["Mensaje"];
                 }
 
-                var cantidadRegistrosPorPagina = 20; // parámetro
 
-                var listado = db.empleados
-                       .Where(x =>
-                           ((x.nombre + " " + x.apellido1 + " " + x.apellido2).Contains(nombre) || String.IsNullOrEmpty(nombre))
-                           && (x.numeroEmpleado.Contains(num_empleado) || String.IsNullOrEmpty(num_empleado))
-                           && (x.planta_clave == planta_clave || planta_clave == 0)
-                           && (id_jefe_directo == null || x.id_jefe_directo == id_jefe_directo)
-                           )
-                       .OrderBy(x => x.id)
-                       .Skip((pagina - 1) * cantidadRegistrosPorPagina)
-                      .Take(cantidadRegistrosPorPagina).ToList();
-
-                var totalDeRegistros = db.empleados
-                      .Where(x =>
-                        ((x.nombre + " " + x.apellido1 + " " + x.apellido2).Contains(nombre) || String.IsNullOrEmpty(nombre))
-                        && (x.numeroEmpleado.Contains(num_empleado) || String.IsNullOrEmpty(num_empleado))
-                        && (x.planta_clave == planta_clave || planta_clave == 0)
-                        && (id_jefe_directo == null || x.id_jefe_directo == id_jefe_directo)
-                       )
-                    .Count();
-
-                //para paginación
-
-                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
-                routeValues["nombre"] = nombre;
-                routeValues["planta_clave"] = planta_clave;
-                routeValues["num_empleado"] = num_empleado;
-                routeValues["id_jefe_directo"] = id_jefe_directo;
-
-                Paginacion paginacion = new Paginacion
-                {
-                    PaginaActual = pagina,
-                    TotalDeRegistros = totalDeRegistros,
-                    RegistrosPorPagina = cantidadRegistrosPorPagina,
-                    ValoresQueryString = routeValues
-                };
-
-                ViewBag.planta_clave = AddFirstItem(new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion", planta_clave.ToString()), textoPorDefecto: "-- Todas --");
-                ViewBag.Paginacion = paginacion;
-
-                ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true), nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)),
-               textoPorDefecto: "-- Seleccione un valor --", selected: id_jefe_directo.ToString());
-
+                var listado = db.empleados                      
+                       .OrderBy(x => x.id).ToList();          
+            
                 return View(listado);
             }
             else

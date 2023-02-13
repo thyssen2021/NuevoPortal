@@ -7274,6 +7274,7 @@
     <Content Include="Views\IT_inventory_hardware_type\Details.cshtml" />
     <Content Include="Views\IT_inventory_hardware_type\Edit.cshtml" />
     <Content Include="Views\IT_inventory_hardware_type\Index.cshtml" />
+    <Content Include="Views\Shared\_BlockUI.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
