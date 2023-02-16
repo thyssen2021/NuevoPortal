@@ -211,7 +211,7 @@ namespace Portal_2_0.Controllers
         // GET: notificaciones_correo/Delete/5
         public ActionResult Delete(int? id)
         {
-            if (TieneRol(TipoRoles.IT_CATALOGOS))
+            if (TieneRol(TipoRoles.ADMIN))
             {
                 if (id == null)
                 {

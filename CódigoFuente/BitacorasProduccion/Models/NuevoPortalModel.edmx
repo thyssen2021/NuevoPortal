@@ -1258,6 +1258,17 @@
           <Property Name="descripcion" Type="varchar" MaxLength="80" Nullable="false" />
           <Property Name="areaClave" Type="int" />
         </EntityType>
+        <EntityType Name="RH_menu_comedor_platillos">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="orden_display" Type="int" Nullable="false" />
+          <Property Name="tipo_platillo" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="nombre_platillo" Type="varchar" MaxLength="60" Nullable="false" />
+          <Property Name="fecha" Type="datetime" Nullable="false" />
+          <Property Name="kcal" Type="int" />
+        </EntityType>
         <EntityType Name="upgrade_check_item">
           <Key>
             <PropertyRef Name="id" />
@@ -3491,6 +3502,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySet Name="produccion_supervisores" EntityType="Self.produccion_supervisores" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="produccion_turnos" EntityType="Self.produccion_turnos" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="puesto" EntityType="Self.puesto" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RH_menu_comedor_platillos" EntityType="Self.RH_menu_comedor_platillos" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="upgrade_check_item" EntityType="Self.upgrade_check_item" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="upgrade_departamentos" EntityType="Self.upgrade_departamentos" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="upgrade_plantas" EntityType="Self.upgrade_plantas" Schema="dbo" store:Type="Tables" />
@@ -8107,6 +8119,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
             <End Role="IT_inventory_items1" EntitySet="IT_inventory_items" />
           </AssociationSet>
+          <EntitySet Name="RH_menu_comedor_platillos" EntityType="Portal_2_0Model.RH_menu_comedor_platillos" />
         </EntityContainer>
         <EntityType Name="GV_usuarios">
           <Key>
@@ -8679,6 +8692,17 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="RH_menu_comedor_platillos">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="orden_display" Type="Int32" Nullable="false" />
+          <Property Name="tipo_platillo" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="nombre_platillo" Type="String" Nullable="false" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="fecha" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="kcal" Type="Int32" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -10229,6 +10253,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
                 <ScalarProperty Name="active" ColumnName="active" />
                 <ScalarProperty Name="id_inventory_type" ColumnName="id_inventory_type" />
                 <ScalarProperty Name="id_planta" ColumnName="id_planta" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="RH_menu_comedor_platillos">
+            <EntityTypeMapping TypeName="Portal_2_0Model.RH_menu_comedor_platillos">
+              <MappingFragment StoreEntitySet="RH_menu_comedor_platillos">
+                <ScalarProperty Name="kcal" ColumnName="kcal" />
+                <ScalarProperty Name="fecha" ColumnName="fecha" />
+                <ScalarProperty Name="nombre_platillo" ColumnName="nombre_platillo" />
+                <ScalarProperty Name="tipo_platillo" ColumnName="tipo_platillo" />
+                <ScalarProperty Name="orden_display" ColumnName="orden_display" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

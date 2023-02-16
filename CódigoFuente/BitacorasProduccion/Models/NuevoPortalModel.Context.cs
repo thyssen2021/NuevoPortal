@@ -136,5 +136,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_inventory_cellular_line> IT_inventory_cellular_line { get; set; }
         public virtual DbSet<IT_equipos_checklist> IT_equipos_checklist { get; set; }
         public virtual DbSet<IT_inventory_items> IT_inventory_items { get; set; }
+        public virtual DbSet<RH_menu_comedor_platillos> RH_menu_comedor_platillos { get; set; }
     }
 }
