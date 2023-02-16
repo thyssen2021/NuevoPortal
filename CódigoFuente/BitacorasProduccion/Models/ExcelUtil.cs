@@ -523,28 +523,29 @@ namespace Portal_2_0.Models
 
                 row["Fecha Creación"] = item.fecha_creacion;
 
-                if (item.empleados4 != null && item.fecha_validacion.HasValue)
-                {
-                    row["Validó (área)"] = item.empleados4.ConcatNombre;
-                    row["Fecha Validación"] = item.fecha_validacion;
-                }
+                //validación area
+                if (item.empleados4 != null)               
+                    row["Validó (área)"] = item.empleados4.ConcatNombre;   
                 else
-                {
                     row["Validó (área)"] = DBNull.Value;
-                    row["Fecha Validación"] = DBNull.Value;
-                }
 
-                if (item.empleados != null && item.fecha_autorizacion.HasValue)
-                {
-                    row["Autorizó (doble validación)"] = item.empleados.ConcatNombre;
-                    row["Fecha Autorización"] = item.fecha_autorizacion;
-                }
+                if (item.fecha_validacion.HasValue)               
+                    row["Fecha Validación"] = item.fecha_validacion;
                 else
-                {
-                    row["Autorizó (doble validación)"] = DBNull.Value;
-                    row["Fecha Autorización"] = DBNull.Value;
-                }
+                    row["Fecha Validación"] = DBNull.Value;
 
+                //autorización
+                if (item.empleados != null)
+                    row["Autorizó (doble validación)"] = item.empleados.ConcatNombre;
+                else
+                    row["Autorizó (doble validación)"] = DBNull.Value;
+                
+
+                if (item.fecha_autorizacion.HasValue)
+                    row["Fecha Autorización"] = item.fecha_autorizacion;
+                else
+                    row["Fecha Autorización"] = DBNull.Value;
+                
 
                 if (item.empleados2 != null && item.fecha_direccion.HasValue)
                 {
@@ -557,17 +558,17 @@ namespace Portal_2_0.Models
                     row["Fecha Dirección"] = DBNull.Value;
                 }
 
-                if (item.empleados1 != null && item.fecha_registro.HasValue)
-                {
+                if (item.empleados1 != null)
                     row["Registró (contabilidad)"] = item.empleados1.ConcatNombre;
-                    row["Fecha Registro"] = item.fecha_registro;
-                }
                 else
-                {
-                    row["Fecha Registro"] = DBNull.Value;
                     row["Registró (contabilidad)"] = DBNull.Value;
-                }
+                
 
+                if (item.fecha_registro.HasValue)                
+                    row["Fecha Registro"] = item.fecha_registro;                
+                else               
+                    row["Fecha Registro"] = DBNull.Value;
+                
                 row["Total Debe"] = item.totalDebe;
                 row["Total Haber"] = item.totalHaber;
 
