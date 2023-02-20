@@ -29,7 +29,6 @@ namespace Portal_2_0.Models
         public string listaCorreoElectronico { get; set; }
         public Nullable<int> plantaClave { get; set; }
     
-        public virtual plantas plantas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<orden_trabajo> orden_trabajo { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -38,5 +37,6 @@ namespace Portal_2_0.Models
         public virtual ICollection<puesto> puesto { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<empleados> empleados { get; set; }
+        public virtual plantas plantas { get; set; }
     }
 }

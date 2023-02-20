@@ -7280,10 +7280,10 @@
     <Content Include="Views\IT_inventory_hardware_type\Edit.cshtml" />
     <Content Include="Views\IT_inventory_hardware_type\Index.cshtml" />
     <Content Include="Views\Shared\_BlockUI.cshtml" />
-	  <Content Include="Views\RH_menu_comedor\Index.cshtml" />
-	  <Content Include="Views\RH_menu_comedor\CargaMenu.cshtml" />
-	  <Content Include="Views\RH_menu_comedor\Edit.cshtml" />
-	  <Content Include="Views\RH_menu_comedor\DetailsMenu.cshtml" />
+    <Content Include="Views\RH_menu_comedor\Index.cshtml" />
+    <Content Include="Views\RH_menu_comedor\CargaMenu.cshtml" />
+    <Content Include="Views\RH_menu_comedor\Edit.cshtml" />
+    <Content Include="Views\RH_menu_comedor\DetailsMenu.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

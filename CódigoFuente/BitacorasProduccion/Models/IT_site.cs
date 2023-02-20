@@ -25,8 +25,8 @@ namespace Portal_2_0.Models
         public string descripcion { get; set; }
         public bool activo { get; set; }
     
-        public virtual plantas plantas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_site_checklist> IT_site_checklist { get; set; }
+        public virtual plantas plantas { get; set; }
     }
 }

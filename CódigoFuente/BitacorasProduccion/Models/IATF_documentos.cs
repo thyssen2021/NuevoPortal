@@ -27,8 +27,8 @@ namespace Portal_2_0.Models
         public string proceso { get; set; }
         public bool activo { get; set; }
     
-        public virtual plantas plantas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IATF_revisiones> IATF_revisiones { get; set; }
+        public virtual plantas plantas { get; set; }
     }
 }

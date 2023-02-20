@@ -60,10 +60,8 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_internet_tipo> IT_internet_tipo { get; set; }
         public virtual DbSet<IT_inventory_cellular_plans> IT_inventory_cellular_plans { get; set; }
         public virtual DbSet<IT_inventory_hard_drives> IT_inventory_hard_drives { get; set; }
-        public virtual DbSet<IT_inventory_items> IT_inventory_items { get; set; }
         public virtual DbSet<IT_inventory_items_genericos> IT_inventory_items_genericos { get; set; }
         public virtual DbSet<IT_inventory_tipos_accesorios> IT_inventory_tipos_accesorios { get; set; }
-        public virtual DbSet<IT_mantenimientos> IT_mantenimientos { get; set; }
         public virtual DbSet<IT_mantenimientos_checklist_categorias> IT_mantenimientos_checklist_categorias { get; set; }
         public virtual DbSet<IT_mantenimientos_checklist_item> IT_mantenimientos_checklist_item { get; set; }
         public virtual DbSet<IT_mantenimientos_rel_checklist> IT_mantenimientos_rel_checklist { get; set; }
@@ -91,7 +89,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<PFA_Responsible_cost> PFA_Responsible_cost { get; set; }
         public virtual DbSet<PFA_Type_shipment> PFA_Type_shipment { get; set; }
         public virtual DbSet<PFA_Volume> PFA_Volume { get; set; }
-        public virtual DbSet<plantas> plantas { get; set; }
         public virtual DbSet<PM_conceptos> PM_conceptos { get; set; }
         public virtual DbSet<PM_conceptos_modelo> PM_conceptos_modelo { get; set; }
         public virtual DbSet<PM_departamentos> PM_departamentos { get; set; }
@@ -127,12 +124,16 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_equipos_checklist_categorias> IT_equipos_checklist_categorias { get; set; }
         public virtual DbSet<IT_equipos_rel_checklist_actividades> IT_equipos_rel_checklist_actividades { get; set; }
         public virtual DbSet<IT_inventory_cellular_line> IT_inventory_cellular_line { get; set; }
-        public virtual DbSet<IT_equipos_checklist> IT_equipos_checklist { get; set; }
         public virtual DbSet<empleados> empleados { get; set; }
         public virtual DbSet<IT_inventory_software> IT_inventory_software { get; set; }
         public virtual DbSet<IT_inventory_hardware_type> IT_inventory_hardware_type { get; set; }
         public virtual DbSet<IT_matriz_hardware> IT_matriz_hardware { get; set; }
         public virtual DbSet<IT_matriz_software> IT_matriz_software { get; set; }
         public virtual DbSet<IT_matriz_requerimientos> IT_matriz_requerimientos { get; set; }
+        public virtual DbSet<IT_equipos_checklist> IT_equipos_checklist { get; set; }
+        public virtual DbSet<IT_inventory_items> IT_inventory_items { get; set; }
+        public virtual DbSet<IT_mantenimientos> IT_mantenimientos { get; set; }
+        public virtual DbSet<plantas> plantas { get; set; }
+        public virtual DbSet<RH_menu_comedor_platillos> RH_menu_comedor_platillos { get; set; }
     }
 }
