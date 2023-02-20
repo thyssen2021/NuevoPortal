@@ -359,6 +359,7 @@
     <Compile Include="Controllers\PuestosController.cs" />
     <Compile Include="Controllers\ReportePesadasController.cs" />
     <Compile Include="Controllers\ResponsableBudgetController.cs" />
+    <Compile Include="Controllers\RH_menu_comedorController.cs" />
     <Compile Include="Controllers\RolesAdminController.cs" />
     <Compile Include="Controllers\upgrade_revisionController.cs" />
     <Compile Include="Controllers\UserAdminController.cs" />
@@ -660,6 +661,7 @@
     <Compile Include="Models\MetadataModels\produccion_supervisoresMetadata.cs" />
     <Compile Include="Models\MetadataModels\produccion_turnosMetadata.cs" />
     <Compile Include="Models\MetadataModels\puestoMetadata.cs" />
+    <Compile Include="Models\MetadataModels\RH_menu_comedor_platillosMetadata.cs" />
     <Compile Include="Models\MetadataModels\view_historico_resultadoMetadata.cs" />
     <Compile Include="Models\MetadataModels\view_valores_fiscal_yearMetadata.cs" />
     <Compile Include="Models\mm_v3.cs">
@@ -793,6 +795,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\puesto.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\RH_menu_comedor_platillos.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\upgrade_check_item.cs">
@@ -7275,6 +7280,10 @@
     <Content Include="Views\IT_inventory_hardware_type\Edit.cshtml" />
     <Content Include="Views\IT_inventory_hardware_type\Index.cshtml" />
     <Content Include="Views\Shared\_BlockUI.cshtml" />
+	  <Content Include="Views\RH_menu_comedor\Index.cshtml" />
+	  <Content Include="Views\RH_menu_comedor\CargaMenu.cshtml" />
+	  <Content Include="Views\RH_menu_comedor\Edit.cshtml" />
+	  <Content Include="Views\RH_menu_comedor\DetailsMenu.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

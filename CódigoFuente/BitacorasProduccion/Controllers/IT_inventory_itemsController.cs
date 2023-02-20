@@ -31,7 +31,6 @@ namespace Portal_2_0.Controllers
 
                 var cantidadRegistrosPorPagina = 20; // parámetro
 
-
                 var listado = db.IT_inventory_items
                     .Where(x =>
                    (x.id_planta == id_planta || id_planta == null)

@@ -523,28 +523,29 @@ namespace Portal_2_0.Models
 
                 row["Fecha Creación"] = item.fecha_creacion;
 
-                if (item.empleados4 != null && item.fecha_validacion.HasValue)
-                {
-                    row["Validó (área)"] = item.empleados4.ConcatNombre;
-                    row["Fecha Validación"] = item.fecha_validacion;
-                }
+                //validación area
+                if (item.empleados4 != null)               
+                    row["Validó (área)"] = item.empleados4.ConcatNombre;   
                 else
-                {
                     row["Validó (área)"] = DBNull.Value;
-                    row["Fecha Validación"] = DBNull.Value;
-                }
 
-                if (item.empleados != null && item.fecha_autorizacion.HasValue)
-                {
-                    row["Autorizó (doble validación)"] = item.empleados.ConcatNombre;
-                    row["Fecha Autorización"] = item.fecha_autorizacion;
-                }
+                if (item.fecha_validacion.HasValue)               
+                    row["Fecha Validación"] = item.fecha_validacion;
                 else
-                {
-                    row["Autorizó (doble validación)"] = DBNull.Value;
-                    row["Fecha Autorización"] = DBNull.Value;
-                }
+                    row["Fecha Validación"] = DBNull.Value;
 
+                //autorización
+                if (item.empleados != null)
+                    row["Autorizó (doble validación)"] = item.empleados.ConcatNombre;
+                else
+                    row["Autorizó (doble validación)"] = DBNull.Value;
+                
+
+                if (item.fecha_autorizacion.HasValue)
+                    row["Fecha Autorización"] = item.fecha_autorizacion;
+                else
+                    row["Fecha Autorización"] = DBNull.Value;
+                
 
                 if (item.empleados2 != null && item.fecha_direccion.HasValue)
                 {
@@ -557,17 +558,17 @@ namespace Portal_2_0.Models
                     row["Fecha Dirección"] = DBNull.Value;
                 }
 
-                if (item.empleados1 != null && item.fecha_registro.HasValue)
-                {
+                if (item.empleados1 != null)
                     row["Registró (contabilidad)"] = item.empleados1.ConcatNombre;
-                    row["Fecha Registro"] = item.fecha_registro;
-                }
                 else
-                {
-                    row["Fecha Registro"] = DBNull.Value;
                     row["Registró (contabilidad)"] = DBNull.Value;
-                }
+                
 
+                if (item.fecha_registro.HasValue)                
+                    row["Fecha Registro"] = item.fecha_registro;                
+                else               
+                    row["Fecha Registro"] = DBNull.Value;
+                
                 row["Total Debe"] = item.totalDebe;
                 row["Total Haber"] = item.totalHaber;
 
@@ -1827,13 +1828,15 @@ namespace Portal_2_0.Models
             if (inventoryType == Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER)
                 physical++;
 
+            bool esServer = (inventoryType == Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER || inventoryType == Bitacoras.Util.IT_Tipos_Hardware.SERVER);
+
 
             //columnas          
             dt.Columns.Add("Id", typeof(string));   //1
             dt.Columns.Add("Type", typeof(string)); //2
             dt.Columns.Add("Plant", typeof(string));  //3
             dt.Columns.Add("Hostname", typeof(string)); //4
-            if (inventoryType == Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER || inventoryType == Bitacoras.Util.IT_Tipos_Hardware.SERVER)
+            if (esServer)
                 dt.Columns.Add("Physical Server", typeof(string));    //4.5
             dt.Columns.Add("Brand", typeof(string));    //5
             dt.Columns.Add("Model", typeof(string));    //6
@@ -1854,9 +1857,11 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Maintenance Period (months)", typeof(int)); //21
             dt.Columns.Add("Purchase Date", typeof(DateTime));  //22
             dt.Columns.Add("End Warranty", typeof(DateTime));   //23
-            dt.Columns.Add("Is active?", typeof(bool));         //24
-            dt.Columns.Add("Inactive Date?", typeof(DateTime)); //25
-            dt.Columns.Add("Comments", typeof(string));         //26
+            dt.Columns.Add("Is active?", typeof(bool));         //24         
+            dt.Columns.Add("Inactive Date", typeof(DateTime)); //25
+            dt.Columns.Add("¿Baja?", typeof(bool));         //26         
+            dt.Columns.Add("Fecha baja", typeof(DateTime)); //27
+            dt.Columns.Add("Comments", typeof(string));         //28
             dt.Columns.Add("Asignación Actual", typeof(string));         //27
             dt.Columns.Add("Planta", typeof(string));         //27
             dt.Columns.Add("Departamento", typeof(string));         //27
@@ -1872,7 +1877,7 @@ namespace Portal_2_0.Models
                 string departamento = string.Empty;
                 string puesto = string.Empty;
                 string jefeInmediato = string.Empty;
-                
+
 
                 var asignacion = item.IT_asignacion_hardware_rel_items.Where(x => x.IT_asignacion_hardware.es_asignacion_actual
                                     && x.IT_asignacion_hardware.id_empleado == x.IT_asignacion_hardware.id_responsable_principal).Select(x => x.IT_asignacion_hardware).FirstOrDefault();
@@ -1883,15 +1888,15 @@ namespace Portal_2_0.Models
                     planta = asignacion.empleados1.plantas != null ? asignacion.empleados1.plantas.descripcion : String.Empty;
                     departamento = asignacion.empleados1.Area != null ? asignacion.empleados1.Area.descripcion : String.Empty;
                     puesto = asignacion.empleados1.puesto1 != null ? asignacion.empleados1.puesto1.descripcion : String.Empty;
-                    jefeInmediato  = asignacion.empleados1.empleados2 != null ? asignacion.empleados1.empleados2.ConcatNombre : String.Empty;
+                    jefeInmediato = asignacion.empleados1.empleados2 != null ? asignacion.empleados1.empleados2.ConcatNombre : String.Empty;
 
                 }
-                if (inventoryType != Bitacoras.Util.IT_Tipos_Hardware.VIRTUAL_SERVER && inventoryType != Bitacoras.Util.IT_Tipos_Hardware.SERVER)
+                if (!esServer)
                     dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.hostname, item.brand, item.model, item.serial_number,
                     item.operation_system, item.bits_operation_system, item.cpu_speed_mhz, item.number_of_cpus, item.processor, item.mac_lan, item.mac_wlan,
                     item.total_physical_memory_gb, null, null, null, item.NumberOfHardDrives, item.TotalDiskSpace, item.maintenance_period_months,
                      item.purchase_date, item.end_warranty,
-                     item.active, item.inactive_date, item.comments, asignacionActual, planta, departamento, puesto, jefeInmediato
+                     item.active, item.inactive_date, item.baja, item.fecha_baja, item.comments, asignacionActual, planta, departamento, puesto, jefeInmediato
                     );
                 else
                 { //se agrega phyical server{
@@ -1903,7 +1908,7 @@ namespace Portal_2_0.Models
                       item.operation_system, item.bits_operation_system, item.cpu_speed_mhz, item.number_of_cpus, item.processor, item.mac_lan, item.mac_wlan,
                       item.total_physical_memory_gb, null, null, null, item.NumberOfHardDrives, item.TotalDiskSpace, item.maintenance_period_months,
                        item.purchase_date, item.end_warranty,
-                       item.active, item.inactive_date, item.comments, string.Empty
+                       item.active, item.inactive_date, item.baja, item.fecha_baja, item.comments, string.Empty
                       );
                 }
 
@@ -1936,7 +1941,7 @@ namespace Portal_2_0.Models
                     dt.Rows.Add(vs.id, vs.IT_inventory_hardware_type.descripcion, vs.plantas.descripcion, vs.hostname, vs.IT_inventory_items2.hostname, vs.brand, vs.model
                      , vs.serial_number, vs.operation_system, vs.bits_operation_system, vs.cpu_speed_mhz, vs.number_of_cpus, vs.processor, vs.mac_lan, vs.mac_wlan,
                     vs.total_physical_memory_gb, null, null, null, vs.NumberOfHardDrives, vs.TotalDiskSpace, vs.maintenance_period_months,
-                    vs.purchase_date, vs.end_warranty, vs.active, vs.inactive_date, vs.comments);
+                    vs.purchase_date, vs.end_warranty, vs.active, vs.inactive_date, vs.baja, vs.fecha_baja, vs.comments);
 
                     filasEncabezados.Add(false);
                     filasServidoresVirtuales.Add(filasEncabezados.Count);
@@ -2016,9 +2021,10 @@ namespace Portal_2_0.Models
             ////estilo para fecha
             SLStyle styleShortDate = oSLDocument.CreateStyle();
             styleShortDate.FormatCode = "yyyy/MM/dd";
-            oSLDocument.SetColumnStyle(22 + physical, styleShortDate);
-            oSLDocument.SetColumnStyle(23 + physical, styleShortDate);
-            oSLDocument.SetColumnStyle(25 + physical, styleShortDate);
+            oSLDocument.SetColumnStyle(22 + physical + (esServer ? 1 : 0), styleShortDate);
+            oSLDocument.SetColumnStyle(23 + physical + (esServer ? 1 : 0), styleShortDate);
+            oSLDocument.SetColumnStyle(25 + physical + (esServer ? 1 : 0), styleShortDate);
+            oSLDocument.SetColumnStyle(27 + physical + (esServer ? 1 : 0), styleShortDate); //fecha de baja
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
@@ -2050,20 +2056,23 @@ namespace Portal_2_0.Models
                 oSLDocument.SetCellStyle(i, 1, i, dt.Columns.Count, styleHeaderRowVS);
 
             //da estilo a los numero
-            oSLDocument.SetColumnStyle(10 + physical, styleNumberInt);
-            oSLDocument.SetColumnStyle(17 + physical, styleNumberDecimal);
-            oSLDocument.SetColumnStyle(20 + physical, styleNumberDecimal);
-            oSLDocument.SetColumnStyle(15 + physical, styleNumberDecimal); //decimal
+            oSLDocument.SetColumnStyle(10 + physical + (esServer ? 1 : 0), styleNumberInt);
+            oSLDocument.SetColumnStyle(17 + physical + (esServer ? 1 : 0), styleNumberDecimal);
+            oSLDocument.SetColumnStyle(20 + physical + (esServer ? 1 : 0), styleNumberDecimal);
+            oSLDocument.SetColumnStyle(15 + physical + (esServer ? 1 : 0), styleNumberDecimal); //decimal
+
 
             oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
             oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+
+            oSLDocument.SetColumnWidth(26 + physical + (esServer ? 1 : 0), 12); //decimal
 
             oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
             oSLDocument.SetRowStyle(1, styleHeader);
             oSLDocument.SetRowStyle(1, styleHeaderFont);
 
             //da color gris a cabeceras expandibles
-            oSLDocument.SetCellStyle(1, 17 + physical, 1, 19 + physical, styleHeaderRowDrive);
+            oSLDocument.SetCellStyle(1, 17 + physical, 1, 19 + physical + (esServer ? 1 : 0), styleHeaderRowDrive);
 
             oSLDocument.SetRowHeight(1, dt.Rows.Count + 1, 15.0);
 
@@ -2195,13 +2204,15 @@ namespace Portal_2_0.Models
             dt.Columns.Add("End Warranty", typeof(DateTime));   //9
             dt.Columns.Add("Is active?", typeof(bool));         //10
             dt.Columns.Add("Inactive Date?", typeof(DateTime)); //11
-            dt.Columns.Add("Comments", typeof(string));         //12
+            dt.Columns.Add("¿Baja?", typeof(bool));         //12        
+            dt.Columns.Add("Fecha baja", typeof(DateTime)); //13
+            dt.Columns.Add("Comments", typeof(string));         //14
 
             ////registros , rows
             foreach (IT_inventory_items item in listado)
             {
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.IT_inventory_tipos_accesorios.descripcion, item.brand, item.model, item.serial_number,
-                    item.purchase_date, item.end_warranty, item.active, item.inactive_date, item.comments
+                    item.purchase_date, item.end_warranty, item.active, item.inactive_date, item.baja, item.fecha_baja, item.comments
                     );
             }
 
@@ -2242,6 +2253,7 @@ namespace Portal_2_0.Models
             styleShortDate.FormatCode = "yyyy/MM/dd";
             oSLDocument.SetColumnStyle(8, 9, styleShortDate);
             oSLDocument.SetColumnStyle(11, styleShortDate);
+            oSLDocument.SetColumnStyle(13, styleShortDate);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
@@ -2261,7 +2273,7 @@ namespace Portal_2_0.Models
             oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
             oSLDocument.SetRowStyle(1, styleHeader);
             oSLDocument.SetRowStyle(1, styleHeaderFont);
-
+            oSLDocument.SetColumnWidth(12, 12);
 
             oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
 
@@ -2295,14 +2307,16 @@ namespace Portal_2_0.Models
             dt.Columns.Add("End Warranty", typeof(DateTime));       //10
             dt.Columns.Add("Is active?", typeof(bool));             //11
             dt.Columns.Add("Inactive Date?", typeof(DateTime));     //12
-            dt.Columns.Add("Comments", typeof(string));             //13
+            dt.Columns.Add("¿Baja?", typeof(bool));                 //13         
+            dt.Columns.Add("Fecha baja", typeof(DateTime));         //14
+            dt.Columns.Add("Comments", typeof(string));             //15
 
             ////registros , rows
             foreach (IT_inventory_items item in listado)
             {
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.brand, item.model, item.serial_number, item.printer_ubication,
                     item.ip_adress, item.purchase_date, item.end_warranty,
-                     item.active, item.inactive_date, item.comments
+                     item.active, item.inactive_date, item.baja, item.fecha_baja, item.comments
                     );
             }
 
@@ -2343,6 +2357,7 @@ namespace Portal_2_0.Models
             styleShortDate.FormatCode = "yyyy/MM/dd";
             oSLDocument.SetColumnStyle(9, 10, styleShortDate);
             oSLDocument.SetColumnStyle(12, styleShortDate);
+            oSLDocument.SetColumnStyle(14, styleShortDate);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
@@ -2362,7 +2377,7 @@ namespace Portal_2_0.Models
             oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
             oSLDocument.SetRowStyle(1, styleHeader);
             oSLDocument.SetRowStyle(1, styleHeaderFont);
-
+            oSLDocument.SetColumnWidth(13, 12); //decimal
 
             oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
 
@@ -2397,14 +2412,16 @@ namespace Portal_2_0.Models
             dt.Columns.Add("End Warranty", typeof(DateTime));   //11
             dt.Columns.Add("Is active?", typeof(bool));         //12
             dt.Columns.Add("Inactive Date?", typeof(DateTime)); //13
-            dt.Columns.Add("Comments", typeof(string));         //14
+            dt.Columns.Add("¿Baja?", typeof(bool));             //14         
+            dt.Columns.Add("Fecha baja", typeof(DateTime));     //15
+            dt.Columns.Add("Comments", typeof(string));         //16
 
             ////registros , rows
             foreach (IT_inventory_items item in listado)
             {
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.brand, item.model, item.serial_number, item.printer_ubication,
                     item.ip_adress, item.cost_center, item.purchase_date, item.end_warranty,
-                     item.active, item.inactive_date, item.comments
+                     item.active, item.inactive_date, item.baja, item.fecha_baja, item.comments
                     );
             }
 
@@ -2445,6 +2462,7 @@ namespace Portal_2_0.Models
             styleShortDate.FormatCode = "yyyy/MM/dd";
             oSLDocument.SetColumnStyle(10, 11, styleShortDate);
             oSLDocument.SetColumnStyle(13, styleShortDate);
+            oSLDocument.SetColumnStyle(15, styleShortDate);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
@@ -2464,7 +2482,7 @@ namespace Portal_2_0.Models
             oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
             oSLDocument.SetRowStyle(1, styleHeader);
             oSLDocument.SetRowStyle(1, styleHeaderFont);
-
+            oSLDocument.SetColumnWidth(14, 12); //decimal
 
             oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
 
@@ -2497,13 +2515,15 @@ namespace Portal_2_0.Models
             dt.Columns.Add("End Warranty", typeof(DateTime));       //9
             dt.Columns.Add("Is active?", typeof(bool));             //10
             dt.Columns.Add("Inactive Date?", typeof(DateTime));     //11
-            dt.Columns.Add("Comments", typeof(string));             //12
+            dt.Columns.Add("¿Baja?", typeof(bool));                 //12         
+            dt.Columns.Add("Fecha baja", typeof(DateTime));         //13
+            dt.Columns.Add("Comments", typeof(string));             //14
 
             ////registros , rows
             foreach (IT_inventory_items item in listado)
             {
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.brand, item.model, item.serial_number, item.mac_wlan,
-                    item.purchase_date, item.end_warranty, item.active, item.inactive_date, item.comments
+                    item.purchase_date, item.end_warranty, item.active, item.inactive_date, item.baja, item.fecha_baja, item.comments
                     );
             }
 
@@ -2544,6 +2564,7 @@ namespace Portal_2_0.Models
             styleShortDate.FormatCode = "yyyy/MM/dd";
             oSLDocument.SetColumnStyle(8, 9, styleShortDate);
             oSLDocument.SetColumnStyle(11, styleShortDate);
+            oSLDocument.SetColumnStyle(13, styleShortDate);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
@@ -2563,7 +2584,7 @@ namespace Portal_2_0.Models
             oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
             oSLDocument.SetRowStyle(1, styleHeader);
             oSLDocument.SetRowStyle(1, styleHeaderFont);
-
+            oSLDocument.SetColumnWidth(12, 12); //decimal
 
             oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
 
@@ -2602,7 +2623,9 @@ namespace Portal_2_0.Models
             dt.Columns.Add("End Warranty", typeof(DateTime));           //15
             dt.Columns.Add("Is active?", typeof(bool));                 //16
             dt.Columns.Add("Inactive Date?", typeof(DateTime));         //17
-            dt.Columns.Add("Comments", typeof(string));                 //18
+            dt.Columns.Add("¿Baja?", typeof(bool));                     //18         
+            dt.Columns.Add("Fecha baja", typeof(DateTime));             //19
+            dt.Columns.Add("Comments", typeof(string));                 //20
 
             ////registros , rows
             foreach (IT_inventory_items item in listado)
@@ -2610,7 +2633,7 @@ namespace Portal_2_0.Models
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.hostname, item.brand, item.model, item.serial_number, item.inches,
                     item.processor, item.total_physical_memory_gb, item.movil_device_storage_gb, item.operation_system, item.mac_wlan,
                     item.purchase_date, item.end_warranty,
-                   item.active, item.inactive_date, item.comments
+                   item.active, item.inactive_date, item.baja, item.fecha_baja, item.comments
                     );
             }
 
@@ -2651,6 +2674,7 @@ namespace Portal_2_0.Models
             styleShortDate.FormatCode = "yyyy/MM/dd";
             oSLDocument.SetColumnStyle(14, 15, styleShortDate);
             oSLDocument.SetColumnStyle(17, styleShortDate);
+            oSLDocument.SetColumnStyle(19, styleShortDate);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
@@ -2673,7 +2697,7 @@ namespace Portal_2_0.Models
             oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
             oSLDocument.SetRowStyle(1, styleHeader);
             oSLDocument.SetRowStyle(1, styleHeaderFont);
-
+            oSLDocument.SetColumnWidth(18, 12); 
 
             oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
 
@@ -2705,14 +2729,16 @@ namespace Portal_2_0.Models
             dt.Columns.Add("End Warranty", typeof(DateTime));       //8
             dt.Columns.Add("Is active?", typeof(bool));             //9
             dt.Columns.Add("Inactive Date?", typeof(DateTime));     //10
-            dt.Columns.Add("Comments", typeof(string));             //11
+            dt.Columns.Add("¿Baja?", typeof(bool));                 //11         
+            dt.Columns.Add("Fecha baja", typeof(DateTime));         //12
+            dt.Columns.Add("Comments", typeof(string));             //13
 
             ////registros , rows
             foreach (IT_inventory_items item in listado)
             {
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.brand, item.model, item.serial_number,
                     item.purchase_date, item.end_warranty,
-                    item.active, item.inactive_date, item.comments
+                    item.active, item.inactive_date, item.baja, item.fecha_baja, item.comments
                     );
             }
 
@@ -2753,6 +2779,7 @@ namespace Portal_2_0.Models
             styleShortDate.FormatCode = "yyyy/MM/dd";
             oSLDocument.SetColumnStyle(7, 8, styleShortDate);
             oSLDocument.SetColumnStyle(10, styleShortDate);
+            oSLDocument.SetColumnStyle(12, styleShortDate);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
@@ -2765,14 +2792,13 @@ namespace Portal_2_0.Models
             //inmoviliza el encabezado
             oSLDocument.FreezePanes(1, 0);
 
-
             oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
             oSLDocument.AutoFitColumn(1, dt.Columns.Count);
 
             oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
             oSLDocument.SetRowStyle(1, styleHeader);
             oSLDocument.SetRowStyle(1, styleHeaderFont);
-
+            oSLDocument.SetColumnWidth(11, 12);
 
             oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
 
@@ -2808,7 +2834,9 @@ namespace Portal_2_0.Models
             dt.Columns.Add("End Warranty", typeof(DateTime));       //12
             dt.Columns.Add("Is active?", typeof(bool));             //13
             dt.Columns.Add("Inactive Date?", typeof(DateTime));     //14
-            dt.Columns.Add("Comments", typeof(string));             //15
+            dt.Columns.Add("¿Baja?", typeof(bool));                 //15         
+            dt.Columns.Add("Fecha baja", typeof(DateTime));         //16
+            dt.Columns.Add("Comments", typeof(string));             //17
 
             ////registros , rows
             foreach (IT_inventory_items item in listado)
@@ -2816,7 +2844,7 @@ namespace Portal_2_0.Models
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.hostname, item.brand, item.model, item.serial_number,
                     item.mac_lan, item.mac_wlan, item.ip_adress,
                     item.purchase_date, item.end_warranty,
-                    item.active, item.inactive_date, item.comments
+                    item.active, item.inactive_date, item.baja, item.fecha_baja, item.comments
                     );
             }
 
@@ -2857,6 +2885,7 @@ namespace Portal_2_0.Models
             styleShortDate.FormatCode = "yyyy/MM/dd";
             oSLDocument.SetColumnStyle(11, 12, styleShortDate);
             oSLDocument.SetColumnStyle(14, styleShortDate);
+            oSLDocument.SetColumnStyle(16, styleShortDate);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
@@ -2876,7 +2905,7 @@ namespace Portal_2_0.Models
             oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
             oSLDocument.SetRowStyle(1, styleHeader);
             oSLDocument.SetRowStyle(1, styleHeaderFont);
-
+            oSLDocument.SetColumnWidth(15, 12);
 
             oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
 
@@ -2915,7 +2944,9 @@ namespace Portal_2_0.Models
             dt.Columns.Add("End Warranty", typeof(DateTime));               //15
             dt.Columns.Add("Is active?", typeof(bool));                     //16
             dt.Columns.Add("Inactive Date?", typeof(DateTime));             //17
-            dt.Columns.Add("Comments", typeof(string));                     //18
+            dt.Columns.Add("¿Baja?", typeof(bool));                         //18         
+            dt.Columns.Add("Fecha baja", typeof(DateTime));                 //19
+            dt.Columns.Add("Comments", typeof(string));                     //20
 
             ////registros , rows
             foreach (IT_inventory_items item in listado)
@@ -2923,7 +2954,7 @@ namespace Portal_2_0.Models
                 dt.Rows.Add(item.id, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.brand, item.model, item.serial_number,
                     item.processor, item.total_physical_memory_gb, item.movil_device_storage_gb, item.operation_system, item.mac_wlan, item.imei_1, item.imei_2,
                     item.purchase_date, item.end_warranty,
-                    item.active, item.inactive_date, item.comments
+                    item.active, item.inactive_date, item.baja, item.fecha_baja, item.comments
                     );
             }
 
@@ -2964,6 +2995,7 @@ namespace Portal_2_0.Models
             styleShortDate.FormatCode = "yyyy/MM/dd";
             oSLDocument.SetColumnStyle(14, 15, styleShortDate);
             oSLDocument.SetColumnStyle(17, styleShortDate);
+            oSLDocument.SetColumnStyle(19, styleShortDate);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
@@ -2986,7 +3018,7 @@ namespace Portal_2_0.Models
             oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
             oSLDocument.SetRowStyle(1, styleHeader);
             oSLDocument.SetRowStyle(1, styleHeaderFont);
-
+            oSLDocument.SetColumnWidth(18, 12);
 
             oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
 
@@ -3250,15 +3282,17 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Purchase Date", typeof(DateTime));      //8           
             dt.Columns.Add("End Warranty", typeof(DateTime));       //9
             dt.Columns.Add("Is active?", typeof(bool));             //10
-            dt.Columns.Add("Inactive Date?", typeof(DateTime));     //11
-            dt.Columns.Add("Accessories", typeof(string));          //12
-            dt.Columns.Add("Comments", typeof(string));             //13
+            dt.Columns.Add("Inactive Date?", typeof(DateTime));     //11         
+            dt.Columns.Add("¿Baja?", typeof(bool));                 //12         
+            dt.Columns.Add("Fecha baja", typeof(DateTime));         //13
+            dt.Columns.Add("Accessories", typeof(string));          //14
+            dt.Columns.Add("Comments", typeof(string));             //15
 
             ////registros , rows
             foreach (IT_inventory_items item in listado)
             {
                 dt.Rows.Add(item.code, item.IT_inventory_hardware_type.descripcion, item.plantas.descripcion, item.brand, item.model, item.serial_number, item.mac_wlan,
-                    item.purchase_date, item.end_warranty, item.active, item.inactive_date, item.accessories, item.comments
+                    item.purchase_date, item.end_warranty, item.active, item.inactive_date, item.baja, item.fecha_baja, item.accessories, item.comments
                     );
             }
 
@@ -3299,6 +3333,7 @@ namespace Portal_2_0.Models
             styleShortDate.FormatCode = "yyyy/MM/dd";
             oSLDocument.SetColumnStyle(8, 9, styleShortDate);
             oSLDocument.SetColumnStyle(11, styleShortDate);
+            oSLDocument.SetColumnStyle(13, styleShortDate);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
@@ -3318,7 +3353,7 @@ namespace Portal_2_0.Models
             oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
             oSLDocument.SetRowStyle(1, styleHeader);
             oSLDocument.SetRowStyle(1, styleHeaderFont);
-
+            oSLDocument.SetColumnWidth(12, 12);
 
             oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
 

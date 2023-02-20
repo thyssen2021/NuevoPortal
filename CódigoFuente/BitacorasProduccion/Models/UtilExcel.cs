@@ -853,7 +853,7 @@ namespace Portal_2_0.Models
                                     if (duplicado)
                                     {
                                         //obtiene el peso quitando los duplicados
-                                        peso_neto=listTemporalBOM.Where(x => x.LastDateUsed == fechaUso && x.Quantity != (-0.001)).Select(x => x.Quantity).Distinct().Sum();
+                                        peso_neto = listTemporalBOM.Where(x => x.LastDateUsed == fechaUso && x.Quantity != (-0.001)).Select(x => x.Quantity).Distinct().Sum();
                                     }
                                     else
                                     {
@@ -1166,5 +1166,155 @@ namespace Portal_2_0.Models
 
             return lista;
         }
+
+        ///<summary>
+        ///Lee un archivo de excel y carga el listado del menu del comedor
+        ///</summary>
+        ///<return>
+        ///Devuelve un List<RH_menu_comedor_platillos> con los datos leidos
+        ///</return>
+        ///<param name="streamPostedFile">
+        ///Stream del archivo recibido en el formulario
+        ///</param>
+        public static List<RH_menu_comedor_platillos> LeeMenuComedor(HttpPostedFileBase streamPostedFile, ref List<string> errores)
+        {
+            List<RH_menu_comedor_platillos> lista = new List<RH_menu_comedor_platillos>();
+
+            //crea el reader del archivo
+            using (var reader = ExcelReaderFactory.CreateReader(streamPostedFile.InputStream))
+            {
+                //obtiene el dataset del archivo de excel
+                var result = reader.AsDataSet();
+
+                //estable la variable a false por defecto
+                //valido = false;
+
+                //recorre todas las hojas del archivo
+                foreach (DataTable table in result.Tables)
+                {
+
+                    //se obtienen las cabeceras
+                    List<EncabezadoTableMenu> encabezados = new List<EncabezadoTableMenu>();
+                    int filaCabera = 0;
+                    int columnaPlatillo = -1;
+
+                    #region determina columnas
+
+                    //recorre todas las filas y columnas hasta encontrar la columna platillo
+                    for (int i = 0; i < table.Rows.Count; i++)
+                    {
+                        for (int j = 0; j < table.Columns.Count; j++)
+                        {
+                            if (table.Rows[i][j].ToString().ToUpper() == "PLATILLO")
+                                columnaPlatillo = j;
+                        }
+                        //si encontró la columna rompe el for
+                        if (columnaPlatillo != -1)
+                            break;
+                    }
+
+                    //si no se pudo encontrar la columna platillo manda error
+                    if (columnaPlatillo == -1)
+                    {
+                        errores.Add("No se puedo encontrar una columna llamada 'PLATILLO' en la hoja " + table.TableName.ToUpper());
+                        return lista;
+                    }
+
+                    //recorre todas las filas hasta encontrar la cabecerar
+                    for (int i = 0; i < table.Rows.Count; i++)
+                    {
+                        encabezados = new List<EncabezadoTableMenu>();
+                        //recorre todas las celdas de la fila
+                        for (int j = 0; j < table.Columns.Count; j++)
+                        {
+                            if (DateTime.TryParse(table.Rows[i][j].ToString(), out DateTime fechaC))
+                                encabezados.Add(new EncabezadoTableMenu
+                                {
+                                    fecha = table.Rows[i][j].ToString(),
+                                    columna = j
+                                });
+                        }
+
+                        //comprueba cuantos correctos hubo
+                        if (encabezados.Count > 5)
+                        {
+                            filaCabera = i;
+                            break;
+                        }
+                    }
+
+
+                    //verifica que la estrura del archivo sea válida
+                    if (encabezados.Count < 5)
+                    {
+                        errores.Add("Hubo un error al leer la hoja " + table.TableName.ToUpper() + ". No se pudo encontrar el header de la tabla.");
+                        return lista;
+                    }
+
+                    #endregion
+
+                    //la fila cero se omite (encabezado)
+                    for (int i = filaCabera + 2; i < table.Rows.Count; i++)
+                    {
+
+                        try
+                        {
+                            //variables
+                            string platillo_tipo = string.Empty;
+                            string platillo_nombre = string.Empty;
+                            DateTime fecha = new DateTime(2000, 01, 01);
+                            int? kcal = null;
+
+                            //obtiene el platillo (el mismo para toda la fila)
+                            platillo_tipo = table.Rows[i][columnaPlatillo].ToString();
+
+                            //recorre todas los encabezados
+                            foreach (var encabezadoFecha in encabezados)
+                            {
+                                //obtiene la fecha
+                                if (DateTime.TryParse(table.Rows[filaCabera][encabezadoFecha.columna].ToString(), out DateTime f))
+                                    fecha = f;
+                                //obtiene nombre del platillo
+                                platillo_nombre = table.Rows[i][encabezadoFecha.columna].ToString();
+                                //kcal
+                                if (Int32.TryParse(table.Rows[i][encabezadoFecha.columna + 1].ToString(), out int kc))
+                                    kcal = kc;
+
+                                //agrega a la lista con los datos leidos
+                                if (!string.IsNullOrEmpty(platillo_nombre) && kcal.HasValue && platillo_tipo.Length <= 30 && !string.IsNullOrEmpty(platillo_tipo))
+                                    lista.Add(new RH_menu_comedor_platillos()
+                                    {
+                                        orden_display = i - filaCabera - 1,
+                                        tipo_platillo = platillo_tipo.Trim(), //quita espacios en blanco al inicio y al final del string
+                                        nombre_platillo = platillo_nombre.Trim(),
+                                        fecha = fecha,
+                                        kcal = kcal,
+
+                                    });
+                                else
+                                    goto finalRecorrido; //si no se puede agregar deja de recorrer las filas
+                            }
+
+                        }
+                        catch (Exception e)
+                        {
+                            System.Diagnostics.Debug.Print("Error: " + e.Message);
+                        }
+                    }
+                //final del recorrido de filas, para la hoja actual
+                finalRecorrido:
+                    System.Diagnostics.Debug.WriteLine("Recorrido finalizaso para la hoja: " + table.TableName);
+                }
+
+            }
+
+            return lista;
+        }
+    }
+
+    public class EncabezadoTableMenu
+    {
+        public string fecha { get; set; }
+        public int columna { get; set; }
     }
 }
