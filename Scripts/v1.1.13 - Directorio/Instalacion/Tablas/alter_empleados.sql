@@ -1,4 +1,4 @@
-use Portal_2_0
+--use Portal_2_0
 GO
 SET ANSI_NULLS ON
 GO

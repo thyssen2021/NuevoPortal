@@ -623,6 +623,8 @@ namespace Portal_2_0.Controllers
             //lista de key del collection
             List<string> keysCollection = collection.AllKeys.ToList();
 
+
+
             #region Asignación de Objetos
 
             //crea los objetos para hardware
