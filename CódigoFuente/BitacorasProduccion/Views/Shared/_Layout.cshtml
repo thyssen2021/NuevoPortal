@@ -656,8 +656,8 @@
                                                 {
                                                     <h3>Centros de Costo</h3>
                                                     @*<li class="@(ViewBag.SegundoNivel == "actual" ? "current-page" : null )"><a href="@Url.Action("Actual", "ResponsableBudget")">ACT FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)))</a></li>
-                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
-                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
+                                                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
+                                                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
                                                     <li class="@(ViewBag.SegundoNivel == "centros" ? "current-page" : null )"><a href="@Url.Action("Centros", "ResponsableBudget")">Mis Centros</a></li>
                                                 }
 
@@ -711,13 +711,15 @@
                                         <li class="@(ViewBag.PrimerNivel == "menu_comedor" ? "active" : null )">
                                             <a><i class="fa fa-utensils"></i> Menú Comedor <span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "menu_comedor" ? "display:block" : null )">
-                                                <li class="@(ViewBag.SegundoNivel == "menu" ? "current-page" : null )"><a href="@Url.Action( "DetailsMenu", "RH_menu_comedor")">Ver Men&uacute;</a></li>                                                
+                                                <li class="@(ViewBag.SegundoNivel == "menu" ? "current-page" : null )"><a href="@Url.Action( "DetailsMenu", "RH_menu_comedor")">Ver Men&uacute;</a></li>
                                             </ul>
                                         </li>
                                     }
-                                     @*DIRECTORIO*@
+                                    @*DIRECTORIO*@
 
-                                    @if (User.IsInRole(TipoRoles.ADMIN))
+                                    @if (Request.IsAuthenticated 
+                                        && User.IsInRole(TipoRoles.IT_INVENTORY) //temporal hasta que se libere a productivo
+                                        )
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "directorio" ? "active" : null )">
                                             <a><i class="fa fa-address-book"></i> Contacto <span class="fa fa-chevron-down"></span></a>

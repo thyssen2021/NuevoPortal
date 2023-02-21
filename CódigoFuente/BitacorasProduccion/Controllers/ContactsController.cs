@@ -18,6 +18,7 @@ namespace Portal_2_0.Controllers
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
         // GET: Contacts
+        [AllowAnonymous]
         public ActionResult Index(string nombre, string num_empleado, int? id_jefe_directo, int? id_area, int planta_clave = 0, int pagina = 1)
         {
 
