@@ -16,6 +16,11 @@
     {
         nombre = paginacionFiltros.ValoresQueryString["nombre"].ToString();
     }
+    string incluye_telefono = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["incluye_telefono"] != null)
+    {
+        incluye_telefono = paginacionFiltros.ValoresQueryString["incluye_telefono"].ToString();
+    }
 
 }
 
@@ -29,6 +34,9 @@
     <!-- Select2 -->
     <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/green.css")" rel="stylesheet">
+
 
     <style>
         .profile-picture {
@@ -72,10 +80,10 @@
                                 <div class="form-group">
                                     @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
                                     {
-
+                                        <input type="hidden" name="busqueda" value="true"/>
                                         <div class="form-group row ">
                                             <label class="control-label col-md-1 col-sm-1" for="nombre" style="text-align:right">Nombre:</label>
-                                            <div class="col-md-3 col-sm-3 ">
+                                            <div class="col-md-2 col-sm-2 ">
                                                 <input type="text" id="nombre" name="nombre" class="form-control" value="@nombre" autocomplete="off" />
                                             </div>
                                             <label class="control-label col-md-1 col-sm-1" for="planta_clave" style="text-align:right">Planta:</label>
@@ -86,47 +94,24 @@
                                             <div class="col-md-2 col-sm-2 ">
                                                 @Html.DropDownList("id_area", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                             </div>
-                                            <div class="col-md-1 col-sm-1">
+                                            <!-- INICIA Telefono y extension-->
+                                            <label for="incluye_telefono" class="col-form-label col-md-1 col-sm-1 label-align" data-toggle="tooltip" data-placement="top" title="Si se selecciona, sólo se mostrarán los resultados que incluyan télefono y/o extensión">Tel&eacute;fono y/o extensi&oacute;n</label>
+                                            <div class="col-md-1 col-sm-1" >
+                                                <input type="checkbox" id="incluye_telefono" name="incluye_telefono" value="true" @(Boolean.TryParse(incluye_telefono, out bool tel) && tel == true ? "checked" : String.Empty)>
+                                            </div>
+                                            <!--FIN Telefono y extension-->
+                                            <div class="col-md-1 col-sm-2">
                                                 <a href="@Url.Action( "Index", ViewBag.ControllerName)" class="btn btn-warning">
                                                     <i class="fa fa-refresh"></i>
                                                 </a>
+                                                <input type="submit" value="Buscar" class="btn btn-info" />
                                             </div>
                                             
-                                           
-                                            <div class="col-md-1 col-sm-1">
-                                                <input type="submit" value="Buscar" class="btn btn-info float-right" />
-                                            </div>
                                         </div>
-
                                     }
                                     <hr />
                                 </div>
-                                @*<div class="x_content">
-                                        <div class="col-md-6 col-sm-6  text-left">
 
-                                            @if (Model.Count() > 0)
-                                            {
-                                                <p style="font-size:15px">Mostrando los resultados para "A"...</p>
-                                            }
-                                        </div>
-                                        <div class="col-md-6 col-sm-6  text-center">
-                                            <ul class="pagination pagination-split" style="float:right; font-size:15px">
-                                                <li><a href="#">A</a></li>
-                                                <li><a href="#">B</a></li>
-                                                <li><a href="#">C</a></li>
-                                                <li><a href="#">D</a></li>
-                                                <li><a href="#">E</a></li>
-                                                <li>...</li>
-                                                <li><a href="#">W</a></li>
-                                                <li><a href="#">X</a></li>
-                                                <li><a href="#">Y</a></li>
-                                                <li><a href="#">Z</a></li>
-                                            </ul>
-                                        </div>
-
-                                        <div class="clearfix"></div>
-
-                                    </div>*@
 
 
                                 @foreach (var empleado in Model)
@@ -179,15 +164,15 @@
                                                     </div>
                                                 </div>
                                                 @*<div class=" bottom text-right">
-                                                    <div class=" col-sm-12 emphasis">
-                                                        <button type="button" class="btn btn-success btn-sm" onclick="CopiarTexto('@empleado.correo')" @(string.IsNullOrEmpty(empleado.correo) ? "disabled" : "")>
-                                                            <i class="fa fa-copy"></i> Correo
-                                                        </button>
-                                                        <button type="button" class="btn btn-primary btn-sm" onclick="CopiarTexto('@telefono')" @(string.IsNullOrEmpty(telefono) ? "disabled" : "")>
-                                                            <i class="fa fa-copy"></i> Tel&eacute;fono
-                                                        </button>
-                                                    </div>
-                                                </div>*@
+                                                        <div class=" col-sm-12 emphasis">
+                                                            <button type="button" class="btn btn-success btn-sm" onclick="CopiarTexto('@empleado.correo')" @(string.IsNullOrEmpty(empleado.correo) ? "disabled" : "")>
+                                                                <i class="fa fa-copy"></i> Correo
+                                                            </button>
+                                                            <button type="button" class="btn btn-primary btn-sm" onclick="CopiarTexto('@telefono')" @(string.IsNullOrEmpty(telefono) ? "disabled" : "")>
+                                                                <i class="fa fa-copy"></i> Tel&eacute;fono
+                                                            </button>
+                                                        </div>
+                                                    </div>*@
                                             </div>
                                         </div>
                                     </div>
@@ -229,6 +214,8 @@
     @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
     @Scripts.Render("~/bundles/dataTables_js")
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
 
     <script>
         $(document).ready(function () {
@@ -254,6 +241,15 @@
                 });
             });
 
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+                increaseArea: '20%' // optional
+            });
+
+            $('input').on('ifChanged', function (event) {
+                EnviaFormulario();
+            });
 
         });
 
