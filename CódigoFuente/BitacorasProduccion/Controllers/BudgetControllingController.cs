@@ -75,7 +75,7 @@ namespace Portal_2_0.Controllers
                 ViewBag.planta = AddFirstItem(new SelectList(db.budget_plantas.Where(x => x.activo == true), "id", "descripcion"), textoPorDefecto: "-- Todos --");
                 ViewBag.responsable = AddFirstItem(new SelectList(listadoResponsables, "id", "ConcatNombre"), textoPorDefecto: "-- Todos --");
                 ViewBag.id_centro_costo = AddFirstItem(new SelectList(db.budget_centro_costo, "id", "ConcatCentro"), textoPorDefecto: "-- Seleccionar --");
-                ViewBag.id_fiscal_year = AddFirstItem(new SelectList(db.budget_anio_fiscal.Where(x=>x.id!=1), "id", "ConcatAnio"), textoPorDefecto: "-- Seleccionar --");
+                ViewBag.id_fiscal_year = AddFirstItem(new SelectList(db.budget_anio_fiscal.Where(x => x.id != 1), "id", "ConcatAnio"), textoPorDefecto: "-- Seleccionar --");
                 ViewBag.Paginacion = paginacion;
                 //Viewbags para los botones               
                 ViewBag.Title = "Listado Centros de Costo";
@@ -143,7 +143,7 @@ namespace Portal_2_0.Controllers
                     //guarda en base de datos el centro creado
                     db.SaveChanges();
 
-                                      
+
                 }
 
                 //obtiene el id_rel_centro_costo del forecast
@@ -162,7 +162,7 @@ namespace Portal_2_0.Controllers
                     //guarda en base de datos el centro creado
                     db.SaveChanges();
 
-                  
+
                 }
 
                 //obtiene el id_rel_centro_costo del proximo
@@ -181,7 +181,7 @@ namespace Portal_2_0.Controllers
                     //guarda en base de datos el centro creado
                     db.SaveChanges();
 
-                    
+
                 }
 
                 //agrega el objeto de fiscal year
@@ -246,9 +246,9 @@ namespace Portal_2_0.Controllers
                     return View("../Error/NotFound");
 
                 //obtiene el año fiscal anterior (actual)
-                budget_anio_fiscal anio_Fiscal_anterior = db.budget_anio_fiscal.Find(anio_Fiscal_actual.id-1);
+                budget_anio_fiscal anio_Fiscal_anterior = db.budget_anio_fiscal.Find(anio_Fiscal_actual.id - 1);
                 if (anio_Fiscal_anterior == null)
-                    return View("../Error/NotFound");               
+                    return View("../Error/NotFound");
 
                 //obtiene el año fiscal proximo (budget)
                 budget_anio_fiscal anio_Fiscal_proximo = db.budget_anio_fiscal.Find(anio_Fiscal_actual.id + 1);
@@ -354,7 +354,8 @@ namespace Portal_2_0.Controllers
             //obtiene el id rel centro fy
             budget_rel_fy_centro rel_Fy_Centro = db.budget_rel_fy_centro.Find(id_rel_fy);
 
-            if (rel_Fy_Centro == null) {
+            if (rel_Fy_Centro == null)
+            {
                 TempData["Mensaje"] = new MensajesSweetAlert("Error: " + "No existe la relación de centro de costo con año fiscal", TipoMensajesSweetAlerts.ERROR);
             }
 
@@ -396,13 +397,14 @@ namespace Portal_2_0.Controllers
                             mes = mes,
                             currency_iso = currency,
                             cantidad = cantidad,
+                            comentario = string.IsNullOrEmpty(form["budget_valores[" + num + "].comentario"]) ? null : form["budget_valores[" + num + "].comentario"]
                         });
                     }
 
                 }
             }
 
-            
+
 
             //3.- identificar cuales son update, create, delete y sin cambios
 
@@ -410,16 +412,16 @@ namespace Portal_2_0.Controllers
             List<budget_cantidad> valoresEnBD = db.budget_cantidad.Where(x => x.id_budget_rel_fy_centro == id_rel_fy).ToList();
 
             //obtiene valores sin cambios
-            List<budget_cantidad> valoresSinCambio = valores.Where(x => valoresEnBD.Any(y => y.id_budget_rel_fy_centro == x.id_budget_rel_fy_centro && y.id_cuenta_sap == x.id_cuenta_sap && y.mes == x.mes && y.cantidad == x.cantidad)).ToList();
+            List<budget_cantidad> valoresSinCambio = valores.Where(x => valoresEnBD.Any(y => y.id_budget_rel_fy_centro == x.id_budget_rel_fy_centro && y.id_cuenta_sap == x.id_cuenta_sap && y.mes == x.mes && y.comentario == x.comentario && y.cantidad == x.cantidad)).ToList();
 
             //obtiene valores con cambios o nuevos
             List<budget_cantidad> valoresDiferentes = valores.Except(valoresSinCambio).ToList();
 
             //DE valores Diferentes identificar cuales son create, update y delete
-            List<budget_cantidad> valoresCreate = valoresDiferentes.Where(a => !valoresEnBD.Any(a1 => a1.id_budget_rel_fy_centro == a.id_budget_rel_fy_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a1.mes == a.mes) && a.cantidad != 0).ToList();
+            List<budget_cantidad> valoresCreate = valoresDiferentes.Where(a => !valoresEnBD.Any(a1 => a1.id_budget_rel_fy_centro == a.id_budget_rel_fy_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a1.mes == a.mes) && (a.cantidad != 0 || !string.IsNullOrEmpty(a.comentario))).ToList();
 
             //DE valores Diferentes identificar cuales son create, update y delete
-            List<budget_cantidad> valoresUpdate = valoresDiferentes.Where(a => valoresEnBD.Any(a1 => a1.id_budget_rel_fy_centro == a.id_budget_rel_fy_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a1.mes == a.mes && a.cantidad != 0)).ToList();
+            List<budget_cantidad> valoresUpdate = valoresDiferentes.Where(a => valoresEnBD.Any(a1 => a1.id_budget_rel_fy_centro == a.id_budget_rel_fy_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a1.mes == a.mes && (a.cantidad != 0 || !string.IsNullOrEmpty(a.comentario)))).ToList();
             //agrega el id correspondiente
             valoresUpdate = valoresUpdate.Select(x =>
             {
@@ -429,7 +431,7 @@ namespace Portal_2_0.Controllers
             }).ToList();
 
             //DE valores Diferentes identificar cuales son create, update y delete
-            List<budget_cantidad> valoresDelete = valoresDiferentes.Where(a => valoresEnBD.Any(a1 => a1.id_budget_rel_fy_centro == a.id_budget_rel_fy_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a1.mes == a.mes && a.cantidad == 0)).ToList();
+            List<budget_cantidad> valoresDelete = valoresDiferentes.Where(a => valoresEnBD.Any(a1 => a1.id_budget_rel_fy_centro == a.id_budget_rel_fy_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a1.mes == a.mes && a.cantidad == 0 && string.IsNullOrEmpty(a.comentario))).ToList();
             //agrega el id  correspondiente
             valoresDelete = valoresDelete.Select(x =>
             {
@@ -496,7 +498,7 @@ namespace Portal_2_0.Controllers
 
             #region comentarios
             //1.-Obtiene los keys de tipo comentario
-            List<string> keysComentarios = form.AllKeys.Where(x => x.ToUpper().Contains(".COMENTARIO") == true).ToList();
+            List<string> keysComentarios = form.AllKeys.Where(x => x.ToUpper().Contains(".COMENTARIO") && x.ToUpper().Contains("BUDGET_REL_COMENTARIOS")).ToList();
 
             //2.- Recorre y crea un objeto de tipo budget_comentarios
             List<budget_rel_comentarios> listComentarios = new List<budget_rel_comentarios>();
@@ -884,7 +886,7 @@ namespace Portal_2_0.Controllers
                         List<budget_rel_comentarios> comentariosEnBD = db.budget_rel_comentarios.Where(x => idRels.Contains(x.id_budget_rel_fy_centro)).ToList();
 
                         //valores create
-                        List<budget_rel_comentarios> valoresCreateComentarios = listComentarios.Where(a => !comentariosEnBD.Any(a1 => a1.id_budget_rel_fy_centro == a.id_budget_rel_fy_centro && a1.id_cuenta_sap == a.id_cuenta_sap ) && !String.IsNullOrEmpty(a.comentarios)).ToList();
+                        List<budget_rel_comentarios> valoresCreateComentarios = listComentarios.Where(a => !comentariosEnBD.Any(a1 => a1.id_budget_rel_fy_centro == a.id_budget_rel_fy_centro && a1.id_cuenta_sap == a.id_cuenta_sap) && !String.IsNullOrEmpty(a.comentarios)).ToList();
 
                         //valores updated
                         List<budget_rel_comentarios> valoresUpdateComentarios = listComentarios.Where(a => comentariosEnBD.Any(a1 => a1.id_budget_rel_fy_centro == a.id_budget_rel_fy_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a.comentarios != a1.comentarios && !String.IsNullOrEmpty(a.comentarios))).ToList();
@@ -893,19 +895,19 @@ namespace Portal_2_0.Controllers
                         valoresUpdateComentarios = valoresUpdateComentarios.Select(x =>
                         {
                             x.id = (from v in comentariosEnBD
-                                    where v.id_budget_rel_fy_centro == x.id_budget_rel_fy_centro && v.id_cuenta_sap == x.id_cuenta_sap 
+                                    where v.id_budget_rel_fy_centro == x.id_budget_rel_fy_centro && v.id_cuenta_sap == x.id_cuenta_sap
                                     select v.id).FirstOrDefault(); return x;
                         }).ToList();
 
                         //valores delete
                         List<budget_rel_comentarios> valoresDeleteComentarios = comentariosEnBD.Where(a => !listComentarios.Any(a1 => a1.id_budget_rel_fy_centro == a.id_budget_rel_fy_centro && a1.id_cuenta_sap == a.id_cuenta_sap)).ToList();
-                        valoresDeleteComentarios.AddRange(listComentarios.Where(a => comentariosEnBD.Any(a1 => a1.id_budget_rel_fy_centro == a.id_budget_rel_fy_centro && a1.id_cuenta_sap == a.id_cuenta_sap  && String.IsNullOrEmpty(a.comentarios))).ToList());
+                        valoresDeleteComentarios.AddRange(listComentarios.Where(a => comentariosEnBD.Any(a1 => a1.id_budget_rel_fy_centro == a.id_budget_rel_fy_centro && a1.id_cuenta_sap == a.id_cuenta_sap && String.IsNullOrEmpty(a.comentarios))).ToList());
 
                         //agrega el id a delete
                         valoresDeleteComentarios = valoresDeleteComentarios.Select(x =>
                         {
                             x.id = (from v in comentariosEnBD
-                                    where v.id_budget_rel_fy_centro == x.id_budget_rel_fy_centro && v.id_cuenta_sap == x.id_cuenta_sap 
+                                    where v.id_budget_rel_fy_centro == x.id_budget_rel_fy_centro && v.id_cuenta_sap == x.id_cuenta_sap
                                     select v.id).FirstOrDefault(); return x;
                         }).ToList();
 
@@ -1099,7 +1101,7 @@ namespace Portal_2_0.Controllers
             }
         }
 
-        public ActionResult ExportarConcentrado(int? planta, string responsable, string centro_costo)
+        public ActionResult ExportarConcentrado(int? planta, string responsable, string centro_costo, string tipo_reporte)
         {
 
             if (TieneRol(TipoRoles.BG_REPORTES))
@@ -1125,36 +1127,79 @@ namespace Portal_2_0.Controllers
                 if (anio_Fiscal_proximo == null)
                     return View("../Error/NotFound");
 
-                var listadoAnterior = db.view_valores_fiscal_year
-                        .Where(x => 
+                List<view_valores_fiscal_year> listadoAnterior = new List<view_valores_fiscal_year>();
+                List<view_valores_fiscal_year> listadoPresente = new List<view_valores_fiscal_year>();
+                List<view_valores_fiscal_year> listadoProximo = new List<view_valores_fiscal_year>();
+
+                if (tipo_reporte == "forecast")
+                {
+                    listadoAnterior = db.view_valores_fiscal_year
+                        .Where(x =>
                                 (x.id_budget_plant == planta || planta == null)
                             && (x.responsable.Contains(responsable) || String.IsNullOrEmpty(responsable))
                             && (x.cost_center.Contains(centro_costo) || String.IsNullOrEmpty(centro_costo))
-                            && (x.id_anio_fiscal == anio_Fiscal_anterior.id)                
+                            && (x.id_anio_fiscal == anio_Fiscal_anterior.id)
                         )
                         .ToList();
 
-               
 
-                var listadoPresente = db.view_valores_fiscal_year
-                     .Where(x =>
+
+                    listadoPresente = db.view_valores_fiscal_year
+                         .Where(x =>
+                                    (x.id_budget_plant == planta || planta == null)
+                                && (x.responsable.Contains(responsable) || String.IsNullOrEmpty(responsable))
+                                && (x.cost_center.Contains(centro_costo) || String.IsNullOrEmpty(centro_costo))
+                                && (x.id_anio_fiscal == anio_Fiscal_actual.id)
+                            )
+                         .ToList();
+
+                    listadoProximo = db.view_valores_fiscal_year
+                        .Where(x =>
+                                    (x.id_budget_plant == planta || planta == null)
+                                && (x.responsable.Contains(responsable) || String.IsNullOrEmpty(responsable))
+                                && (x.cost_center.Contains(centro_costo) || String.IsNullOrEmpty(centro_costo))
+                                && (x.id_anio_fiscal == anio_Fiscal_proximo.id)
+                            )
+                         .ToList();
+                }
+                else if (tipo_reporte == "budget")
+                {
+                   var listAnterior = db.view_valores_fiscal_year_budget_historico
+                        .Where(x =>
                                 (x.id_budget_plant == planta || planta == null)
                             && (x.responsable.Contains(responsable) || String.IsNullOrEmpty(responsable))
                             && (x.cost_center.Contains(centro_costo) || String.IsNullOrEmpty(centro_costo))
-                            && (x.id_anio_fiscal == anio_Fiscal_actual.id)
+                            && (x.id_anio_fiscal == anio_Fiscal_anterior.id)
                         )
-                     .ToList();
+                        .ToList();
 
-                var listadoProximo = db.view_valores_fiscal_year
-                    .Where(x =>
-                                (x.id_budget_plant == planta || planta == null)
-                            && (x.responsable.Contains(responsable) || String.IsNullOrEmpty(responsable))
-                            && (x.cost_center.Contains(centro_costo) || String.IsNullOrEmpty(centro_costo))
-                            && (x.id_anio_fiscal == anio_Fiscal_proximo.id)
-                        )
-                     .ToList();
+                    var listPresente = db.view_valores_fiscal_year_budget_historico
+                         .Where(x =>
+                                    (x.id_budget_plant == planta || planta == null)
+                                && (x.responsable.Contains(responsable) || String.IsNullOrEmpty(responsable))
+                                && (x.cost_center.Contains(centro_costo) || String.IsNullOrEmpty(centro_costo))
+                                && (x.id_anio_fiscal == anio_Fiscal_actual.id)
+                            )
+                         .ToList();
 
-                listadoAnterior = AgregaCuentasSAPConcentrado(listadoAnterior, anio_Fiscal_anterior.id,centro_costo,responsable, planta, soloCuentasActivas: false);
+                    var listProximo = db.view_valores_fiscal_year_budget_historico
+                        .Where(x =>
+                                    (x.id_budget_plant == planta || planta == null)
+                                && (x.responsable.Contains(responsable) || String.IsNullOrEmpty(responsable))
+                                && (x.cost_center.Contains(centro_costo) || String.IsNullOrEmpty(centro_costo))
+                                && (x.id_anio_fiscal == anio_Fiscal_proximo.id)
+                            )
+                         .ToList();
+
+                    //transforma de view_valores_fiscal_year_budget_historico a view_valores_fiscal_year
+                    listadoAnterior = ConvertToViewValoresFY(listAnterior);
+                    listadoPresente = ConvertToViewValoresFY(listPresente);
+                    listadoProximo = ConvertToViewValoresFY(listProximo);
+                }
+
+
+
+                listadoAnterior = AgregaCuentasSAPConcentrado(listadoAnterior, anio_Fiscal_anterior.id, centro_costo, responsable, planta, soloCuentasActivas: false);
                 listadoPresente = AgregaCuentasSAPConcentrado(listadoPresente, anio_Fiscal_actual.id, centro_costo, responsable, planta, soloCuentasActivas: false);
                 listadoProximo = AgregaCuentasSAPConcentrado(listadoProximo, anio_Fiscal_proximo.id, centro_costo, responsable, planta, soloCuentasActivas: false);
 
@@ -1165,14 +1210,14 @@ namespace Portal_2_0.Controllers
                 string fileName = "Concentrado";
                 var budget_planta = db.budget_plantas.Find(planta);
                 if (budget_planta != null)
-                    fileName += "_" + budget_planta.descripcion ;
-                if(!string.IsNullOrEmpty(responsable))
+                    fileName += "_" + budget_planta.descripcion;
+                if (!string.IsNullOrEmpty(responsable))
                     fileName += "_" + responsable;
 
                 var cd = new System.Net.Mime.ContentDisposition
                 {
                     // for example foo.bak
-                    FileName = fileName+ "_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+                    FileName = fileName + "_" + tipo_reporte + "_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
                     // always prompt the user for downloading, set to true if you want 
                     // the browser to try to show the file inline
 
@@ -1255,7 +1300,7 @@ namespace Portal_2_0.Controllers
 
 
         [NonAction]
-        public static List<view_valores_fiscal_year> AgregaCuentasSAPConcentrado(List<view_valores_fiscal_year> listValores, int id_anio_fiscal,string centro_costo,string responsable, int? planta, bool soloCuentasActivas = false)
+        public static List<view_valores_fiscal_year> AgregaCuentasSAPConcentrado(List<view_valores_fiscal_year> listValores, int id_anio_fiscal, string centro_costo, string responsable, int? planta, bool soloCuentasActivas = false)
         {
             Portal_2_0Entities db = new Portal_2_0Entities();
 
@@ -1269,12 +1314,12 @@ namespace Portal_2_0.Controllers
             string responsableTrim = responsable.Replace(" ", String.Empty);
 
             //obtiene todos los centros de costo
-            var centros = db.budget_centro_costo.Where(x=>(x.budget_departamentos.id_budget_planta == planta || planta == null)
+            var centros = db.budget_centro_costo.Where(x => (x.budget_departamentos.id_budget_planta == planta || planta == null)
                             && (x.num_centro_costo.Contains(centro_costo) || String.IsNullOrEmpty(centro_costo))
-                            && x.budget_responsables.Any(y => ((y.empleados.nombre)+(y.empleados.apellido1)+(y.empleados.apellido2)).Contains(responsableTrim))
+                            && x.budget_responsables.Any(y => ((y.empleados.nombre) + (y.empleados.apellido1) + (y.empleados.apellido2)).Replace(" ", String.Empty).Contains(responsableTrim))
                             );
 
-           // centros = centros.Where 
+            // centros = centros.Where 
 
             //Agrega cuentas vacias
             List<view_valores_fiscal_year> listViewCuentas = new List<view_valores_fiscal_year>();
@@ -1284,7 +1329,7 @@ namespace Portal_2_0.Controllers
 
                 foreach (budget_centro_costo c in centros)
                 {
-                    string resp= (string.Join("/", c.budget_responsables.Select(x => x.empleados.ConcatNombre).ToArray()));
+                    string resp = (string.Join("/", c.budget_responsables.Select(x => x.empleados.ConcatNombre).ToArray()));
 
                     //agragega un objeto de tipo view_valores_anio_fiscal por cada cuenta existente
                     listViewCuentas.Add(new view_valores_fiscal_year
@@ -1353,5 +1398,48 @@ namespace Portal_2_0.Controllers
             }
             base.Dispose(disposing);
         }
+
+        protected List<view_valores_fiscal_year> ConvertToViewValoresFY(List<view_valores_fiscal_year_budget_historico> listado) {
+            List<view_valores_fiscal_year> result = new List<view_valores_fiscal_year>();
+
+            foreach (view_valores_fiscal_year_budget_historico item in listado) {
+                result.Add(new view_valores_fiscal_year
+                {
+                    id = item.id,
+                    id_budget_rel_fy_centro = item.id_budget_rel_fy_centro,
+                    id_anio_fiscal = item.id_anio_fiscal,
+                    id_centro_costo = item.id_centro_costo,
+                    id_cuenta_sap = item.id_cuenta_sap,
+                    sap_account = item.sap_account,
+                    name = item.name,
+                    cost_center = item.cost_center,
+                    department = item.department,
+                    class_1 = item.class_1,
+                    class_2 = item.class_2,
+                    responsable = item.responsable,
+                    codigo_sap = item.codigo_sap,
+                    id_budget_plant = item.id_budget_plant,
+                    mapping = item.mapping,
+                    mapping_bridge = item.mapping_bridge,
+                    currency_iso = item.currency_iso,
+                    Enero = item.Enero,
+                    Febrero = item.Febrero,
+                    Marzo = item.Marzo,
+                    Abril = item.Abril,
+                    Mayo = item.Mayo,
+                    Junio = item.Junio,
+                    Julio = item.Julio,
+                    Agosto = item.Agosto,
+                    Septiembre = item.Septiembre,
+                    Octubre = item.Octubre,
+                    Noviembre = item.Noviembre,
+                    Diciembre = item.Diciembre,
+                    Comentario = item.Comentario,
+                });
+            }
+
+            return result;
+        }
+
     }
 }

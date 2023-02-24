@@ -63,7 +63,7 @@
     <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
 }
 
-
+@{Html.RenderPartial("_BlockUI", Model);}
 
 <div class="right_col" role="main">
     <div class="">
@@ -90,9 +90,9 @@
                                 <div class="card-box">
                                     <div class="form-group">
                                         @*<a href="@Url.Action("Create", ViewBag.ControllerName)" class="btn btn-success">
-                <i class="fa fa-plus-square"></i>
-                Crear nuevo
-            </a>*@
+                                                <i class="fa fa-plus-square"></i>
+                                                Crear nuevo
+                                            </a>*@
                                     </div>
 
 
@@ -237,64 +237,208 @@
                                                                                 @item.mapping_bridge
                                                                             </td>
                                                                             <td class="text_derecha">
-                                                                                @if (item.Octubre.HasValue)
-                                                                                {<span>$</span>}
-                                                                                @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Octubre)
+                                                                                <div class="item form-group">
+                                                                                    @{
+                                                                                        int sum = 10;
+                                                                                        decimal? mes = item.Octubre;
+                                                                                        string comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+                                                                                    }
+                                                                                    <span class="col-md-1">@(mes.HasValue?"$":string.Empty)</span>
+                                                                                    <span class="col-md-8">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", mes)</span>
+                                                                                    <span class="col-md-3" style="color:blue; font-size:large" data-toggle="tooltip" title="@comentario">
+                                                                                        @if (!String.IsNullOrEmpty(comentario))
+                                                                                        {
+                                                                                            <i class="fa-solid fa-comment"></i>
+                                                                                        }
+                                                                                    </span>
+                                                                                </div>
                                                                             </td>
                                                                             <td class="text_derecha">
-                                                                                @if (item.Noviembre.HasValue)
-                                                                                {<span>$</span>}
-                                                                                @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Noviembre)
+                                                                                <div class="item form-group">
+                                                                                    @{
+                                                                                        sum = 11;
+                                                                                        mes = item.Noviembre;
+                                                                                        comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+                                                                                    }
+                                                                                    <span class="col-md-1">@(mes.HasValue?"$":string.Empty)</span>
+                                                                                    <span class="col-md-8">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", mes)</span>
+                                                                                    <span class="col-md-3" style="color:blue; font-size:large" data-toggle="tooltip" title="@comentario">
+                                                                                        @if (!String.IsNullOrEmpty(comentario))
+                                                                                        {
+                                                                                            <i class="fa-solid fa-comment"></i>
+                                                                                        }
+                                                                                    </span>
+                                                                                </div>
                                                                             </td>
                                                                             <td class="text_derecha">
-                                                                                @if (item.Diciembre.HasValue)
-                                                                                {<span>$</span>}
-                                                                                @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Diciembre)
+                                                                                <div class="item form-group">
+                                                                                    @{
+                                                                                        sum = 12;
+                                                                                        mes = item.Diciembre;
+                                                                                        comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+                                                                                    }
+                                                                                    <span class="col-md-1">@(mes.HasValue?"$":string.Empty)</span>
+                                                                                    <span class="col-md-8">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", mes)</span>
+                                                                                    <span class="col-md-3" style="color:blue; font-size:large" data-toggle="tooltip" title="@comentario">
+                                                                                        @if (!String.IsNullOrEmpty(comentario))
+                                                                                        {
+                                                                                            <i class="fa-solid fa-comment"></i>
+                                                                                        }
+                                                                                    </span>
+                                                                                </div>
                                                                             </td>
                                                                             <td class="text_derecha">
-                                                                                @if (item.Enero.HasValue)
-                                                                                {<span>$</span>}
-                                                                                @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Enero)
+                                                                                <div class="item form-group">
+                                                                                    @{
+                                                                                        sum = 1;
+                                                                                        mes = item.Enero;
+                                                                                        comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+                                                                                    }
+                                                                                    <span class="col-md-1">@(mes.HasValue?"$":string.Empty)</span>
+                                                                                    <span class="col-md-8">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", mes)</span>
+                                                                                    <span class="col-md-3" style="color:blue; font-size:large" data-toggle="tooltip" title="@comentario">
+                                                                                        @if (!String.IsNullOrEmpty(comentario))
+                                                                                        {
+                                                                                            <i class="fa-solid fa-comment"></i>
+                                                                                        }
+                                                                                    </span>
+                                                                                </div>
                                                                             </td>
                                                                             <td class="text_derecha">
-                                                                                @if (item.Febrero.HasValue)
-                                                                                {<span>$</span>}
-                                                                                @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Febrero)
+                                                                                <div class="item form-group">
+                                                                                    @{
+                                                                                        sum = 2;
+                                                                                        mes = item.Febrero;
+                                                                                        comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+                                                                                    }
+                                                                                    <span class="col-md-1">@(mes.HasValue?"$":string.Empty)</span>
+                                                                                    <span class="col-md-8">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", mes)</span>
+                                                                                    <span class="col-md-3" style="color:blue; font-size:large" data-toggle="tooltip" title="@comentario">
+                                                                                        @if (!String.IsNullOrEmpty(comentario))
+                                                                                        {
+                                                                                            <i class="fa-solid fa-comment"></i>
+                                                                                        }
+                                                                                    </span>
+                                                                                </div>
                                                                             </td>
                                                                             <td class="text_derecha">
-                                                                                @if (item.Marzo.HasValue)
-                                                                                {<span>$</span>}
-                                                                                @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Marzo)
+                                                                                <div class="item form-group">
+                                                                                    @{
+                                                                                        sum = 3;
+                                                                                        mes = item.Marzo;
+                                                                                        comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+                                                                                    }
+                                                                                    <span class="col-md-1">@(mes.HasValue?"$":string.Empty)</span>
+                                                                                    <span class="col-md-8">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", mes)</span>
+                                                                                    <span class="col-md-3" style="color:blue; font-size:large" data-toggle="tooltip" title="@comentario">
+                                                                                        @if (!String.IsNullOrEmpty(comentario))
+                                                                                        {
+                                                                                            <i class="fa-solid fa-comment"></i>
+                                                                                        }
+                                                                                    </span>
+                                                                                </div>
                                                                             </td>
                                                                             <td class="text_derecha">
-                                                                                @if (item.Abril.HasValue)
-                                                                                {<span>$</span>}
-                                                                                @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Abril)
+                                                                                <div class="item form-group">
+                                                                                    @{
+                                                                                        sum = 4;
+                                                                                        mes = item.Abril;
+                                                                                        comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+                                                                                    }
+                                                                                    <span class="col-md-1">@(mes.HasValue?"$":string.Empty)</span>
+                                                                                    <span class="col-md-8">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", mes)</span>
+                                                                                    <span class="col-md-3" style="color:blue; font-size:large" data-toggle="tooltip" title="@comentario">
+                                                                                        @if (!String.IsNullOrEmpty(comentario))
+                                                                                        {
+                                                                                            <i class="fa-solid fa-comment"></i>
+                                                                                        }
+                                                                                    </span>
+                                                                                </div>
                                                                             </td>
                                                                             <td class="text_derecha">
-                                                                                @if (item.Mayo.HasValue)
-                                                                                {<span>$</span>}
-                                                                                @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Mayo)
+                                                                                <div class="item form-group">
+                                                                                    @{
+                                                                                        sum = 5;
+                                                                                        mes = item.Mayo;
+                                                                                        comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+                                                                                    }
+                                                                                    <span class="col-md-1">@(mes.HasValue?"$":string.Empty)</span>
+                                                                                    <span class="col-md-8">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", mes)</span>
+                                                                                    <span class="col-md-3" style="color:blue; font-size:large" data-toggle="tooltip" title="@comentario">
+                                                                                        @if (!String.IsNullOrEmpty(comentario))
+                                                                                        {
+                                                                                            <i class="fa-solid fa-comment"></i>
+                                                                                        }
+                                                                                    </span>
+                                                                                </div>
                                                                             </td>
                                                                             <td class="text_derecha">
-                                                                                @if (item.Junio.HasValue)
-                                                                                {<span>$</span>}
-                                                                                @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Junio)
+                                                                                <div class="item form-group">
+                                                                                    @{
+                                                                                        sum = 6;
+                                                                                        mes = item.Junio;
+                                                                                        comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+                                                                                    }
+                                                                                    <span class="col-md-1">@(mes.HasValue?"$":string.Empty)</span>
+                                                                                    <span class="col-md-8">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", mes)</span>
+                                                                                    <span class="col-md-3" style="color:blue; font-size:large" data-toggle="tooltip" title="@comentario">
+                                                                                        @if (!String.IsNullOrEmpty(comentario))
+                                                                                        {
+                                                                                            <i class="fa-solid fa-comment"></i>
+                                                                                        }
+                                                                                    </span>
+                                                                                </div>
                                                                             </td>
                                                                             <td class="text_derecha">
-                                                                                @if (item.Julio.HasValue)
-                                                                                {<span>$</span>}
-                                                                                @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Julio)
+                                                                                <div class="item form-group">
+                                                                                    @{
+                                                                                        sum = 7;
+                                                                                        mes = item.Julio;
+                                                                                        comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+                                                                                    }
+                                                                                    <span class="col-md-1">@(mes.HasValue?"$":string.Empty)</span>
+                                                                                    <span class="col-md-8">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", mes)</span>
+                                                                                    <span class="col-md-3" style="color:blue; font-size:large" data-toggle="tooltip" title="@comentario">
+                                                                                        @if (!String.IsNullOrEmpty(comentario))
+                                                                                        {
+                                                                                            <i class="fa-solid fa-comment"></i>
+                                                                                        }
+                                                                                    </span>
+                                                                                </div>
                                                                             </td>
                                                                             <td class="text_derecha">
-                                                                                @if (item.Agosto.HasValue)
-                                                                                {<span>$</span>}
-                                                                                @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Agosto)
+                                                                                <div class="item form-group">
+                                                                                    @{
+                                                                                        sum = 8;
+                                                                                        mes = item.Agosto;
+                                                                                        comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+                                                                                    }
+                                                                                    <span class="col-md-1">@(mes.HasValue?"$":string.Empty)</span>
+                                                                                    <span class="col-md-8">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", mes)</span>
+                                                                                    <span class="col-md-3" style="color:blue; font-size:large" data-toggle="tooltip" title="@comentario">
+                                                                                        @if (!String.IsNullOrEmpty(comentario))
+                                                                                        {
+                                                                                            <i class="fa-solid fa-comment"></i>
+                                                                                        }
+                                                                                    </span>
+                                                                                </div>
                                                                             </td>
                                                                             <td class="text_derecha">
-                                                                                @if (item.Septiembre.HasValue)
-                                                                                {<span>$</span>}
-                                                                                @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Septiembre)
+                                                                                <div class="item form-group">
+                                                                                    @{
+                                                                                        sum = 9;
+                                                                                        mes = item.Septiembre;
+                                                                                        comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+                                                                                    }
+                                                                                    <span class="col-md-1">@(mes.HasValue?"$":string.Empty)</span>
+                                                                                    <span class="col-md-8">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", mes)</span>
+                                                                                    <span class="col-md-3" style="color:blue; font-size:large" data-toggle="tooltip" title="@comentario">
+                                                                                        @if (!String.IsNullOrEmpty(comentario))
+                                                                                        {
+                                                                                            <i class="fa-solid fa-comment"></i>
+                                                                                        }
+                                                                                    </span>
+                                                                                </div>
                                                                             </td>
                                                                             <td class="text_derecha" style="background-color:#d4f2fc; font-weight: bold;">
                                                                                 $ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.TotalMeses().Value)
@@ -303,7 +447,6 @@
                                                                                 @item.Comentario
                                                                             </td>
                                                                         </tr>
-
                                                                         fila++;
                                                                     }
                                                                     <tr style="font-weight: bold;">
@@ -371,51 +514,51 @@
                                                                         <!-- MESES-->
                                                                         <th class="@(isActualOctubre ? "fondo_actual" : "fondo_forecast" )">
                                                                             @MesesUtil.OCTUBRE.Abreviation-@rel_presente.budget_anio_fiscal.anio_inicio.ToString().Substring(2, 2)
-                                                                            <span>&emsp;&emsp;&emsp;&emsp;&emsp;</span>
+                                                                            <span>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</span>
                                                                         </th>
                                                                         <th class="@(isActualNoviembre ? "fondo_actual" : "fondo_forecast" )">
                                                                             @MesesUtil.NOVIEMBRE.Abreviation-@rel_presente.budget_anio_fiscal.anio_inicio.ToString().Substring(2, 2)
-                                                                            <span>&emsp;&emsp;&emsp;&emsp;&emsp;</span>
+                                                                            <span>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</span>
                                                                         </th>
                                                                         <th class="@(isActualDiciembre ? "fondo_actual" : "fondo_forecast" )">
                                                                             @MesesUtil.DICIEMBRE.Abreviation-@rel_presente.budget_anio_fiscal.anio_inicio.ToString().Substring(2, 2)
-                                                                            <span>&emsp;&emsp;&emsp;&emsp;&emsp;</span>
+                                                                            <span>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</span>
                                                                         </th>
                                                                         <th class="@(isActualEnero ? "fondo_actual" : "fondo_forecast" )">
                                                                             @MesesUtil.ENERO.Abreviation-@rel_presente.budget_anio_fiscal.anio_fin.ToString().Substring(2, 2)
-                                                                            <span>&emsp;&emsp;&emsp;&emsp;&emsp;</span>
+                                                                            <span>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</span>
                                                                         </th>
                                                                         <th class="@(isActualFebrero ? "fondo_actual" : "fondo_forecast" )">
                                                                             @MesesUtil.FEBRERO.Abreviation-@rel_presente.budget_anio_fiscal.anio_fin.ToString().Substring(2, 2)
-                                                                            <span>&emsp;&emsp;&emsp;&emsp;&emsp;</span>
+                                                                            <span>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</span>
                                                                         </th>
                                                                         <th class="@(isActualMarzo ? "fondo_actual" : "fondo_forecast" )">
                                                                             @MesesUtil.MARZO.Abreviation-@rel_presente.budget_anio_fiscal.anio_fin.ToString().Substring(2, 2)
-                                                                            <span>&emsp;&emsp;&emsp;&emsp;&emsp;</span>
+                                                                            <span>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</span>
                                                                         </th>
                                                                         <th class="@(isActualAbril ? "fondo_actual" : "fondo_forecast" )">
                                                                             @MesesUtil.ABRIL.Abreviation-@rel_presente.budget_anio_fiscal.anio_fin.ToString().Substring(2, 2)
-                                                                            <span>&emsp;&emsp;&emsp;&emsp;&emsp;</span>
+                                                                            <span>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</span>
                                                                         </th>
                                                                         <th class="@(isActualMayo ? "fondo_actual" : "fondo_forecast" )">
                                                                             @MesesUtil.MAYO.Abreviation-@rel_presente.budget_anio_fiscal.anio_fin.ToString().Substring(2, 2)
-                                                                            <span>&emsp;&emsp;&emsp;&emsp;&emsp;</span>
+                                                                            <span>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</span>
                                                                         </th>
                                                                         <th class="@(isActualJunio ? "fondo_actual" : "fondo_forecast" )">
                                                                             @MesesUtil.JUNIO.Abreviation-@rel_presente.budget_anio_fiscal.anio_fin.ToString().Substring(2, 2)
-                                                                            <span>&emsp;&emsp;&emsp;&emsp;&emsp;</span>
+                                                                            <span>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</span>
                                                                         </th>
                                                                         <th class="@(isActualJulio ? "fondo_actual" : "fondo_forecast" )">
                                                                             @MesesUtil.JULIO.Abreviation-@rel_presente.budget_anio_fiscal.anio_fin.ToString().Substring(2, 2)
-                                                                            <span>&emsp;&emsp;&emsp;&emsp;&emsp;</span>
+                                                                            <span>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</span>
                                                                         </th>
                                                                         <th class="@(isActualAgosto ? "fondo_actual" : "fondo_forecast" )">
                                                                             @MesesUtil.AGOSTO.Abreviation-@rel_presente.budget_anio_fiscal.anio_fin.ToString().Substring(2, 2)
-                                                                            <span>&emsp;&emsp;&emsp;&emsp;&emsp;</span>
+                                                                            <span>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</span>
                                                                         </th>
                                                                         <th class="@(isActualSeptiembre ? "fondo_actual" : "fondo_forecast" )">
                                                                             @MesesUtil.SEPTIEMBRE.Abreviation-@rel_presente.budget_anio_fiscal.anio_fin.ToString().Substring(2, 2)
-                                                                            <span>&emsp;&emsp;&emsp;&emsp;&emsp;</span>
+                                                                            <span>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</span>
                                                                         </th>
                                                                         <th>
                                                                             Totals
@@ -434,7 +577,7 @@
                                                                             <td>
                                                                                 @fila
                                                                             </td>
-                                                                            <td>
+                                                                            <td style="font-weight:bold">
                                                                                 @item.sap_account
                                                                             </td>
                                                                             <td>
@@ -444,92 +587,252 @@
                                                                                 @item.mapping_bridge
                                                                             </td>
                                                                             <td class="text_derecha">
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 10)].id_cuenta_sap" name="budget_valores[@((fila * 12) + 10)].id_cuenta_sap" value="@item.id_cuenta_sap" />
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 10)].mes" name="budget_valores[@((fila * 12) + 10)].mes" value="10" />
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 10)].currency_iso" name="budget_valores[@((fila * 12) + 10)].currency_iso" value="USD" />
-                                                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + 10)].cantidad" id="budget_valores[@((fila * 12) + 10)].cantidad" class="form-control col-md-12 cantidad" data-fila="@fila" data-columna="10" value="@item.Octubre" autocomplete="off" )>
-                                                                                <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + 10)].cantidad" data-valmsg-replace="true"></span>
+
+                                                                                @{
+                                                                                    int sum = 10;
+                                                                                    decimal? mes = item.Octubre;
+                                                                                    string comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+
+                                                                                }
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].id_cuenta_sap" name="budget_valores[@((fila * 12) + sum)].id_cuenta_sap" value="@item.id_cuenta_sap" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].mes" name="budget_valores[@((fila * 12) + sum)].mes" value="@sum" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].currency_iso" name="budget_valores[@((fila * 12) + sum)].currency_iso" value="USD" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].comentario" name="budget_valores[@((fila * 12) + sum)].comentario" value="@comentario" />
+                                                                                <div class="item form-group">
+                                                                                    <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + sum)].cantidad" id="budget_valores[@((fila * 12) + sum)].cantidad" class="form-control col-md-8 cantidad" data-fila="@fila" data-columna="@sum" value="@mes" autocomplete="off" @(rel_presente.estatus == false ? "readonly='readonly'" : "" )>
+                                                                                    <button id="btn-comentario-@((fila * 12) + sum)" type="button" onclick="MuestraComentario(@((fila * 12) + sum)); return;" class="btn btn-sm col-md-4 col-sm-4 float-lg-right @(String.IsNullOrEmpty(comentario)?"btn-success":"btn-warning")"
+                                                                                            data-toggle="tooltip" title="@comentario">
+                                                                                        <i class="fa-regular fa-comment"></i>
+                                                                                    </button>
+                                                                                    <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + sum)].cantidad" data-valmsg-replace="true"></span>
+                                                                                </div>
 
                                                                             </td>
                                                                             <td class="text_derecha">
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 11)].id_cuenta_sap" name="budget_valores[@((fila * 12) + 11)].id_cuenta_sap" value="@item.id_cuenta_sap" />
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 11)].mes" name="budget_valores[@((fila * 12) + 11)].mes" value="11" />
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 11)].currency_iso" name="budget_valores[@((fila * 12) + 11)].currency_iso" value="USD" />
-                                                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + 11)].cantidad" id="budget_valores[@((fila * 12) + 11)].cantidad" class="form-control col-md-12 cantidad " data-fila="@fila" data-columna="11" value="@item.Noviembre" autocomplete="off" )>
-                                                                                <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + 11)].cantidad" data-valmsg-replace="true"></span>
+
+                                                                                @{
+                                                                                    sum = 11;
+                                                                                    mes = item.Noviembre;
+                                                                                    comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+
+                                                                                }
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].id_cuenta_sap" name="budget_valores[@((fila * 12) + sum)].id_cuenta_sap" value="@item.id_cuenta_sap" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].mes" name="budget_valores[@((fila * 12) + sum)].mes" value="@sum" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].currency_iso" name="budget_valores[@((fila * 12) + sum)].currency_iso" value="USD" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].comentario" name="budget_valores[@((fila * 12) + sum)].comentario" value="@comentario" />
+                                                                                <div class="item form-group">
+                                                                                    <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + sum)].cantidad" id="budget_valores[@((fila * 12) + sum)].cantidad" class="form-control col-md-8 cantidad" data-fila="@fila" data-columna="@sum" value="@mes" autocomplete="off" @(rel_presente.estatus == false ? "readonly='readonly'" : "" )>
+                                                                                    <button id="btn-comentario-@((fila * 12) + sum)" type="button" onclick="MuestraComentario(@((fila * 12) + sum)); return;" class="btn btn-sm col-md-4 col-sm-4 float-lg-right @(String.IsNullOrEmpty(comentario)?"btn-success":"btn-warning")"
+                                                                                            data-toggle="tooltip" title="@comentario">
+                                                                                        <i class="fa-regular fa-comment"></i>
+                                                                                    </button>
+                                                                                    <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + sum)].cantidad" data-valmsg-replace="true"></span>
+                                                                                </div>
 
                                                                             </td>
                                                                             <td class="text_derecha">
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 12)].id_cuenta_sap" name="budget_valores[@((fila * 12) + 12)].id_cuenta_sap" value="@item.id_cuenta_sap" />
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 12)].mes" name="budget_valores[@((fila * 12) + 12)].mes" value="12" />
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 12)].currency_iso" name="budget_valores[@((fila * 12) + 12)].currency_iso" value="USD" />
-                                                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + 12)].cantidad" id="budget_valores[@((fila * 12) + 12)].cantidad" class="form-control col-md-12 cantidad " data-fila="@fila" data-columna="12" value="@item.Diciembre" autocomplete="off" )>
-                                                                                <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + 12)].cantidad" data-valmsg-replace="true"></span>
+
+                                                                                @{
+                                                                                    sum = 12;
+                                                                                    mes = item.Diciembre;
+                                                                                    comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+
+                                                                                }
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].id_cuenta_sap" name="budget_valores[@((fila * 12) + sum)].id_cuenta_sap" value="@item.id_cuenta_sap" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].mes" name="budget_valores[@((fila * 12) + sum)].mes" value="@sum" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].currency_iso" name="budget_valores[@((fila * 12) + sum)].currency_iso" value="USD" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].comentario" name="budget_valores[@((fila * 12) + sum)].comentario" value="@comentario" />
+                                                                                <div class="item form-group">
+                                                                                    <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + sum)].cantidad" id="budget_valores[@((fila * 12) + sum)].cantidad" class="form-control col-md-8 cantidad" data-fila="@fila" data-columna="@sum" value="@mes" autocomplete="off" @(rel_presente.estatus == false ? "readonly='readonly'" : "" )>
+                                                                                    <button id="btn-comentario-@((fila * 12) + sum)" type="button" onclick="MuestraComentario(@((fila * 12) + sum)); return;" class="btn btn-sm col-md-4 col-sm-4 float-lg-right @(String.IsNullOrEmpty(comentario)?"btn-success":"btn-warning")"
+                                                                                            data-toggle="tooltip" title="@comentario">
+                                                                                        <i class="fa-regular fa-comment"></i>
+                                                                                    </button>
+                                                                                    <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + sum)].cantidad" data-valmsg-replace="true"></span>
+                                                                                </div>
+                                                                            </td>
+                                                                            <td class="text_derecha">
+                                                                                @{
+                                                                                    sum = 1;
+                                                                                    mes = item.Enero;
+                                                                                    comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+
+                                                                                }
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].id_cuenta_sap" name="budget_valores[@((fila * 12) + sum)].id_cuenta_sap" value="@item.id_cuenta_sap" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].mes" name="budget_valores[@((fila * 12) + sum)].mes" value="@sum" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].currency_iso" name="budget_valores[@((fila * 12) + sum)].currency_iso" value="USD" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].comentario" name="budget_valores[@((fila * 12) + sum)].comentario" value="@comentario" />
+                                                                                <div class="item form-group">
+                                                                                    <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + sum)].cantidad" id="budget_valores[@((fila * 12) + sum)].cantidad" class="form-control col-md-8 cantidad" data-fila="@fila" data-columna="@sum" value="@mes" autocomplete="off" @(rel_presente.estatus == false ? "readonly='readonly'" : "" )>
+                                                                                    <button id="btn-comentario-@((fila * 12) + sum)" type="button" onclick="MuestraComentario(@((fila * 12) + sum)); return;" class="btn btn-sm col-md-4 col-sm-4 float-lg-right @(String.IsNullOrEmpty(comentario)?"btn-success":"btn-warning")"
+                                                                                            data-toggle="tooltip" title="@comentario">
+                                                                                        <i class="fa-regular fa-comment"></i>
+                                                                                    </button>
+                                                                                    <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + sum)].cantidad" data-valmsg-replace="true"></span>
+                                                                                </div>
 
                                                                             </td>
                                                                             <td class="text_derecha">
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 1)].id_cuenta_sap" name="budget_valores[@((fila * 12) + 1)].id_cuenta_sap" value="@item.id_cuenta_sap" />
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 1)].mes" name="budget_valores[@((fila * 12) + 1)].mes" value="1" />
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 1)].currency_iso" name="budget_valores[@((fila * 12) + 1)].currency_iso" value="USD" />
-                                                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + 1)].cantidad" id="budget_valores[@((fila * 12) + 1)].cantidad" class="form-control col-md-12 cantidad" data-fila="@fila" data-columna="1" value="@item.Enero" autocomplete="off" )>
-                                                                                <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + 1)].cantidad" data-valmsg-replace="true"></span>
-                                                                            </td>
-                                                                            <td class="text_derecha">
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 2)].id_cuenta_sap" name="budget_valores[@((fila * 12) + 2)].id_cuenta_sap" value="@item.id_cuenta_sap" />
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 2)].mes" name="budget_valores[@((fila * 12) + 2)].mes" value="2" />
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 2)].currency_iso" name="budget_valores[@((fila * 12) + 2)].currency_iso" value="USD" />
-                                                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + 2)].cantidad" id="budget_valores[@((fila * 12) + 2)].cantidad" class="form-control col-md-12 cantidad" data-fila="@fila" data-columna="2" value="@item.Febrero" autocomplete="off">
-                                                                                <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + 2)].cantidad" data-valmsg-replace="true"></span>
-                                                                            </td>
-                                                                            <td class="text_derecha">
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 3)].id_cuenta_sap" name="budget_valores[@((fila * 12) + 3)].id_cuenta_sap" value="@item.id_cuenta_sap" />
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 3)].mes" name="budget_valores[@((fila * 12) + 3)].mes" value="3" />
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 3)].currency_iso" name="budget_valores[@((fila * 12) + 3)].currency_iso" value="USD" />
-                                                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + 3)].cantidad" id="budget_valores[@((fila * 12) + 3)].cantidad" class="form-control col-md-12 cantidad " data-fila="@fila" data-columna="3" value="@item.Marzo" autocomplete="off">
-                                                                                <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + 3)].cantidad" data-valmsg-replace="true"></span>
-                                                                            </td>
-                                                                            <td class="text_derecha">
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 4)].id_cuenta_sap" name="budget_valores[@((fila * 12) + 4)].id_cuenta_sap" value="@item.id_cuenta_sap" />
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 4)].mes" name="budget_valores[@((fila * 12) + 4)].mes" value="4" />
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 4)].currency_iso" name="budget_valores[@((fila * 12) + 4)].currency_iso" value="USD" />
-                                                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + 4)].cantidad" id="budget_valores[@((fila * 12) + 4)].cantidad" class="form-control col-md-12 cantidad" data-fila="@fila" data-columna="4" value="@item.Abril" autocomplete="off">
-                                                                                <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + 4)].cantidad" data-valmsg-replace="true"></span>
-                                                                            </td>
-                                                                            <td class="text_derecha">
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 5)].id_cuenta_sap" name="budget_valores[@((fila * 12) + 5)].id_cuenta_sap" value="@item.id_cuenta_sap" />
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 5)].mes" name="budget_valores[@((fila * 12) + 5)].mes" value="5" />
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 5)].currency_iso" name="budget_valores[@((fila * 12) + 5)].currency_iso" value="USD" />
-                                                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + 5)].cantidad" id="budget_valores[@((fila * 12) + 5)].cantidad" class="form-control col-md-12 cantidad " data-fila="@fila" data-columna="5" value="@item.Mayo" autocomplete="off">
-                                                                                <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + 5)].cantidad" data-valmsg-replace="true"></span>
-                                                                            </td>
-                                                                            <td class="text_derecha">
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 6)].id_cuenta_sap" name="budget_valores[@((fila * 12) + 6)].id_cuenta_sap" value="@item.id_cuenta_sap" />
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 6)].mes" name="budget_valores[@((fila * 12) + 6)].mes" value="6" />
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 6)].currency_iso" name="budget_valores[@((fila * 12) + 6)].currency_iso" value="USD" />
-                                                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + 6)].cantidad" id="budget_valores[@((fila * 12) + 6)].cantidad" class="form-control col-md-12 cantidad" data-fila="@fila" data-columna="6" value="@item.Junio" autocomplete="off">
-                                                                                <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + 6)].cantidad" data-valmsg-replace="true"></span>
-                                                                            </td>
-                                                                            <td class="text_derecha">
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 7)].id_cuenta_sap" name="budget_valores[@((fila * 12) + 7)].id_cuenta_sap" value="@item.id_cuenta_sap" />
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 7)].mes" name="budget_valores[@((fila * 12) + 7)].mes" value="7" />
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 7)].currency_iso" name="budget_valores[@((fila * 12) + 7)].currency_iso" value="USD" />
-                                                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + 7)].cantidad" id="budget_valores[@((fila * 12) + 7)].cantidad" class="form-control col-md-12 cantidad " data-fila="@fila" data-columna="7" value="@item.Julio" autocomplete="off">
-                                                                                <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + 7)].cantidad" data-valmsg-replace="true"></span>
-                                                                            </td>
-                                                                            <td class="text_derecha">
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 8)].id_cuenta_sap" name="budget_valores[@((fila * 12) + 8)].id_cuenta_sap" value="@item.id_cuenta_sap" />
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 8)].mes" name="budget_valores[@((fila * 12) + 8)].mes" value="8" />
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 8)].currency_iso" name="budget_valores[@((fila * 12) + 8)].currency_iso" value="USD" />
-                                                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + 8)].cantidad" id="budget_valores[@((fila * 12) + 8)].cantidad" class="form-control col-md-12 cantidad " data-fila="@fila" data-columna="8" value="@item.Agosto" autocomplete="off">
-                                                                                <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + 8)].cantidad" data-valmsg-replace="true"></span>
-                                                                            </td>
-                                                                            <td class="text_derecha">
+                                                                                @{
+                                                                                    sum = 2;
+                                                                                    mes = item.Febrero;
+                                                                                    comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
 
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 9)].id_cuenta_sap" name="budget_valores[@((fila * 12) + 9)].id_cuenta_sap" value="@item.id_cuenta_sap" />
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 9)].mes" name="budget_valores[@((fila * 12) + 9)].mes" value="9" />
-                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + 9)].currency_iso" name="budget_valores[@((fila * 12) + 9)].currency_iso" value="USD" />
-                                                                                <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + 9)].cantidad" id="budget_valores[@((fila * 12) + 9)].cantidad" class="form-control col-md-12 cantidad" data-fila="@fila" data-columna="9" value="@item.Septiembre" autocomplete="off">
-                                                                                <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + 9)].cantidad" data-valmsg-replace="true"></span>
+                                                                                }
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].id_cuenta_sap" name="budget_valores[@((fila * 12) + sum)].id_cuenta_sap" value="@item.id_cuenta_sap" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].mes" name="budget_valores[@((fila * 12) + sum)].mes" value="@sum" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].currency_iso" name="budget_valores[@((fila * 12) + sum)].currency_iso" value="USD" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].comentario" name="budget_valores[@((fila * 12) + sum)].comentario" value="@comentario" />
+                                                                                <div class="item form-group">
+                                                                                    <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + sum)].cantidad" id="budget_valores[@((fila * 12) + sum)].cantidad" class="form-control col-md-8 cantidad" data-fila="@fila" data-columna="@sum" value="@mes" autocomplete="off" @(rel_presente.estatus == false ? "readonly='readonly'" : "" )>
+                                                                                    <button id="btn-comentario-@((fila * 12) + sum)" type="button" onclick="MuestraComentario(@((fila * 12) + sum)); return;" class="btn btn-sm col-md-4 col-sm-4 float-lg-right @(String.IsNullOrEmpty(comentario)?"btn-success":"btn-warning")"
+                                                                                            data-toggle="tooltip" title="@comentario">
+                                                                                        <i class="fa-regular fa-comment"></i>
+                                                                                    </button>
+                                                                                    <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + sum)].cantidad" data-valmsg-replace="true"></span>
+                                                                                </div>
+                                                                            </td>
+                                                                            <td class="text_derecha">
+                                                                                @{
+                                                                                    sum = 3;
+                                                                                    mes = item.Marzo;
+                                                                                    comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+
+                                                                                }
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].id_cuenta_sap" name="budget_valores[@((fila * 12) + sum)].id_cuenta_sap" value="@item.id_cuenta_sap" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].mes" name="budget_valores[@((fila * 12) + sum)].mes" value="@sum" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].currency_iso" name="budget_valores[@((fila * 12) + sum)].currency_iso" value="USD" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].comentario" name="budget_valores[@((fila * 12) + sum)].comentario" value="@comentario" />
+                                                                                <div class="item form-group">
+                                                                                    <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + sum)].cantidad" id="budget_valores[@((fila * 12) + sum)].cantidad" class="form-control col-md-8 cantidad" data-fila="@fila" data-columna="@sum" value="@mes" autocomplete="off" @(rel_presente.estatus == false ? "readonly='readonly'" : "" )>
+                                                                                    <button id="btn-comentario-@((fila * 12) + sum)" type="button" onclick="MuestraComentario(@((fila * 12) + sum)); return;" class="btn btn-sm col-md-4 col-sm-4 float-lg-right @(String.IsNullOrEmpty(comentario)?"btn-success":"btn-warning")"
+                                                                                            data-toggle="tooltip" title="@comentario">
+                                                                                        <i class="fa-regular fa-comment"></i>
+                                                                                    </button>
+                                                                                    <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + sum)].cantidad" data-valmsg-replace="true"></span>
+                                                                                </div>
+
+                                                                            </td>
+                                                                            <td class="text_derecha">
+                                                                                @{
+                                                                                    sum = 4;
+                                                                                    mes = item.Abril;
+                                                                                    comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+
+                                                                                }
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].id_cuenta_sap" name="budget_valores[@((fila * 12) + sum)].id_cuenta_sap" value="@item.id_cuenta_sap" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].mes" name="budget_valores[@((fila * 12) + sum)].mes" value="@sum" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].currency_iso" name="budget_valores[@((fila * 12) + sum)].currency_iso" value="USD" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].comentario" name="budget_valores[@((fila * 12) + sum)].comentario" value="@comentario" />
+                                                                                <div class="item form-group">
+                                                                                    <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + sum)].cantidad" id="budget_valores[@((fila * 12) + sum)].cantidad" class="form-control col-md-8 cantidad" data-fila="@fila" data-columna="@sum" value="@mes" autocomplete="off" @(rel_presente.estatus == false ? "readonly='readonly'" : "" )>
+                                                                                    <button id="btn-comentario-@((fila * 12) + sum)" type="button" onclick="MuestraComentario(@((fila * 12) + sum)); return;" class="btn btn-sm col-md-4 col-sm-4 float-lg-right @(String.IsNullOrEmpty(comentario)?"btn-success":"btn-warning")"
+                                                                                            data-toggle="tooltip" title="@comentario">
+                                                                                        <i class="fa-regular fa-comment"></i>
+                                                                                    </button>
+                                                                                    <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + sum)].cantidad" data-valmsg-replace="true"></span>
+                                                                                </div>
+                                                                            </td>
+                                                                            <td class="text_derecha">
+                                                                                @{
+                                                                                    sum = 5;
+                                                                                    mes = item.Mayo;
+                                                                                    comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+
+                                                                                }
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].id_cuenta_sap" name="budget_valores[@((fila * 12) + sum)].id_cuenta_sap" value="@item.id_cuenta_sap" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].mes" name="budget_valores[@((fila * 12) + sum)].mes" value="@sum" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].currency_iso" name="budget_valores[@((fila * 12) + sum)].currency_iso" value="USD" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].comentario" name="budget_valores[@((fila * 12) + sum)].comentario" value="@comentario" />
+                                                                                <div class="item form-group">
+                                                                                    <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + sum)].cantidad" id="budget_valores[@((fila * 12) + sum)].cantidad" class="form-control col-md-8 cantidad" data-fila="@fila" data-columna="@sum" value="@mes" autocomplete="off" @(rel_presente.estatus == false ? "readonly='readonly'" : "" )>
+                                                                                    <button id="btn-comentario-@((fila * 12) + sum)" type="button" onclick="MuestraComentario(@((fila * 12) + sum)); return;" class="btn btn-sm col-md-4 col-sm-4 float-lg-right @(String.IsNullOrEmpty(comentario)?"btn-success":"btn-warning")"
+                                                                                            data-toggle="tooltip" title="@comentario">
+                                                                                        <i class="fa-regular fa-comment"></i>
+                                                                                    </button>
+                                                                                    <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + sum)].cantidad" data-valmsg-replace="true"></span>
+                                                                                </div>
+                                                                            </td>
+                                                                            <td class="text_derecha">
+                                                                                @{
+                                                                                    sum = 6;
+                                                                                    mes = item.Junio;
+                                                                                    comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+
+                                                                                }
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].id_cuenta_sap" name="budget_valores[@((fila * 12) + sum)].id_cuenta_sap" value="@item.id_cuenta_sap" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].mes" name="budget_valores[@((fila * 12) + sum)].mes" value="@sum" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].currency_iso" name="budget_valores[@((fila * 12) + sum)].currency_iso" value="USD" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].comentario" name="budget_valores[@((fila * 12) + sum)].comentario" value="@comentario" />
+                                                                                <div class="item form-group">
+                                                                                    <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + sum)].cantidad" id="budget_valores[@((fila * 12) + sum)].cantidad" class="form-control col-md-8 cantidad" data-fila="@fila" data-columna="@sum" value="@mes" autocomplete="off" @(rel_presente.estatus == false ? "readonly='readonly'" : "" )>
+                                                                                    <button id="btn-comentario-@((fila * 12) + sum)" type="button" onclick="MuestraComentario(@((fila * 12) + sum)); return;" class="btn btn-sm col-md-4 col-sm-4 float-lg-right @(String.IsNullOrEmpty(comentario)?"btn-success":"btn-warning")"
+                                                                                            data-toggle="tooltip" title="@comentario">
+                                                                                        <i class="fa-regular fa-comment"></i>
+                                                                                    </button>
+                                                                                    <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + sum)].cantidad" data-valmsg-replace="true"></span>
+                                                                                </div>
+                                                                            </td>
+                                                                            <td class="text_derecha">
+                                                                                @{
+                                                                                    sum = 7;
+                                                                                    mes = item.Julio;
+                                                                                    comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+
+                                                                                }
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].id_cuenta_sap" name="budget_valores[@((fila * 12) + sum)].id_cuenta_sap" value="@item.id_cuenta_sap" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].mes" name="budget_valores[@((fila * 12) + sum)].mes" value="@sum" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].currency_iso" name="budget_valores[@((fila * 12) + sum)].currency_iso" value="USD" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].comentario" name="budget_valores[@((fila * 12) + sum)].comentario" value="@comentario" />
+                                                                                <div class="item form-group">
+                                                                                    <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + sum)].cantidad" id="budget_valores[@((fila * 12) + sum)].cantidad" class="form-control col-md-8 cantidad" data-fila="@fila" data-columna="@sum" value="@mes" autocomplete="off" @(rel_presente.estatus == false ? "readonly='readonly'" : "" )>
+                                                                                    <button id="btn-comentario-@((fila * 12) + sum)" type="button" onclick="MuestraComentario(@((fila * 12) + sum)); return;" class="btn btn-sm col-md-4 col-sm-4 float-lg-right @(String.IsNullOrEmpty(comentario)?"btn-success":"btn-warning")"
+                                                                                            data-toggle="tooltip" title="@comentario">
+                                                                                        <i class="fa-regular fa-comment"></i>
+                                                                                    </button>
+                                                                                    <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + sum)].cantidad" data-valmsg-replace="true"></span>
+                                                                                </div>
+                                                                            </td>
+                                                                            <td class="text_derecha">
+                                                                                @{
+                                                                                    sum = 8;
+                                                                                    mes = item.Agosto;
+                                                                                    comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+
+                                                                                }
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].id_cuenta_sap" name="budget_valores[@((fila * 12) + sum)].id_cuenta_sap" value="@item.id_cuenta_sap" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].mes" name="budget_valores[@((fila * 12) + sum)].mes" value="@sum" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].currency_iso" name="budget_valores[@((fila * 12) + sum)].currency_iso" value="USD" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].comentario" name="budget_valores[@((fila * 12) + sum)].comentario" value="@comentario" />
+                                                                                <div class="item form-group">
+                                                                                    <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + sum)].cantidad" id="budget_valores[@((fila * 12) + sum)].cantidad" class="form-control col-md-8 cantidad" data-fila="@fila" data-columna="@sum" value="@mes" autocomplete="off" @(rel_presente.estatus == false ? "readonly='readonly'" : "" )>
+                                                                                    <button id="btn-comentario-@((fila * 12) + sum)" type="button" onclick="MuestraComentario(@((fila * 12) + sum)); return;" class="btn btn-sm col-md-4 col-sm-4 float-lg-right @(String.IsNullOrEmpty(comentario)?"btn-success":"btn-warning")"
+                                                                                            data-toggle="tooltip" title="@comentario">
+                                                                                        <i class="fa-regular fa-comment"></i>
+                                                                                    </button>
+                                                                                    <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + sum)].cantidad" data-valmsg-replace="true"></span>
+                                                                                </div>
+
+                                                                            </td>
+                                                                            <td class="text_derecha">
+                                                                                @{
+                                                                                    sum = 9;
+                                                                                    mes = item.Septiembre;
+                                                                                    comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+
+                                                                                }
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].id_cuenta_sap" name="budget_valores[@((fila * 12) + sum)].id_cuenta_sap" value="@item.id_cuenta_sap" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].mes" name="budget_valores[@((fila * 12) + sum)].mes" value="@sum" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].currency_iso" name="budget_valores[@((fila * 12) + sum)].currency_iso" value="USD" />
+                                                                                <input type="hidden" id="budget_valores[@((fila * 12) + sum)].comentario" name="budget_valores[@((fila * 12) + sum)].comentario" value="@comentario" />
+                                                                                <div class="item form-group">
+                                                                                    <input style="text-align:right; font-size: 12px;" type="number" step="0.01" name="budget_valores[@((fila * 12) + sum)].cantidad" id="budget_valores[@((fila * 12) + sum)].cantidad" class="form-control col-md-8 cantidad" data-fila="@fila" data-columna="@sum" value="@mes" autocomplete="off" @(rel_presente.estatus == false ? "readonly='readonly'" : "" )>
+                                                                                    <button id="btn-comentario-@((fila * 12) + sum)" type="button" onclick="MuestraComentario(@((fila * 12) + sum)); return;" class="btn btn-sm col-md-4 col-sm-4 float-lg-right @(String.IsNullOrEmpty(comentario)?"btn-success":"btn-warning")"
+                                                                                            data-toggle="tooltip" title="@comentario">
+                                                                                        <i class="fa-regular fa-comment"></i>
+                                                                                    </button>
+                                                                                    <span class="field-validation-valid text-danger col-md-12" data-valmsg-for="budget_valores[@((fila * 12) + sum)].cantidad" data-valmsg-replace="true"></span>
+                                                                                </div>
 
                                                                             </td>
                                                                             <td class="text_derecha" style="background-color:#d4f2fc; font-weight: bold;">
@@ -544,6 +847,7 @@
                                                                                 <textarea style="font-size: 12px;" type="text" name="budget_rel_comentarios[@fila].comentario" id="budget_rel_comentarios[@fila].comentario" class="form-control col-md-12" autocomplete="off" maxlength="100">@item.Comentario</textarea>
                                                                                 <span class="field-validation-valid text-danger" data-valmsg-for="budget_rel_comentarios[@fila].comentario" data-valmsg-replace="true"></span>
                                                                             </td>
+
                                                                         </tr>
                                                                         sumafila = 0;
 
@@ -581,7 +885,7 @@
                                                         <div class="item form-group">
 
                                                             <div class="col-md-12 col-sm-12 offset-md-12">
-                                                                <button type="submit" class="btn btn-success btn-lg float-lg-right"> <i class="fa-regular fa-floppy-disk"></i>&nbsp;Guardar</button>
+                                                                <button type="submit" class="btn btn-success btn-lg float-lg-right"> <i class="fa-regular fa-floppy-disk"></i> &nbsp;Guardar</button>
                                                             </div>
 
                                                         </div>
@@ -669,64 +973,208 @@
                                                                                 @item.mapping_bridge
                                                                             </td>
                                                                             <td class="text_derecha">
-                                                                                @if (item.Octubre.HasValue)
-                                                                                {<span>$</span>}
-                                                                                @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Octubre)
+                                                                                <div class="item form-group">
+                                                                                    @{
+                                                                                        int sum = 10;
+                                                                                        decimal? mes = item.Octubre;
+                                                                                        string comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+                                                                                    }
+                                                                                    <span class="col-md-1">@(mes.HasValue?"$":string.Empty)</span>
+                                                                                    <span class="col-md-8">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", mes)</span>
+                                                                                    <span class="col-md-3" style="color:blue; font-size:large" data-toggle="tooltip" title="@comentario">
+                                                                                        @if (!String.IsNullOrEmpty(comentario))
+                                                                                        {
+                                                                                            <i class="fa-solid fa-comment"></i>
+                                                                                        }
+                                                                                    </span>
+                                                                                </div>
                                                                             </td>
                                                                             <td class="text_derecha">
-                                                                                @if (item.Noviembre.HasValue)
-                                                                                {<span>$</span>}
-                                                                                @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Noviembre)
+                                                                                <div class="item form-group">
+                                                                                    @{
+                                                                                        sum = 11;
+                                                                                        mes = item.Noviembre;
+                                                                                        comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+                                                                                    }
+                                                                                    <span class="col-md-1">@(mes.HasValue?"$":string.Empty)</span>
+                                                                                    <span class="col-md-8">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", mes)</span>
+                                                                                    <span class="col-md-3" style="color:blue; font-size:large" data-toggle="tooltip" title="@comentario">
+                                                                                        @if (!String.IsNullOrEmpty(comentario))
+                                                                                        {
+                                                                                            <i class="fa-solid fa-comment"></i>
+                                                                                        }
+                                                                                    </span>
+                                                                                </div>
                                                                             </td>
                                                                             <td class="text_derecha">
-                                                                                @if (item.Diciembre.HasValue)
-                                                                                {<span>$</span>}
-                                                                                @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Diciembre)
+                                                                                <div class="item form-group">
+                                                                                    @{
+                                                                                        sum = 12;
+                                                                                        mes = item.Diciembre;
+                                                                                        comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+                                                                                    }
+                                                                                    <span class="col-md-1">@(mes.HasValue?"$":string.Empty)</span>
+                                                                                    <span class="col-md-8">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", mes)</span>
+                                                                                    <span class="col-md-3" style="color:blue; font-size:large" data-toggle="tooltip" title="@comentario">
+                                                                                        @if (!String.IsNullOrEmpty(comentario))
+                                                                                        {
+                                                                                            <i class="fa-solid fa-comment"></i>
+                                                                                        }
+                                                                                    </span>
+                                                                                </div>
                                                                             </td>
                                                                             <td class="text_derecha">
-                                                                                @if (item.Enero.HasValue)
-                                                                                {<span>$</span>}
-                                                                                @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Enero)
+                                                                                <div class="item form-group">
+                                                                                    @{
+                                                                                        sum = 1;
+                                                                                        mes = item.Enero;
+                                                                                        comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+                                                                                    }
+                                                                                    <span class="col-md-1">@(mes.HasValue?"$":string.Empty)</span>
+                                                                                    <span class="col-md-8">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", mes)</span>
+                                                                                    <span class="col-md-3" style="color:blue; font-size:large" data-toggle="tooltip" title="@comentario">
+                                                                                        @if (!String.IsNullOrEmpty(comentario))
+                                                                                        {
+                                                                                            <i class="fa-solid fa-comment"></i>
+                                                                                        }
+                                                                                    </span>
+                                                                                </div>
                                                                             </td>
                                                                             <td class="text_derecha">
-                                                                                @if (item.Febrero.HasValue)
-                                                                                {<span>$</span>}
-                                                                                @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Febrero)
+                                                                                <div class="item form-group">
+                                                                                    @{
+                                                                                        sum = 2;
+                                                                                        mes = item.Febrero;
+                                                                                        comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+                                                                                    }
+                                                                                    <span class="col-md-1">@(mes.HasValue?"$":string.Empty)</span>
+                                                                                    <span class="col-md-8">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", mes)</span>
+                                                                                    <span class="col-md-3" style="color:blue; font-size:large" data-toggle="tooltip" title="@comentario">
+                                                                                        @if (!String.IsNullOrEmpty(comentario))
+                                                                                        {
+                                                                                            <i class="fa-solid fa-comment"></i>
+                                                                                        }
+                                                                                    </span>
+                                                                                </div>
                                                                             </td>
                                                                             <td class="text_derecha">
-                                                                                @if (item.Marzo.HasValue)
-                                                                                {<span>$</span>}
-                                                                                @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Marzo)
+                                                                                <div class="item form-group">
+                                                                                    @{
+                                                                                        sum = 3;
+                                                                                        mes = item.Marzo;
+                                                                                        comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+                                                                                    }
+                                                                                    <span class="col-md-1">@(mes.HasValue?"$":string.Empty)</span>
+                                                                                    <span class="col-md-8">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", mes)</span>
+                                                                                    <span class="col-md-3" style="color:blue; font-size:large" data-toggle="tooltip" title="@comentario">
+                                                                                        @if (!String.IsNullOrEmpty(comentario))
+                                                                                        {
+                                                                                            <i class="fa-solid fa-comment"></i>
+                                                                                        }
+                                                                                    </span>
+                                                                                </div>
                                                                             </td>
                                                                             <td class="text_derecha">
-                                                                                @if (item.Abril.HasValue)
-                                                                                {<span>$</span>}
-                                                                                @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Abril)
+                                                                                <div class="item form-group">
+                                                                                    @{
+                                                                                        sum = 4;
+                                                                                        mes = item.Abril;
+                                                                                        comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+                                                                                    }
+                                                                                    <span class="col-md-1">@(mes.HasValue?"$":string.Empty)</span>
+                                                                                    <span class="col-md-8">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", mes)</span>
+                                                                                    <span class="col-md-3" style="color:blue; font-size:large" data-toggle="tooltip" title="@comentario">
+                                                                                        @if (!String.IsNullOrEmpty(comentario))
+                                                                                        {
+                                                                                            <i class="fa-solid fa-comment"></i>
+                                                                                        }
+                                                                                    </span>
+                                                                                </div>
                                                                             </td>
                                                                             <td class="text_derecha">
-                                                                                @if (item.Mayo.HasValue)
-                                                                                {<span>$</span>}
-                                                                                @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Mayo)
+                                                                                <div class="item form-group">
+                                                                                    @{
+                                                                                        sum = 5;
+                                                                                        mes = item.Mayo;
+                                                                                        comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+                                                                                    }
+                                                                                    <span class="col-md-1">@(mes.HasValue?"$":string.Empty)</span>
+                                                                                    <span class="col-md-8">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", mes)</span>
+                                                                                    <span class="col-md-3" style="color:blue; font-size:large" data-toggle="tooltip" title="@comentario">
+                                                                                        @if (!String.IsNullOrEmpty(comentario))
+                                                                                        {
+                                                                                            <i class="fa-solid fa-comment"></i>
+                                                                                        }
+                                                                                    </span>
+                                                                                </div>
                                                                             </td>
                                                                             <td class="text_derecha">
-                                                                                @if (item.Junio.HasValue)
-                                                                                {<span>$</span>}
-                                                                                @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Junio)
+                                                                                <div class="item form-group">
+                                                                                    @{
+                                                                                        sum = 6;
+                                                                                        mes = item.Junio;
+                                                                                        comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+                                                                                    }
+                                                                                    <span class="col-md-1">@(mes.HasValue?"$":string.Empty)</span>
+                                                                                    <span class="col-md-8">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", mes)</span>
+                                                                                    <span class="col-md-3" style="color:blue; font-size:large" data-toggle="tooltip" title="@comentario">
+                                                                                        @if (!String.IsNullOrEmpty(comentario))
+                                                                                        {
+                                                                                            <i class="fa-solid fa-comment"></i>
+                                                                                        }
+                                                                                    </span>
+                                                                                </div>
                                                                             </td>
                                                                             <td class="text_derecha">
-                                                                                @if (item.Julio.HasValue)
-                                                                                {<span>$</span>}
-                                                                                @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Julio)
+                                                                                <div class="item form-group">
+                                                                                    @{
+                                                                                        sum = 7;
+                                                                                        mes = item.Julio;
+                                                                                        comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+                                                                                    }
+                                                                                    <span class="col-md-1">@(mes.HasValue?"$":string.Empty)</span>
+                                                                                    <span class="col-md-8">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", mes)</span>
+                                                                                    <span class="col-md-3" style="color:blue; font-size:large" data-toggle="tooltip" title="@comentario">
+                                                                                        @if (!String.IsNullOrEmpty(comentario))
+                                                                                        {
+                                                                                            <i class="fa-solid fa-comment"></i>
+                                                                                        }
+                                                                                    </span>
+                                                                                </div>
                                                                             </td>
                                                                             <td class="text_derecha">
-                                                                                @if (item.Agosto.HasValue)
-                                                                                {<span>$</span>}
-                                                                                @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Agosto)
+                                                                                <div class="item form-group">
+                                                                                    @{
+                                                                                        sum = 8;
+                                                                                        mes = item.Agosto;
+                                                                                        comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+                                                                                    }
+                                                                                    <span class="col-md-1">@(mes.HasValue?"$":string.Empty)</span>
+                                                                                    <span class="col-md-8">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", mes)</span>
+                                                                                    <span class="col-md-3" style="color:blue; font-size:large" data-toggle="tooltip" title="@comentario">
+                                                                                        @if (!String.IsNullOrEmpty(comentario))
+                                                                                        {
+                                                                                            <i class="fa-solid fa-comment"></i>
+                                                                                        }
+                                                                                    </span>
+                                                                                </div>
                                                                             </td>
                                                                             <td class="text_derecha">
-                                                                                @if (item.Septiembre.HasValue)
-                                                                                {<span>$</span>}
-                                                                                @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.Septiembre)
+                                                                                <div class="item form-group">
+                                                                                    @{
+                                                                                        sum = 9;
+                                                                                        mes = item.Septiembre;
+                                                                                        comentario = mes.HasValue ? @item.GetComentario(item.id_budget_rel_fy_centro, item.id_cuenta_sap, sum) : String.Empty;
+                                                                                    }
+                                                                                    <span class="col-md-1">@(mes.HasValue?"$":string.Empty)</span>
+                                                                                    <span class="col-md-8">@string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", mes)</span>
+                                                                                    <span class="col-md-3" style="color:blue; font-size:large" data-toggle="tooltip" title="@comentario">
+                                                                                        @if (!String.IsNullOrEmpty(comentario))
+                                                                                        {
+                                                                                            <i class="fa-solid fa-comment"></i>
+                                                                                        }
+                                                                                    </span>
+                                                                                </div>
                                                                             </td>
                                                                             <td class="text_derecha" style="background-color:#d4f2fc; font-weight: bold;">
                                                                                 $ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", item.TotalMeses().Value)
@@ -804,7 +1252,7 @@
                 "ordering": false,
                 "searching": false,
                 "scrollX": true,
-                "scrollY": "400px",
+                "scrollY": "600px",
                 "info": false,
                 fixedColumns: {
                     left: 4
@@ -816,7 +1264,7 @@
                 "ordering": false,
                 "searching": false,
                 "scrollX": true,
-                "scrollY": "400px",
+                "scrollY": "600px",
                 "info": false,
                 fixedColumns: {
                     left: 4
@@ -828,7 +1276,7 @@
                 "ordering": false,
                 "searching": false,
                 "scrollX": true,
-                "scrollY": "400px",
+                "scrollY": "600px",
                 "info": false,
                 fixedColumns: {
                     left: 4
@@ -846,7 +1294,7 @@
                 });
             });
 
-
+            $.unblockUI();
 
         });
 
@@ -908,6 +1356,76 @@
             clicMenu(2);
         }
 
+        //muestra el cuadro de dialogo para comentarios
+        function MuestraComentario(id) {
+
+            let hiddenInputComentarios = document.getElementById('budget_valores[' + id + '].comentario');
+            let comentario_btn = $('#btn-comentario-' + id);
+
+            console.log('comentario: ' + hiddenInputComentarios.value);
+
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+            })
+
+            swalWithBootstrapButtons.fire({
+                title: 'Comentario:',
+                input: 'textarea',
+                inputValue: hiddenInputComentarios.value,
+                inputAttributes: {
+                    maxlength: 150,
+                    rows: 5,
+                },
+                showCancelButton: true,
+                confirmButtonText: 'Guardar',
+                cancelButtonText: 'Cancelar',
+                reverseButtons: true,
+            }).then(function (result) {
+                if (result.isConfirmed) {
+                    //muestra toast de guardado
+                    ToastComentario();
+
+                    //cambia color boton
+                    if (result.value == '') {
+                        comentario_btn.removeClass('btn-warning').addClass('btn-success');
+                    } else {
+                        comentario_btn.removeClass('btn-success').addClass('btn-warning');
+                    }
+                    //actualiza la etiqueta
+                    comentario_btn.attr('data-original-title', result.value).parent().find('.tooltip-inner').html(result.value);
+
+
+                    hiddenInputComentarios.value = result.value;
+                }
+            })
+        }
+
+        //variable para toast
+        var Toast = Swal.mixin({
+            toast: true,
+            icon: 'success',
+            title: 'General Title',
+            animation: false,
+            position: 'top-right',
+            showConfirmButton: true,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+
+        function ToastComentario() {
+            Toast.fire({
+                icon: 'success',
+                title: 'Comentario actualizado'
+            })
+        }
 
         //agranda el tamaño de la barra
         window.onload = function () {

@@ -11,7 +11,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.biblioteca_digital" Width="1.5" PointX="16.5" PointY="67.25" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.bom_en_sap" Width="1.5" PointX="0.75" PointY="6.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_anio_fiscal" Width="1.5" PointX="7.5" PointY="98.375" IsExpanded="true" />
-        <EntityTypeShape EntityType="Portal_2_0Model.budget_cantidad" Width="1.5" PointX="23.75" PointY="77.5" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_centro_costo" Width="1.5" PointX="7.5" PointY="102.125" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_cuenta_sap" Width="1.5" PointX="21.5" PointY="58.625" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_departamentos" Width="1.5" PointX="5.25" PointY="102.5" IsExpanded="true" />
@@ -104,9 +103,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_documento_registro" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_documento_soporte" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_fy_centro_id_anio_fiscal" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_currency_iso" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_id_cuenta_sap" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_id_rel_fy_centro" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_centro_costo_id_departamento" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_fy_centro_id_centro_costo" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_responsables_id_budget_centro_costo" ManuallyRouted="false" />
@@ -277,6 +273,11 @@
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_supervisores_clave_planta" />
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_turnos_planta_clave" />
         <EntityTypeShape EntityType="Portal_2_0Model.RH_menu_comedor_platillos" Width="1.5" PointX="0.75" PointY="10.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_cantidad" Width="1.5" PointX="23.75" PointY="77.25" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_currency_iso" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_id_cuenta_sap" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_id_rel_fy_centro" />
+        <EntityTypeShape EntityType="Portal_2_0Model.view_valores_fiscal_year_budget_historico" Width="1.5" PointX="11.375" PointY="4.75" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

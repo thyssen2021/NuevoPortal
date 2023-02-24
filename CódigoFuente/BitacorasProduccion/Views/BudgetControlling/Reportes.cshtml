@@ -105,13 +105,13 @@
                             <div class="col-sm-12">
                                 <div class="card-box">
                                     <div class="form-group">
-                                        @using (Html.BeginForm("ExportarConcentrado", null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left js-allow-double-submission", @target="_blank" }))
+                                        @using (Html.BeginForm("ExportarConcentrado", null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left js-allow-double-submission", @target = "_blank" }))
                                         {
 
 
                                             <div class="form-group row ">
                                                 <label class="control-label col-md-1 col-sm-1" for="planta" style="text-align:right">Planta:</label>
-                                                <div class="col-md-3 col-sm-3 ">
+                                                <div class="col-md-2 col-sm-2 ">
                                                     @Html.DropDownList("planta", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                                 </div>
                                                 <label class="control-label col-md-1 col-sm-1" for="planta" style="text-align:right">Responsable:</label>
@@ -119,8 +119,15 @@
                                                     @Html.DropDownList("responsable", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                                 </div>
                                                 <label class="control-label col-md-1 col-sm-1" for="centro_costo" style="text-align:right">Centro de Costo:</label>
-                                                <div class="col-md-3 col-sm-3">
+                                                <div class="col-md-1 col-sm-1">
                                                     <input type="text" class="form-control" name="centro_costo" id="centro_costo" value="@centro_costo" autocomplete="off">
+                                                </div>
+                                                <label class="control-label col-md-1 col-sm-1"  style="text-align:right">Fuente:</label>
+                                                <div class="col-md-1 col-sm-1">
+                                                    <input type="radio" id="forecast" name="tipo_reporte" value="forecast" checked>
+                                                    <label for="forecast" data-toggle="tooltip" data-placement="top" title="Usuario">Forecast</label><br>
+                                                    <input type="radio" id="budget" name="tipo_reporte" value="budget">
+                                                    <label for="budget" data-toggle="tooltip" data-placement="bottom" title="Historico">Budget</label><br>
                                                 </div>
                                             </div>
 
@@ -133,12 +140,12 @@
 
                                         }
                                         <hr />
-                                      
 
-                                    </div>                                    
+
+                                    </div>
                                 </div>
                                 <br />
-                               
+
                             </div>
                         </div>
                     </div>
@@ -159,7 +166,7 @@
 
         $(document).ready(function () {
 
-          
+
             // Initialize Select2 Elements (debe ir después de asignar el valor)
             $('.select2bs4').select2({
                 theme: 'bootstrap4'
@@ -167,7 +174,7 @@
 
             $('#button_submit').on('click', function () {
 
-               
+
                 //disable the submit button
                 $("#button_submit").attr("disabled", true);
 
@@ -183,7 +190,7 @@
         function activaSubmit() {
             //disable the submit button
             $("#button_submit").attr("disabled", false);
-            
+
         }
 
         function ReiniciaTablas() {

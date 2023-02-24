@@ -100,6 +100,7 @@
           <Property Name="mes" Type="int" Nullable="false" />
           <Property Name="currency_iso" Type="varchar" MaxLength="3" Nullable="false" />
           <Property Name="cantidad" Type="decimal" Precision="14" Scale="2" Nullable="false" />
+          <Property Name="comentario" Type="varchar" MaxLength="150" />
         </EntityType>
         <EntityType Name="budget_centro_costo">
           <Key>
@@ -1326,7 +1327,7 @@
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_historico_resultado">
           <Key>
             <PropertyRef Name="id" />
@@ -1418,8 +1419,56 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_historico_result
           <Property Name="comentario" Type="varchar" MaxLength="600" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_fiscal_year">
+          <Key>
+            <PropertyRef Name="id" />
+            <PropertyRef Name="id_budget_rel_fy_centro" />
+            <PropertyRef Name="id_anio_fiscal" />
+            <PropertyRef Name="id_centro_costo" />
+            <PropertyRef Name="id_cuenta_sap" />
+            <PropertyRef Name="sap_account" />
+            <PropertyRef Name="name" />
+            <PropertyRef Name="cost_center" />
+            <PropertyRef Name="department" />
+            <PropertyRef Name="id_budget_plant" />
+            <PropertyRef Name="mapping" />
+            <PropertyRef Name="mapping_bridge" />
+          </Key>
+          <Property Name="id" Type="bigint" Nullable="false" />
+          <Property Name="id_budget_rel_fy_centro" Type="int" Nullable="false" />
+          <Property Name="id_anio_fiscal" Type="int" Nullable="false" />
+          <Property Name="id_centro_costo" Type="int" Nullable="false" />
+          <Property Name="id_cuenta_sap" Type="int" Nullable="false" />
+          <Property Name="sap_account" Type="varchar" MaxLength="8" Nullable="false" />
+          <Property Name="name" Type="varchar" MaxLength="40" Nullable="false" />
+          <Property Name="cost_center" Type="varchar" MaxLength="6" Nullable="false" />
+          <Property Name="department" Type="varchar" MaxLength="40" Nullable="false" />
+          <Property Name="class_1" Type="varchar" MaxLength="30" />
+          <Property Name="class_2" Type="varchar" MaxLength="30" />
+          <Property Name="responsable" Type="nvarchar(max)" />
+          <Property Name="codigo_sap" Type="varchar" MaxLength="6" />
+          <Property Name="id_budget_plant" Type="int" Nullable="false" />
+          <Property Name="mapping" Type="varchar" MaxLength="40" Nullable="false" />
+          <Property Name="mapping_bridge" Type="varchar" MaxLength="40" Nullable="false" />
+          <Property Name="currency_iso" Type="varchar" MaxLength="3" />
+          <Property Name="Enero" Type="decimal" Precision="38" Scale="2" />
+          <Property Name="Febrero" Type="decimal" Precision="38" Scale="2" />
+          <Property Name="Marzo" Type="decimal" Precision="38" Scale="2" />
+          <Property Name="Abril" Type="decimal" Precision="38" Scale="2" />
+          <Property Name="Mayo" Type="decimal" Precision="38" Scale="2" />
+          <Property Name="Junio" Type="decimal" Precision="38" Scale="2" />
+          <Property Name="Julio" Type="decimal" Precision="38" Scale="2" />
+          <Property Name="Agosto" Type="decimal" Precision="38" Scale="2" />
+          <Property Name="Septiembre" Type="decimal" Precision="38" Scale="2" />
+          <Property Name="Octubre" Type="decimal" Precision="38" Scale="2" />
+          <Property Name="Noviembre" Type="decimal" Precision="38" Scale="2" />
+          <Property Name="Diciembre" Type="decimal" Precision="38" Scale="2" />
+          <Property Name="Comentario" Type="varchar" MaxLength="100" />
+        </EntityType>
+        <!--Errores durante la generación:
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+        <EntityType Name="view_valores_fiscal_year_budget_historico">
           <Key>
             <PropertyRef Name="id" />
             <PropertyRef Name="id_budget_rel_fy_centro" />
@@ -3658,6 +3707,40 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
     [view_valores_fiscal_year].[Comentario] AS [Comentario]
     FROM [dbo].[view_valores_fiscal_year] AS [view_valores_fiscal_year]</DefiningQuery>
           </EntitySet>
+          <EntitySet Name="view_valores_fiscal_year_budget_historico" EntityType="Self.view_valores_fiscal_year_budget_historico" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [view_valores_fiscal_year_budget_historico].[id] AS [id], 
+    [view_valores_fiscal_year_budget_historico].[id_budget_rel_fy_centro] AS [id_budget_rel_fy_centro], 
+    [view_valores_fiscal_year_budget_historico].[id_anio_fiscal] AS [id_anio_fiscal], 
+    [view_valores_fiscal_year_budget_historico].[id_centro_costo] AS [id_centro_costo], 
+    [view_valores_fiscal_year_budget_historico].[id_cuenta_sap] AS [id_cuenta_sap], 
+    [view_valores_fiscal_year_budget_historico].[sap_account] AS [sap_account], 
+    [view_valores_fiscal_year_budget_historico].[name] AS [name], 
+    [view_valores_fiscal_year_budget_historico].[cost_center] AS [cost_center], 
+    [view_valores_fiscal_year_budget_historico].[department] AS [department], 
+    [view_valores_fiscal_year_budget_historico].[class_1] AS [class_1], 
+    [view_valores_fiscal_year_budget_historico].[class_2] AS [class_2], 
+    [view_valores_fiscal_year_budget_historico].[responsable] AS [responsable], 
+    [view_valores_fiscal_year_budget_historico].[codigo_sap] AS [codigo_sap], 
+    [view_valores_fiscal_year_budget_historico].[id_budget_plant] AS [id_budget_plant], 
+    [view_valores_fiscal_year_budget_historico].[mapping] AS [mapping], 
+    [view_valores_fiscal_year_budget_historico].[mapping_bridge] AS [mapping_bridge], 
+    [view_valores_fiscal_year_budget_historico].[currency_iso] AS [currency_iso], 
+    [view_valores_fiscal_year_budget_historico].[Enero] AS [Enero], 
+    [view_valores_fiscal_year_budget_historico].[Febrero] AS [Febrero], 
+    [view_valores_fiscal_year_budget_historico].[Marzo] AS [Marzo], 
+    [view_valores_fiscal_year_budget_historico].[Abril] AS [Abril], 
+    [view_valores_fiscal_year_budget_historico].[Mayo] AS [Mayo], 
+    [view_valores_fiscal_year_budget_historico].[Junio] AS [Junio], 
+    [view_valores_fiscal_year_budget_historico].[Julio] AS [Julio], 
+    [view_valores_fiscal_year_budget_historico].[Agosto] AS [Agosto], 
+    [view_valores_fiscal_year_budget_historico].[Septiembre] AS [Septiembre], 
+    [view_valores_fiscal_year_budget_historico].[Octubre] AS [Octubre], 
+    [view_valores_fiscal_year_budget_historico].[Noviembre] AS [Noviembre], 
+    [view_valores_fiscal_year_budget_historico].[Diciembre] AS [Diciembre], 
+    [view_valores_fiscal_year_budget_historico].[Comentario] AS [Comentario]
+    FROM [dbo].[view_valores_fiscal_year_budget_historico] AS [view_valores_fiscal_year_budget_historico]</DefiningQuery>
+          </EntitySet>
           <AssociationSet Name="FK_areas_planta_clave" Association="Self.FK_areas_planta_clave">
             <End Role="plantas" EntitySet="plantas" />
             <End Role="Area" EntitySet="Area" />
@@ -4408,20 +4491,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <Property Name="mes_fin" Type="Int32" Nullable="false" />
           <NavigationProperty Name="budget_rel_fy_centro" Relationship="Self.FK_budget_rel_fy_centro_id_anio_fiscal" FromRole="budget_anio_fiscal" ToRole="budget_rel_fy_centro" />
         </EntityType>
-        <EntityType Name="budget_cantidad">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_budget_rel_fy_centro" Type="Int32" Nullable="false" />
-          <Property Name="id_cuenta_sap" Type="Int32" Nullable="false" />
-          <Property Name="mes" Type="Int32" Nullable="false" />
-          <Property Name="currency_iso" Type="String" MaxLength="3" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="cantidad" Type="Decimal" Precision="14" Scale="2" Nullable="false" />
-          <NavigationProperty Name="currency" Relationship="Self.FK_budget_cantidad_currency_iso" FromRole="budget_cantidad" ToRole="currency" />
-          <NavigationProperty Name="budget_cuenta_sap" Relationship="Self.FK_budget_cantidad_id_cuenta_sap" FromRole="budget_cantidad" ToRole="budget_cuenta_sap" />
-          <NavigationProperty Name="budget_rel_fy_centro" Relationship="Self.FK_budget_cantidad_id_rel_fy_centro" FromRole="budget_cantidad" ToRole="budget_rel_fy_centro" />
-        </EntityType>
         <EntityType Name="budget_centro_costo">
           <Key>
             <PropertyRef Name="id" />
@@ -4446,9 +4515,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <Property Name="sap_account" Type="String" MaxLength="8" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="name" Type="String" MaxLength="40" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="activo" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="budget_cantidad" Relationship="Self.FK_budget_cantidad_id_cuenta_sap" FromRole="budget_cuenta_sap" ToRole="budget_cantidad" />
           <NavigationProperty Name="budget_mapping" Relationship="Self.FK_budget_cuenta_sap_id_mapping" FromRole="budget_cuenta_sap" ToRole="budget_mapping" />
           <NavigationProperty Name="budget_rel_comentarios" Relationship="Self.FK_budget_rel_comentarios_id_cuenta_sap" FromRole="budget_cuenta_sap" ToRole="budget_rel_comentarios" />
+          <NavigationProperty Name="budget_cantidad" Relationship="Portal_2_0Model.FK_budget_cantidad_id_cuenta_sap" FromRole="budget_cuenta_sap" ToRole="budget_cantidad" />
         </EntityType>
         <EntityType Name="budget_departamentos">
           <Key>
@@ -4511,9 +4580,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <Property Name="id_centro_costo" Type="Int32" Nullable="false" />
           <Property Name="estatus" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="budget_anio_fiscal" Relationship="Self.FK_budget_rel_fy_centro_id_anio_fiscal" FromRole="budget_rel_fy_centro" ToRole="budget_anio_fiscal" />
-          <NavigationProperty Name="budget_cantidad" Relationship="Self.FK_budget_cantidad_id_rel_fy_centro" FromRole="budget_rel_fy_centro" ToRole="budget_cantidad" />
           <NavigationProperty Name="budget_centro_costo" Relationship="Self.FK_budget_rel_fy_centro_id_centro_costo" FromRole="budget_rel_fy_centro" ToRole="budget_centro_costo" />
           <NavigationProperty Name="budget_rel_comentarios" Relationship="Self.FK_budget_rel_comentarios_id_rel_fy_centro" FromRole="budget_rel_fy_centro" ToRole="budget_rel_comentarios" />
+          <NavigationProperty Name="budget_cantidad" Relationship="Portal_2_0Model.FK_budget_cantidad_id_rel_fy_centro" FromRole="budget_rel_fy_centro" ToRole="budget_cantidad" />
         </EntityType>
         <EntityType Name="budget_responsables">
           <Key>
@@ -4552,10 +4621,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <Property Name="Symbol" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
           <Property Name="LimitePoliza" Type="Decimal" Precision="14" Scale="2" />
           <Property Name="activo" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="budget_cantidad" Relationship="Self.FK_budget_cantidad_currency_iso" FromRole="currency" ToRole="budget_cantidad" />
           <NavigationProperty Name="GV_rel_gastos_solicitud" Relationship="Self.FK_GV_rel_gastos_solicitud_currency_iso" FromRole="currency" ToRole="GV_rel_gastos_solicitud" />
           <NavigationProperty Name="poliza_manual" Relationship="Self.FK_poliza_manual_currency" FromRole="currency" ToRole="poliza_manual" />
           <NavigationProperty Name="GV_solicitud" Relationship="Portal_2_0Model.FK_GV_solicitud_iso_moneda_extranjera" FromRole="currency" ToRole="GV_solicitud" />
+          <NavigationProperty Name="budget_cantidad" Relationship="Portal_2_0Model.FK_budget_cantidad_currency_iso" FromRole="currency" ToRole="budget_cantidad" />
         </EntityType>
         <EntityType Name="GV_medios_transporte">
           <Key>
@@ -5781,42 +5850,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_budget_cantidad_currency_iso">
-          <End Role="currency" Type="Self.currency" Multiplicity="1" />
-          <End Role="budget_cantidad" Type="Self.budget_cantidad" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="currency">
-              <PropertyRef Name="CurrencyISO" />
-            </Principal>
-            <Dependent Role="budget_cantidad">
-              <PropertyRef Name="currency_iso" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_budget_cantidad_id_cuenta_sap">
-          <End Role="budget_cuenta_sap" Type="Self.budget_cuenta_sap" Multiplicity="1" />
-          <End Role="budget_cantidad" Type="Self.budget_cantidad" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="budget_cuenta_sap">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="budget_cantidad">
-              <PropertyRef Name="id_cuenta_sap" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_budget_cantidad_id_rel_fy_centro">
-          <End Role="budget_rel_fy_centro" Type="Self.budget_rel_fy_centro" Multiplicity="1" />
-          <End Role="budget_cantidad" Type="Self.budget_cantidad" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="budget_rel_fy_centro">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="budget_cantidad">
-              <PropertyRef Name="id_budget_rel_fy_centro" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_budget_centro_costo_id_departamento">
           <End Role="budget_departamentos" Type="Self.budget_departamentos" Multiplicity="1" />
           <End Role="budget_centro_costo" Type="Self.budget_centro_costo" Multiplicity="*" />
@@ -6500,7 +6533,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <EntitySet Name="biblioteca_digital" EntityType="Self.biblioteca_digital" />
           <EntitySet Name="bom_en_sap" EntityType="Self.bom_en_sap" />
           <EntitySet Name="budget_anio_fiscal" EntityType="Self.budget_anio_fiscal" />
-          <EntitySet Name="budget_cantidad" EntityType="Self.budget_cantidad" />
           <EntitySet Name="budget_centro_costo" EntityType="Self.budget_centro_costo" />
           <EntitySet Name="budget_cuenta_sap" EntityType="Self.budget_cuenta_sap" />
           <EntitySet Name="budget_departamentos" EntityType="Self.budget_departamentos" />
@@ -6622,18 +6654,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <AssociationSet Name="FK_budget_rel_fy_centro_id_anio_fiscal" Association="Self.FK_budget_rel_fy_centro_id_anio_fiscal">
             <End Role="budget_anio_fiscal" EntitySet="budget_anio_fiscal" />
             <End Role="budget_rel_fy_centro" EntitySet="budget_rel_fy_centro" />
-          </AssociationSet>
-          <AssociationSet Name="FK_budget_cantidad_currency_iso" Association="Self.FK_budget_cantidad_currency_iso">
-            <End Role="currency" EntitySet="currency" />
-            <End Role="budget_cantidad" EntitySet="budget_cantidad" />
-          </AssociationSet>
-          <AssociationSet Name="FK_budget_cantidad_id_cuenta_sap" Association="Self.FK_budget_cantidad_id_cuenta_sap">
-            <End Role="budget_cuenta_sap" EntitySet="budget_cuenta_sap" />
-            <End Role="budget_cantidad" EntitySet="budget_cantidad" />
-          </AssociationSet>
-          <AssociationSet Name="FK_budget_cantidad_id_rel_fy_centro" Association="Self.FK_budget_cantidad_id_rel_fy_centro">
-            <End Role="budget_rel_fy_centro" EntitySet="budget_rel_fy_centro" />
-            <End Role="budget_cantidad" EntitySet="budget_cantidad" />
           </AssociationSet>
           <AssociationSet Name="FK_budget_centro_costo_id_departamento" Association="Self.FK_budget_centro_costo_id_departamento">
             <End Role="budget_departamentos" EntitySet="budget_departamentos" />
@@ -7252,6 +7272,20 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
             <End Role="produccion_turnos" EntitySet="produccion_turnos" />
           </AssociationSet>
           <EntitySet Name="RH_menu_comedor_platillos" EntityType="Portal_2_0Model.RH_menu_comedor_platillos" />
+          <EntitySet Name="budget_cantidad" EntityType="Portal_2_0Model.budget_cantidad" />
+          <AssociationSet Name="FK_budget_cantidad_currency_iso" Association="Portal_2_0Model.FK_budget_cantidad_currency_iso">
+            <End Role="currency" EntitySet="currency" />
+            <End Role="budget_cantidad" EntitySet="budget_cantidad" />
+          </AssociationSet>
+          <AssociationSet Name="FK_budget_cantidad_id_cuenta_sap" Association="Portal_2_0Model.FK_budget_cantidad_id_cuenta_sap">
+            <End Role="budget_cuenta_sap" EntitySet="budget_cuenta_sap" />
+            <End Role="budget_cantidad" EntitySet="budget_cantidad" />
+          </AssociationSet>
+          <AssociationSet Name="FK_budget_cantidad_id_rel_fy_centro" Association="Portal_2_0Model.FK_budget_cantidad_id_rel_fy_centro">
+            <End Role="budget_rel_fy_centro" EntitySet="budget_rel_fy_centro" />
+            <End Role="budget_cantidad" EntitySet="budget_cantidad" />
+          </AssociationSet>
+          <EntitySet Name="view_valores_fiscal_year_budget_historico" EntityType="Portal_2_0Model.view_valores_fiscal_year_budget_historico" />
           </EntityContainer>
         <EntityType Name="GV_usuarios">
           <Key>
@@ -8783,6 +8817,103 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
           <Property Name="fecha" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="kcal" Type="Int32" />
         </EntityType>
+        <EntityType Name="budget_cantidad">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_budget_rel_fy_centro" Type="Int32" Nullable="false" />
+          <Property Name="id_cuenta_sap" Type="Int32" Nullable="false" />
+          <Property Name="mes" Type="Int32" Nullable="false" />
+          <Property Name="currency_iso" Type="String" Nullable="false" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="cantidad" Type="Decimal" Nullable="false" Precision="14" Scale="2" />
+          <Property Name="comentario" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="currency" Relationship="Portal_2_0Model.FK_budget_cantidad_currency_iso" FromRole="budget_cantidad" ToRole="currency" />
+          <NavigationProperty Name="budget_cuenta_sap" Relationship="Portal_2_0Model.FK_budget_cantidad_id_cuenta_sap" FromRole="budget_cantidad" ToRole="budget_cuenta_sap" />
+          <NavigationProperty Name="budget_rel_fy_centro" Relationship="Portal_2_0Model.FK_budget_cantidad_id_rel_fy_centro" FromRole="budget_cantidad" ToRole="budget_rel_fy_centro" />
+        </EntityType>
+        <Association Name="FK_budget_cantidad_currency_iso">
+          <End Type="Portal_2_0Model.currency" Role="currency" Multiplicity="1" />
+          <End Type="Portal_2_0Model.budget_cantidad" Role="budget_cantidad" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="currency">
+              <PropertyRef Name="CurrencyISO" />
+            </Principal>
+            <Dependent Role="budget_cantidad">
+              <PropertyRef Name="currency_iso" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_budget_cantidad_id_cuenta_sap">
+          <End Type="Portal_2_0Model.budget_cuenta_sap" Role="budget_cuenta_sap" Multiplicity="1" />
+          <End Type="Portal_2_0Model.budget_cantidad" Role="budget_cantidad" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="budget_cuenta_sap">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="budget_cantidad">
+              <PropertyRef Name="id_cuenta_sap" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_budget_cantidad_id_rel_fy_centro">
+          <End Type="Portal_2_0Model.budget_rel_fy_centro" Role="budget_rel_fy_centro" Multiplicity="1" />
+          <End Type="Portal_2_0Model.budget_cantidad" Role="budget_cantidad" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="budget_rel_fy_centro">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="budget_cantidad">
+              <PropertyRef Name="id_budget_rel_fy_centro" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="view_valores_fiscal_year_budget_historico">
+          <Key>
+            <PropertyRef Name="id" />
+            <PropertyRef Name="id_budget_rel_fy_centro" />
+            <PropertyRef Name="id_anio_fiscal" />
+            <PropertyRef Name="id_centro_costo" />
+            <PropertyRef Name="id_cuenta_sap" />
+            <PropertyRef Name="sap_account" />
+            <PropertyRef Name="name" />
+            <PropertyRef Name="cost_center" />
+            <PropertyRef Name="department" />
+            <PropertyRef Name="id_budget_plant" />
+            <PropertyRef Name="mapping" />
+            <PropertyRef Name="mapping_bridge" />
+          </Key>
+          <Property Name="id" Type="Int64" Nullable="false" />
+          <Property Name="id_budget_rel_fy_centro" Type="Int32" Nullable="false" />
+          <Property Name="id_anio_fiscal" Type="Int32" Nullable="false" />
+          <Property Name="id_centro_costo" Type="Int32" Nullable="false" />
+          <Property Name="id_cuenta_sap" Type="Int32" Nullable="false" />
+          <Property Name="sap_account" Type="String" Nullable="false" MaxLength="8" FixedLength="false" Unicode="false" />
+          <Property Name="name" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="cost_center" Type="String" Nullable="false" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="department" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="class_1" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="class_2" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="responsable" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="codigo_sap" Type="String" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="id_budget_plant" Type="Int32" Nullable="false" />
+          <Property Name="mapping" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="mapping_bridge" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="currency_iso" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="Enero" Type="Decimal" Precision="38" Scale="2" />
+          <Property Name="Febrero" Type="Decimal" Precision="38" Scale="2" />
+          <Property Name="Marzo" Type="Decimal" Precision="38" Scale="2" />
+          <Property Name="Abril" Type="Decimal" Precision="38" Scale="2" />
+          <Property Name="Mayo" Type="Decimal" Precision="38" Scale="2" />
+          <Property Name="Junio" Type="Decimal" Precision="38" Scale="2" />
+          <Property Name="Julio" Type="Decimal" Precision="38" Scale="2" />
+          <Property Name="Agosto" Type="Decimal" Precision="38" Scale="2" />
+          <Property Name="Septiembre" Type="Decimal" Precision="38" Scale="2" />
+          <Property Name="Octubre" Type="Decimal" Precision="38" Scale="2" />
+          <Property Name="Noviembre" Type="Decimal" Precision="38" Scale="2" />
+          <Property Name="Diciembre" Type="Decimal" Precision="38" Scale="2" />
+          <Property Name="Comentario" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -8864,18 +8995,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
                 <ScalarProperty Name="mes_inicio" ColumnName="mes_inicio" />
                 <ScalarProperty Name="anio_fin" ColumnName="anio_fin" />
                 <ScalarProperty Name="mes_fin" ColumnName="mes_fin" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="budget_cantidad">
-            <EntityTypeMapping TypeName="Portal_2_0Model.budget_cantidad">
-              <MappingFragment StoreEntitySet="budget_cantidad">
-                <ScalarProperty Name="id" ColumnName="id" />
-                <ScalarProperty Name="id_budget_rel_fy_centro" ColumnName="id_budget_rel_fy_centro" />
-                <ScalarProperty Name="id_cuenta_sap" ColumnName="id_cuenta_sap" />
-                <ScalarProperty Name="mes" ColumnName="mes" />
-                <ScalarProperty Name="currency_iso" ColumnName="currency_iso" />
-                <ScalarProperty Name="cantidad" ColumnName="cantidad" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -10334,6 +10453,55 @@ advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_y
                 <ScalarProperty Name="nombre_platillo" ColumnName="nombre_platillo" />
                 <ScalarProperty Name="tipo_platillo" ColumnName="tipo_platillo" />
                 <ScalarProperty Name="orden_display" ColumnName="orden_display" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="budget_cantidad">
+            <EntityTypeMapping TypeName="Portal_2_0Model.budget_cantidad">
+              <MappingFragment StoreEntitySet="budget_cantidad">
+                <ScalarProperty Name="comentario" ColumnName="comentario" />
+                <ScalarProperty Name="cantidad" ColumnName="cantidad" />
+                <ScalarProperty Name="currency_iso" ColumnName="currency_iso" />
+                <ScalarProperty Name="mes" ColumnName="mes" />
+                <ScalarProperty Name="id_cuenta_sap" ColumnName="id_cuenta_sap" />
+                <ScalarProperty Name="id_budget_rel_fy_centro" ColumnName="id_budget_rel_fy_centro" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="view_valores_fiscal_year_budget_historico">
+            <EntityTypeMapping TypeName="Portal_2_0Model.view_valores_fiscal_year_budget_historico">
+              <MappingFragment StoreEntitySet="view_valores_fiscal_year_budget_historico">
+                <ScalarProperty Name="Comentario" ColumnName="Comentario" />
+                <ScalarProperty Name="Diciembre" ColumnName="Diciembre" />
+                <ScalarProperty Name="Noviembre" ColumnName="Noviembre" />
+                <ScalarProperty Name="Octubre" ColumnName="Octubre" />
+                <ScalarProperty Name="Septiembre" ColumnName="Septiembre" />
+                <ScalarProperty Name="Agosto" ColumnName="Agosto" />
+                <ScalarProperty Name="Julio" ColumnName="Julio" />
+                <ScalarProperty Name="Junio" ColumnName="Junio" />
+                <ScalarProperty Name="Mayo" ColumnName="Mayo" />
+                <ScalarProperty Name="Abril" ColumnName="Abril" />
+                <ScalarProperty Name="Marzo" ColumnName="Marzo" />
+                <ScalarProperty Name="Febrero" ColumnName="Febrero" />
+                <ScalarProperty Name="Enero" ColumnName="Enero" />
+                <ScalarProperty Name="currency_iso" ColumnName="currency_iso" />
+                <ScalarProperty Name="mapping_bridge" ColumnName="mapping_bridge" />
+                <ScalarProperty Name="mapping" ColumnName="mapping" />
+                <ScalarProperty Name="id_budget_plant" ColumnName="id_budget_plant" />
+                <ScalarProperty Name="codigo_sap" ColumnName="codigo_sap" />
+                <ScalarProperty Name="responsable" ColumnName="responsable" />
+                <ScalarProperty Name="class_2" ColumnName="class_2" />
+                <ScalarProperty Name="class_1" ColumnName="class_1" />
+                <ScalarProperty Name="department" ColumnName="department" />
+                <ScalarProperty Name="cost_center" ColumnName="cost_center" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="sap_account" ColumnName="sap_account" />
+                <ScalarProperty Name="id_cuenta_sap" ColumnName="id_cuenta_sap" />
+                <ScalarProperty Name="id_centro_costo" ColumnName="id_centro_costo" />
+                <ScalarProperty Name="id_anio_fiscal" ColumnName="id_anio_fiscal" />
+                <ScalarProperty Name="id_budget_rel_fy_centro" ColumnName="id_budget_rel_fy_centro" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
