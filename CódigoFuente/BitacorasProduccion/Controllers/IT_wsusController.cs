@@ -30,12 +30,12 @@ namespace Portal_2_0.Controllers
 
                 var cantidadRegistrosPorPagina = 20; // parámetro
 
-
                 var listado = db.IT_wsus
                     //.Where(x => String.IsNullOrEmpty(material) || x.Material.Contains(material))
                     .OrderBy(x => x.id)
-                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
-                    .Take(cantidadRegistrosPorPagina).ToList();
+                    //.Skip((pagina - 1) * cantidadRegistrosPorPagina)
+                    //.Take(cantidadRegistrosPorPagina)
+                    .ToList();
 
                 var totalDeRegistros = db.IT_wsus
                     //.Where(x => String.IsNullOrEmpty(material) || x.Material.Contains(material))

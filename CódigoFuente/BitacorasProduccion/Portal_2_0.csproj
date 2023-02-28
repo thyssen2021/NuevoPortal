@@ -308,6 +308,7 @@
     <Compile Include="Controllers\IT_carpetas_redController.cs" />
     <Compile Include="Controllers\IT_comunicaciones_tipoController.cs" />
     <Compile Include="Controllers\IT_epoController.cs" />
+    <Compile Include="Controllers\IT_epo_wsus_reporteController.cs" />
     <Compile Include="Controllers\IT_equipos_checklistController.cs" />
     <Compile Include="Controllers\IT_equipos_checklist_actividadesController.cs" />
     <Compile Include="Controllers\IT_equipos_checklist_categoriasController.cs" />
@@ -7298,6 +7299,10 @@
     <Content Include="Views\IT_epo\Index.cshtml" />
     <Content Include="Views\IT_wsus\Index.cshtml" />
     <Content Include="Views\IT_wsus\LoadFile.cshtml" />
+    <Content Include="Views\IT_epo_wsus_reporte\EpoNoInventario.cshtml" />
+    <Content Include="Views\IT_epo_wsus_reporte\InventarioNoEpo.cshtml" />
+    <Content Include="Views\IT_epo_wsus_reporte\WsusNoInventario.cshtml" />
+    <Content Include="Views\IT_epo_wsus_reporte\InventarioNoWsus.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
