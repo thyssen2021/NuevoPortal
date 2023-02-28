@@ -71,8 +71,8 @@ namespace Portal_2_0.Models
                 };
 
                 //********** Comentar para productivo ************//
-                emailsTo = new List<string>();
-               emailsTo.Add("alfredo.xochitemol@lagermex.com.mx");
+                //emailsTo = new List<string>();
+               //emailsTo.Add("alfredo.xochitemol@lagermex.com.mx");
                 // ************************************//
 
                 //agrega los destinatarios

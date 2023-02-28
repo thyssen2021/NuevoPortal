@@ -179,7 +179,7 @@
                                                 {
 
                                                     <li class="link @(ViewBag.SegundoNivel == "IT_Catalogos_RH" ? "active" : null )">
-                                                        <a>C&aacute;talogos - Matriz RH <span class="fa fa-chevron-down"></span></a>
+                                                        <a>Cat&aacute;logos - Matriz RH <span class="fa fa-chevron-down"></span></a>
                                                         <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "IT_Catalogos_RH" ? "display:block" : null )">
                                                             <li class="@(ViewBag.TercelNivel == "IT_carpetas_red" ? "current-page" : null )"><a href="@Url.Action( "Index", "IT_carpetas_red")">Carpetas Red</a></li>
                                                             <li class="@(ViewBag.TercelNivel == "IT_comunicaciones_tipo" ? "current-page" : null )"><a href="@Url.Action( "Index", "IT_comunicaciones_tipo")">Comunicaciones</a></li>
@@ -246,7 +246,7 @@
                                                     <li class="@(ViewBag.SegundoNivel == "IT_equipos_checklist" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_equipos_checklist")">Nuevos Equipos</a></li>
                                                 }
                                                 <li class="link @(ViewBag.SegundoNivel == "IT_Checklist_catalogos" ? "active" : null )">
-                                                    <a>C&aacute;talogos<span class="fa fa-chevron-down"></span></a>
+                                                    <a>Cat&aacute;logos<span class="fa fa-chevron-down"></span></a>
                                                     <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "IT_Checklist_catalogos" ? "display:block" : null )">
                                                         @if (User.IsInRole(TipoRoles.IT_CHECKLIST_SITE))
                                                         {
@@ -325,7 +325,7 @@
                                                 {
                                                     <h3>CAT&Aacute;LOGOS</h3>
                                                     <li class="link @(ViewBag.SegundoNivel == "GV_catalogos" ? "active" : "" )">
-                                                        <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
+                                                        <a>Cat&aacute;logos <span class="fa fa-chevron-down"></span></a>
                                                         <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "GV_catalogos" ? "display:block" : null )">
                                                             <li class="@(ViewBag.TercelNivel == "GV_tipo_gastos_viaje" ? "current-page" : null )"><a href="@Url.Action( "Index", "GV_tipo_gastos_viaje")">Tipos de Gastos de Viaje</a></li>
                                                             <li class="@(ViewBag.TercelNivel == "GV_medios_transporte" ? "current-page" : null )"><a href="@Url.Action( "Index", "GV_medios_transporte")">Medios de Transporte</a></li>
@@ -379,7 +379,7 @@
                                                 @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS))
                                                 {
                                                     <li class="link @(ViewBag.SegundoNivel == "bitacoras_produccion_catalogos" ? "active" : null )">
-                                                        <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
+                                                        <a>Cat&aacute;logos <span class="fa fa-chevron-down"></span></a>
                                                         <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "bitacoras_produccion_catalogos" ? "display:block" : null )">
                                                             <li class="@(ViewBag.TercelNivel == "produccion_turnos" ? "current-page" : null )"><a href="@Url.Action( "Index", "ProduccionTurnos")">Turnos</a></li>
                                                             <li class="@(ViewBag.TercelNivel == "produccion_lineas" ? "current-page" : null )"><a href="@Url.Action( "Index", "ProduccionLineas")">L&iacute;neas Producci&oacute;n</a></li>
@@ -429,7 +429,7 @@
                                                 {
 
                                                     <li class="link @(ViewBag.SegundoNivel == "PFA_catalogos" ? "active" : null )">
-                                                        <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
+                                                        <a>Cat&aacute;logos <span class="fa fa-chevron-down"></span></a>
                                                         <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "bitacoras_produccion_catalogos" ? "display:block" : null )">
                                                             <li class="@(ViewBag.TercelNivel == "PFA_Department" ? "current-page" : null )"><a href="@Url.Action( "Index", "PFA_Department")">Departments</a></li>
                                                             <li class="@(ViewBag.TercelNivel == "PFA_Volume" ? "current-page" : null )"><a href="@Url.Action( "Index", "PFA_Volume")">Volume</a></li>
@@ -517,7 +517,7 @@
                                                 {
 
                                                     <li class="link @(ViewBag.SegundoNivel == "PM_catalogos" ? "active" : "" )">
-                                                        <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
+                                                        <a>Cat&aacute;logos <span class="fa fa-chevron-down"></span></a>
                                                         <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "PM_catalogos" ? "display:block" : null )">
                                                             @if (User.IsInRole(TipoRoles.PM_CATALOGOS))
                                                             {
@@ -535,7 +535,7 @@
                                                 {
 
                                                     <li class="link @(ViewBag.SegundoNivel == "PM_catalogos_admin" ? "active" : "" )">
-                                                        <a>C&aacute;talogos ADMIN<span class="fa fa-chevron-down"></span></a>
+                                                        <a>Cat&aacute;logos ADMIN<span class="fa fa-chevron-down"></span></a>
                                                         <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "PM_catalogos" ? "display:block" : null )">
                                                             <li class="@(ViewBag.TercelNivel == "PM_departamentos" ? "current-page" : null )"><a href="@Url.Action( "Index", "PM_departamentos")">Departamentos</a></li>
                                                             <li class="@(ViewBag.TercelNivel == "PM_usuarios_capturistas" ? "current-page" : null )"><a href="@Url.Action( "Index", "PM_usuarios_capturistas")">Capturistas</a></li>
@@ -666,7 +666,7 @@
                                                     <h3>Controlling</h3>
                                                     <li class="@(ViewBag.SegundoNivel == "centro_costos" ? "current-page" : null )"><a href="@Url.Action("Centros", "BudgetControlling")">Centros de Costo</a></li>
                                                     <li class="link @(ViewBag.SegundoNivel == "catalogos" ? "active" : "" )">
-                                                        <a>C&aacute;talogos <span class="fa fa-chevron-down"></span></a>
+                                                        <a>Cat&aacute;logos <span class="fa fa-chevron-down"></span></a>
                                                         <ul class="nav child_menu" style="@(ViewBag.SegundoNivel == "BG_catalogos" ? "display:block" : null )">
                                                             <li class="@(ViewBag.TercelNivel == "BG_Plants" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_Plants")">Plantas</a></li>
                                                             <li class="@(ViewBag.TercelNivel == "budget_departamentos" ? "current-page" : null )"><a href="@Url.Action( "Index", "budget_departamentos")">Departamentos</a></li>
