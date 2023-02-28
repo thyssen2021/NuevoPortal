@@ -1,11 +1,9 @@
-﻿using Bitacoras.Util;
-using Clases.Util;
+﻿using Clases.Util;
 using ExcelDataReader;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Web;
 
 namespace Portal_2_0.Models
@@ -1306,6 +1304,264 @@ namespace Portal_2_0.Models
                     System.Diagnostics.Debug.WriteLine("Recorrido finalizaso para la hoja: " + table.TableName);
                 }
 
+            }
+
+            return lista;
+        }
+
+        ///<summary>
+        ///Lee un archivo de excel y carga el listado de epo
+        ///</summary>
+        ///<return>
+        ///Devuelve un List<IT_epo> con los datos leidos
+        ///</return>
+        ///<param name="streamPostedFile">
+        ///Stream del archivo recibido en el formulario
+        ///</param>
+        public static List<IT_epo> LeeEpo(HttpPostedFileBase streamPostedFile, ref string msj)
+        {
+            List<IT_epo> lista = new List<IT_epo>();
+
+            //crea el reader del archivo
+            using (var reader = ExcelReaderFactory.CreateReader(streamPostedFile.InputStream))
+            {
+                //obtiene el dataset del archivo de excel
+                var result = reader.AsDataSet();
+
+                //recorre todas las hojas del archivo
+                foreach (DataTable table in result.Tables)
+                {
+                    lista = new List<IT_epo>();
+
+                    //se obtienen las cabeceras
+                    List<string> encabezados = new List<string>();
+                    List<string> encabezadosTest = new List<string>() { "SYSTEM NAME", "USER NAME", "OPERATING SYSTEM", "GROUP NAME", "ASSIGNMENT PATH" };
+
+                    for (int i = 0; i < table.Columns.Count; i++)
+                    {
+                        string title = table.Rows[0][i].ToString();
+
+                        if (!string.IsNullOrEmpty(title))
+                            encabezados.Add(title.ToUpper());
+                    }
+
+                    //verifica los encabezados principales del archivo enviado
+                    foreach (var s in encabezadosTest)
+                    {
+                        if (!encabezados.Contains(s))
+                        {
+                            msj = "No se encontró la columna: " + s;
+                            return lista;
+                        }
+                    }
+
+                    //la fila cero se omite (encabezado)
+                    for (int i = 1; i < table.Rows.Count; i++)
+                    {
+                        try
+                        {
+                            //variables
+                            string system_name = String.Empty, username = String.Empty, operating_system = string.Empty, is_laptop_text = string.Empty;
+                            string last_communication = String.Empty, group_name = string.Empty, mac_address = string.Empty, os_type = string.Empty;
+                            string system_manufacturer = String.Empty, system_model = string.Empty, system_serial_number = string.Empty;
+                            string assignment_path = String.Empty;
+
+                            int? numbers_cpus = null, cpu_speed = null, total_disk_space = null, total_c_drive_space = null;
+                            double? total_physical_memory = null;
+                            bool? is_laptop = null;
+
+
+
+                            //recorre todas los encabezados
+                            for (int j = 0; j < encabezados.Count; j++)
+                            {
+                                //obtiene la cabezara de i
+                                switch (encabezados[j])
+                                {
+                                    //obligatorios
+                                    case "SYSTEM NAME":
+                                        system_name = table.Rows[i][j].ToString();
+                                        break;
+                                    case "USER NAME":
+                                        username = table.Rows[i][j].ToString();
+                                        break;
+                                    case "OPERATING SYSTEM":
+                                        operating_system = table.Rows[i][j].ToString();
+                                        break;
+                                    case "IS LAPTOP":
+                                        is_laptop_text = table.Rows[i][j].ToString();
+                                        is_laptop = is_laptop_text.ToUpper() == "YES" ? true : false;
+                                        break;
+                                    case "GROUP NAME":
+                                        group_name = table.Rows[i][j].ToString();
+                                        break;
+                                    case "OS type":
+                                        os_type = table.Rows[i][j].ToString();
+                                        break;
+                                    case "MAC ADDRESS":
+                                        mac_address = table.Rows[i][j].ToString();
+                                        break;
+                                    case "LAST COMMUNICATION":
+                                        last_communication = table.Rows[i][j].ToString();
+                                        break;
+                                    case "NUMBER OF CPUS":
+                                        if (Int32.TryParse(table.Rows[i][j].ToString(), out int cpus))
+                                            numbers_cpus = cpus;
+                                        break;
+                                    case "CPU SPEED (MHZ)":
+                                        if (Int32.TryParse(table.Rows[i][j].ToString(), out int cpu_s))
+                                            cpu_speed = cpu_s;
+                                        break;
+                                    case "SYSTEM MANUFACTURER":
+                                        system_manufacturer = table.Rows[i][j].ToString();
+                                        break;
+                                    case "SYSTEM MODEL":
+                                        system_model = table.Rows[i][j].ToString();
+                                        break;
+                                    case "SYSTEM SERIAL NUMBER":
+                                        system_serial_number = table.Rows[i][j].ToString();
+                                        break;
+                                    case "TOTAL DISK SPACE":
+                                        if (Int32.TryParse(table.Rows[i][j].ToString().Replace("MB", string.Empty), out int total_disk_int))
+                                            total_disk_space = total_disk_int;
+                                        break;
+                                    case "TOTAL C DRIVE SPACE":
+                                        if (Int32.TryParse(table.Rows[i][j].ToString().Replace("MB", string.Empty), out int total_c_drive_int))
+                                            total_c_drive_space = total_c_drive_int;
+                                        break;
+                                    case "TOTAL PHYSICAL MEMORY":
+                                        if (double.TryParse(table.Rows[i][j].ToString().Replace("MB", string.Empty), out double total_physical_double))
+                                            total_physical_memory = total_physical_double;
+                                        break;
+                                    case "ASSIGNMENT PATH":
+                                        assignment_path = table.Rows[i][j].ToString();
+                                        break;
+                                }
+                            }
+                            //agrega a la lista con los datos leidos
+                            lista.Add(new IT_epo()
+                            {
+                                system_name = system_name,
+                                username = username,
+                                operating_system = operating_system,
+                                is_laptop = is_laptop,
+                                group_name = group_name,
+                                os_type = os_type,
+                                mac_address = mac_address,
+                                numbers_of_cpus = numbers_cpus,
+                                cpu_speed = cpu_speed,
+                                system_manufacturer = system_manufacturer,
+                                system_serial_number = system_serial_number,
+                                total_disk_space_mb = total_disk_space,
+                                total_c_drive_space_mb = total_c_drive_space,
+                                assigment_path = assignment_path,
+                                total_physical_memory_mb = total_physical_memory,
+                                system_model = system_model,
+                                last_communication = last_communication,
+
+                            });
+                        }
+                        catch (Exception e)
+                        {
+                            System.Diagnostics.Debug.Print("Error: " + e.Message);
+                        }
+                    }
+
+                    //envia la lista tras la primera iteracion
+                    return lista;
+                }
+            }
+
+            return lista;
+        }  ///<summary>
+           ///Lee un archivo de excel y carga el listado de epo
+           ///</summary>
+           ///<return>
+           ///Devuelve un List<IT_epo> con los datos leidos
+           ///</return>
+           ///<param name="streamPostedFile">
+           ///Stream del archivo recibido en el formulario
+           ///</param>
+        public static List<IT_wsus> LeeWSUS(HttpPostedFileBase streamPostedFile, ref string msj)
+        {
+            List<IT_wsus> lista = new List<IT_wsus>();
+
+            //crea el reader del archivo
+            using (var reader = ExcelReaderFactory.CreateReader(streamPostedFile.InputStream))
+            {
+                //obtiene el dataset del archivo de excel
+                var result = reader.AsDataSet();
+
+                //recorre todas las hojas del archivo
+                foreach (DataTable table in result.Tables)
+                {
+                    lista = new List<IT_wsus>();
+
+                    //se obtienen las cabeceras
+                    List<string> encabezados = new List<string>();
+                    List<string> encabezadosTest = new List<string>() { "NAME", "IP", "OPERATING SYSTEM" };
+
+                    for (int i = 0; i < table.Columns.Count; i++)
+                    {
+                        string title = table.Rows[0][i].ToString();
+
+                        if (!string.IsNullOrEmpty(title))
+                            encabezados.Add(title.ToUpper());
+                    }
+
+                    //verifica los encabezados principales del archivo enviado
+                    foreach (var s in encabezadosTest)
+                    {
+                        if (!encabezados.Contains(s))
+                        {
+                            msj = "No se encontró la columna: " + s;
+                            return lista;
+                        }
+                    }
+
+                    //la fila cero se omite (encabezado)
+                    for (int i = 1; i < table.Rows.Count; i++)
+                    {
+                        try
+                        {
+                            //variables
+                            string name = String.Empty, operating_system = string.Empty, ip = string.Empty;
+
+                            //recorre todas los encabezados
+                            for (int j = 0; j < encabezados.Count; j++)
+                            {
+                                //obtiene la cabezara de i
+                                switch (encabezados[j])
+                                {
+                                    //obligatorios
+                                    case "NAME":
+                                        name = table.Rows[i][j].ToString();
+                                        break;
+                                    case "IP":
+                                        ip = table.Rows[i][j].ToString();
+                                        break;
+                                    case "OPERATING SYSTEM":
+                                        operating_system = table.Rows[i][j].ToString();
+                                        break;
+                                }
+                            }
+                            //agrega a la lista con los datos leidos
+                            lista.Add(new IT_wsus()
+                            {
+                                name = name,
+                                operating_system = operating_system,
+                                ip = ip,
+                            });
+                        }
+                        catch (Exception e)
+                        {
+                            System.Diagnostics.Debug.Print("Error: " + e.Message);
+                        }
+                    }
+
+                    //envia la lista tras la primera iteracion
+                    return lista;
+                }
             }
 
             return lista;

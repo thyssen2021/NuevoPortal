@@ -307,6 +307,8 @@
     <Compile Include="Controllers\IT_asignacion_softwareController.cs" />
     <Compile Include="Controllers\IT_carpetas_redController.cs" />
     <Compile Include="Controllers\IT_comunicaciones_tipoController.cs" />
+    <Compile Include="Controllers\IT_epoController.cs" />
+    <Compile Include="Controllers\IT_epo_wsus_reporteController.cs" />
     <Compile Include="Controllers\IT_equipos_checklistController.cs" />
     <Compile Include="Controllers\IT_equipos_checklist_actividadesController.cs" />
     <Compile Include="Controllers\IT_equipos_checklist_categoriasController.cs" />
@@ -327,6 +329,7 @@
     <Compile Include="Controllers\IT_site_actividadesController.cs" />
     <Compile Include="Controllers\IT_site_checklistController.cs" />
     <Compile Include="Controllers\IT_solicitud_usuariosController.cs" />
+    <Compile Include="Controllers\IT_wsusController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\mm_v3Controller.cs" />
     <Compile Include="Controllers\notificaciones_correoController.cs" />
@@ -492,6 +495,9 @@
     <Compile Include="Models\IT_comunicaciones_tipo.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\IT_epo.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\IT_equipos_checklist.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -573,6 +579,9 @@
     <Compile Include="Models\IT_solicitud_usuarios.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\IT_wsus.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\log_acceso_email.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -602,6 +611,7 @@
     <Compile Include="Models\MetadataModels\IT_asignacion_hardwareMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_asignacion_hardware_rel_itemsMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_asignacion_softwareMetadata.cs" />
+    <Compile Include="Models\MetadataModels\IT_epoMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_equipos_checklistMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_equipos_checklist_actividadesMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_equipos_checklist_categoriasMetadata.cs" />
@@ -630,6 +640,7 @@
     <Compile Include="Models\MetadataModels\IT_comunicaciones_tipoMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_Matriz_requerimientosMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_solicitud_usuariosMetadata.cs" />
+    <Compile Include="Models\MetadataModels\IT_wsusMetadata.cs" />
     <Compile Include="Models\MetadataModels\mm_v3Metadata.cs" />
     <Compile Include="Models\MetadataModels\notificaciones_correoMetadata.cs" />
     <Compile Include="Models\MetadataModels\orden_trabajoMetadata.cs" />
@@ -7287,6 +7298,14 @@
     <Content Include="Views\RH_menu_comedor\CargaMenu.cshtml" />
     <Content Include="Views\RH_menu_comedor\Edit.cshtml" />
     <Content Include="Views\RH_menu_comedor\DetailsMenu.cshtml" />
+    <Content Include="Views\IT_epo\LoadFile.cshtml" />
+    <Content Include="Views\IT_epo\Index.cshtml" />
+    <Content Include="Views\IT_wsus\Index.cshtml" />
+    <Content Include="Views\IT_wsus\LoadFile.cshtml" />
+    <Content Include="Views\IT_epo_wsus_reporte\EpoNoInventario.cshtml" />
+    <Content Include="Views\IT_epo_wsus_reporte\InventarioNoEpo.cshtml" />
+    <Content Include="Views\IT_epo_wsus_reporte\WsusNoInventario.cshtml" />
+    <Content Include="Views\IT_epo_wsus_reporte\InventarioNoWsus.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

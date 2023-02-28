@@ -1,0 +1,204 @@
+﻿@model IEnumerable<Portal_2_0.Models.IT_wsus>
+
+@{
+    ViewBag.Title = "En WSUS pero no en Inventario";
+    ViewBag.PrimerNivel = "IT_epo_wsus";
+    ViewBag.SegundoNivel = "IT_epo_wsus_reporte";
+    ViewBag.TercerNivel = "IT_epo_wsus_reporte_wsus_no_inventario";
+    ViewBag.ControllerName = "IT_epo_wsus_reporte";
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+}
+
+@section estilos
+{
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.5/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap5.min.css">
+
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+
+                                <div class="card-box table-responsive">
+
+                                    <table id="datatable1" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.id)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.name)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.ip)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.operating_system)
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.id)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.name)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.ip)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.operating_system)
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+
+                                </div>
+
+                            </div>
+
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+
+    <!-- datatables con bootstrap -->
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap5.min.js"></script>
+
+    <!-- Para usar los botones -->
+    <script src="https://cdn.datatables.net/buttons/1.6.5/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.6.5/js/buttons.html5.min.js"></script>
+
+
+    <!-- Para los estilos en Excel     -->
+    <script src="https://cdn.jsdelivr.net/npm/datatables-buttons-excel-styles@1.1.2/js/buttons.html5.styles.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables-buttons-excel-styles@1.1.2/js/buttons.html5.styles.templates.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+        });
+
+        var form = document.getElementById("buscarForm");
+
+        $("#borrarForm").click(function () {
+            $('#material').val("");
+            form.submit();
+        });
+
+        //inicializa los data table
+        var tabla = $('#datatable1').DataTable({
+            "paging": true,
+            "ordering": true,
+            "searching": true,
+            "scrollX": true,
+            "info": true,
+            dom: "Bfrtip",
+            buttons: [
+
+                {
+                    extend: "excel",
+                    text: "Exportar a Excel",
+                    className: "btn btn-success",
+                    excelStyles: [                     // Add an excelStyles definition
+
+                        {
+                            cells: "sI",  // Smart select Columns A and B
+                            style: {
+                                font: {                     // Style the font
+                                    b: true,               // Remove bolding from header row
+                                },
+                            }
+                        },
+                        {
+                            cells: "sP",  // Smart select Columns A and B
+                            style: {
+                                font: {                     // Style the font
+                                    b: true,               // Remove bolding from header row
+                                },
+                            }
+                        },
+                        {
+                            cells: "1:2",  // Smart select Columns A and B
+                            style: {                        // The style block
+                                font: {                     // Style the font
+                                    name: "Calibri",          // Font name
+                                    size: "11",             // Font size
+                                    color: "FFFFFF",        // Font Color
+                                    b: true,               // Remove bolding from header row
+                                },
+                                fill: {                     // Style the cell fill (background)
+                                    pattern: {              // Type of fill (pattern or gradient)
+                                        color: "0094ff",    // Fill color
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            template: [
+                                "outline_blue_gray",
+                                "title_medium"]
+                            ,   // Apply the "green_medium" template
+                        },
+                    ],
+                },
+
+            ],
+        });
+
+        window.onload = function () {
+            clicMenu(1);
+        }
+    </script>
+
+}
