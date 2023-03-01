@@ -134,9 +134,9 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_mantenimientos> IT_mantenimientos { get; set; }
         public virtual DbSet<plantas> plantas { get; set; }
         public virtual DbSet<RH_menu_comedor_platillos> RH_menu_comedor_platillos { get; set; }
-        public virtual DbSet<IT_wsus> IT_wsus { get; set; }
-        public virtual DbSet<IT_epo> IT_epo { get; set; }
         public virtual DbSet<budget_cantidad> budget_cantidad { get; set; }
         public virtual DbSet<view_valores_fiscal_year_budget_historico> view_valores_fiscal_year_budget_historico { get; set; }
+        public virtual DbSet<IT_epo> IT_epo { get; set; }
+        public virtual DbSet<IT_wsus> IT_wsus { get; set; }
     }
 }

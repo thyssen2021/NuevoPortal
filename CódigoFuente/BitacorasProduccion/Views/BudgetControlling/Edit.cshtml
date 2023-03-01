@@ -885,7 +885,8 @@
                                                         <div class="item form-group">
 
                                                             <div class="col-md-12 col-sm-12 offset-md-12">
-                                                                <button type="submit" class="btn btn-success btn-lg float-lg-right"> <i class="fa-regular fa-floppy-disk"></i> &nbsp;Guardar</button>
+                                                                <button type="button" onclick="enviaFormulario(); return;" class="btn btn-success btn-lg float-lg-right"> <i class="fa-regular fa-floppy-disk"></i>&nbsp; Guardar</button>
+                                                                <button style="display:none" type="submit" id="submit-btn"></button>
                                                             </div>
 
                                                         </div>
@@ -1259,16 +1260,22 @@
                 }
             });
 
-            var tabla2 = $('#datatable_2').DataTable({
+            tabla2 = $('#datatable_2').DataTable({
                 "paging": false,
                 "ordering": false,
-                "searching": false,
+                "searching": true,
                 "scrollX": true,
                 "scrollY": "600px",
                 "info": false,
                 fixedColumns: {
                     left: 4
                 },
+                'columnDefs': [     // see https://datatables.net/reference/option/columns.searchable
+                    {
+                        'searchable': false,
+                        'targets': [0, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+                    },
+                ]
             });
 
             var tabla3 = $('#datatable_3').DataTable({
@@ -1298,7 +1305,19 @@
 
         });
 
+        var tabla2;
 
+        function enviaFormulario() {
+            tabla2.search('');
+            tabla2.columns().search('').draw();
+            calculaTotal();
+            //envia el formulario con retraso
+            setTimeout(submit, 1500);
+        }
+
+        function submit() {
+            $('#submit-btn').click();
+        }
 
         function calculaFila(fila) {
             let sumaFila = 0;
@@ -1342,6 +1361,11 @@
             let total = parseFloat(total_actual) + parseFloat(suma);
 
             $("#total_fila_columna").html(total.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }));
+
+            //actualiza el total de las columnas
+            for (let i = 1; i <= 12; i++) {
+                calculaColumna(i)
+            }
 
         }
 

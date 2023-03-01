@@ -7320,8 +7320,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="budget_cantidad" EntitySet="budget_cantidad" />
           </AssociationSet>
           <EntitySet Name="view_valores_fiscal_year_budget_historico" EntityType="Portal_2_0Model.view_valores_fiscal_year_budget_historico" />
-          <EntitySet Name="IT_wsus" EntityType="Portal_2_0Model.IT_wsus" />
           <EntitySet Name="IT_epo" EntityType="Portal_2_0Model.IT_epo" />
+          <EntitySet Name="IT_wsus" EntityType="Portal_2_0Model.IT_wsus" />
           </EntityContainer>
         <EntityType Name="GV_usuarios">
           <Key>
@@ -8950,15 +8950,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="Diciembre" Type="Decimal" Precision="38" Scale="2" />
           <Property Name="Comentario" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
         </EntityType>
-        <EntityType Name="IT_wsus">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="name" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-          <Property Name="ip" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="operating_system" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
-        </EntityType>
         <EntityType Name="IT_epo">
           <Key>
             <PropertyRef Name="id" />
@@ -8981,6 +8972,15 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="last_communication" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="total_physical_memory_mb" Type="Double" />
           <Property Name="assigment_path" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="IT_wsus">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="name" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="ip" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="operating_system" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -10574,16 +10574,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="IT_wsus">
-            <EntityTypeMapping TypeName="Portal_2_0Model.IT_wsus">
-              <MappingFragment StoreEntitySet="IT_wsus">
-                <ScalarProperty Name="operating_system" ColumnName="operating_system" />
-                <ScalarProperty Name="ip" ColumnName="ip" />
-                <ScalarProperty Name="name" ColumnName="name" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="IT_epo">
             <EntityTypeMapping TypeName="Portal_2_0Model.IT_epo">
               <MappingFragment StoreEntitySet="IT_epo">
@@ -10604,6 +10594,16 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
                 <ScalarProperty Name="operating_system" ColumnName="operating_system" />
                 <ScalarProperty Name="username" ColumnName="username" />
                 <ScalarProperty Name="system_name" ColumnName="system_name" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IT_wsus">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_wsus">
+              <MappingFragment StoreEntitySet="IT_wsus">
+                <ScalarProperty Name="operating_system" ColumnName="operating_system" />
+                <ScalarProperty Name="ip" ColumnName="ip" />
+                <ScalarProperty Name="name" ColumnName="name" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

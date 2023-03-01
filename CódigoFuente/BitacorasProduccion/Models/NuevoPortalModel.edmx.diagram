@@ -278,8 +278,8 @@
         <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_id_cuenta_sap" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_id_rel_fy_centro" />
         <EntityTypeShape EntityType="Portal_2_0Model.view_valores_fiscal_year_budget_historico" Width="1.5" PointX="11.375" PointY="4.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.IT_wsus" Width="1.5" PointX="11.375" PointY="10.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.IT_epo" Width="1.5" PointX="11.375" PointY="4.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_epo" Width="1.5" PointX="11.375" PointY="12.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_wsus" Width="1.5" PointX="12.375" PointY="0.75" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
