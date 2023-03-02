@@ -27,6 +27,9 @@ namespace Portal_2_0.Models
             this.GV_comprobacion_rel_gastos = new HashSet<GV_comprobacion_rel_gastos>();
             this.GV_comprobacion_rel_gastos1 = new HashSet<GV_comprobacion_rel_gastos>();
             this.GV_comprobacion_rel_gastos2 = new HashSet<GV_comprobacion_rel_gastos>();
+            this.empleados = new HashSet<empleados>();
+            this.GV_rel_archivo_nomina = new HashSet<GV_rel_archivo_nomina>();
+            this.GV_solicitud = new HashSet<GV_solicitud>();
         }
     
         public int Id { get; set; }
@@ -54,5 +57,11 @@ namespace Portal_2_0.Models
         public virtual ICollection<GV_comprobacion_rel_gastos> GV_comprobacion_rel_gastos1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<GV_comprobacion_rel_gastos> GV_comprobacion_rel_gastos2 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<empleados> empleados { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<GV_rel_archivo_nomina> GV_rel_archivo_nomina { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<GV_solicitud> GV_solicitud { get; set; }
     }
 }

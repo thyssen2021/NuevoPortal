@@ -36,6 +36,7 @@ namespace Portal_2_0.Models
         public string comentario { get; set; }
         public string comentario_rechazo { get; set; }
         public string comentario_cierre { get; set; }
+        public string tipo { get; set; }
     
         public virtual empleados empleados { get; set; }
         public virtual empleados empleados1 { get; set; }

@@ -485,6 +485,9 @@
     <Compile Include="Models\GV_medios_transporte.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\GV_rel_archivo_nomina.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\GV_rel_gastos_solicitud.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -540,9 +543,6 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IT_equipos_rel_checklist_actividades.cs">
-      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\IT_hardware_tipo.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IT_internet_tipo.cs">
@@ -609,9 +609,6 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IT_site_checklist_rel_actividades.cs">
-      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\IT_software_tipo.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IT_solicitud_usuarios.cs">

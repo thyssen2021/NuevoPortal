@@ -238,6 +238,8 @@
           <Property Name="8ID" Type="varchar" MaxLength="8" />
           <Property Name="id_area" Type="int" />
           <Property Name="id_jefe_directo" Type="int" />
+          <Property Name="id_fotografia" Type="int" />
+          <Property Name="mostrar_telefono" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="GV_centros_costo">
           <Key>
@@ -333,6 +335,15 @@
           <Property Name="descripcion" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
+        <EntityType Name="GV_rel_archivo_nomina">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_gv_solicitud" Type="int" Nullable="false" />
+          <Property Name="id_biblioteca_digital" Type="int" Nullable="false" />
+          <Property Name="cantidad" Type="float" Nullable="false" />
+        </EntityType>
         <EntityType Name="GV_rel_gastos_solicitud">
           <Key>
             <PropertyRef Name="id" />
@@ -379,6 +390,7 @@
           <Property Name="fecha_confirmacion_usuario" Type="datetime" />
           <Property Name="comentario_rechazo" Type="varchar" MaxLength="355" />
           <Property Name="comentario_adicional" Type="varchar" MaxLength="355" />
+          <Property Name="id_soporte_sap" Type="int" />
           <Property Name="estatus" Type="varchar" MaxLength="30" Nullable="false" />
         </EntityType>
         <EntityType Name="GV_tipo_gastos_viaje">
@@ -550,15 +562,6 @@
           <Property Name="observacion" Type="varchar" MaxLength="150" />
           <Property Name="estatus" Type="varchar" MaxLength="10" Nullable="false" />
         </EntityType>
-        <EntityType Name="IT_hardware_tipo">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="descripcion" Type="varchar" MaxLength="40" Nullable="false" />
-          <Property Name="aplica_descripcion" Type="bit" Nullable="false" />
-          <Property Name="activo" Type="bit" Nullable="false" />
-        </EntityType>
         <EntityType Name="IT_internet_tipo">
           <Key>
             <PropertyRef Name="id" />
@@ -609,6 +612,8 @@
           <Property Name="descripcion" Type="varchar" MaxLength="40" Nullable="false" />
           <Property Name="activo" Type="bit" Nullable="false" />
           <Property Name="puede_asignarse" Type="bit" Nullable="false" />
+          <Property Name="disponible_en_matriz_rh" Type="bit" Nullable="false" />
+          <Property Name="aplica_descripcion" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="IT_inventory_items">
           <Key>
@@ -646,6 +651,8 @@
           <Property Name="accessories" Type="varchar" MaxLength="50" />
           <Property Name="physical_server" Type="int" />
           <Property Name="id_tipo_accesorio" Type="int" />
+          <Property Name="baja" Type="bit" Nullable="false" />
+          <Property Name="fecha_baja" Type="datetime" />
         </EntityType>
         <EntityType Name="IT_inventory_items_genericos">
           <Key>
@@ -666,6 +673,8 @@
           <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="descripcion" Type="varchar" MaxLength="40" Nullable="false" />
           <Property Name="activo" Type="bit" Nullable="false" />
+          <Property Name="disponible_en_matriz_rh" Type="bit" Nullable="false" />
+          <Property Name="aplica_descripcion" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="IT_inventory_tipos_accesorios">
           <Key>
@@ -746,8 +755,9 @@
           <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="id_matriz_requerimientos" Type="int" Nullable="false" />
           <Property Name="id_it_hardware" Type="int" Nullable="false" />
+          <Property Name="id_it_asignacion_hardware" Type="int" />
           <Property Name="descripcion" Type="varchar" MaxLength="90" />
-          <Property Name="comentario" Type="varchar" MaxLength="90" />
+          <Property Name="comentario" Type="varchar" MaxLength="150" />
           <Property Name="completado" Type="bit" />
         </EntityType>
         <EntityType Name="IT_matriz_requerimientos">
@@ -767,6 +777,7 @@
           <Property Name="comentario" Type="varchar" MaxLength="350" />
           <Property Name="comentario_rechazo" Type="varchar" MaxLength="350" />
           <Property Name="comentario_cierre" Type="varchar" MaxLength="350" />
+          <Property Name="tipo" Type="varchar" MaxLength="20" Nullable="false" />
         </EntityType>
         <EntityType Name="IT_matriz_software">
           <Key>
@@ -775,8 +786,9 @@
           <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="id_matriz_requerimientos" Type="int" Nullable="false" />
           <Property Name="id_it_software" Type="int" Nullable="false" />
+          <Property Name="id_it_asignacion_software" Type="int" />
           <Property Name="descripcion" Type="varchar" MaxLength="90" />
-          <Property Name="comentario" Type="varchar" MaxLength="90" />
+          <Property Name="comentario" Type="varchar" MaxLength="150" />
           <Property Name="completado" Type="bit" />
         </EntityType>
         <EntityType Name="IT_site">
@@ -817,15 +829,6 @@
           <Property Name="id_it_site_actividad" Type="int" Nullable="false" />
           <Property Name="observacion" Type="varchar" MaxLength="150" />
           <Property Name="estatus" Type="varchar" MaxLength="10" Nullable="false" />
-        </EntityType>
-        <EntityType Name="IT_software_tipo">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="descripcion" Type="varchar" MaxLength="40" Nullable="false" />
-          <Property Name="aplica_descripcion" Type="bit" Nullable="false" />
-          <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="IT_solicitud_usuarios">
           <Key>
@@ -1408,7 +1411,7 @@
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_historico_resultado">
           <Key>
             <PropertyRef Name="id" />
@@ -1500,7 +1503,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_historico_resultado' no 
           <Property Name="comentario" Type="varchar" MaxLength="600" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0_calidad.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_fiscal_year">
           <Key>
             <PropertyRef Name="id" />
@@ -1752,6 +1755,30 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Principal>
             <Dependent Role="empleados">
               <PropertyRef Name="id_area" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_empleados_id_fotografia">
+          <End Role="biblioteca_digital" Type="Self.biblioteca_digital" Multiplicity="0..1" />
+          <End Role="empleados" Type="Self.empleados" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="biblioteca_digital">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="empleados">
+              <PropertyRef Name="id_fotografia" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_empleados_inventory_type">
+          <End Role="IT_inventory_hardware_type" Type="Self.IT_inventory_hardware_type" Multiplicity="1" />
+          <End Role="IT_inventory_items" Type="Self.IT_inventory_items" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_inventory_hardware_type">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_inventory_items">
+              <PropertyRef Name="id_inventory_type" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -2007,6 +2034,30 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_GV_rel_archivo_nomina_id_biblioteca_digital">
+          <End Role="biblioteca_digital" Type="Self.biblioteca_digital" Multiplicity="1" />
+          <End Role="GV_rel_archivo_nomina" Type="Self.GV_rel_archivo_nomina" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="biblioteca_digital">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="GV_rel_archivo_nomina">
+              <PropertyRef Name="id_biblioteca_digital" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_rel_archivo_nomina_id_gv_solicitud">
+          <End Role="GV_solicitud" Type="Self.GV_solicitud" Multiplicity="1" />
+          <End Role="GV_rel_archivo_nomina" Type="Self.GV_rel_archivo_nomina" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GV_solicitud">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="GV_rel_archivo_nomina">
+              <PropertyRef Name="id_gv_solicitud" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_GV_rel_gastos_solicitud_currency_iso">
           <End Role="currency" Type="Self.currency" Multiplicity="1" />
           <End Role="GV_rel_gastos_solicitud" Type="Self.GV_rel_gastos_solicitud" Multiplicity="*" />
@@ -2124,6 +2175,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Principal>
             <Dependent Role="GV_solicitud">
               <PropertyRef Name="id_solicitante" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_solicitud_id_soporte_sap">
+          <End Role="biblioteca_digital" Type="Self.biblioteca_digital" Multiplicity="0..1" />
+          <End Role="GV_solicitud" Type="Self.GV_solicitud" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="biblioteca_digital">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="GV_solicitud">
+              <PropertyRef Name="id_soporte_sap" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -2463,18 +2526,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_IT_inventory_items_id_inventory_type">
-          <End Role="IT_inventory_hardware_type" Type="Self.IT_inventory_hardware_type" Multiplicity="1" />
-          <End Role="IT_inventory_items" Type="Self.IT_inventory_items" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="IT_inventory_hardware_type">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_inventory_items">
-              <PropertyRef Name="id_inventory_type" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_IT_inventory_items_id_planta">
           <End Role="plantas" Type="Self.plantas" Multiplicity="1" />
           <End Role="IT_inventory_items" Type="Self.IT_inventory_items" Multiplicity="*" />
@@ -2631,11 +2682,35 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_IT_matriz_hardware_id_it_hardware">
-          <End Role="IT_hardware_tipo" Type="Self.IT_hardware_tipo" Multiplicity="1" />
+        <Association Name="FK_IT_matriz_hardware_id_it_asignacion_hardware">
+          <End Role="IT_asignacion_hardware" Type="Self.IT_asignacion_hardware" Multiplicity="0..1" />
           <End Role="IT_matriz_hardware" Type="Self.IT_matriz_hardware" Multiplicity="*" />
           <ReferentialConstraint>
-            <Principal Role="IT_hardware_tipo">
+            <Principal Role="IT_asignacion_hardware">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_matriz_hardware">
+              <PropertyRef Name="id_it_asignacion_hardware" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_matriz_hardware_id_it_asignacion_software">
+          <End Role="IT_asignacion_software" Type="Self.IT_asignacion_software" Multiplicity="0..1" />
+          <End Role="IT_matriz_software" Type="Self.IT_matriz_software" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_asignacion_software">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_matriz_software">
+              <PropertyRef Name="id_it_asignacion_software" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_matriz_hardware_id_it_hardware">
+          <End Role="IT_inventory_hardware_type" Type="Self.IT_inventory_hardware_type" Multiplicity="1" />
+          <End Role="IT_matriz_hardware" Type="Self.IT_matriz_hardware" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_inventory_hardware_type">
               <PropertyRef Name="id" />
             </Principal>
             <Dependent Role="IT_matriz_hardware">
@@ -2656,10 +2731,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_IT_matriz_software_id_it_software">
-          <End Role="IT_software_tipo" Type="Self.IT_software_tipo" Multiplicity="1" />
+          <End Role="IT_inventory_software" Type="Self.IT_inventory_software" Multiplicity="1" />
           <End Role="IT_matriz_software" Type="Self.IT_matriz_software" Multiplicity="*" />
           <ReferentialConstraint>
-            <Principal Role="IT_software_tipo">
+            <Principal Role="IT_inventory_software">
               <PropertyRef Name="id" />
             </Principal>
             <Dependent Role="IT_matriz_software">
@@ -3678,6 +3753,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySet Name="GV_comprobacion_tipo_gastos_viaje" EntityType="Self.GV_comprobacion_tipo_gastos_viaje" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="GV_comprobacion_tipo_pago" EntityType="Self.GV_comprobacion_tipo_pago" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="GV_medios_transporte" EntityType="Self.GV_medios_transporte" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="GV_rel_archivo_nomina" EntityType="Self.GV_rel_archivo_nomina" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="GV_rel_gastos_solicitud" EntityType="Self.GV_rel_gastos_solicitud" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="GV_solicitud" EntityType="Self.GV_solicitud" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="GV_tipo_gastos_viaje" EntityType="Self.GV_tipo_gastos_viaje" Schema="dbo" store:Type="Tables" />
@@ -3697,7 +3773,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySet Name="IT_equipos_checklist_actividades" EntityType="Self.IT_equipos_checklist_actividades" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_equipos_checklist_categorias" EntityType="Self.IT_equipos_checklist_categorias" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_equipos_rel_checklist_actividades" EntityType="Self.IT_equipos_rel_checklist_actividades" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="IT_hardware_tipo" EntityType="Self.IT_hardware_tipo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_internet_tipo" EntityType="Self.IT_internet_tipo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_inventory_cellular_line" EntityType="Self.IT_inventory_cellular_line" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_inventory_cellular_plans" EntityType="Self.IT_inventory_cellular_plans" Schema="dbo" store:Type="Tables" />
@@ -3720,7 +3795,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySet Name="IT_site_actividades" EntityType="Self.IT_site_actividades" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_site_checklist" EntityType="Self.IT_site_checklist" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_site_checklist_rel_actividades" EntityType="Self.IT_site_checklist_rel_actividades" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="IT_software_tipo" EntityType="Self.IT_software_tipo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_solicitud_usuarios" EntityType="Self.IT_solicitud_usuarios" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="log_acceso_email" EntityType="Self.log_acceso_email" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="log_inicio_sesion" EntityType="Self.log_inicio_sesion" Schema="dbo" store:Type="Tables" />
@@ -3958,6 +4032,14 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="Area" EntitySet="Area" />
             <End Role="empleados" EntitySet="empleados" />
           </AssociationSet>
+          <AssociationSet Name="FK_empleados_id_fotografia" Association="Self.FK_empleados_id_fotografia">
+            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
+            <End Role="empleados" EntitySet="empleados" />
+          </AssociationSet>
+          <AssociationSet Name="FK_empleados_inventory_type" Association="Self.FK_empleados_inventory_type">
+            <End Role="IT_inventory_hardware_type" EntitySet="IT_inventory_hardware_type" />
+            <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
+          </AssociationSet>
           <AssociationSet Name="FK_empleados_jefe_directo" Association="Self.FK_empleados_jefe_directo">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="empleados1" EntitySet="empleados" />
@@ -4042,6 +4124,14 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="GV_solicitud" EntitySet="GV_solicitud" />
             <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
           </AssociationSet>
+          <AssociationSet Name="FK_GV_rel_archivo_nomina_id_biblioteca_digital" Association="Self.FK_GV_rel_archivo_nomina_id_biblioteca_digital">
+            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
+            <End Role="GV_rel_archivo_nomina" EntitySet="GV_rel_archivo_nomina" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_rel_archivo_nomina_id_gv_solicitud" Association="Self.FK_GV_rel_archivo_nomina_id_gv_solicitud">
+            <End Role="GV_solicitud" EntitySet="GV_solicitud" />
+            <End Role="GV_rel_archivo_nomina" EntitySet="GV_rel_archivo_nomina" />
+          </AssociationSet>
           <AssociationSet Name="FK_GV_rel_gastos_solicitud_currency_iso" Association="Self.FK_GV_rel_gastos_solicitud_currency_iso">
             <End Role="currency" EntitySet="currency" />
             <End Role="GV_rel_gastos_solicitud" EntitySet="GV_rel_gastos_solicitud" />
@@ -4080,6 +4170,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           </AssociationSet>
           <AssociationSet Name="FK_GV_solicitud_id_solicitante" Association="Self.FK_GV_solicitud_id_solicitante">
             <End Role="empleados" EntitySet="empleados" />
+            <End Role="GV_solicitud" EntitySet="GV_solicitud" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_solicitud_id_soporte_sap" Association="Self.FK_GV_solicitud_id_soporte_sap">
+            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
             <End Role="GV_solicitud" EntitySet="GV_solicitud" />
           </AssociationSet>
           <AssociationSet Name="FK_GV_solicitud_iso_moneda_extranjera" Association="Self.FK_GV_solicitud_iso_moneda_extranjera">
@@ -4194,10 +4288,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="IT_inventory_hardware_type" EntitySet="IT_inventory_hardware_type" />
             <End Role="IT_inventory_items_genericos" EntitySet="IT_inventory_items_genericos" />
           </AssociationSet>
-          <AssociationSet Name="FK_IT_inventory_items_id_inventory_type" Association="Self.FK_IT_inventory_items_id_inventory_type">
-            <End Role="IT_inventory_hardware_type" EntitySet="IT_inventory_hardware_type" />
-            <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
-          </AssociationSet>
           <AssociationSet Name="FK_IT_inventory_items_id_planta" Association="Self.FK_IT_inventory_items_id_planta">
             <End Role="plantas" EntitySet="plantas" />
             <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
@@ -4250,8 +4340,16 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
             <End Role="IT_matriz_comunicaciones" EntitySet="IT_matriz_comunicaciones" />
           </AssociationSet>
+          <AssociationSet Name="FK_IT_matriz_hardware_id_it_asignacion_hardware" Association="Self.FK_IT_matriz_hardware_id_it_asignacion_hardware">
+            <End Role="IT_asignacion_hardware" EntitySet="IT_asignacion_hardware" />
+            <End Role="IT_matriz_hardware" EntitySet="IT_matriz_hardware" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_matriz_hardware_id_it_asignacion_software" Association="Self.FK_IT_matriz_hardware_id_it_asignacion_software">
+            <End Role="IT_asignacion_software" EntitySet="IT_asignacion_software" />
+            <End Role="IT_matriz_software" EntitySet="IT_matriz_software" />
+          </AssociationSet>
           <AssociationSet Name="FK_IT_matriz_hardware_id_it_hardware" Association="Self.FK_IT_matriz_hardware_id_it_hardware">
-            <End Role="IT_hardware_tipo" EntitySet="IT_hardware_tipo" />
+            <End Role="IT_inventory_hardware_type" EntitySet="IT_inventory_hardware_type" />
             <End Role="IT_matriz_hardware" EntitySet="IT_matriz_hardware" />
           </AssociationSet>
           <AssociationSet Name="FK_IT_matriz_hardware_id_matriz_requerimientos" Association="Self.FK_IT_matriz_hardware_id_matriz_requerimientos">
@@ -4259,7 +4357,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="IT_matriz_hardware" EntitySet="IT_matriz_hardware" />
           </AssociationSet>
           <AssociationSet Name="FK_IT_matriz_software_id_it_software" Association="Self.FK_IT_matriz_software_id_it_software">
-            <End Role="IT_software_tipo" EntitySet="IT_software_tipo" />
+            <End Role="IT_inventory_software" EntitySet="IT_inventory_software" />
             <End Role="IT_matriz_software" EntitySet="IT_matriz_software" />
           </AssociationSet>
           <AssociationSet Name="FK_IT_matriz_software_id_matriz_requerimientos" Association="Self.FK_IT_matriz_software_id_matriz_requerimientos">
@@ -4658,6 +4756,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="GV_comprobacion_rel_gastos" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_archivo_comprobante_extranjero" FromRole="biblioteca_digital" ToRole="GV_comprobacion_rel_gastos" />
           <NavigationProperty Name="GV_comprobacion_rel_gastos1" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_archivo_pdf" FromRole="biblioteca_digital" ToRole="GV_comprobacion_rel_gastos" />
           <NavigationProperty Name="GV_comprobacion_rel_gastos2" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_archivo_xml" FromRole="biblioteca_digital" ToRole="GV_comprobacion_rel_gastos" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_empleados_id_fotografia" FromRole="biblioteca_digital" ToRole="empleados" />
+          <NavigationProperty Name="GV_rel_archivo_nomina" Relationship="Portal_2_0Model.FK_GV_rel_archivo_nomina_id_biblioteca_digital" FromRole="biblioteca_digital" ToRole="GV_rel_archivo_nomina" />
+          <NavigationProperty Name="GV_solicitud" Relationship="Portal_2_0Model.FK_GV_solicitud_id_soporte_sap" FromRole="biblioteca_digital" ToRole="GV_solicitud" />
           </EntityType>
         <EntityType Name="bom_en_sap">
           <Key>
@@ -4838,8 +4939,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="budget_cantidad" Relationship="Self.FK_budget_cantidad_currency_iso" FromRole="currency" ToRole="budget_cantidad" />
           <NavigationProperty Name="GV_rel_gastos_solicitud" Relationship="Self.FK_GV_rel_gastos_solicitud_currency_iso" FromRole="currency" ToRole="GV_rel_gastos_solicitud" />
           <NavigationProperty Name="poliza_manual" Relationship="Self.FK_poliza_manual_currency" FromRole="currency" ToRole="poliza_manual" />
-          <NavigationProperty Name="GV_solicitud" Relationship="Portal_2_0Model.FK_GV_solicitud_iso_moneda_extranjera" FromRole="currency" ToRole="GV_solicitud" />
           <NavigationProperty Name="GV_comprobacion_rel_gastos" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_currency_iso" FromRole="currency" ToRole="GV_comprobacion_rel_gastos" />
+          <NavigationProperty Name="GV_solicitud" Relationship="Portal_2_0Model.FK_GV_solicitud_iso_moneda_extranjera" FromRole="currency" ToRole="GV_solicitud" />
         </EntityType>
         <EntityType Name="empleados">
           <Key>
@@ -4909,16 +5010,19 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="GV_usuarios" Relationship="Portal_2_0Model.FK_GV_usuarios_id_empleado" FromRole="empleados" ToRole="GV_usuarios" />
           <NavigationProperty Name="IT_site_checklist" Relationship="Portal_2_0Model.FK_site_checklist_id_sistemas" FromRole="empleados" ToRole="IT_site_checklist" />
           <NavigationProperty Name="IT_equipos_checklist" Relationship="Portal_2_0Model.FK_equipos_checklist_id_sistemas" FromRole="empleados" ToRole="IT_equipos_checklist" />
+          <NavigationProperty Name="GV_comprobacion" Relationship="Portal_2_0Model.FK_GV_comprobacion_contabilidad" FromRole="empleados" ToRole="GV_comprobacion" />
+          <NavigationProperty Name="GV_comprobacion1" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_controlling" FromRole="empleados" ToRole="GV_comprobacion" />
+          <NavigationProperty Name="GV_comprobacion2" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_jefe_directo" FromRole="empleados" ToRole="GV_comprobacion" />
+          <NavigationProperty Name="GV_comprobacion3" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_nomina" FromRole="empleados" ToRole="GV_comprobacion" />
+          <Property Name="id_fotografia" Type="Int32" />
+          <Property Name="mostrar_telefono" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="biblioteca_digital" Relationship="Portal_2_0Model.FK_empleados_id_fotografia" FromRole="empleados" ToRole="biblioteca_digital" />
           <NavigationProperty Name="GV_solicitud" Relationship="Portal_2_0Model.FK_GV_solicitud_contabilidad" FromRole="empleados" ToRole="GV_solicitud" />
           <NavigationProperty Name="GV_solicitud1" Relationship="Portal_2_0Model.FK_GV_solicitud_id_controlling" FromRole="empleados" ToRole="GV_solicitud" />
           <NavigationProperty Name="GV_solicitud2" Relationship="Portal_2_0Model.FK_GV_solicitud_id_empleado" FromRole="empleados" ToRole="GV_solicitud" />
           <NavigationProperty Name="GV_solicitud3" Relationship="Portal_2_0Model.FK_GV_solicitud_id_jefe_directo" FromRole="empleados" ToRole="GV_solicitud" />
           <NavigationProperty Name="GV_solicitud4" Relationship="Portal_2_0Model.FK_GV_solicitud_id_nomina" FromRole="empleados" ToRole="GV_solicitud" />
           <NavigationProperty Name="GV_solicitud5" Relationship="Portal_2_0Model.FK_GV_solicitud_id_solicitante" FromRole="empleados" ToRole="GV_solicitud" />
-          <NavigationProperty Name="GV_comprobacion" Relationship="Portal_2_0Model.FK_GV_comprobacion_contabilidad" FromRole="empleados" ToRole="GV_comprobacion" />
-          <NavigationProperty Name="GV_comprobacion1" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_controlling" FromRole="empleados" ToRole="GV_comprobacion" />
-          <NavigationProperty Name="GV_comprobacion2" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_jefe_directo" FromRole="empleados" ToRole="GV_comprobacion" />
-          <NavigationProperty Name="GV_comprobacion3" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_nomina" FromRole="empleados" ToRole="GV_comprobacion" />
           </EntityType>
         <EntityType Name="GV_medios_transporte">
           <Key>
@@ -5048,6 +5152,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="IATF_revisiones" Relationship="Self.FK_id_iatf_version" FromRole="IT_asignacion_hardware" ToRole="IATF_revisiones" />
           <NavigationProperty Name="IT_asignacion_hardware_rel_items" Relationship="Self.FK_IT_inventory_item_id_asignacion_hardware" FromRole="IT_asignacion_hardware" ToRole="IT_asignacion_hardware_rel_items" />
           <NavigationProperty Name="IT_inventory_cellular_line" Relationship="Portal_2_0Model.FK_id_cellular_line" FromRole="IT_asignacion_hardware" ToRole="IT_inventory_cellular_line" />
+          <NavigationProperty Name="IT_matriz_hardware" Relationship="Portal_2_0Model.FK_IT_matriz_hardware_id_it_asignacion_hardware" FromRole="IT_asignacion_hardware" ToRole="IT_matriz_hardware" />
         </EntityType>
         <EntityType Name="IT_asignacion_hardware_rel_items">
           <Key>
@@ -5074,6 +5179,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="empleados" Relationship="Self.FK_IT_asignacion_software_id_empleado" FromRole="IT_asignacion_software" ToRole="empleados" />
           <NavigationProperty Name="empleados1" Relationship="Self.FK_IT_asignacion_software_id_sistemas" FromRole="IT_asignacion_software" ToRole="empleados" />
           <NavigationProperty Name="IT_inventory_software" Relationship="Self.FK_IT_asignacion_software_id_inventory_software" FromRole="IT_asignacion_software" ToRole="IT_inventory_software" />
+          <NavigationProperty Name="IT_matriz_software" Relationship="Portal_2_0Model.FK_IT_matriz_hardware_id_it_asignacion_software" FromRole="IT_asignacion_software" ToRole="IT_matriz_software" />
         </EntityType>
         <EntityType Name="IT_carpetas_red">
           <Key>
@@ -5094,16 +5200,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="aplica_descripcion" Type="Boolean" Nullable="false" />
           <Property Name="activo" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="IT_matriz_comunicaciones" Relationship="Self.FK_IT_matriz_comunicaciones_id_it_comunicaciones" FromRole="IT_comunicaciones_tipo" ToRole="IT_matriz_comunicaciones" />
-        </EntityType>
-        <EntityType Name="IT_hardware_tipo">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="descripcion" Type="String" MaxLength="40" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="aplica_descripcion" Type="Boolean" Nullable="false" />
-          <Property Name="activo" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="IT_matriz_hardware" Relationship="Self.FK_IT_matriz_hardware_id_it_hardware" FromRole="IT_hardware_tipo" ToRole="IT_matriz_hardware" />
         </EntityType>
         <EntityType Name="IT_internet_tipo">
           <Key>
@@ -5147,6 +5243,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="puede_asignarse" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="IT_inventory_items_genericos" Relationship="Self.FK_IT_inventory_items_genericos_id_inventory_type" FromRole="IT_inventory_hardware_type" ToRole="IT_inventory_items_genericos" />
           <NavigationProperty Name="IT_inventory_items" Relationship="Self.FK_IT_inventory_items_id_inventory_type" FromRole="IT_inventory_hardware_type" ToRole="IT_inventory_items" />
+          <Property Name="disponible_en_matriz_rh" Type="Boolean" Nullable="false" />
+          <Property Name="aplica_descripcion" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="IT_matriz_hardware" Relationship="Portal_2_0Model.FK_IT_matriz_hardware_id_it_hardware1" FromRole="IT_inventory_hardware_type" ToRole="IT_matriz_hardware" />
         </EntityType>
         <EntityType Name="IT_inventory_items">
           <Key>
@@ -5193,6 +5292,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="IT_inventory_items1" Relationship="Self.FK_notificaciones_virtual_server" FromRole="IT_inventory_items" ToRole="IT_inventory_items1" />
           <NavigationProperty Name="IT_inventory_items2" Relationship="Self.FK_notificaciones_virtual_server" FromRole="IT_inventory_items1" ToRole="IT_inventory_items" />
           <NavigationProperty Name="IT_equipos_checklist" Relationship="Portal_2_0Model.FK_equipos_checklist_id_inventory_item" FromRole="IT_inventory_items" ToRole="IT_equipos_checklist" />
+          <Property Name="baja" Type="Boolean" Nullable="false" />
+          <Property Name="fecha_baja" Type="DateTime" Precision="3" />
         </EntityType>
         <EntityType Name="IT_inventory_items_genericos">
           <Key>
@@ -5217,6 +5318,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="descripcion" Type="String" MaxLength="40" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="activo" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="IT_asignacion_software" Relationship="Self.FK_IT_asignacion_software_id_inventory_software" FromRole="IT_inventory_software" ToRole="IT_asignacion_software" />
+          <Property Name="disponible_en_matriz_rh" Type="Boolean" Nullable="false" />
+          <Property Name="aplica_descripcion" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="IT_matriz_software" Relationship="Portal_2_0Model.FK_IT_matriz_software_id_it_software1" FromRole="IT_inventory_software" ToRole="IT_matriz_software" />
         </EntityType>
         <EntityType Name="IT_inventory_tipos_accesorios">
           <Key>
@@ -5315,10 +5419,12 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="id_matriz_requerimientos" Type="Int32" Nullable="false" />
           <Property Name="id_it_hardware" Type="Int32" Nullable="false" />
           <Property Name="descripcion" Type="String" MaxLength="90" FixedLength="false" Unicode="false" />
-          <Property Name="comentario" Type="String" MaxLength="90" FixedLength="false" Unicode="false" />
+          <Property Name="comentario" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
           <Property Name="completado" Type="Boolean" />
-          <NavigationProperty Name="IT_hardware_tipo" Relationship="Self.FK_IT_matriz_hardware_id_it_hardware" FromRole="IT_matriz_hardware" ToRole="IT_hardware_tipo" />
           <NavigationProperty Name="IT_matriz_requerimientos" Relationship="Self.FK_IT_matriz_hardware_id_matriz_requerimientos" FromRole="IT_matriz_hardware" ToRole="IT_matriz_requerimientos" />
+          <Property Name="id_it_asignacion_hardware" Type="Int32" />
+          <NavigationProperty Name="IT_asignacion_hardware" Relationship="Portal_2_0Model.FK_IT_matriz_hardware_id_it_asignacion_hardware" FromRole="IT_matriz_hardware" ToRole="IT_asignacion_hardware" />
+          <NavigationProperty Name="IT_inventory_hardware_type" Relationship="Portal_2_0Model.FK_IT_matriz_hardware_id_it_hardware1" FromRole="IT_matriz_hardware" ToRole="IT_inventory_hardware_type" />
         </EntityType>
         <EntityType Name="IT_matriz_requerimientos">
           <Key>
@@ -5346,6 +5452,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <NavigationProperty Name="IT_matriz_comunicaciones" Relationship="Self.FK_IT_matriz_comunicaciones_id_matriz_requerimientos" FromRole="IT_matriz_requerimientos" ToRole="IT_matriz_comunicaciones" />
           <NavigationProperty Name="IT_matriz_hardware" Relationship="Self.FK_IT_matriz_hardware_id_matriz_requerimientos" FromRole="IT_matriz_requerimientos" ToRole="IT_matriz_hardware" />
           <NavigationProperty Name="IT_matriz_software" Relationship="Self.FK_IT_matriz_software_id_matriz_requerimientos" FromRole="IT_matriz_requerimientos" ToRole="IT_matriz_software" />
+          <Property Name="tipo" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="IT_matriz_software">
           <Key>
@@ -5355,20 +5462,12 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="id_matriz_requerimientos" Type="Int32" Nullable="false" />
           <Property Name="id_it_software" Type="Int32" Nullable="false" />
           <Property Name="descripcion" Type="String" MaxLength="90" FixedLength="false" Unicode="false" />
-          <Property Name="comentario" Type="String" MaxLength="90" FixedLength="false" Unicode="false" />
+          <Property Name="comentario" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
           <Property Name="completado" Type="Boolean" />
           <NavigationProperty Name="IT_matriz_requerimientos" Relationship="Self.FK_IT_matriz_software_id_matriz_requerimientos" FromRole="IT_matriz_software" ToRole="IT_matriz_requerimientos" />
-          <NavigationProperty Name="IT_software_tipo" Relationship="Self.FK_IT_matriz_software_id_it_software" FromRole="IT_matriz_software" ToRole="IT_software_tipo" />
-        </EntityType>
-        <EntityType Name="IT_software_tipo">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="descripcion" Type="String" MaxLength="40" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="aplica_descripcion" Type="Boolean" Nullable="false" />
-          <Property Name="activo" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="IT_matriz_software" Relationship="Self.FK_IT_matriz_software_id_it_software" FromRole="IT_software_tipo" ToRole="IT_matriz_software" />
+          <Property Name="id_it_asignacion_software" Type="Int32" />
+          <NavigationProperty Name="IT_asignacion_software" Relationship="Portal_2_0Model.FK_IT_matriz_hardware_id_it_asignacion_software" FromRole="IT_matriz_software" ToRole="IT_asignacion_software" />
+          <NavigationProperty Name="IT_inventory_software" Relationship="Portal_2_0Model.FK_IT_matriz_software_id_it_software1" FromRole="IT_matriz_software" ToRole="IT_inventory_software" />
         </EntityType>
         <EntityType Name="IT_solicitud_usuarios">
           <Key>
@@ -7140,18 +7239,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_IT_matriz_hardware_id_it_hardware">
-          <End Role="IT_hardware_tipo" Type="Self.IT_hardware_tipo" Multiplicity="1" />
-          <End Role="IT_matriz_hardware" Type="Self.IT_matriz_hardware" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="IT_hardware_tipo">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_matriz_hardware">
-              <PropertyRef Name="id_it_hardware" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_IT_mIT_matriz_requerimientos_id_internet_tipo">
           <End Role="IT_internet_tipo" Type="Self.IT_internet_tipo" Multiplicity="1" />
           <End Role="IT_matriz_requerimientos" Type="Self.IT_matriz_requerimientos" Multiplicity="*" />
@@ -7341,18 +7428,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Principal>
             <Dependent Role="IT_matriz_software">
               <PropertyRef Name="id_matriz_requerimientos" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_IT_matriz_software_id_it_software">
-          <End Role="IT_software_tipo" Type="Self.IT_software_tipo" Multiplicity="1" />
-          <End Role="IT_matriz_software" Type="Self.IT_matriz_software" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="IT_software_tipo">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_matriz_software">
-              <PropertyRef Name="id_it_software" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -7862,7 +7937,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySet Name="IT_asignacion_software" EntityType="Self.IT_asignacion_software" />
           <EntitySet Name="IT_carpetas_red" EntityType="Self.IT_carpetas_red" />
           <EntitySet Name="IT_comunicaciones_tipo" EntityType="Self.IT_comunicaciones_tipo" />
-          <EntitySet Name="IT_hardware_tipo" EntityType="Self.IT_hardware_tipo" />
           <EntitySet Name="IT_internet_tipo" EntityType="Self.IT_internet_tipo" />
           <EntitySet Name="IT_inventory_cellular_plans" EntityType="Self.IT_inventory_cellular_plans" />
           <EntitySet Name="IT_inventory_hard_drives" EntityType="Self.IT_inventory_hard_drives" />
@@ -7880,7 +7954,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySet Name="IT_matriz_hardware" EntityType="Self.IT_matriz_hardware" />
           <EntitySet Name="IT_matriz_requerimientos" EntityType="Self.IT_matriz_requerimientos" />
           <EntitySet Name="IT_matriz_software" EntityType="Self.IT_matriz_software" />
-          <EntitySet Name="IT_software_tipo" EntityType="Self.IT_software_tipo" />
           <EntitySet Name="IT_solicitud_usuarios" EntityType="Self.IT_solicitud_usuarios" />
           <EntitySet Name="log_acceso_email" EntityType="Self.log_acceso_email" />
           <EntitySet Name="log_inicio_sesion" EntityType="Self.log_inicio_sesion" />
@@ -8241,10 +8314,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="IT_comunicaciones_tipo" EntitySet="IT_comunicaciones_tipo" />
             <End Role="IT_matriz_comunicaciones" EntitySet="IT_matriz_comunicaciones" />
           </AssociationSet>
-          <AssociationSet Name="FK_IT_matriz_hardware_id_it_hardware" Association="Self.FK_IT_matriz_hardware_id_it_hardware">
-            <End Role="IT_hardware_tipo" EntitySet="IT_hardware_tipo" />
-            <End Role="IT_matriz_hardware" EntitySet="IT_matriz_hardware" />
-          </AssociationSet>
           <AssociationSet Name="FK_IT_mIT_matriz_requerimientos_id_internet_tipo" Association="Self.FK_IT_mIT_matriz_requerimientos_id_internet_tipo">
             <End Role="IT_internet_tipo" EntitySet="IT_internet_tipo" />
             <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
@@ -8307,10 +8376,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           </AssociationSet>
           <AssociationSet Name="FK_IT_matriz_software_id_matriz_requerimientos" Association="Self.FK_IT_matriz_software_id_matriz_requerimientos">
             <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
-            <End Role="IT_matriz_software" EntitySet="IT_matriz_software" />
-          </AssociationSet>
-          <AssociationSet Name="FK_IT_matriz_software_id_it_software" Association="Self.FK_IT_matriz_software_id_it_software">
-            <End Role="IT_software_tipo" EntitySet="IT_software_tipo" />
             <End Role="IT_matriz_software" EntitySet="IT_matriz_software" />
           </AssociationSet>
           <AssociationSet Name="FK_IT_solicitud_usuarios_id_planta" Association="Self.FK_IT_solicitud_usuarios_id_planta">
@@ -8546,43 +8611,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="GV_centros_costo" EntitySet="GV_centros_costo" />
           </AssociationSet>
           <EntitySet Name="GV_comprobacion_tipo_pago" EntityType="Portal_2_0Model.GV_comprobacion_tipo_pago" />
-          <EntitySet Name="GV_solicitud" EntityType="Portal_2_0Model.GV_solicitud" />
-          <AssociationSet Name="FK_GV_solicitud_iso_moneda_extranjera" Association="Portal_2_0Model.FK_GV_solicitud_iso_moneda_extranjera">
-            <End Role="currency" EntitySet="currency" />
-            <End Role="GV_solicitud" EntitySet="GV_solicitud" />
-          </AssociationSet>
-          <AssociationSet Name="FK_GV_solicitud_contabilidad" Association="Portal_2_0Model.FK_GV_solicitud_contabilidad">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="GV_solicitud" EntitySet="GV_solicitud" />
-          </AssociationSet>
-          <AssociationSet Name="FK_GV_solicitud_id_controlling" Association="Portal_2_0Model.FK_GV_solicitud_id_controlling">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="GV_solicitud" EntitySet="GV_solicitud" />
-          </AssociationSet>
-          <AssociationSet Name="FK_GV_solicitud_id_empleado" Association="Portal_2_0Model.FK_GV_solicitud_id_empleado">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="GV_solicitud" EntitySet="GV_solicitud" />
-          </AssociationSet>
-          <AssociationSet Name="FK_GV_solicitud_id_jefe_directo" Association="Portal_2_0Model.FK_GV_solicitud_id_jefe_directo">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="GV_solicitud" EntitySet="GV_solicitud" />
-          </AssociationSet>
-          <AssociationSet Name="FK_GV_solicitud_id_nomina" Association="Portal_2_0Model.FK_GV_solicitud_id_nomina">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="GV_solicitud" EntitySet="GV_solicitud" />
-          </AssociationSet>
-          <AssociationSet Name="FK_GV_solicitud_id_solicitante" Association="Portal_2_0Model.FK_GV_solicitud_id_solicitante">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="GV_solicitud" EntitySet="GV_solicitud" />
-          </AssociationSet>
-          <AssociationSet Name="FK_GV_solicitud_id_medio_transporte" Association="Portal_2_0Model.FK_GV_solicitud_id_medio_transporte">
-            <End Role="GV_medios_transporte" EntitySet="GV_medios_transporte" />
-            <End Role="GV_solicitud" EntitySet="GV_solicitud" />
-          </AssociationSet>
-          <AssociationSet Name="FK_GV_rel_gastos_solicitud_id_gv_solicitud" Association="Portal_2_0Model.FK_GV_rel_gastos_solicitud_id_gv_solicitud">
-            <End Role="GV_solicitud" EntitySet="GV_solicitud" />
-            <End Role="GV_rel_gastos_solicitud" EntitySet="GV_rel_gastos_solicitud" />
-          </AssociationSet>
           <EntitySet Name="GV_comprobacion" EntityType="Portal_2_0Model.GV_comprobacion" />
           <AssociationSet Name="FK_GV_comprobacion_id_extracto_cuenta" Association="Portal_2_0Model.FK_GV_comprobacion_id_extracto_cuenta">
             <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
@@ -8602,10 +8630,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           </AssociationSet>
           <AssociationSet Name="FK_GV_comprobacion_id_nomina" Association="Portal_2_0Model.FK_GV_comprobacion_id_nomina">
             <End Role="empleados" EntitySet="empleados" />
-            <End Role="GV_comprobacion" EntitySet="GV_comprobacion" />
-          </AssociationSet>
-          <AssociationSet Name="FK_GV_comprobacion_id_gv_solicitud" Association="Portal_2_0Model.FK_GV_comprobacion_id_gv_solicitud">
-            <End Role="GV_solicitud" EntitySet="GV_solicitud" />
             <End Role="GV_comprobacion" EntitySet="GV_comprobacion" />
           </AssociationSet>
           <EntitySet Name="GV_comprobacion_rel_gastos" EntityType="Portal_2_0Model.GV_comprobacion_rel_gastos" />
@@ -8637,9 +8661,83 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             <End Role="GV_comprobacion_tipo_pago" EntitySet="GV_comprobacion_tipo_pago" />
             <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
           </AssociationSet>
+          <EntitySet Name="GV_rel_archivo_nomina" EntityType="Portal_2_0Model.GV_rel_archivo_nomina" />
+          <EntitySet Name="GV_solicitud" EntityType="Portal_2_0Model.GV_solicitud" />
+          <AssociationSet Name="FK_empleados_id_fotografia" Association="Portal_2_0Model.FK_empleados_id_fotografia">
+            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
+            <End Role="empleados" EntitySet="empleados" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_rel_archivo_nomina_id_biblioteca_digital" Association="Portal_2_0Model.FK_GV_rel_archivo_nomina_id_biblioteca_digital">
+            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
+            <End Role="GV_rel_archivo_nomina" EntitySet="GV_rel_archivo_nomina" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_solicitud_id_soporte_sap" Association="Portal_2_0Model.FK_GV_solicitud_id_soporte_sap">
+            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
+            <End Role="GV_solicitud" EntitySet="GV_solicitud" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_solicitud_iso_moneda_extranjera" Association="Portal_2_0Model.FK_GV_solicitud_iso_moneda_extranjera">
+            <End Role="currency" EntitySet="currency" />
+            <End Role="GV_solicitud" EntitySet="GV_solicitud" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_solicitud_contabilidad" Association="Portal_2_0Model.FK_GV_solicitud_contabilidad">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="GV_solicitud" EntitySet="GV_solicitud" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_solicitud_id_controlling" Association="Portal_2_0Model.FK_GV_solicitud_id_controlling">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="GV_solicitud" EntitySet="GV_solicitud" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_solicitud_id_empleado" Association="Portal_2_0Model.FK_GV_solicitud_id_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="GV_solicitud" EntitySet="GV_solicitud" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_solicitud_id_jefe_directo" Association="Portal_2_0Model.FK_GV_solicitud_id_jefe_directo">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="GV_solicitud" EntitySet="GV_solicitud" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_solicitud_id_nomina" Association="Portal_2_0Model.FK_GV_solicitud_id_nomina">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="GV_solicitud" EntitySet="GV_solicitud" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_solicitud_id_solicitante" Association="Portal_2_0Model.FK_GV_solicitud_id_solicitante">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="GV_solicitud" EntitySet="GV_solicitud" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_comprobacion_id_gv_solicitud" Association="Portal_2_0Model.FK_GV_comprobacion_id_gv_solicitud">
+            <End Role="GV_solicitud" EntitySet="GV_solicitud" />
+            <End Role="GV_comprobacion" EntitySet="GV_comprobacion" />
+          </AssociationSet>
           <AssociationSet Name="FK_GV_comprobacion_rel_gastos_id_gv_solicitud" Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_gv_solicitud">
             <End Role="GV_solicitud" EntitySet="GV_solicitud" />
             <End Role="GV_comprobacion_rel_gastos" EntitySet="GV_comprobacion_rel_gastos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_solicitud_id_medio_transporte" Association="Portal_2_0Model.FK_GV_solicitud_id_medio_transporte">
+            <End Role="GV_medios_transporte" EntitySet="GV_medios_transporte" />
+            <End Role="GV_solicitud" EntitySet="GV_solicitud" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_rel_archivo_nomina_id_gv_solicitud" Association="Portal_2_0Model.FK_GV_rel_archivo_nomina_id_gv_solicitud">
+            <End Role="GV_solicitud" EntitySet="GV_solicitud" />
+            <End Role="GV_rel_archivo_nomina" EntitySet="GV_rel_archivo_nomina" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GV_rel_gastos_solicitud_id_gv_solicitud" Association="Portal_2_0Model.FK_GV_rel_gastos_solicitud_id_gv_solicitud">
+            <End Role="GV_solicitud" EntitySet="GV_solicitud" />
+            <End Role="GV_rel_gastos_solicitud" EntitySet="GV_rel_gastos_solicitud" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_matriz_hardware_id_it_asignacion_hardware" Association="Portal_2_0Model.FK_IT_matriz_hardware_id_it_asignacion_hardware">
+            <End Role="IT_asignacion_hardware" EntitySet="IT_asignacion_hardware" />
+            <End Role="IT_matriz_hardware" EntitySet="IT_matriz_hardware" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_matriz_hardware_id_it_asignacion_software" Association="Portal_2_0Model.FK_IT_matriz_hardware_id_it_asignacion_software">
+            <End Role="IT_asignacion_software" EntitySet="IT_asignacion_software" />
+            <End Role="IT_matriz_software" EntitySet="IT_matriz_software" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_matriz_hardware_id_it_hardware1" Association="Portal_2_0Model.FK_IT_matriz_hardware_id_it_hardware1">
+            <End Role="IT_inventory_hardware_type" EntitySet="IT_inventory_hardware_type" />
+            <End Role="IT_matriz_hardware" EntitySet="IT_matriz_hardware" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_matriz_software_id_it_software1" Association="Portal_2_0Model.FK_IT_matriz_software_id_it_software1">
+            <End Role="IT_inventory_software" EntitySet="IT_inventory_software" />
+            <End Role="IT_matriz_software" EntitySet="IT_matriz_software" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="GV_usuarios">
@@ -8971,161 +9069,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <Property Name="activo" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="GV_comprobacion_rel_gastos" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_pago" FromRole="GV_comprobacion_tipo_pago" ToRole="GV_comprobacion_rel_gastos" />
         </EntityType>
-        <EntityType Name="GV_solicitud">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_solicitante" Type="Int32" Nullable="false" />
-          <Property Name="id_empleado" Type="Int32" Nullable="false" />
-          <Property Name="id_jefe_directo" Type="Int32" Nullable="false" />
-          <Property Name="id_controlling" Type="Int32" />
-          <Property Name="id_contabilidad" Type="Int32" />
-          <Property Name="id_nomina" Type="Int32" />
-          <Property Name="fecha_solicitud" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="tipo_viaje" Type="String" Nullable="false" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="origen" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="destino" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="fecha_salida" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="fecha_regreso" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="id_medio_transporte" Type="Int32" />
-          <Property Name="medio_transporte_otro" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
-          <Property Name="motivo_viaje" Type="String" Nullable="false" MaxLength="350" FixedLength="false" Unicode="false" />
-          <Property Name="moneda_extranjera" Type="Boolean" Nullable="false" />
-          <Property Name="moneda_extranjera_comentarios" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
-          <Property Name="moneda_extranjera_monto" Type="Decimal" Precision="12" Scale="2" />
-          <Property Name="iso_moneda_extranjera" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
-          <Property Name="boletos_avion" Type="Boolean" Nullable="false" />
-          <Property Name="hospedaje" Type="Boolean" Nullable="false" />
-          <Property Name="reservaciones_comentarios" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
-          <Property Name="fecha_aceptacion_jefe_area" Type="DateTime" Precision="3" />
-          <Property Name="fecha_aceptacion_controlling" Type="DateTime" Precision="3" />
-          <Property Name="fecha_aceptacion_contabilidad" Type="DateTime" Precision="3" />
-          <Property Name="fecha_aceptacion_nomina" Type="DateTime" Precision="3" />
-          <Property Name="fecha_confirmacion_usuario" Type="DateTime" Precision="3" />
-          <Property Name="comentario_rechazo" Type="String" MaxLength="355" FixedLength="false" Unicode="false" />
-          <Property Name="comentario_adicional" Type="String" MaxLength="355" FixedLength="false" Unicode="false" />
-          <Property Name="estatus" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="currency" Relationship="Portal_2_0Model.FK_GV_solicitud_iso_moneda_extranjera" FromRole="GV_solicitud" ToRole="currency" />
-          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_GV_solicitud_contabilidad" FromRole="GV_solicitud" ToRole="empleados" />
-          <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_GV_solicitud_id_controlling" FromRole="GV_solicitud" ToRole="empleados" />
-          <NavigationProperty Name="empleados2" Relationship="Portal_2_0Model.FK_GV_solicitud_id_empleado" FromRole="GV_solicitud" ToRole="empleados" />
-          <NavigationProperty Name="empleados3" Relationship="Portal_2_0Model.FK_GV_solicitud_id_jefe_directo" FromRole="GV_solicitud" ToRole="empleados" />
-          <NavigationProperty Name="empleados4" Relationship="Portal_2_0Model.FK_GV_solicitud_id_nomina" FromRole="GV_solicitud" ToRole="empleados" />
-          <NavigationProperty Name="empleados5" Relationship="Portal_2_0Model.FK_GV_solicitud_id_solicitante" FromRole="GV_solicitud" ToRole="empleados" />
-          <NavigationProperty Name="GV_medios_transporte" Relationship="Portal_2_0Model.FK_GV_solicitud_id_medio_transporte" FromRole="GV_solicitud" ToRole="GV_medios_transporte" />
-          <NavigationProperty Name="GV_rel_gastos_solicitud" Relationship="Portal_2_0Model.FK_GV_rel_gastos_solicitud_id_gv_solicitud" FromRole="GV_solicitud" ToRole="GV_rel_gastos_solicitud" />
-          <NavigationProperty Name="GV_comprobacion" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_gv_solicitud" FromRole="GV_solicitud" ToRole="GV_comprobacion" />
-          <NavigationProperty Name="GV_comprobacion_rel_gastos" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_gv_solicitud" FromRole="GV_solicitud" ToRole="GV_comprobacion_rel_gastos" />
-        </EntityType>
-        <Association Name="FK_GV_solicitud_iso_moneda_extranjera">
-          <End Type="Portal_2_0Model.currency" Role="currency" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="currency">
-              <PropertyRef Name="CurrencyISO" />
-            </Principal>
-            <Dependent Role="GV_solicitud">
-              <PropertyRef Name="iso_moneda_extranjera" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_GV_solicitud_contabilidad">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="GV_solicitud">
-              <PropertyRef Name="id_contabilidad" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_GV_solicitud_id_controlling">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="GV_solicitud">
-              <PropertyRef Name="id_controlling" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_GV_solicitud_id_empleado">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
-          <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="GV_solicitud">
-              <PropertyRef Name="id_empleado" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_GV_solicitud_id_jefe_directo">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
-          <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="GV_solicitud">
-              <PropertyRef Name="id_jefe_directo" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_GV_solicitud_id_nomina">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="GV_solicitud">
-              <PropertyRef Name="id_nomina" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_GV_solicitud_id_solicitante">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
-          <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="GV_solicitud">
-              <PropertyRef Name="id_solicitante" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_GV_solicitud_id_medio_transporte">
-          <End Type="Portal_2_0Model.GV_medios_transporte" Role="GV_medios_transporte" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="GV_medios_transporte">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="GV_solicitud">
-              <PropertyRef Name="id_medio_transporte" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_GV_rel_gastos_solicitud_id_gv_solicitud">
-          <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="1" />
-          <End Type="Portal_2_0Model.GV_rel_gastos_solicitud" Role="GV_rel_gastos_solicitud" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="GV_solicitud">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="GV_rel_gastos_solicitud">
-              <PropertyRef Name="id_gv_solicitud" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityType Name="GV_comprobacion">
           <Key>
             <PropertyRef Name="id_gv_solicitud" />
@@ -9210,18 +9153,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Principal>
             <Dependent Role="GV_comprobacion">
               <PropertyRef Name="id_nomina" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_GV_comprobacion_id_gv_solicitud">
-          <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="1" />
-          <End Type="Portal_2_0Model.GV_comprobacion" Role="GV_comprobacion" Multiplicity="0..1" />
-          <ReferentialConstraint>
-            <Principal Role="GV_solicitud">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="GV_comprobacion">
-              <PropertyRef Name="id_gv_solicitud" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -9355,6 +9286,199 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="GV_rel_archivo_nomina">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_gv_solicitud" Type="Int32" Nullable="false" />
+          <Property Name="id_biblioteca_digital" Type="Int32" Nullable="false" />
+          <Property Name="cantidad" Type="Double" Nullable="false" />
+          <NavigationProperty Name="biblioteca_digital" Relationship="Portal_2_0Model.FK_GV_rel_archivo_nomina_id_biblioteca_digital" FromRole="GV_rel_archivo_nomina" ToRole="biblioteca_digital" />
+          <NavigationProperty Name="GV_solicitud" Relationship="Portal_2_0Model.FK_GV_rel_archivo_nomina_id_gv_solicitud" FromRole="GV_rel_archivo_nomina" ToRole="GV_solicitud" />
+        </EntityType>
+        <EntityType Name="GV_solicitud">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_solicitante" Type="Int32" Nullable="false" />
+          <Property Name="id_empleado" Type="Int32" Nullable="false" />
+          <Property Name="id_jefe_directo" Type="Int32" Nullable="false" />
+          <Property Name="id_controlling" Type="Int32" />
+          <Property Name="id_contabilidad" Type="Int32" />
+          <Property Name="id_nomina" Type="Int32" />
+          <Property Name="fecha_solicitud" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="tipo_viaje" Type="String" Nullable="false" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="origen" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="destino" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="fecha_salida" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="fecha_regreso" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="id_medio_transporte" Type="Int32" />
+          <Property Name="medio_transporte_otro" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
+          <Property Name="motivo_viaje" Type="String" Nullable="false" MaxLength="350" FixedLength="false" Unicode="false" />
+          <Property Name="moneda_extranjera" Type="Boolean" Nullable="false" />
+          <Property Name="moneda_extranjera_comentarios" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
+          <Property Name="moneda_extranjera_monto" Type="Decimal" Precision="12" Scale="2" />
+          <Property Name="iso_moneda_extranjera" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="boletos_avion" Type="Boolean" Nullable="false" />
+          <Property Name="hospedaje" Type="Boolean" Nullable="false" />
+          <Property Name="reservaciones_comentarios" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
+          <Property Name="fecha_aceptacion_jefe_area" Type="DateTime" Precision="3" />
+          <Property Name="fecha_aceptacion_controlling" Type="DateTime" Precision="3" />
+          <Property Name="fecha_aceptacion_contabilidad" Type="DateTime" Precision="3" />
+          <Property Name="fecha_aceptacion_nomina" Type="DateTime" Precision="3" />
+          <Property Name="fecha_confirmacion_usuario" Type="DateTime" Precision="3" />
+          <Property Name="comentario_rechazo" Type="String" MaxLength="355" FixedLength="false" Unicode="false" />
+          <Property Name="comentario_adicional" Type="String" MaxLength="355" FixedLength="false" Unicode="false" />
+          <Property Name="id_soporte_sap" Type="Int32" />
+          <Property Name="estatus" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="biblioteca_digital" Relationship="Portal_2_0Model.FK_GV_solicitud_id_soporte_sap" FromRole="GV_solicitud" ToRole="biblioteca_digital" />
+          <NavigationProperty Name="currency" Relationship="Portal_2_0Model.FK_GV_solicitud_iso_moneda_extranjera" FromRole="GV_solicitud" ToRole="currency" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_GV_solicitud_contabilidad" FromRole="GV_solicitud" ToRole="empleados" />
+          <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_GV_solicitud_id_controlling" FromRole="GV_solicitud" ToRole="empleados" />
+          <NavigationProperty Name="empleados2" Relationship="Portal_2_0Model.FK_GV_solicitud_id_empleado" FromRole="GV_solicitud" ToRole="empleados" />
+          <NavigationProperty Name="empleados3" Relationship="Portal_2_0Model.FK_GV_solicitud_id_jefe_directo" FromRole="GV_solicitud" ToRole="empleados" />
+          <NavigationProperty Name="empleados4" Relationship="Portal_2_0Model.FK_GV_solicitud_id_nomina" FromRole="GV_solicitud" ToRole="empleados" />
+          <NavigationProperty Name="empleados5" Relationship="Portal_2_0Model.FK_GV_solicitud_id_solicitante" FromRole="GV_solicitud" ToRole="empleados" />
+          <NavigationProperty Name="GV_comprobacion" Relationship="Portal_2_0Model.FK_GV_comprobacion_id_gv_solicitud" FromRole="GV_solicitud" ToRole="GV_comprobacion" />
+          <NavigationProperty Name="GV_comprobacion_rel_gastos" Relationship="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_gv_solicitud" FromRole="GV_solicitud" ToRole="GV_comprobacion_rel_gastos" />
+          <NavigationProperty Name="GV_medios_transporte" Relationship="Portal_2_0Model.FK_GV_solicitud_id_medio_transporte" FromRole="GV_solicitud" ToRole="GV_medios_transporte" />
+          <NavigationProperty Name="GV_rel_archivo_nomina" Relationship="Portal_2_0Model.FK_GV_rel_archivo_nomina_id_gv_solicitud" FromRole="GV_solicitud" ToRole="GV_rel_archivo_nomina" />
+          <NavigationProperty Name="GV_rel_gastos_solicitud" Relationship="Portal_2_0Model.FK_GV_rel_gastos_solicitud_id_gv_solicitud" FromRole="GV_solicitud" ToRole="GV_rel_gastos_solicitud" />
+        </EntityType>
+        <Association Name="FK_empleados_id_fotografia">
+          <End Type="Portal_2_0Model.biblioteca_digital" Role="biblioteca_digital" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="biblioteca_digital">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="empleados">
+              <PropertyRef Name="id_fotografia" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_rel_archivo_nomina_id_biblioteca_digital">
+          <End Type="Portal_2_0Model.biblioteca_digital" Role="biblioteca_digital" Multiplicity="1" />
+          <End Type="Portal_2_0Model.GV_rel_archivo_nomina" Role="GV_rel_archivo_nomina" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="biblioteca_digital">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="GV_rel_archivo_nomina">
+              <PropertyRef Name="id_biblioteca_digital" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_solicitud_id_soporte_sap">
+          <End Type="Portal_2_0Model.biblioteca_digital" Role="biblioteca_digital" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="biblioteca_digital">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="GV_solicitud">
+              <PropertyRef Name="id_soporte_sap" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_solicitud_iso_moneda_extranjera">
+          <End Type="Portal_2_0Model.currency" Role="currency" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="currency">
+              <PropertyRef Name="CurrencyISO" />
+            </Principal>
+            <Dependent Role="GV_solicitud">
+              <PropertyRef Name="iso_moneda_extranjera" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_solicitud_contabilidad">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="GV_solicitud">
+              <PropertyRef Name="id_contabilidad" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_solicitud_id_controlling">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="GV_solicitud">
+              <PropertyRef Name="id_controlling" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_solicitud_id_empleado">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="GV_solicitud">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_solicitud_id_jefe_directo">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="GV_solicitud">
+              <PropertyRef Name="id_jefe_directo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_solicitud_id_nomina">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="GV_solicitud">
+              <PropertyRef Name="id_nomina" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_solicitud_id_solicitante">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="GV_solicitud">
+              <PropertyRef Name="id_solicitante" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_comprobacion_id_gv_solicitud">
+          <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="1" />
+          <End Type="Portal_2_0Model.GV_comprobacion" Role="GV_comprobacion" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="GV_solicitud">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="GV_comprobacion">
+              <PropertyRef Name="id_gv_solicitud" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_GV_comprobacion_rel_gastos_id_gv_solicitud">
           <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="1" />
           <End Type="Portal_2_0Model.GV_comprobacion_rel_gastos" Role="GV_comprobacion_rel_gastos" Multiplicity="*" />
@@ -9364,6 +9488,90 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
             </Principal>
             <Dependent Role="GV_comprobacion_rel_gastos">
               <PropertyRef Name="id_gv_solicitud" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_solicitud_id_medio_transporte">
+          <End Type="Portal_2_0Model.GV_medios_transporte" Role="GV_medios_transporte" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GV_medios_transporte">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="GV_solicitud">
+              <PropertyRef Name="id_medio_transporte" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_rel_archivo_nomina_id_gv_solicitud">
+          <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="1" />
+          <End Type="Portal_2_0Model.GV_rel_archivo_nomina" Role="GV_rel_archivo_nomina" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GV_solicitud">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="GV_rel_archivo_nomina">
+              <PropertyRef Name="id_gv_solicitud" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GV_rel_gastos_solicitud_id_gv_solicitud">
+          <End Type="Portal_2_0Model.GV_solicitud" Role="GV_solicitud" Multiplicity="1" />
+          <End Type="Portal_2_0Model.GV_rel_gastos_solicitud" Role="GV_rel_gastos_solicitud" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="GV_solicitud">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="GV_rel_gastos_solicitud">
+              <PropertyRef Name="id_gv_solicitud" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_matriz_hardware_id_it_asignacion_hardware">
+          <End Type="Portal_2_0Model.IT_asignacion_hardware" Role="IT_asignacion_hardware" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.IT_matriz_hardware" Role="IT_matriz_hardware" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_asignacion_hardware">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_matriz_hardware">
+              <PropertyRef Name="id_it_asignacion_hardware" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_matriz_hardware_id_it_asignacion_software">
+          <End Type="Portal_2_0Model.IT_asignacion_software" Role="IT_asignacion_software" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.IT_matriz_software" Role="IT_matriz_software" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_asignacion_software">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_matriz_software">
+              <PropertyRef Name="id_it_asignacion_software" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_matriz_hardware_id_it_hardware1">
+          <End Type="Portal_2_0Model.IT_inventory_hardware_type" Role="IT_inventory_hardware_type" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_matriz_hardware" Role="IT_matriz_hardware" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_inventory_hardware_type">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_matriz_hardware">
+              <PropertyRef Name="id_it_hardware" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_matriz_software_id_it_software1">
+          <End Type="Portal_2_0Model.IT_inventory_software" Role="IT_inventory_software" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_matriz_software" Role="IT_matriz_software" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_inventory_software">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_matriz_software">
+              <PropertyRef Name="id_it_software" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -9588,6 +9796,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySetMapping Name="empleados">
             <EntityTypeMapping TypeName="Portal_2_0Model.empleados">
               <MappingFragment StoreEntitySet="empleados">
+                <ScalarProperty Name="mostrar_telefono" ColumnName="mostrar_telefono" />
+                <ScalarProperty Name="id_fotografia" ColumnName="id_fotografia" />
                 <ScalarProperty Name="id" ColumnName="id" />
                 <ScalarProperty Name="nueva_fecha_nacimiento" ColumnName="nueva_fecha_nacimiento" />
                 <ScalarProperty Name="planta_clave" ColumnName="planta_clave" />
@@ -9770,16 +9980,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="IT_hardware_tipo">
-            <EntityTypeMapping TypeName="Portal_2_0Model.IT_hardware_tipo">
-              <MappingFragment StoreEntitySet="IT_hardware_tipo">
-                <ScalarProperty Name="id" ColumnName="id" />
-                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
-                <ScalarProperty Name="aplica_descripcion" ColumnName="aplica_descripcion" />
-                <ScalarProperty Name="activo" ColumnName="activo" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="IT_internet_tipo">
             <EntityTypeMapping TypeName="Portal_2_0Model.IT_internet_tipo">
               <MappingFragment StoreEntitySet="IT_internet_tipo">
@@ -9815,6 +10015,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySetMapping Name="IT_inventory_hardware_type">
             <EntityTypeMapping TypeName="Portal_2_0Model.IT_inventory_hardware_type">
               <MappingFragment StoreEntitySet="IT_inventory_hardware_type">
+                <ScalarProperty Name="aplica_descripcion" ColumnName="aplica_descripcion" />
+                <ScalarProperty Name="disponible_en_matriz_rh" ColumnName="disponible_en_matriz_rh" />
                 <ScalarProperty Name="id" ColumnName="id" />
                 <ScalarProperty Name="descripcion" ColumnName="descripcion" />
                 <ScalarProperty Name="activo" ColumnName="activo" />
@@ -9825,6 +10027,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySetMapping Name="IT_inventory_items">
             <EntityTypeMapping TypeName="Portal_2_0Model.IT_inventory_items">
               <MappingFragment StoreEntitySet="IT_inventory_items">
+                <ScalarProperty Name="fecha_baja" ColumnName="fecha_baja" />
+                <ScalarProperty Name="baja" ColumnName="baja" />
                 <ScalarProperty Name="id" ColumnName="id" />
                 <ScalarProperty Name="id_planta" ColumnName="id_planta" />
                 <ScalarProperty Name="id_inventory_type" ColumnName="id_inventory_type" />
@@ -9876,6 +10080,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySetMapping Name="IT_inventory_software">
             <EntityTypeMapping TypeName="Portal_2_0Model.IT_inventory_software">
               <MappingFragment StoreEntitySet="IT_inventory_software">
+                <ScalarProperty Name="aplica_descripcion" ColumnName="aplica_descripcion" />
+                <ScalarProperty Name="disponible_en_matriz_rh" ColumnName="disponible_en_matriz_rh" />
                 <ScalarProperty Name="id" ColumnName="id" />
                 <ScalarProperty Name="descripcion" ColumnName="descripcion" />
                 <ScalarProperty Name="activo" ColumnName="activo" />
@@ -9964,6 +10170,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySetMapping Name="IT_matriz_hardware">
             <EntityTypeMapping TypeName="Portal_2_0Model.IT_matriz_hardware">
               <MappingFragment StoreEntitySet="IT_matriz_hardware">
+                <ScalarProperty Name="id_it_asignacion_hardware" ColumnName="id_it_asignacion_hardware" />
                 <ScalarProperty Name="id" ColumnName="id" />
                 <ScalarProperty Name="id_matriz_requerimientos" ColumnName="id_matriz_requerimientos" />
                 <ScalarProperty Name="id_it_hardware" ColumnName="id_it_hardware" />
@@ -9976,6 +10183,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySetMapping Name="IT_matriz_requerimientos">
             <EntityTypeMapping TypeName="Portal_2_0Model.IT_matriz_requerimientos">
               <MappingFragment StoreEntitySet="IT_matriz_requerimientos">
+                <ScalarProperty Name="tipo" ColumnName="tipo" />
                 <ScalarProperty Name="id" ColumnName="id" />
                 <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
                 <ScalarProperty Name="id_solicitante" ColumnName="id_solicitante" />
@@ -9995,22 +10203,13 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
           <EntitySetMapping Name="IT_matriz_software">
             <EntityTypeMapping TypeName="Portal_2_0Model.IT_matriz_software">
               <MappingFragment StoreEntitySet="IT_matriz_software">
+                <ScalarProperty Name="id_it_asignacion_software" ColumnName="id_it_asignacion_software" />
                 <ScalarProperty Name="id" ColumnName="id" />
                 <ScalarProperty Name="id_matriz_requerimientos" ColumnName="id_matriz_requerimientos" />
                 <ScalarProperty Name="id_it_software" ColumnName="id_it_software" />
                 <ScalarProperty Name="descripcion" ColumnName="descripcion" />
                 <ScalarProperty Name="comentario" ColumnName="comentario" />
                 <ScalarProperty Name="completado" ColumnName="completado" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="IT_software_tipo">
-            <EntityTypeMapping TypeName="Portal_2_0Model.IT_software_tipo">
-              <MappingFragment StoreEntitySet="IT_software_tipo">
-                <ScalarProperty Name="id" ColumnName="id" />
-                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
-                <ScalarProperty Name="aplica_descripcion" ColumnName="aplica_descripcion" />
-                <ScalarProperty Name="activo" ColumnName="activo" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -10912,43 +11111,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="GV_solicitud">
-            <EntityTypeMapping TypeName="Portal_2_0Model.GV_solicitud">
-              <MappingFragment StoreEntitySet="GV_solicitud">
-                <ScalarProperty Name="estatus" ColumnName="estatus" />
-                <ScalarProperty Name="comentario_adicional" ColumnName="comentario_adicional" />
-                <ScalarProperty Name="comentario_rechazo" ColumnName="comentario_rechazo" />
-                <ScalarProperty Name="fecha_confirmacion_usuario" ColumnName="fecha_confirmacion_usuario" />
-                <ScalarProperty Name="fecha_aceptacion_nomina" ColumnName="fecha_aceptacion_nomina" />
-                <ScalarProperty Name="fecha_aceptacion_contabilidad" ColumnName="fecha_aceptacion_contabilidad" />
-                <ScalarProperty Name="fecha_aceptacion_controlling" ColumnName="fecha_aceptacion_controlling" />
-                <ScalarProperty Name="fecha_aceptacion_jefe_area" ColumnName="fecha_aceptacion_jefe_area" />
-                <ScalarProperty Name="reservaciones_comentarios" ColumnName="reservaciones_comentarios" />
-                <ScalarProperty Name="hospedaje" ColumnName="hospedaje" />
-                <ScalarProperty Name="boletos_avion" ColumnName="boletos_avion" />
-                <ScalarProperty Name="iso_moneda_extranjera" ColumnName="iso_moneda_extranjera" />
-                <ScalarProperty Name="moneda_extranjera_monto" ColumnName="moneda_extranjera_monto" />
-                <ScalarProperty Name="moneda_extranjera_comentarios" ColumnName="moneda_extranjera_comentarios" />
-                <ScalarProperty Name="moneda_extranjera" ColumnName="moneda_extranjera" />
-                <ScalarProperty Name="motivo_viaje" ColumnName="motivo_viaje" />
-                <ScalarProperty Name="medio_transporte_otro" ColumnName="medio_transporte_otro" />
-                <ScalarProperty Name="id_medio_transporte" ColumnName="id_medio_transporte" />
-                <ScalarProperty Name="fecha_regreso" ColumnName="fecha_regreso" />
-                <ScalarProperty Name="fecha_salida" ColumnName="fecha_salida" />
-                <ScalarProperty Name="destino" ColumnName="destino" />
-                <ScalarProperty Name="origen" ColumnName="origen" />
-                <ScalarProperty Name="tipo_viaje" ColumnName="tipo_viaje" />
-                <ScalarProperty Name="fecha_solicitud" ColumnName="fecha_solicitud" />
-                <ScalarProperty Name="id_nomina" ColumnName="id_nomina" />
-                <ScalarProperty Name="id_contabilidad" ColumnName="id_contabilidad" />
-                <ScalarProperty Name="id_controlling" ColumnName="id_controlling" />
-                <ScalarProperty Name="id_jefe_directo" ColumnName="id_jefe_directo" />
-                <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
-                <ScalarProperty Name="id_solicitante" ColumnName="id_solicitante" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="GV_comprobacion">
             <EntityTypeMapping TypeName="Portal_2_0Model.GV_comprobacion">
               <MappingFragment StoreEntitySet="GV_comprobacion">
@@ -11006,6 +11168,54 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no 
                 <ScalarProperty Name="id_centro_costo" ColumnName="id_centro_costo" />
                 <ScalarProperty Name="num_cc" ColumnName="num_cc" />
                 <ScalarProperty Name="id_gv_solicitud" ColumnName="id_gv_solicitud" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="GV_rel_archivo_nomina">
+            <EntityTypeMapping TypeName="Portal_2_0Model.GV_rel_archivo_nomina">
+              <MappingFragment StoreEntitySet="GV_rel_archivo_nomina">
+                <ScalarProperty Name="cantidad" ColumnName="cantidad" />
+                <ScalarProperty Name="id_biblioteca_digital" ColumnName="id_biblioteca_digital" />
+                <ScalarProperty Name="id_gv_solicitud" ColumnName="id_gv_solicitud" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="GV_solicitud">
+            <EntityTypeMapping TypeName="Portal_2_0Model.GV_solicitud">
+              <MappingFragment StoreEntitySet="GV_solicitud">
+                <ScalarProperty Name="estatus" ColumnName="estatus" />
+                <ScalarProperty Name="id_soporte_sap" ColumnName="id_soporte_sap" />
+                <ScalarProperty Name="comentario_adicional" ColumnName="comentario_adicional" />
+                <ScalarProperty Name="comentario_rechazo" ColumnName="comentario_rechazo" />
+                <ScalarProperty Name="fecha_confirmacion_usuario" ColumnName="fecha_confirmacion_usuario" />
+                <ScalarProperty Name="fecha_aceptacion_nomina" ColumnName="fecha_aceptacion_nomina" />
+                <ScalarProperty Name="fecha_aceptacion_contabilidad" ColumnName="fecha_aceptacion_contabilidad" />
+                <ScalarProperty Name="fecha_aceptacion_controlling" ColumnName="fecha_aceptacion_controlling" />
+                <ScalarProperty Name="fecha_aceptacion_jefe_area" ColumnName="fecha_aceptacion_jefe_area" />
+                <ScalarProperty Name="reservaciones_comentarios" ColumnName="reservaciones_comentarios" />
+                <ScalarProperty Name="hospedaje" ColumnName="hospedaje" />
+                <ScalarProperty Name="boletos_avion" ColumnName="boletos_avion" />
+                <ScalarProperty Name="iso_moneda_extranjera" ColumnName="iso_moneda_extranjera" />
+                <ScalarProperty Name="moneda_extranjera_monto" ColumnName="moneda_extranjera_monto" />
+                <ScalarProperty Name="moneda_extranjera_comentarios" ColumnName="moneda_extranjera_comentarios" />
+                <ScalarProperty Name="moneda_extranjera" ColumnName="moneda_extranjera" />
+                <ScalarProperty Name="motivo_viaje" ColumnName="motivo_viaje" />
+                <ScalarProperty Name="medio_transporte_otro" ColumnName="medio_transporte_otro" />
+                <ScalarProperty Name="id_medio_transporte" ColumnName="id_medio_transporte" />
+                <ScalarProperty Name="fecha_regreso" ColumnName="fecha_regreso" />
+                <ScalarProperty Name="fecha_salida" ColumnName="fecha_salida" />
+                <ScalarProperty Name="destino" ColumnName="destino" />
+                <ScalarProperty Name="origen" ColumnName="origen" />
+                <ScalarProperty Name="tipo_viaje" ColumnName="tipo_viaje" />
+                <ScalarProperty Name="fecha_solicitud" ColumnName="fecha_solicitud" />
+                <ScalarProperty Name="id_nomina" ColumnName="id_nomina" />
+                <ScalarProperty Name="id_contabilidad" ColumnName="id_contabilidad" />
+                <ScalarProperty Name="id_controlling" ColumnName="id_controlling" />
+                <ScalarProperty Name="id_jefe_directo" ColumnName="id_jefe_directo" />
+                <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
+                <ScalarProperty Name="id_solicitante" ColumnName="id_solicitante" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

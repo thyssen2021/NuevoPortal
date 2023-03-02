@@ -1,4 +1,4 @@
-use[Portal_2_0]
+--use[Portal_2_0]
 GO
 IF object_id(N'GV_comprobacion',N'U') IS NOT NULL
 	BEGIN

@@ -1,4 +1,4 @@
-USE Portal_2_0
+--USE Portal_2_0
 GO
 IF object_id(N'GV_rel_gastos_solicitud',N'U') IS NOT NULL
 	BEGIN

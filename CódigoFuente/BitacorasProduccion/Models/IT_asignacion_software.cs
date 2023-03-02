@@ -14,6 +14,12 @@ namespace Portal_2_0.Models
     
     public partial class IT_asignacion_software
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public IT_asignacion_software()
+        {
+            this.IT_matriz_software = new HashSet<IT_matriz_software>();
+        }
+    
         public int id { get; set; }
         public int id_inventory_software { get; set; }
         public int id_sistemas { get; set; }
@@ -23,5 +29,7 @@ namespace Portal_2_0.Models
         public virtual empleados empleados { get; set; }
         public virtual empleados empleados1 { get; set; }
         public virtual IT_inventory_software IT_inventory_software { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_matriz_software> IT_matriz_software { get; set; }
     }
 }

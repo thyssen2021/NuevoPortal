@@ -58,7 +58,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_asignacion_software> IT_asignacion_software { get; set; }
         public virtual DbSet<IT_carpetas_red> IT_carpetas_red { get; set; }
         public virtual DbSet<IT_comunicaciones_tipo> IT_comunicaciones_tipo { get; set; }
-        public virtual DbSet<IT_hardware_tipo> IT_hardware_tipo { get; set; }
         public virtual DbSet<IT_internet_tipo> IT_internet_tipo { get; set; }
         public virtual DbSet<IT_inventory_cellular_plans> IT_inventory_cellular_plans { get; set; }
         public virtual DbSet<IT_inventory_hard_drives> IT_inventory_hard_drives { get; set; }
@@ -76,7 +75,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_matriz_hardware> IT_matriz_hardware { get; set; }
         public virtual DbSet<IT_matriz_requerimientos> IT_matriz_requerimientos { get; set; }
         public virtual DbSet<IT_matriz_software> IT_matriz_software { get; set; }
-        public virtual DbSet<IT_software_tipo> IT_software_tipo { get; set; }
         public virtual DbSet<IT_solicitud_usuarios> IT_solicitud_usuarios { get; set; }
         public virtual DbSet<log_acceso_email> log_acceso_email { get; set; }
         public virtual DbSet<log_inicio_sesion> log_inicio_sesion { get; set; }
@@ -138,8 +136,9 @@ namespace Portal_2_0.Models
         public virtual DbSet<GV_comprobacion_tipo_gastos_viaje> GV_comprobacion_tipo_gastos_viaje { get; set; }
         public virtual DbSet<GV_centros_costo> GV_centros_costo { get; set; }
         public virtual DbSet<GV_comprobacion_tipo_pago> GV_comprobacion_tipo_pago { get; set; }
-        public virtual DbSet<GV_solicitud> GV_solicitud { get; set; }
         public virtual DbSet<GV_comprobacion> GV_comprobacion { get; set; }
         public virtual DbSet<GV_comprobacion_rel_gastos> GV_comprobacion_rel_gastos { get; set; }
+        public virtual DbSet<GV_rel_archivo_nomina> GV_rel_archivo_nomina { get; set; }
+        public virtual DbSet<GV_solicitud> GV_solicitud { get; set; }
     }
 }

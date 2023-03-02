@@ -38,7 +38,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.IT_asignacion_software" Width="1.5" PointX="9.75" PointY="79.25" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_carpetas_red" Width="1.5" PointX="21.75" PointY="96.625" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_comunicaciones_tipo" Width="1.5" PointX="21.75" PointY="69.625" IsExpanded="true" />
-        <EntityTypeShape EntityType="Portal_2_0Model.IT_hardware_tipo" Width="1.5" PointX="21.75" PointY="99.625" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_internet_tipo" Width="1.5" PointX="13.5" PointY="95.625" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_cellular_plans" Width="1.5" PointX="0.75" PointY="82.875" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_hard_drives" Width="1.5" PointX="10.25" PointY="73" IsExpanded="true" />
@@ -56,7 +55,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.IT_matriz_hardware" Width="1.5" PointX="24" PointY="89.25" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_matriz_requerimientos" Width="1.5" PointX="15.75" PointY="84" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_matriz_software" Width="1.5" PointX="21" PointY="92.25" IsExpanded="true" />
-        <EntityTypeShape EntityType="Portal_2_0Model.IT_software_tipo" Width="1.5" PointX="18.75" PointY="103.625" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_solicitud_usuarios" Width="1.5" PointX="15.75" PointY="78.625" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.log_acceso_email" Width="1.5" PointX="7.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.log_inicio_sesion" Width="1.5" PointX="5.25" PointY="2.25" IsExpanded="true" />
@@ -183,7 +181,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_IT_asignacion_software_id_inventory_software" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_carpetas_id_it_carpetas" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_comunicaciones_id_it_comunicaciones" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_hardware_id_it_hardware" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_internet_tipo" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_item" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_items_genericos_id_inventory_type" ManuallyRouted="false" />
@@ -200,7 +197,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_comunicaciones_id_matriz_requerimientos" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_hardware_id_matriz_requerimientos" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_software_id_matriz_requerimientos" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_software_id_it_software" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_solicitud_usuarios_id_planta" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_notificaciones_correo_planta" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_orden_id_zona_falla" ManuallyRouted="false" />
@@ -269,23 +265,12 @@
         <EntityTypeShape EntityType="Portal_2_0Model.GV_centros_costo" Width="1.5" PointX="3" PointY="69" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_centros_costo_clave_planta" />
         <EntityTypeShape EntityType="Portal_2_0Model.GV_comprobacion_tipo_pago" Width="1.5" PointX="26.75" PointY="66.25" />
-        <EntityTypeShape EntityType="Portal_2_0Model.GV_solicitud" Width="1.5" PointX="26.75" PointY="76.125" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_iso_moneda_extranjera" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_contabilidad" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_controlling" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_jefe_directo" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_nomina" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_solicitante" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_medio_transporte" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_rel_gastos_solicitud_id_gv_solicitud" />
         <EntityTypeShape EntityType="Portal_2_0Model.GV_comprobacion" Width="1.5" PointX="29" PointY="79.375" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_id_extracto_cuenta" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_contabilidad" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_id_controlling" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_id_jefe_directo" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_id_nomina" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_id_gv_solicitud" />
         <EntityTypeShape EntityType="Portal_2_0Model.GV_comprobacion_rel_gastos" Width="1.5" PointX="29" PointY="69.625" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_archivo_comprobante_extranjero" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_archivo_pdf" />
@@ -294,7 +279,27 @@
         <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_centro_costo" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_gastos_viaje" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_pago" />
+        <EntityTypeShape EntityType="Portal_2_0Model.GV_rel_archivo_nomina" Width="1.5" PointX="32" PointY="75.25" />
+        <EntityTypeShape EntityType="Portal_2_0Model.GV_solicitud" Width="1.5" PointX="26.75" PointY="75.75" />
+        <AssociationConnector Association="Portal_2_0Model.FK_empleados_id_fotografia" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_rel_archivo_nomina_id_biblioteca_digital" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_soporte_sap" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_iso_moneda_extranjera" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_contabilidad" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_controlling" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_jefe_directo" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_nomina" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_solicitante" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_id_gv_solicitud" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_gv_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_medio_transporte" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_rel_archivo_nomina_id_gv_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_rel_gastos_solicitud_id_gv_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_hardware_id_it_asignacion_hardware" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_hardware_id_it_asignacion_software" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_hardware_id_it_hardware1" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_software_id_it_software1" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
