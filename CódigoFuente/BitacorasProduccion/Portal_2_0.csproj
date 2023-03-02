@@ -291,6 +291,7 @@
     <Compile Include="Controllers\class_v3Controller.cs" />
     <Compile Include="Controllers\CombosController.cs" />
     <Compile Include="Controllers\ComprobacionGVController.cs" />
+    <Compile Include="Controllers\ContactsController.cs" />
     <Compile Include="Controllers\EChartsController.cs" />
     <Compile Include="Controllers\empleadosController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
@@ -310,13 +311,16 @@
     <Compile Include="Controllers\IT_asignacion_softwareController.cs" />
     <Compile Include="Controllers\IT_carpetas_redController.cs" />
     <Compile Include="Controllers\IT_comunicaciones_tipoController.cs" />
+    <Compile Include="Controllers\IT_epoController.cs" />
+    <Compile Include="Controllers\IT_epo_wsus_reporteController.cs" />
     <Compile Include="Controllers\IT_equipos_checklistController.cs" />
     <Compile Include="Controllers\IT_equipos_checklist_actividadesController.cs" />
     <Compile Include="Controllers\IT_equipos_checklist_categoriasController.cs" />
-    <Compile Include="Controllers\IT_hardware_tipoController.cs" />
+    <Compile Include="Controllers\IT_extensionesController.cs" />
     <Compile Include="Controllers\IT_internet_tipoController.cs" />
     <Compile Include="Controllers\IT_inventory_cellular_lineController.cs" />
     <Compile Include="Controllers\IT_inventory_cellular_plansController.cs" />
+    <Compile Include="Controllers\IT_inventory_hardware_typeController.cs" />
     <Compile Include="Controllers\IT_inventory_itemsController.cs" />
     <Compile Include="Controllers\IT_inventory_items_genericosController.cs" />
     <Compile Include="Controllers\IT_inventory_softwareController.cs" />
@@ -328,8 +332,8 @@
     <Compile Include="Controllers\IT_siteController.cs" />
     <Compile Include="Controllers\IT_site_actividadesController.cs" />
     <Compile Include="Controllers\IT_site_checklistController.cs" />
-    <Compile Include="Controllers\IT_software_tipoController.cs" />
     <Compile Include="Controllers\IT_solicitud_usuariosController.cs" />
+    <Compile Include="Controllers\IT_wsusController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\mm_v3Controller.cs" />
     <Compile Include="Controllers\notificaciones_correoController.cs" />
@@ -362,6 +366,7 @@
     <Compile Include="Controllers\PuestosController.cs" />
     <Compile Include="Controllers\ReportePesadasController.cs" />
     <Compile Include="Controllers\ResponsableBudgetController.cs" />
+    <Compile Include="Controllers\RH_menu_comedorController.cs" />
     <Compile Include="Controllers\RolesAdminController.cs" />
     <Compile Include="Controllers\upgrade_revisionController.cs" />
     <Compile Include="Controllers\UserAdminController.cs" />
@@ -533,6 +538,9 @@
     <Compile Include="Models\IT_comunicaciones_tipo.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\IT_epo.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\IT_equipos_checklist.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -614,6 +622,9 @@
     <Compile Include="Models\IT_solicitud_usuarios.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\IT_wsus.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\log_acceso_email.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -648,6 +659,7 @@
     <Compile Include="Models\MetadataModels\IT_asignacion_hardwareMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_asignacion_hardware_rel_itemsMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_asignacion_softwareMetadata.cs" />
+    <Compile Include="Models\MetadataModels\IT_epoMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_equipos_checklistMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_equipos_checklist_actividadesMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_equipos_checklist_categoriasMetadata.cs" />
@@ -666,7 +678,6 @@
     <Compile Include="Models\MetadataModels\IT_siteMetada.cs" />
     <Compile Include="Models\MetadataModels\IT_site_actividadesMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_site_checklistMetadata.cs" />
-    <Compile Include="Models\MetadataModels\IT_software_tipoMetadata.cs" />
     <Compile Include="Models\MetadataModels\class_v3Metadata.cs" />
     <Compile Include="Models\MetadataModels\currencyMetadata.cs" />
     <Compile Include="Models\MetadataModels\empleadosMetadata.cs" />
@@ -675,9 +686,9 @@
     <Compile Include="Models\MetadataModels\inspeccion_fallasMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_carpetas_redMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_comunicaciones_tipoMetadata.cs" />
-    <Compile Include="Models\MetadataModels\IT_hardware_tipoMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_Matriz_requerimientosMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_solicitud_usuariosMetadata.cs" />
+    <Compile Include="Models\MetadataModels\IT_wsusMetadata.cs" />
     <Compile Include="Models\MetadataModels\mm_v3Metadata.cs" />
     <Compile Include="Models\MetadataModels\notificaciones_correoMetadata.cs" />
     <Compile Include="Models\MetadataModels\orden_trabajoMetadata.cs" />
@@ -709,6 +720,7 @@
     <Compile Include="Models\MetadataModels\produccion_supervisoresMetadata.cs" />
     <Compile Include="Models\MetadataModels\produccion_turnosMetadata.cs" />
     <Compile Include="Models\MetadataModels\puestoMetadata.cs" />
+    <Compile Include="Models\MetadataModels\RH_menu_comedor_platillosMetadata.cs" />
     <Compile Include="Models\MetadataModels\view_historico_resultadoMetadata.cs" />
     <Compile Include="Models\MetadataModels\view_valores_fiscal_yearMetadata.cs" />
     <Compile Include="Models\mm_v3.cs">
@@ -844,6 +856,9 @@
     <Compile Include="Models\puesto.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\RH_menu_comedor_platillos.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\upgrade_check_item.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -870,6 +885,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\view_valores_fiscal_year.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\view_valores_fiscal_year_budget_historico.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -948,6 +966,7 @@
     <Content Include="Content\images\logo_3.png" />
     <Content Include="Content\images\logo_4_200px.png" />
     <Content Include="Content\images\logo_ico.png" />
+    <Content Include="Content\images\user.png" />
     <Content Include="Content\login.css" />
     <Content Include="Content\menu-css.css" />
     <Content Include="Content\not-found.css" />
@@ -7186,18 +7205,6 @@
     <Content Include="Views\IT_comunicaciones_tipo\Edit.cshtml" />
     <Content Include="Views\IT_comunicaciones_tipo\Enable.cshtml" />
     <Content Include="Views\IT_comunicaciones_tipo\Index.cshtml" />
-    <Content Include="Views\IT_hardware_tipo\Index.cshtml" />
-    <Content Include="Views\IT_hardware_tipo\Enable.cshtml" />
-    <Content Include="Views\IT_hardware_tipo\Edit.cshtml" />
-    <Content Include="Views\IT_hardware_tipo\Disable.cshtml" />
-    <Content Include="Views\IT_hardware_tipo\Details.cshtml" />
-    <Content Include="Views\IT_hardware_tipo\Create.cshtml" />
-    <Content Include="Views\IT_software_tipo\Create.cshtml" />
-    <Content Include="Views\IT_software_tipo\Details.cshtml" />
-    <Content Include="Views\IT_software_tipo\Disable.cshtml" />
-    <Content Include="Views\IT_software_tipo\Edit.cshtml" />
-    <Content Include="Views\IT_software_tipo\Enable.cshtml" />
-    <Content Include="Views\IT_software_tipo\Index.cshtml" />
     <Content Include="Views\IT_internet_tipo\Create.cshtml" />
     <Content Include="Views\IT_internet_tipo\Details.cshtml" />
     <Content Include="Views\IT_internet_tipo\Disable.cshtml" />
@@ -7373,6 +7380,27 @@
     <Content Include="Views\GV_comprobacion_tipo_pago\Enable.cshtml" />
     <Content Include="Views\GV_comprobacion_tipo_pago\Index.cshtml" />
     <Content Include="Views\GV_solicitud\Reportes.cshtml" />
+    <Content Include="Views\Contacts\Index.cshtml" />
+    <Content Include="Views\IT_extensiones\Index.cshtml" />
+    <Content Include="Views\IT_extensiones\Details.cshtml" />
+    <Content Include="Views\IT_extensiones\Edit.cshtml" />
+    <Content Include="Views\IT_inventory_hardware_type\Create.cshtml" />
+    <Content Include="Views\IT_inventory_hardware_type\Details.cshtml" />
+    <Content Include="Views\IT_inventory_hardware_type\Edit.cshtml" />
+    <Content Include="Views\IT_inventory_hardware_type\Index.cshtml" />
+    <Content Include="Views\Shared\_BlockUI.cshtml" />
+    <Content Include="Views\RH_menu_comedor\Index.cshtml" />
+    <Content Include="Views\RH_menu_comedor\CargaMenu.cshtml" />
+    <Content Include="Views\RH_menu_comedor\Edit.cshtml" />
+    <Content Include="Views\RH_menu_comedor\DetailsMenu.cshtml" />
+    <Content Include="Views\IT_epo\LoadFile.cshtml" />
+    <Content Include="Views\IT_epo\Index.cshtml" />
+    <Content Include="Views\IT_wsus\Index.cshtml" />
+    <Content Include="Views\IT_wsus\LoadFile.cshtml" />
+    <Content Include="Views\IT_epo_wsus_reporte\EpoNoInventario.cshtml" />
+    <Content Include="Views\IT_epo_wsus_reporte\InventarioNoEpo.cshtml" />
+    <Content Include="Views\IT_epo_wsus_reporte\WsusNoInventario.cshtml" />
+    <Content Include="Views\IT_epo_wsus_reporte\InventarioNoWsus.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

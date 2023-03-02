@@ -632,7 +632,9 @@ namespace Portal_2_0.Models
             body = body.Replace("#ID", item.id.ToString()); //jefe
             body = body.Replace("#ESTADO", IT_MR_Status.DescripcionStatus(item.estatus));
             body = body.Replace("#EMPLEADO", item.empleados.ConcatNombre);
-            body = body.Replace("#PUESTO", item.empleados.puesto1.descripcion);
+            body = body.Replace("#PLANTA", item.empleados.plantas != null ? item.empleados.plantas.descripcion : String.Empty);
+            body = body.Replace("#DEPARTAMENTO", item.empleados.Area != null ? item.empleados.Area.descripcion : String.Empty);
+            body = body.Replace("#PUESTO", item.empleados.puesto1 != null ? item.empleados.puesto1.descripcion : String.Empty);
             body = body.Replace("#COMENTARIO", item.comentario);
             body = body.Replace("#FECHA_SOLICITUD", item.fecha_solicitud.ToString("dd/MM/yyyy"));
             body = body.Replace("#ENLACE", domainName + "/IT_matriz_requerimientos/Details/" + item.id);
@@ -660,7 +662,9 @@ namespace Portal_2_0.Models
             body = body.Replace("#ESTADO", IT_MR_Status.DescripcionStatus(item.estatus));
             body = body.Replace("#ID", item.id.ToString()); //elaborador
             body = body.Replace("#EMPLEADO", item.empleados.ConcatNombre);
-            body = body.Replace("#PUESTO", item.empleados.puesto1.descripcion);
+            body = body.Replace("#PLANTA", item.empleados.plantas != null ? item.empleados.plantas.descripcion : String.Empty);
+            body = body.Replace("#DEPARTAMENTO", item.empleados.Area != null ? item.empleados.Area.descripcion : String.Empty);
+            body = body.Replace("#PUESTO", item.empleados.puesto1 != null ? item.empleados.puesto1.descripcion : String.Empty);
             body = body.Replace("#COMENTARIO", item.comentario);
             body = body.Replace("#FECHA_SOLICITUD", item.fecha_solicitud.ToString("dd/MM/yyyy"));
             body = body.Replace("#ENLACE", domainName + "/IT_matriz_requerimientos/Cerrar/" + item.id);
@@ -1183,14 +1187,6 @@ namespace Portal_2_0.Models
             //crea un diccionario para los valores de la tabla
             Dictionary<string, string> tablaContentDictionary = new Dictionary<string, string>();
 
-            //agrega los valores al diccionario
-            tablaContentDictionary.Add("Folio", solicitud.id_gv_solicitud.ToString());
-            tablaContentDictionary.Add("Estatus", Bitacoras.Util.GV_comprobacion_estatus.DescripcionStatus(solicitud.estatus));
-            tablaContentDictionary.Add("Solicitante", solicitud.GV_solicitud.empleados5.ConcatNombre);
-            tablaContentDictionary.Add("Empleado", solicitud.GV_solicitud.empleados2.ConcatNombre);
-            tablaContentDictionary.Add("Origen", solicitud.GV_solicitud.origen);
-            tablaContentDictionary.Add("Destino", solicitud.GV_solicitud.destino);
-            tablaContentDictionary.Add("Motivo del viaje", solicitud.GV_solicitud.motivo_viaje);
 
             if (!String.IsNullOrEmpty(solicitud.comentario_rechazo))
                 tablaContentDictionary.Add("Comentario de Rechazo", solicitud.comentario_rechazo);

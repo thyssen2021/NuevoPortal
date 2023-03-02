@@ -1,11 +1,9 @@
-﻿using Bitacoras.Util;
-using Clases.Util;
+﻿using Clases.Util;
 using ExcelDataReader;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Web;
 
 namespace Portal_2_0.Models
@@ -38,7 +36,7 @@ namespace Portal_2_0.Models
                 foreach (DataTable table in result.Tables)
                 {
                     //busca si existe una hoja llamada "dante"
-                    if (table.TableName.ToUpper() == "SHEET1"|| table.TableName.ToUpper() == "HOJA1")
+                    if (table.TableName.ToUpper() == "SHEET1" || table.TableName.ToUpper() == "HOJA1")
                     {
                         valido = true;
 
@@ -649,7 +647,7 @@ namespace Portal_2_0.Models
 
             using (var db = new Portal_2_0Entities())
             {
-               listadoBOM = db.bom_en_sap.ToList();
+                listadoBOM = db.bom_en_sap.ToList();
             }
 
             //crea el reader del archivo
@@ -844,10 +842,22 @@ namespace Portal_2_0.Models
                                 }
 
                                 if (fechaUso.HasValue)
-                                {                                    
+                                {
                                     peso_bruto = listTemporalBOM.Where(x => x.LastDateUsed == fechaUso).Max(x => x.Quantity);
-                                    //peso bruto + los negativos
-                                    peso_neto = peso_bruto + listTemporalBOM.Where(x => x.LastDateUsed == fechaUso && x.Quantity < (-0.001) ).Sum(x => x.Quantity);
+
+                                    //si el peso bruto aparece dos veces, lo marca como valores duplicados
+                                    bool duplicado = listTemporalBOM.Where(x => x.LastDateUsed == fechaUso && x.Quantity == peso_bruto).Count() > 1;
+
+                                    if (duplicado)
+                                    {
+                                        //obtiene el peso quitando los duplicados
+                                        peso_neto = listTemporalBOM.Where(x => x.LastDateUsed == fechaUso && x.Quantity != (-0.001)).Select(x => x.Quantity).Distinct().Sum();
+                                    }
+                                    else
+                                    {
+                                        //peso bruto + los negativos
+                                        peso_neto = peso_bruto + listTemporalBOM.Where(x => x.LastDateUsed == fechaUso && x.Quantity < (-0.001)).Sum(x => x.Quantity);
+                                    }
                                 }
                                 else
                                 {
@@ -856,22 +866,24 @@ namespace Portal_2_0.Models
                                     peso_neto = peso_bruto + listTemporalBOM.Where(x => x.Created == fechaCreacion && x.Quantity < (-0.001)).Sum(x => x.Quantity);
                                 }
 
-                              
+
                                 //actualiza el peso de todos los demas mm que tengan null
-                                foreach (var item in lista.Where(x=>x.Material == material && !x.Net_weight.HasValue && !x.Gross_weight.HasValue))
+                                foreach (var item in lista.Where(x => x.Material == material && !x.Net_weight.HasValue && !x.Gross_weight.HasValue))
                                 {
                                     item.Net_weight = peso_neto;
                                     item.Gross_weight = peso_bruto;
                                 }
                                 //si peso neto y bruto es null toma el valor de mm donde no sea null
-                                if (!peso_neto.HasValue && !peso_bruto.HasValue) {
+                                if (!peso_neto.HasValue && !peso_bruto.HasValue)
+                                {
                                     var item = lista.Where(x => x.Material == material && x.Net_weight.HasValue && x.Gross_weight.HasValue).FirstOrDefault();
 
-                                    if (item != null) {
+                                    if (item != null)
+                                    {
                                         peso_neto = item.Net_weight;
                                         peso_bruto = item.Gross_weight;
                                     }
-                                    
+
                                 }
 
 
@@ -928,7 +940,7 @@ namespace Portal_2_0.Models
             return lista;
         }
 
-      
+
 
         /// <summary>
         /// Lee un archivo y obtiene un List de budget_cantidad con los valores leidos
@@ -1152,5 +1164,413 @@ namespace Portal_2_0.Models
 
             return lista;
         }
+
+        ///<summary>
+        ///Lee un archivo de excel y carga el listado del menu del comedor
+        ///</summary>
+        ///<return>
+        ///Devuelve un List<RH_menu_comedor_platillos> con los datos leidos
+        ///</return>
+        ///<param name="streamPostedFile">
+        ///Stream del archivo recibido en el formulario
+        ///</param>
+        public static List<RH_menu_comedor_platillos> LeeMenuComedor(HttpPostedFileBase streamPostedFile, ref List<string> errores)
+        {
+            List<RH_menu_comedor_platillos> lista = new List<RH_menu_comedor_platillos>();
+
+            //crea el reader del archivo
+            using (var reader = ExcelReaderFactory.CreateReader(streamPostedFile.InputStream))
+            {
+                //obtiene el dataset del archivo de excel
+                var result = reader.AsDataSet();
+
+                //estable la variable a false por defecto
+                //valido = false;
+
+                //recorre todas las hojas del archivo
+                foreach (DataTable table in result.Tables)
+                {
+
+                    //se obtienen las cabeceras
+                    List<EncabezadoTableMenu> encabezados = new List<EncabezadoTableMenu>();
+                    int filaCabera = 0;
+                    int columnaPlatillo = -1;
+
+                    #region determina columnas
+
+                    //recorre todas las filas y columnas hasta encontrar la columna platillo
+                    for (int i = 0; i < table.Rows.Count; i++)
+                    {
+                        for (int j = 0; j < table.Columns.Count; j++)
+                        {
+                            if (table.Rows[i][j].ToString().ToUpper() == "PLATILLO")
+                                columnaPlatillo = j;
+                        }
+                        //si encontró la columna rompe el for
+                        if (columnaPlatillo != -1)
+                            break;
+                    }
+
+                    //si no se pudo encontrar la columna platillo manda error
+                    if (columnaPlatillo == -1)
+                    {
+                        errores.Add("No se puedo encontrar una columna llamada 'PLATILLO' en la hoja " + table.TableName.ToUpper());
+                        return lista;
+                    }
+
+                    //recorre todas las filas hasta encontrar la cabecerar
+                    for (int i = 0; i < table.Rows.Count; i++)
+                    {
+                        encabezados = new List<EncabezadoTableMenu>();
+                        //recorre todas las celdas de la fila
+                        for (int j = 0; j < table.Columns.Count; j++)
+                        {
+                            if (DateTime.TryParse(table.Rows[i][j].ToString(), out DateTime fechaC))
+                                encabezados.Add(new EncabezadoTableMenu
+                                {
+                                    fecha = table.Rows[i][j].ToString(),
+                                    columna = j
+                                });
+                        }
+
+                        //comprueba cuantos correctos hubo
+                        if (encabezados.Count > 5)
+                        {
+                            filaCabera = i;
+                            break;
+                        }
+                    }
+
+
+                    //verifica que la estrura del archivo sea válida
+                    if (encabezados.Count < 5)
+                    {
+                        errores.Add("Hubo un error al leer la hoja " + table.TableName.ToUpper() + ". No se pudo encontrar el header de la tabla.");
+                        return lista;
+                    }
+
+                    #endregion
+
+                    //la fila cero se omite (encabezado)
+                    for (int i = filaCabera + 2; i < table.Rows.Count; i++)
+                    {
+
+                        try
+                        {
+                            //variables
+                            string platillo_tipo = string.Empty;
+                            string platillo_nombre = string.Empty;
+                            DateTime fecha = new DateTime(2000, 01, 01);
+                            int? kcal = null;
+
+                            //obtiene el platillo (el mismo para toda la fila)
+                            platillo_tipo = table.Rows[i][columnaPlatillo].ToString();
+
+                            //recorre todas los encabezados
+                            foreach (var encabezadoFecha in encabezados)
+                            {
+                                //obtiene la fecha
+                                if (DateTime.TryParse(table.Rows[filaCabera][encabezadoFecha.columna].ToString(), out DateTime f))
+                                    fecha = f;
+                                //obtiene nombre del platillo
+                                platillo_nombre = table.Rows[i][encabezadoFecha.columna].ToString();
+                                //kcal
+                                if (Int32.TryParse(table.Rows[i][encabezadoFecha.columna + 1].ToString(), out int kc))
+                                    kcal = kc;
+
+                                //agrega a la lista con los datos leidos
+                                if (!string.IsNullOrEmpty(platillo_nombre) && kcal.HasValue && platillo_tipo.Length <= 30 && !string.IsNullOrEmpty(platillo_tipo))
+                                    lista.Add(new RH_menu_comedor_platillos()
+                                    {
+                                        orden_display = i - filaCabera - 1,
+                                        tipo_platillo = platillo_tipo.Trim(), //quita espacios en blanco al inicio y al final del string
+                                        nombre_platillo = platillo_nombre.Trim(),
+                                        fecha = fecha,
+                                        kcal = kcal,
+
+                                    });
+                                else
+                                    goto finalRecorrido; //si no se puede agregar deja de recorrer las filas
+                            }
+
+                        }
+                        catch (Exception e)
+                        {
+                            System.Diagnostics.Debug.Print("Error: " + e.Message);
+                        }
+                    }
+                //final del recorrido de filas, para la hoja actual
+                finalRecorrido:
+                    System.Diagnostics.Debug.WriteLine("Recorrido finalizaso para la hoja: " + table.TableName);
+                }
+
+            }
+
+            return lista;
+        }
+
+        ///<summary>
+        ///Lee un archivo de excel y carga el listado de epo
+        ///</summary>
+        ///<return>
+        ///Devuelve un List<IT_epo> con los datos leidos
+        ///</return>
+        ///<param name="streamPostedFile">
+        ///Stream del archivo recibido en el formulario
+        ///</param>
+        public static List<IT_epo> LeeEpo(HttpPostedFileBase streamPostedFile, ref string msj)
+        {
+            List<IT_epo> lista = new List<IT_epo>();
+
+            //crea el reader del archivo
+            using (var reader = ExcelReaderFactory.CreateReader(streamPostedFile.InputStream))
+            {
+                //obtiene el dataset del archivo de excel
+                var result = reader.AsDataSet();
+
+                //recorre todas las hojas del archivo
+                foreach (DataTable table in result.Tables)
+                {
+                    lista = new List<IT_epo>();
+
+                    //se obtienen las cabeceras
+                    List<string> encabezados = new List<string>();
+                    List<string> encabezadosTest = new List<string>() { "SYSTEM NAME", "USER NAME", "OPERATING SYSTEM", "GROUP NAME", "ASSIGNMENT PATH" };
+
+                    for (int i = 0; i < table.Columns.Count; i++)
+                    {
+                        string title = table.Rows[0][i].ToString();
+
+                        if (!string.IsNullOrEmpty(title))
+                            encabezados.Add(title.ToUpper());
+                    }
+
+                    //verifica los encabezados principales del archivo enviado
+                    foreach (var s in encabezadosTest)
+                    {
+                        if (!encabezados.Contains(s))
+                        {
+                            msj = "No se encontró la columna: " + s;
+                            return lista;
+                        }
+                    }
+
+                    //la fila cero se omite (encabezado)
+                    for (int i = 1; i < table.Rows.Count; i++)
+                    {
+                        try
+                        {
+                            //variables
+                            string system_name = String.Empty, username = String.Empty, operating_system = string.Empty, is_laptop_text = string.Empty;
+                            string last_communication = String.Empty, group_name = string.Empty, mac_address = string.Empty, os_type = string.Empty;
+                            string system_manufacturer = String.Empty, system_model = string.Empty, system_serial_number = string.Empty;
+                            string assignment_path = String.Empty;
+
+                            int? numbers_cpus = null, cpu_speed = null, total_disk_space = null, total_c_drive_space = null;
+                            double? total_physical_memory = null;
+                            bool? is_laptop = null;
+
+
+
+                            //recorre todas los encabezados
+                            for (int j = 0; j < encabezados.Count; j++)
+                            {
+                                //obtiene la cabezara de i
+                                switch (encabezados[j])
+                                {
+                                    //obligatorios
+                                    case "SYSTEM NAME":
+                                        system_name = table.Rows[i][j].ToString();
+                                        break;
+                                    case "USER NAME":
+                                        username = table.Rows[i][j].ToString();
+                                        break;
+                                    case "OPERATING SYSTEM":
+                                        operating_system = table.Rows[i][j].ToString();
+                                        break;
+                                    case "IS LAPTOP":
+                                        is_laptop_text = table.Rows[i][j].ToString();
+                                        is_laptop = is_laptop_text.ToUpper() == "YES" ? true : false;
+                                        break;
+                                    case "GROUP NAME":
+                                        group_name = table.Rows[i][j].ToString();
+                                        break;
+                                    case "OS type":
+                                        os_type = table.Rows[i][j].ToString();
+                                        break;
+                                    case "MAC ADDRESS":
+                                        mac_address = table.Rows[i][j].ToString();
+                                        break;
+                                    case "LAST COMMUNICATION":
+                                        last_communication = table.Rows[i][j].ToString();
+                                        break;
+                                    case "NUMBER OF CPUS":
+                                        if (Int32.TryParse(table.Rows[i][j].ToString(), out int cpus))
+                                            numbers_cpus = cpus;
+                                        break;
+                                    case "CPU SPEED (MHZ)":
+                                        if (Int32.TryParse(table.Rows[i][j].ToString(), out int cpu_s))
+                                            cpu_speed = cpu_s;
+                                        break;
+                                    case "SYSTEM MANUFACTURER":
+                                        system_manufacturer = table.Rows[i][j].ToString();
+                                        break;
+                                    case "SYSTEM MODEL":
+                                        system_model = table.Rows[i][j].ToString();
+                                        break;
+                                    case "SYSTEM SERIAL NUMBER":
+                                        system_serial_number = table.Rows[i][j].ToString();
+                                        break;
+                                    case "TOTAL DISK SPACE":
+                                        if (Int32.TryParse(table.Rows[i][j].ToString().Replace("MB", string.Empty), out int total_disk_int))
+                                            total_disk_space = total_disk_int;
+                                        break;
+                                    case "TOTAL C DRIVE SPACE":
+                                        if (Int32.TryParse(table.Rows[i][j].ToString().Replace("MB", string.Empty), out int total_c_drive_int))
+                                            total_c_drive_space = total_c_drive_int;
+                                        break;
+                                    case "TOTAL PHYSICAL MEMORY":
+                                        if (double.TryParse(table.Rows[i][j].ToString().Replace("MB", string.Empty), out double total_physical_double))
+                                            total_physical_memory = total_physical_double;
+                                        break;
+                                    case "ASSIGNMENT PATH":
+                                        assignment_path = table.Rows[i][j].ToString();
+                                        break;
+                                }
+                            }
+                            //agrega a la lista con los datos leidos
+                            lista.Add(new IT_epo()
+                            {
+                                system_name = system_name,
+                                username = username,
+                                operating_system = operating_system,
+                                is_laptop = is_laptop,
+                                group_name = group_name,
+                                os_type = os_type,
+                                mac_address = mac_address,
+                                numbers_of_cpus = numbers_cpus,
+                                cpu_speed = cpu_speed,
+                                system_manufacturer = system_manufacturer,
+                                system_serial_number = system_serial_number,
+                                total_disk_space_mb = total_disk_space,
+                                total_c_drive_space_mb = total_c_drive_space,
+                                assigment_path = assignment_path,
+                                total_physical_memory_mb = total_physical_memory,
+                                system_model = system_model,
+                                last_communication = last_communication,
+
+                            });
+                        }
+                        catch (Exception e)
+                        {
+                            System.Diagnostics.Debug.Print("Error: " + e.Message);
+                        }
+                    }
+
+                    //envia la lista tras la primera iteracion
+                    return lista;
+                }
+            }
+
+            return lista;
+        }  ///<summary>
+           ///Lee un archivo de excel y carga el listado de epo
+           ///</summary>
+           ///<return>
+           ///Devuelve un List<IT_epo> con los datos leidos
+           ///</return>
+           ///<param name="streamPostedFile">
+           ///Stream del archivo recibido en el formulario
+           ///</param>
+        public static List<IT_wsus> LeeWSUS(HttpPostedFileBase streamPostedFile, ref string msj)
+        {
+            List<IT_wsus> lista = new List<IT_wsus>();
+
+            //crea el reader del archivo
+            using (var reader = ExcelReaderFactory.CreateReader(streamPostedFile.InputStream))
+            {
+                //obtiene el dataset del archivo de excel
+                var result = reader.AsDataSet();
+
+                //recorre todas las hojas del archivo
+                foreach (DataTable table in result.Tables)
+                {
+                    lista = new List<IT_wsus>();
+
+                    //se obtienen las cabeceras
+                    List<string> encabezados = new List<string>();
+                    List<string> encabezadosTest = new List<string>() { "NAME", "IP", "OPERATING SYSTEM" };
+
+                    for (int i = 0; i < table.Columns.Count; i++)
+                    {
+                        string title = table.Rows[0][i].ToString();
+
+                        if (!string.IsNullOrEmpty(title))
+                            encabezados.Add(title.ToUpper());
+                    }
+
+                    //verifica los encabezados principales del archivo enviado
+                    foreach (var s in encabezadosTest)
+                    {
+                        if (!encabezados.Contains(s))
+                        {
+                            msj = "No se encontró la columna: " + s;
+                            return lista;
+                        }
+                    }
+
+                    //la fila cero se omite (encabezado)
+                    for (int i = 1; i < table.Rows.Count; i++)
+                    {
+                        try
+                        {
+                            //variables
+                            string name = String.Empty, operating_system = string.Empty, ip = string.Empty;
+
+                            //recorre todas los encabezados
+                            for (int j = 0; j < encabezados.Count; j++)
+                            {
+                                //obtiene la cabezara de i
+                                switch (encabezados[j])
+                                {
+                                    //obligatorios
+                                    case "NAME":
+                                        name = table.Rows[i][j].ToString();
+                                        break;
+                                    case "IP":
+                                        ip = table.Rows[i][j].ToString();
+                                        break;
+                                    case "OPERATING SYSTEM":
+                                        operating_system = table.Rows[i][j].ToString();
+                                        break;
+                                }
+                            }
+                            //agrega a la lista con los datos leidos
+                            lista.Add(new IT_wsus()
+                            {
+                                name = name,
+                                operating_system = operating_system,
+                                ip = ip,
+                            });
+                        }
+                        catch (Exception e)
+                        {
+                            System.Diagnostics.Debug.Print("Error: " + e.Message);
+                        }
+                    }
+
+                    //envia la lista tras la primera iteracion
+                    return lista;
+                }
+            }
+
+            return lista;
+        }
+    }
+
+    public class EncabezadoTableMenu
+    {
+        public string fecha { get; set; }
+        public int columna { get; set; }
     }
 }

@@ -17,11 +17,11 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public currency()
         {
-            this.budget_cantidad = new HashSet<budget_cantidad>();
             this.GV_rel_gastos_solicitud = new HashSet<GV_rel_gastos_solicitud>();
             this.poliza_manual = new HashSet<poliza_manual>();
             this.GV_comprobacion_rel_gastos = new HashSet<GV_comprobacion_rel_gastos>();
             this.GV_solicitud = new HashSet<GV_solicitud>();
+            this.budget_cantidad = new HashSet<budget_cantidad>();
         }
     
         public string CurrencyISO { get; set; }
@@ -32,8 +32,6 @@ namespace Portal_2_0.Models
         public bool activo { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<budget_cantidad> budget_cantidad { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<GV_rel_gastos_solicitud> GV_rel_gastos_solicitud { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<poliza_manual> poliza_manual { get; set; }
@@ -41,5 +39,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<GV_comprobacion_rel_gastos> GV_comprobacion_rel_gastos { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<GV_solicitud> GV_solicitud { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<budget_cantidad> budget_cantidad { get; set; }
     }
 }

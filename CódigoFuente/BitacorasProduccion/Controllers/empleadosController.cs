@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -19,7 +20,7 @@ namespace Portal_2_0.Controllers
 
 
         // GET: empleados
-        public ActionResult Index(string nombre, string num_empleado, int? id_jefe_directo, int planta_clave = 0, int pagina = 1)
+        public ActionResult Index()
         {
             if (TieneRol(TipoRoles.RH))
             {
@@ -29,50 +30,10 @@ namespace Portal_2_0.Controllers
                     ViewBag.MensajeAlert = TempData["Mensaje"];
                 }
 
-                var cantidadRegistrosPorPagina = 20; // parámetro
 
-                var listado = db.empleados
-                       .Where(x =>
-                           ((x.nombre + " " + x.apellido1 + " " + x.apellido2).Contains(nombre) || String.IsNullOrEmpty(nombre))
-                           && (x.numeroEmpleado.Contains(num_empleado) || String.IsNullOrEmpty(num_empleado))
-                           && (x.planta_clave == planta_clave || planta_clave == 0)
-                           && (id_jefe_directo == null || x.id_jefe_directo == id_jefe_directo)
-                           )
-                       .OrderBy(x => x.id)
-                       .Skip((pagina - 1) * cantidadRegistrosPorPagina)
-                      .Take(cantidadRegistrosPorPagina).ToList();
-
-                var totalDeRegistros = db.empleados
-                      .Where(x =>
-                        ((x.nombre + " " + x.apellido1 + " " + x.apellido2).Contains(nombre) || String.IsNullOrEmpty(nombre))
-                        && (x.numeroEmpleado.Contains(num_empleado) || String.IsNullOrEmpty(num_empleado))
-                        && (x.planta_clave == planta_clave || planta_clave == 0)
-                        && (id_jefe_directo == null || x.id_jefe_directo == id_jefe_directo)
-                       )
-                    .Count();
-
-                //para paginación
-
-                System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
-                routeValues["nombre"] = nombre;
-                routeValues["planta_clave"] = planta_clave;
-                routeValues["num_empleado"] = num_empleado;
-                routeValues["id_jefe_directo"] = id_jefe_directo;
-
-                Paginacion paginacion = new Paginacion
-                {
-                    PaginaActual = pagina,
-                    TotalDeRegistros = totalDeRegistros,
-                    RegistrosPorPagina = cantidadRegistrosPorPagina,
-                    ValoresQueryString = routeValues
-                };
-
-                ViewBag.planta_clave = AddFirstItem(new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion", planta_clave.ToString()), textoPorDefecto: "-- Todas --");
-                ViewBag.Paginacion = paginacion;
-
-                ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true), nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)),
-               textoPorDefecto: "-- Seleccione un valor --", selected: id_jefe_directo.ToString());
-
+                var listado = db.empleados                      
+                       .OrderBy(x => x.id).ToList();          
+            
                 return View(listado);
             }
             else
@@ -96,6 +57,9 @@ namespace Portal_2_0.Controllers
                 {
                     return View("../Error/NotFound");
                 }
+                ViewBag.PrimerNivel = "recursos_humanos";
+                ViewBag.SegundoNivel = "empleados";
+                ViewBag.ControllerName = "Empleados";
                 return View(empleados);
             }
             else
@@ -143,6 +107,57 @@ namespace Portal_2_0.Controllers
             if (!String.IsNullOrEmpty(collection["puesto"]))
                 Int32.TryParse(collection["puesto"].ToString(), out c_puesto);
 
+            //valida el archivo de imagen
+            if (empleados.ArchivoImagen != null)
+            {
+
+                //valida el tamaño del archivo
+                if (empleados.ArchivoImagen.InputStream.Length > (1048576 * 4))
+                    ModelState.AddModelError("", "Sólo se permiten archivos menores a 4MB");
+                else
+                {
+                    //valida que la extensión del archivo sea válida
+                    string extension = Path.GetExtension(empleados.ArchivoImagen.FileName);
+                    if (extension.ToUpper() != ".PNG"   //si no contiene una extensión válida
+                        && extension.ToUpper() != ".JPEG"
+                        && extension.ToUpper() != ".JPG"
+                        && extension.ToUpper() != ".GIF"
+                        && extension.ToUpper() != ".BMP"
+                        )
+                    {
+                        ModelState.AddModelError("", "Sólo se permiten archivos con extensión .png, .jpeg, .jpg, .gif, .bmp");
+                    }
+                    else
+                    {
+                        //La extensión y el tamaño son válidos
+                        String nombreArchivo = empleados.ArchivoImagen.FileName;
+
+                        //recorta el nombre del archivo en caso de ser necesario
+                        if (nombreArchivo.Length > 80)
+                        {
+                            nombreArchivo = nombreArchivo.Substring(0, 78 - extension.Length) + extension;
+                        }
+
+                        //lee el archivo en un arreglo de bytes
+                        byte[] fileData = null;
+                        using (var binaryReader = new BinaryReader(empleados.ArchivoImagen.InputStream))
+                        {
+                            fileData = binaryReader.ReadBytes(empleados.ArchivoImagen.ContentLength);
+                        }
+
+                        //genera el archivo de biblioce digital
+                        empleados.biblioteca_digital = new biblioteca_digital
+                        {
+                            Nombre = nombreArchivo,
+                            MimeType = UsoStrings.RecortaString(empleados.ArchivoImagen.ContentType, 80),
+                            Datos = fileData
+                        };
+
+                    }
+                }
+
+            }
+
             if (ModelState.IsValid)
             {
                 //busca si ya existe un empleado con ese numero de empleado
@@ -159,6 +174,7 @@ namespace Portal_2_0.Controllers
                     {
 
                         empleados.activo = true;
+                        empleados.mostrar_telefono = true;
                         //convierte a mayúsculas
                         empleados.nombre = empleados.nombre.ToUpper();
                         empleados.apellido1 = empleados.apellido1.ToUpper();
@@ -257,7 +273,7 @@ namespace Portal_2_0.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(empleados empleados, FormCollection collection)
+        public async Task<ActionResult> Edit(empleados empleados, FormCollection collection, bool elimina_documento)
         {
             //valores enviados previamente
             int c_planta = 0;
@@ -269,6 +285,95 @@ namespace Portal_2_0.Controllers
             int c_puesto = 0;
             if (!String.IsNullOrEmpty(collection["puesto"]))
                 Int32.TryParse(collection["puesto"].ToString(), out c_puesto);
+
+            //valida el archivo de imagen
+            if (empleados.ArchivoImagen != null)        //se remplaza o se sube nuevo
+            {
+                //valida el tamaño del archivo
+                if (empleados.ArchivoImagen.InputStream.Length > (1048576 * 4))
+                    ModelState.AddModelError("", "Sólo se permiten archivos menores a 4MB");
+                else
+                {
+                    //valida que la extensión del archivo sea válida
+                    string extension = Path.GetExtension(empleados.ArchivoImagen.FileName);
+                    if (extension.ToUpper() != ".PNG"   //si no contiene una extensión válida
+                        && extension.ToUpper() != ".JPEG"
+                        && extension.ToUpper() != ".JPG"
+                        && extension.ToUpper() != ".GIF"
+                        && extension.ToUpper() != ".BMP"
+                        )
+                    {
+                        ModelState.AddModelError("", "Sólo se permiten archivos con extensión .png, .jpeg, .jpg, .gif, .bmp");
+                    }
+                    else
+                    {
+                        //La extensión y el tamaño son válidos
+                        String nombreArchivo = empleados.ArchivoImagen.FileName;
+
+                        //recorta el nombre del archivo en caso de ser necesario
+                        if (nombreArchivo.Length > 80)
+                        {
+                            nombreArchivo = nombreArchivo.Substring(0, 78 - extension.Length) + extension;
+                        }
+
+                        //lee el archivo en un arreglo de bytes
+                        byte[] fileData = null;
+                        using (var binaryReader = new BinaryReader(empleados.ArchivoImagen.InputStream))
+                        {
+                            fileData = binaryReader.ReadBytes(empleados.ArchivoImagen.ContentLength);
+                        }
+
+                        //se reemplaza el ya existente
+                        if (empleados.id_fotografia.HasValue)
+                        {
+                            //modifica los valores del archivo anterior
+                            var archivoAnteriorBD = db.biblioteca_digital.Find(empleados.id_fotografia.Value);
+                            archivoAnteriorBD.Nombre = nombreArchivo;
+                            archivoAnteriorBD.MimeType = UsoStrings.RecortaString(empleados.ArchivoImagen.ContentType, 80);
+                            archivoAnteriorBD.Datos = fileData;
+                        }
+                        //se crea nuevo archivo
+                        else
+                        {
+                            //genera el archivo de biblioce digital
+                            var archivo = new biblioteca_digital
+                            {
+                                Nombre = nombreArchivo,
+                                MimeType = UsoStrings.RecortaString(empleados.ArchivoImagen.ContentType, 80),
+                                Datos = fileData
+                            };
+                            //guarda el archivo en la BD
+                            try
+                            {
+                                db.biblioteca_digital.Add(archivo);
+                                db.SaveChanges();
+                                empleados.id_fotografia = archivo.Id;
+                            }
+                            catch (Exception ex)
+                            {
+                                ModelState.AddModelError("", "Error al guardar en BD_ " + ex.Message);
+                            }
+
+
+                        }
+
+
+
+                    }
+                }
+            }
+            //en caso de que no se haya enviado archivo lo elimina de la BD
+            else
+            {
+                //elimina el archivo en caso de existir
+                if (empleados.id_fotografia.HasValue && elimina_documento)
+                {
+                    var archivoAnteriorBD = db.biblioteca_digital.Find(empleados.id_fotografia.Value);
+                    db.biblioteca_digital.Remove(archivoAnteriorBD);
+
+                    empleados.id_fotografia = null;
+                }
+            }
 
             if (ModelState.IsValid)
             {
@@ -307,7 +412,14 @@ namespace Portal_2_0.Controllers
 
                         db.Entry(empleados).State = EntityState.Modified;
 
-                        db.SaveChanges();
+                        try
+                        {
+                            db.SaveChanges();
+                        }
+                        catch (Exception ex)
+                        {
+                            ModelState.AddModelError("", "Error al guardar en BD_ " + ex.Message);
+                        }
                         TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
                         return RedirectToAction("Index");
                     }
@@ -395,6 +507,12 @@ namespace Portal_2_0.Controllers
             DateTime bajaFecha = DateTime.Now;
             string stringFecha = collection["bajaFecha"];
 
+            bool notificacionIT = false;
+            if (collection.AllKeys.Any(x => x == "notificacion_it"))
+                notificacionIT = true;
+
+           
+
             try
             {
                 if (!String.IsNullOrEmpty(stringFecha))
@@ -412,11 +530,35 @@ namespace Portal_2_0.Controllers
                 ModelState.AddModelError("", "Error al convertir: " + ex.Message);
             }
 
+            //deshabilita del lado del servidor la validadcion 
+            db.Configuration.ValidateOnSaveEnabled = false;
 
-            db.Entry(empleado).State = EntityState.Modified;
+            //db.Entry(empleado).State = EntityState.Modified;
             try
             {
                 db.SaveChanges();
+
+                //se envia notificación a IT en caso de haber seleccionado la opción
+                if (notificacionIT)
+                {
+
+                    //OBTIENE EL CORREO DE NOTIFICACION
+                    var itEmail = db.notificaciones_correo.Where(x => x.descripcion == "IT_TKMM").FirstOrDefault();
+                    if (itEmail != null)
+                    {
+
+                        //envia correo electronico
+                        EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+
+                        List<String> correos = new List<string>(); //correos TO
+
+                        if (!String.IsNullOrEmpty(itEmail.correo))
+                            correos.Add(itEmail.correo); //agrega correo de validador
+
+                        envioCorreo.SendEmailAsync(correos, "Notificación de Baja de Empleado", envioCorreo.getBodyITBajaEmpleado(empleado));
+                    }
+
+                }
             }
             catch (System.Data.Entity.Validation.DbEntityValidationException ex)
             {
@@ -440,6 +582,12 @@ namespace Portal_2_0.Controllers
                 TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
                 return RedirectToAction("Index");
             }
+            finally
+            {
+                //vuelve a activa la validadcion de la entidad
+                db.Configuration.ValidateOnSaveEnabled = true;
+            }
+
             TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.DISABLED, TipoMensajesSweetAlerts.SUCCESS);
             return RedirectToAction("Index");
         }
@@ -476,6 +624,9 @@ namespace Portal_2_0.Controllers
             empleado.activo = true;
             empleado.bajaFecha = null;
 
+            //deshabilita del lado del servidor la validadcion 
+            db.Configuration.ValidateOnSaveEnabled = false;
+
             db.Entry(empleado).State = EntityState.Modified;
             try
             {
@@ -503,6 +654,13 @@ namespace Portal_2_0.Controllers
                 TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
                 return RedirectToAction("Index");
             }
+            finally
+            {
+                //vuelve a activa la validadcion de la entidad
+                db.Configuration.ValidateOnSaveEnabled = true;
+            }
+
+
             TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.ENABLED, TipoMensajesSweetAlerts.SUCCESS);
             return RedirectToAction("Index");
         }

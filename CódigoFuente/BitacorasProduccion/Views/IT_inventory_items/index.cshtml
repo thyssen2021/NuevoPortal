@@ -281,6 +281,9 @@
                                                 {
                                                     <th>
                                                         @Html.DisplayNameFor(model => model.active)
+                                                    </th> 
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.baja)
                                                     </th>
                                                 }
 
@@ -292,8 +295,10 @@
                                             @foreach (var item in Model)
                                             {
 
-                                                <tr style="@(item.active == false ? "color:red" :"")
-                                                    @(item.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.SERVER ? "background-color:#DDFEEC; font-weight:600":String.Empty)">
+                                                <tr style="@(item.active == false ? "color:#e05e01; font-weight:600" :""); 
+                                                    @(item.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.SERVER ? "background-color:#DDFEEC; font-weight:600":String.Empty) 
+                                                    @(item.baja? "background-color:#FF5050; color:#990000; font-weight:600":String.Empty) 
+                                                    ">
                                                     @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.id_inventory_type)))
                                                     {
                                                         <td>
@@ -378,7 +383,22 @@
                                                             {
                                                                 <span>False</span>
                                                             }
-                                                        </td>
+                                                        </td>  
+                                                       
+                                                    }
+                                                      @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.active)))
+                                                    {
+                                                        <td>
+                                                            @if (item.baja)
+                                                            {
+                                                                <span>True</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span>False</span>
+                                                            }
+                                                        </td>  
+                                                       
                                                     }
 
                                                     <td>
@@ -502,6 +522,16 @@
                                                         {
                                                             <td>
                                                                 @if (item.active)
+                                                                {
+                                                                    <span>True</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span>False</span>
+                                                                }
+                                                            </td>  
+                                                            <td>
+                                                                @if (item.baja)
                                                                 {
                                                                     <span>True</span>
                                                                 }

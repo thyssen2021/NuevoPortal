@@ -356,7 +356,7 @@ namespace Portal_2_0.Controllers
             //    .Where(x => x.id_inventory_type == id_tipo_hardware && x.active == true)
             //    , "id", campoSelect));
 
-            ViewBag.ListadoHardwareInventario = db.IT_inventory_items.Where(x => x.id_inventory_type == id_tipo_hardware && x.active == true).ToList();
+            ViewBag.ListadoHardwareInventario = db.IT_inventory_items.Where(x => x.id_inventory_type == id_tipo_hardware && x.active == true && !x.baja).ToList();
             ViewBag.ListadoHardwareGenerico = db.IT_inventory_items_genericos.Where(x => x.id_inventory_type == id_tipo_hardware && x.active == true).ToList();
             ViewBag.ListadoTiposAccesorios = db.IT_inventory_tipos_accesorios.ToList();
 

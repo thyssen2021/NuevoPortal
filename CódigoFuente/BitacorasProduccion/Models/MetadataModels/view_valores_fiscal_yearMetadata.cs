@@ -109,6 +109,19 @@ namespace Portal_2_0.Models
                ;
         }
 
+        public string GetComentario(int id_budget_rel_fy_centro, int id_cuenta_sap, int mes) {
+            //optimizar!!!!!!!!!!!!!
+            string comentario = string.Empty;
+            using (var db = new Portal_2_0Entities())
+            {
+                var cantidad = db.budget_cantidad.FirstOrDefault(x=>x.id_budget_rel_fy_centro == id_budget_rel_fy_centro && x.id_cuenta_sap == id_cuenta_sap && x.mes==mes);
+
+                if (cantidad != null)
+                    return cantidad.comentario;
+            }
+            return comentario;
+        }
+
         public override bool Equals(object obj) => Equals(obj as view_valores_fiscal_year);
         public override int GetHashCode() => (id_anio_fiscal, id_centro_costo, id_cuenta_sap, currency_iso).GetHashCode();
 

@@ -6,8 +6,8 @@
     ViewBag.SegundoNivel = "ListadoUsuarios";
     ViewBag.ControllerName = "Empleados";
 
-    List<Portal_2_0.Models.IT_hardware_tipo> listHardware = (List<Portal_2_0.Models.IT_hardware_tipo>)ViewBag.listHardware;
-    List<Portal_2_0.Models.IT_software_tipo> listSoftware = (List<Portal_2_0.Models.IT_software_tipo>)ViewBag.listSoftware;
+    List<Portal_2_0.Models.IT_inventory_hardware_type> listHardware = (List<Portal_2_0.Models.IT_inventory_hardware_type>)ViewBag.listHardware;
+    List<Portal_2_0.Models.IT_inventory_software> listSoftware = (List<Portal_2_0.Models.IT_inventory_software>)ViewBag.listSoftware;
     List<Portal_2_0.Models.IT_comunicaciones_tipo> listComunicaciones = (List<Portal_2_0.Models.IT_comunicaciones_tipo>)ViewBag.listComunicaciones;
     List<Portal_2_0.Models.IT_carpetas_red> listCarpetas = (List<Portal_2_0.Models.IT_carpetas_red>)ViewBag.listCarpetas;
 
@@ -144,6 +144,7 @@
                             @Html.HiddenFor(model => model.id_empleado)
                             @Html.HiddenFor(model => model.comentario_rechazo)
                             @Html.HiddenFor(model => model.estatus)
+                            @Html.HiddenFor(model => model.tipo)
 
                             <input type="hidden" id="id_matriz" name="id_matriz" value="@Model.id" />
 
@@ -159,7 +160,7 @@
                                 <br />
 
                                 <div id="advertencia_usuario" class="alert alert-danger col-md-12 col-sm-12" role="alert" style="display:none">
-                                    <i class="fa fa-warning" style="color:yellow"></i> <b>¡Advertencia!</b> <br />El empleado que seleccion&oacute; no tiene una cuenta asociada para el uso de este Portal, por esta raz&oacute;n no podr&aacute; autorizar esta solicitud. <br />
+                                    <i class="fa fa-warning" style="color:yellow"></i> <b>¡Advertencia!</b> <br />El Jefe Directo que seleccion&oacute; no tiene una cuenta asociada para el uso de este Portal, por esta raz&oacute;n no podr&aacute; autorizar esta solicitud. <br />
                                     Favor de contactar al Administrador del Sitio para solicitar la generaci&oacute;n de los accesos necesarios.
                                 </div>
                             </div>
@@ -495,6 +496,8 @@
                     async: true
                 });
             });
+
+            $("#id_jefe_directo").change();
 
             $('input').on('ifChecked', function (event) {
                 verificaChecks(event);

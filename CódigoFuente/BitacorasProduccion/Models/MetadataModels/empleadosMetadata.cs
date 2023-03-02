@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Web;
 
@@ -23,7 +25,7 @@ namespace Portal_2_0.Models
         [Display(Name = "Estatus")]
         public Nullable<bool> activo { get; set; }
 
-        [Required(AllowEmptyStrings = false)]
+        //[Required(AllowEmptyStrings = false)]
         [StringLength(6, MinimumLength = 1)]
         [RegularExpression("(^[0-9]+$)", ErrorMessage = "Sólo se permiten números.")]
         [Display(Name = "Número de Empleado")]
@@ -66,7 +68,7 @@ namespace Portal_2_0.Models
         [Display(Name = "Compañia")]
         public string compania { get; set; }
 
-        [Required]
+        //[Required]
         [DataType(DataType.Date)]
         [Display(Name = "Fecha de Ingreso")]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
@@ -89,6 +91,12 @@ namespace Portal_2_0.Models
         [Required]
         [Display(Name = "Jefe Directo")]
         public Nullable<int> id_jefe_directo { get; set; }
+
+        [Display(Name = "Fotografía")]
+        public Nullable<int> id_fotografia { get; set; }
+
+        [Display(Name = "Mostrar Teléfono")]
+        public bool mostrar_telefono { get; set; }
     }
 
     [MetadataType(typeof(empleadosMetadata))]
@@ -111,7 +119,7 @@ namespace Portal_2_0.Models
             get
             {
                 if (String.IsNullOrEmpty(this.numeroEmpleado))
-                    return string.Format("{0} {1} {2}",  nombre, apellido1, apellido2).ToUpper();
+                    return string.Format("{0} {1} {2}", nombre, apellido1, apellido2).ToUpper();
                 else
                     return string.Format("({0}) {1} {2} {3}", numeroEmpleado, nombre, apellido1, apellido2).ToUpper();
             }
@@ -121,7 +129,8 @@ namespace Portal_2_0.Models
         /// Obtiene todas las lineas activas para un empleado según sus asignaciones
         /// </summary>
         /// <returns></returns>
-        public List<IT_inventory_cellular_line> GetIT_Inventory_Cellular_LinesActivas() {
+        public List<IT_inventory_cellular_line> GetIT_Inventory_Cellular_LinesActivas()
+        {
             List<IT_inventory_cellular_line> lineas = new List<IT_inventory_cellular_line>();
 
             using (var db = new Portal_2_0Entities())
@@ -139,5 +148,38 @@ namespace Portal_2_0.Models
 
             return lineas;
         }
+
+        public string ImageToBase64()
+        {
+            string result = string.Empty;
+
+            if (this.biblioteca_digital!=null) {
+                string imageBase64 = Convert.ToBase64String(this.biblioteca_digital.Datos);
+                result = string.Format("data:image/"+ (Path.GetExtension(biblioteca_digital.Nombre).Replace(".","")) + ";base64,{0}", imageBase64);
+            }
+
+            return result;
+        }
+        public string ImageToBase64(int newWidth, int newHeight)
+        {
+            string result = string.Empty;
+
+            if (this.biblioteca_digital!=null) {
+                //convirte los datos a un tipo Image
+                Image imagen = Image.FromStream(new MemoryStream(this.biblioteca_digital.Datos));
+
+                byte[] newData =Bitacoras.Util.ImageUtil.ResizeImage(imagen, newWidth, newHeight);
+                
+                string imageBase64 = Convert.ToBase64String(newData);
+
+
+                result = string.Format("data:image/"+ (Path.GetExtension(biblioteca_digital.Nombre).Replace(".","")) + ";base64,{0}", imageBase64);
+            }
+
+            return result;
+        }
+
+        [NotMapped]
+        public HttpPostedFileBase ArchivoImagen { get; set; }
     }
 }

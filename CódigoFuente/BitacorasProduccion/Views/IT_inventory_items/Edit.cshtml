@@ -9,7 +9,7 @@
     ViewBag.PrimerNivel = "sistemas";
     ViewBag.SegundoNivel = "it_inventory_hardware";
     ViewBag.ControllerName = "IT_inventory_items";
-   
+
 
     int contador = 100;
 }
@@ -21,6 +21,8 @@
     <!-- Select2 -->
     <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
 }
 
 <div class="right_col" role="main">
@@ -357,7 +359,7 @@
                                                 <span class="float-right">Total Drive Space (GB)</span>
                                             </label>
                                             <div class="col-md-2">
-                                                <input style="text-align:right" min="0" step="0.01" max="10000"  name="IT_inventory_hard_drives[@contador].total_drive_space_gb" id="IT_inventory_hard_drives[@contador].total_drive_space_gb" class="drive-total form-control col-md-12" value="@item.total_drive_space_gb" autocomplete="off" required>
+                                                <input style="text-align:right" min="0" step="0.01" max="10000" name="IT_inventory_hard_drives[@contador].total_drive_space_gb" id="IT_inventory_hard_drives[@contador].total_drive_space_gb" class="drive-total form-control col-md-12" value="@item.total_drive_space_gb" autocomplete="off" required>
                                                 <span class="field-validation-valid text-danger" data-valmsg-for="IT_inventory_hard_drives[@contador].total_drive_space_gb" data-valmsg-replace="true"></span>
                                             </div>
                                             <label class="control-label col-md-1" for="IT_inventory_hard_drives[@contador].type_drive">
@@ -454,6 +456,19 @@
                                     @Html.EditorFor(model => model.inactive_date, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
                                     @Html.ValidationMessageFor(model => model.inactive_date, "", new { @class = "text-danger" })
                                 </div>
+                            </div>
+                            <div class="item form-group">
+
+                                @Html.LabelFor(model => model.baja, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-1 col-sm-1 " @*rel="tooltip" data-title="Autorizar"*@>
+                                    @Html.EditorFor(model => model.baja, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.baja, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.fecha_baja, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-3 col-sm-3 ">
+                                    @Html.EditorFor(model => model.fecha_baja, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.fecha_baja, "", new { @class = "text-danger" })
+                                </div>
 
                             </div>
 
@@ -507,6 +522,7 @@
     <!-- input mask -->
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/inputmask/inputmask.extensions.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
 <script>
         $(document).ready(function () {
 
@@ -526,6 +542,17 @@
             //eventos input
             $('input').on('ifChecked', function (event) {
                 verificaCombos();
+
+                let ck = event.target.name;
+                //check baja
+                if ($('#@Html.IdFor(model => model.baja)').prop('checked') && ck=='@Html.IdFor(model => model.baja)') {
+
+                    Swal.fire(
+                      'Advertencia',
+                      'Se dará de baja este equipo, para continuar guarde los cambios.',
+                      'warning'
+                    )
+                }
             });
 
             $('input').on('ifUnchecked', function (event) {
@@ -608,14 +635,16 @@
             if (!$('#active').prop('checked')) {
                 $('#inactive_date').prop('disabled', false);
 
-                // Initialize Select2 Elements (debe ir después de asignar el valor)
-                $('.select2bs4').select2({
-                    theme: 'bootstrap4'
-                })
-
             } else { //si el check está seleccionado
                 $('#inactive_date').prop('disabled', true);
-                //$('#inactive_date').val('');
+            }
+
+            //check baja
+            if ($('#@Html.IdFor(model => model.baja)').prop('checked')) {
+                $('#@Html.IdFor(model => model.fecha_baja)').prop('disabled', false);
+
+            } else { //si el check está seleccionado
+                $('#@Html.IdFor(model => model.fecha_baja)').prop('disabled', true);
             }
 
                //check virtual

@@ -15,7 +15,7 @@ namespace Portal_2_0.Models
 
         [Display(Name = "Equipo")]
         public int id_it_inventory_item { get; set; }
-        
+
         [Display(Name = "Usuario (Firma aceptación)")]
         public Nullable<int> id_empleado_responsable { get; set; }
 
@@ -55,7 +55,7 @@ namespace Portal_2_0.Models
                     return IT_matenimiento_Estatus.REALIZADO_CON_DOCUMENTO;
 
                 if (this.fecha_realizacion.HasValue)
-                    return IT_matenimiento_Estatus.REALIZADO;  
+                    return IT_matenimiento_Estatus.REALIZADO;
 
                 if (this.IT_mantenimientos_rel_checklist != null && this.IT_mantenimientos_rel_checklist.Count > 0)
                     return IT_matenimiento_Estatus.EN_PROCESO;
@@ -66,7 +66,7 @@ namespace Portal_2_0.Models
                 if (this.fecha_programada > DateTime.Now && this.fecha_realizacion == null)
                     return IT_matenimiento_Estatus.PROXIMO;
 
-                
+
 
                 //valor por defecto
                 return string.Empty;
@@ -76,7 +76,7 @@ namespace Portal_2_0.Models
 
         [NotMapped]
         [Display(Name = "¿Finalizar Mantenimiento?")]
-        public bool finalizar_mantenimiento{get; set;}
+        public bool finalizar_mantenimiento { get; set; }
 
         // obtiene el responsable principal
         [NotMapped]
@@ -89,7 +89,7 @@ namespace Portal_2_0.Models
                 {
                     var asignacion_principal = db.IT_asignacion_hardware_rel_items.Where(x => x.id_it_inventory_item == this.id_it_inventory_item && x.IT_asignacion_hardware.es_asignacion_actual == true && x.IT_asignacion_hardware.id_empleado == x.IT_asignacion_hardware.id_responsable_principal).FirstOrDefault();
 
-                    if (asignacion_principal != null && asignacion_principal.IT_asignacion_hardware.empleados!=null)
+                    if (asignacion_principal != null && asignacion_principal.IT_asignacion_hardware.empleados != null)
                         return asignacion_principal.IT_asignacion_hardware.empleados.ConcatNombre;
                 }
 
@@ -111,9 +111,36 @@ namespace Portal_2_0.Models
                 using (var db = new Portal_2_0Entities())
                 {
                     var asignacion_principal = db.IT_mantenimientos.Any(x => x.fecha_programada.Year == 2000 && x.id == this.id);
-                     
-                   return asignacion_principal;
+
+                    return asignacion_principal;
                 }
+            }
+
+        }
+
+        public int? _PeriodoMantenimientos { get; set; }
+
+        // obtiene el periodo de mantenimiento
+        [NotMapped]
+        [Display(Name = "Periódo de mantenimiento")]
+        [Range(1, Int16.MaxValue)]
+        public int? PeriodoMantenimientos
+        {
+            get
+            {
+                using (var db = new Portal_2_0Entities())
+                {
+                    var item = db.IT_inventory_items.Find(this.id_it_inventory_item);
+
+                    if (item != null)
+                        return item.maintenance_period_months;
+                    else
+                        return null;
+                }
+            }
+            set
+            {
+                _PeriodoMantenimientos = value;
             }
 
         }

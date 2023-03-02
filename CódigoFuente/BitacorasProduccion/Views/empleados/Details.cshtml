@@ -1,21 +1,26 @@
 ﻿@model Portal_2_0.Models.empleados
 
 @{
-    ViewBag.Title = "Detalles de Empleados";
+    ViewBag.Title = "Detalles de Empleado";
     ViewBag.PrimerNivel = "recursos_humanos";
     ViewBag.SegundoNivel = "empleados";
     ViewBag.ControllerName = "Empleados";
+}
+
+@section estilos
+{
+
+    <style>
+        .profile-picture {
+            width: 300px;
+            height: 300px;
+        }
+    </style>
 
 }
 
 <div class="right_col" role="main">
     <div class="">
-        <div class="page-title">
-            <div class="title_left">
-                <h3>@ViewBag.ControllerName</h3>
-            </div>
-        </div>
-
         <div class="clearfix"></div>
 
         <div class="row">
@@ -25,111 +30,128 @@
                         <h2>@ViewBag.Title</h2>
                         <div class="clearfix"></div>
                     </div>
+                    <div class="x_content">
+                        <br />
 
-                    <!-- /.col -->
-                    <div class="col-md-8">
-                        <div class="table-responsive">
-                            <table class="table">
-                                <tbody>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.numeroEmpleado)</th>
-                                        <td>@Html.DisplayFor(model => model.numeroEmpleado)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.C8ID)</th>
-                                        <td>@Html.DisplayFor(model => model.C8ID)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.nombre)</th>
-                                        <td>@Html.DisplayFor(model => model.nombre)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.apellido1)</th>
-                                        <td>@Html.DisplayFor(model => model.apellido1)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.apellido2)</th>
-                                        <td>@Html.DisplayFor(model => model.apellido2)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.correo)</th>
-                                        <td>@Html.DisplayFor(model => model.correo)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.nueva_fecha_nacimiento)</th>
-                                        <td>@Html.DisplayFor(model => model.nueva_fecha_nacimiento)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.telefono)</th>
-                                        <td>@Html.DisplayFor(model => model.telefono)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.extension)</th>
-                                        <td>@Html.DisplayFor(model => model.extension)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.celular)</th>
-                                        <td>@Html.DisplayFor(model => model.celular)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.ingresoFecha)</th>
-                                        <td>@Html.DisplayFor(model => model.ingresoFecha)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.bajaFecha)</th>
-                                        <td>@Html.DisplayFor(model => model.bajaFecha)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Planta</th>
-                                        <td>@Html.DisplayFor(model => model.plantas.descripcion)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Departamento</th>
-                                        <td>@Html.DisplayFor(model => model.Area.descripcion)</td>
-                                    </tr>
-
-                                    <tr>
-                                        <th>Puesto</th>
-                                        <td>@Html.DisplayFor(model => model.puesto1.descripcion)</td>
-                                    </tr>  
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.id_jefe_directo)</th>
-                                        <td>@Html.DisplayFor(model => model.empleados2.ConcatNumEmpleadoNombre)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.activo)</th>
-                                        <td>
-                                            @if (Model.activo.HasValue && Model.activo.Value)
-                                            {
-                                                <span>Activo</span>
-                                            }
-                                            else
-                                            {
-                                                <span>Inactivo</span>
-                                            }
-                                        </td>
-                                    </tr>
-
-                                </tbody>
-                            </table>
+                        @if (Model.id_fotografia.HasValue)
+                        {
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id_fotografia, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-4 col-sm-4 ">
+                                    <div id="crop-avatar">
+                                        <!-- Current avatar -->
+                                        <img class="img-responsive avatar-view profile-picture" src="@Model.ImageToBase64()" alt="Avatar" title="Change the avatar">
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id_fotografia, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-4 col-sm-4 ">
+                                    <div id="crop-avatar">
+                                        <!-- Current avatar -->
+                                        <img class="img-responsive avatar-view profile-picture" src="/Content/images/user.png" alt="Avatar" title="Change the avatar">
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.numeroEmpleado, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.numeroEmpleado)" readonly />
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-12">
-                        <p class="float-md-right">
-                            <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = Model.id})" class="btn btn-success btm-sm" title="Editar">
-                                <i class="fa-regular fa-pen-to-square"></i> Editar
-                            </a>
-                        </p>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.C8ID, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.C8ID)" readonly />
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.nombre, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.nombre)" readonly />
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.apellido1, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.apellido1)" readonly />
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.apellido2, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.apellido2)" readonly />
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.correo, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input type="text" class="form-control" value="@Model.correo" readonly />
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.nueva_fecha_nacimiento, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.nueva_fecha_nacimiento)" readonly />
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.ingresoFecha, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.ingresoFecha)" readonly />
+                            </div>
+                        </div>
+                        @if (Model.activo == false)
+                        {
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.bajaFecha, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    <input type="text" class="form-control" value="@Html.DisplayFor(model => model.bajaFecha)" readonly />
+                                </div>
+                            </div>
+                        }
+
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.planta_clave, htmlAttributes: new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.plantas.descripcion)" readonly />
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            <!--id jefe directo -->
+                            @Html.LabelFor(model => model.id_jefe_directo, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.empleados2.ConcatNombre)" readonly />
+                            </div>
+                        </div>
+
+                        <div class="item form-group">
+                            <label class="col-form-label col-md-3 col-sm-3 label-align">&Aacute;rea/Departamento</label>
+                            <div class="col-md-6 col-sm-6 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.Area.descripcion)" readonly />
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.puesto, htmlAttributes: new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.puesto1.descripcion)" readonly />
+                            </div>
+                        </div>
+
+                       
                     </div>
                 </div>
                 <div>
                     <br />
                     <a onclick="volverAtras()" class="btn btn-round btn-info btm-sm" title="Volver" style="color:white">
-                        <i class="fa fa-arrow-circle-left"></i> Volver atr&aacute;s
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
                     </a>
                 </div>
             </div>
         </div>
     </div>
 </div>
-

@@ -1,0 +1,178 @@
+﻿@model IEnumerable<Portal_2_0.Models.RH_menu_comedor_platillos>
+
+@{
+    ViewBag.Title = "Menú del Comedor (PUEBLA)";
+    ViewBag.PrimerNivel = "recursos_humanos";
+    ViewBag.SegundoNivel = "RH_menu_comedor";
+    ViewBag.ControllerName = "RH_menu_comedor";
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+    string fechaTexto = (String)ViewBag.FechaTexto;
+
+    List<DateTime> distinctFechas = Model.Select(x => x.fecha).Distinct().ToList();
+    List<String> distinctTipoPlatillos = Model.Select(x => x.tipo_platillo).Distinct().ToList();
+
+}
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+
+    <style>
+
+        .bootstrap-datetimepicker-widget table td.cw {
+            color: #007bff;
+        }
+    </style>
+}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box ">
+                                    <div class="form-group">
+                                        <a href="@Url.Action( "CargaMenu", ViewBag.ControllerName)" class="btn btn-success">
+                                            <i class="fa-solid fa-upload"></i>
+                                            Cargar Men&uacute; (Excel)
+                                        </a>
+                                    </div>
+
+                                    <div class="ln_solid"></div>
+                                    <div class="form-group row">
+                                        <span style="color:black"><b>B&Uacute;SQUEDA</b></span>
+                                    </div>
+                                    @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
+                                    {
+                                        <label for="fecha" class="col-form-label col-md-1 col-sm-1 label-align">Mostrar por Fecha:</label>
+                                        <div class="col-md-2">
+                                            <div class="item form-group float-left">
+                                                <input type="date" class="form-control" id="fecha" name="fecha" value="@fechaTexto" />
+                                                <input type="submit" class="btn btn-info" value="Mostrar" />
+                                            </div>
+                                        </div>
+
+                                    }
+                                    <div class="ln_solid"></div>
+                                    <p style="font-size:18px">@((string)ViewBag.SemanaTexto)</p>
+
+                                    <table id="table-menu" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th nowrap>Platillo</th>
+                                                @foreach (var f in distinctFechas)
+                                                {
+                                                    <th>@f.ToString("M", new System.Globalization.CultureInfo("es-MX"))</th>
+                                                    <th nowrap>Kcal</th>
+                                                    <th nowrap>Editar</th>
+                                                }
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var tp in distinctTipoPlatillos)
+                                            {
+                                                <tr>
+                                                    <td style="background-color: #a2f3a4; font-weight: bold " nowrap>@tp</td>
+                                                    @foreach (var f in distinctFechas)
+                                                    {
+                                                        var m = Model.FirstOrDefault(x => x.fecha == f && x.tipo_platillo == tp);
+                                                        <td style="font-style:italic">
+                                                            @(m!=null?m.nombre_platillo:string.Empty)
+                                                        </td>
+                                                        <td>@(m!=null?m.kcal.ToString():string.Empty)</td>
+                                                        <td>
+                                                            <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id= m.id, s_fecha = fechaTexto})" class="btn btn-info btn-sm" title="Editar">
+                                                                <i class="fa-solid fa-pen-to-square"></i>
+                                                            </a>
+                                                        </td>
+                                                    }
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render("~/bundles/dataTables_js")
+
+
+    <script>
+
+
+        $(document).ready(function () {
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+            var tabla = $('#table-menu').DataTable({
+                "paging": false,
+                "ordering": false,
+                "searching": false,
+                "scrollX": true,
+                "info": false,
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json"
+                },
+
+            });
+
+
+            //$("#fecha").change(function () {
+            //    $('#buscarForm').submit();
+            //});
+
+
+        });
+
+        window.onload = function () {
+            clicMenu(1);
+        }
+    </script>
+}

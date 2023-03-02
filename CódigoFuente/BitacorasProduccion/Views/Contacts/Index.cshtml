@@ -1,0 +1,334 @@
+﻿@model IEnumerable<Portal_2_0.Models.empleados>
+
+@{
+    ViewBag.Title = "Directorio";
+    ViewBag.PrimerNivel = "directorio";
+    ViewBag.SegundoNivel = "directorio";
+    ViewBag.ControllerName = "Contacts";
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+    //obtiene los filtros
+    Portal_2_0.Models.Paginacion paginacionFiltros = (Portal_2_0.Models.Paginacion)ViewBag.Paginacion;
+
+    string nombre = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["nombre"] != null)
+    {
+        nombre = paginacionFiltros.ValoresQueryString["nombre"].ToString();
+    }
+    string incluye_telefono = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["incluye_telefono"] != null)
+    {
+        incluye_telefono = paginacionFiltros.ValoresQueryString["incluye_telefono"].ToString();
+    }
+
+}
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/green.css")" rel="stylesheet">
+
+
+    <style>
+        .profile-picture {
+            width: 160px !important;
+            height: 160px !important;
+        }
+    </style>
+}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+
+        <div class="row">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2><i class="fa fa-address-book"></i> @ViewBag.Title</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        @*Utilizado para mover a la derecha los iconos del card*@
+                        <span style="visibility:hidden">_______</span>
+                        <li>
+                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                        </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="card-box">
+                                <div class="form-group">
+                                    @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
+                                    {
+                                        <input type="hidden" name="busqueda" value="true"/>
+                                        <div class="form-group row ">
+                                            <label class="control-label col-md-1 col-sm-1" for="nombre" style="text-align:right">Nombre:</label>
+                                            <div class="col-md-2 col-sm-2 ">
+                                                <input type="text" id="nombre" name="nombre" class="form-control" value="@nombre" autocomplete="off" />
+                                            </div>
+                                            <label class="control-label col-md-1 col-sm-1" for="planta_clave" style="text-align:right">Planta:</label>
+                                            <div class="col-md-2 col-sm-2 ">
+                                                @Html.DropDownList("planta_clave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                            </div>
+                                            <label class="control-label col-md-1 col-sm-1" for="id_area" style="text-align:right">Área:</label>
+                                            <div class="col-md-2 col-sm-2 ">
+                                                @Html.DropDownList("id_area", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                            </div>
+                                            <!-- INICIA Telefono y extension-->
+                                            <label for="incluye_telefono" class="col-form-label col-md-1 col-sm-1 label-align" data-toggle="tooltip" data-placement="top" title="Si se selecciona, sólo se mostrarán los resultados que incluyan télefono y/o extensión">Tel&eacute;fono y/o extensi&oacute;n</label>
+                                            <div class="col-md-1 col-sm-1" >
+                                                <input type="checkbox" id="incluye_telefono" name="incluye_telefono" value="true" @(Boolean.TryParse(incluye_telefono, out bool tel) && tel == true ? "checked" : String.Empty)>
+                                            </div>
+                                            <!--FIN Telefono y extension-->
+                                            <div class="col-md-1 col-sm-2">
+                                                <a href="@Url.Action( "Index", ViewBag.ControllerName)" class="btn btn-warning">
+                                                    <i class="fa fa-refresh"></i>
+                                                </a>
+                                                <input type="submit" value="Buscar" class="btn btn-info" />
+                                            </div>
+                                            
+                                        </div>
+                                    }
+                                    <hr />
+                                </div>
+
+
+
+                                @foreach (var empleado in Model)
+                                {
+                                    string telefono = string.Empty;
+                                    <div class="col-md-4 col-sm-6">
+                                        <div class="x_panel table-responsive" style="height: 300px; background-color: #f9f9ff">
+                                            <div class="x_title" style="background-color:#0094ff">
+                                                <span style="font-size:18px; font-weight:bold; color:white">@Html.DisplayFor(model => empleado.ConcatNombre) </span>
+                                                <div class="clearfix"></div>
+                                            </div>
+
+                                            <div class="x_content">
+                                                <div class="col-sm-12">
+                                                    <div class="left col-md-7 col-sm-12">
+                                                        <h2>@Html.DisplayFor(model => empleado.ConcatNombre)</h2>
+
+                                                        <ul class="list-unstyled">
+                                                            <li><i class="fa fa-industry"></i> <strong>Planta: </strong>  @Html.DisplayFor(model => empleado.plantas.descripcion) </li>
+                                                            <li><i class="fa fa-building"></i> <strong>Departamento: </strong>  @Html.DisplayFor(model => empleado.Area.descripcion) </li>
+                                                            <li><i class="fa fa-briefcase"></i> <strong>Puesto: </strong>  @Html.DisplayFor(model => empleado.puesto1.descripcion)</li>
+                                                            <li><i class="fa fa-envelope"></i> <strong>Correo: </strong>  @Html.DisplayFor(model => empleado.correo) </li>
+
+                                                            @if (empleado.mostrar_telefono)
+                                                            {
+                                                                var lineas = empleado.GetIT_Inventory_Cellular_LinesActivas();
+                                                                foreach (var linea in lineas)
+                                                                {
+                                                                    <li><i class="fa fa-phone"></i> <strong>Teléfono: </strong> @Html.DisplayFor(model => linea.GetPhoneNumberFormat) </li>
+                                                                    telefono += linea.numero_celular;
+                                                                    if (lineas.Count > 1)
+                                                                    {
+                                                                        telefono += "; ";
+                                                                    }
+                                                                }
+                                                                <li><i class="fa fa-external-link"></i> <strong>Ext.: </strong> @Html.DisplayFor(model => empleado.extension) </li>
+                                                            }
+                                                        </ul>
+                                                    </div>
+                                                    <div class="right col-md-5 col-sm-12 text-center">
+                                                        @if (empleado.id_fotografia.HasValue)
+                                                        {
+                                                            <img src="@empleado.ImageToBase64(220,220)" alt="" class="img-circle img-fluid">
+                                                        }
+                                                        else
+                                                        {
+                                                            <img src="/Content/images/user.png" alt="" class="img-circle img-fluid">
+                                                        }
+
+                                                    </div>
+                                                </div>
+                                                @*<div class=" bottom text-right">
+                                                        <div class=" col-sm-12 emphasis">
+                                                            <button type="button" class="btn btn-success btn-sm" onclick="CopiarTexto('@empleado.correo')" @(string.IsNullOrEmpty(empleado.correo) ? "disabled" : "")>
+                                                                <i class="fa fa-copy"></i> Correo
+                                                            </button>
+                                                            <button type="button" class="btn btn-primary btn-sm" onclick="CopiarTexto('@telefono')" @(string.IsNullOrEmpty(telefono) ? "disabled" : "")>
+                                                                <i class="fa fa-copy"></i> Tel&eacute;fono
+                                                            </button>
+                                                        </div>
+                                                    </div>*@
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                }
+
+
+
+                            </div>
+                            <br />
+                            <div class="col-md-12 col-sm-12">
+                                @if (Model.Count() > 0)
+                                {
+                                    <nav id="nav_paginacion" aria-label="...">
+                                        @{Html.RenderPartial("_Paginacion", Model);}
+                                    </nav>
+                                }
+                                else
+                                {
+                                    <h2>¡No hay resultados!</h2>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+@section scripts
+{
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render("~/bundles/dataTables_js")
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+
+    <script>
+        $(document).ready(function () {
+
+            //inicializa los data table
+            var tabla = $('#datatable_1').DataTable({
+                "paging": false,
+                "ordering": false,
+                "searching": false,
+                "scrollX": true,
+                "info": false
+            });
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //Agrega el evento a todos los input
+            $(".select2bs4").each(function () {
+                $(this).on('input', function (e) {
+                    EnviaFormulario();
+                });
+            });
+
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+                increaseArea: '20%' // optional
+            });
+
+            $('input').on('ifChanged', function (event) {
+                EnviaFormulario();
+            });
+
+        });
+
+        var Toast = Swal.mixin({
+            toast: true,
+            icon: 'success',
+            title: 'General Title',
+            animation: false,
+            position: 'top-right',
+            showConfirmButton: true,
+            timer: 3500,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+
+        //Envía el formulario de búsqueda
+        function CopiarTexto(texto) {
+
+            copiarAlPortapapeles(texto);
+
+            Toast.fire({
+                icon: 'success',
+                title: ' Se copió al portapapeles.'
+            })
+
+        }
+
+        function copiarAlPortapapeles(texto) {
+
+            // Crea un campo de texto "oculto", este por un textarea
+
+            var aux = document.createElement("textarea");
+
+            // Asigna el contenido del elemento especificado al valor del campo
+            // este para vaciar el contenido
+
+            aux.innerHTML = texto;
+
+            // Añade el campo a la página
+            document.body.appendChild(aux);
+
+            // Selecciona el contenido del campo
+            aux.select();
+
+            // Copia el texto seleccionado
+            document.execCommand("copy");
+
+            // Elimina el campo de la página
+            document.body.removeChild(aux);
+
+        }
+
+        //Envía el formulario de búsqueda
+        function EnviaFormulario() {
+
+            $("#buscarForm").submit();
+            $.blockUI({
+                css: {
+                    border: 'none',
+                    padding: '15px',
+                    backgroundColor: '#000',
+                    '-webkit-border-radius': '10px',
+                    '-moz-border-radius': '10px',
+                    opacity: .3,
+                    color: '#fff'
+                },
+                message: '<h3>Cargando...</h3>'
+
+            });
+
+        }
+        //agranda el tamaño de la barra
+        window.onload = function () {
+            document.getElementById('menu_toggle').click();
+        }
+    </script>
+
+}
+

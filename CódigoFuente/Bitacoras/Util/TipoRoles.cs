@@ -69,6 +69,8 @@ namespace Clases.Util
         //Modulo IT - Checklists
         public const string IT_CHECKLIST_SITE = "IT_Check_site";
         public const string IT_CHECKLIST_EQUIPOS = "IT_Check_equipos";
-
+        //Módulo RH - Menu comedor 
+        public const string RH_MENU_COMEDOR_PUEBLA = "RH_Menu_Comedor_Puebla";
+        public const string RH_MENU_COMEDOR_VISUALIZAR_PUEBLA = "Menu_Comedor_Visualizar_Puebla";
     }
 }

@@ -31,7 +31,6 @@ namespace Portal_2_0.Controllers
 
                 var cantidadRegistrosPorPagina = 20; // parámetro
 
-
                 var listado = db.IT_inventory_items
                     .Where(x =>
                    (x.id_planta == id_planta || id_planta == null)
@@ -242,12 +241,17 @@ namespace Portal_2_0.Controllers
                 var tipo = db.IT_inventory_hardware_type.Find(id_inventory);
                 if (tipo != null && (tipo.descripcion == IT_Tipos_Hardware.LAPTOP || tipo.descripcion == IT_Tipos_Hardware.DESKTOP))
                 {
-                   
+
+                    DateTime next = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1); //primer día del mes actual
+                    next = next.AddMonths(iT_inventory_items.maintenance_period_months.HasValue
+                        ? iT_inventory_items.maintenance_period_months.Value : 6)
+                        .AddMonths(1) //el primer dia del mes siguiente
+                        .AddDays(-1); //ultimo día del més anterior
+
                     var nuevo_manto = new IT_mantenimientos
                     {
                        // id_it_inventory_item = inventory_item.id,
-                        fecha_programada = DateTime.Now.AddMonths(iT_inventory_items.maintenance_period_months.HasValue
-                        ? iT_inventory_items.maintenance_period_months.Value : 6), //seis meses por defecto
+                        fecha_programada = next, //seis meses por defecto
                     };
 
                     iT_inventory_items.IT_mantenimientos.Add(nuevo_manto);
@@ -581,7 +585,7 @@ namespace Portal_2_0.Controllers
                 var cd = new System.Net.Mime.ContentDisposition
                 {
                     // for example foo.bak
-                    FileName = "Inventory_Desktop_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+                    FileName = "Inventory_Laptop_Desktop_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
 
                     // always prompt the user for downloading, set to true if you want 
                     // the browser to try to show the file inline
@@ -1082,7 +1086,6 @@ namespace Portal_2_0.Controllers
                   .OrderByDescending(x => x.id_planta)
                .ToList();
 
-                //** DE MOMENTO ES EL MISMO QUE DESKTOP ***//
                 byte[] stream = ExcelUtil.GeneraReporteITTabletExcel(listado);
 
 

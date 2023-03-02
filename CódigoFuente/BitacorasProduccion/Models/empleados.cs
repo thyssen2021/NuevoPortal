@@ -19,18 +19,19 @@ namespace Portal_2_0.Models
         {
             this.budget_responsables = new HashSet<budget_responsables>();
             this.empleados1 = new HashSet<empleados>();
+            this.GV_solicitud = new HashSet<GV_solicitud>();
+            this.GV_solicitud1 = new HashSet<GV_solicitud>();
+            this.GV_solicitud2 = new HashSet<GV_solicitud>();
+            this.GV_solicitud3 = new HashSet<GV_solicitud>();
+            this.GV_solicitud4 = new HashSet<GV_solicitud>();
+            this.GV_solicitud5 = new HashSet<GV_solicitud>();
+            this.GV_usuarios = new HashSet<GV_usuarios>();
             this.IT_asignacion_hardware = new HashSet<IT_asignacion_hardware>();
             this.IT_asignacion_hardware1 = new HashSet<IT_asignacion_hardware>();
             this.IT_asignacion_hardware2 = new HashSet<IT_asignacion_hardware>();
             this.inspeccion_datos_generales = new HashSet<inspeccion_datos_generales>();
             this.IT_asignacion_software = new HashSet<IT_asignacion_software>();
             this.IT_asignacion_software1 = new HashSet<IT_asignacion_software>();
-            this.IT_mantenimientos = new HashSet<IT_mantenimientos>();
-            this.IT_mantenimientos1 = new HashSet<IT_mantenimientos>();
-            this.IT_matriz_requerimientos = new HashSet<IT_matriz_requerimientos>();
-            this.IT_matriz_requerimientos1 = new HashSet<IT_matriz_requerimientos>();
-            this.IT_matriz_requerimientos2 = new HashSet<IT_matriz_requerimientos>();
-            this.IT_matriz_requerimientos3 = new HashSet<IT_matriz_requerimientos>();
             this.IT_solicitud_usuarios = new HashSet<IT_solicitud_usuarios>();
             this.notificaciones_correo = new HashSet<notificaciones_correo>();
             this.orden_trabajo = new HashSet<orden_trabajo>();
@@ -51,20 +52,15 @@ namespace Portal_2_0.Models
             this.produccion_operadores = new HashSet<produccion_operadores>();
             this.produccion_respaldo = new HashSet<produccion_respaldo>();
             this.produccion_supervisores = new HashSet<produccion_supervisores>();
-            this.upgrade_usuarios = new HashSet<upgrade_usuarios>();
-            this.GV_usuarios = new HashSet<GV_usuarios>();
             this.IT_site_checklist = new HashSet<IT_site_checklist>();
+            this.upgrade_usuarios = new HashSet<upgrade_usuarios>();
+            this.IT_matriz_requerimientos = new HashSet<IT_matriz_requerimientos>();
+            this.IT_matriz_requerimientos1 = new HashSet<IT_matriz_requerimientos>();
+            this.IT_matriz_requerimientos2 = new HashSet<IT_matriz_requerimientos>();
+            this.IT_matriz_requerimientos3 = new HashSet<IT_matriz_requerimientos>();
             this.IT_equipos_checklist = new HashSet<IT_equipos_checklist>();
-            this.GV_comprobacion = new HashSet<GV_comprobacion>();
-            this.GV_comprobacion1 = new HashSet<GV_comprobacion>();
-            this.GV_comprobacion2 = new HashSet<GV_comprobacion>();
-            this.GV_comprobacion3 = new HashSet<GV_comprobacion>();
-            this.GV_solicitud = new HashSet<GV_solicitud>();
-            this.GV_solicitud1 = new HashSet<GV_solicitud>();
-            this.GV_solicitud2 = new HashSet<GV_solicitud>();
-            this.GV_solicitud3 = new HashSet<GV_solicitud>();
-            this.GV_solicitud4 = new HashSet<GV_solicitud>();
-            this.GV_solicitud5 = new HashSet<GV_solicitud>();
+            this.IT_mantenimientos = new HashSet<IT_mantenimientos>();
+            this.IT_mantenimientos1 = new HashSet<IT_mantenimientos>();
         }
     
         public int id { get; set; }
@@ -93,13 +89,27 @@ namespace Portal_2_0.Models
         public bool mostrar_telefono { get; set; }
     
         public virtual Area Area { get; set; }
+        public virtual biblioteca_digital biblioteca_digital { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_responsables> budget_responsables { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<empleados> empleados1 { get; set; }
         public virtual empleados empleados2 { get; set; }
-        public virtual plantas plantas { get; set; }
         public virtual puesto puesto1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<GV_solicitud> GV_solicitud { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<GV_solicitud> GV_solicitud1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<GV_solicitud> GV_solicitud2 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<GV_solicitud> GV_solicitud3 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<GV_solicitud> GV_solicitud4 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<GV_solicitud> GV_solicitud5 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<GV_usuarios> GV_usuarios { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_asignacion_hardware> IT_asignacion_hardware { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -112,18 +122,6 @@ namespace Portal_2_0.Models
         public virtual ICollection<IT_asignacion_software> IT_asignacion_software { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_asignacion_software> IT_asignacion_software1 { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IT_mantenimientos> IT_mantenimientos { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IT_mantenimientos> IT_mantenimientos1 { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IT_matriz_requerimientos> IT_matriz_requerimientos { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IT_matriz_requerimientos> IT_matriz_requerimientos1 { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IT_matriz_requerimientos> IT_matriz_requerimientos2 { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IT_matriz_requerimientos> IT_matriz_requerimientos3 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_solicitud_usuarios> IT_solicitud_usuarios { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -165,33 +163,23 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<produccion_supervisores> produccion_supervisores { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_site_checklist> IT_site_checklist { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<upgrade_usuarios> upgrade_usuarios { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<GV_usuarios> GV_usuarios { get; set; }
+        public virtual ICollection<IT_matriz_requerimientos> IT_matriz_requerimientos { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IT_site_checklist> IT_site_checklist { get; set; }
+        public virtual ICollection<IT_matriz_requerimientos> IT_matriz_requerimientos1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_matriz_requerimientos> IT_matriz_requerimientos2 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_matriz_requerimientos> IT_matriz_requerimientos3 { get; set; }
+        public virtual plantas plantas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_equipos_checklist> IT_equipos_checklist { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<GV_comprobacion> GV_comprobacion { get; set; }
+        public virtual ICollection<IT_mantenimientos> IT_mantenimientos { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<GV_comprobacion> GV_comprobacion1 { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<GV_comprobacion> GV_comprobacion2 { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<GV_comprobacion> GV_comprobacion3 { get; set; }
-        public virtual biblioteca_digital biblioteca_digital { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<GV_solicitud> GV_solicitud { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<GV_solicitud> GV_solicitud1 { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<GV_solicitud> GV_solicitud2 { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<GV_solicitud> GV_solicitud3 { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<GV_solicitud> GV_solicitud4 { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<GV_solicitud> GV_solicitud5 { get; set; }
+        public virtual ICollection<IT_mantenimientos> IT_mantenimientos1 { get; set; }
     }
 }

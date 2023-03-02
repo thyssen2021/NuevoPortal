@@ -7,6 +7,16 @@
     ViewBag.ControllerName = "Empleados";
 }
 
+
+@section estilos
+{
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/green.css")" rel="stylesheet">
+
+}
+
 <div class="right_col" role="main">
     <div class="">
         <div class="page-title">
@@ -22,91 +32,109 @@
                         <h2>@ViewBag.Title</h2>
                         <div class="clearfix"></div>
                     </div>
+                    <div class="x_content">
+                        <br />
 
-                    <!-- /.col -->
-                    <div class="col-md-8">
-                        <div class="table-responsive">
-                            <h3>¿Realmente desea dar de baja este empleado?</h3>
-                            <table class="table">
-                                <tbody>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.numeroEmpleado)</th>
-                                        <td>@Html.DisplayFor(model => model.numeroEmpleado)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.C8ID)</th>
-                                        <td>@Html.DisplayFor(model => model.C8ID)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.nombre)</th>
-                                        <td>@Html.DisplayFor(model => model.nombre)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.apellido1)</th>
-                                        <td>@Html.DisplayFor(model => model.apellido1)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.apellido2)</th>
-                                        <td>@Html.DisplayFor(model => model.apellido2)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.correo)</th>
-                                        <td>@Html.DisplayFor(model => model.correo)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.nueva_fecha_nacimiento)</th>
-                                        <td>@Html.DisplayFor(model => model.nueva_fecha_nacimiento)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.telefono)</th>
-                                        <td>@Html.DisplayFor(model => model.telefono)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.extension)</th>
-                                        <td>@Html.DisplayFor(model => model.extension)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.celular)</th>
-                                        <td>@Html.DisplayFor(model => model.celular)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.ingresoFecha)</th>
-                                        <td>@Html.DisplayFor(model => model.ingresoFecha)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.bajaFecha)</th>
-                                        <td>@Html.DisplayFor(model => model.bajaFecha)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Planta</th>
-                                        <td>@Html.DisplayFor(model => model.plantas.descripcion)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Departamento</th>
-                                        <td>@Html.DisplayFor(model => model.Area.descripcion)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Puesto</th>
-                                        <td>@Html.DisplayFor(model => model.puesto1.descripcion)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.activo)</th>
-                                        <td>
-                                            @if (Model.activo.HasValue && Model.activo.Value)
-                                            {
-                                                <span>Activo</span>
-                                            }
-                                            else
-                                            {
-                                                <span>Inactivo</span>
-                                            }
-                                        </td>
-                                    </tr>
-
-                                </tbody>
-                            </table>
+                        @if (Model.id_fotografia.HasValue)
+                        {
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id_fotografia, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-4 col-sm-4 ">
+                                    <div id="crop-avatar">
+                                        <!-- Current avatar -->
+                                        <img class="img-responsive avatar-view profile-picture" src="@Model.ImageToBase64()" alt="Avatar" title="Change the avatar">
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.numeroEmpleado, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.numeroEmpleado)" readonly />
+                            </div>
                         </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.C8ID, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.C8ID)" readonly />
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.nombre, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.nombre)" readonly />
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.apellido1, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.apellido1)" readonly />
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.apellido2, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.apellido2)" readonly />
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.correo, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input type="text" class="form-control" value="@Model.correo" readonly />
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.nueva_fecha_nacimiento, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.nueva_fecha_nacimiento)" readonly />
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.ingresoFecha, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.ingresoFecha)" readonly />
+                            </div>
+                        </div>
+                        @if (Model.activo == false)
+                        {
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.bajaFecha, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    <input type="text" class="form-control" value="@Html.DisplayFor(model => model.bajaFecha)" readonly />
+                                </div>
+                            </div>
+                        }
+
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.planta_clave, htmlAttributes: new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.plantas.descripcion)" readonly />
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            <!--id jefe directo -->
+                            @Html.LabelFor(model => model.id_jefe_directo, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.empleados2.ConcatNombre)" readonly />
+                            </div>
+                        </div>
+
+                        <div class="item form-group">
+                            <label class="col-form-label col-md-3 col-sm-3 label-align">&Aacute;rea/Departamento</label>
+                            <div class="col-md-6 col-sm-6 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.Area.descripcion)" readonly />
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.puesto, htmlAttributes: new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.puesto1.descripcion)" readonly />
+                            </div>
+                        </div>
+
                     </div>
+                    <!-- /.col -->
+
                     @using (Html.BeginForm())
                     {
                         @Html.AntiForgeryToken()
@@ -117,12 +145,11 @@
                                     @Html.ValidationSummary("", new { @class = "text-white" })
                                 </div>
                             }
-
                         </div>
                         <div class="col-md-12">
                             <div class="ln_solid"></div>
                             <div class="form-group row">
-                                <span style="color:black"><b>FECHA DE BAJA</b></span>
+                                <span style="color:black"><b>INFORMACI&Oacute;N DE BAJA DE EMPLEADO</b></span>
                             </div>
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.bajaFecha, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
@@ -131,11 +158,20 @@
                                     @Html.ValidationMessageFor(model => model.bajaFecha, "", new { @class = "text-danger" })
                                 </div>
                             </div>
+                            <div class="item form-group">
+                                <label for="notificacion_it" class="col-form-label col-md-3 col-sm-3 label-align"> Enviar notificaci&oacute;n a IT</label>
+                                <div class="col-md-1 col-sm-1 ">
+                                    <input type="checkbox" id="notificacion_it" name="notificacion_it">
+                                </div>
+                                <div class="col-md-1 col-sm-1 " style="color:white">
+                                    <a class="btn btn-info btn-sm" id="info-it" title="Info">
+                                        <i class="fa-solid fa-circle-info"></i>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
-
                         <div class="col-md-12">
                             <div class="ln_solid"></div>
-
                         </div>
 
                         <div class="col-md-12">
@@ -148,7 +184,7 @@
 
 
                                 <div class="form-actions no-color float-md-right">
-                                    <input type="submit" value="Deshabilitar" class="btn btn-danger btm-sm" />
+                                    <input type="button" value="Dar de Baja" id="btn-ok" class="btn btn-danger btm-sm" />
                                 </div>
                             </p>
                         </div>
@@ -167,4 +203,66 @@
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+
+    <script>
+        $(document).ready(function () {
+
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+                increaseArea: '20%' // optional
+            });
+
+            //muestra info de IT
+            $('#info-it').click(function (e) {
+                Swal.fire(
+                    'Mensaje',
+                    'Si se selecciona esta opción, se enviará notificacion a Sistemas para dar de baja al empleado en las distintas plataformas.',
+                    'info'
+                )
+            });
+
+            //maneja el envió el del formulario
+            $('form #btn-ok').click(function (e) {
+                let $form = $(this).closest('form');
+
+                const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: 'btn btn-success',
+                        cancelButton: 'btn btn-danger'
+                    },
+                    buttonsStyling: false,
+                })
+
+                swalWithBootstrapButtons.fire({
+                    title: '¿Desea Continuar?',
+                    html: "Advertencia: Se dará de baja al empleado en el sistema.",
+                    showCancelButton: true,
+                    confirmButtonText: 'Aceptar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.value) {
+                        //espera a que se cierre el modal para enviar el formulario
+                        setTimeout(function () {
+                            $form.submit();
+                        }, 600);
+                    }
+                });
+
+            });
+        });
+
+
+
+        window.onload = function () {
+            clicMenu(1);
+        }
+
+    </script>
+
 }

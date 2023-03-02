@@ -152,6 +152,15 @@ namespace Portal_2_0.Models
         [Display(Name = "Physical Server")]
         public Nullable<int> physical_server { get; set; }
 
+        [Display(Name = "¿Baja?")]
+        public bool baja { get; set; }
+
+        [DataType(DataType.Date)]
+        [Display(Name = "Fecha de Baja")]
+        [RequiredIf("baja", true, ErrorMessage = "El campo Fecha de Baja es Requerido")]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        public Nullable<System.DateTime> fecha_baja { get; set; }
+
     }
 
     [MetadataType(typeof(IT_inventory_itemsMetadata))]
@@ -401,8 +410,8 @@ namespace Portal_2_0.Models
                 else
                     return false;
             }
-        }
-
+        }      
+        
 
     }
 
@@ -865,6 +874,7 @@ namespace Portal_2_0.Models
             ,new FiltersInventoryUtil {tipoHardware = tablet(),nombreCampo =  nameof(IT_inventory_items.model), tipoFormulario = FiltersInventoryTypes.INDEX}
             ,new FiltersInventoryUtil {tipoHardware = tablet(),nombreCampo =  nameof(IT_inventory_items.serial_number), tipoFormulario = FiltersInventoryTypes.INDEX}
             ,new FiltersInventoryUtil {tipoHardware = tablet(),nombreCampo =  nameof(IT_inventory_items.inches), tipoFormulario = FiltersInventoryTypes.INDEX}
+            ,new FiltersInventoryUtil {tipoHardware = tablet(),nombreCampo =  nameof(IT_inventory_items.hostname), tipoFormulario = FiltersInventoryTypes.INDEX}
             //--INDEX Radio
             ,new FiltersInventoryUtil {tipoHardware = radio(),nombreCampo =  nameof(IT_inventory_items.id_inventory_type), tipoFormulario = FiltersInventoryTypes.INDEX}
             ,new FiltersInventoryUtil {tipoHardware = radio(),nombreCampo =  nameof(IT_inventory_items.active), tipoFormulario = FiltersInventoryTypes.INDEX}

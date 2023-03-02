@@ -1,0 +1,28 @@
+﻿@*
+    IMPORTANTE!!
+    Para el correcto funcionamiento del bloqueo de la página mientras se carga, se deben considerar los siguientes puntos.
+
+    1.La página parcial debe llamarse al inicio de la página (inmediatamente después de @section estilos )
+         @{Html.RenderPartial("_BlockUI", Model);}
+    2. Debe llamarse al método  $.unblockUI(); dentro del método $(document).ready(function () {});
+        preferentemente al final del método onReady, pues ya se consideran inicializado todos los valores
+*@
+
+<!-- jQuery -->
+@Scripts.Render(Url.Content("~/Content/vendors/jquery/dist/jquery.min.js"))
+@Scripts.Render(Url.Content("~/Content/vendors/jquery_block_ui/jquery.blockUI.js"))
+<script>
+    $.blockUI({
+        css: {
+            border: 'none',
+            padding: '15px',
+            backgroundColor: '#000',
+            '-webkit-border-radius': '10px',
+            '-moz-border-radius': '10px',
+            opacity: .3,
+            color: '#fff'
+        },
+        message: '<h3>Cargando...</h3>'
+
+    });
+</script>

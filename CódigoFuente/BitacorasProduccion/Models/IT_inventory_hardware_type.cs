@@ -18,6 +18,7 @@ namespace Portal_2_0.Models
         public IT_inventory_hardware_type()
         {
             this.IT_inventory_items_genericos = new HashSet<IT_inventory_items_genericos>();
+            this.IT_matriz_hardware = new HashSet<IT_matriz_hardware>();
             this.IT_inventory_items = new HashSet<IT_inventory_items>();
             this.IT_matriz_hardware = new HashSet<IT_matriz_hardware>();
         }
@@ -31,6 +32,8 @@ namespace Portal_2_0.Models
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_inventory_items_genericos> IT_inventory_items_genericos { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_matriz_hardware> IT_matriz_hardware { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_inventory_items> IT_inventory_items { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

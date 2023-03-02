@@ -45,6 +45,7 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
     <Reference Include="System.Xml.Linq" />
@@ -71,11 +72,13 @@
     <Compile Include="Util\GV_solicitud_estatus.cs" />
     <Compile Include="Util\GV_tipo_departamento.cs" />
     <Compile Include="Util\ImpLocales.cs" />
+    <Compile Include="Util\ImageUtil.cs" />
     <Compile Include="Util\IT_equipos_actividad_estatus.cs" />
     <Compile Include="Util\IT_equipos_checklist_estatus.cs" />
     <Compile Include="Util\IT_matenimiento_Estatus.cs" />
     <Compile Include="Util\GV_tipo_viaje.cs" />
     <Compile Include="Util\IT_MR_Status.cs" />
+    <Compile Include="Util\IT_MR_tipo.cs" />
     <Compile Include="Util\IT_site_actividad_estatus.cs" />
     <Compile Include="Util\IT_site_checklist_estatus.cs" />
     <Compile Include="Util\IT_solicitud_usuario_Status.cs" />

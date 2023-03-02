@@ -18,18 +18,12 @@ namespace Portal_2_0.Models
         public biblioteca_digital()
         {
             this.IT_asignacion_hardware = new HashSet<IT_asignacion_hardware>();
-            this.IT_mantenimientos = new HashSet<IT_mantenimientos>();
             this.OT_rel_archivos = new HashSet<OT_rel_archivos>();
             this.PFA = new HashSet<PFA>();
             this.poliza_manual = new HashSet<poliza_manual>();
             this.poliza_manual1 = new HashSet<poliza_manual>();
-            this.GV_comprobacion = new HashSet<GV_comprobacion>();
-            this.GV_comprobacion_rel_gastos = new HashSet<GV_comprobacion_rel_gastos>();
-            this.GV_comprobacion_rel_gastos1 = new HashSet<GV_comprobacion_rel_gastos>();
-            this.GV_comprobacion_rel_gastos2 = new HashSet<GV_comprobacion_rel_gastos>();
             this.empleados = new HashSet<empleados>();
-            this.GV_rel_archivo_nomina = new HashSet<GV_rel_archivo_nomina>();
-            this.GV_solicitud = new HashSet<GV_solicitud>();
+            this.IT_mantenimientos = new HashSet<IT_mantenimientos>();
         }
     
         public int Id { get; set; }
@@ -40,8 +34,6 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_asignacion_hardware> IT_asignacion_hardware { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IT_mantenimientos> IT_mantenimientos { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<OT_rel_archivos> OT_rel_archivos { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PFA> PFA { get; set; }
@@ -50,18 +42,8 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<poliza_manual> poliza_manual1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<GV_comprobacion> GV_comprobacion { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<GV_comprobacion_rel_gastos> GV_comprobacion_rel_gastos { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<GV_comprobacion_rel_gastos> GV_comprobacion_rel_gastos1 { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<GV_comprobacion_rel_gastos> GV_comprobacion_rel_gastos2 { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<empleados> empleados { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<GV_rel_archivo_nomina> GV_rel_archivo_nomina { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<GV_solicitud> GV_solicitud { get; set; }
+        public virtual ICollection<IT_mantenimientos> IT_mantenimientos { get; set; }
     }
 }

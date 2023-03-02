@@ -35,13 +35,13 @@ namespace Portal_2_0.Models
         public string comentario_desasignacion { get; set; }
     
         public virtual biblioteca_digital biblioteca_digital { get; set; }
-        public virtual empleados empleados { get; set; }
-        public virtual empleados empleados1 { get; set; }
-        public virtual empleados empleados2 { get; set; }
         public virtual IATF_revisiones IATF_revisiones { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_asignacion_hardware_rel_items> IT_asignacion_hardware_rel_items { get; set; }
         public virtual IT_inventory_cellular_line IT_inventory_cellular_line { get; set; }
+        public virtual empleados empleados { get; set; }
+        public virtual empleados empleados1 { get; set; }
+        public virtual empleados empleados2 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_matriz_hardware> IT_matriz_hardware { get; set; }
     }

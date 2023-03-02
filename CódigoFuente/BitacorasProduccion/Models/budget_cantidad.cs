@@ -20,6 +20,7 @@ namespace Portal_2_0.Models
         public int mes { get; set; }
         public string currency_iso { get; set; }
         public decimal cantidad { get; set; }
+        public string comentario { get; set; }
     
         public virtual currency currency { get; set; }
         public virtual budget_cuenta_sap budget_cuenta_sap { get; set; }

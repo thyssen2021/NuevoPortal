@@ -308,12 +308,18 @@
                                 </div>
                                 @Html.LabelFor(model => model.fecha_realizacion, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
 
-                                <div class="col-md-3 col-sm-3 ">
+                                <div class="col-md-2 col-sm-2">
                                     @Html.EditorFor(model => model.fecha_realizacion, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off", @required = "required" } })
                                     @Html.ValidationMessageFor(model => model.fecha_realizacion, "", new { @class = "text-danger" })
                                 </div>
-
-
+                                <label for="PeriodoMantenimientos" class="col-form-label col-md-2 col-sm-2 label-align"> Pr&oacute;xima Fecha de mantenimiento </label>
+                                <div class="col-md-1 col-sm-1 ">
+                                    @Html.EditorFor(model => model.PeriodoMantenimientos, new { htmlAttributes = new { @class = "form-control col-md-12", @autocomplete = "off", @required = "required" } })
+                                    @Html.ValidationMessageFor(model => model.PeriodoMantenimientos, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="col-md-3 col-sm-3">
+                                    <input type="month" id="proximo" name="proximo" class="form-control" value="@Model.fecha_realizacion.Value.AddMonths(Model.PeriodoMantenimientos!=null?Model.PeriodoMantenimientos.Value:0).ToString("yyyy-MM")" readonly>
+                                </div>
                             </div>
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.comentarios, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align:left" })
@@ -351,6 +357,7 @@
 
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
     @Scripts.Render("~/bundles/dataTables_js")
+    @Scripts.Render(Url.Content("~/Content/vendors/moment/moment.js"))
     <!-- iCheck -->
     @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
@@ -399,12 +406,33 @@
                 increaseArea: '20%' // optional
             });
 
+            //detecta el cambio en el periodo de mantenimiento
+            $('#@Html.IdFor(model => model.PeriodoMantenimientos)').on('change', function () {
+                MuestraProximoMantenimiento($(this).val());
+            });
+            $('#@Html.IdFor(model => model.fecha_realizacion)').on('change', function () {
+                MuestraProximoMantenimiento($('#PeriodoMantenimientos').val());
+            });
+
             //ejecuta el evento una vez cargada la página
             $('#@Html.IdFor(model => model.id_empleado_responsable)').change();
 
 
         });
 
+        function MuestraProximoMantenimiento(meses) {
+            console.log(meses);
+            let fechaRel = $('#@Html.IdFor(model => model.fecha_realizacion)').val();
+
+            var next = moment(fechaRel);
+
+            if (moment(next).isValid()) {
+                next.add(meses, 'M');               
+                $('#proximo').val(next.format('YYYY-MM'));
+            }
+
+            
+        }
 
     function ActualizaDatosEmpleados(idEmpleado) {
         //llamada ajax para obtener el detalle del item  seleccionado

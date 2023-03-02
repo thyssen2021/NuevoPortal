@@ -18,7 +18,7 @@ namespace Portal_2_0.Controllers
     {
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
-      
+
 
         // GET: ResponsableBudget/Actual
         public ActionResult Centros()
@@ -34,7 +34,7 @@ namespace Portal_2_0.Controllers
                     ViewBag.MensajeAlert = TempData["Mensaje"];
                 }
 
-               
+
                 var centros = db.budget_centro_costo.Where(x => x.budget_responsables.Any(y => y.id_responsable == empleado.id));
                 return View(centros.ToList());
             }
@@ -64,7 +64,7 @@ namespace Portal_2_0.Controllers
                 //obtiene el usuario logeado
                 empleados empleado = obtieneEmpleadoLogeado();
                 //verifica que el usuario este registrado como capturista
-                if (!db.budget_responsables.Any(x=>x.id_responsable == empleado.id && centroCosto.id == x.id_budget_centro_costo))
+                if (!db.budget_responsables.Any(x => x.id_responsable == empleado.id && centroCosto.id == x.id_budget_centro_costo))
                 {
                     ViewBag.Titulo = "¡Lo sentimos!¡No se puede acceder a esta Sección!";
                     ViewBag.Descripcion = "Este usuario no se encuentra asociado a este centro de costo.";
@@ -274,9 +274,9 @@ namespace Portal_2_0.Controllers
                 var valoresListAnioActual = db.view_valores_fiscal_year.Where(x => x.id_anio_fiscal == anio_Fiscal_actual.id && x.id_centro_costo == centroCosto.id).ToList();
                 var valoresListAnioProximo = db.view_valores_fiscal_year.Where(x => x.id_anio_fiscal == anio_Fiscal_proximo.id && x.id_centro_costo == centroCosto.id).ToList();
 
-                valoresListAnioAnterior = AgregaCuentasSAPFaltantes(valoresListAnioAnterior, anio_Fiscal_anterior.id, centroCosto.id);
-                valoresListAnioActual = AgregaCuentasSAPFaltantes(valoresListAnioActual, anio_Fiscal_actual.id, centroCosto.id).OrderBy(x => x.id_cuenta_sap).ToList();
-                valoresListAnioProximo = AgregaCuentasSAPFaltantes(valoresListAnioProximo, anio_Fiscal_proximo.id, centroCosto.id);
+                valoresListAnioAnterior = AgregaCuentasSAPFaltantes(valoresListAnioAnterior, anio_Fiscal_anterior.id, centroCosto.id).OrderBy(x => x.sap_account).ToList();
+                valoresListAnioActual = AgregaCuentasSAPFaltantes(valoresListAnioActual, anio_Fiscal_actual.id, centroCosto.id).OrderBy(x => x.sap_account).ToList();
+                valoresListAnioProximo = AgregaCuentasSAPFaltantes(valoresListAnioProximo, anio_Fiscal_proximo.id, centroCosto.id).OrderBy(x => x.sap_account).ToList();
 
 
                 ViewBag.centroCosto = centroCosto;
@@ -401,9 +401,9 @@ namespace Portal_2_0.Controllers
                 var valoresListAnioActual = db.view_valores_fiscal_year.Where(x => x.id_anio_fiscal == anio_Fiscal_actual.id && x.id_centro_costo == centroCosto.id).ToList();
                 var valoresListAnioProximo = db.view_valores_fiscal_year.Where(x => x.id_anio_fiscal == anio_Fiscal_proximo.id && x.id_centro_costo == centroCosto.id).ToList();
 
-                valoresListAnioAnterior = AgregaCuentasSAPFaltantes(valoresListAnioAnterior, anio_Fiscal_anterior.id, centroCosto.id);
-                valoresListAnioActual = AgregaCuentasSAPFaltantes(valoresListAnioActual, anio_Fiscal_actual.id, centroCosto.id).OrderBy(x => x.id_cuenta_sap).ToList();
-                valoresListAnioProximo = AgregaCuentasSAPFaltantes(valoresListAnioProximo, anio_Fiscal_proximo.id, centroCosto.id);
+                valoresListAnioAnterior = AgregaCuentasSAPFaltantes(valoresListAnioAnterior, anio_Fiscal_anterior.id, centroCosto.id).OrderBy(x => x.sap_account).ToList();
+                valoresListAnioActual = AgregaCuentasSAPFaltantes(valoresListAnioActual, anio_Fiscal_actual.id, centroCosto.id).OrderBy(x => x.sap_account).ToList();
+                valoresListAnioProximo = AgregaCuentasSAPFaltantes(valoresListAnioProximo, anio_Fiscal_proximo.id, centroCosto.id).OrderBy(x => x.sap_account).ToList();
 
 
                 ViewBag.centroCosto = centroCosto;
@@ -475,6 +475,7 @@ namespace Portal_2_0.Controllers
                             mes = mes,
                             currency_iso = currency,
                             cantidad = cantidad,
+                            comentario = string.IsNullOrEmpty(form["budget_valores[" + num + "].comentario"]) ? null : form["budget_valores[" + num + "].comentario"]
                         });
                     }
 
@@ -490,16 +491,16 @@ namespace Portal_2_0.Controllers
             List<budget_cantidad> valoresEnBD = db.budget_cantidad.Where(x => x.id_budget_rel_fy_centro == id_rel_fy).ToList();
 
             //obtiene valores sin cambios
-            List<budget_cantidad> valoresSinCambio = valores.Where(x => valoresEnBD.Any(y => y.id_budget_rel_fy_centro == x.id_budget_rel_fy_centro && y.id_cuenta_sap == x.id_cuenta_sap && y.mes == x.mes && y.cantidad == x.cantidad)).ToList();
+            List<budget_cantidad> valoresSinCambio = valores.Where(x => valoresEnBD.Any(y => y.id_budget_rel_fy_centro == x.id_budget_rel_fy_centro && y.id_cuenta_sap == x.id_cuenta_sap && y.mes == x.mes && y.comentario == x.comentario && y.cantidad == x.cantidad)).ToList();
 
             //obtiene valores con cambios o nuevos
             List<budget_cantidad> valoresDiferentes = valores.Except(valoresSinCambio).ToList();
 
             //DE valores Diferentes identificar cuales son create, update y delete
-            List<budget_cantidad> valoresCreate = valoresDiferentes.Where(a => !valoresEnBD.Any(a1 => a1.id_budget_rel_fy_centro == a.id_budget_rel_fy_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a1.mes == a.mes) && a.cantidad != 0).ToList();
+            List<budget_cantidad> valoresCreate = valoresDiferentes.Where(a => !valoresEnBD.Any(a1 => a1.id_budget_rel_fy_centro == a.id_budget_rel_fy_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a1.mes == a.mes) && (a.cantidad != 0 || !string.IsNullOrEmpty(a.comentario))).ToList();
 
             //DE valores Diferentes identificar cuales son create, update y delete
-            List<budget_cantidad> valoresUpdate = valoresDiferentes.Where(a => valoresEnBD.Any(a1 => a1.id_budget_rel_fy_centro == a.id_budget_rel_fy_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a1.mes == a.mes && a.cantidad != 0)).ToList();
+            List<budget_cantidad> valoresUpdate = valoresDiferentes.Where(a => valoresEnBD.Any(a1 => a1.id_budget_rel_fy_centro == a.id_budget_rel_fy_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a1.mes == a.mes && (a.cantidad != 0 || !string.IsNullOrEmpty(a.comentario)))).ToList();
             //agrega el id correspondiente
             valoresUpdate = valoresUpdate.Select(x =>
             {
@@ -509,7 +510,7 @@ namespace Portal_2_0.Controllers
             }).ToList();
 
             //DE valores Diferentes identificar cuales son create, update y delete
-            List<budget_cantidad> valoresDelete = valoresDiferentes.Where(a => valoresEnBD.Any(a1 => a1.id_budget_rel_fy_centro == a.id_budget_rel_fy_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a1.mes == a.mes && a.cantidad == 0)).ToList();
+            List<budget_cantidad> valoresDelete = valoresDiferentes.Where(a => valoresEnBD.Any(a1 => a1.id_budget_rel_fy_centro == a.id_budget_rel_fy_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a1.mes == a.mes && a.cantidad == 0 && string.IsNullOrEmpty(a.comentario))).ToList();
             //agrega el id  correspondiente
             valoresDelete = valoresDelete.Select(x =>
             {
@@ -574,7 +575,7 @@ namespace Portal_2_0.Controllers
 
             #region comentarios
             //1.-Obtiene los keys de tipo comentario
-            List<string> keysComentarios = form.AllKeys.Where(x => x.ToUpper().Contains(".COMENTARIO") == true).ToList();
+            List<string> keysComentarios = form.AllKeys.Where(x => x.ToUpper().Contains(".COMENTARIO") && x.ToUpper().Contains("BUDGET_REL_COMENTARIOS")).ToList();
 
             //2.- Recorre y crea un objeto de tipo budget_comentarios
             List<budget_rel_comentarios> listComentarios = new List<budget_rel_comentarios>();
@@ -725,7 +726,7 @@ namespace Portal_2_0.Controllers
             return null;
         }
 
-        
+
 
         [NonAction]
         public static List<view_valores_fiscal_year> AgregaCuentasSAPFaltantes(List<view_valores_fiscal_year> listValores, int id_anio_fiscal, int id_centro_costo, bool soloCuentasActivas = false)
@@ -769,7 +770,7 @@ namespace Portal_2_0.Controllers
             //suba la lista original con la lista de excepciones
             listValores.AddRange(listDiferencias);
 
-           
+
             return listValores.OrderBy(x => x.id_cuenta_sap).ToList();
         }
 

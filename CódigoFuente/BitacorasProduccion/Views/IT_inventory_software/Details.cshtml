@@ -45,7 +45,18 @@
                                 @Html.EditorFor(model => model.descripcion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
                             </div>
                         </div>
-                        <div class="item form-group">                           
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.disponible_en_matriz_rh, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-1 col-sm-1 ">
+                                @Html.EditorFor(model => model.disponible_en_matriz_rh, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @disabled = "disabled" } })
+                            </div>
+                            @Html.LabelFor(model => model.aplica_descripcion, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                            <div class="col-md-1 col-sm-1">
+                                @Html.EditorFor(model => model.aplica_descripcion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @disabled = "disabled" } })
+                            </div>
+                        </div>
+
+                        <div class="item form-group">
                             @Html.LabelFor(model => model.activo, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                             <div class="col-md-3 col-sm-3 ">
                                 @Html.EditorFor(model => model.activo, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @disabled = "disabled" } })
