@@ -18,8 +18,10 @@ namespace Portal_2_0.Models
         public int id_gv_solicitud { get; set; }
         public int id_biblioteca_digital { get; set; }
         public double cantidad { get; set; }
+        public Nullable<int> id_soporte_sap { get; set; }
     
         public virtual biblioteca_digital biblioteca_digital { get; set; }
+        public virtual biblioteca_digital biblioteca_digital1 { get; set; }
         public virtual GV_solicitud GV_solicitud { get; set; }
     }
 }

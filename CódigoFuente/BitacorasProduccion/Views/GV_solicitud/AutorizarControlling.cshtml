@@ -411,6 +411,60 @@
 
                         <div class="ln_solid"></div>
                         <div class="form-group row">
+                            <span style="color:black"><b>COMPROBANTES DE DEP&Oacute;SITO</b></span>
+                        </div>
+                        @if (Model.GV_rel_archivo_nomina.Count == 0)
+                        {
+                            <p>A&uacute;n no se han realizado dep&oacute;sitos</p>
+                        }
+
+                        @foreach (var archivo in Model.GV_rel_archivo_nomina)
+                        {
+                            <div class="form-group row">
+                                <input type="hidden" name="GV_rel_archivo_nomina.Index" id="GV_rel_archivo_nomina.Index" value="@contador" />
+                                <input type="hidden" name="GV_rel_archivo_nomina[@contador].id" id="GV_rel_archivo_nomina[@contador].id" value="@archivo.id" />
+                                <input type="hidden" name="GV_rel_archivo_nomina[@contador].id_soporte_sap" id="GV_rel_archivo_nomina[@contador].id_soporte_sap" value="@archivo.id_soporte_sap" />
+
+                                <label class="control-label col-md-1">
+                                    <span>Documento</span>
+                                </label>
+                                <input type="text" class="form-control col-md-3" value="@(archivo.biblioteca_digital!=null? archivo.biblioteca_digital.Nombre: "NO DISPONIBLE")" readonly />
+                                <div class="col-md-1">
+                                    @if (archivo.biblioteca_digital != null)
+                                    {
+                                        <a href="@Url.Action("DownloadFile", "Combos", new { idDocumento = archivo.id_biblioteca_digital, inline = true })" class="btn btn-info btm-sm" target="_blank" title="Inline">
+                                            <i class="fa-regular fa-eye"></i>
+                                        </a>
+                                    }
+                                </div>
+                                <label class="control-label col-md-1" for="GV_rel_archivo_nomina[@contador].cantidad">
+                                    <span>Cantidad</span>
+                                </label>
+                                <div class="col-md-1">
+                                    <input type="text" name="GV_rel_archivo_nomina[@contador].cantidad" id="GV_rel_archivo_nomina[@contador].cantidad" class="form-control col-md-12 precio" value="@archivo.cantidad" autocomplete="off" readonly>
+                                    <span class="field-validation-valid text-danger" data-valmsg-for="GV_rel_archivo_nomina[@contador].cantidad" data-valmsg-replace="true"></span>
+                                </div>
+                                <label class="control-label col-md-1">
+                                    Registro SAP
+                                </label>
+
+                                <input type="text" class="form-control col-md-3" value="@(archivo.biblioteca_digital1!=null? archivo.biblioteca_digital1.Nombre:"NO DISPONIBLE")" readonly />
+                                <div class="col-md-1">
+                                    @if (archivo.biblioteca_digital1 != null)
+                                    {
+                                        <a href="@Url.Action("DownloadFile", "Combos", new { idDocumento = archivo.id_soporte_sap, inline = true })" class="btn btn-info btm-sm" target="_blank" title="Inline">
+                                            <i class="fa-regular fa-eye"></i>
+                                        </a>
+                                    }
+                                </div>
+
+                                <div class="col-md-1">
+                                </div>
+                            </div>
+                            contador++;
+                        }
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
                             <span style="color:black"><b>MOVIMIENTOS</b></span>
                         </div>
 
@@ -421,7 +475,7 @@
                             <!-- Fecha validadcion -->
                             @Html.LabelFor(model => model.fecha_solicitud, new { @class = "control-label col-md-2 float-right" })
                             <div class="col-md-4">
-                                <input type="text" class="form-control col-md-12" value="@(Model.fecha_solicitud.Year > 2000 ? Model.fecha_solicitud.ToString() : "NO DISPONIBLE" )" readonly>
+                                <input type="text" class="form-control col-md-12" value="@(Model.fecha_solicitud.Year > 2000 ? Model.fecha_solicitud.ToString() : " NO DISPONIBLE" )" readonly>
                             </div>
                         </div>
                         <div class="form-group row">
@@ -493,28 +547,6 @@
                             </div>
                         </div>
 
-                        <div class="form-group row">
-                            <!-- CONTABILIDAD -->
-                            @Html.LabelFor(model => model.id_contabilidad, new { @class = "control-label col-md-1" })
-                            <input type="text" class="form-control col-md-5" value="@Html.DisplayFor(model => model.empleados.ConcatNombre)" readonly>
-
-                            <!-- Fecha validacion -->
-                            @Html.LabelFor(model => model.fecha_aceptacion_contabilidad, new { @class = "control-label col-md-2 float-right" })
-                            <div class="col-md-4">
-                                @if (Model.fecha_aceptacion_contabilidad.HasValue)
-                                {
-                                    <input type="text" class="form-control col-md-12" value="@Model.fecha_aceptacion_contabilidad.Value" readonly>
-                                }
-                                else if (Model.id_contabilidad.HasValue && Model.estatus == Bitacoras.Util.GV_solicitud_estatus.RECHAZADO_CONTABILIDAD)
-                                {
-                                    <input type="text" class="form-control col-md-12" value="RECHAZADO" readonly>
-                                }
-                                else
-                                {
-                                    <input type="text" class="form-control col-md-12" value="NO DISPONIBLE" readonly>
-                                }
-                            </div>
-                        </div>
                         <div class="form-group row">
                             <!-- Usuario -->
                             @Html.LabelFor(model => model.id_solicitante, new { @class = "control-label col-md-1" })

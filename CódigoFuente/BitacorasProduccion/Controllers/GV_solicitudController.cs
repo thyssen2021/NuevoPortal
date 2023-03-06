@@ -1280,7 +1280,7 @@ namespace Portal_2_0.Controllers
 
             //obtiene la lista de usuarios asociados a controlling
             var listUsuarios = db.GV_usuarios.Where(x => x.departamento == Bitacoras.Util.GV_tipo_departamento.CUENTASPORPAGAR).Select(x => x.id_empleado).ToList();
-            ViewBag.id_contabilidad = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo.HasValue && x.activo.Value && listUsuarios.Contains(x.id)), "id", "ConcatNumEmpleadoNombre")); //id de ismael
+            ViewBag.id_contabilidad = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo.HasValue && x.activo.Value && listUsuarios.Contains(x.id)), "id", "ConcatNumEmpleadoNombre"), selected: gV_solicitud.id_contabilidad.ToString()); //id de ismael
 
             return View(gV_solicitud);
         }
@@ -1288,8 +1288,9 @@ namespace Portal_2_0.Controllers
         // GET: GV_solicitud/AutorizarNomina/5
         [HttpPost, ActionName("AutorizarNomina")]
         [ValidateAntiForgeryToken]
-        public ActionResult AutorizarNominaConfirmed(int? id, int? id_contabilidad, string s_estatus)
+        public ActionResult AutorizarNominaConfirmed(GV_solicitud solicitudForm, int? id, int? id_contabilidad, string s_estatus)
         {
+            //si no hay archivos manda error
             if (TieneRol(TipoRoles.GV_NOMINA))
             {
 
@@ -1302,9 +1303,64 @@ namespace Portal_2_0.Controllers
                 {
                     return View("../Error/NotFound");
                 }
+                
+                //valida si se enviaron archivos
+                if (solicitudForm.GV_rel_archivo_nomina.Count == 0)
+                    ModelState.AddModelError("", "Debe agregar al menos un comprobante de depósito");
+
+                //valida cada uno de los archivos 
+                foreach (var arc in solicitudForm.GV_rel_archivo_nomina.Where(x => x.id == 0))
+                {
+                    string msjRetorno = string.Empty;
+                    biblioteca_digital archivo = ComprobacionGVController.ValidaArchivo(arc.PostedFilePDF, 5,
+                       new List<string> { ".PDF", ".pdf", }, ref msjRetorno);
+
+                    if (archivo == null)//hubo un error
+                        ModelState.AddModelError("", msjRetorno);
+                    else //hubo exito
+                        arc.biblioteca_digital = archivo;  //documento soporte
+
+                    //agrega los documentos
+                    solicitud.GV_rel_archivo_nomina.Add(arc);
+                }
+
+                //elimina un archivo de la base de datos si ya no existe 
+                var listId = solicitudForm.GV_rel_archivo_nomina.Where(x => x.id != 0).Select(x => x.id).ToList();
+                foreach (var arc in db.GV_rel_archivo_nomina.Where(x => x.id_gv_solicitud == solicitud.id))
+                {
+                    if (!listId.Contains(arc.id))
+                    {
+                        int idBiblioteca = arc.id_biblioteca_digital;
+                        //elimina registro rel
+                        db.GV_rel_archivo_nomina.Remove(arc);
+                        //elimina el archivo 
+                        db.biblioteca_digital.Remove(db.biblioteca_digital.Find(idBiblioteca));
+                    }
+                }
+
+                //si el modelo no es válido vuelve a mostrar el formulario
+                if (!ModelState.IsValid)
+                {
+                    //envia los filtros de búsqueda previos
+                    solicitud.s_estatus = s_estatus;
+
+                    //determina si aplica otro o no
+                    solicitud.medio_transporte_aplica_otro = !solicitud.id_medio_transporte.HasValue;
+
+                    //obtiene la lista de usuarios asociados a controlling
+                    var listUsuarios = db.GV_usuarios.Where(x => x.departamento == Bitacoras.Util.GV_tipo_departamento.CUENTASPORPAGAR).Select(x => x.id_empleado).ToList();
+                    ViewBag.id_contabilidad = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo.HasValue && x.activo.Value && listUsuarios.Contains(x.id)), "id", "ConcatNumEmpleadoNombre")); //id de ismael
+                    return View(solicitud);
+                }
+
 
                 //verifica si se puede autorizar
-                if (solicitud.estatus != GV_solicitud_estatus.ENVIADO_NOMINA && solicitud.estatus != GV_solicitud_estatus.RECHAZADO_USUARIO)
+                if (solicitud.estatus != GV_solicitud_estatus.ENVIADO_NOMINA
+                    && solicitud.estatus != GV_solicitud_estatus.RECHAZADO_USUARIO
+                    && solicitud.estatus != GV_solicitud_estatus.CONFIRMADO_NOMINA
+                    && solicitud.estatus != GV_solicitud_estatus.CONFIRMADO_USUARIO
+                    && solicitud.estatus != GV_solicitud_estatus.CONFIRMADO_CONTABILIDAD
+                    )
                 {
                     ViewBag.Titulo = "¡Lo sentimos!¡No se puede confirmar esta solicitud!";
                     ViewBag.Descripcion = "No se puede autorizar una solicitud que ya ha sido confirmada o finalizada.";
@@ -1326,6 +1382,8 @@ namespace Portal_2_0.Controllers
                 solicitud.fecha_aceptacion_nomina = DateTime.Now;
                 solicitud.fecha_aceptacion_contabilidad = null;
 
+                //agrega los documentos
+                //solicitud.GV_rel_archivo_nomina = solicitudForm.GV_rel_archivo_nomina.Where(x => x.id == 0).ToList();
 
                 db.Entry(solicitud).State = EntityState.Modified;
                 try
@@ -1339,21 +1397,21 @@ namespace Portal_2_0.Controllers
                     // ENVÍO A CONTABILIDAD
                     if (!String.IsNullOrEmpty(solicitud.empleados.correo))
                         correos.Add(solicitud.empleados.correo);
-                    envioCorreo.SendEmailAsync(correos, "Ha recibido una solicitud de Anticipo de Gastos de Viaje.", envioCorreo.getBodyGVNotificacionEnvioConfirmacionDeposito(solicitud, "AutorizarContabilidad"));
+                    envioCorreo.SendEmailAsync(correos, "Se ha realizado un depósito correspondiente a la Solicitud de Anticipo de Gastos de Viaje #"+solicitud.id+".", envioCorreo.getBodyGVNotificacionEnvioConfirmacionDeposito(solicitud, "AutorizarContabilidad"));
 
                     correos = new List<string>(); //correos TO   //usuario   
 
                     // ENVÍO A USUARIO
                     if (!String.IsNullOrEmpty(solicitud.empleados5.correo))
                         correos.Add(solicitud.empleados5.correo);
-                    envioCorreo.SendEmailAsync(correos, "Confirmación de depósito correspondiente a solicitud de Acticipo de Gastos de Viaje #" + solicitud.id + ".", envioCorreo.getBodyGVNotificacionEnvioConfirmacionDeposito(solicitud, "ConfirmarUsuario"));
+                    envioCorreo.SendEmailAsync(correos, "Se ha realizado un depósito correspondiente a su solicitud de Anticipo de Gastos de Viaje #" + solicitud.id + ".", envioCorreo.getBodyGVNotificacionEnvioConfirmacionDeposito(solicitud, "ConfirmarUsuario"));
 
                     correos = new List<string>(); //correos TO   //usuario   
 
-                    // ENVÍO A CONTROLLING
+                    //ENVÍO A CONTROLLING
                     if (!String.IsNullOrEmpty(solicitud.empleados1.correo))
                         correos.Add(solicitud.empleados1.correo);
-                    envioCorreo.SendEmailAsync(correos, "Confirmación de depósito correspondiente a solicitud de Acticipo de Gastos de Viaje #" + solicitud.id + ".", envioCorreo.getBodyGVNotificacionEnvioConfirmacionDeposito(solicitud, "Details"));
+                    envioCorreo.SendEmailAsync(correos, "Se ha realizado un depósito correspondiente a la Solicitud de Anticipo de Gastos de Viaje #" + solicitud.id + ".", envioCorreo.getBodyGVNotificacionEnvioConfirmacionDeposito(solicitud, "Details"));
 
 
                 }
@@ -1489,7 +1547,7 @@ namespace Portal_2_0.Controllers
         // GET: GV_solicitud/AutorizarContabilidad/5
         [HttpPost, ActionName("AutorizarContabilidad")]
         [ValidateAntiForgeryToken]
-        public ActionResult AutorizarContabilidadConfirmed(int? id, int? id_contabilidad, string s_estatus)
+        public ActionResult AutorizarContabilidadConfirmed(GV_solicitud solicitudForm, int? id, int? id_contabilidad, string s_estatus)
         {
             if (TieneRol(TipoRoles.GV_CONTABILIDAD))
             {
@@ -1503,6 +1561,27 @@ namespace Portal_2_0.Controllers
                     return View("../Error/NotFound");
                 }
 
+                //Sólo se debe realizar update del campo de biblioteca dígital
+                foreach (var arc in solicitudForm.GV_rel_archivo_nomina.Where(x => !x.id_soporte_sap.HasValue))
+                {
+                    string msjRetorno = string.Empty;
+                    biblioteca_digital archivo = ComprobacionGVController.ValidaArchivo(arc.PostedFileSAP, 5,
+                       new List<string> { ".pdf", ".PDF", ".jpeg", ".JPEG", ".png", ".PNG", ".jpg", ".JPG", ".gif", ".GIF" }, ref msjRetorno);
+
+                    if (archivo == null)//hubo un error
+                        ModelState.AddModelError("", msjRetorno);
+                    else //hubo exito
+                    {
+                        //se agrega el comprobante a la BD
+                        db.biblioteca_digital.Add(archivo);
+                        //guarda en BD
+                        db.SaveChanges();
+                        //busca y relaciona el rel con el archivo recién guardado
+                        var rel = db.GV_rel_archivo_nomina.Find(arc.id);
+                        rel.id_soporte_sap = archivo.Id;
+                    }
+                }
+
                 //verifica si se puede autorizar
                 if (solicitud.estatus != GV_solicitud_estatus.CONFIRMADO_NOMINA && solicitud.estatus != GV_solicitud_estatus.CONFIRMADO_USUARIO)
                 {
@@ -1511,6 +1590,7 @@ namespace Portal_2_0.Controllers
 
                     return View("../Home/ErrorGenerico");
                 }
+
 
                 //obtiene el usuario logeado
                 empleados empleado = obtieneEmpleadoLogeado();
@@ -1547,7 +1627,8 @@ namespace Portal_2_0.Controllers
                         if (!String.IsNullOrEmpty(solicitud.empleados1.correo))
                             correos.Add(solicitud.empleados1.correo);   //correo de controlling
 
-                        envioCorreo.SendEmailAsync(correos, "Se ha completado el proceso de la solicitud de Anticipo de Gastos de Viaje #" + solicitud.id + ".", envioCorreo.getBodyGVNotificacionFinalizado(solicitud));
+                        /* Validar a quién se le mandará notifiación cuando el ctas x pagar realice el registro en SAP */
+                        //envioCorreo.SendEmailAsync(correos, "Se ha completado el proceso de la solicitud de Anticipo de Gastos de Viaje #" + solicitud.id + ".", envioCorreo.getBodyGVNotificacionFinalizado(solicitud));
 
                     }
 
@@ -1863,7 +1944,7 @@ namespace Portal_2_0.Controllers
                 var cantidadRegistrosPorPagina = 20; // parámetro
 
                 if (fecha_solicitud_fin.HasValue)
-                    fecha_solicitud_fin=fecha_solicitud_fin.Value.AddHours(23).AddMinutes(59).AddSeconds(59);
+                    fecha_solicitud_fin = fecha_solicitud_fin.Value.AddHours(23).AddMinutes(59).AddSeconds(59);
 
                 var listado = db.GV_solicitud
                     .Where(x =>
@@ -1953,7 +2034,7 @@ namespace Portal_2_0.Controllers
                 var cd = new System.Net.Mime.ContentDisposition
                 {
                     // for example foo.bak
-                    FileName = "Reporte_GV_Solicitud_Acticipo_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+                    FileName = "Reporte_GV_Solicitud_Anticipo_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
 
                     // always prompt the user for downloading, set to true if you want 
                     // the browser to try to show the file inline

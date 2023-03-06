@@ -137,15 +137,17 @@ namespace Portal_2_0.Controllers
 
             var listado = db.GV_solicitud
                 .Where(x => (x.id_empleado == empleado.id || x.id_solicitante == empleado.id)
-                    && x.estatus == GV_solicitud_estatus.FINALIZADO && x.GV_comprobacion == null
+                    && (x.estatus == GV_solicitud_estatus.FINALIZADO || x.estatus == GV_solicitud_estatus.CONFIRMADO_NOMINA|| x.estatus == GV_solicitud_estatus.CONFIRMADO_CONTABILIDAD ) 
+                    && x.GV_comprobacion == null
                 )
                 .OrderByDescending(x => x.fecha_solicitud)
                 .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                .Take(cantidadRegistrosPorPagina).ToList();
 
             var totalDeRegistros = db.GV_solicitud
-                   .Where(x => (x.id_empleado == empleado.id || x.id_solicitante == empleado.id)
-                    && x.estatus == GV_solicitud_estatus.FINALIZADO && x.GV_comprobacion == null
+                     .Where(x => (x.id_empleado == empleado.id || x.id_solicitante == empleado.id)
+                    && (x.estatus == GV_solicitud_estatus.FINALIZADO || x.estatus == GV_solicitud_estatus.CONFIRMADO_NOMINA || x.estatus == GV_solicitud_estatus.CONFIRMADO_CONTABILIDAD)
+                    && x.GV_comprobacion == null
                 )
                 .Count();
 
@@ -2857,7 +2859,7 @@ namespace Portal_2_0.Controllers
         }
 
         [NonAction]
-        public biblioteca_digital ValidaArchivo(HttpPostedFileBase archivo, float megas, List<string> extensionesPermitidas, ref string msj)
+        public static biblioteca_digital ValidaArchivo(HttpPostedFileBase archivo, float megas, List<string> extensionesPermitidas, ref string msj)
         {
             int mega = 1048576;
 

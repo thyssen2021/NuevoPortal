@@ -17,6 +17,8 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public GV_solicitud()
         {
+            this.GV_comprobacion_rel_gastos = new HashSet<GV_comprobacion_rel_gastos>();
+            this.GV_rel_archivo_nomina = new HashSet<GV_rel_archivo_nomina>();
             this.GV_rel_gastos_solicitud = new HashSet<GV_rel_gastos_solicitud>();
         }
     
@@ -53,14 +55,19 @@ namespace Portal_2_0.Models
         public string estatus { get; set; }
     
         public virtual currency currency { get; set; }
-        public virtual GV_medios_transporte GV_medios_transporte { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<GV_rel_gastos_solicitud> GV_rel_gastos_solicitud { get; set; }
         public virtual empleados empleados { get; set; }
         public virtual empleados empleados1 { get; set; }
         public virtual empleados empleados2 { get; set; }
         public virtual empleados empleados3 { get; set; }
         public virtual empleados empleados4 { get; set; }
         public virtual empleados empleados5 { get; set; }
+        public virtual GV_comprobacion GV_comprobacion { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<GV_comprobacion_rel_gastos> GV_comprobacion_rel_gastos { get; set; }
+        public virtual GV_medios_transporte GV_medios_transporte { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<GV_rel_archivo_nomina> GV_rel_archivo_nomina { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<GV_rel_gastos_solicitud> GV_rel_gastos_solicitud { get; set; }
     }
 }

@@ -161,10 +161,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_upgrade_values_transaccion_revision" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.AspNetUserRoles" ManuallyRouted="false" />
         <EntityTypeShape EntityType="Portal_2_0Model.GV_usuarios" Width="1.5" PointX="9.75" PointY="97.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.GV_solicitud" Width="1.5" PointX="26.75" PointY="76.25" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_iso_moneda_extranjera" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_medio_transporte" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_rel_gastos_solicitud_id_gv_solicitud" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_site" Width="1.5" PointX="3" PointY="86" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_site_actividades" Width="1.5" PointX="24.75" PointY="72.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_site_checklist_rel_actividades" Width="1.5" PointX="27" PointY="86.625" />
@@ -186,12 +182,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_budget_responsables_id_centro_costo" />
         <AssociationConnector Association="Portal_2_0Model.FK_empleados_jefe_directo" />
         <AssociationConnector Association="Portal_2_0Model.FK_empleados_puesto" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_contabilidad" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_controlling" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_jefe_directo" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_nomina" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_solicitante" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_usuarios_id_empleado" />
         <AssociationConnector Association="Portal_2_0Model.FK_id_empleado" />
         <AssociationConnector Association="Portal_2_0Model.FK_id_responsable_principal" />
@@ -280,6 +270,40 @@
         <EntityTypeShape EntityType="Portal_2_0Model.view_valores_fiscal_year_budget_historico" Width="1.5" PointX="11.375" PointY="4.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_epo" Width="1.5" PointX="11.375" PointY="12.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_wsus" Width="1.5" PointX="12.375" PointY="0.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.GV_centros_costo" Width="1.5" PointX="3" PointY="105.875" />
+        <EntityTypeShape EntityType="Portal_2_0Model.GV_comprobacion" Width="1.5" PointX="35" PointY="77.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.GV_comprobacion_rel_gastos" Width="1.5" PointX="35" PointY="84.125" />
+        <EntityTypeShape EntityType="Portal_2_0Model.GV_comprobacion_tipo_gastos_viaje" Width="1.5" PointX="32.75" PointY="90.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.GV_comprobacion_tipo_pago" Width="1.5" PointX="32.75" PointY="93" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_id_extracto_cuenta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_archivo_comprobante_extranjero" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_archivo_pdf" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_archivo_xml" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_currency_iso" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_contabilidad" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_id_controlling" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_id_jefe_directo" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_id_nomina" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_centros_costo_clave_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_centro_costo" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_gastos_viaje" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_comprobacion_tipo_pago" />
+        <EntityTypeShape EntityType="Portal_2_0Model.GV_rel_archivo_nomina" Width="1.5" PointX="40.25" PointY="74.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.GV_solicitud" Width="1.5" PointX="38" PointY="75" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_rel_archivo_nomina_id_biblioteca_digital" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_rel_archivo_nomina_id_soporte_sap" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_iso_moneda_extranjera" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_contabilidad" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_controlling" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_jefe_directo" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_nomina" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_solicitante" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_id_gv_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_comprobacion_rel_gastos_id_gv_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_medio_transporte" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_rel_archivo_nomina_id_gv_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_rel_gastos_solicitud_id_gv_solicitud" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

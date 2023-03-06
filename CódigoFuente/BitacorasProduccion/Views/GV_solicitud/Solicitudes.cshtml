@@ -285,6 +285,17 @@
                                                                     <i class="fa-regular fa-circle-check"></i>
                                                                 </a>
                                                             }
+                                                            @*Habilita boton para editar por parte de nóminas*@
+                                                          @if (User.IsInRole(TipoRoles.GV_NOMINA) && action_result == "SOLICITUDESNOMINA" &&
+                                                             (item.estatus == Bitacoras.Util.GV_solicitud_estatus.CONFIRMADO_NOMINA 
+                                                             || item.estatus == Bitacoras.Util.GV_solicitud_estatus.CONFIRMADO_USUARIO
+                                                             || item.estatus == Bitacoras.Util.GV_solicitud_estatus.CONFIRMADO_CONTABILIDAD
+                                                             ))
+                                                            {
+                                                                <a href="@Url.Action("AutorizarNomina", ViewBag.ControllerName, new { id = item.id, s_estatus = estatus })" class="btn btn-success " title="Editar">
+                                                                    <i class="fa-regular fa-pen-to-square"></i>
+                                                                </a>
+                                                            }
                                                             @if (User.IsInRole(TipoRoles.GV_CONTABILIDAD) && action_result == "SOLICITUDESCONTABILIDAD" &&
                                                              (item.estatus == Bitacoras.Util.GV_solicitud_estatus.CONFIRMADO_NOMINA || item.estatus == Bitacoras.Util.GV_solicitud_estatus.CONFIRMADO_USUARIO))
                                                             {

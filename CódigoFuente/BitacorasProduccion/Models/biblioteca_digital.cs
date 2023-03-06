@@ -24,6 +24,12 @@ namespace Portal_2_0.Models
             this.poliza_manual1 = new HashSet<poliza_manual>();
             this.empleados = new HashSet<empleados>();
             this.IT_mantenimientos = new HashSet<IT_mantenimientos>();
+            this.GV_comprobacion = new HashSet<GV_comprobacion>();
+            this.GV_comprobacion_rel_gastos = new HashSet<GV_comprobacion_rel_gastos>();
+            this.GV_comprobacion_rel_gastos1 = new HashSet<GV_comprobacion_rel_gastos>();
+            this.GV_comprobacion_rel_gastos2 = new HashSet<GV_comprobacion_rel_gastos>();
+            this.GV_rel_archivo_nomina = new HashSet<GV_rel_archivo_nomina>();
+            this.GV_rel_archivo_nomina1 = new HashSet<GV_rel_archivo_nomina>();
         }
     
         public int Id { get; set; }
@@ -45,5 +51,17 @@ namespace Portal_2_0.Models
         public virtual ICollection<empleados> empleados { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_mantenimientos> IT_mantenimientos { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<GV_comprobacion> GV_comprobacion { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<GV_comprobacion_rel_gastos> GV_comprobacion_rel_gastos { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<GV_comprobacion_rel_gastos> GV_comprobacion_rel_gastos1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<GV_comprobacion_rel_gastos> GV_comprobacion_rel_gastos2 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<GV_rel_archivo_nomina> GV_rel_archivo_nomina { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<GV_rel_archivo_nomina> GV_rel_archivo_nomina1 { get; set; }
     }
 }

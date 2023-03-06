@@ -1,4 +1,4 @@
-use [Portal_2_0]
+--use [Portal_2_0]
 SET ANSI_NULLS ON
 SET QUOTED_IDENTIFIER ON
 

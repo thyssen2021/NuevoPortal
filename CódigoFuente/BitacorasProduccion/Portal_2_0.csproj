@@ -652,6 +652,7 @@
     <Compile Include="Models\MetadataModels\GV_comprobacion_tipo_gastos_viajeMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_comprobacion_tipo_pagoMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_medios_transporteMetadata.cs" />
+    <Compile Include="Models\MetadataModels\GV_rel_archivo_nominaMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_rel_gastos_solicitudMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_solicitudMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_tipo_gastos_viajeMetadata.cs" />

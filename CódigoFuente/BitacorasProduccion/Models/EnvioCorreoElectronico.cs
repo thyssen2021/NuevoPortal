@@ -1093,8 +1093,8 @@ namespace Portal_2_0.Models
                 tablaContenido += FILA_GENERICA.Replace("#CONCEPTO", kvp.Key).Replace("#VALOR", kvp.Value);
 
             //reemplaza los valores en la plantilla
-            body = body.Replace("#TITULO", "¡Se ha confirmado el deposito de la solicitud de Anticipo de Gastos de Viaje #" + solicitud.id + "!");
-            body = body.Replace("#SUBTITULO", "El usuario " + solicitud.empleados4.ConcatNombre + ", ha confirmado el depósito de la solicitud de Anticipo de Gastos de Viaje #" + solicitud.id + "."); //elaborador
+            body = body.Replace("#TITULO", "¡Se ha realizado un depósito correspondiente a la solicitud de Anticipo de Gastos de Viaje #" + solicitud.id + "!");
+            body = body.Replace("#SUBTITULO", "El usuario " + solicitud.empleados4.ConcatNombre + ", ha confirmado un depósito de la solicitud de Anticipo de Gastos de Viaje #" + solicitud.id + ". Haga clic en el enlace a continuación para ver los detalles."); //elaborador
             body = body.Replace("#TABLA_CONTENIDO", tablaContenido);
             body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
             body = body.Replace("#ENLACE", domainName + "/GV_solicitud/" + metodo + "/" + solicitud.id);
@@ -1390,6 +1390,40 @@ namespace Portal_2_0.Models
             return body;
         }
         #endregion
+        #region IT
+        public string getBodyITBajaEmpleado(empleados empleado)
+        {
+            //obtiene la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
 
+            string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/Notificacion_solicitud_generica.html"));
+            string tablaContenido = String.Empty;
+
+            //crea un diccionario para los valores de la tabla
+            Dictionary<string, string> tablaContentDictionary = new Dictionary<string, string>();
+
+            //agrega los valores al diccionario
+            tablaContentDictionary.Add("Núm. empleado", empleado.numeroEmpleado);
+            tablaContentDictionary.Add("Empleado", empleado.ConcatNombre);
+            tablaContentDictionary.Add("Puesto", empleado.puesto1 != null ? empleado.puesto1.descripcion : String.Empty);
+            tablaContentDictionary.Add("Departamento", empleado.Area != null ? empleado.Area.descripcion : String.Empty);
+            tablaContentDictionary.Add("Planta", empleado.plantas != null ? empleado.plantas.descripcion : String.Empty);
+
+
+            //agrega los valores del diccionario al contenido de la tabla
+            foreach (KeyValuePair<string, string> kvp in tablaContentDictionary)
+                tablaContenido += FILA_GENERICA.Replace("#CONCEPTO", kvp.Key).Replace("#VALOR", kvp.Value);
+
+            //reemplaza los valores en la plantilla
+            body = body.Replace("#TITULO", "¡Se ha dado de baja al empleado " + empleado.ConcatNombre + "!");
+            body = body.Replace("#SUBTITULO", "RH ha dado de baja al empleado " + empleado.ConcatNombre + ". Para ver los detalles de las asignaciones actuales del empleado, dar clic en el siguiente enlace."); //elaborador
+            body = body.Replace("#TABLA_CONTENIDO", tablaContenido);
+            body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
+            body = body.Replace("#ENLACE", domainName + "/it_asignacion_hardware/DetailsEmpleado/" + empleado.id);
+
+            return body;
+        }
+
+        #endregion
     }
 }

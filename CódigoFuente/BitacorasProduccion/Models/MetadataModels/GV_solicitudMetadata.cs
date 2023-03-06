@@ -153,7 +153,7 @@ namespace Portal_2_0.Models
                 return this.GV_rel_gastos_solicitud.Sum(x => x.total);
             }
         }
-        
+
         [NotMapped]
         [Display(Name = "Estatus Comprobación")]
         public string EstatusComprobacion
@@ -169,11 +169,14 @@ namespace Portal_2_0.Models
 
         [NotMapped]
         [Display(Name = "Anticipo")]
-        public decimal Anticipo
+        public double Anticipo
         {
             get
             {
-                return this.GV_rel_gastos_solicitud.Sum(x => x.total);
+                if (this.GV_rel_archivo_nomina.Count == 0)
+                    return 0;
+                else
+                    return this.GV_rel_archivo_nomina.Sum(x => x.cantidad);
             }
         }
 
@@ -189,7 +192,7 @@ namespace Portal_2_0.Models
                 || x.concepto_tipo == Bitacoras.Util.GV_comprobacion_origen.COFIDI_TOTALES
                     ).Sum(x => x.total_mxn);
                 //total gasto extranjero y otros gastos
-                result +=this.GV_comprobacion_rel_gastos.Where(x =>  
+                result += this.GV_comprobacion_rel_gastos.Where(x =>
                  x.concepto_tipo == Bitacoras.Util.GV_comprobacion_origen.GASTO_EXTRANJERO
                 || x.concepto_tipo == Bitacoras.Util.GV_comprobacion_origen.GASTO_SIN_COMPROBANTE
                 ).Sum(x => x.TotalOtroGasto);
@@ -203,7 +206,7 @@ namespace Portal_2_0.Models
         {
             get
             {
-                return this.Anticipo - this.TotalComprobado;
+                return (decimal?)this.Anticipo - this.TotalComprobado;
             }
         }
 

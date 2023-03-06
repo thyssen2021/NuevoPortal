@@ -51,7 +51,7 @@ CREATE TABLE [GV_solicitud](
 	[fecha_confirmacion_usuario][datetime]  NULL,
 	[comentario_rechazo][varchar](355) NULL,
 	[comentario_adicional][varchar](355) NULL,
-	[id_soporte_sap][int] NULL,   --FK
+	--[id_soporte_sap][int] NULL,   --FK
 	[estatus][varchar](30) NOT NULL,
  CONSTRAINT [PK_GV_solicitud] PRIMARY KEY CLUSTERED 
 (
@@ -109,12 +109,6 @@ alter table [GV_solicitud]
  add constraint FK_GV_solicitud_id_medio_transporte
   foreign key (id_medio_transporte)
   references GV_medios_transporte(id);
-
-     -- restriccion de clave foranea
-  alter table [GV_solicitud]
- add constraint FK_GV_solicitud_id_soporte_sap
-  foreign key (id_soporte_sap)
-  references biblioteca_digital(id);
 
 
 -- restricción default

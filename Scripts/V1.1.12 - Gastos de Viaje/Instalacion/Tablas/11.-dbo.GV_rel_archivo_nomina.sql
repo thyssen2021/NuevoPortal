@@ -24,6 +24,7 @@ CREATE TABLE [dbo].[GV_rel_archivo_nomina](
 	[id_gv_solicitud][int] NOT NULL,	--FK
 	[id_biblioteca_digital][int] NOT NULL, --FK
 	[cantidad][float] NOT NULL,
+	[id_soporte_sap][int] NULL,   --FK
  CONSTRAINT [PK_GV_rel_archivo_nomina] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
@@ -41,6 +42,13 @@ alter table [GV_rel_archivo_nomina]
 alter table [GV_rel_archivo_nomina]
  add constraint FK_GV_rel_archivo_nomina_id_biblioteca_digital
   foreign key (id_biblioteca_digital)
+  references biblioteca_digital(id);
+
+  
+     -- restriccion de clave foranea
+  alter table [GV_rel_archivo_nomina]
+ add constraint FK_GV_rel_archivo_nomina_id_soporte_sap
+  foreign key (id_soporte_sap)
   references biblioteca_digital(id);
 
 

@@ -312,8 +312,73 @@
                                             </table>
                                         </div>
 
+                                        <div class="ln_solid"></div>
                                         <div class="form-group row">
+                                            <span style="color:black"><b>COMPROBANTES DE DEP&Oacute;SITO</b></span>
                                         </div>
+                                        @if (Model.GV_rel_archivo_nomina.Count == 0)
+                                        {
+                                            <p>A&uacute;n no se han realizado dep&oacute;sitos</p>
+                                        }
+
+                                        @foreach (var archivo in Model.GV_rel_archivo_nomina)
+                                        {
+                                            <div class="form-group row">
+                                                <input type="hidden" name="GV_rel_archivo_nomina.Index" id="GV_rel_archivo_nomina.Index" value="@contador" />
+                                                <input type="hidden" name="GV_rel_archivo_nomina[@contador].id" id="GV_rel_archivo_nomina[@contador].id" value="@archivo.id" />
+                                                <input type="hidden" name="GV_rel_archivo_nomina[@contador].id_soporte_sap" id="GV_rel_archivo_nomina[@contador].id_soporte_sap" value="@archivo.id_soporte_sap" />
+
+                                                <label class="control-label col-md-1">
+                                                    <span>Documento</span>
+                                                </label>
+                                                <input type="text" class="form-control col-md-3" value="@(archivo.biblioteca_digital!=null? archivo.biblioteca_digital.Nombre: "NO DISPONIBLE")" readonly />
+                                                <div class="col-md-1">
+                                                    @if (archivo.biblioteca_digital != null)
+                                                    {
+                                                        <a href="@Url.Action("DownloadFile", "Combos", new { idDocumento = archivo.id_biblioteca_digital, inline = true })" class="btn btn-info btm-sm" target="_blank" title="Inline">
+                                                            <i class="fa-regular fa-eye"></i>
+                                                        </a>
+                                                    }
+                                                </div>
+                                                <label class="control-label col-md-1" for="GV_rel_archivo_nomina[@contador].cantidad">
+                                                    <span>Cantidad</span>
+                                                </label>
+                                                <div class="col-md-1">
+                                                    <input type="text" name="GV_rel_archivo_nomina[@contador].cantidad" id="GV_rel_archivo_nomina[@contador].cantidad" class="form-control col-md-12 precio" value="@archivo.cantidad" autocomplete="off" readonly>
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="GV_rel_archivo_nomina[@contador].cantidad" data-valmsg-replace="true"></span>
+                                                </div>
+                                                <label class="control-label col-md-1">
+                                                    Registro SAP
+                                                </label>
+
+                                                <input type="text" class="form-control col-md-3" value="@(archivo.biblioteca_digital1!=null? archivo.biblioteca_digital1.Nombre:"NO DISPONIBLE")" readonly />
+                                                <div class="col-md-1">
+                                                    @if (archivo.biblioteca_digital1 != null)
+                                                    {
+                                                        <a href="@Url.Action("DownloadFile", "Combos", new { idDocumento = archivo.id_soporte_sap, inline = true })" class="btn btn-info btm-sm" target="_blank" title="Inline">
+                                                            <i class="fa-regular fa-eye"></i>
+                                                        </a>
+                                                    }
+                                                </div>
+
+                                                <div class="col-md-1">
+                                                </div>
+                                            </div>
+                                            contador++;
+                                        }
+
+                                        <div class="ln_solid"></div>
+
+                                    <div class="form-group row">
+                                        <label class="control-label col-md-9" >
+                                            <span>Total Depositado</span>
+                                        </label>
+                                        <div class="col-md-2">
+                                            <input type="text"  class="form-control col-md-12 precio" value="@Model.Anticipo" autocomplete="off" readonly>
+                                        </div>
+                                        <div class="col-md-1">
+                                        </div>
+                                    </div>
 
                                     </div>
                                 </div>
@@ -869,17 +934,17 @@
                                     <tfoot>
                                         <tr>
                                             <th colspan="19" style="text-align:right">Total MXN</th>                                          
-                                            <th id="total_gastos_mxn" style="text-align:right" nowrap>$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", Model.sumaGastosNacional)</th>
+                                            <th id="total_gastos_mxn" style="text-align:right" nowrap>$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", Model.Anticipo)</th>
                                             <th colspan="2"></th>
                                         </tr>
                                         <tr>
                                             <th colspan="19" style="text-align:right">ANTICIPO</th>
-                                            <th id="anticipo_mxn" style="text-align:right" nowrap>$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", Model.sumaGastosNacional)</th>
+                                            <th id="anticipo_mxn" style="text-align:right" nowrap>$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", Model.Anticipo)</th>
                                             <th colspan="2"></th>
                                         </tr>
                                         <tr>
                                             <th colspan="19" style="text-align:right">SALDO POR COMPROBAR (A FAVOR)</th>
-                                            <th id="saldo_por_comprobar_mxn" style="text-align:right" nowrap>$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", Model.sumaGastosNacional)</th>
+                                            <th id="saldo_por_comprobar_mxn" style="text-align:right" nowrap>$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", Model.Anticipo)</th>
                                             <th colspan="2"></th>
                                         </tr>
                                     </tfoot>
@@ -892,7 +957,7 @@
                             <div id="error-msj-div" class="alert alert-danger" role="alert" style="display:none">
                             </div>
                             <div class="form-group row">
-                                <span style="color:darkgray"><b>Opci&oacute;n 1 (a trav&eacute;s de COFIDI):</b></span>
+                                <span style="color:darkgray"><b>Carga a trav&eacute;s de COFIDI:</b></span>
                             </div>
                             <div class="item form-group">
                                 <label class="control-label col-md-1 float-right">UUID</label>
@@ -903,12 +968,12 @@
                                 <div class="col-md-1">
                                     <input type="number" id="cc_cofidi" name="cc_cofidi" class="form-control" value="1" min="1" max="10" />
                                 </div>
-
                                 <div class="col-md-3 col-sm-3">
                                     <button type="button" id="btn_info_cc" class="btn btn-info float-lg-left"><i class="fa-solid fa-info-circle"></i></button>
                                     <button type="button" id="buscar-uuid" class="btn btn-warning float-lg-left"><i class="fa-solid fa-magnifying-glass"></i>&nbsp; Buscar</button>
                                 </div>
                             </div>
+                            @*
                             <div class="form-group row">
                                 <span style="color:darkgray"><b>Opci&oacute;n 2 (Carga de archivo .xml):</b></span>
                             </div>
@@ -931,6 +996,7 @@
                                     <button id="cargar-factura-btn" type="button" class="btn btn-warning float-lg-left"><i class="fa-solid fa-upload"></i>&nbsp; Leer Factura</button>
                                 </div>
                             </div>
+                            *@
                             <div class="ln_solid"></div>
                             <div class="form-group row">
                                 <span style="color:black"><b>OTROS TIPOS DE CONCEPTOS</b></span>
