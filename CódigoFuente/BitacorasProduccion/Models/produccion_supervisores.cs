@@ -27,7 +27,7 @@ namespace Portal_2_0.Models
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<produccion_registros> produccion_registros { get; set; }
-        public virtual empleados empleados { get; set; }
         public virtual plantas plantas { get; set; }
+        public virtual empleados empleados { get; set; }
     }
 }

@@ -1,7 +1,7 @@
 ﻿@model Portal_2_0.Models.empleados
 
 @{
-    ViewBag.Title = "Crear nuevo Empleado";
+    ViewBag.Title = "Crear Nuevo Empleado";
     ViewBag.PrimerNivel = "recursos_humanos";
     ViewBag.SegundoNivel = "empleados";
     ViewBag.ControllerName = "Empleados";
@@ -33,7 +33,6 @@
     <div class="">
 
         <div class="clearfix"></div>
-
         <div class="row">
             <div class="col-md-12 col-sm-12  ">
                 <div class="x_panel">
@@ -42,12 +41,15 @@
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
-                        <br />
+                      
                         @using (Html.BeginForm("Create", "Empleados", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal form-label-left" }))
                         {
                             @Html.AntiForgeryToken()
-                            <h4>Datos del Empleado</h4>
-                            <hr />
+                            @*<div class="ln_solid"></div>*@
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>DATOS GENERALES</b></span>
+                            </div>
                             if (!Html.ViewData.ModelState.IsValid)
                             {
                                 <div class="alert alert-danger" role="alert">
@@ -129,7 +131,7 @@
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.ingresoFecha, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                 <div class="col-md-6 col-sm-6 ">
-                                    @Html.EditorFor(model => model.ingresoFecha, new { htmlAttributes = new { @class = "form-control", @required="required" } })
+                                    @Html.EditorFor(model => model.ingresoFecha, new { htmlAttributes = new { @class = "form-control", @required = "required" } })
                                     @Html.ValidationMessageFor(model => model.ingresoFecha, "", new { @class = "text-danger" })
                                 </div>
                             </div>

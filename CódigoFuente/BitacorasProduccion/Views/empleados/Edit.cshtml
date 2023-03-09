@@ -14,6 +14,13 @@
     <!-- Select2 -->
     <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+
+    <style>
+        .profile-picture {
+            width: 300px;
+            height: 300px;
+        }
+    </style>
 }
 
 @*Valores enviados previamente*@
@@ -32,7 +39,7 @@
 
 <div class="right_col" role="main">
     <div class="">
-   
+
         <div class="clearfix"></div>
 
         <div class="row">
@@ -47,7 +54,7 @@
                         @using (Html.BeginForm("Edit", "Empleados", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal form-label-left" }))
                         {
                             @Html.AntiForgeryToken()
-                           
+
                             if (!Html.ViewData.ModelState.IsValid)
                             {
                                 <div class="alert alert-danger" role="alert">
@@ -68,6 +75,30 @@
                             <input type="hidden" name="cambio_documento_soporte" id="cambio_documento_soporte" value="0" />
                             <input type="hidden" name="elimina_documento" id="elimina_documento" value="false" />
 
+                            if (Model.id_fotografia.HasValue)
+                            {
+                                <div class="item form-group">
+                                    @Html.LabelFor(model => model.id_fotografia, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                    <div class="col-md-4 col-sm-4 ">
+                                        <div id="crop-avatar">
+                                            <!-- Current avatar -->
+                                            <img class="img-responsive avatar-view profile-picture" src="@Model.ImageToBase64()" alt="Avatar" title="Change the avatar">
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="item form-group">
+                                    @Html.LabelFor(model => model.id_fotografia, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                    <div class="col-md-4 col-sm-4 ">
+                                        <div id="crop-avatar">
+                                            <!-- Current avatar -->
+                                            <img class="img-responsive avatar-view profile-picture" src="/Content/images/user.png" alt="Avatar" title="Change the avatar">
+                                        </div>
+                                    </div>
+                                </div>
+                            }
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.numeroEmpleado, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                 <div class="col-md-6 col-sm-6 ">
@@ -118,26 +149,26 @@
                                 </div>
                             </div>
                             @*<div class="item form-group">
-                                    @Html.LabelFor(model => model.telefono, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
-                                    <div class="col-md-6 col-sm-6 ">
-                                        @Html.EditorFor(model => model.telefono, new { htmlAttributes = new { @class = "form-control" } })
-                                        @Html.ValidationMessageFor(model => model.telefono, "", new { @class = "text-danger" })
-                                    </div>
-                                </div>
-                                <div class="item form-group">
-                                    @Html.LabelFor(model => model.extension, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
-                                    <div class="col-md-6 col-sm-6 ">
-                                        @Html.EditorFor(model => model.extension, new { htmlAttributes = new { @class = "form-control" } })
-                                        @Html.ValidationMessageFor(model => model.extension, "", new { @class = "text-danger" })
-                                    </div>
-                                </div>
-                                <div class="item form-group">
-                                    @Html.LabelFor(model => model.celular, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
-                                    <div class="col-md-6 col-sm-6 ">
-                                        @Html.EditorFor(model => model.celular, new { htmlAttributes = new { @class = "form-control" } })
-                                        @Html.ValidationMessageFor(model => model.celular, "", new { @class = "text-danger" })
-                                    </div>
-                                </div>*@
+                @Html.LabelFor(model => model.telefono, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                <div class="col-md-6 col-sm-6 ">
+                    @Html.EditorFor(model => model.telefono, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.telefono, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="item form-group">
+                @Html.LabelFor(model => model.extension, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                <div class="col-md-6 col-sm-6 ">
+                    @Html.EditorFor(model => model.extension, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.extension, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="item form-group">
+                @Html.LabelFor(model => model.celular, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                <div class="col-md-6 col-sm-6 ">
+                    @Html.EditorFor(model => model.celular, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.celular, "", new { @class = "text-danger" })
+                </div>
+            </div>*@
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.ingresoFecha, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
                                 <div class="col-md-6 col-sm-6 ">
@@ -215,10 +246,10 @@
                                     </div>
                                     <div class="col-md-1">
                                         <div class="input-group">
-                                           
-                                                <a onclick="ocultaFileInput()" class="btn btn-warning btm-sm" title="Deshacer" style="color:white">
-                                                    <i class="fa fa-refresh"></i>
-                                                </a>
+
+                                            <a onclick="ocultaFileInput()" class="btn btn-warning btm-sm" title="Deshacer" style="color:white">
+                                                <i class="fa fa-refresh"></i>
+                                            </a>
                                         </div>
                                     </div>
                                 </div>

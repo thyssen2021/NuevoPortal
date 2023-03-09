@@ -22,12 +22,11 @@ namespace Portal_2_0.Models
         public Nullable<int> planta_clave { get; set; }
         public Nullable<int> clave { get; set; }
 
-        [Display(Name = "Estatus")]
+        [Display(Name = "¿Activo?")]
         public Nullable<bool> activo { get; set; }
 
         //[Required(AllowEmptyStrings = false)]
         [StringLength(6, MinimumLength = 1)]
-        [RegularExpression("(^[0-9]+$)", ErrorMessage = "Sólo se permiten números.")]
         [Display(Name = "Número de Empleado")]
         public string numeroEmpleado { get; set; }
 
@@ -97,6 +96,10 @@ namespace Portal_2_0.Models
 
         [Display(Name = "Mostrar Teléfono")]
         public bool mostrar_telefono { get; set; }
+
+        //required mediente html
+        [StringLength(6, MinimumLength = 1)]
+        public string sexo { get; set; }
     }
 
     [MetadataType(typeof(empleadosMetadata))]

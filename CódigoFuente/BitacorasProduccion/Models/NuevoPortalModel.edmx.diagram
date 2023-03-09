@@ -180,47 +180,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_cellular_line" Width="1.5" PointX="3" PointY="82" />
         <AssociationConnector Association="Portal_2_0Model.FK_id_cellular_line" />
         <AssociationConnector Association="Portal_2_0Model.FK_IATF_documentos_id_inventory_celullar_plan" />
-        <EntityTypeShape EntityType="Portal_2_0Model.empleados" Width="1.5" PointX="29.75" PointY="75" />
-        <AssociationConnector Association="Portal_2_0Model.FK_empleados_area" />
-        <AssociationConnector Association="Portal_2_0Model.FK_empleados_id_fotografia" />
-        <AssociationConnector Association="Portal_2_0Model.FK_budget_responsables_id_centro_costo" />
-        <AssociationConnector Association="Portal_2_0Model.FK_empleados_jefe_directo" />
-        <AssociationConnector Association="Portal_2_0Model.FK_empleados_puesto" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_contabilidad" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_controlling" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_jefe_directo" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_nomina" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_solicitante" />
-        <AssociationConnector Association="Portal_2_0Model.FK_GV_usuarios_id_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_id_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_id_responsable_principal" />
-        <AssociationConnector Association="Portal_2_0Model.FK_id_sistemas" />
-        <AssociationConnector Association="Portal_2_0Model.FK_inspeccion_datos_generales_id_empleado_inspector" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_asignacion_software_id_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_asignacion_software_id_sistemas" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_solicitud_usuarios_id_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_notificaciones_correo_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_asignacion" />
-        <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_responsable" />
-        <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_solicitante" />
-        <AssociationConnector Association="Portal_2_0Model.FK_OT_responsables_id_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_OT_responsables_id_supervisor" />
-        <AssociationConnector Association="Portal_2_0Model.FK_PFA_autorizador" />
-        <AssociationConnector Association="Portal_2_0Model.FK_PFA_Autorizador_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_PFA_solicitante" />
-        <AssociationConnector Association="Portal_2_0Model.FK_PM_departamentos_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_PM_usuarios_capturistas_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_autorizador" />
-        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_contabilidad" />
-        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_direccion" />
-        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_elaborador" />
-        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_validador" />
-        <AssociationConnector Association="Portal_2_0Model.FK_produccion_operadores_id_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_produccion_respaldo_id_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_produccion_supervisores_id_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_site_checklist_id_sistemas" />
-        <AssociationConnector Association="Portal_2_0Model.FK_upgrade_usuarios_empleado" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_software" Width="1.5" PointX="10.375" PointY="1" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_asignacion_software_id_inventory_software" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_inventory_hardware_type" Width="1.5" PointX="5.75" PointY="71" />
@@ -232,10 +191,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_hardware_id_it_hardware" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_software_id_it_software" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_matriz_requerimientos" Width="1.5" PointX="32" PointY="83.5" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_jefe" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_sistemas" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_solicitante" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_internet_tipo" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_carpetas_id_matriz_requerimientos" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_comunicaciones_id_matriz_requerimientos" />
@@ -247,10 +202,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.plantas" Width="1.5" PointX="0.75" PointY="86.875" />
         <AssociationConnector Association="Portal_2_0Model.FK_areas_planta_clave" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_mantenimientos_id_biblioteca_digital" />
-        <AssociationConnector Association="Portal_2_0Model.FK_empleados_planta_clave" />
-        <AssociationConnector Association="Portal_2_0Model.FK_equipos_checklist_id_sistemas" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_mantenimientos_id_empleado_responsable" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_mantenimientos_id_empleado_sistemas" />
         <AssociationConnector Association="Portal_2_0Model.FK_IATF_documentos_id_planta" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_mantenimientos_id_iatf_version" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_item_id_it_inventory_item" />
@@ -280,6 +231,55 @@
         <EntityTypeShape EntityType="Portal_2_0Model.view_valores_fiscal_year_budget_historico" Width="1.5" PointX="11.375" PointY="4.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_epo" Width="1.5" PointX="11.375" PointY="12.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_wsus" Width="1.5" PointX="12.375" PointY="0.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.empleados" Width="1.5" PointX="29.75" PointY="76" />
+        <AssociationConnector Association="Portal_2_0Model.FK_empleados_area" />
+        <AssociationConnector Association="Portal_2_0Model.FK_empleados_id_fotografia" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_responsables_id_centro_costo" />
+        <AssociationConnector Association="Portal_2_0Model.FK_empleados_jefe_directo" />
+        <AssociationConnector Association="Portal_2_0Model.FK_empleados_planta_clave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_empleados_puesto" />
+        <AssociationConnector Association="Portal_2_0Model.FK_equipos_checklist_id_sistemas" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_contabilidad" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_controlling" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_jefe_directo" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_nomina" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_solicitud_id_solicitante" />
+        <AssociationConnector Association="Portal_2_0Model.FK_GV_usuarios_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_id_responsable_principal" />
+        <AssociationConnector Association="Portal_2_0Model.FK_id_sistemas" />
+        <AssociationConnector Association="Portal_2_0Model.FK_inspeccion_datos_generales_id_empleado_inspector" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_asignacion_software_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_asignacion_software_id_sistemas" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_mantenimientos_id_empleado_responsable" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_mantenimientos_id_empleado_sistemas" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_jefe" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_sistemas" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_solicitante" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_solicitud_usuarios_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_notificaciones_correo_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_asignacion" />
+        <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_responsable" />
+        <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_solicitante" />
+        <AssociationConnector Association="Portal_2_0Model.FK_OT_responsables_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_OT_responsables_id_supervisor" />
+        <AssociationConnector Association="Portal_2_0Model.FK_PFA_autorizador" />
+        <AssociationConnector Association="Portal_2_0Model.FK_PFA_Autorizador_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_PFA_solicitante" />
+        <AssociationConnector Association="Portal_2_0Model.FK_PM_departamentos_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_PM_usuarios_capturistas_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_autorizador" />
+        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_contabilidad" />
+        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_direccion" />
+        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_elaborador" />
+        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_validador" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_operadores_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_respaldo_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_supervisores_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_site_checklist_id_sistemas" />
+        <AssociationConnector Association="Portal_2_0Model.FK_upgrade_usuarios_empleado" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
