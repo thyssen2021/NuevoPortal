@@ -357,7 +357,7 @@ namespace Bitacoras.DBUtil
                 {
                     using (SqlCommand command = new SqlCommand())
                     {
-                        command.CommandText = @"select distinct [Name 1] from [cube_tkmm].[dbo].[view_detalle_pesada_union_silao]";
+                        command.CommandText = @"select distinct [Name 1] from [cube_tkmm].[dbo].[view_detalle_pesada_union_silao] WHERE [Name 1]<>''";
                         command.CommandType = CommandType.Text;
                         command.Connection = conn;
                         conn.Open();
@@ -398,7 +398,7 @@ namespace Bitacoras.DBUtil
                 {
                     using (SqlCommand command = new SqlCommand())
                     {
-                        command.CommandText = @"select distinct [Name 1] from [cube_tkmm].[dbo].[view_detalle_pesada_union_puebla]";
+                        command.CommandText = @"select distinct [Name 1] from [cube_tkmm].[dbo].[view_detalle_pesada_union_puebla] WHERE [Name 1]<>''";
                         command.CommandType = CommandType.Text;
                         command.Connection = conn;
                         conn.Open();
