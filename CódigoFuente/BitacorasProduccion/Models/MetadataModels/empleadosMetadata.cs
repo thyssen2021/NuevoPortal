@@ -83,7 +83,7 @@ namespace Portal_2_0.Models
         [RegularExpression("(^[0-9]+$)", ErrorMessage = "Sólo se permiten números.")]
         public string C8ID { get; set; }
 
-        [Display(Name = "Área")]
+        [Display(Name = "Área/Departamento")]
         [Required]
         public Nullable<int> id_area { get; set; }
 
@@ -98,7 +98,8 @@ namespace Portal_2_0.Models
         public bool mostrar_telefono { get; set; }
 
         //required mediente html
-        [StringLength(6, MinimumLength = 1)]
+        [StringLength(1)]
+        [Display(Name = "Sexo")]
         public string sexo { get; set; }
     }
 

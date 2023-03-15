@@ -22,50 +22,41 @@ namespace Portal_2_0.Controllers
         // GET: empleados
         public ActionResult Index()
         {
-            if (TieneRol(TipoRoles.RH))
-            {
-                //mensaje en caso de crear, editar, etc
-                if (TempData["Mensaje"] != null)
-                {
-                    ViewBag.MensajeAlert = TempData["Mensaje"];
-                }
-
-
-                var listado = db.empleados                      
-                       .OrderBy(x => x.id).ToList();          
-            
-                return View(listado);
-            }
-            else
-            {
+            if (!TieneRol(TipoRoles.RH) && !TieneRol(TipoRoles.RH_DETALLES_EMPLEADOS))
                 return View("../Home/ErrorPermisos");
+            //mensaje en caso de crear, editar, etc
+            if (TempData["Mensaje"] != null)
+            {
+                ViewBag.MensajeAlert = TempData["Mensaje"];
             }
+
+            var listado = db.empleados
+                   .OrderBy(x => x.id).ToList();
+
+            return View(listado);
+
         }
 
         // GET: empleados/Details/5
         public ActionResult Details(int? id)
         {
 
-            if (TieneRol(TipoRoles.RH))
-            {
-                if (id == null)
-                {
-                    return View("../Error/BadRequest");
-                }
-                empleados empleados = db.empleados.Find(id);
-                if (empleados == null)
-                {
-                    return View("../Error/NotFound");
-                }
-                ViewBag.PrimerNivel = "recursos_humanos";
-                ViewBag.SegundoNivel = "empleados";
-                ViewBag.ControllerName = "Empleados";
-                return View(empleados);
-            }
-            else
-            {
+            if (!TieneRol(TipoRoles.RH) && !TieneRol(TipoRoles.RH_DETALLES_EMPLEADOS))
                 return View("../Home/ErrorPermisos");
+
+            if (id == null)
+            {
+                return View("../Error/BadRequest");
             }
+            empleados empleados = db.empleados.Find(id);
+            if (empleados == null)
+            {
+                return View("../Error/NotFound");
+            }
+            ViewBag.PrimerNivel = "recursos_humanos";
+            ViewBag.SegundoNivel = "empleados";
+            ViewBag.ControllerName = "Empleados";
+            return View(empleados);
 
         }
 
@@ -158,63 +149,36 @@ namespace Portal_2_0.Controllers
 
             }
 
+            //valida el numero de empleado
+            if (!Int32.TryParse(empleados.numeroEmpleado, out int num) && empleados.numeroEmpleado.ToUpper() != "N/A")
+                ModelState.AddModelError("", "El número de empleado no es válido. Ingrese sólo números o el valor \"N/A\"");
+
+            //busca si ya existe un empleado con ese numero de empleado
+
+            // existe el num empleado
+            if (db.empleados.Any(s => !string.IsNullOrEmpty(empleados.numeroEmpleado) && empleados.numeroEmpleado.ToUpper() != "N/A" && s.numeroEmpleado == empleados.numeroEmpleado))
+                ModelState.AddModelError("", "Ya existe un registro con el mismo número de empleado. ");
+
             if (ModelState.IsValid)
             {
-                //busca si ya existe un empleado con ese numero de empleado
-                empleados empleadoBusca = db.empleados.Where(s => s.numeroEmpleado == empleados.numeroEmpleado)
-                                        .FirstOrDefault();
-                //no existe el num empleado
-                if (empleadoBusca == null)
-                {
-                    //busca por 8ID
-                    empleadoBusca = db.empleados.Where(s => s.C8ID == empleados.C8ID && !String.IsNullOrEmpty(empleados.C8ID))
-                                        .FirstOrDefault();
+                empleados.activo = true;
+                empleados.mostrar_telefono = true;
+                //convierte a mayúsculas
+                empleados.nombre = empleados.nombre.ToUpper();
+                empleados.apellido1 = empleados.apellido1.ToUpper();
+                if (!String.IsNullOrEmpty(empleados.apellido2))
+                    empleados.apellido2 = empleados.apellido2.ToUpper();
+                empleados.numeroEmpleado = empleados.numeroEmpleado.ToUpper(); //para n/a
 
-                    if (empleadoBusca == null)
-                    {
+                //agrega el id_area
+                if (c_area > 0)
+                    empleados.id_area = c_area;
 
-                        empleados.activo = true;
-                        empleados.mostrar_telefono = true;
-                        //convierte a mayúsculas
-                        empleados.nombre = empleados.nombre.ToUpper();
-                        empleados.apellido1 = empleados.apellido1.ToUpper();
+                db.empleados.Add(empleados);
+                db.SaveChanges();
+                TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);
+                return RedirectToAction("Index");
 
-                        if (!String.IsNullOrEmpty(empleados.apellido2))
-                            empleados.apellido2 = empleados.apellido2.ToUpper();
-                        //agrega el id_area
-                        if (c_area > 0)
-                            empleados.id_area = c_area;
-
-                        db.empleados.Add(empleados);
-                        db.SaveChanges();
-                        TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);
-                        return RedirectToAction("Index");
-                    }
-                    else
-                    {
-                        ModelState.AddModelError("", "Ya existe un registro con el mismo 8ID.");
-                        ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
-                        ViewBag.id_area = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
-                        ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion");
-                        //claves seleccionadas
-                        ViewBag.c_planta = c_planta;
-                        ViewBag.c_area = c_area;
-                        ViewBag.c_puesto = c_puesto;
-                        return View(empleados);
-                    }
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Ya existe un registro con el mismo número de empleado. ");
-                    ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
-                    ViewBag.id_area = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
-                    ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion");
-                    //claves seleccionadas
-                    ViewBag.c_planta = c_planta;
-                    ViewBag.c_area = c_area;
-                    ViewBag.c_puesto = c_puesto;
-                    return View(empleados);
-                }
             }
 
             ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
@@ -375,87 +339,51 @@ namespace Portal_2_0.Controllers
                 }
             }
 
+            //valida el numero de empleado
+            if (!Int32.TryParse(empleados.numeroEmpleado, out int num) && empleados.numeroEmpleado.ToUpper() != "N/A")
+                ModelState.AddModelError("", "El número de empleado no es válido. Ingrese sólo números o el valor \"N/A\"");
+
+            //busca si ya existe un empleado con ese numero de empleado
+
+            // existe el num empleado
+            if (db.empleados.Any(s => !string.IsNullOrEmpty(empleados.numeroEmpleado) && empleados.numeroEmpleado.ToUpper() != "N/A" && s.numeroEmpleado == empleados.numeroEmpleado && s.id != empleados.id))
+                ModelState.AddModelError("", "Ya existe un registro con el mismo número de empleado. ");
+
+
             if (ModelState.IsValid)
             {
-                //busca si ya existe un empleado con ese numero de empleado
-                empleados empleadoBusca = db.empleados.Where(s => s.numeroEmpleado == empleados.numeroEmpleado && s.id != empleados.id)
-                                        .FirstOrDefault();
 
-                //no existe otro empleado con el mismo num empleado
-                if (empleadoBusca == null)
+                //actualiza el correo electronico en la tabla de usuarios
+                var user = _userManager.Users.Where(u => u.IdEmpleado == empleados.id).FirstOrDefault();
+                if (user != null)
                 {
-
-                    //busca por 8ID
-                    empleadoBusca = db.empleados.Where(s => s.C8ID == empleados.C8ID && s.id != empleados.id && !String.IsNullOrEmpty(empleados.C8ID))
-                                        .FirstOrDefault();
-
-                    if (empleadoBusca == null)
-                    {
-
-                        //actualiza el correo electronico en la tabla de usuarios
-                        var user = _userManager.Users.Where(u => u.IdEmpleado == empleados.id).FirstOrDefault();
-                        if (user != null)
-                        {
-                            //actualiza el usuario  
-                            user.Email = empleados.correo;
-                            //guarda el usuario en BD
-                            var result = await _userManager.UpdateAsync(user);
-                        }
-
-                        empleados.nombre = empleados.nombre.ToUpper();
-                        empleados.apellido1 = empleados.apellido1.ToUpper();
-                        empleados.apellido2 = empleados.apellido2.ToUpper();
-
-                        //agrega el id_area
-                        if (c_area > 0)
-                            empleados.id_area = c_area;
-
-                        db.Entry(empleados).State = EntityState.Modified;
-
-                        try
-                        {
-                            db.SaveChanges();
-                        }
-                        catch (Exception ex)
-                        {
-                            ModelState.AddModelError("", "Error al guardar en BD_ " + ex.Message);
-                        }
-                        TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
-                        return RedirectToAction("Index");
-                    }
-                    else
-                    {
-                        ModelState.AddModelError("", "Ya existe un registro con el mismo 8ID. ");
-                        ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
-                        ViewBag.id_area = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
-                        ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion");
-                        ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true), nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)),
-                        textoPorDefecto: "-- Seleccione un valor --", selected: empleados.id_jefe_directo.ToString());
-
-
-                        //claves seleccionadas
-                        ViewBag.c_planta = c_planta;
-                        ViewBag.c_area = c_area;
-                        ViewBag.c_puesto = c_puesto;
-                        return View(empleados);
-                    }
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Ya existe un registro con el mismo número de empleado. ");
-                    ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
-                    ViewBag.id_area = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
-                    ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion");
-                    ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true), nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)),
-                    textoPorDefecto: "-- Seleccione un valor --", selected: empleados.id_jefe_directo.ToString());
-
-                    //claves seleccionadas
-                    ViewBag.c_planta = c_planta;
-                    ViewBag.c_area = c_area;
-                    ViewBag.c_puesto = c_puesto;
-                    return View(empleados);
+                    //actualiza el usuario  
+                    user.Email = empleados.correo;
+                    //guarda el usuario en BD
+                    var result = await _userManager.UpdateAsync(user);
                 }
 
+                empleados.nombre = empleados.nombre.ToUpper();
+                empleados.apellido1 = empleados.apellido1.ToUpper();
+                empleados.apellido2 = empleados.apellido2.ToUpper();
+                empleados.numeroEmpleado = empleados.numeroEmpleado.ToUpper(); //para n/a
+
+                //agrega el id_area
+                if (c_area > 0)
+                    empleados.id_area = c_area;
+
+                db.Entry(empleados).State = EntityState.Modified;
+
+                try
+                {
+                    db.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "Error al guardar en BD_ " + ex.Message);
+                }
+                TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
+                return RedirectToAction("Index");
 
             }
             ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
@@ -471,7 +399,86 @@ namespace Portal_2_0.Controllers
             return View(empleados);
         }
 
+        public ActionResult Exportar(string numeroEmpleado, string nombre, string planta, string departamento, string puesto, string jefe_directo, string C8ID, string correo, string activo)
+        {
+            if (!TieneRol(TipoRoles.RH) && !TieneRol(TipoRoles.RH_DETALLES_EMPLEADOS))
+                return View("../Home/ErrorPermisos");
 
+            var listado = db.empleados
+                    .ToList()
+                    .Where(x =>
+                        (string.IsNullOrEmpty(numeroEmpleado) || x.numeroEmpleado.IndexOf(numeroEmpleado, StringComparison.OrdinalIgnoreCase) >= 0)
+                       && (string.IsNullOrEmpty(nombre) || x.ConcatNombre.IndexOf(nombre, StringComparison.OrdinalIgnoreCase) >= 0)
+                       && (string.IsNullOrEmpty(planta) || (x.plantas != null && x.plantas.descripcion.IndexOf(planta, StringComparison.OrdinalIgnoreCase) >= 0))
+                       && (string.IsNullOrEmpty(departamento) || (x.Area != null && x.Area.descripcion.IndexOf(departamento, StringComparison.OrdinalIgnoreCase) >= 0))
+                       && (string.IsNullOrEmpty(puesto) || (x.puesto1 != null && x.puesto1.descripcion.IndexOf(puesto, StringComparison.OrdinalIgnoreCase) >= 0))
+                       && (string.IsNullOrEmpty(jefe_directo) || (x.empleados2 != null && x.empleados2.ConcatNombre.IndexOf(jefe_directo, StringComparison.OrdinalIgnoreCase) >= 0))
+                       && (string.IsNullOrEmpty(C8ID) || x.C8ID.IndexOf(C8ID, StringComparison.OrdinalIgnoreCase) >= 0)
+                       && (string.IsNullOrEmpty(correo) || x.correo.IndexOf(correo, StringComparison.OrdinalIgnoreCase) >= 0)
+                       && (string.IsNullOrEmpty(activo) || (x.activo.HasValue && x.activo.Value && "SI".IndexOf(activo, StringComparison.OrdinalIgnoreCase) >= 0) || (x.activo.HasValue && !x.activo.Value && "NO".IndexOf(activo, StringComparison.OrdinalIgnoreCase) >= 0))
+                    )
+                    .OrderBy(x => x.id)
+                  .ToList();
+
+            byte[] stream = ExcelUtil.GeneraReporteEmpleados(listado);
+
+
+            var cd = new System.Net.Mime.ContentDisposition
+            {
+                // for example foo.bak
+                FileName = "Reporte_empleados_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+                // always prompt the user for downloading, set to true if you want 
+                // the browser to try to show the file inline
+                Inline = false,
+            };
+
+            Response.AppendHeader("Content-Disposition", cd.ToString());
+
+            return File(stream, "application/vnd.ms-excel");
+
+
+        }
+        public ActionResult Exportartkmm(string numeroEmpleado, string nombre, string planta, string departamento, string puesto, string jefe_directo, string C8ID, string correo, string activo)
+        {
+            if (!TieneRol(TipoRoles.RH) && !TieneRol(TipoRoles.RH_DETALLES_EMPLEADOS))
+                return View("../Home/ErrorPermisos");
+
+            var listado = db.empleados
+                    .ToList()
+                    .Where(x =>
+                        (string.IsNullOrEmpty(numeroEmpleado) || x.numeroEmpleado.IndexOf(numeroEmpleado, StringComparison.OrdinalIgnoreCase) >= 0)
+                       && (string.IsNullOrEmpty(nombre) || x.ConcatNombre.IndexOf(nombre, StringComparison.OrdinalIgnoreCase) >= 0)
+                       && (string.IsNullOrEmpty(planta) || (x.plantas != null && x.plantas.descripcion.IndexOf(planta, StringComparison.OrdinalIgnoreCase) >= 0))
+                       && (string.IsNullOrEmpty(departamento) || (x.Area != null && x.Area.descripcion.IndexOf(departamento, StringComparison.OrdinalIgnoreCase) >= 0))
+                       && (string.IsNullOrEmpty(puesto) || (x.puesto1 != null && x.puesto1.descripcion.IndexOf(puesto, StringComparison.OrdinalIgnoreCase) >= 0))
+                       && (string.IsNullOrEmpty(jefe_directo) || (x.empleados2 != null && x.empleados2.ConcatNombre.IndexOf(jefe_directo, StringComparison.OrdinalIgnoreCase) >= 0))
+                       && (string.IsNullOrEmpty(C8ID) || x.C8ID.IndexOf(C8ID, StringComparison.OrdinalIgnoreCase) >= 0)
+                       && (string.IsNullOrEmpty(correo) || x.correo.IndexOf(correo, StringComparison.OrdinalIgnoreCase) >= 0)
+                       && (string.IsNullOrEmpty(activo) || (x.activo.HasValue && x.activo.Value && "SI".IndexOf(activo, StringComparison.OrdinalIgnoreCase) >= 0) || (x.activo.HasValue && !x.activo.Value && "NO".IndexOf(activo, StringComparison.OrdinalIgnoreCase) >= 0))
+                    )
+                    .OrderBy(x => x.numeroEmpleado)
+                  .ToList();
+
+            byte[] stream = ExcelUtil.GeneraReporteEmpleadostkmmnet(listado);
+
+
+            var cd = new System.Net.Mime.ContentDisposition
+            {
+                // for example foo.bak
+                FileName = "Reporte_empleados_tkmmnet_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+                // always prompt the user for downloading, set to true if you want 
+                // the browser to try to show the file inline
+                Inline = false,
+            };
+
+            Response.AppendHeader("Content-Disposition", cd.ToString());
+
+            return File(stream, "application/vnd.ms-excel");
+
+
+        }
 
         // GET: Empleados/Disable/5
         public ActionResult Disable(int? id)
@@ -511,7 +518,7 @@ namespace Portal_2_0.Controllers
             if (collection.AllKeys.Any(x => x == "notificacion_it"))
                 notificacionIT = true;
 
-           
+
 
             try
             {

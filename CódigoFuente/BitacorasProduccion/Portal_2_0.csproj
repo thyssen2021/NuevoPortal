@@ -7306,6 +7306,7 @@
     <Content Include="Views\IT_epo_wsus_reporte\InventarioNoEpo.cshtml" />
     <Content Include="Views\IT_epo_wsus_reporte\WsusNoInventario.cshtml" />
     <Content Include="Views\IT_epo_wsus_reporte\InventarioNoWsus.cshtml" />
+    <Content Include="Views\IT_matriz_requerimientos\IniciarMatriz.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

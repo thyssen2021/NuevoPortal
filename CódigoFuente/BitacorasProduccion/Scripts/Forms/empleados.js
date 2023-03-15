@@ -1,13 +1,15 @@
 ﻿$(document).ready(function () {
 
-
     //inicializa en input file
     bsCustomFileInput.init()
 
     //aumenta en uso cada vez que se hace un cambio en el archivo de soporte
     $("#ArchivoImagen").on("change", function () {
         document.getElementById('cambio_documento_soporte').value = ++documento_soporte_cambios;
+
+        filePreview(this);
     });
+
 
        //carga los valores cuando se cambia la planta
     $("#planta_clave").change(function () {
@@ -57,6 +59,19 @@
 
 });
 
+function filePreview(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            $('#div-img-container').html('');
+            $('#div-img-container').hide().html('<img src="' + e.target.result + '" width="350" height="350"/>').show(150);
+        }
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        $('#div-img-container').hide(150).html('');
+    }
+}
+
 
 //variable para saber si ha cambiado el formulario y asi no se detenga por doble submit
 var documento_soporte_cambios = 1;
@@ -67,6 +82,8 @@ function muestraFileInput() {
         $("#ArchivoImagen").val('');
     });
     $("#div_document_support_2").fadeIn(500);
+    //oculta la imagen original
+    $('#div-img-container').html('');
 
     document.getElementById('cambio_documento_soporte').value = ++documento_soporte_cambios;
     document.getElementById('elimina_documento').value = 'true';
@@ -81,6 +98,10 @@ function ocultaFileInput() {
 
     document.getElementById('cambio_documento_soporte').value = ++documento_soporte_cambios;
     document.getElementById('elimina_documento').value = 'false';
+
+    //muestra la imagen original
+    let src = $("#imagen-previa").val();
+    $('#div-img-container').hide().html('<img src="' + src+ '" width="350" height="350"/>').show(150);
 }
 
 

@@ -438,7 +438,7 @@ namespace Portal_2_0.Controllers
         #region listados sistemas
 
         // GET: IT_matriz_requerimientos/solicitudes_sistemas
-        public ActionResult solicitudes_sistemas(string estatus, string nombre, int pagina = 1)
+        public ActionResult solicitudes_sistemas(string estatus, string nombre, int? clave_planta, int pagina = 1)
         {
 
             if (TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR))
@@ -454,13 +454,17 @@ namespace Portal_2_0.Controllers
                 empleados empleado = obtieneEmpleadoLogeado();
 
                 var listado = db.IT_matriz_requerimientos
-                    .Where(x => (String.IsNullOrEmpty(estatus) || x.estatus.Contains(estatus)) && ((x.empleados.nombre + " " + x.empleados.apellido1 + " " + x.empleados.apellido2).Contains(nombre) || String.IsNullOrEmpty(nombre)))
+                    .Where(x => (String.IsNullOrEmpty(estatus) || x.estatus.Contains(estatus))
+                    && (clave_planta == null || x.empleados.planta_clave == clave_planta)
+                    && ((x.empleados.nombre + " " + x.empleados.apellido1 + " " + x.empleados.apellido2).Contains(nombre) || String.IsNullOrEmpty(nombre)))
                     .OrderByDescending(x => x.fecha_solicitud)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
                 var totalDeRegistros = db.IT_matriz_requerimientos
-                      .Where(x => (String.IsNullOrEmpty(estatus) || x.estatus.Contains(estatus)) && ((x.empleados.nombre + " " + x.empleados.apellido1 + " " + x.empleados.apellido2).Contains(nombre) || String.IsNullOrEmpty(nombre)))
+                       .Where(x => (String.IsNullOrEmpty(estatus) || x.estatus.Contains(estatus))
+                    && (clave_planta == null || x.empleados.planta_clave == clave_planta)
+                    && ((x.empleados.nombre + " " + x.empleados.apellido1 + " " + x.empleados.apellido2).Contains(nombre) || String.IsNullOrEmpty(nombre)))
                    .Count();
 
                 //para paginación
@@ -468,6 +472,7 @@ namespace Portal_2_0.Controllers
                 System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
                 routeValues["estatus"] = estatus;
                 routeValues["nombre"] = nombre;
+                routeValues["clave_planta"] = clave_planta;
 
                 Paginacion paginacion = new Paginacion
                 {
@@ -500,6 +505,8 @@ namespace Portal_2_0.Controllers
                 ViewBag.Title = "Listado de Solicitudes";
                 ViewBag.PrimerNivel = "sistemas";
                 ViewBag.SegundoNivel = "solicitudes_usuarios_sistemas";
+                ViewBag.clave_planta = AddFirstItem(new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion"), textoPorDefecto: "-- Todas --", selected: clave_planta.ToString());
+
 
                 return View("ListadoSolicitudes", listado);
             }
@@ -517,7 +524,9 @@ namespace Portal_2_0.Controllers
         // GET: IT_matriz_requerimientos/Details
         public ActionResult Details(int? id)
         {
-            if (TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CREAR) || TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_DETALLES))
+            if (TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CREAR) || TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_DETALLES)
+                || TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_AUTORIZAR) || TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR)
+                )
             {
                 if (id == null)
                 {
@@ -560,8 +569,8 @@ namespace Portal_2_0.Controllers
 
                 }
 
-                IT_matriz_requerimientos matriz = db.IT_matriz_requerimientos.Where(x => x.id_empleado == id).OrderByDescending(x=>x.id).FirstOrDefault();
-                
+                IT_matriz_requerimientos matriz = db.IT_matriz_requerimientos.Where(x => x.id_empleado == id).OrderByDescending(x => x.id).FirstOrDefault();
+
                 if (matriz == null)
                 {
                     //crea una matriz nueva con el empleado asociado
@@ -603,7 +612,319 @@ namespace Portal_2_0.Controllers
             }
 
         }
+        // GET: IT_matriz_requerimientos/IniciarMatriz
+        public ActionResult IniciarMatriz(int? id, string tipo = "")
+        {
+            if (TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CREAR))
+            {
+                if (id == null)
+                {
+                    return View("../Error/BadRequest");
+                }
+                empleados empleados = db.empleados.Find(id);
+                if (empleados == null)
+                {
+                    return View("../Error/NotFound");
 
+                }
+
+                IT_matriz_requerimientos matriz = db.IT_matriz_requerimientos.Where(x => x.id_empleado == id).OrderByDescending(x => x.id).FirstOrDefault();
+
+                if (matriz == null)
+                {
+                    //crea una matriz nueva con el empleado asociado
+                    matriz = new IT_matriz_requerimientos
+                    {
+                        id_empleado = empleados.id,
+                        empleados = empleados,
+                    };
+
+                }
+                else
+                {
+                    //verifica si una matriz puede editarse
+                    if (matriz.estatus != IT_MR_Status.RECHAZADO && matriz.estatus != IT_MR_Status.FINALIZADO)
+                    {
+                        ViewBag.Titulo = "¡Lo sentimos!¡No se puede modificar esta solicitud!";
+                        ViewBag.Descripcion = "Sólo pueden modificarse solicitudes que han sido Rechazadas o Finalizadas.";
+
+                        return View("../Home/ErrorGenerico");
+                    }
+                }
+
+                //agrega el tipo de solicitud 
+                if (!String.IsNullOrEmpty(tipo) && (tipo == Bitacoras.Util.IT_MR_tipo.CREACION || tipo == Bitacoras.Util.IT_MR_tipo.MODIFICACION))
+                    matriz.tipo = tipo;
+
+                //obtiene la lista de hardware
+                ViewBag.listHardware = db.IT_inventory_hardware_type.Where(x => x.activo == true && x.disponible_en_matriz_rh).ToList();
+                ViewBag.listSoftware = db.IT_inventory_software.Where(x => x.activo == true && x.disponible_en_matriz_rh).ToList();
+                ViewBag.id_internet_tipo = AddFirstItem(new SelectList(db.IT_internet_tipo.Where(p => p.activo == true), "id", "descripcion"), selected: matriz.id_internet_tipo.ToString());
+                ViewBag.listCarpetas = db.IT_carpetas_red.Where(x => x.activo == true).ToList();
+                ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(p => p.activo == true), "id", "ConcatNumEmpleadoNombre"), selected: empleados.empleados2 != null ? empleados.empleados2.id.ToString() : String.Empty);
+                ViewBag.listComunicaciones = db.IT_comunicaciones_tipo.Where(x => x.activo == true).ToList();
+                return View(matriz);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+        // POST: IT_matriz_requerimientos/CrearMatriz
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
+        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult IniciarMatriz(IT_matriz_requerimientos matriz, FormCollection collection, string[] SelectedHardware, string[] SelectedSoftware, string[] SelectedComunicaciones, string[] SelectedCarpetas)
+        {
+
+            //obtien el id de Matriz
+            int.TryParse(collection["id_matriz"], out int id_matriz);
+            matriz.id = id_matriz;
+
+            string statusAnterior = matriz.estatus;
+
+            //lista de key del collection
+            List<string> keysCollection = collection.AllKeys.ToList();
+
+            #region Asignación de Objetos
+
+            //crea los objetos para hardware
+            if (SelectedHardware != null)
+                foreach (string id_hardware_string in SelectedHardware)
+                {
+                    //obtiene el id
+                    Match m = Regex.Match(id_hardware_string, @"\d+");
+                    int id_hardware = 0;
+
+                    if (m.Success)//si tiene un numero                
+                        int.TryParse(m.Value, out id_hardware);
+
+                    string keyDescription = "hardware_" + id_hardware + "_descripcion";
+                    String descripcionHardware = null;
+
+                    //busca si existe una descripcion
+                    if (keysCollection.Contains(keyDescription))
+                        descripcionHardware = collection[keyDescription];
+
+                    matriz.IT_matriz_hardware.Add(new IT_matriz_hardware { id_matriz_requerimientos = id_matriz, id_it_hardware = id_hardware, descripcion = descripcionHardware });
+                }
+
+            //crea los objetos para software
+            if (SelectedSoftware != null)
+                foreach (string id_software_string in SelectedSoftware)
+                {
+                    //obtiene el id
+                    Match m = Regex.Match(id_software_string, @"\d+");
+                    int id_software = 0;
+
+                    if (m.Success)//si tiene un numero                
+                        int.TryParse(m.Value, out id_software);
+
+                    string keyDescription = "software_" + id_software + "_descripcion";
+                    String descripcionSoftware = null;
+
+                    if (keysCollection.Contains(keyDescription))
+                        descripcionSoftware = collection[keyDescription];
+
+                    matriz.IT_matriz_software.Add(new IT_matriz_software { id_matriz_requerimientos = id_matriz, id_it_software = id_software, descripcion = descripcionSoftware });
+                }
+
+            //crea los objetos para comunicaciones
+            if (SelectedComunicaciones != null)
+                foreach (string id_comunicaciones_string in SelectedComunicaciones)
+                {
+                    //obtiene el id
+                    Match m = Regex.Match(id_comunicaciones_string, @"\d+");
+                    int id_comunicaciones = 0;
+
+                    if (m.Success)//si tiene un numero                
+                        int.TryParse(m.Value, out id_comunicaciones);
+
+                    string keyDescription = "comunicaciones_" + id_comunicaciones + "_descripcion";
+                    String descripcionComunicaciones = null;
+
+                    if (keysCollection.Contains(keyDescription))
+                        descripcionComunicaciones = collection[keyDescription];
+
+                    matriz.IT_matriz_comunicaciones.Add(new IT_matriz_comunicaciones { id_matriz_requerimientos = id_matriz, id_it_comunicaciones = id_comunicaciones, descripcion = descripcionComunicaciones });
+                }
+
+            //crea los objetos para las carpetas
+            if (SelectedCarpetas != null)
+                foreach (string id_carpetas_string in SelectedCarpetas)
+                {
+                    //obtiene el id
+                    Match m = Regex.Match(id_carpetas_string, @"\d+");
+                    int id_carpetas = 0;
+
+                    if (m.Success)//si tiene un numero                
+                        int.TryParse(m.Value, out id_carpetas);
+
+                    string keyDescription = "carpetas_" + id_carpetas + "_descripcion";
+                    String descripcionCarpetas = null;
+
+                    if (keysCollection.Contains(keyDescription))
+                        descripcionCarpetas = collection[keyDescription];
+
+                    matriz.IT_matriz_carpetas.Add(new IT_matriz_carpetas { id_matriz_requerimientos = id_matriz, id_it_carpeta_red = id_carpetas, descripcion = descripcionCarpetas });
+                }
+            #endregion
+
+            if (ModelState.IsValid)
+            {
+
+                empleados solicitante = obtieneEmpleadoLogeado();
+
+                if (matriz.estatus == Bitacoras.Util.IT_MR_Status.ENVIADO_A_JEFE)
+                {
+                    //campos obligatorios 
+                    matriz.fecha_solicitud = DateTime.Now;
+                    //    matriz.estatus = IT_MR_Status.ENVIADO_A_JEFE;
+                    matriz.id_solicitante = solicitante.id;
+                }
+                else if (matriz.estatus == Bitacoras.Util.IT_MR_Status.ENVIADO_A_IT)
+                {
+                    matriz.fecha_aprobacion_jefe = DateTime.Now;
+                }
+
+                string mensaje = "Se ha enviado la solicitud correctamente.";
+                TipoMensajesSweetAlerts tipoMensaje = TipoMensajesSweetAlerts.SUCCESS;
+
+                //si NO existe un registro con el mismo id empleado 
+                if (!db.IT_matriz_requerimientos.Any(x => x.id_empleado == matriz.id_empleado)
+                    || (matriz.tipo == Bitacoras.Util.IT_MR_tipo.MODIFICACION && !db.IT_matriz_requerimientos.Any(x => x.id_empleado == matriz.id_empleado
+                        && x.estatus != IT_MR_Status.FINALIZADO
+                    ))
+                    )
+                {
+                    //elimina el comentario de rechazo en caso de existir
+                    matriz.comentario_rechazo = null;
+                    matriz.comentario_cierre = null;
+                    db.IT_matriz_requerimientos.Add(matriz);
+                }
+                else
+                { //se trata de una modificación o rechazo
+                  //si existe lo modifica
+                    IT_matriz_requerimientos matrizOld = db.IT_matriz_requerimientos.Find(id_matriz);
+                    //borra valores en caso de que sea una solicitud de cambio (solicitud ya finalizada)
+                    //matriz.fecha_aprobacion_jefe = null;
+                    matriz.fecha_cierre = null;
+                    if (statusAnterior == IT_MR_Status.FINALIZADO)
+                        matriz.comentario_rechazo = null;
+
+
+                    //borra los conceltos anteriornes
+                    db.IT_matriz_software.RemoveRange(matrizOld.IT_matriz_software);
+                    db.IT_matriz_hardware.RemoveRange(matrizOld.IT_matriz_hardware);
+                    db.IT_matriz_carpetas.RemoveRange(matrizOld.IT_matriz_carpetas);
+                    db.IT_matriz_comunicaciones.RemoveRange(matrizOld.IT_matriz_comunicaciones);
+
+                    //agrega los nuevos conceptos
+                    db.IT_matriz_software.AddRange(matriz.IT_matriz_software);
+                    db.IT_matriz_hardware.AddRange(matriz.IT_matriz_hardware);
+                    db.IT_matriz_carpetas.AddRange(matriz.IT_matriz_carpetas);
+                    db.IT_matriz_comunicaciones.AddRange(matriz.IT_matriz_comunicaciones);
+
+                    //establece los valores principales
+                    db.Entry(matrizOld).CurrentValues.SetValues(matriz);
+
+                    db.Entry(matrizOld).State = EntityState.Modified;
+                }
+                //obtiene el objeto empleados del jefe directo
+                var jefe = db.empleados.Find(matriz.id_jefe_directo);
+
+                try
+                {
+                    db.SaveChanges();
+
+
+                    try
+                    {
+                        //envia correo electronico
+                        EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+
+                        List<String> correos = new List<string>(); //correos TO
+
+                        //agrega las referencias al empleados y empleados2                                               
+                        matriz.empleados = db.empleados.Find(matriz.id_empleado);
+                        matriz.empleados3 = solicitante;
+                        matriz.empleados1 = jefe; //jefe directo
+
+                        //envia notificación a JEFE
+                        if (matriz.estatus == Bitacoras.Util.IT_MR_Status.ENVIADO_A_JEFE)
+                        {
+                            if (jefe != null && !String.IsNullOrEmpty(jefe.correo))
+                                correos.Add(jefe.correo); //agrega correo de validador
+
+                            envioCorreo.SendEmailAsync(correos, "Ha recibido una Solicitud de Requerimiento de Usuario para su aprobación.", envioCorreo.getBody_IT_MR_Notificacion_Jefe_Directo(matriz));
+                        }// envia notificacion a IT 
+                        else if (matriz.estatus == Bitacoras.Util.IT_MR_Status.ENVIADO_A_IT)
+                        {
+                            //---INICIO POR ROL                    
+                            //recorre los usuarios con el permiso de cerrar
+                            AspNetRoles rol = db.AspNetRoles.Where(x => x.Name == TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR).FirstOrDefault();
+                            List<AspNetUsers> usuariosInRole = new List<AspNetUsers>();
+                            if (rol != null)
+                                usuariosInRole = rol.AspNetUsers.ToList();
+
+                            List<int> idsCerrar = usuariosInRole.Select(x => x.IdEmpleado).Distinct().ToList();
+
+                            List<empleados> listEmpleados = db.empleados.Where(x => x.activo == true && idsCerrar.Contains(x.id) == true).ToList();
+
+                            foreach (var e in listEmpleados)
+                                if (!String.IsNullOrEmpty(e.correo))
+                                    correos.Add(e.correo);
+
+                            //obtiene el empleado a dar de alta
+                            var empleadoAlta = db.empleados.Find(matriz.id_empleado);
+
+
+                            //---FIN POR ROL
+                            envioCorreo.SendEmailAsync(correos, "Se ha recibido una Solicitud de Requerimientos. Folio: " + matriz.id + ", Planta: " + (empleadoAlta != null && empleadoAlta.plantas != null ? empleadoAlta.plantas.descripcion : string.Empty), envioCorreo.getBody_IT_MR_Notificacion_Autorizado_Sistemas(matriz));
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        mensaje = "Se ha enviado correctamente la solicitud, pero ha surgido un error al mandar el correo electrónico.";
+                        tipoMensaje = TipoMensajesSweetAlerts.WARNING;
+                        EscribeExcepcion(e, Clases.Models.EntradaRegistroEvento.TipoEntradaRegistroEvento.Error);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    mensaje = "Error al guardar en BD.";
+                    tipoMensaje = TipoMensajesSweetAlerts.ERROR;
+                    EscribeExcepcion(ex, Clases.Models.EntradaRegistroEvento.TipoEntradaRegistroEvento.Error);
+                }
+
+
+                TempData["Mensaje"] = new MensajesSweetAlert(mensaje, tipoMensaje);
+                if (matriz.estatus == Bitacoras.Util.IT_MR_Status.ENVIADO_A_JEFE)
+                {
+                    return RedirectToAction("ListadoUsuarios");
+                }// envia notificacion a IT 
+                else if (matriz.estatus == Bitacoras.Util.IT_MR_Status.ENVIADO_A_IT)
+                {
+                    return RedirectToAction("solicitudes_pendientes_autorizador");
+                }
+            }
+
+            empleados empleados = db.empleados.Find(matriz.id_empleado);
+
+            matriz.empleados = empleados;
+
+
+            ViewBag.listHardware = db.IT_inventory_hardware_type.Where(x => x.activo == true && x.disponible_en_matriz_rh).ToList();
+            ViewBag.listSoftware = db.IT_inventory_software.Where(x => x.activo == true && x.disponible_en_matriz_rh).ToList();
+            ViewBag.id_internet_tipo = AddFirstItem(new SelectList(db.IT_internet_tipo.Where(p => p.activo == true), "id", "descripcion"));
+            ViewBag.listComunicaciones = db.IT_comunicaciones_tipo.Where(x => x.activo == true).ToList();
+            ViewBag.listCarpetas = db.IT_carpetas_red.Where(x => x.activo == true).ToList();
+            ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(p => p.activo == true), "id", "ConcatNumEmpleadoNombre"));
+            return View(matriz);
+
+        }
 
 
         // POST: IT_matriz_requerimientos/CrearMatriz
@@ -723,8 +1044,8 @@ namespace Portal_2_0.Controllers
 
                 //si NO existe un registro con el mismo id empleado 
                 if (!db.IT_matriz_requerimientos.Any(x => x.id_empleado == matriz.id_empleado)
-                    ||(matriz.tipo == Bitacoras.Util.IT_MR_tipo.MODIFICACION && !db.IT_matriz_requerimientos.Any(x=>x.id_empleado == matriz.id_empleado
-                        && x.estatus != IT_MR_Status.FINALIZADO 
+                    || (matriz.tipo == Bitacoras.Util.IT_MR_tipo.MODIFICACION && !db.IT_matriz_requerimientos.Any(x => x.id_empleado == matriz.id_empleado
+                        && x.estatus != IT_MR_Status.FINALIZADO
                     ))
                     )
                 {
@@ -824,7 +1145,7 @@ namespace Portal_2_0.Controllers
         #region Autorizador
 
         // GET: IT_matriz_requerimientos/Autorizar
-        public ActionResult Autorizar(int? id)
+        public ActionResult Autorizar(int? id, string tipo = "")
         {
             if (TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_AUTORIZAR))
             {
@@ -833,28 +1154,34 @@ namespace Portal_2_0.Controllers
                     return View("../Error/BadRequest");
                 }
                 IT_matriz_requerimientos matriz = db.IT_matriz_requerimientos.Find(id);
+
                 if (matriz == null)
                 {
                     return View("../Error/NotFound");
-                }
-                //verifica si el id_jefe pertenece al usuario que inició sesión
-                empleados emp = obtieneEmpleadoLogeado();
 
-                if (emp.id != matriz.id_jefe_directo)
+                }
+
+                //verifica si una matriz puede editarse
+                if (matriz.estatus != IT_MR_Status.ENVIADO_A_JEFE)
                 {
-                    ViewBag.Titulo = "¡Lo sentimos!¡No se puede autorizar esta solicitud!";
-                    ViewBag.Descripcion = "No se puede autorizar una solicitud a la que no se encuentra asignado.";
+                    ViewBag.Titulo = "¡Lo sentimos!¡No se puede modificar esta solicitud!";
+                    ViewBag.Descripcion = "No pueden modificarse solicitudes que han sido enviadas o finalizadas.";
 
                     return View("../Home/ErrorGenerico");
                 }
 
+                //agrega el tipo de solicitud 
+                if (!String.IsNullOrEmpty(tipo) && (tipo == Bitacoras.Util.IT_MR_tipo.CREACION || tipo == Bitacoras.Util.IT_MR_tipo.MODIFICACION))
+                    matriz.tipo = tipo;
 
+                //obtiene la lista de hardware
                 ViewBag.listHardware = db.IT_inventory_hardware_type.Where(x => x.activo == true && x.disponible_en_matriz_rh).ToList();
                 ViewBag.listSoftware = db.IT_inventory_software.Where(x => x.activo == true && x.disponible_en_matriz_rh).ToList();
-                ViewBag.listComunicaciones = db.IT_comunicaciones_tipo.Where(x => x.activo == true).ToList();
+                ViewBag.id_internet_tipo = AddFirstItem(new SelectList(db.IT_internet_tipo.Where(p => p.activo == true), "id", "descripcion"), selected: matriz.id_internet_tipo.ToString());
                 ViewBag.listCarpetas = db.IT_carpetas_red.Where(x => x.activo == true).ToList();
-
-                return View(matriz);
+                ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(p => p.activo == true), "id", "ConcatNumEmpleadoNombre"), selected: matriz.id_jefe_directo.ToString());
+                ViewBag.listComunicaciones = db.IT_comunicaciones_tipo.Where(x => x.activo == true).ToList();
+                return View("IniciarMatriz", matriz);
             }
             else
             {
@@ -863,91 +1190,131 @@ namespace Portal_2_0.Controllers
 
         }
 
-        // POST: PremiumFreightAproval/ValidarAreaPM/5
-        [HttpPost, ActionName("Autorizar")]
-        [ValidateAntiForgeryToken]
-        public ActionResult AutorizarConfirmed(FormCollection collection)
-        {
+        // GET: IT_matriz_requerimientos/Autorizar
+        //public ActionResult Autorizar(int? id)
+        //{
+        //    if (TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_AUTORIZAR))
+        //    {
+        //        if (id == null)
+        //        {
+        //            return View("../Error/BadRequest");
+        //        }
+        //        IT_matriz_requerimientos matriz = db.IT_matriz_requerimientos.Find(id);
+        //        if (matriz == null)
+        //        {
+        //            return View("../Error/NotFound");
+        //        }
+        //        //verifica si el id_jefe pertenece al usuario que inició sesión
+        //        empleados jefe = obtieneEmpleadoLogeado();
 
-            int id = 0;
-            if (!String.IsNullOrEmpty(collection["id"]))
-                Int32.TryParse(collection["id"], out id);
+        //        if (jefe.id != matriz.id_jefe_directo)
+        //        {
+        //            ViewBag.Titulo = "¡Lo sentimos!¡No se puede autorizar esta solicitud!";
+        //            ViewBag.Descripcion = "No se puede autorizar una solicitud a la que no se encuentra asignado.";
+
+        //            return View("../Home/ErrorGenerico");
+        //        }
 
 
-            IT_matriz_requerimientos matriz = db.IT_matriz_requerimientos.Find(id);
-            matriz.estatus = IT_MR_Status.ENVIADO_A_IT;
-            matriz.fecha_aprobacion_jefe = DateTime.Now;
-            // poliza.id_autorizador = Convert.ToInt32(collection["id_autorizador"]);
+        //        ViewBag.listHardware = db.IT_inventory_hardware_type.Where(x => x.activo == true && x.disponible_en_matriz_rh).ToList();
+        //        ViewBag.listSoftware = db.IT_inventory_software.Where(x => x.activo == true && x.disponible_en_matriz_rh).ToList();
+        //        ViewBag.listComunicaciones = db.IT_comunicaciones_tipo.Where(x => x.activo == true).ToList();
+        //        ViewBag.listCarpetas = db.IT_carpetas_red.Where(x => x.activo == true).ToList();
 
-            db.Entry(matriz).State = EntityState.Modified;
-            try
-            {
-                db.SaveChanges();
+        //        return View(matriz);
+        //    }
+        //    else
+        //    {
+        //        return View("../Home/ErrorPermisos");
+        //    }
 
-                //NOTIFICACIÓN A SOLICITANTE
-                //envia correo electronico notificación solicitante
-                EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+        //}
 
-                List<String> correos = new List<string>(); //correos TO
+        //// POST: PremiumFreightAproval/ValidarAreaPM/5
+        //[HttpPost, ActionName("Autorizar")]
+        //[ValidateAntiForgeryToken]
+        //public ActionResult AutorizarConfirmed(FormCollection collection)
+        //{
 
-                if (!String.IsNullOrEmpty(matriz.empleados3.correo))
-                    correos.Add(matriz.empleados3.correo); //agrega correo de elaborador
+        //    int id = 0;
+        //    if (!String.IsNullOrEmpty(collection["id"]))
+        //        Int32.TryParse(collection["id"], out id);
 
-                envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de usuarios #" + matriz.id + " ha sido válidada por el Jefe Directo.", envioCorreo.getBody_IT_MR_Notificacion_Autorizado_Solicitante(matriz));
 
-                //se restablece el listado de correos
-                correos = new List<string>();
+        //    IT_matriz_requerimientos matriz = db.IT_matriz_requerimientos.Find(id);
+        //    matriz.estatus = IT_MR_Status.ENVIADO_A_IT;
+        //    matriz.fecha_aprobacion_jefe = DateTime.Now;
+        //    // poliza.id_autorizador = Convert.ToInt32(collection["id_autorizador"]);
 
-                //NOTIFICACION A SISTEMAS (Todos los que tengan el permiso de cerrar)
+        //    db.Entry(matriz).State = EntityState.Modified;
+        //    try
+        //    {
+        //        db.SaveChanges();
 
-                //---INICIO POR ROL                    
-                //recorre los usuarios con el permiso de cerrar
-                AspNetRoles rol = db.AspNetRoles.Where(x => x.Name == TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR).FirstOrDefault();
-                List<AspNetUsers> usuariosInRole = new List<AspNetUsers>();
-                if (rol != null)
-                    usuariosInRole = rol.AspNetUsers.ToList();
+        //        //NOTIFICACIÓN A SOLICITANTE
+        //        //envia correo electronico notificación solicitante
+        //        EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
 
-                List<int> idsCerrar = usuariosInRole.Select(x => x.IdEmpleado).Distinct().ToList();
+        //        List<String> correos = new List<string>(); //correos TO
 
-                List<empleados> listEmpleados = db.empleados.Where(x => x.activo == true && idsCerrar.Contains(x.id) == true).ToList();
+        //        if (!String.IsNullOrEmpty(matriz.empleados3.correo))
+        //            correos.Add(matriz.empleados3.correo); //agrega correo de elaborador
 
-                foreach (var e in listEmpleados)
-                    if (!String.IsNullOrEmpty(e.correo))
-                        correos.Add(e.correo);
+        //        envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de usuarios #" + matriz.id + " ha sido válidada por el Jefe Directo.", envioCorreo.getBody_IT_MR_Notificacion_Autorizado_Solicitante(matriz));
 
-                //---FIN POR ROL
+        //        //se restablece el listado de correos
+        //        correos = new List<string>();
 
-                envioCorreo.SendEmailAsync(correos, "Se ha recibido una Solicitud de Requerimientos. Folio: " + matriz.id, envioCorreo.getBody_IT_MR_Notificacion_Autorizado_Sistemas(matriz));
+        //        //NOTIFICACION A SISTEMAS (Todos los que tengan el permiso de cerrar)
 
-                TempData["Mensaje"] = new MensajesSweetAlert("Se ha autorizado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
+        //        //---INICIO POR ROL                    
+        //        //recorre los usuarios con el permiso de cerrar
+        //        AspNetRoles rol = db.AspNetRoles.Where(x => x.Name == TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR).FirstOrDefault();
+        //        List<AspNetUsers> usuariosInRole = new List<AspNetUsers>();
+        //        if (rol != null)
+        //            usuariosInRole = rol.AspNetUsers.ToList();
 
-                return RedirectToAction("solicitudes_pendientes_autorizador");
+        //        List<int> idsCerrar = usuariosInRole.Select(x => x.IdEmpleado).Distinct().ToList();
 
-            }
-            catch (System.Data.Entity.Validation.DbEntityValidationException ex)
-            {
-                // Retrieve the error messages as a list of strings.
-                var errorMessages = ex.EntityValidationErrors
-                        .SelectMany(x => x.ValidationErrors)
-                        .Select(x => x.ErrorMessage);
+        //        List<empleados> listEmpleados = db.empleados.Where(x => x.activo == true && idsCerrar.Contains(x.id) == true).ToList();
 
-                // Join the list to a single string.
-                var fullErrorMessage = string.Join("; ", errorMessages);
+        //        foreach (var e in listEmpleados)
+        //            if (!String.IsNullOrEmpty(e.correo))
+        //                correos.Add(e.correo);
 
-                // Combine the original exception message with the new one.
-                var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
+        //        //---FIN POR ROL
 
-                TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
-                return RedirectToAction("solicitudes_pendientes_autorizador");
+        //        envioCorreo.SendEmailAsync(correos, "Se ha recibido una Solicitud de Requerimientos. Folio: " + matriz.id, envioCorreo.getBody_IT_MR_Notificacion_Autorizado_Sistemas(matriz));
 
-            }
-            catch (Exception e)
-            {
-                TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
-                return RedirectToAction("solicitudes_pendientes_autorizador");
-            }
+        //        TempData["Mensaje"] = new MensajesSweetAlert("Se ha autorizado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
 
-        }
+        //        return RedirectToAction("solicitudes_pendientes_autorizador");
+
+        //    }
+        //    catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+        //    {
+        //        // Retrieve the error messages as a list of strings.
+        //        var errorMessages = ex.EntityValidationErrors
+        //                .SelectMany(x => x.ValidationErrors)
+        //                .Select(x => x.ErrorMessage);
+
+        //        // Join the list to a single string.
+        //        var fullErrorMessage = string.Join("; ", errorMessages);
+
+        //        // Combine the original exception message with the new one.
+        //        var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
+
+        //        TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
+        //        return RedirectToAction("solicitudes_pendientes_autorizador");
+
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
+        //        return RedirectToAction("solicitudes_pendientes_autorizador");
+        //    }
+
+        //}
 
         // POST: IT_matriz_requerimientos/RechazarConfirmed/5
         [HttpPost, ActionName("Rechazar")]
@@ -1038,7 +1405,7 @@ namespace Portal_2_0.Controllers
                     item.completado = true;
                 foreach (var item in matriz.IT_matriz_comunicaciones)
                     item.completado = true;
-                 foreach (var item in matriz.IT_matriz_carpetas)
+                foreach (var item in matriz.IT_matriz_carpetas)
                     item.completado = true;
 
 
@@ -1129,7 +1496,7 @@ namespace Portal_2_0.Controllers
 
                 //obtiene el objeto asociado
                 IT_matriz_software item = matriz.IT_matriz_software.Where(x => x.id == id_software).FirstOrDefault();
-                            
+
                 if (item != null)
                 {
                     item.completado = completado;
@@ -1262,7 +1629,7 @@ namespace Portal_2_0.Controllers
                     //envía notificacion de solicitud de usuario
                     if (matriz.estatus == IT_MR_Status.EN_PROCESO)
                     {
-                        envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de Usuarios #" + matriz.id + " ha sido actualizada.", envioCorreo.getBody_IT_MR_Notificacion_En_Proceso(matriz));
+                        //envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de Usuarios #" + matriz.id + " ha sido actualizada.", envioCorreo.getBody_IT_MR_Notificacion_En_Proceso(matriz));
                         TempData["Mensaje"] = new MensajesSweetAlert("Se ha actualizado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
                     }
                     else if (matriz.estatus == IT_MR_Status.FINALIZADO)
@@ -1452,17 +1819,17 @@ namespace Portal_2_0.Controllers
 
                 doc.Add(table);
 
-                doc.Add(new Paragraph("3.3- Internet").AddStyle(styleTextoGrisValor));
+                //doc.Add(new Paragraph("3.3- Internet").AddStyle(styleTextoGrisValor));
 
-                float[] cellWidth2 = { 15f, 55f, 30f };
-                table = new Table(UnitValue.CreatePercentArray(cellWidth2)).UseAllAvailableWidth();
-                table.AddCell(new Cell().Add(new Paragraph("Tipo Internet:")).AddStyle(styleTextoNegroBold));
-                table.AddCell(new Cell().Add(new Paragraph(matriz.IT_internet_tipo != null ? matriz.IT_internet_tipo.descripcion : "NO DISPONIBLE")).AddStyle(styleTextoNegroValor));
-                table.AddCell(new Cell().Add(new Paragraph(String.Empty)).SetBorder(Border.NO_BORDER));
+                //float[] cellWidth2 = { 15f, 55f, 30f };
+                //table = new Table(UnitValue.CreatePercentArray(cellWidth2)).UseAllAvailableWidth();
+                //table.AddCell(new Cell().Add(new Paragraph("Tipo Internet:")).AddStyle(styleTextoNegroBold));
+                //table.AddCell(new Cell().Add(new Paragraph(matriz.IT_internet_tipo != null ? matriz.IT_internet_tipo.descripcion : "NO DISPONIBLE")).AddStyle(styleTextoNegroValor));
+                //table.AddCell(new Cell().Add(new Paragraph(String.Empty)).SetBorder(Border.NO_BORDER));
 
-                doc.Add(table);
+                //doc.Add(table);
 
-                doc.Add(new Paragraph("3.4- Comunicaciones").AddStyle(styleTextoGrisValor));
+                doc.Add(new Paragraph("3.3- Comunicaciones").AddStyle(styleTextoGrisValor));
                 table = new Table(UnitValue.CreatePercentArray(cellWidth)).UseAllAvailableWidth();
                 table.AddCell(new Cell().Add(new Paragraph("#")).AddStyle(encabezadoTabla));
                 table.AddCell(new Cell().Add(new Paragraph("Software")).AddStyle(encabezadoTabla));
@@ -1481,7 +1848,7 @@ namespace Portal_2_0.Controllers
 
                 doc.Add(table);
 
-                doc.Add(new Paragraph("3.5- Carpetas en Red").AddStyle(styleTextoGrisValor));
+                doc.Add(new Paragraph("3.4- Carpetas en Red").AddStyle(styleTextoGrisValor));
                 table = new Table(UnitValue.CreatePercentArray(cellWidth)).UseAllAvailableWidth();
                 table.AddCell(new Cell().Add(new Paragraph("#")).AddStyle(encabezadoTabla));
                 table.AddCell(new Cell().Add(new Paragraph("Software")).AddStyle(encabezadoTabla));
@@ -1500,7 +1867,7 @@ namespace Portal_2_0.Controllers
 
                 doc.Add(table);
 
-                doc.Add(new Paragraph("3.6.- Comentarios adicionales").AddStyle(styleTextoGrisValor));
+                doc.Add(new Paragraph("3.5.- Comentarios adicionales").AddStyle(styleTextoGrisValor));
 
                 table = new Table(1).UseAllAvailableWidth();
                 table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(matriz.comentario) ? matriz.comentario : String.Empty).AddStyle(styleTextoNegroRegular)).SetTextAlignment(TextAlignment.JUSTIFIED).SetBorder(Border.NO_BORDER));
@@ -1680,7 +2047,7 @@ namespace Portal_2_0.Controllers
 
             return Json(result, JsonRequestBehavior.AllowGet);
         }
-         ///<summary>
+        ///<summary>
         ///Obtiene las asignaciones más recientes según una matriz de requerimientos
         ///</summary>
         ///<return>
@@ -1692,7 +2059,7 @@ namespace Portal_2_0.Controllers
 
             List<IT_matriz_software> listadoSoftware = new List<IT_matriz_software>();
 
-            if (matriz != null) 
+            if (matriz != null)
                 listadoSoftware = matriz.IT_matriz_software.ToList();
 
 

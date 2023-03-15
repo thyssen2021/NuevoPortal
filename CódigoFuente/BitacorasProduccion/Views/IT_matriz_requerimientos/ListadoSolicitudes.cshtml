@@ -73,12 +73,16 @@
                                             @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
                                             {
                                                 <div class="form-group row ">
+                                                    <label class="control-label col-md-1 col-sm-1" for="estatus" style="text-align:right">Planta:</label>
+                                                    <div class="col-md-2 col-sm-2">
+                                                        @Html.DropDownList("clave_planta", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                    </div>
                                                     <label class="control-label col-md-1 col-sm-1" for="estatus" style="text-align:right">Estatus:</label>
-                                                    <div class="col-md-3 col-sm-3 ">
+                                                    <div class="col-md-2 col-sm-2">
                                                         @Html.DropDownList("estatus", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                                     </div>
                                                     <label class="control-label col-md-1 col-sm-1" for="nombre" style="text-align:right">Empleado:</label>
-                                                    <div class="col-md-3 col-sm-3 ">
+                                                    <div class="col-md-2 col-sm-2">
                                                         <input type="text" id="nombre" name="nombre" class="form-control" value="@nombre" autocomplete="off" />
                                                     </div>
                                                     <div class="col-md-1 col-sm-1">
@@ -277,6 +281,12 @@
                 theme: 'bootstrap4'
             })
 
+            //Envia el formulario cada vez que se modifica el combo
+            $(".select2bs4").change(function () {
+                $("#buscarForm").submit();
+                BloqueaPantalla();
+            });
+
         });
 
         //muestra el modal de autorizar
@@ -287,7 +297,7 @@
 
         //agranda el tamaño de la barra
         window.onload = function () {
-            clicMenu(2); //dos veces para acomodar la tabla
+            clicMenu(1); //dos veces para acomodar la tabla
         }
 
 
