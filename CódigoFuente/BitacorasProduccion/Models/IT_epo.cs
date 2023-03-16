@@ -32,5 +32,6 @@ namespace Portal_2_0.Models
         public string last_communication { get; set; }
         public Nullable<double> total_physical_memory_mb { get; set; }
         public string assigment_path { get; set; }
+        public System.DateTime fecha { get; set; }
     }
 }

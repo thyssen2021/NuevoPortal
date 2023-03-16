@@ -452,6 +452,7 @@
           <Property Name="last_communication" Type="varchar" MaxLength="50" />
           <Property Name="total_physical_memory_mb" Type="float" />
           <Property Name="assigment_path" Type="varchar" MaxLength="150" />
+          <Property Name="fecha" Type="datetime" Nullable="false" />
         </EntityType>
         <EntityType Name="IT_equipos_checklist">
           <Key>
@@ -787,6 +788,7 @@
           <Property Name="name" Type="varchar" MaxLength="200" />
           <Property Name="ip" Type="varchar" MaxLength="100" />
           <Property Name="operating_system" Type="varchar" MaxLength="120" />
+          <Property Name="fecha" Type="datetime" Nullable="false" />
         </EntityType>
         <EntityType Name="log_acceso_email">
           <Key>
@@ -7128,8 +7130,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="budget_cantidad" EntitySet="budget_cantidad" />
           </AssociationSet>
           <EntitySet Name="view_valores_fiscal_year_budget_historico" EntityType="Portal_2_0Model.view_valores_fiscal_year_budget_historico" />
-          <EntitySet Name="IT_epo" EntityType="Portal_2_0Model.IT_epo" />
-          <EntitySet Name="IT_wsus" EntityType="Portal_2_0Model.IT_wsus" />
           <EntitySet Name="empleados" EntityType="Portal_2_0Model.empleados" />
           <AssociationSet Name="FK_empleados_area" Association="Portal_2_0Model.FK_empleados_area">
             <End Role="Area" EntitySet="Area" />
@@ -7323,6 +7323,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="empleados" EntitySet="empleados" />
             <End Role="upgrade_usuarios" EntitySet="upgrade_usuarios" />
           </AssociationSet>
+          <EntitySet Name="IT_epo" EntityType="Portal_2_0Model.IT_epo" />
+          <EntitySet Name="IT_wsus" EntityType="Portal_2_0Model.IT_wsus" />
           </EntityContainer>
         <EntityType Name="GV_usuarios">
           <Key>
@@ -8297,38 +8299,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="Diciembre" Type="Decimal" Precision="38" Scale="2" />
           <Property Name="Comentario" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
         </EntityType>
-        <EntityType Name="IT_epo">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="system_name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="username" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-          <Property Name="operating_system" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-          <Property Name="is_laptop" Type="Boolean" />
-          <Property Name="group_name" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
-          <Property Name="os_type" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
-          <Property Name="mac_address" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="numbers_of_cpus" Type="Int32" />
-          <Property Name="cpu_speed" Type="Int32" />
-          <Property Name="system_manufacturer" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
-          <Property Name="system_model" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="system_serial_number" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="total_disk_space_mb" Type="Int32" />
-          <Property Name="total_c_drive_space_mb" Type="Int32" />
-          <Property Name="last_communication" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="total_physical_memory_mb" Type="Double" />
-          <Property Name="assigment_path" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-        </EntityType>
-        <EntityType Name="IT_wsus">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="name" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-          <Property Name="ip" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="operating_system" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
-        </EntityType>
         <EntityType Name="empleados">
           <Key>
             <PropertyRef Name="id" />
@@ -8984,6 +8954,40 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="IT_epo">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="system_name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="username" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="operating_system" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="is_laptop" Type="Boolean" />
+          <Property Name="group_name" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
+          <Property Name="os_type" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
+          <Property Name="mac_address" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="numbers_of_cpus" Type="Int32" />
+          <Property Name="cpu_speed" Type="Int32" />
+          <Property Name="system_manufacturer" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
+          <Property Name="system_model" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="system_serial_number" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="total_disk_space_mb" Type="Int32" />
+          <Property Name="total_c_drive_space_mb" Type="Int32" />
+          <Property Name="last_communication" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="total_physical_memory_mb" Type="Double" />
+          <Property Name="assigment_path" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="fecha" Type="DateTime" Nullable="false" Precision="3" />
+        </EntityType>
+        <EntityType Name="IT_wsus">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="name" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="ip" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="operating_system" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
+          <Property Name="fecha" Type="DateTime" Nullable="false" Precision="3" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -10546,40 +10550,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="IT_epo">
-            <EntityTypeMapping TypeName="Portal_2_0Model.IT_epo">
-              <MappingFragment StoreEntitySet="IT_epo">
-                <ScalarProperty Name="assigment_path" ColumnName="assigment_path" />
-                <ScalarProperty Name="total_physical_memory_mb" ColumnName="total_physical_memory_mb" />
-                <ScalarProperty Name="last_communication" ColumnName="last_communication" />
-                <ScalarProperty Name="total_c_drive_space_mb" ColumnName="total_c_drive_space_mb" />
-                <ScalarProperty Name="total_disk_space_mb" ColumnName="total_disk_space_mb" />
-                <ScalarProperty Name="system_serial_number" ColumnName="system_serial_number" />
-                <ScalarProperty Name="system_model" ColumnName="system_model" />
-                <ScalarProperty Name="system_manufacturer" ColumnName="system_manufacturer" />
-                <ScalarProperty Name="cpu_speed" ColumnName="cpu_speed" />
-                <ScalarProperty Name="numbers_of_cpus" ColumnName="numbers_of_cpus" />
-                <ScalarProperty Name="mac_address" ColumnName="mac_address" />
-                <ScalarProperty Name="os_type" ColumnName="os_type" />
-                <ScalarProperty Name="group_name" ColumnName="group_name" />
-                <ScalarProperty Name="is_laptop" ColumnName="is_laptop" />
-                <ScalarProperty Name="operating_system" ColumnName="operating_system" />
-                <ScalarProperty Name="username" ColumnName="username" />
-                <ScalarProperty Name="system_name" ColumnName="system_name" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="IT_wsus">
-            <EntityTypeMapping TypeName="Portal_2_0Model.IT_wsus">
-              <MappingFragment StoreEntitySet="IT_wsus">
-                <ScalarProperty Name="operating_system" ColumnName="operating_system" />
-                <ScalarProperty Name="ip" ColumnName="ip" />
-                <ScalarProperty Name="name" ColumnName="name" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="empleados">
             <EntityTypeMapping TypeName="Portal_2_0Model.empleados">
               <MappingFragment StoreEntitySet="empleados">
@@ -10607,6 +10577,42 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
                 <ScalarProperty Name="clave" ColumnName="clave" />
                 <ScalarProperty Name="planta_clave" ColumnName="planta_clave" />
                 <ScalarProperty Name="nueva_fecha_nacimiento" ColumnName="nueva_fecha_nacimiento" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IT_epo">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_epo">
+              <MappingFragment StoreEntitySet="IT_epo">
+                <ScalarProperty Name="fecha" ColumnName="fecha" />
+                <ScalarProperty Name="assigment_path" ColumnName="assigment_path" />
+                <ScalarProperty Name="total_physical_memory_mb" ColumnName="total_physical_memory_mb" />
+                <ScalarProperty Name="last_communication" ColumnName="last_communication" />
+                <ScalarProperty Name="total_c_drive_space_mb" ColumnName="total_c_drive_space_mb" />
+                <ScalarProperty Name="total_disk_space_mb" ColumnName="total_disk_space_mb" />
+                <ScalarProperty Name="system_serial_number" ColumnName="system_serial_number" />
+                <ScalarProperty Name="system_model" ColumnName="system_model" />
+                <ScalarProperty Name="system_manufacturer" ColumnName="system_manufacturer" />
+                <ScalarProperty Name="cpu_speed" ColumnName="cpu_speed" />
+                <ScalarProperty Name="numbers_of_cpus" ColumnName="numbers_of_cpus" />
+                <ScalarProperty Name="mac_address" ColumnName="mac_address" />
+                <ScalarProperty Name="os_type" ColumnName="os_type" />
+                <ScalarProperty Name="group_name" ColumnName="group_name" />
+                <ScalarProperty Name="is_laptop" ColumnName="is_laptop" />
+                <ScalarProperty Name="operating_system" ColumnName="operating_system" />
+                <ScalarProperty Name="username" ColumnName="username" />
+                <ScalarProperty Name="system_name" ColumnName="system_name" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IT_wsus">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_wsus">
+              <MappingFragment StoreEntitySet="IT_wsus">
+                <ScalarProperty Name="fecha" ColumnName="fecha" />
+                <ScalarProperty Name="operating_system" ColumnName="operating_system" />
+                <ScalarProperty Name="ip" ColumnName="ip" />
+                <ScalarProperty Name="name" ColumnName="name" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

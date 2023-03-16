@@ -53,6 +53,7 @@
                         <div class="row">
                             <div class="col-sm-12">
                                 <div>
+                                    <h3>&Uacute;ltima Actualización: @(Model.Count()>0?Model.FirstOrDefault().fecha.ToShortDateString():"NO DISPONIBLE")</h3>
                                     <br />
                                     <a href="@Url.Action("LoadFile", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Cargar">
                                         <i class="fa fa-upload"></i> Cargar EPO
@@ -186,7 +187,7 @@
                                     </table>
 
                                 </div>
-                                
+
                             </div>
 
 

@@ -20,9 +20,16 @@ namespace Portal_2_0.Controllers
 
             List<IT_epo> listado = db.IT_epo.Where(x => !String.IsNullOrEmpty(x.system_name) && !db.IT_inventory_items.Any(y => y.hostname == x.system_name)).ToList();
 
+            String noDisponible = "NO DISPONIBLE";
+            var epo = db.IT_epo.FirstOrDefault();
+            var wsus = db.IT_wsus.FirstOrDefault();
+
+            ViewBag.FechaEPO = epo != null ? epo.fecha.ToShortDateString() : noDisponible;
+            ViewBag.FechaWSUS = wsus != null ? wsus.fecha.ToShortDateString() : noDisponible;
+
             return View(listado);
         }
-       
+
         public ActionResult InventarioNoEpo()
         {
             if (!TieneRol(TipoRoles.IT_INVENTORY))
@@ -36,8 +43,16 @@ namespace Portal_2_0.Controllers
                     || x.id_inventory_type == 14 //virtual server
                     || x.id_inventory_type == 8 //tablet
                     )
-                && x.baja ==false
+                && x.baja == false
                 && !db.IT_epo.Any(y => y.system_name == x.hostname)).ToList();
+
+
+            String noDisponible = "NO DISPONIBLE";
+            var epo = db.IT_epo.FirstOrDefault();
+            var wsus = db.IT_wsus.FirstOrDefault();
+
+            ViewBag.FechaEPO = epo != null ? epo.fecha.ToShortDateString() : noDisponible;
+            ViewBag.FechaWSUS = wsus != null ? wsus.fecha.ToShortDateString() : noDisponible;
 
             return View(listado);
         }
@@ -48,6 +63,14 @@ namespace Portal_2_0.Controllers
             //List<string> hostnames = db.IT_wsus.Select(x=>x.)
 
             List<IT_wsus> listado = db.IT_wsus.Where(x => !String.IsNullOrEmpty(x.name) && !db.IT_inventory_items.Any(y => x.name.Contains(y.hostname))).ToList();
+
+
+            String noDisponible = "NO DISPONIBLE";
+            var epo = db.IT_epo.FirstOrDefault();
+            var wsus = db.IT_wsus.FirstOrDefault();
+
+            ViewBag.FechaEPO = epo != null ? epo.fecha.ToShortDateString() : noDisponible;
+            ViewBag.FechaWSUS = wsus != null ? wsus.fecha.ToShortDateString() : noDisponible;
 
             return View(listado);
         }
@@ -64,8 +87,16 @@ namespace Portal_2_0.Controllers
                     || x.id_inventory_type == 14 //virtual server
                     || x.id_inventory_type == 8 //tablet
                     )
-                && x.baja ==false
+                && x.baja == false
                 && !db.IT_wsus.Any(y => y.name.Contains(x.hostname))).ToList();
+
+
+            String noDisponible = "NO DISPONIBLE";
+            var epo = db.IT_epo.FirstOrDefault();
+            var wsus = db.IT_wsus.FirstOrDefault();
+
+            ViewBag.FechaEPO = epo != null ? epo.fecha.ToShortDateString() : noDisponible;
+            ViewBag.FechaWSUS = wsus != null ? wsus.fecha.ToShortDateString() : noDisponible;
 
             return View(listado);
         }
