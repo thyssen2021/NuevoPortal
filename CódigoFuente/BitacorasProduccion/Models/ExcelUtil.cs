@@ -524,12 +524,12 @@ namespace Portal_2_0.Models
                 row["Fecha Creación"] = item.fecha_creacion;
 
                 //validación area
-                if (item.empleados4 != null)               
-                    row["Validó (área)"] = item.empleados4.ConcatNombre;   
+                if (item.empleados4 != null)
+                    row["Validó (área)"] = item.empleados4.ConcatNombre;
                 else
                     row["Validó (área)"] = DBNull.Value;
 
-                if (item.fecha_validacion.HasValue)               
+                if (item.fecha_validacion.HasValue)
                     row["Fecha Validación"] = item.fecha_validacion;
                 else
                     row["Fecha Validación"] = DBNull.Value;
@@ -539,13 +539,13 @@ namespace Portal_2_0.Models
                     row["Autorizó (doble validación)"] = item.empleados.ConcatNombre;
                 else
                     row["Autorizó (doble validación)"] = DBNull.Value;
-                
+
 
                 if (item.fecha_autorizacion.HasValue)
                     row["Fecha Autorización"] = item.fecha_autorizacion;
                 else
                     row["Fecha Autorización"] = DBNull.Value;
-                
+
 
                 if (item.empleados2 != null && item.fecha_direccion.HasValue)
                 {
@@ -562,13 +562,13 @@ namespace Portal_2_0.Models
                     row["Registró (contabilidad)"] = item.empleados1.ConcatNombre;
                 else
                     row["Registró (contabilidad)"] = DBNull.Value;
-                
 
-                if (item.fecha_registro.HasValue)                
-                    row["Fecha Registro"] = item.fecha_registro;                
-                else               
+
+                if (item.fecha_registro.HasValue)
+                    row["Fecha Registro"] = item.fecha_registro;
+                else
                     row["Fecha Registro"] = DBNull.Value;
-                
+
                 row["Total Debe"] = item.totalDebe;
                 row["Total Haber"] = item.totalHaber;
 
@@ -1656,22 +1656,29 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Fecha de Renovación(fin)", typeof(DateTime));
             dt.Columns.Add("Asignación (Responsable)", typeof(string));
             dt.Columns.Add("Departamento", typeof(string));
+            dt.Columns.Add("Jefe Inmediato", typeof(string));
             dt.Columns.Add("Estado", typeof(string));
 
             ////registros , rows
             foreach (IT_inventory_cellular_line item in listado)
             {
-                string nombreAsignacion = String.Empty, departamentoAsignacion = String.Empty;
+                string nombreAsignacion = String.Empty, departamentoAsignacion = String.Empty, jefeInmediato = string.Empty;
 
                 var asignacion = item.IT_asignacion_hardware.Where(x => x.es_asignacion_linea_actual && x.id_cellular_line == item.id && x.id_responsable_principal == x.id_empleado).FirstOrDefault();
 
                 if (asignacion != null && asignacion.empleados != null)
+                {
                     nombreAsignacion = asignacion.empleados.ConcatNombre;
+                    if (asignacion.empleados.empleados2 != null)
+                        jefeInmediato = asignacion.empleados.empleados2.ConcatNombre;
+
+                }
                 if (asignacion != null && asignacion.empleados != null && asignacion.empleados.Area != null)
                     departamentoAsignacion = asignacion.empleados.Area.descripcion;
 
+
                 dt.Rows.Add(item.plantas.descripcion, item.numero_celular, item.IT_inventory_cellular_plans.nombre_compania, item.IT_inventory_cellular_plans.nombre_plan,
-                    item.fecha_corte, item.fecha_renovacion_inicio, item.fecha_renovacion, nombreAsignacion, departamentoAsignacion, item.activo ? "Activo" : "Inactivo"
+                    item.fecha_corte, item.fecha_renovacion_inicio, item.fecha_renovacion, nombreAsignacion, departamentoAsignacion, jefeInmediato, item.activo ? "Activo" : "Inactivo"
                     );
             }
 
@@ -2697,7 +2704,7 @@ namespace Portal_2_0.Models
             oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
             oSLDocument.SetRowStyle(1, styleHeader);
             oSLDocument.SetRowStyle(1, styleHeaderFont);
-            oSLDocument.SetColumnWidth(18, 12); 
+            oSLDocument.SetColumnWidth(18, 12);
 
             oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
 
@@ -3134,7 +3141,7 @@ namespace Portal_2_0.Models
             //inmoviliza el encabezado
             oSLDocument.FreezePanes(1, 0);
             //aplica formato a las filas de encabezado
-            oSLDocument.SetCellStyle(1, 1,1, dt.Columns.Count, styleHeaderRow);
+            oSLDocument.SetCellStyle(1, 1, 1, dt.Columns.Count, styleHeaderRow);
 
 
 
@@ -3150,7 +3157,7 @@ namespace Portal_2_0.Models
             oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
 
             oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
-            oSLDocument.SetColumnWidth(3,4, 12.0);
+            oSLDocument.SetColumnWidth(3, 4, 12.0);
 
             System.IO.Stream stream = new System.IO.MemoryStream();
 

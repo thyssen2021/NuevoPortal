@@ -158,6 +158,9 @@
                                                 <th>
                                                     Departamento
                                                 </th>
+                                                 <th>
+                                                    Jefe Inmediato
+                                                </th>
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.activo)
                                                 </th>
@@ -171,10 +174,10 @@
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.plantas.descripcion)
                                                     </td>
-                                                    <td>
+                                                    <td nowrap>
                                                         @item.GetPhoneNumberFormat
                                                     </td>
-                                                    <td>
+                                                    <td nowrap>
                                                         @Html.DisplayFor(modelItem => item.IT_inventory_cellular_plans.nombre_plan)
                                                     </td>
                                                     <td nowrap>
@@ -188,7 +191,7 @@
                                                     </td>
                                                     @{ var asignacion = item.IT_asignacion_hardware.Where(x => x.es_asignacion_linea_actual && x.es_asignacion_actual && x.id_cellular_line == item.id && x.id_responsable_principal == x.id_empleado).FirstOrDefault();}
 
-                                                    <td nowrap>
+                                                    <td>
                                                         @foreach (var a in item.IT_asignacion_hardware.Where(x => x.es_asignacion_linea_actual && x.es_asignacion_actual && x.id_cellular_line == item.id && x.id_responsable_principal == x.id_empleado))
                                                         {
                                                             @Html.DisplayFor(model => a.empleados.ConcatNombre)<br />
@@ -198,6 +201,16 @@
                                                         @if (asignacion != null)
                                                         {
                                                             @Html.DisplayFor(model => asignacion.empleados.Area.descripcion)
+                                                        }
+                                                        else
+                                                        {
+                                                            @("---")
+                                                        }
+                                                    </td>
+                                                    <td >
+                                                        @if (asignacion != null)
+                                                        {
+                                                            @Html.DisplayFor(model => asignacion.empleados.empleados2.ConcatNombre)
                                                         }
                                                         else
                                                         {
@@ -307,7 +320,7 @@
 
         //agranda el tamaño de la barra
         window.onload = function () {
-            clicMenu(2);
+            clicMenu(1);
         }
 
 
