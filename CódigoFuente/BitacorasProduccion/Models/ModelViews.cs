@@ -52,4 +52,32 @@ namespace Portal_2_0.Models
 
         
     }
+
+    /// <summary>
+    /// Modelo para el cambio de Jefe Directo
+    /// </summary>
+    public class CambioJefeViewModel
+    {
+
+        public CambioJefeViewModel()
+        {
+            this.subordinados = new List<int>();
+        }
+
+        [Required]
+        [Display(Name = "Jefe Actual")]
+        public int id_jefe_actual { get; set; }
+
+        [Required]
+        [Display(Name = "Nuevo Jefe")]
+        public int id_nuevo_jefe { get; set; }
+
+        public List<int> subordinados;
+
+
+        public empleados JefeActual;
+        public empleados Nuevo;
+
+
+    }
 }

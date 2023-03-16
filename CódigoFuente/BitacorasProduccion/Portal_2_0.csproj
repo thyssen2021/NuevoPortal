@@ -5456,6 +5456,9 @@
     <Content Include="Content\vendors\morris.js\spec\viz\exemplary\stacked_bar0.png" />
     <Content Include="Content\vendors\morris.js\spec\viz\test.html" />
     <Content Include="Content\vendors\morris.js\spec\viz\visual_specs.js" />
+    <Content Include="Content\vendors\multiselect\doublearrow.png" />
+    <Content Include="Content\vendors\multiselect\jquery.lwMultiSelect.css" />
+    <Content Include="Content\vendors\multiselect\jquery.lwMultiSelect.js" />
     <Content Include="Content\vendors\normalize-css\.gitignore" />
     <Content Include="Content\vendors\normalize-css\normalize.css" />
     <Content Include="Content\vendors\nprogress\index.html" />
@@ -6741,6 +6744,8 @@
     <Content Include="Models\NuevoPortalModel.edmx.diagram">
       <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
     </Content>
+    <Content Include="Content\vendors\multiselect\lwMultiSelect.jquery.json" />
+    <Content Include="Content\vendors\multiselect\_config.yml" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
     <Content Include="Scripts\jquery-3.4.1.min.js" />
@@ -7307,6 +7312,7 @@
     <Content Include="Views\IT_epo_wsus_reporte\WsusNoInventario.cshtml" />
     <Content Include="Views\IT_epo_wsus_reporte\InventarioNoWsus.cshtml" />
     <Content Include="Views\IT_matriz_requerimientos\IniciarMatriz.cshtml" />
+    <Content Include="Views\empleados\CambioJefe.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

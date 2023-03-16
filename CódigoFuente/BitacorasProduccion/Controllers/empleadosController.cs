@@ -33,6 +33,9 @@ namespace Portal_2_0.Controllers
             var listado = db.empleados
                    .OrderBy(x => x.id).ToList();
 
+
+            ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados, nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)),
+                    textoPorDefecto: "-- Seleccione un valor --");
             return View(listado);
 
         }
@@ -78,6 +81,61 @@ namespace Portal_2_0.Controllers
             }
 
         }
+
+        // GET: empleados/CambioJefe
+        public ActionResult CambioJefe(int? id_jefe_directo)
+        {
+            if (!TieneRol(TipoRoles.RH))
+                return View("../Home/ErrorPermisos");
+            if (id_jefe_directo == null)
+                return View("../Error/BadRequest");
+
+            var jefe = db.empleados.Find(id_jefe_directo);
+
+            //crea modelo
+            CambioJefeViewModel model = new CambioJefeViewModel
+            {
+                id_jefe_actual = id_jefe_directo.Value,                
+                JefeActual = jefe
+            };
+
+            ViewBag.id_nuevo_jefe = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true), nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)),
+                    textoPorDefecto: "-- Seleccione un valor --");
+            ViewBag.subordinados = jefe.empleados1.ToList();
+
+            return View(model);
+
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CambioJefe(CambioJefeViewModel model, int[] subordinados)
+        {
+
+            if (subordinados.Length == 0) {
+                ModelState.AddModelError("", "No se seleccionaron empleados.");
+            }
+
+            if (ModelState.IsValid)
+            {
+               //realiza cambios en la BD
+
+               // db.SaveChanges();
+                TempData["Mensaje"] = new MensajesSweetAlert("Se actualizó el jefe directo correctamente", TipoMensajesSweetAlerts.SUCCESS);
+                return RedirectToAction("Index");
+
+            }
+
+            var jefe = db.empleados.Find(model.id_jefe_actual);
+            model.JefeActual = jefe;
+
+            ViewBag.id_nuevo_jefe = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true), nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)),
+                     textoPorDefecto: "-- Seleccione un valor --");
+            ViewBag.subordinados = jefe.empleados1.ToList();
+
+            return View(model);
+        }
+
 
         // POST: empleados/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
