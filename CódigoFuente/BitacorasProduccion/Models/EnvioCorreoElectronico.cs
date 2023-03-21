@@ -1131,7 +1131,7 @@ namespace Portal_2_0.Models
 
             //reemplaza los valores en la plantilla
             body = body.Replace("#TITULO", "¡Se ha dado de baja al empleado " + empleado.ConcatNombre + "!");
-            body = body.Replace("#SUBTITULO", "RH ha dado de baja al empleado " + empleado.ConcatNombre + ". Para ver los detalles de las asignaciones actuales del empleado, dar clic en el siguiente enlace."); //elaborador
+            body = body.Replace("#SUBTITULO", "Recurso Humanos ha dado de baja al empleado " + empleado.ConcatNombre + " y ha solicitado su baja en las distintas plataformas. Para ver los detalles de las asignaciones actuales del empleado, haga clic en el siguiente enlace."); //elaborador
             body = body.Replace("#TABLA_CONTENIDO", tablaContenido);
             body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
             body = body.Replace("#ENLACE", domainName + "/it_asignacion_hardware/DetailsEmpleado/" + empleado.id);

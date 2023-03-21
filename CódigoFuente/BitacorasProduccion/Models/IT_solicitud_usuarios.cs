@@ -30,7 +30,7 @@ namespace Portal_2_0.Models
         public string comentario { get; set; }
         public string estatus { get; set; }
     
-        public virtual plantas plantas { get; set; }
         public virtual empleados empleados { get; set; }
+        public virtual plantas plantas { get; set; }
     }
 }

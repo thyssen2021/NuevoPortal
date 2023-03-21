@@ -75,7 +75,7 @@ namespace Portal_2_0.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "clave,descripcion,activo,codigoSap")] plantas plantas)
+        public ActionResult Create( plantas plantas)
         {
             if (ModelState.IsValid)
             {
@@ -118,7 +118,7 @@ namespace Portal_2_0.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "clave,descripcion,activo,codigoSap")] plantas plantas)
+        public ActionResult Edit(plantas plantas)
         {
             if (ModelState.IsValid)
             {

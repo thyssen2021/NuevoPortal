@@ -61,7 +61,7 @@ namespace Portal_2_0.Models
 
         public CambioJefeViewModel()
         {
-            this.subordinados = new List<int>();
+            
         }
 
         [Required]
@@ -72,9 +72,7 @@ namespace Portal_2_0.Models
         [Display(Name = "Nuevo Jefe")]
         public int id_nuevo_jefe { get; set; }
 
-        public List<int> subordinados;
-
-
+        
         public empleados JefeActual;
         public empleados Nuevo;
 

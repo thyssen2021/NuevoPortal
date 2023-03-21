@@ -1,11 +1,13 @@
 ﻿@model Portal_2_0.Models.empleados
 
-
 @{
     ViewBag.Title = "Editar Empleado";
     ViewBag.PrimerNivel = "recursos_humanos";
     ViewBag.SegundoNivel = "empleados";
     ViewBag.ControllerName = "Empleados";
+
+
+    List<Portal_2_0.Models.empleados> TotalEmpleados = (List<Portal_2_0.Models.empleados>)ViewBag.TotalEmpleados;
 
 }
 
@@ -16,6 +18,9 @@
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
     <!-- iCheck -->
     <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/green.css")" rel="stylesheet">
+    <link href="~/Content/vendors/multiselect_filter/bootstrap-duallistbox.css" rel="stylesheet" />
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
     <style>
         .profile-picture {
             width: 350px;
@@ -176,7 +181,25 @@
                                     @Html.ValidationMessageFor(model => model.puesto, "", new { @class = "text-danger" })
                                 </div>
                             </div>
+                            <div class="ln_solid"></div>
 
+                            <div class="form-group row">
+                                <span style="color:black"><b>SUBORDINADOS DIRECTOS</b></span>
+                            </div>
+                            <div class="item form-group">
+                                <div class="col-md-12 col-sm-12">
+                                    <select multiple="multiple" size="10" id="subordinados" name="subordinados">
+                                        @foreach (var item in TotalEmpleados)
+                                        {
+                                            <option value="@item.id" @(Model.empleados1.Contains(item) ? "selected" : String.Empty) )>
+                                                @(item.ConcatNumEmpleadoNombrePlanta)
+                                            </option>
+
+                                        }
+                                    </select>
+                                </div>
+
+                            </div>
                             <div class="ln_solid"></div>
 
                             <div class="form-group row">
@@ -243,10 +266,11 @@
 
                             </div>
 
+
                             <div class="ln_solid"></div>
                             <div class="item form-group">
                                 <div class="col-md-12 col-sm-12 ">
-                                    <button type="submit" class="btn btn-success btn-lg float-right"><i class="fa-regular fa-floppy-disk"></i> Guardar</button>
+                                    <button type="button" id="btn-ok" class="btn btn-success btn-lg float-right"><i class="fa-regular fa-floppy-disk"></i> Guardar</button>
                                 </div>
                             </div>
                         }
@@ -269,7 +293,10 @@
     @Scripts.Render(Url.Content("~/Scripts/Forms/empleados.js?" + DateTime.Now))
     <!-- iCheck -->
     @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
     <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+    <script src="~/Content/vendors/multiselect_filter/jquery.bootstrap-duallistbox.js"></script>
     <script>
 
         $(document).ready(function () {
@@ -278,7 +305,59 @@
                 radioClass: 'iradio_square-green',
                 increaseArea: '20%' // optional
             });
+
+            var demo1 = $('[name=subordinados]').bootstrapDualListbox({
+                nonSelectedListLabel: 'Todos los Empleados',
+                selectedListLabel: 'Empleados Seleccionados',
+                filterTextClear: 'Mostrar todo',
+                filterPlaceHolder: 'Nombre',
+                moveSelectedLabel: 'Mover Seleccionados',
+                moveAllLabel: 'Mover Todo',
+                removeSelectedLabel: 'Quitar Seleccionados',
+                removeAllLabel: 'Quitar Todos',
+                moveOnSelect: false,
+            });
+            //elimina botones del DualList
+            CustomizeDuallistbox('subordinados');
+
+            //maneja el envió el del formulario
+            $('form #btn-ok').click(function (e) {
+                let $form = $(this).closest('form');
+
+                const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: 'btn btn-success',
+                        cancelButton: 'btn btn-danger'
+                    },
+                    buttonsStyling: false,
+                })
+
+                swalWithBootstrapButtons.fire({
+                    title: '¿Desea Continuar?',
+                    html: "Se guardarán los cambios.",
+                    showCancelButton: true,
+                    confirmButtonText: 'Aceptar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.value) {
+                        //espera a que se cierre el modal para enviar el formulario
+                        setTimeout(function () {
+                            $form.submit();
+                        }, 900);
+                    }
+                });
+
+
+            });
+
         });
+
+        //elimina los botones del multiselect
+        function CustomizeDuallistbox(listboxID) {
+            var customSettings = $('#' + listboxID).bootstrapDualListbox('getContainer');
+            customSettings.find('.btn-group.buttons').remove();
+        }
+
         window.onload = function () {
             clicMenu(1);
         }

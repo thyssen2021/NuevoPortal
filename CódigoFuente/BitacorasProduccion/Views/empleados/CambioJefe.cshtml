@@ -12,8 +12,10 @@
 {
     <!-- Select2 -->
     <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
-    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css?date?="+DateTime.Now)" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css?date?=")" rel="stylesheet">
     <link href="~/Content/vendors/multiselect/jquery.lwMultiSelect.css" rel="stylesheet" />
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
 }
 <div class="right_col" role="main">
     <div class="">
@@ -81,7 +83,7 @@
                         <div class="ln_solid"></div>
                         <div class="item form-group">
                             <div class="col-md-12 col-sm-12 ">
-                                <button type="submit" class="btn btn-success btn-lg float-right"><i class="fa-regular fa-floppy-disk"></i> Guardar</button>
+                                <button type="button" id="btn-ok" class="btn btn-success btn-lg float-right"><i class="fa-regular fa-floppy-disk"></i> Guardar</button>
                             </div>
                         </div>
                         <div class="item form-group">
@@ -103,8 +105,10 @@
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
-    <script src="~/Content/vendors/multiselect/jquery.lwMultiSelect.js"></script>
-    <script>
+    <script src="~/Content/vendors/multiselect/jquery.lwMultiSelect.js?date=@DateTime.Now"></script>
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+<script>
 
         $(document).ready(function () {
             // Initialize Select2 Elements (debe ir después de asignar el valor)
@@ -113,6 +117,48 @@
             })
 
             jQuery('#subordinados').lwMultiSelect();
+
+            //maneja el envió el del formulario
+            $('form #btn-ok').click(function (e) {
+                let $form = $(this).closest('form');
+
+                const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: 'btn btn-success',
+                        cancelButton: 'btn btn-danger'
+                    },
+                    buttonsStyling: false,
+                })
+
+
+                var nombreNuevoJefe = $('#@Html.IdFor(model => model.id_nuevo_jefe) option:selected').text();
+
+                if ($('#@Html.IdFor(model => model.id_nuevo_jefe)').val()=='') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Mensaje',
+                        text: 'Seleccione el nombre del nuevo jefe directo.',
+                        confirmButtonText: 'Aceptar',
+                    })
+                } else {
+                    swalWithBootstrapButtons.fire({
+                        title: '¿Desea Continuar?',
+                        html: "Se asignará a " + nombreNuevoJefe + " como jefe directo de los usuarios seleccionados.",
+                        showCancelButton: true,
+                        confirmButtonText: 'Aceptar',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.value) {
+                            //espera a que se cierre el modal para enviar el formulario
+                            setTimeout(function () {
+                                $form.submit();
+                            }, 900);
+                        }
+                    });
+                }
+
+            });
+
         });
 
 
@@ -121,5 +167,5 @@
             clicMenu(1);
         }
 
-    </script>
+</script>
 }

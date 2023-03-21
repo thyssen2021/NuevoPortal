@@ -128,6 +128,20 @@ namespace Portal_2_0.Models
                     return string.Format("({0}) {1} {2} {3}", numeroEmpleado, nombre, apellido1, apellido2).ToUpper();
             }
         }
+          //concatena el número de empleado con el nombre
+        [NotMapped]
+        public string ConcatNumEmpleadoNombrePlanta
+        {
+            get
+            {
+                if (String.IsNullOrEmpty(this.numeroEmpleado))
+                    return string.Format("{0} {1} {2}", nombre, apellido1, apellido2).ToUpper();
+                else
+                    return string.Format("({4} - {5}) {0} - {1} {2} {3}", numeroEmpleado, nombre, apellido1, apellido2,
+                        (plantas != null ? plantas.descripcion : String.Empty), (Area != null ? Area.descripcion : String.Empty)
+                        ).ToUpper();
+            }
+        }
 
         /// <summary>
         /// Obtiene todas las lineas activas para un empleado según sus asignaciones

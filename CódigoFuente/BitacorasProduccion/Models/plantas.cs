@@ -18,6 +18,7 @@ namespace Portal_2_0.Models
         public plantas()
         {
             this.Area = new HashSet<Area>();
+            this.empleados = new HashSet<empleados>();
             this.IATF_documentos = new HashSet<IATF_documentos>();
             this.IT_inventory_cellular_line = new HashSet<IT_inventory_cellular_line>();
             this.IT_inventory_items = new HashSet<IT_inventory_items>();
@@ -29,16 +30,25 @@ namespace Portal_2_0.Models
             this.produccion_registros = new HashSet<produccion_registros>();
             this.produccion_supervisores = new HashSet<produccion_supervisores>();
             this.produccion_turnos = new HashSet<produccion_turnos>();
-            this.empleados = new HashSet<empleados>();
         }
     
         public int clave { get; set; }
         public string descripcion { get; set; }
         public bool activo { get; set; }
         public string codigoSap { get; set; }
+        public string tkorgstreet { get; set; }
+        public string tkorgpostalcode { get; set; }
+        public string tkorgpostaladdress { get; set; }
+        public string tkorgaddonaddr { get; set; }
+        public string tkorgfedst { get; set; }
+        public string tkorgcountry { get; set; }
+        public string tkorgcountrykey { get; set; }
+        public string tkapsite { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Area> Area { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<empleados> empleados { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IATF_documentos> IATF_documentos { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -61,7 +71,5 @@ namespace Portal_2_0.Models
         public virtual ICollection<produccion_supervisores> produccion_supervisores { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<produccion_turnos> produccion_turnos { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<empleados> empleados { get; set; }
     }
 }

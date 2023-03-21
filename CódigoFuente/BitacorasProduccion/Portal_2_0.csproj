@@ -5459,6 +5459,8 @@
     <Content Include="Content\vendors\multiselect\doublearrow.png" />
     <Content Include="Content\vendors\multiselect\jquery.lwMultiSelect.css" />
     <Content Include="Content\vendors\multiselect\jquery.lwMultiSelect.js" />
+    <Content Include="Content\vendors\multiselect_filter\bootstrap-duallistbox.css" />
+    <Content Include="Content\vendors\multiselect_filter\jquery.bootstrap-duallistbox.js" />
     <Content Include="Content\vendors\normalize-css\.gitignore" />
     <Content Include="Content\vendors\normalize-css\normalize.css" />
     <Content Include="Content\vendors\nprogress\index.html" />
@@ -5466,6 +5468,11 @@
     <Content Include="Content\vendors\nprogress\nprogress.js" />
     <Content Include="Content\vendors\nprogress\support\extras.css" />
     <Content Include="Content\vendors\nprogress\support\style.css" />
+    <Content Include="Content\vendors\OrgChart\css\jquery.orgchart.css" />
+    <Content Include="Content\vendors\OrgChart\css\style.css" />
+    <Content Include="Content\vendors\OrgChart\js\html2canvas.js" />
+    <Content Include="Content\vendors\OrgChart\js\jquery.orgchart.js" />
+    <Content Include="Content\vendors\OrgChart\js\jspdf.umd.js" />
     <Content Include="Content\vendors\parsleyjs\bower_components\bootstrap\dist\css\bootstrap-theme.css" />
     <Content Include="Content\vendors\parsleyjs\bower_components\bootstrap\dist\css\bootstrap-theme.min.css" />
     <Content Include="Content\vendors\parsleyjs\bower_components\bootstrap\dist\css\bootstrap.css" />
@@ -7313,6 +7320,7 @@
     <Content Include="Views\IT_epo_wsus_reporte\InventarioNoWsus.cshtml" />
     <Content Include="Views\IT_matriz_requerimientos\IniciarMatriz.cshtml" />
     <Content Include="Views\empleados\CambioJefe.cshtml" />
+    <Content Include="Views\empleados\Organigrama.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

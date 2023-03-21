@@ -5,6 +5,8 @@
     ViewBag.PrimerNivel = "recursos_humanos";
     ViewBag.SegundoNivel = "empleados";
     ViewBag.ControllerName = "Empleados";
+
+    List<Portal_2_0.Models.empleados> subordinados = (List<Portal_2_0.Models.empleados>)ViewBag.subordinados;
 }
 
 
@@ -14,7 +16,11 @@
     <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
     <!-- iCheck -->
     <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/green.css")" rel="stylesheet">
-
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css?date?=")" rel="stylesheet">
+    <!-- Multiselect -->
+    <link href="~/Content/vendors/multiselect/jquery.lwMultiSelect.css" rel="stylesheet" />
     <style>
         .profile-picture {
             width: 300px;
@@ -160,22 +166,23 @@
                                     </div>
                                 }
                             </div>
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>INFORMACI&Oacute;N DE BAJA DE EMPLEADO</b></span>
+                            </div>
                             <div class="col-md-12">
-                                <div class="ln_solid"></div>
-                                <div class="form-group row">
-                                    <span style="color:black"><b>INFORMACI&Oacute;N DE BAJA DE EMPLEADO</b></span>
-                                </div>
+
                                 <div class="item form-group">
-                                    @Html.LabelFor(model => model.bajaFecha, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                    @Html.LabelFor(model => model.bajaFecha, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
                                     <div class="col-md-4 col-sm-4 ">
                                         @Html.EditorFor(model => model.bajaFecha, new { htmlAttributes = new { @class = "form-control", @required = "required" } })
                                         @Html.ValidationMessageFor(model => model.bajaFecha, "", new { @class = "text-danger" })
                                     </div>
                                 </div>
                                 <div class="item form-group">
-                                    <label for="notificacion_it" class="col-form-label col-md-3 col-sm-3 label-align"> Enviar notificaci&oacute;n a IT</label>
+                                    <label for="notificacion_it" class="col-form-label col-md-2 col-sm-2 label-align"> Enviar notificaci&oacute;n a IT</label>
                                     <div class="col-md-1 col-sm-1 ">
-                                        <input type="checkbox" id="notificacion_it" name="notificacion_it">
+                                        <input type="checkbox" id="notificacion_it" name="notificacion_it" checked>
                                     </div>
                                     <div class="col-md-1 col-sm-1 " style="color:white">
                                         <a class="btn btn-info btn-sm" id="info-it" title="Info">
@@ -187,7 +194,46 @@
                             <div class="col-md-12">
                                 <div class="ln_solid"></div>
                             </div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>CAMBIO DE JEFE DIRECTO</b></span>
+                            </div>
+                            <div class="item form-group">
+                                <!--id jefe directo -->
+                                <label class="col-form-label col-md-1 col-sm-1 label-align">JefeActual</label>
+                                <div class="col-md-4 col-sm-4">
+                                    <input type="text" class="form-control" value="@Html.DisplayFor(model => model.ConcatNumEmpleadoNombre)" readonly />
+                                </div>
+                                <div class="col-md-2 col-sm-2" style="text-align:center">
+                                    <i class="fa-solid fa-right-left label-align" style="font-size:larger"></i>
+                                </div>
+                                <label class="col-form-label col-md-1 col-sm-1 label-align" for="id_nuevo_jefe">Nuevo Jefe</label>
+                                <div class="col-md-4 col-sm-4">
+                                    @Html.DropDownList("id_nuevo_jefe", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    <span class="field-validation-valid text-danger" data-valmsg-for="id_nuevo_jefe" data-valmsg-replace="true"></span>
+                                    <span id="msj-val-jefe-directo" class="field-validation-valid text-danger" style="display:none">Este campo es obligatorio</span>
+                                </div>
+                            </div>
 
+                            <div class="item form-group">
+                                <div class="col-md-12 col-sm-12" style="text-align:center">
+                                    <select class="form-control" name="subordinados" id="subordinados" multiple="multiple">
+                                        @foreach (var empleado in subordinados)
+                                        {
+                                            <option value="@empleado.id">
+                                                @(" <i>Planta:</i> " + (empleado.plantas!=null? empleado.plantas.descripcion:String.Empty)
+                                            + " <i>&nbsp;&nbsp;&nbsp;Departamento:</i> " + (empleado.Area != null ? empleado.Area.descripcion : String.Empty)
+                                            + " <br/><i>Nombre:</i><b>" + empleado.ConcatNumEmpleadoNombre+"</b>")
+                                            </option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                <div class="col-md-12 col-sm-12 offset-7" >
+                                    <span id="msj-val-subordinados" class="field-validation-valid text-danger" style="display:none">Este campo es obligatorio</span>
+                                </div>
+                            </div>
+                            <div class="ln_solid"></div>
                             <div class="col-md-12">
                                 <p class="float-md-left">
                                     <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = Model.id })" class="btn btn-success btm-sm" title="Editar">
@@ -220,6 +266,8 @@
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
     <!-- SweetAlert2 -->
     @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <script src="~/Content/vendors/multiselect/jquery.lwMultiSelect.js?date=@DateTime.Now"></script>
 
     <script>
         $(document).ready(function () {
@@ -230,6 +278,11 @@
                 increaseArea: '20%' // optional
             });
 
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
             //muestra info de IT
             $('#info-it').click(function (e) {
                 Swal.fire(
@@ -238,6 +291,9 @@
                     'info'
                 )
             });
+
+            jQuery('#subordinados').lwMultiSelect();
+
 
             //maneja el envió el del formulario
             $('form #btn-ok').click(function (e) {
@@ -251,21 +307,46 @@
                     buttonsStyling: false,
                 })
 
-                swalWithBootstrapButtons.fire({
-                    title: '¿Desea Continuar?',
-                    html: "Advertencia: Se dará de baja al empleado en el sistema.",
-                    showCancelButton: true,
-                    confirmButtonText: 'Aceptar',
-                    cancelButtonText: 'Cancelar'
-                }).then((result) => {
-                    if (result.value) {
-                        //espera a que se cierre el modal para enviar el formulario
-                        setTimeout(function () {
-                            $form.submit();
-                        }, 600);
-                    }
-                });
+                var nombreNuevoJefe = $('#id_nuevo_jefe option:selected').text();
+                var subordinados = $('#subordinados').val();
 
+                console.log(subordinados);
+
+                if ($('#id_nuevo_jefe').val() == '' && subordinados != null) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Mensaje',
+                        text: 'Seleccione el nombre del nuevo Jefe Directo.',
+                        confirmButtonText: 'Aceptar',
+                    })
+                    $('#msj-val-jefe-directo').show();
+                } else if ($('#id_nuevo_jefe').val() != '' && subordinados == null) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Mensaje',
+                        text: 'No se seleccionaron empleados para el cambio de Jefe Directo.',
+                        confirmButtonText: 'Aceptar',
+                    })
+                    $('#msj-val-subordinados').show();
+                }
+                else {
+                    $('#msj-val-jefe-directo').hide();
+                    $('#msj-val-subordinados').hide();
+                    swalWithBootstrapButtons.fire({
+                        title: '¿Desea Continuar?',
+                        html: "Advertencia: Se dará de baja al empleado en el sistema.",
+                        showCancelButton: true,
+                        confirmButtonText: 'Aceptar',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.value) {
+                            //espera a que se cierre el modal para enviar el formulario
+                            setTimeout(function () {
+                                $form.submit();
+                            }, 600);
+                        }
+                    });
+                }
             });
         });
 

@@ -96,7 +96,6 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<empleados> empleados1 { get; set; }
         public virtual empleados empleados2 { get; set; }
-        public virtual plantas plantas { get; set; }
         public virtual puesto puesto1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_equipos_checklist> IT_equipos_checklist { get; set; }
@@ -182,5 +181,6 @@ namespace Portal_2_0.Models
         public virtual ICollection<IT_site_checklist> IT_site_checklist { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<upgrade_usuarios> upgrade_usuarios { get; set; }
+        public virtual plantas plantas { get; set; }
     }
 }

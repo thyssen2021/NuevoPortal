@@ -6,6 +6,8 @@
     ViewBag.SegundoNivel = "empleados";
     ViewBag.ControllerName = "Empleados";
 
+    List<Portal_2_0.Models.empleados> TotalEmpleados = (List<Portal_2_0.Models.empleados>)ViewBag.TotalEmpleados;
+    List<int> subordinadosSeleccionados = (List<int>)ViewBag.SubordinadosSeleccionados;
 }
 
 @section estilos
@@ -15,6 +17,7 @@
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
     <!-- iCheck -->
     <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/green.css")" rel="stylesheet">
+    <link href="~/Content/vendors/multiselect_filter/bootstrap-duallistbox.css" rel="stylesheet" />
 }
 
 @*Valores enviados previamente*@
@@ -160,6 +163,24 @@
                             <div class="ln_solid"></div>
 
                             <div class="form-group row">
+                                <span style="color:black"><b>SUBORDINADOS DIRECTOS</b></span>
+                            </div>
+                            <div class="item form-group">
+                                <div class="col-md-12 col-sm-12">
+                                    <select multiple="multiple" size="10" id="subordinados" name="subordinados">
+                                        @foreach (var item in TotalEmpleados)
+                                        {
+                                            <option value="@item.id" @(subordinadosSeleccionados.Contains(item.id) ? "selected" : String.Empty) )>
+                                                @(item.ConcatNumEmpleadoNombrePlanta)
+                                            </option>
+                                        }
+                                    </select>
+                                </div>
+
+                            </div>
+                            <div class="ln_solid"></div>
+
+                            <div class="form-group row">
                                 <span style="color:black"><b>FOTOGRAF&Iacute;A</b></span>
                             </div>
 
@@ -177,7 +198,7 @@
                             </div>
                             <!-- La imagen que vamos a usar para previsualizar lo que el usuario selecciona -->
                             <div class="item form-group">
-                                <div class="col-md-1 col-sm-1">                                    
+                                <div class="col-md-1 col-sm-1">
                                 </div>
                                 <div id="div-img-container" class="item form-group">
                                     <img id="imagenPrevisualizacion">
@@ -213,6 +234,7 @@
     <!-- iCheck -->
     @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
     <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+    <script src="~/Content/vendors/multiselect_filter/jquery.bootstrap-duallistbox.js"></script>
     <script>
 
         $(document).ready(function () {
@@ -221,7 +243,29 @@
                 radioClass: 'iradio_square-green',
                 increaseArea: '20%' // optional
             });
+
+            var demo1 = $('[name=subordinados]').bootstrapDualListbox({
+                nonSelectedListLabel: 'Todos los Empleados',
+                selectedListLabel: 'Empleados Seleccionados',
+                filterTextClear: 'Mostrar todo',
+                filterPlaceHolder: 'Nombre',
+                moveSelectedLabel: 'Mover Seleccionados',
+                moveAllLabel: 'Mover Todo',
+                removeSelectedLabel: 'Quitar Seleccionados',
+                removeAllLabel: 'Quitar Todos',
+                moveOnSelect: false,
+            });
+            //elimina botones del DualList
+            CustomizeDuallistbox('subordinados');
+
         });
+
+        //elimina los botones del multiselect
+        function CustomizeDuallistbox(listboxID) {
+            var customSettings = $('#' + listboxID).bootstrapDualListbox('getContainer');
+            customSettings.find('.btn-group.buttons').remove();
+        }
+
         window.onload = function () {
             clicMenu(1);
         }

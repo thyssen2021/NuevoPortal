@@ -52,6 +52,64 @@
                                     @Html.ValidationMessageFor(model => model.codigoSap, "", new { @class = "text-danger" })
                                 </div>
                             </div>
+                            <hr />
+                            <h4>Datos de tknet</h4>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.tkorgstreet, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.EditorFor(m => m.tkorgstreet, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.tkorgstreet, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                           <div class="item form-group">
+                                @Html.LabelFor(model => model.tkorgpostalcode, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.EditorFor(m => m.tkorgpostalcode, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.tkorgpostalcode, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.tkorgpostaladdress, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.EditorFor(m => m.tkorgpostaladdress, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.tkorgpostaladdress, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.tkorgaddonaddr, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.EditorFor(m => m.tkorgaddonaddr, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.tkorgaddonaddr, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.tkorgfedst, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.EditorFor(m => m.tkorgfedst, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.tkorgfedst, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                             <div class="item form-group">
+                                @Html.LabelFor(model => model.tkorgcountry, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.EditorFor(m => m.tkorgcountry, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.tkorgcountry, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.tkorgcountrykey, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.EditorFor(m => m.tkorgcountrykey, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.tkorgcountrykey, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.tkapsite, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.EditorFor(m => m.tkapsite, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.tkapsite, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
                             <div class="ln_solid"></div>
                             <div class="item form-group">
                                 <div class="col-md-6 col-sm-6 offset-md-3">

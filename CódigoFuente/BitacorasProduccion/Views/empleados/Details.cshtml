@@ -52,7 +52,7 @@
                             </div>
                             @Html.LabelFor(model => model.C8ID, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                             <div class="col-md-1 col-sm-1">
-                                @Html.EditorFor(model => model.C8ID, new { htmlAttributes = new { @class = "form-control",@readonly = "readonly" } })
+                                @Html.EditorFor(model => model.C8ID, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                             </div>
                         </div>
 
@@ -124,6 +124,56 @@
                                 <input type="text" class="form-control" value="@Html.DisplayFor(model => model.puesto1.descripcion)" readonly />
                             </div>
                         </div>
+                        <div class="ln_solid"></div>
+                        <div class="form-group row">
+                            <span style="color:black"><b>SUBORDINADOS DIRECTOS</b></span>
+                        </div>
+                        <table id="s" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.planta_clave)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.id_area)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.puesto)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.numeroEmpleado)
+                                    </th>
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.nombre)
+                                    </th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.empleados1.OrderBy(x => x.planta_clave))
+                                {
+                                    <tr>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.plantas.descripcion)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Area.descripcion)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.puesto1.descripcion)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.numeroEmpleado)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.ConcatNombre)
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+
                         <div class="ln_solid"></div>
                         <div class="form-group row">
                             <span style="color:black"><b>FOTOGRAF&Iacute;A</b></span>

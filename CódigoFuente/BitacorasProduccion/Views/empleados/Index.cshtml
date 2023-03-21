@@ -85,8 +85,12 @@
                                             Crear nuevo
                                         </a>
                                         <a onclick="mostrarModalJefe()" class="btn btn-info" style="color:white">
-                                            <i class="fa-solid fa-sitemap"></i>
+                                            <i class="fa-solid fa-right-left"></i>
                                             Cambio de Jefe
+                                        </a> 
+                                        <a href="@Url.Action("Organigrama", ViewBag.ControllerName)" class="btn btn-warning" style="color:white">
+                                            <i class="fa-solid fa-sitemap"></i>
+                                            Organigrama
                                         </a>
                                     }
                                 </div>
@@ -243,7 +247,7 @@
                                 <br />
                                 <div class="form-group">
                                     <button type="button" id="export-btn" class="btn btn-success"><i class="fa-regular fa-file-excel"></i> Exportar Excel</button>
-                                    <button type="button" id="export-tkmmnet-btn" class="btn btn-info"><i class="fa-regular fa-file-excel"></i> Formato tkmmNet</button>
+                                    <button type="button" id="export-tkmmnet-btn" class="btn btn-info"><i class="fa-regular fa-file-excel"></i> Formato tkmm 8ID</button>
                                 </div>
 
                             </div>
@@ -355,14 +359,15 @@
 
                 table.columns().eq(0).each(function (colIdx) {
 
+
                     var colSearch = state.columns[colIdx].search;
 
                     if (colSearch.search) {
-
                         let indice = 0;
+
                         //  $('input', $('.filters th')[colIdx]).val(colSearch.search);
-                        $('input', $('.filters th')[colIdx]).each(function () {
-                            if (indice == colIdx + 1)
+                        $('th > :input').each(function () {                           
+                            if (indice == colIdx)
                                 $(this).val(colSearch.search);
                             indice++;
                         });
@@ -401,33 +406,33 @@
             let correo = '';
             let activo = '';
 
-            $('input', $('.filters th')[0]).each(function () {
+            $('th > :input').each(function () {
                 switch (index) {
-                    case 3:
+                    case 1:
                         numeroEmpleado = $(this).val();
                         break;
-                    case 4:
+                    case 2:
                         nombre = $(this).val();
                         break;
-                    case 5:
+                    case 3:
                         planta = $(this).val();
                         break;
-                    case 6:
+                    case 4:
                         departamento = $(this).val();
                         break;
-                    case 7:
+                    case 5:
                         puesto = $(this).val();
                         break;
-                    case 8:
+                    case 6:
                         jefe_directo = $(this).val();
                         break;
-                    case 9:
+                    case 7:
                         C8ID = $(this).val();
                         break;
-                    case 10:
+                    case 8:
                         correo = $(this).val();
                         break;
-                    case 11:
+                    case 9:
                         activo = $(this).val();
                         break;
                 }

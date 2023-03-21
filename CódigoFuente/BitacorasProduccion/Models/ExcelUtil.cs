@@ -4034,8 +4034,8 @@ namespace Portal_2_0.Models
             int tkbirthColumn = dt.Columns.Count;
             dt.Columns.Add("Sexo", typeof(string));
             dt.Columns.Add("Fecha Ingreso", typeof(DateTime));
-            dt.Columns.Add("Correo", typeof(string));
             int fechaIngresoColumn = dt.Columns.Count;
+            dt.Columns.Add("Correo", typeof(string));
             dt.Columns.Add("Planta", typeof(string));
             dt.Columns.Add("Departamento", typeof(string));
             dt.Columns.Add("Puesto", typeof(string));
@@ -4223,21 +4223,21 @@ namespace Portal_2_0.Models
                 row["tknationality"] = "MEX";
                 row["tkpreflang"] = "es";
                 row["tkempno"] = item.numeroEmpleado != null ? item.numeroEmpleado : String.Empty;
-                row["tkfkz6"] = "801495";
-                row["tkfkzext"] = "801495";
-                row["tkuniqueid"] = "801495-01";
-                row["tkpstatus"] = "40";
+                row["tkfkz6"] = "801495";       //unico
+                row["tkfkzext"] = "801495";     //unico
+                row["tkuniqueid"] = "801495-01";    //unico
+                row["tkpstatus"] = "40";    //unico
                 row["tkcostcenter"] = string.Empty;
                 row["tkdepartment"] = item.Area != null ? item.Area.descripcion : String.Empty;
                 row["tkfunction"] = item.puesto1 != null ? item.puesto1.descripcion : String.Empty;
-                row["tkorgstreet"] = "Km. 117 Autopista México-Puebla, P.I. Bralemex,";
-                row["tkorgpostalcode"] = "72710";
-                row["tkorgpostaladdress"] = "Cuautlancingo, Puebla";
-                row["tkorgaddonaddr"] = "Av. San Lorenzo Almecatla s/n";
-                row["tkorgfedst"] = "Puebla";
-                row["tkorgcountry"] = "México";
-                row["tkorgcountrykey"] = "MEX";
-                row["tkapsite"] = "Puebla";
+                row["tkorgstreet"] = item.plantas != null ? item.plantas.tkorgstreet : String.Empty;
+                row["tkorgpostalcode"] = item.plantas != null ? item.plantas.tkorgpostalcode : String.Empty;
+                row["tkorgpostaladdress"] = item.plantas != null ? item.plantas.tkorgpostaladdress : String.Empty;
+                row["tkorgaddonaddr"] = item.plantas != null ? item.plantas.tkorgaddonaddr : String.Empty;
+                row["tkorgfedst"] = item.plantas != null ? item.plantas.tkorgfedst : String.Empty;
+                row["tkorgcountry"] = item.plantas != null ? item.plantas.tkorgcountry : String.Empty;
+                row["tkorgcountrykey"] = item.plantas != null ? item.plantas.tkorgcountrykey : String.Empty;
+                row["tkapsite"] = item.plantas != null ? item.plantas.tkapsite : String.Empty;
                 row["tkorgkey"] = String.Empty;
                 row["tkbuilding"] = String.Empty;
                 row["email"] = item.correo != null ? item.correo : String.Empty;
