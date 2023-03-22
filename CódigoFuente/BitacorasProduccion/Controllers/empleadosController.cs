@@ -8,7 +8,9 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using Bitacoras.Util;
 using Clases.Util;
+using Newtonsoft.Json.Linq;
 using Portal_2_0.Models;
 
 namespace Portal_2_0.Controllers
@@ -17,7 +19,7 @@ namespace Portal_2_0.Controllers
     public class empleadosController : BaseController
     {
         private Portal_2_0Entities db = new Portal_2_0Entities();
-
+        private string jsonOrganigrama = String.Empty;
 
         // GET: empleados
         public ActionResult Index()
@@ -62,16 +64,83 @@ namespace Portal_2_0.Controllers
             return View(empleados);
 
         }
-         public ActionResult Organigrama()
+        public ActionResult Organigrama()
         {
 
             if (!TieneRol(TipoRoles.RH) && !TieneRol(TipoRoles.RH_DETALLES_EMPLEADOS))
                 return View("../Home/ErrorPermisos");
 
-         
+            List<NodoOrganigrama> nodos = new List<NodoOrganigrama>();
+
+            foreach (var empleado in db.empleados.Where(x => x.activo.HasValue && x.activo.Value))
+            {
+                List<NodoOrganigrama> hijos = new List<NodoOrganigrama>();
+                //obtiene los hijos
+                foreach (var item in empleado.empleados1.Where(x => x.id != empleado.id && x.activo.HasValue && x.activo.Value))
+                {
+                    hijos.Add(new NodoOrganigrama
+                    {
+                        ID = item.id,
+                        ClassName = "thyssen-level",
+                        NodeContent = item.ConcatNombre + "     ",
+                        NodeTitle = item.puesto1 != null ? item.puesto1.descripcion : String.Empty
+
+                    });
+                }
+
+                nodos.Add(new NodoOrganigrama
+                {
+                    ID = empleado.id,
+                    ClassName = "thyssen-level",
+                    NodeContent = empleado.ConcatNombre + "     ",
+                    NodeTitle = empleado.puesto1 != null ? empleado.puesto1.descripcion : String.Empty,
+                    Childs = hijos
+                });
+            }
+
+            jsonOrganigrama = String.Empty;
+            //recorre el arbol (comenzando con OLAF 448 )
+            RecorreNodos(nodos.FirstOrDefault(x => x.ID == 448), nodos);
+
+            ViewBag.JsonOrganigrama = jsonOrganigrama;
+
             return View();
 
         }
+
+        [NonAction]
+        public void RecorreNodos(NodoOrganigrama r, List<NodoOrganigrama> nodos)
+        {
+            jsonOrganigrama += @"{'name': '" + r.NodeContent + @"',
+                            'title': '" + r.NodeTitle + "'";
+
+            if (r.Childs.Count > 0)
+                jsonOrganigrama += @",";
+
+            //recorre los hijos directos del nodo
+            foreach (var item in r.Childs)
+            {
+                int index = r.Childs.IndexOf(item);
+
+                if (index == 0)
+                    jsonOrganigrama += @"'children': [";
+
+                var itemBD = nodos.FirstOrDefault(x => x.ID == item.ID);
+                item.Childs = itemBD.Childs;
+
+                RecorreNodos(itemBD, nodos);
+
+                //si hay mas hijos agrega una coma
+                if (r.Childs.IndexOf(item) != r.Childs.Count - 1)
+                    jsonOrganigrama += @",";
+                else
+                    jsonOrganigrama += @"]";
+            }
+            jsonOrganigrama += @"}";
+
+
+        }
+
 
         // GET: empleados/Create
         public ActionResult Create()
@@ -276,7 +345,7 @@ namespace Portal_2_0.Controllers
                 }
                 finally
                 {
-                    db.Configuration.ValidateOnSaveEnabled = true;                   
+                    db.Configuration.ValidateOnSaveEnabled = true;
                 }
 
                 TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);
@@ -292,8 +361,8 @@ namespace Portal_2_0.Controllers
 
             ViewBag.TotalEmpleados = db.empleados.Where(x => x.activo == true).ToList();
             List<int> SubordinadosSeleccionados = new List<int>();
-            if (subordinados!=null)
-                    SubordinadosSeleccionados = subordinados.ToList();
+            if (subordinados != null)
+                SubordinadosSeleccionados = subordinados.ToList();
             ViewBag.SubordinadosSeleccionados = SubordinadosSeleccionados;
 
             //claves seleccionadas
@@ -471,7 +540,7 @@ namespace Portal_2_0.Controllers
                     var emp = db.empleados.Find(s);
                     //  subordinadosAnteriores.Add(emp);
                     emp.id_jefe_directo = null;
-                   
+
                     try
                     {
                         db.Configuration.ValidateOnSaveEnabled = false;
@@ -486,7 +555,7 @@ namespace Portal_2_0.Controllers
                         db.Configuration.ValidateOnSaveEnabled = true;
                         db.Entry(emp).State = EntityState.Detached;
                     }
-                }                
+                }
 
                 //actualiza los subordinados
                 if (subordinados != null)

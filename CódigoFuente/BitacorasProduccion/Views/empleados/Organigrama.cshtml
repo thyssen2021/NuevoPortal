@@ -10,11 +10,11 @@
 
 @section estilos
 {
-    <link href="~/Content/vendors/OrgChart/css/jquery.orgchart.css" rel="stylesheet" />
+    <link href="~/Content/vendors/OrgChart/css/jquery.orgchart.css?date=@DateTime.Now" rel="stylesheet" />
     <link href="~/Content/vendors/OrgChart/css/style.css" rel="stylesheet" />
     <style type="text/css">
         #chart-container {
-            height: 620px;
+            height: 500px;
         }
 
         .orgchart {
@@ -25,16 +25,24 @@
             background: #fff;
         }
 
-        .orgchart .thyssen-level .title {
-            background-color: #009ff5;
-        }
+            .orgchart .thyssen-level .title {
+                background-color: #009ff5;
+            }
 
-        .orgchart .thyssen-level .content {
-            border-color: #009ff5;
-        }
+            .orgchart .thyssen-level .content {
+                border-color: #009ff5;
+            }
+
+            .orgchart .nodes {
+                justify-content: center;
+            }
+
+            .orgchart .node .title {
+                width: auto;
+            }
     </style>
 }
-
+@{Html.RenderPartial("_BlockUI", Model);}
 
 <div class="right_col" role="main">
     <div class="">
@@ -44,12 +52,25 @@
         <div class="row">
             <div class="col-md-12 col-sm-12  ">
                 <div class="x_panel">
+                    <input type="hidden" id="json" value="@(ViewBag.JsonOrganigrama)" />
                     <div class="x_title">
                         <h2>@ViewBag.Title</h2>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
-                        <div id="chart-container"></div>
+
+                        <div id="chart-container" class="col-md-12 col-sm-12"></div>
+                        @*<div id="edit-panel" class="view-state">
+                            <label class="col-form-label col-md-7 col-sm-7 label-align">B&uacute;squeda</label>
+                            <div class="col-md-3 col-sm-3">
+                                <input type="text" class="form-control" id="key-word">
+                            </div>
+                            <div class="col-md-2 col-sm-2">
+                                <button type="button" class="btn btn-sm btn-info" id="btn-filter-node">Filtrar</button>
+                                <button type="button" class="btn btn-sm btn-warning " id="btn-cancel">Restablecer</button>
+                            </div>
+
+                        </div>*@
                     </div>
                 </div>
                 <div>
@@ -71,110 +92,103 @@
 
         $(document).ready(function () {
 
-        });
-        window.onload = function () {
-            clicMenu(1);
-        }
+             var json = @Html.Raw(ViewBag.JsonOrganigrama);
 
-    </script>
-
-    <script type="text/javascript">
-        $(function () {
-
-            var datascource = {
-                'name': 'Lao Lao',
-                'title': 'general manager',
-                'className': 'thyssen-level',
-                'children': [
-                    { 'name': 'Bo Miao', 'title': 'department manager', 'className':'thyssen-level' },
-                    {
-                        'name': 'Su Miao', 'title': 'department manager',
-                        'children': [
-                            { 'name': 'Tie Hua', 'title': 'senior engineer' },
-                            {
-                                'name': 'Hei Hei', 'title': 'senior engineer',
-                                'children': [
-                                    { 'name': 'Pang Pang', 'title': 'engineer' },
-                                    {
-                                        'name': 'Dan Dan', 'title': 'UE engineer',
-                                        'children': [
-                                            { 'name': 'Er Dan', 'title': 'engineer' },
-                                            {
-                                                'name': 'San Dan', 'title': 'engineer',
-                                                'children': [
-                                                    { 'name': 'Si Dan', 'title': 'intern' },
-                                                    { 'name': 'Wu Dan', 'title': 'intern' }
-                                                ]
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    { 'name': 'Hong Miao', 'title': 'department manager' },
-                    {
-                        'name': 'Chun Miao', 'title': 'department manager',
-                        'children': [
-                            { 'name': 'Bing Qin', 'title': 'senior engineer' },
-                            {
-                                'name': 'Yue Yue', 'title': 'senior engineer',
-                                'children': [
-                                    { 'name': 'Er Yue', 'title': 'engineer' },
-                                    { 'name': 'San Yue', 'title': 'UE engineer' }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        'name': 'Chun Miao', 'title': 'department manager',
-                        'children': [
-                            { 'name': 'Bing Qin', 'title': 'senior engineer' },
-                            {
-                                'name': 'Yue Yue', 'title': 'senior engineer',
-                                'children': [
-                                    { 'name': 'Er Yue', 'title': 'engineer' },
-                                    { 'name': 'San Yue', 'title': 'UE engineer' }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        'name': 'Chun Miao', 'title': 'department manager',
-                        'children': [
-                            { 'name': 'Bing Qin', 'title': 'senior engineer' },
-                            {
-                                'name': 'Yue Yue', 'title': 'senior engineer',
-                                'children': [
-                                    { 'name': 'Er Yue', 'title': 'engineer' },
-                                    { 'name': 'San Yue', 'title': 'UE engineer' }
-                                ]
-                            }
-                        ]
-                    }
-
-
-                ]
-            };
 
             var oc = $('#chart-container').orgchart({
-                'data': datascource,
+                'data': json,
                 'nodeContent': 'title',
-                'pan': true,
-                'zoom': true,
+                'visibleLevel':2,
                 'exportButton': true,
                 'exportFilename': 'Organigrama'
             });
 
-            $(window).resize(function () {
-                var width = $(window).width();
-                if (width > 576) {
-                    oc.init({ 'verticalLevel': undefined });
-                } else {
-                    oc.init({ 'verticalLevel': 2 });
-                }
-            });
+            //$('#btn-filter-node').on('click', function () {
+            //    filterNodes($('#key-word').val());
+            //    $(this).hide();
+            //});
 
+            //$('#btn-cancel').on('click', function () {
+            //    clearFilterResult();
+            //    $('#btn-filter-node').show();
+            //    $('#key-word').val('');
+            //});
+
+            //$('#key-word').on('keyup', function (event) {
+            //    if (event.which === 13) {
+            //        filterNodes(this.value);
+            //    } else if (event.which === 8 && this.value.length === 0) {
+            //        clearFilterResult();
+            //    }
+            //});
+
+            $.unblockUI();
         });
+
+        //function loopChart($hierarchy) {
+        //    var $siblings = $hierarchy.children('.nodes').children('.hierarchy');
+        //    if ($siblings.length) {
+        //        $siblings.filter(':not(.hidden)').first().addClass('first-shown')
+        //            .end().last().addClass('last-shown');
+        //    }
+        //    $siblings.each(function (index, sibling) {
+        //        loopChart($(sibling));
+        //    });
+        //}
+
+        //function filterNodes(keyWord) {
+        //    if (!keyWord.length) {
+        //        window.alert('Ingrese un valor.');
+        //        return;
+        //    } else {
+        //        var $chart = $('.orgchart');
+        //        // disalbe the expand/collapse feture
+        //        $chart.addClass('noncollapsable');
+        //        // distinguish the matched nodes and the unmatched nodes according to the given key word
+        //        $chart.find('.node').filter(function (index, node) {
+        //            return $(node).text().toLowerCase().indexOf(keyWord) > -1;
+        //        }).addClass('matched')
+        //            .closest('.hierarchy').parents('.hierarchy').children('.node').addClass('retained');
+        //        // hide the unmatched nodes
+        //        $chart.find('.matched,.retained').each(function (index, node) {
+        //            $(node).removeClass('slide-up')
+        //                .closest('.nodes').removeClass('hidden')
+        //                .siblings('.hierarchy').removeClass('isChildrenCollapsed');
+        //            var $unmatched = $(node).closest('.hierarchy').siblings().find('.node:first:not(.matched,.retained)')
+        //                .closest('.hierarchy').addClass('hidden');
+        //        });
+        //        // hide the redundant descendant nodes of the matched nodes
+        //        $chart.find('.matched').each(function (index, node) {
+        //            if (!$(node).siblings('.nodes').find('.matched').length) {
+        //                $(node).siblings('.nodes').addClass('hidden')
+        //                    .parent().addClass('isChildrenCollapsed');
+        //            }
+        //        });
+        //        // loop chart and adjust lines
+        //        loopChart($chart.find('.hierarchy:first'));
+        //    }
+        //}
+
+        //function clearFilterResult() {
+        //    $('.orgchart').removeClass('noncollapsable')
+        //        .find('.node').removeClass('matched retained')
+        //        .end().find('.hidden, .isChildrenCollapsed, .first-shown, .last-shown').removeClass('hidden isChildrenCollapsed first-shown last-shown')
+        //        .end().find('.slide-up, .slide-left, .slide-right').removeClass('slide-up slide-right slide-left');
+        //}
+
+        window.onload = function () {
+            clicMenu(1);
+        }
+
+        $(window).resize(function () {
+            var width = $(window).width();
+            if (width > 576) {
+                oc.init({ 'verticalLevel': undefined });
+            } else {
+                oc.init({ 'verticalLevel': 2 });
+            }
+        });
+
     </script>
+
 }
