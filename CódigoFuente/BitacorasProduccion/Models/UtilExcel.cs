@@ -1327,6 +1327,7 @@ namespace Portal_2_0.Models
             {
                 //obtiene el dataset del archivo de excel
                 var result = reader.AsDataSet();
+                DateTime fecha = DateTime.Now;
 
                 //recorre todas las hojas del archivo
                 foreach (DataTable table in result.Tables)
@@ -1335,7 +1336,7 @@ namespace Portal_2_0.Models
 
                     //se obtienen las cabeceras
                     List<string> encabezados = new List<string>();
-                    List<string> encabezadosTest = new List<string>() { "SYSTEM NAME", "USER NAME", "OPERATING SYSTEM", "GROUP NAME", "ASSIGNMENT PATH" };
+                    //List<string> encabezadosTest = new List<string>() { "SYSTEM NAME", "USER NAME", "OPERATING SYSTEM", "GROUP NAME", "ASSIGNMENT PATH" };
 
                     for (int i = 0; i < table.Columns.Count; i++)
                     {
@@ -1345,15 +1346,15 @@ namespace Portal_2_0.Models
                             encabezados.Add(title.ToUpper());
                     }
 
-                    //verifica los encabezados principales del archivo enviado
-                    foreach (var s in encabezadosTest)
-                    {
-                        if (!encabezados.Contains(s))
-                        {
-                            msj = "No se encontró la columna: " + s;
-                            return lista;
-                        }
-                    }
+                    ////verifica los encabezados principales del archivo enviado
+                    //foreach (var s in encabezadosTest)
+                    //{
+                    //    if (!encabezados.Contains(s))
+                    //    {
+                    //        msj = "No se encontró la columna: " + s;
+                    //        return lista;
+                    //    }
+                    //}
 
                     //la fila cero se omite (encabezado)
                     for (int i = 1; i < table.Rows.Count; i++)
@@ -1380,60 +1381,77 @@ namespace Portal_2_0.Models
                                 {
                                     //obligatorios
                                     case "SYSTEM NAME":
+                                    case "NOMBRE DE SISTEMA":
                                         system_name = table.Rows[i][j].ToString();
                                         break;
                                     case "USER NAME":
+                                    case "NOMBRE DE USUARIO":
                                         username = table.Rows[i][j].ToString();
                                         break;
                                     case "OPERATING SYSTEM":
+                                    case "SISTEMA OPERATIVO":
                                         operating_system = table.Rows[i][j].ToString();
                                         break;
                                     case "IS LAPTOP":
+                                    case "ES UN PORTÁTIL":
                                         is_laptop_text = table.Rows[i][j].ToString();
                                         is_laptop = is_laptop_text.ToUpper() == "YES" ? true : false;
                                         break;
                                     case "GROUP NAME":
+                                    case "NOMBRE DE GRUPO":
                                         group_name = table.Rows[i][j].ToString();
                                         break;
                                     case "OS type":
+                                    case "TIPO DE SO":
                                         os_type = table.Rows[i][j].ToString();
                                         break;
                                     case "MAC ADDRESS":
+                                    case "DIRECCIÓN MAC":
                                         mac_address = table.Rows[i][j].ToString();
                                         break;
                                     case "LAST COMMUNICATION":
+                                    case "ÚLTIMA COMUNICACIÓN":
                                         last_communication = table.Rows[i][j].ToString();
                                         break;
                                     case "NUMBER OF CPUS":
+                                    case "NÚMERO DE CPU":
                                         if (Int32.TryParse(table.Rows[i][j].ToString(), out int cpus))
                                             numbers_cpus = cpus;
                                         break;
                                     case "CPU SPEED (MHZ)":
+                                    case "VELOCIDAD DE CPU (MHZ)":
                                         if (Int32.TryParse(table.Rows[i][j].ToString(), out int cpu_s))
                                             cpu_speed = cpu_s;
                                         break;
                                     case "SYSTEM MANUFACTURER":
+                                    case "FABRICANTE DEL SISTEMA":
                                         system_manufacturer = table.Rows[i][j].ToString();
                                         break;
                                     case "SYSTEM MODEL":
+                                    case "MODELO DEL SISTEMA":
                                         system_model = table.Rows[i][j].ToString();
                                         break;
                                     case "SYSTEM SERIAL NUMBER":
+                                    case "NÚMERO DE SERIE DEL SISTEMA":
                                         system_serial_number = table.Rows[i][j].ToString();
                                         break;
                                     case "TOTAL DISK SPACE":
+                                    case "ESPACIO TOTAL EN DISCO":
                                         if (Int32.TryParse(table.Rows[i][j].ToString().Replace("MB", string.Empty), out int total_disk_int))
                                             total_disk_space = total_disk_int;
                                         break;
                                     case "TOTAL C DRIVE SPACE":
+                                    case "ESPACIO TOTAL EN DISCO C":
                                         if (Int32.TryParse(table.Rows[i][j].ToString().Replace("MB", string.Empty), out int total_c_drive_int))
                                             total_c_drive_space = total_c_drive_int;
                                         break;
                                     case "TOTAL PHYSICAL MEMORY":
+                                    case "MEMORIA FÍSICA TOTAL":
                                         if (double.TryParse(table.Rows[i][j].ToString().Replace("MB", string.Empty), out double total_physical_double))
                                             total_physical_memory = total_physical_double;
                                         break;
                                     case "ASSIGNMENT PATH":
+                                    case "RUTA DE ASIGNACIÓN":
                                         assignment_path = table.Rows[i][j].ToString();
                                         break;
                                 }
@@ -1458,8 +1476,8 @@ namespace Portal_2_0.Models
                                 total_physical_memory_mb = total_physical_memory,
                                 system_model = system_model,
                                 last_communication = last_communication,
-
-                            });
+                                fecha = fecha
+                            }) ;
                         }
                         catch (Exception e)
                         {
@@ -1485,6 +1503,7 @@ namespace Portal_2_0.Models
         public static List<IT_wsus> LeeWSUS(HttpPostedFileBase streamPostedFile, ref string msj)
         {
             List<IT_wsus> lista = new List<IT_wsus>();
+            DateTime fecha = DateTime.Now;
 
             //crea el reader del archivo
             using (var reader = ExcelReaderFactory.CreateReader(streamPostedFile.InputStream))
@@ -1499,7 +1518,7 @@ namespace Portal_2_0.Models
 
                     //se obtienen las cabeceras
                     List<string> encabezados = new List<string>();
-                    List<string> encabezadosTest = new List<string>() { "NAME", "IP", "OPERATING SYSTEM" };
+                    List<string> encabezadosTest = new List<string>() { "NAME" };
 
                     for (int i = 0; i < table.Columns.Count; i++)
                     {
@@ -1535,12 +1554,15 @@ namespace Portal_2_0.Models
                                 {
                                     //obligatorios
                                     case "NAME":
+                                    case "NOMBRE":
                                         name = table.Rows[i][j].ToString();
                                         break;
                                     case "IP":
+                                    case "IP ADDRESS":
                                         ip = table.Rows[i][j].ToString();
                                         break;
                                     case "OPERATING SYSTEM":
+                                    case "SO":
                                         operating_system = table.Rows[i][j].ToString();
                                         break;
                                 }
@@ -1551,6 +1573,7 @@ namespace Portal_2_0.Models
                                 name = name,
                                 operating_system = operating_system,
                                 ip = ip,
+                                fecha = fecha
                             });
                         }
                         catch (Exception e)

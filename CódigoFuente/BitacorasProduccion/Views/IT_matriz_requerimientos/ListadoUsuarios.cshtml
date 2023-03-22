@@ -140,19 +140,22 @@
                                                         </a>
                                                         @if (item.IT_matriz_requerimientos.Count == 0)
                                                         {
-                                                            <a href="@Url.Action("CrearMatriz", ViewBag.ControllerName, new { id = item.id,tipo = Bitacoras.Util.IT_MR_tipo.CREACION })" class="btn btn-primary btn-sm" rel="tooltip" data-title="Crear solicitud">
+                                                            @*<a href="@Url.Action("CrearMatriz", ViewBag.ControllerName, new { id = item.id,tipo = Bitacoras.Util.IT_MR_tipo.CREACION })" class="btn btn-primary btn-sm" rel="tooltip" data-title="Iniciar Matriz de Requerimientos">
+                                                                <i class="fa fa-users"></i>
+                                                            </a>*@
+                                                            <a href="@Url.Action("IniciarMatriz", ViewBag.ControllerName, new { id = item.id,tipo = Bitacoras.Util.IT_MR_tipo.CREACION })" class="btn btn-primary btn-sm" rel="tooltip" data-title="Iniciar Matriz de Requerimientos">
                                                                 <i class="fa fa-users"></i>
                                                             </a>
                                                         }
-                                                        else if (item.IT_matriz_requerimientos.OrderByDescending(x=>x.id).FirstOrDefault().estatus == Bitacoras.Util.IT_MR_Status.FINALIZADO)
+                                                        else if (item.IT_matriz_requerimientos.OrderByDescending(x => x.id).FirstOrDefault().estatus == Bitacoras.Util.IT_MR_Status.FINALIZADO)
                                                         {
-                                                            <a href="@Url.Action("CrearMatriz", ViewBag.ControllerName, new { id = item.id, tipo = Bitacoras.Util.IT_MR_tipo.MODIFICACION})" class="btn btn-warning btn-sm" rel="tooltip" data-title="Modificación de Usuario">
+                                                            <a href="@Url.Action("CrearMatriz", ViewBag.ControllerName, new { id = item.id, tipo = Bitacoras.Util.IT_MR_tipo.MODIFICACION})" class="btn btn-secondary btn-sm" rel="tooltip" data-title="Modificación de Usuario">
                                                                 <i class="fa fa-users"></i>
                                                             </a>
                                                         }
                                                         else
                                                         {
-                                                            <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.IT_matriz_requerimientos.OrderByDescending(x=>x.id).FirstOrDefault().id })" class="btn btn-secondary btn-sm" rel="tooltip" data-title="Solicitud en Proceso">
+                                                            <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.IT_matriz_requerimientos.OrderByDescending(x=>x.id).FirstOrDefault().id })" class="btn btn-warning btn-sm" rel="tooltip" data-title="Solicitud en Proceso">
                                                                 <i class="fa fa-users"></i>
                                                             </a>
                                                         }
@@ -232,14 +235,57 @@
                 "info": false
             });
 
-
-
             // Initialize Select2 Elements (debe ir después de asignar el valor)
             $('.select2bs4').select2({
                 theme: 'bootstrap4'
             })
 
+            //Envia el formulario cada vez que se modifica el combo
+            $(".select2bs4").change(function () {
+                $("#buscarForm").submit();
+                BloqueaPantalla();
+            });
+
         });
+
+        function MuestraModalInicio(idEmpleado) {
+
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false,
+            })
+
+            if ($('#advertencia_usuario').is(':visible')) {
+                swalWithBootstrapButtons.fire(
+                    'Advertencia', 'Seleccione un jefe directo válido o contacte al Administrador del Sitio para solicitar la creación de los usuarios y permisos necesarios.', 'error'
+                );
+            } else {
+                swalWithBootstrapButtons.fire({
+                    title: '¿Desea Continuar?',
+                    html: "Se enviará la solicitud al <b>Jefe Directo</b> para su autorización. Una vez enviada la solicitud, no podrá modificarse.",
+                    showCancelButton: true,
+                    confirmButtonText: 'Aceptar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.value) {
+                        //espera a que se cierre el modal para enviar el formulario
+                        setTimeout(function () {
+                            $form.submit();
+                        }, 900);
+
+                    } else if (
+                        result.dismiss === Swal.DismissReason.cancel
+                    ) {
+                        swalWithBootstrapButtons.fire(
+                            'Advertencia', 'Los cambios no han sido guardados.', 'warning'
+                        );
+                    }
+                });
+            }
+        }
 
 
         //agranda el tamaño de la barra

@@ -38,10 +38,6 @@ namespace Portal_2_0.Models
         public string comentario_cierre { get; set; }
         public string tipo { get; set; }
     
-        public virtual empleados empleados { get; set; }
-        public virtual empleados empleados1 { get; set; }
-        public virtual empleados empleados2 { get; set; }
-        public virtual empleados empleados3 { get; set; }
         public virtual IT_internet_tipo IT_internet_tipo { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_matriz_carpetas> IT_matriz_carpetas { get; set; }
@@ -51,5 +47,9 @@ namespace Portal_2_0.Models
         public virtual ICollection<IT_matriz_hardware> IT_matriz_hardware { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_matriz_software> IT_matriz_software { get; set; }
+        public virtual empleados empleados { get; set; }
+        public virtual empleados empleados1 { get; set; }
+        public virtual empleados empleados2 { get; set; }
+        public virtual empleados empleados3 { get; set; }
     }
 }

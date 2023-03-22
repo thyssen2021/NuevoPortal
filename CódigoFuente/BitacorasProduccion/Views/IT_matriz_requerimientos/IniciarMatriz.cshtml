@@ -1,0 +1,688 @@
+﻿@model Portal_2_0.Models.IT_matriz_requerimientos
+
+@{
+    ViewBag.Title = "Matriz de Requerimientos";
+    ViewBag.PrimerNivel = "recursos_humanos";
+    ViewBag.SegundoNivel = "ListadoUsuarios";
+    ViewBag.ControllerName = "Empleados";
+
+    List<Portal_2_0.Models.IT_inventory_hardware_type> listHardware = (List<Portal_2_0.Models.IT_inventory_hardware_type>)ViewBag.listHardware;
+    List<Portal_2_0.Models.IT_inventory_software> listSoftware = (List<Portal_2_0.Models.IT_inventory_software>)ViewBag.listSoftware;
+    List<Portal_2_0.Models.IT_comunicaciones_tipo> listComunicaciones = (List<Portal_2_0.Models.IT_comunicaciones_tipo>)ViewBag.listComunicaciones;
+    List<Portal_2_0.Models.IT_carpetas_red> listCarpetas = (List<Portal_2_0.Models.IT_carpetas_red>)ViewBag.listCarpetas;
+
+}
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/flat/green.css")" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+
+    <style>
+
+        dl {
+            border: 3px double #ccc;
+            padding: 0.5em;
+            background-color: #fffdf0
+        }
+
+        dt {
+            font-weight: bold;
+            color: green;
+        }
+
+        dd {
+            font-weight: bold;
+            color: #454545;
+        }
+
+        dt::after {
+            content: ":";
+        }
+
+        .fondo_verde > td {
+            background-color: green;
+            color: #fffdf0;
+            font-weight: bolder;
+        }
+
+        .fondo_amarillo > td {
+            background-color: orange;
+            color: #221f1f;
+            font-weight: bolder;
+        }
+
+        .fondo_rojo > td {
+            background-color: red;
+            color: #fffdf0;
+            font-weight: bolder;
+        }
+    </style>
+}
+
+@*Valores enviados previamente*@
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        @if (Model.estatus == Bitacoras.Util.IT_MR_Status.FINALIZADO)
+                        {
+                            <h2>Solicitud de Modificaci&oacute;n de Usuario  <i class="fa-regular fa-pen-to-square" style="color:green"></i></h2>
+                        }
+                        else
+                        {
+                            <h2>Solicitud de Creaci&oacute;n de Usuario </h2>
+                        }
+
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+
+                        @if ((Model.estatus == Bitacoras.Util.IT_MR_Status.RECHAZADO) && !String.IsNullOrEmpty(Model.comentario_rechazo))
+                        {
+                            <div class="form-group row">
+                                <span style="color:black"><b> RAZ&Oacute;N DE RECHAZO</b></span>
+
+                                <div class="alert alert-danger col-md-12" role="alert">
+                                    <i class="fa fa-exclamation-triangle" style="color:yellow"></i> @Model.comentario_rechazo
+                                </div>
+                            </div>
+                        }
+
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box ">
+                                    <div class="form-group row">
+                                        <span style="color:black"><b>1.- INFORMACI&Oacute;N DEL EMPLEADO</b></span>
+                                    </div>
+                                    <dl class="row">
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.nombre)</dt>
+                                        <dd class="col-sm-10">@Model.empleados.ConcatNombre</dd>
+                                        <dt class="col-sm-2">Planta</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.plantas.descripcion)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.Area)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.Area.descripcion)</dd>
+                                        <dt class="col-sm-2">Puesto</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.puesto1.descripcion)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.numeroEmpleado)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.numeroEmpleado)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.ingresoFecha)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.ingresoFecha)</dd>
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.nueva_fecha_nacimiento)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.nueva_fecha_nacimiento)</dd>
+
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ln_solid"></div>
+
+
+                        @using (Html.BeginForm("IniciarMatriz", "IT_matriz_requerimientos", FormMethod.Post, new { @class = "form-horizontal form-label-left", @id = "my_form" }))
+                        {
+
+                            @Html.AntiForgeryToken()
+
+                            @Html.HiddenFor(model => model.id)
+                            @Html.HiddenFor(model => model.id_empleado)
+                            @Html.HiddenFor(model => model.id_solicitante)
+                            @Html.HiddenFor(model => model.fecha_solicitud)
+                            @Html.HiddenFor(model => model.fecha_aprobacion_jefe)
+                            @Html.HiddenFor(model => model.comentario_rechazo)
+                            @Html.HiddenFor(model => model.tipo)
+
+                            <input type="hidden" id="id_internet_tipo" name="id_internet_tipo" value="1" /> //por defecto SÍ
+                            <input type="hidden" id="id_matriz" name="id_matriz" value="@Model.id" />
+
+                            if (@ViewContext.RouteData.GetRequiredString("action").ToUpper() == "AUTORIZAR")
+                            {
+                                <input type="hidden" id="estatus" name="estatus" value="@Bitacoras.Util.IT_MR_Status.ENVIADO_A_IT" />
+                            }
+                            else if (@ViewContext.RouteData.GetRequiredString("action").ToUpper() == "INICIARMATRIZ")
+                            {
+                                <input type="hidden" id="estatus" name="estatus" value="@Bitacoras.Util.IT_MR_Status.ENVIADO_A_JEFE" />
+                            }
+
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", new { @class = "text-white" })
+                                </div>
+                            }
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>2.- JEFE DIRECTO</b></span>
+                                <br />
+
+                                <div id="advertencia_usuario" class="alert alert-danger col-md-12 col-sm-12" role="alert" style="display:none">
+                                    <i class="fa fa-warning" style="color:yellow"></i> <b>¡Advertencia!</b> <br />El Jefe Directo que seleccion&oacute; no tiene una cuenta asociada para el uso de este Portal, por esta raz&oacute;n no podr&aacute; autorizar esta solicitud. <br />
+                                    Favor de contactar al Administrador del Sitio para solicitar la generaci&oacute;n de los accesos necesarios.
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.id_jefe_directo, new { @class = "control-label col-md-1" })
+                                
+                                <div class="col-md-5 col-sm-5 ">
+                                   
+                                    @if (Model.estatus == Bitacoras.Util.IT_MR_Status.ENVIADO_A_JEFE)
+                                    {
+                                        <input type="hidden" id="id_jefe_directo" name="id_jefe_directo" class="form-control" value="@Model.id_jefe_directo" />
+                                        @Html.DropDownList("id_jefe_directo", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @disabled="disabled" })
+                                    }
+                                    else
+                                    {
+                                        @Html.DropDownList("id_jefe_directo", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    }
+                                    @Html.ValidationMessageFor(model => model.id_jefe_directo, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="col-md-2 col-sm-2">
+                                    <button type="button" id="notificar-it-btn" class="btn btn-round btn-info btn-sm" style="display:none"><i class="fa-regular fa-envelope"></i> Notificar IT</button>
+                                </div>
+                                <label class="control-label col-md-1 col-sm-1" for="planta_jefe" style="text-align:right">Planta</label>
+                                <div class="col-md-3 col-sm-3">
+                                    <input type="text" id="planta_jefe" class="form-control" value="@( Model.empleados1!=null && Model.empleados1.plantas!=null ? Model.empleados1.plantas.descripcion : "NO DISPONIBLE" )" readonly="readonly" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="control-label col-md-1 col-sm-1" for="area_jefe">Area</label>
+                                <div class="col-md-5 col-sm-5 ">
+                                    <input type="text" id="area_jefe" class="form-control" value="@( Model.empleados1!=null && Model.empleados1.Area!=null ? Model.empleados1.Area.descripcion : "NO DISPONIBLE" )" readonly="readonly" />
+                                </div>
+                                <label class="control-label col-md-1 col-sm-1" for="puesto_jefe" style="text-align:right">Puesto</label>
+                                <div class="col-md-5 col-sm-5 ">
+                                    <input type="text" id="puesto_jefe" class="form-control" value="@(Model.empleados1!=null && Model.empleados1.puesto1!=null ? Model.empleados1.puesto1.descripcion : "NO DISPONIBLE" )" readonly="readonly" />
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>3.- SISTEMAS A SOLICITAR</b></span>
+                            </div>
+
+                            <div class="ln_solid"></div>
+
+                            <div class="form-group row">
+
+                                <span style="color:dimgrey"><b>&emsp; 3.1- HARDWARE</b></span>
+                            </div>
+                            @*HARDWARE*@
+                            <div class="form-group row">
+
+                                @foreach (var item in listHardware)
+                                {
+
+                                    if (!item.aplica_descripcion)
+                                    {
+
+
+                                        <div class="col-md-2 col-sm-2">
+                                            <div class="col-md-12 col-sm-12">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input type="checkbox" class="flat" name="SelectedHardware" value="hardware_@item.id" @(Model.IT_matriz_hardware.Any(x => x.id_it_hardware == item.id) == true ? "checked" : null )> @item.descripcion
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    }
+                                    else
+                                    {
+                                        <div class="col-md-6 col-sm-6">
+                                            <div class="col-md-4 col-sm-4">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input type="checkbox" class="flat" name="SelectedHardware" value="hardware_@item.id" @(Model.IT_matriz_hardware.Any(x => x.id_it_hardware == item.id) == true ? "checked" : null )> @item.descripcion
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-8 col-sm-8" id="hardware_@(item.id)_div" style="margin-bottom: 5px; @(Model.IT_matriz_hardware.Any(x => x.id_it_hardware == item.id) == true ? null : "display:none" )">
+
+                                                <input type="text" name="hardware_@(item.id)_descripcion" id="hardware_@(item.id)_descripcion" class="form-control col-md-12" value="@Model.IT_matriz_hardware.Where(x=>x.id_it_hardware==item.id).Select(x=>x.descripcion).FirstOrDefault()" maxlength="90" autocomplete="off" required>
+                                                <span class="field-validation-valid text-danger" data-valmsg-for="hardware_@(item.id)_descripcion" data-valmsg-replace="true"></span>
+                                            </div>
+                                        </div>
+
+                                    }
+                                }
+
+                            </div>
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:dimgrey"><b>&emsp; 3.2- SOFTWARE</b></span>
+                            </div>
+                            @*SOFTWARE*@
+                            <div class="form-group row">
+
+                                <div class="col-md-2 col-sm-2">
+                                    <div class="col-md-12 col-sm-12">
+                                        <div class="checkbox">
+                                            <label>
+                                                <input type="checkbox" class="flat" checked disabled> Correo electr&oacute;nico
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-sm-2">
+                                    <div class="col-md-12 col-sm-12">
+                                        <div class="checkbox">
+                                            <label>
+                                                <input type="checkbox" class="flat" checked disabled> 8ID
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @foreach (var item in listSoftware)
+                                {
+
+                                    if (!item.aplica_descripcion)
+                                    {
+                                        <div class="col-md-2 col-sm-2">
+                                            <div class="col-md-12 col-sm-12">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input type="checkbox" class="flat" name="SelectedSoftware" value="software_@item.id" @(Model.IT_matriz_software.Any(x => x.id_it_software == item.id) == true ? "checked" : null )> @item.descripcion
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    }
+                                    else
+                                    {
+                                        <div class="col-md-6 col-sm-6">
+                                            <div class="col-md-4 col-sm-4">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input type="checkbox" class="flat" name="SelectedSoftware" value="software_@item.id" @(Model.IT_matriz_software.Any(x => x.id_it_software == item.id) == true ? "checked" : null )> @item.descripcion
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-8 col-sm-8" id="software_@(item.id)_div" style="margin-bottom: 5px; @(Model.IT_matriz_software.Any(x => x.id_it_software == item.id) == true ? null : "display:none" )">
+
+                                                <input type="text" name="software_@(item.id)_descripcion" id="software_@(item.id)_descripcion" class="form-control col-md-12" value="@Model.IT_matriz_software.Where(x=>x.id_it_software==item.id).Select(x=>x.descripcion).FirstOrDefault()" maxlength="90" autocomplete="off" required>
+                                                <span class="field-validation-valid text-danger" data-valmsg-for="software_@(item.id)_descripcion" data-valmsg-replace="true"></span>
+                                            </div>
+                                        </div>
+
+                                    }
+                                }
+
+                            </div>
+
+                            @*<div class="ln_solid"></div>
+                                <div class="form-group row">
+                                    <span style="color:dimgrey"><b>&emsp; 3.3- INTERNET</b></span>
+                                </div>
+
+                                <div class="form-group row">
+                                    @Html.LabelFor(model => model.id_internet_tipo, new { @class = "control-label col-md-2" })
+                                    <div class="col-md-4 col-sm-4 ">
+                                        @Html.DropDownList("id_internet_tipo", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                        @Html.ValidationMessageFor(model => model.id_internet_tipo, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>*@
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:dimgrey"><b>&emsp; 3.3- COMUNICACIONES</b></span>
+                            </div>
+
+                            @*COMUNICACIONES*@
+                            <div class="form-group row">
+
+                                @foreach (var item in listComunicaciones)
+                                {
+
+                                    if (!item.aplica_descripcion)
+                                    {
+                                        <div class="col-md-2 col-sm-2">
+                                            <div class="col-md-12 col-sm-12">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input type="checkbox" class="flat" name="SelectedComunicaciones" value="comunicaciones_@item.id" @(Model.IT_matriz_comunicaciones.Any(x => x.id_it_comunicaciones == item.id) == true ? "checked" : null )> @item.descripcion
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    }
+                                    else
+                                    {
+                                        <div class="col-md-6 col-sm-6">
+                                            <div class="col-md-4 col-sm-4">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input type="checkbox" class="flat" name="SelectedComunicaciones" value="comunicaciones_@item.id" @(Model.IT_matriz_comunicaciones.Any(x => x.id_it_comunicaciones == item.id) == true ? "checked" : null )> @item.descripcion
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-8 col-sm-8" id="comunicaciones_@(item.id)_div" style="margin-bottom: 5px; @(Model.IT_matriz_comunicaciones.Any(x => x.id_it_comunicaciones == item.id) == true ? null : "display:none" )">
+
+                                                <input type="text" name="comunicaciones_@(item.id)_descripcion" id="comunicaciones_@(item.id)_descripcion" class="form-control col-md-12" value="@Model.IT_matriz_comunicaciones.Where(x=>x.id_it_comunicaciones==item.id).Select(x=>x.descripcion).FirstOrDefault()" maxlength="90" autocomplete="off" required>
+                                                <span class="field-validation-valid text-danger" data-valmsg-for="comunicaciones_@(item.id)_descripcion" data-valmsg-replace="true"></span>
+                                            </div>
+                                        </div>
+
+                                    }
+                                }
+
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:dimgrey"><b>&emsp; 3.4- CARPETAS EN RED</b></span>
+                            </div>
+
+                            @*CARPETAS EN RED*@
+                            <div class="form-group row">
+
+                                @foreach (var item in listCarpetas)
+                                {
+
+                                    if (!item.aplica_descripcion)
+                                    {
+                                        <div class="col-md-2 col-sm-2">
+                                            <div class="col-md-12 col-sm-12">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input type="checkbox" class="flat" name="SelectedCarpetas" value="carpetas_@item.id" @(Model.IT_matriz_carpetas.Any(x => x.id_it_carpeta_red == item.id) == true ? "checked" : null )> @item.descripcion
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    }
+                                    else
+                                    {
+                                        <div class="col-md-6 col-sm-6">
+                                            <div class="col-md-4 col-sm-4">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input type="checkbox" class="flat" name="SelectedCarpetas" value="carpetas_@item.id" @(Model.IT_matriz_carpetas.Any(x => x.id_it_carpeta_red == item.id) == true ? "checked" : null )> @item.descripcion
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-8 col-sm-8" id="carpetas_@(item.id)_div" style="margin-bottom: 5px; @(Model.IT_matriz_carpetas.Any(x => x.id_it_carpeta_red == item.id) == true ? null : "display:none" )">
+                                                <input type="text" name="carpetas_@(item.id)_descripcion" id="carpetas_@(item.id)_descripcion" class="form-control col-md-12" value="@Model.IT_matriz_carpetas.Where(x=>x.id_it_carpeta_red==item.id).Select(x=>x.descripcion).FirstOrDefault()" maxlength="90" autocomplete="off" required>
+                                                <span class="field-validation-valid text-danger" data-valmsg-for="carpetas_@(item.id)_descripcion" data-valmsg-replace="true"></span>
+                                            </div>
+                                        </div>
+
+                                    }
+                                }
+
+                            </div>
+
+                            <div class="ln_solid"></div>
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>COMENTARIOS ADICIONALES</b></span>
+                            </div>
+                            <div class="item form-group">
+                                <div class="col-md-12">
+                                    @Html.TextAreaFor(model => model.comentario, new { @class = "form-control", @rows = "5", @autocomplete = "off" })
+                                    @Html.ValidationMessageFor(model => model.comentario, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="ln_solid"></div>
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>¡AVISO!</b></span>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-md-12 col-sm-12 ">
+                                    <p class="text-muted well well-sm no-shadow" style="margin-top: 10px; font-weight:bold; text-align:justify">
+                                        <i class="fa fa-warning"></i> Las credenciales de acceso ser&aacute;n otorgadas exclusivamente para el uso de sus funciones laborales en thyssenkrupp Materials de
+                                        M&eacute;xico, por lo tanto son consideradas intransferibles y de uso individual por parte del usuario, aceptando que cualquier uso no
+                                        autorizado o malversaci&oacute;n con &eacute;sta es de su exclusiva responsabilidad.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="item form-group">
+                                <div class="col-md-12 col-sm-12 offset-md-12">
+                                    <button type="button" id="btn-ok" class="btn btn-primary btn-lg float-lg-right"><i class="fa fa-envelopes-bulk"></i> Enviar</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a onclick="volverAtras()" style="color:white" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery-iu/jquery-ui.min.js"))
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+
+
+    <script>
+
+        $(document).ready(function () {
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //agrega evento OnChange
+            $("#id_jefe_directo").change(function () {
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/Combos/obtienePuestoEmpleado',
+                    data: { id_empleado: $(this).val() },
+                    success: function (data) {
+                        $("#puesto_jefe").val(data[0].puesto);
+                        $("#planta_jefe").val(data[0].plantas);
+                        $("#area_jefe").val(data[0].area);
+
+                        if (data[0].existe == true) {
+                            $("#advertencia_usuario").hide();
+                            $("#notificar-it-btn").hide();
+                        }
+                        else {
+                            $("#advertencia_usuario").show();
+                            $("#notificar-it-btn").show();
+                        }
+                    },
+                    async: true
+                });
+            });
+
+            $("#id_jefe_directo").change();
+
+            $('input').on('ifChecked', function (event) {
+                verificaChecks(event);
+            });
+
+            $('input').on('ifUnchecked', function (event) {
+                verificaChecks(event);
+            });
+
+            $('form #notificar-it-btn').click(function (e) {
+                let $form = $(this).closest('form');
+
+                var idJefeDirecto = $("#id_jefe_directo option:selected").val();
+
+                const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: 'btn btn-success',
+                        cancelButton: 'btn btn-danger'
+                    },
+                    buttonsStyling: false,
+                })
+
+                swalWithBootstrapButtons.fire({
+                    title: '¿Enviar notificación?',
+                    html: "Se enviará notificación a <b>IT</b> para solicitar el registro del Jefe Directo en el Sistema.",
+                    showCancelButton: true,
+                    confirmButtonText: 'Aceptar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.value) {
+
+                        //llamada ajax para obtener el detalle del item  seleccionado
+                        $.ajax({
+                            type: 'POST',
+                            url: '/Combos/NotificacionRegistroJefeDirecto',
+                            data: { idJefeDirecto: idJefeDirecto },
+                            success: function (data) {
+                                try {
+                                    if ((data[0].result == 'OK')) {
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Mensaje',
+                                            text: data[0].msj,
+                                            confirmButtonText: 'Aceptar',
+                                        })
+                                    } else if ((data[0].result == 'ERROR')) {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Mensaje',
+                                            text: data[0].msj,
+                                            confirmButtonText: 'Aceptar',
+                                        })
+                                    } else if ((data[0].result == 'DUPLICADO')) {
+                                        Swal.fire({
+                                            icon: 'info',
+                                            title: 'Mensaje',
+                                            text: data[0].msj,
+                                            confirmButtonText: 'Aceptar',
+                                        })
+                                    }
+                                }
+                                catch (error) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: 'Ocurrió un error obteniendo la información: ' + error,
+                                        confirmButtonText: 'Aceptar',
+                                    })
+                                }
+                            },
+                            async: false
+                        });
+
+                        //realiza llamada ajax para solicitar registro de empleado
+                        console.log('notificacion...');
+                    }
+                });
+
+            });
+
+            $('form #btn-ok').click(function (e) {
+                let $form = $(this).closest('form');
+
+                //obtiene el texto a mostrar
+                let texto = "Se enviará notificación al <b>Jefe Directo</b> para solicitar el llenado del formato.";
+                if (window.location.pathname.toUpperCase().includes('AUTORIZAR')) {
+                    texto = "Se enviará notificación a <b>IT</b> para procesar la solicitud. Una vez enviada la solicitud, no podrá modificarse."
+                }
+
+                const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: 'btn btn-success',
+                        cancelButton: 'btn btn-danger'
+                    },
+                    buttonsStyling: false,
+                })
+
+                if ($('#advertencia_usuario').is(':visible')) {
+                    swalWithBootstrapButtons.fire(
+                        'Advertencia', 'Seleccione un jefe directo válido o contacte al Administrador del Sitio para solicitar la creación de los usuarios y permisos necesarios.', 'error'
+                    );
+                } else {
+                    swalWithBootstrapButtons.fire({
+                        title: '¿Desea Continuar?',
+                        html: texto,
+                        showCancelButton: true,
+                        confirmButtonText: 'Aceptar',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.value) {
+                            //espera a que se cierre el modal para enviar el formulario
+                            setTimeout(function () {
+                                $form.submit();
+                            }, 900);
+
+                        } else if (
+                            result.dismiss === Swal.DismissReason.cancel
+                        ) {
+                            swalWithBootstrapButtons.fire(
+                                'Advertencia', 'Los cambios no han sido guardados.', 'warning'
+                            );
+                        }
+                    });
+                }
+
+            });
+
+        });
+
+        function verificaChecks(event) {
+
+            if (event.target.checked) {
+                $('#' + event.target.value + '_div').show('highlight', 1000);
+            } else {
+                $('#' + event.target.value + '_div').hide('fade', 500);
+            }
+        }
+
+
+
+        //agranda el tamaño de la barra
+        window.onload = function () {
+            clicMenu(1);
+        }
+
+        // Warning
+        $(window).on('beforeunload', function () {
+            return "Any changes will be lost";
+        });
+
+        // Form Submit
+        $(document).on("submit", "form", function (event) {
+            // disable unload warning
+            $(window).off('beforeunload');
+        });
+
+
+    </script>
+}
+
+

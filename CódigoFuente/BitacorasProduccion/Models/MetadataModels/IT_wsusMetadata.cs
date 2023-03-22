@@ -18,6 +18,11 @@ namespace Portal_2_0.Models
         [Display(Name = "Operating System")]
         public string operating_system { get; set; }
 
+        [DataType(DataType.Date)]
+        [Display(Name = "Fecha de Subida")]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        public System.DateTime fecha { get; set; }
+
     }
 
     [MetadataType(typeof(IT_wsusMetadata))]

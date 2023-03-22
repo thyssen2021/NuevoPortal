@@ -1,4 +1,5 @@
-﻿@model IEnumerable<Portal_2_0.Models.empleados>
+﻿@using Clases.Util;
+@model IEnumerable<Portal_2_0.Models.empleados>
 
 @{
     ViewBag.Title = "Listado de Empleados";
@@ -14,7 +15,7 @@
 @section estilos
 {
     <!-- DataTables -->
-    @Styles.Render("~/Content/dataTables_css")    
+    @Styles.Render("~/Content/dataTables_css")
 
     <!-- SweetAlert2 -->
     <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
@@ -76,35 +77,49 @@
                     <div class="x_content">
                         <div class="row">
                             <div class="col-sm-12">
-                                <div class="card-box table-responsive">
-                                    <div class="form-group">
-
-                                        <a href="@Url.Action( "Create", ViewBag.ControllerName)" class="btn btn-success">
+                                <div class="form-group">
+                                    @if (User.IsInRole(TipoRoles.RH))
+                                    {
+                                        <a href="@Url.Action("Create", ViewBag.ControllerName)" class="btn btn-success" style="color:white">
                                             <i class="fa fa-plus-square"></i>
                                             Crear nuevo
                                         </a>
-                                    </div>
-                                     <div class="form-group" style="text-align:right;color:black">
-
-                                        <a  class="btn btn-warning" id="limpiar-btn">
-                                            <i class="fa-solid fa-arrows-rotate"></i>
-                                            Limpiar Filtros
+                                        <a onclick="mostrarModalJefe()" class="btn btn-info" style="color:white">
+                                            <i class="fa-solid fa-right-left"></i>
+                                            Cambio de Jefe
+                                        </a> 
+                                        <a href="@Url.Action("Organigrama", ViewBag.ControllerName)" class="btn btn-warning" style="color:white">
+                                            <i class="fa-solid fa-sitemap"></i>
+                                            Organigrama
                                         </a>
-                                    </div>
+                                    }
+                                </div>
+                                <div class="form-group" style="text-align:right;color:black">
+                                    <a class="btn btn-warning" id="limpiar-btn">
+                                        <i class="fa-solid fa-arrows-rotate"></i>
+                                        Limpiar Filtros
+                                    </a>
+                                </div>
+                                <div class="card-box table-responsive">
+
                                     <table id="datatable_individual_searching" class="table table-striped table-bordered" cellspacing="0" style="width:100%">
                                         <thead>
                                             <tr>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.nombre)
-                                                </th>
+                                                <th>Acciones</th>
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.numeroEmpleado)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.nombre)
                                                 </th>
                                                 <th>
                                                     Planta
                                                 </th>
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.id_area)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.puesto)
                                                 </th>
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.id_jefe_directo)
@@ -118,46 +133,13 @@
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.activo)
                                                 </th>
-                                                <th>Acciones</th>
+
                                             </tr>
                                         </thead>
                                         <tbody>
                                             @foreach (var item in Model)
                                             {
                                                 <tr style="@(item.activo == false ? "background-color:#FF5050; color:#990000; font-weight:600" :"" )">
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.ConcatNombre)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.numeroEmpleado)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.plantas.descripcion)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.Area.descripcion)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.empleados2.ConcatNombre)
-                                                    </td>
-
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.C8ID)
-                                                    </td>
-
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.correo)
-                                                    </td>
-                                                    <td>
-                                                        @if (item.activo.HasValue && item.activo.Value)
-                                                        {
-                                                            <span>SI</span>
-                                                        }
-                                                        else
-                                                        {
-                                                            <span>NO</span>
-                                                        }
-                                                    </td>
                                                     <td nowrap>
                                                         <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = item.id})" class="btn btn-success btn-sm" title="Editar">
                                                             <i class="fa-regular fa-pen-to-square"></i>
@@ -187,25 +169,64 @@
                                                                 <i class="fa fa-check"></i>
                                                             </a>
                                                         }
-
-
                                                     </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.numeroEmpleado)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.ConcatNombre)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.plantas.descripcion)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.Area.descripcion)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.puesto1.descripcion)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.empleados2.ConcatNombre)
+                                                    </td>
+
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.C8ID)
+                                                    </td>
+
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.correo)
+                                                    </td>
+                                                    <td>
+                                                        @if (item.activo.HasValue && item.activo.Value)
+                                                        {
+                                                            <span>SI</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>NO</span>
+                                                        }
+                                                    </td>
+
                                                 </tr>
                                             }
                                         </tbody>
                                         <tfoot>
                                             <tr>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.nombre)
-                                                </th>
+                                                <th>Acciones</th>
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.numeroEmpleado)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.nombre)
                                                 </th>
                                                 <th>
                                                     Planta
                                                 </th>
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.id_area)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.puesto)
                                                 </th>
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.id_jefe_directo)
@@ -219,12 +240,15 @@
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.activo)
                                                 </th>
-                                                <th>Acciones</th>
                                             </tr>
                                         </tfoot>
                                     </table>
                                 </div>
                                 <br />
+                                <div class="form-group">
+                                    <button type="button" id="export-btn" class="btn btn-success"><i class="fa-regular fa-file-excel"></i> Exportar Excel</button>
+                                    <button type="button" id="export-tkmmnet-btn" class="btn btn-info"><i class="fa-regular fa-file-excel"></i> Formato tkmm 8ID</button>
+                                </div>
 
                             </div>
                         </div>
@@ -235,14 +259,47 @@
     </div>
 </div>
 
+<!-- Modal JEFE Modelo -->
+<div class="modal fade" id="modalJefe" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title" id="exampleModalLongTitle">Jefe Actual</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("CambioJefe", null, FormMethod.Get))
+            {
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <h6>Seleccione el Jefe Actual</h6>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            @Html.DropDownList("id_jefe_directo", null, htmlAttributes: new { @class = "select2bs4 col-md-12", @style = "width:100%", @required = "required" })
+                            <span class="field-validation-valid text-danger" data-valmsg-for="id_jefe_directo" data-valmsg-replace="true"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Continuar</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
 
 @section scripts
 {
+    @Scripts.Render("~/bundles/jqueryval")
     <!-- SweetAlert2 -->
     @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
     @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
     @Scripts.Render("~/bundles/dataTables_js")
+
 
     <script>
 
@@ -250,11 +307,12 @@
 
             //maneja el envió el del formulario
             $('#limpiar-btn').click(function (e) {
-                BloqueaPantalla();
-              
-                //Actualizamos la página
-                location.reload();
-              
+                table.search('');
+                table.columns().search('').draw();
+                $('input', $('.filters th')[0]).each(function () {
+                    $(this).val('');
+                });
+
             });
 
             // Setup - add a text input to each footer cell
@@ -264,7 +322,7 @@
             });
 
             // DataTable
-            var table = $('#datatable_individual_searching').DataTable({
+            table = $('#datatable_individual_searching').DataTable({
                 buttons: [
                     'copy', 'excel', 'pdf'
                 ],
@@ -292,13 +350,128 @@
                 "language": {
                     "url": "//cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json"
                 },
-              
+                stateSave: true,
+
             });
+
+            var state = table.state.loaded();
+            if (state) {
+
+                table.columns().eq(0).each(function (colIdx) {
+
+
+                    var colSearch = state.columns[colIdx].search;
+
+                    if (colSearch.search) {
+                        let indice = 0;
+
+                        //  $('input', $('.filters th')[colIdx]).val(colSearch.search);
+                        $('th > :input').each(function () {                           
+                            if (indice == colIdx)
+                                $(this).val(colSearch.search);
+                            indice++;
+                        });
+                    }
+                });
+                table.draw();
+            }
+
+            //evento para exportar a excel
+            $("#export-btn").click(function () {
+                exportar("exportar");
+            });
+            $("#export-tkmmnet-btn").click(function () {
+                exportar("exportartkmm");
+            });
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
 
             $.unblockUI();
 
         });
 
+        function exportar(ruta) {
+            let index = 0;
+            //variables de búsqueda
+            let numeroEmpleado = '';
+            let nombre = '';
+            let planta = '';
+            let departamento = '';
+            let puesto = '';
+            let jefe_directo = '';
+            let C8ID = '';
+            let correo = '';
+            let activo = '';
+
+            $('th > :input').each(function () {
+                switch (index) {
+                    case 1:
+                        numeroEmpleado = $(this).val();
+                        break;
+                    case 2:
+                        nombre = $(this).val();
+                        break;
+                    case 3:
+                        planta = $(this).val();
+                        break;
+                    case 4:
+                        departamento = $(this).val();
+                        break;
+                    case 5:
+                        puesto = $(this).val();
+                        break;
+                    case 6:
+                        jefe_directo = $(this).val();
+                        break;
+                    case 7:
+                        C8ID = $(this).val();
+                        break;
+                    case 8:
+                        correo = $(this).val();
+                        break;
+                    case 9:
+                        activo = $(this).val();
+                        break;
+                }
+                index++;
+            });
+
+            //carga ventana con parámetros url
+            let url = new URL(location.href + "/" + ruta);
+            if (numeroEmpleado != '')
+                url.searchParams.set('numeroEmpleado', numeroEmpleado)
+            if (nombre != '')
+                url.searchParams.set('nombre', nombre)
+            if (planta != '')
+                url.searchParams.set('planta', planta)
+            if (departamento != '')
+                url.searchParams.set('departamento', departamento)
+            if (puesto != '')
+                url.searchParams.set('puesto', puesto)
+            if (jefe_directo != '')
+                url.searchParams.set('jefe_directo', jefe_directo)
+            if (C8ID != '')
+                url.searchParams.set('C8ID', C8ID)
+            if (correo != '')
+                url.searchParams.set('correo', correo)
+            if (activo != '')
+                url.searchParams.set('activo', activo)
+
+            window.open(url);
+        }
+
+        //variable global para la tabla
+        var table;
+
+
+        //muestra el modal de autorizar
+        function mostrarModalJefe() {
+            $('#modalJefe').modal('show')
+
+        }
 
         //agranda el tamaño de la barra
         window.onload = function () {

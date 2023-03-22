@@ -36,6 +36,14 @@ namespace Portal_2_0.Models
         public string descripcion { get; set; }
         public bool activo { get; set; }
         public string codigoSap { get; set; }
+        public string tkorgstreet { get; set; }
+        public string tkorgpostalcode { get; set; }
+        public string tkorgpostaladdress { get; set; }
+        public string tkorgaddonaddr { get; set; }
+        public string tkorgfedst { get; set; }
+        public string tkorgcountry { get; set; }
+        public string tkorgcountrykey { get; set; }
+        public string tkapsite { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Area> Area { get; set; }

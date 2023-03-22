@@ -131,9 +131,9 @@
                                                 @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CREAR))
                                                 {
                                                     <h3>Requerimiento Usuarios</h3>
-                                                    <li class="@(ViewBag.SegundoNivel == "ListadoUsuarios" ? "current-page" : null )"><a href="@Url.Action("ListadoUsuarios", "IT_matriz_requerimientos")">Crear Solicitud</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "ListadoUsuarios" ? "current-page" : null )"><a href="@Url.Action("ListadoUsuarios", "IT_matriz_requerimientos")">Iniciar Matriz Requerimientos</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "SolicitudesEnProceso" ? "current-page" : null )"><a href="@Url.Action("SolicitudesEnProceso", "IT_matriz_requerimientos")">Solicitudes en Proceso</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "SolicitudesRechazadas" ? "current-page" : null )"><a href="@Url.Action("SolicitudesRechazadas", "IT_matriz_requerimientos")">Solicitudes Rechazadas</a></li>
+                                                    @*<li class="@(ViewBag.SegundoNivel == "SolicitudesRechazadas" ? "current-page" : null )"><a href="@Url.Action("SolicitudesRechazadas", "IT_matriz_requerimientos")">Solicitudes Rechazadas</a></li>*@
                                                     <li class="@(ViewBag.SegundoNivel == "SolicitudesFinalizadas" ? "current-page" : null )"><a href="@Url.Action("SolicitudesFinalizadas", "IT_matriz_requerimientos")">Solicitudes Finalizadas</a></li>
                                                 }
                                                 @if (User.IsInRole(TipoRoles.RH_MENU_COMEDOR_PUEBLA))
@@ -145,18 +145,6 @@
                                         </li>
                                     }
 
-                                    @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_AUTORIZAR))
-                                    {
-                                        <li class="@(ViewBag.PrimerNivel == "autorizar_matriz" ? "active" : null )">
-                                            <a><i class="fa fa-clipboard-user"></i>Solicitudes Usuario<span class="fa fa-chevron-down"></span></a>
-                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "autorizar_matriz" ? "display:block" : null )">
-                                                <h3>Solicitudes</h3>
-                                                <li class="@(ViewBag.SegundoNivel == "solicitudes_pendientes_autorizador" ? "current-page" : null )"><a href="@Url.Action("solicitudes_pendientes_autorizador", "IT_matriz_requerimientos")">Solicitudes Pendientes</a></li>
-                                                <li class="@(ViewBag.SegundoNivel == "solicitudes_rechazadas_autorizador" ? "current-page" : null )"><a href="@Url.Action("solicitudes_rechazadas_autorizador", "IT_matriz_requerimientos")">Solicitudes Rechazadas</a></li>
-                                                <li class="@(ViewBag.SegundoNivel == "solicitudes_autorizadas_autorizador" ? "current-page" : null )"><a href="@Url.Action("solicitudes_autorizadas_autorizador", "IT_matriz_requerimientos")">Solicitudes Autorizadas</a></li>
-                                            </ul>
-                                        </li>
-                                    }
                                     @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR) || User.IsInRole(TipoRoles.IT_CATALOGOS) || User.IsInRole(TipoRoles.IT_SOLICITUD_USUARIOS)
                                         || User.IsInRole(TipoRoles.IT_INVENTORY) || User.IsInRole(TipoRoles.IT_ASIGNACION_HARDWARE))
                                     {
@@ -374,8 +362,6 @@
                                         </li>
                                     }
 
-
-
                                     @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_CATALOGOS) || User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REGISTRO) || User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REPORTE))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "bitacoras_produccion" ? "active" : null )">
@@ -418,6 +404,20 @@
                                         </li>
 
                                     }
+
+                                    @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_AUTORIZAR))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "autorizar_matriz" ? "active" : null )">
+                                            <a><i class="fa fa-clipboard-user"></i>Solicitudes de Alta<span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "autorizar_matriz" ? "display:block" : null )">
+                                                <h3>Solicitudes</h3>
+                                                <li class="@(ViewBag.SegundoNivel == "solicitudes_pendientes_autorizador" ? "current-page" : null )"><a href="@Url.Action("solicitudes_pendientes_autorizador", "IT_matriz_requerimientos")">Solicitudes Pendientes</a></li>
+                                              @*  <li class="@(ViewBag.SegundoNivel == "solicitudes_rechazadas_autorizador" ? "current-page" : null )"><a href="@Url.Action("solicitudes_rechazadas_autorizador", "IT_matriz_requerimientos")">Solicitudes Rechazadas</a></li>*@
+                                                <li class="@(ViewBag.SegundoNivel == "solicitudes_autorizadas_autorizador" ? "current-page" : null )"><a href="@Url.Action("solicitudes_autorizadas_autorizador", "IT_matriz_requerimientos")">Solicitudes Autorizadas</a></li>
+                                            </ul>
+                                        </li>
+                                    }
+
 
                                     @*MENÚ PREMIUM FREIGHT APPROVAL*@
 
@@ -675,8 +675,8 @@
                                                 {
                                                     <h3>Centros de Costo</h3>
                                                     @*<li class="@(ViewBag.SegundoNivel == "actual" ? "current-page" : null )"><a href="@Url.Action("Actual", "ResponsableBudget")">ACT FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)))</a></li>
-                                                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
-                                                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
+                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
+                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
                                                     <li class="@(ViewBag.SegundoNivel == "centros" ? "current-page" : null )"><a href="@Url.Action("Centros", "ResponsableBudget")">Mis Centros</a></li>
                                                 }
 

@@ -1,0 +1,171 @@
+﻿@model Portal_2_0.Models.CambioJefeViewModel
+@{
+    ViewBag.Title = "Cambio de Jefe";
+    ViewBag.PrimerNivel = "recursos_humanos";
+    ViewBag.SegundoNivel = "empleados";
+    ViewBag.ControllerName = "Empleados";
+
+    List<Portal_2_0.Models.empleados> subordinados = (List<Portal_2_0.Models.empleados>)ViewBag.subordinados;
+}
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css?date?=")" rel="stylesheet">
+    <link href="~/Content/vendors/multiselect/jquery.lwMultiSelect.css" rel="stylesheet" />
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+}
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="form-group row">
+                        <span style="color:black"><b>SELECCI&Oacute;N JEFE DIRECTO</b></span>
+                    </div>
+                    <!-- /.col -->
+
+                    @using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal form-label-left" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(model => model.id_jefe_actual)
+
+                        if (!Html.ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                @Html.ValidationSummary("", new { @class = "text-white" })
+                            </div>
+                        }
+                        <div class="item form-group">
+                            <!--id jefe directo -->
+                            @Html.LabelFor(model => model.id_jefe_actual, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            <div class="col-md-4 col-sm-4">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.JefeActual.ConcatNumEmpleadoNombre)" readonly />
+                            </div>
+                            <div class="col-md-2 col-sm-2" style="text-align:center">
+                                <i class="fa-solid fa-right-left label-align" style="font-size:larger"></i>
+                            </div>
+                            @Html.LabelFor(model => model.id_nuevo_jefe, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            <div class="col-md-4 col-sm-4">
+                                @Html.DropDownList("id_nuevo_jefe", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                @Html.ValidationMessageFor(model => model.id_nuevo_jefe, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <div class="ln_solid"></div>
+
+                        <div class="form-group row">
+                            <span style="color:black"><b>SELECCI&Oacute;N EMPLEADOS</b></span>
+                        </div>
+
+                        <div class="item form-group">
+                            <div class="col-md-12 col-sm-12" style="text-align:center">
+                                <select class="form-control" name="subordinados" id="subordinados" multiple="multiple">
+                                    @foreach (var empleado in subordinados)
+                                    {
+                                        <option value="@empleado.id">
+                                            @(" <i>Planta:</i> " + (empleado.plantas!=null? empleado.plantas.descripcion:String.Empty)
+                                            + " <i>&nbsp;&nbsp;&nbsp;Departamento:</i> " + (empleado.Area != null ? empleado.Area.descripcion : String.Empty)
+                                            + " <br/><i>Nombre:</i><b>" + empleado.ConcatNumEmpleadoNombre+"</b>")
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="ln_solid"></div>
+                        <div class="item form-group">
+                            <div class="col-md-12 col-sm-12 ">
+                                <button type="button" id="btn-ok" class="btn btn-success btn-lg float-right"><i class="fa-regular fa-floppy-disk"></i> Guardar</button>
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                        </div>
+                    }
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <script src="~/Content/vendors/multiselect/jquery.lwMultiSelect.js?date=@DateTime.Now"></script>
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+<script>
+
+        $(document).ready(function () {
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            jQuery('#subordinados').lwMultiSelect();
+
+            //maneja el envió el del formulario
+            $('form #btn-ok').click(function (e) {
+                let $form = $(this).closest('form');
+
+                const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: 'btn btn-success',
+                        cancelButton: 'btn btn-danger'
+                    },
+                    buttonsStyling: false,
+                })
+
+
+                var nombreNuevoJefe = $('#@Html.IdFor(model => model.id_nuevo_jefe) option:selected').text();
+
+                if ($('#@Html.IdFor(model => model.id_nuevo_jefe)').val()=='') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Mensaje',
+                        text: 'Seleccione el nombre del nuevo jefe directo.',
+                        confirmButtonText: 'Aceptar',
+                    })
+                } else {
+                    swalWithBootstrapButtons.fire({
+                        title: '¿Desea Continuar?',
+                        html: "Se asignará a " + nombreNuevoJefe + " como jefe directo de los usuarios seleccionados.",
+                        showCancelButton: true,
+                        confirmButtonText: 'Aceptar',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.value) {
+                            //espera a que se cierre el modal para enviar el formulario
+                            setTimeout(function () {
+                                $form.submit();
+                            }, 900);
+                        }
+                    });
+                }
+
+            });
+
+        });
+
+
+
+        window.onload = function () {
+            clicMenu(1);
+        }
+
+</script>
+}

@@ -71,5 +71,7 @@ namespace Clases.Util
         //Módulo RH - Menu comedor 
         public const string RH_MENU_COMEDOR_PUEBLA = "RH_Menu_Comedor_Puebla";
         public const string RH_MENU_COMEDOR_VISUALIZAR_PUEBLA = "Menu_Comedor_Visualizar_Puebla";
+        //RH empleados
+        public const string RH_DETALLES_EMPLEADOS = "RH_DETALLES_EMPLEADOS";
     }
 }

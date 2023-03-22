@@ -123,7 +123,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_equipos_checklist_categorias> IT_equipos_checklist_categorias { get; set; }
         public virtual DbSet<IT_equipos_rel_checklist_actividades> IT_equipos_rel_checklist_actividades { get; set; }
         public virtual DbSet<IT_inventory_cellular_line> IT_inventory_cellular_line { get; set; }
-        public virtual DbSet<empleados> empleados { get; set; }
         public virtual DbSet<IT_inventory_software> IT_inventory_software { get; set; }
         public virtual DbSet<IT_inventory_hardware_type> IT_inventory_hardware_type { get; set; }
         public virtual DbSet<IT_matriz_hardware> IT_matriz_hardware { get; set; }
@@ -132,11 +131,12 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_equipos_checklist> IT_equipos_checklist { get; set; }
         public virtual DbSet<IT_inventory_items> IT_inventory_items { get; set; }
         public virtual DbSet<IT_mantenimientos> IT_mantenimientos { get; set; }
-        public virtual DbSet<plantas> plantas { get; set; }
         public virtual DbSet<RH_menu_comedor_platillos> RH_menu_comedor_platillos { get; set; }
         public virtual DbSet<budget_cantidad> budget_cantidad { get; set; }
         public virtual DbSet<view_valores_fiscal_year_budget_historico> view_valores_fiscal_year_budget_historico { get; set; }
+        public virtual DbSet<empleados> empleados { get; set; }
         public virtual DbSet<IT_epo> IT_epo { get; set; }
         public virtual DbSet<IT_wsus> IT_wsus { get; set; }
+        public virtual DbSet<plantas> plantas { get; set; }
     }
 }

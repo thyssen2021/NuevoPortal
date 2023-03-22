@@ -22,12 +22,11 @@ namespace Portal_2_0.Models
         public Nullable<int> planta_clave { get; set; }
         public Nullable<int> clave { get; set; }
 
-        [Display(Name = "Estatus")]
+        [Display(Name = "¿Activo?")]
         public Nullable<bool> activo { get; set; }
 
         //[Required(AllowEmptyStrings = false)]
         [StringLength(6, MinimumLength = 1)]
-        [RegularExpression("(^[0-9]+$)", ErrorMessage = "Sólo se permiten números.")]
         [Display(Name = "Número de Empleado")]
         public string numeroEmpleado { get; set; }
 
@@ -84,7 +83,7 @@ namespace Portal_2_0.Models
         [RegularExpression("(^[0-9]+$)", ErrorMessage = "Sólo se permiten números.")]
         public string C8ID { get; set; }
 
-        [Display(Name = "Área")]
+        [Display(Name = "Área/Departamento")]
         [Required]
         public Nullable<int> id_area { get; set; }
 
@@ -97,6 +96,11 @@ namespace Portal_2_0.Models
 
         [Display(Name = "Mostrar Teléfono")]
         public bool mostrar_telefono { get; set; }
+
+        //required mediente html
+        [StringLength(1)]
+        [Display(Name = "Sexo")]
+        public string sexo { get; set; }
     }
 
     [MetadataType(typeof(empleadosMetadata))]
@@ -122,6 +126,20 @@ namespace Portal_2_0.Models
                     return string.Format("{0} {1} {2}", nombre, apellido1, apellido2).ToUpper();
                 else
                     return string.Format("({0}) {1} {2} {3}", numeroEmpleado, nombre, apellido1, apellido2).ToUpper();
+            }
+        }
+          //concatena el número de empleado con el nombre
+        [NotMapped]
+        public string ConcatNumEmpleadoNombrePlanta
+        {
+            get
+            {
+                if (String.IsNullOrEmpty(this.numeroEmpleado))
+                    return string.Format("{0} {1} {2}", nombre, apellido1, apellido2).ToUpper();
+                else
+                    return string.Format("({4} - {5}) {0} - {1} {2} {3}", numeroEmpleado, nombre, apellido1, apellido2,
+                        (plantas != null ? plantas.descripcion : String.Empty), (Area != null ? Area.descripcion : String.Empty)
+                        ).ToUpper();
             }
         }
 

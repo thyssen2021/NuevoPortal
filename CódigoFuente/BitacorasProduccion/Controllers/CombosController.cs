@@ -1,4 +1,5 @@
-﻿using Portal_2_0.Models;
+﻿using Bitacoras.Util;
+using Portal_2_0.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -357,20 +358,21 @@ namespace Portal_2_0.Controllers
             var objeto = new object[1];
 
             //inicializa objeto principal
-            if (item == null) { 
-                item = new empleados();            
+            if (item == null)
+            {
+                item = new empleados();
             }
 
             objeto[0] = new
             {
-                nombre = !string.IsNullOrEmpty(item.ConcatNombre) && !string.IsNullOrEmpty(item.nombre) ? item.ConcatNombre: "--",
+                nombre = !string.IsNullOrEmpty(item.ConcatNombre) && !string.IsNullOrEmpty(item.nombre) ? item.ConcatNombre : "--",
                 num_empleado = !string.IsNullOrEmpty(item.numeroEmpleado) ? item.numeroEmpleado : "--",
                 correo = !string.IsNullOrEmpty(item.correo) ? item.correo : "--",
                 c8id = !string.IsNullOrEmpty(item.C8ID) ? item.C8ID : "--",
-                planta = item.plantas!=null ?  item.plantas.descripcion: "--",
-                area = item.Area!=null? item.Area.descripcion: "--",
-                puesto = item.puesto1!=null ? item.puesto1.descripcion:"--",
-                activo = item.activo ==true? "Activo":"Inactivo",
+                planta = item.plantas != null ? item.plantas.descripcion : "--",
+                area = item.Area != null ? item.Area.descripcion : "--",
+                puesto = item.puesto1 != null ? item.puesto1.descripcion : "--",
+                activo = item.activo == true ? "Activo" : "Inactivo",
                 id_jefe_directo = item.empleados2 != null ? item.empleados2.id.ToString() : "--",
                 nombre_jefe_directo = item.empleados2 != null ? item.empleados2.ConcatNombre : "--",
 
@@ -441,7 +443,7 @@ namespace Portal_2_0.Controllers
         public JsonResult obtieneRollosBom(string material = "")
         {
             //obtiene todos los posibles valores
-            List<bom_en_sap> listado = db.bom_en_sap.Where(p =>  p.Quantity > 0 && !p.Material.StartsWith("sm") && p.Material == material).ToList();
+            List<bom_en_sap> listado = db.bom_en_sap.Where(p => p.Quantity > 0 && !p.Material.StartsWith("sm") && p.Material == material).ToList();
 
             //realiza un distict de los materiales
             List<string> distinctList = listado.Where(m => m.Material == material).Select(m => m.Component).Distinct().ToList();
@@ -574,7 +576,68 @@ namespace Portal_2_0.Controllers
             return Json(list, JsonRequestBehavior.AllowGet);
         }
 
+        ///<summary>
+        ///Envia notificacion a Jefe Directo
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles que esten activas
+        public JsonResult NotificacionRegistroJefeDirecto(int idJefeDirecto)
+        {
 
+            //inicializa la lista de objetos
+            var list = new object[1];
+
+            list[0] = new { result = "ERROR", msj = "No se ha iniciado la solicitud" };
+
+            //envia la notificacion 
+            try
+            {
+                //comprueba si ya existe una solicitud actual
+                if (db.IT_solicitud_usuarios.Any(x => x.id_empleado == idJefeDirecto))
+                {
+                    list[0] = new { result = "DUPLICADO", msj = "Ya se existe una solicitud para el empleado actual." };
+                    return Json(list, JsonRequestBehavior.AllowGet);
+                }
+
+                //crea un nuevo objeto de la solicitud
+                IT_solicitud_usuarios solicitud = new IT_solicitud_usuarios
+                {
+                    id_empleado = idJefeDirecto,
+                    comentario = "SOLICITUD DE USUARIO PARA JEFE DIRECTO EN AUTORIZACION DE MATRIZ DE REQUERIMIENTOS",
+                    fecha_solicitud = DateTime.Now,
+                    estatus = IT_solicitud_usuario_Status.CREADO,
+                };
+
+                //guarda en BD
+                db.IT_solicitud_usuarios.Add(solicitud);
+                db.SaveChanges();
+
+                //envia correo electronico
+                EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+                List<String> correos = new List<string>(); //correos TO
+
+                //-- INICIO POR TABLA NOTIFICACION
+                List<notificaciones_correo> listadoNotificaciones = db.notificaciones_correo.Where(x => x.descripcion == NotificacionesCorreo.IT_SOLICITUD_PORTAL && x.activo).ToList();
+                foreach (var n in listadoNotificaciones)
+                {
+                    //si el campo correo no está vacio
+                    if (!String.IsNullOrEmpty(n.correo) && !n.id_empleado.HasValue)
+                        correos.Add(n.correo);
+                    //si tiene empleado asociado
+                    else if (n.empleados != null && !String.IsNullOrEmpty(n.empleados.correo))
+                        correos.Add(n.empleados.correo);
+                }
+                //-- FIN POR TABLA NOTIFICACION
+                envioCorreo.SendEmailAsync(correos, "Se ha creado una solicitud de usuario para el Portal.", envioCorreo.getBodySolicitudUsuarioPortal(solicitud));
+                list[0] = new { result = "OK", msj = "Se envió notificación a IT correctamente." };
+            }
+            catch (Exception e)
+            {
+                list[0] = new { result = "ERROR", msj = "Ocurrió un error al enviar la solicitud" + e.Message };
+            }
+
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
 
         ///<summary>
         ///Obtiene todas los empleados

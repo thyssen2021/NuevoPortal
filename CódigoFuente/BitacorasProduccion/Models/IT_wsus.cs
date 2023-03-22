@@ -18,5 +18,6 @@ namespace Portal_2_0.Models
         public string name { get; set; }
         public string ip { get; set; }
         public string operating_system { get; set; }
+        public System.DateTime fecha { get; set; }
     }
 }

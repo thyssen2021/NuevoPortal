@@ -48,6 +48,11 @@ namespace Portal_2_0.Models
         public Nullable<double> total_physical_memory_mb { get; set; }
         [Display(Name = "Assignment Path")]
         public string assigment_path { get; set; }
+
+        [DataType(DataType.Date)]
+        [Display(Name = "Fecha de Subida")]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        public System.DateTime fecha { get; set; }
     }
 
     [MetadataType(typeof(IT_epoMetadata))]

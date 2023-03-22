@@ -270,8 +270,12 @@ namespace Portal_2_0.Controllers
         // GET: IT_asignacion_hardware/DetailsEmpleado/5
         public ActionResult DetailsEmpleado(int? id)
         {
-            if (!TieneRol(TipoRoles.IT_ASIGNACION_HARDWARE))
-                return View("../Home/ErrorPermisos");
+            if (!TieneRol(TipoRoles.IT_ASIGNACION_HARDWARE)) {
+                if (!TieneRol(TipoRoles.RH) && !TieneRol(TipoRoles.RH_DETALLES_EMPLEADOS))
+                    return View("../Home/ErrorPermisos");
+                else
+                    return RedirectToAction("Details", "empleados");
+            }                
 
             if (id == null)
             {
