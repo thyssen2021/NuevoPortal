@@ -36,7 +36,7 @@ namespace Portal_2_0.Controllers
                 return View("../Home/ErrorPermisos");
             }
 
-            
+
         }
 
         // GET: Puestos/Details/5
@@ -53,13 +53,16 @@ namespace Portal_2_0.Controllers
                 {
                     return View("../Error/NotFound");
                 }
+
+                puesto.shared_services = puesto.Area != null && puesto.Area.shared_services;
+
                 return View(puesto);
             }
             else
             {
                 return View("../Home/ErrorPermisos");
             }
-            
+
         }
 
         // GET: Puestos/Create
@@ -67,7 +70,23 @@ namespace Portal_2_0.Controllers
         {
             if (TieneRol(TipoRoles.RH))
             {
-                ViewBag.plantaClave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
+                //busca todas las plantas que tengan un area 
+                List<plantas> plantasList = db.plantas.ToList();
+                //crea el select list para plantas
+                List<SelectListItem> newList = new List<SelectListItem>();
+
+                foreach (var p in plantasList)
+                {
+                    newList.Add(new SelectListItem()
+                    {
+                        Text = p.descripcion,
+                        Value = p.clave.ToString()
+                    });
+                }
+
+                //envia el select list por viewbag
+                ViewBag.plantaClave = AddFirstItem(new SelectList(newList, "Value", "Text"), textoPorDefecto: "-- Seleccione --");
+
                 ViewBag.areaClave = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
                 return View();
             }
@@ -75,7 +94,7 @@ namespace Portal_2_0.Controllers
             {
                 return View("../Home/ErrorPermisos");
             }
-           
+
         }
 
         // POST: Puestos/Create
@@ -83,8 +102,12 @@ namespace Portal_2_0.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "clave,activo,descripcion,areaClave")] puesto puesto)
+        public ActionResult Create(puesto puesto)
         {
+
+            if (db.puesto.Any(x => x.descripcion == puesto.descripcion && x.areaClave == puesto.areaClave))
+                ModelState.AddModelError("", "Ya existe un registro con los mismos valores.");
+
             if (ModelState.IsValid)
             {
                 puesto.activo = true;
@@ -94,15 +117,39 @@ namespace Portal_2_0.Controllers
                 return RedirectToAction("Index");
             }
 
-            ViewBag.plantaClave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
-            ViewBag.areaClave = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
+            //busca todas las plantas que tengan un area 
+            List<plantas> plantasList = db.plantas.ToList();
+            //crea el select list para plantas
+            List<SelectListItem> newList = new List<SelectListItem>();
+
+
+            foreach (var p in plantasList)
+            {
+                newList.Add(new SelectListItem()
+                {
+                    Text = p.descripcion,
+                    Value = p.clave.ToString()
+                });
+            }
+
+            var area = db.Area.Find(puesto.areaClave);
+
+            var listArea = db.Area.Where(p => p.activo == true && p.plantaClave == area.plantaClave && !p.shared_services);
+            if (puesto.shared_services)
+                listArea = db.Area.Where(p => p.activo == true && p.shared_services);
+
+            List<Area> xlist = listArea.ToList();
+
+            //envia el select list por viewbag
+            ViewBag.plantaClave = AddFirstItem(new SelectList(newList, "Value", "Text"), textoPorDefecto: "-- Seleccione --", selected: area.plantaClave.ToString());
+            ViewBag.areaClave = new SelectList(listArea, "clave", "descripcion");
             return View(puesto);
         }
 
         // GET: Puestos/Edit/5
         public ActionResult Edit(int? id)
         {
-            if(TieneRol(TipoRoles.RH))
+            if (TieneRol(TipoRoles.RH))
             {
                 if (id == null)
                 {
@@ -113,10 +160,32 @@ namespace Portal_2_0.Controllers
                 {
                     return View("../Error/NotFound");
                 }
-                ViewBag.plantaClave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
-                ViewBag.areaClave = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
-                ViewBag.Area = puesto.areaClave;
-                ViewBag.Planta = puesto.Area.plantaClave;
+                //busca todas las plantas que tengan un area 
+                List<plantas> plantasList = db.plantas.ToList();
+                //crea el select list para plantas
+                List<SelectListItem> newList = new List<SelectListItem>();
+
+                foreach (var p in plantasList)
+                {
+                    newList.Add(new SelectListItem()
+                    {
+                        Text = p.descripcion,
+                        Value = p.clave.ToString()
+                    });
+                }
+
+                if (puesto.Area.shared_services)
+                    puesto.shared_services = true;
+
+                var area = db.Area.Find(puesto.areaClave);
+
+                var listArea = db.Area.Where(p => p.activo == true && p.plantaClave == area.plantaClave && !p.shared_services);
+                if (puesto.shared_services)
+                    listArea = db.Area.Where(p => p.activo == true && p.shared_services);
+
+                //envia el select list por viewbag
+                ViewBag.plantaClave = AddFirstItem(new SelectList(newList, "Value", "Text"), textoPorDefecto: "-- Seleccione --", selected: area.plantaClave.ToString());
+                ViewBag.areaClave = new SelectList(listArea, "clave", "descripcion", selectedValue: area.clave.ToString());
                 return View(puesto);
             }
             else
@@ -124,7 +193,7 @@ namespace Portal_2_0.Controllers
                 return View("../Home/ErrorPermisos");
             }
 
-          
+
         }
 
         // POST: Puestos/Edit/5
@@ -132,7 +201,7 @@ namespace Portal_2_0.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "clave,activo,descripcion,areaClave")] puesto puesto, FormCollection collection)
+        public ActionResult Edit(puesto puesto, FormCollection collection)
         {
             //valores enviados previamente
             int c_planta = 0;
@@ -146,10 +215,32 @@ namespace Portal_2_0.Controllers
                 TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
                 return RedirectToAction("Index");
             }
-            ViewBag.plantaClave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
-            ViewBag.areaClave = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
-            ViewBag.Area = puesto.areaClave;
-            ViewBag.Planta = c_planta;
+            //busca todas las plantas que tengan un area 
+            List<plantas> plantasList = db.plantas.ToList();
+            //crea el select list para plantas
+            List<SelectListItem> newList = new List<SelectListItem>();
+            foreach (var p in plantasList)
+            {
+                newList.Add(new SelectListItem()
+                {
+                    Text = p.descripcion,
+                    Value = p.clave.ToString()
+                });
+            }
+
+            if (puesto.Area.shared_services)
+                puesto.shared_services = true;
+
+            var area = db.Area.Find(puesto.areaClave);
+
+            var listArea = db.Area.Where(p => p.activo == true && p.plantaClave == area.plantaClave && !p.shared_services);
+            if (puesto.shared_services)
+                listArea = db.Area.Where(p => p.activo == true && p.shared_services);
+
+            //envia el select list por viewbag
+            ViewBag.plantaClave = AddFirstItem(new SelectList(newList, "Value", "Text"), textoPorDefecto: "-- Seleccione --", selected: area.plantaClave.ToString());
+            ViewBag.areaClave = new SelectList(listArea, "clave", "descripcion", selectedValue: area.clave.ToString());
+
             return View(puesto);
         }
 
@@ -158,18 +249,21 @@ namespace Portal_2_0.Controllers
         {
             if (TieneRol(TipoRoles.RH))
             {
-                
-                    if (id == null)
-                    {
-                        return View("../Error/BadRequest");
-                    }
-                    puesto puesto = db.puesto.Find(id);
-                    if (puesto == null)
-                    {
-                        return View("../Error/NotFound");
-                    }
-                    return View(puesto);
-               
+
+                if (id == null)
+                {
+                    return View("../Error/BadRequest");
+                }
+                puesto puesto = db.puesto.Find(id);
+                if (puesto == null)
+                {
+                    return View("../Error/NotFound");
+                }
+
+                puesto.shared_services = puesto.Area != null && puesto.Area.shared_services;
+
+                return View(puesto);
+
             }
             else
             {
@@ -221,18 +315,21 @@ namespace Portal_2_0.Controllers
         {
             if (TieneRol(TipoRoles.ADMIN))
             {
-               
-                    if (id == null)
-                    {
-                        return View("../Error/BadRequest");
-                    }
-                    puesto puesto = db.puesto.Find(id);
-                    if (puesto == null)
-                    {
-                        return View("../Error/NotFound");
-                    }
-                    return View(puesto);
-                
+
+                if (id == null)
+                {
+                    return View("../Error/BadRequest");
+                }
+                puesto puesto = db.puesto.Find(id);
+                if (puesto == null)
+                {
+                    return View("../Error/NotFound");
+                }
+
+                puesto.shared_services = puesto.Area != null && puesto.Area.shared_services;
+
+                return View(puesto);
+
             }
             else
             {
@@ -298,8 +395,10 @@ namespace Portal_2_0.Controllers
         {
             //obtiene todos los posibles valores
             var areas = db.Area.Include(a => a.plantas);
-            List<Area> listado = areas.Where(p => p.plantaClave.Value == clavePlanta && p.activo==true).ToList();
-           
+            List<Area> listado = areas.Where(p => p.plantaClave.Value == clavePlanta && p.activo == true && !p.shared_services).ToList();
+
+            if (clavePlanta == 99)
+                listado = areas.Where(p => p.shared_services && p.activo == true).ToList();
 
             //inserta el valor por default
             listado.Insert(0, new Area
@@ -317,12 +416,12 @@ namespace Portal_2_0.Controllers
                 if (i == 0)//en caso de item por defecto
                     list[i] = new { value = "", name = listado[i].descripcion };
                 else
-                    list[i] = new { value = listado[i].clave, name = listado[i].descripcion };
+                    list[i] = new { value = listado[i].clave, name = listado[i].ConcatDeptoCeCo };
             }
             return Json(list, JsonRequestBehavior.AllowGet);
         }
 
-         ///<summary>
+        ///<summary>
         ///Obtiene las areas segun la planta recibida (activas y no activas)
         ///</summary>
         ///<return>
@@ -331,8 +430,8 @@ namespace Portal_2_0.Controllers
         {
             //obtiene todos los posibles valores
             var areas = db.Area.Include(a => a.plantas);
-            List<Area> listado = areas.Where(p => p.plantaClave.Value == clavePlanta ).ToList();
-           
+            List<Area> listado = areas.Where(p => p.plantaClave.Value == clavePlanta).ToList();
+
 
             //inserta el valor por default
             listado.Insert(0, new Area

@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<Portal_2_0.Models.Area>
 
 @{
-    ViewBag.Title = "Listado de Areas";
+    ViewBag.Title = "Listado de Departamentos";
     ViewBag.PrimerNivel = "recursos_humanos";
     ViewBag.SegundoNivel = "areas";
     ViewBag.ControllerName = "Areas";
@@ -16,6 +16,10 @@
 
     <!-- SweetAlert2 -->
     <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
 }
 
 @*Para SweetAlert*@
@@ -25,13 +29,10 @@
     <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
 }
 
-
-
 <div class="right_col" role="main">
     <div class="">
         <div class="page-title">
             <div class="title_left">
-                <h3>@ViewBag.ControllerName</h3>
             </div>
         </div>
 
@@ -54,6 +55,20 @@
                     <div class="x_content">
                         <div class="row">
                             <div class="col-sm-12">
+                                <div class="form-group">
+                                    @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
+                                    {
+                                        <div class="form-group row ">
+                                            <label class="control-label col-md-1 col-sm-1" for="estatus" style="text-align:right">Planta:</label>
+                                            <div class="col-md-3 col-sm-3 ">
+                                                @Html.DropDownList("clave_planta", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                            </div>
+                                        </div>
+
+                                    }
+                                    <hr />
+
+                                </div>
                                 <div class="card-box table-responsive">
                                     <div class="form-group">
                                         <a href="@Url.Action( "Create", ViewBag.ControllerName)" class="btn btn-success">
@@ -65,13 +80,16 @@
                                         <thead>
                                             <tr>
                                                 <th>
+                                                    Planta
+                                                </th>
+                                                <th>
                                                     @Html.DisplayNameFor(model => model.descripcion)
                                                 </th>
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.listaCorreoElectronico)
+                                                    @Html.DisplayNameFor(model => model.numero_centro_costo)
                                                 </th>
                                                 <th>
-                                                    Planta
+                                                    @Html.DisplayNameFor(model => model.listaCorreoElectronico)
                                                 </th>
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.activo)
@@ -84,13 +102,23 @@
                                             {
                                                 <tr>
                                                     <td>
+                                                        @if (item.shared_services)
+                                                        {
+                                                            @("SHARED SERVICES")
+                                                        }
+                                                        else
+                                                        {
+                                                            @Html.DisplayFor(modelItem => item.plantas.descripcion)
+                                                        }
+                                                    </td>
+                                                    <td style="font-weight:bold">
                                                         @Html.DisplayFor(modelItem => item.descripcion)
                                                     </td>
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.listaCorreoElectronico)
+                                                        @Html.DisplayFor(modelItem => item.numero_centro_costo)
                                                     </td>
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.plantas.descripcion)
+                                                        @Html.DisplayFor(modelItem => item.listaCorreoElectronico)
                                                     </td>
                                                     <td>
                                                         @if (item.activo)
@@ -142,13 +170,26 @@
     <!-- SweetAlert2 -->
     @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
     @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
-
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
     @Scripts.Render("~/bundles/dataTables_js")
 
     <script>
+        $(document).ready(function () {
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //Envia el formulario cada vez que se modifica el combo
+            $(".select2bs4").change(function () {
+                $("#buscarForm").submit();
+                BloqueaPantalla();
+            });
+
+        });
         //agranda el tamaño de la barra
         window.onload = function () {
-            document.getElementById('menu_toggle').click();
             document.getElementById('menu_toggle').click();
         }
     </script>

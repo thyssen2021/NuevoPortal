@@ -14,6 +14,8 @@
           <Property Name="descripcion" Type="varchar" MaxLength="80" Nullable="false" />
           <Property Name="listaCorreoElectronico" Type="varchar" MaxLength="100" />
           <Property Name="plantaClave" Type="int" />
+          <Property Name="numero_centro_costo" Type="varchar" MaxLength="60" />
+          <Property Name="shared_services" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="AspNetRoles">
           <Key>
@@ -4443,21 +4445,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="Portal_2_0Model" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
-        <EntityType Name="Area">
-          <Key>
-            <PropertyRef Name="clave" />
-          </Key>
-          <Property Name="clave" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="activo" Type="Boolean" Nullable="false" />
-          <Property Name="descripcion" Type="String" MaxLength="80" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="listaCorreoElectronico" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="plantaClave" Type="Int32" />
-          <NavigationProperty Name="orden_trabajo" Relationship="Self.FK_orden_trabajo_id_area" FromRole="Area" ToRole="orden_trabajo" />
-          <NavigationProperty Name="OT_rel_depto_aplica_linea" Relationship="Self.FK_OT_rel_depto_aplica_linea_id_area" FromRole="Area" ToRole="OT_rel_depto_aplica_linea" />
-          <NavigationProperty Name="puesto" Relationship="Self.FK_puestos_area_clave" FromRole="Area" ToRole="puesto" />
-          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_empleados_area" FromRole="Area" ToRole="empleados" />
-          <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_areas_planta_clave" FromRole="Area" ToRole="plantas" />
-        </EntityType>
         <EntityType Name="AspNetRoles">
           <Key>
             <PropertyRef Name="Id" />
@@ -5077,7 +5064,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="estatus" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="comentario" Type="String" MaxLength="300" FixedLength="false" Unicode="false" />
           <Property Name="id_zona_falla" Type="Int32" />
-          <NavigationProperty Name="Area" Relationship="Self.FK_orden_trabajo_id_area" FromRole="orden_trabajo" ToRole="Area" />
           <NavigationProperty Name="OT_zona_falla" Relationship="Self.FK_orden_id_zona_falla" FromRole="orden_trabajo" ToRole="OT_zona_falla" />
           <NavigationProperty Name="OT_grupo_trabajo" Relationship="Self.FK_orden_trabajo_id_grupo_trabajo" FromRole="orden_trabajo" ToRole="OT_grupo_trabajo" />
           <NavigationProperty Name="produccion_lineas" Relationship="Self.FK_orden_trabajo_id_linea" FromRole="orden_trabajo" ToRole="produccion_lineas" />
@@ -5086,6 +5072,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_orden_trabajo_id_asignacion" FromRole="orden_trabajo" ToRole="empleados" />
           <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_orden_trabajo_id_responsable" FromRole="orden_trabajo" ToRole="empleados" />
           <NavigationProperty Name="empleados2" Relationship="Portal_2_0Model.FK_orden_trabajo_id_solicitante" FromRole="orden_trabajo" ToRole="empleados" />
+          <NavigationProperty Name="Area" Relationship="Portal_2_0Model.FK_orden_trabajo_id_area" FromRole="orden_trabajo" ToRole="Area" />
         </EntityType>
         <EntityType Name="OT_grupo_trabajo">
           <Key>
@@ -5124,7 +5111,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           </Key>
           <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="id_area" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="Area" Relationship="Self.FK_OT_rel_depto_aplica_linea_id_area" FromRole="OT_rel_depto_aplica_linea" ToRole="Area" />
+          <NavigationProperty Name="Area" Relationship="Portal_2_0Model.FK_OT_rel_depto_aplica_linea_id_area" FromRole="OT_rel_depto_aplica_linea" ToRole="Area" />
         </EntityType>
         <EntityType Name="OT_responsables">
           <Key>
@@ -5558,8 +5545,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="activo" Type="Boolean" Nullable="false" />
           <Property Name="descripcion" Type="String" MaxLength="80" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="areaClave" Type="Int32" />
-          <NavigationProperty Name="Area" Relationship="Self.FK_puestos_area_clave" FromRole="puesto" ToRole="Area" />
           <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_empleados_puesto" FromRole="puesto" ToRole="empleados" />
+          <NavigationProperty Name="Area" Relationship="Portal_2_0Model.FK_puestos_area_clave" FromRole="puesto" ToRole="Area" />
         </EntityType>
         <EntityType Name="upgrade_check_item">
           <Key>
@@ -5775,42 +5762,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="Diciembre" Type="Decimal" Precision="38" Scale="2" />
           <Property Name="Comentario" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
         </EntityType>
-        <Association Name="FK_orden_trabajo_id_area">
-          <End Role="Area" Type="Self.Area" Multiplicity="1" />
-          <End Role="orden_trabajo" Type="Self.orden_trabajo" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Area">
-              <PropertyRef Name="clave" />
-            </Principal>
-            <Dependent Role="orden_trabajo">
-              <PropertyRef Name="id_area" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_OT_rel_depto_aplica_linea_id_area">
-          <End Role="Area" Type="Self.Area" Multiplicity="1" />
-          <End Role="OT_rel_depto_aplica_linea" Type="Self.OT_rel_depto_aplica_linea" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Area">
-              <PropertyRef Name="clave" />
-            </Principal>
-            <Dependent Role="OT_rel_depto_aplica_linea">
-              <PropertyRef Name="id_area" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_puestos_area_clave">
-          <End Role="Area" Type="Self.Area" Multiplicity="0..1" />
-          <End Role="puesto" Type="Self.puesto" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Area">
-              <PropertyRef Name="clave" />
-            </Principal>
-            <Dependent Role="puesto">
-              <PropertyRef Name="areaClave" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_log_inicio_sesion_id_usuario">
           <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="1" />
           <End Role="log_inicio_sesion" Type="Self.log_inicio_sesion" Multiplicity="*" />
@@ -6572,7 +6523,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="*" />
         </Association>
         <EntityContainer Name="Portal_2_0Entities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="Area" EntityType="Self.Area" />
           <EntitySet Name="AspNetRoles" EntityType="Self.AspNetRoles" />
           <EntitySet Name="AspNetUsers" EntityType="Self.AspNetUsers" />
           <EntitySet Name="biblioteca_digital" EntityType="Self.biblioteca_digital" />
@@ -6660,18 +6610,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <EntitySet Name="upgrade_values_transaccion" EntityType="Self.upgrade_values_transaccion" />
           <EntitySet Name="view_historico_resultado" EntityType="Self.view_historico_resultado" />
           <EntitySet Name="view_valores_fiscal_year" EntityType="Self.view_valores_fiscal_year" />
-          <AssociationSet Name="FK_orden_trabajo_id_area" Association="Self.FK_orden_trabajo_id_area">
-            <End Role="Area" EntitySet="Area" />
-            <End Role="orden_trabajo" EntitySet="orden_trabajo" />
-          </AssociationSet>
-          <AssociationSet Name="FK_OT_rel_depto_aplica_linea_id_area" Association="Self.FK_OT_rel_depto_aplica_linea_id_area">
-            <End Role="Area" EntitySet="Area" />
-            <End Role="OT_rel_depto_aplica_linea" EntitySet="OT_rel_depto_aplica_linea" />
-          </AssociationSet>
-          <AssociationSet Name="FK_puestos_area_clave" Association="Self.FK_puestos_area_clave">
-            <End Role="Area" EntitySet="Area" />
-            <End Role="puesto" EntitySet="puesto" />
-          </AssociationSet>
           <AssociationSet Name="FK_log_inicio_sesion_id_usuario" Association="Self.FK_log_inicio_sesion_id_usuario">
             <End Role="AspNetUsers" EntitySet="AspNetUsers" />
             <End Role="log_inicio_sesion" EntitySet="log_inicio_sesion" />
@@ -7090,10 +7028,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           </AssociationSet>
           <EntitySet Name="view_valores_fiscal_year_budget_historico" EntityType="Portal_2_0Model.view_valores_fiscal_year_budget_historico" />
           <EntitySet Name="empleados" EntityType="Portal_2_0Model.empleados" />
-          <AssociationSet Name="FK_empleados_area" Association="Portal_2_0Model.FK_empleados_area">
-            <End Role="Area" EntitySet="Area" />
-            <End Role="empleados" EntitySet="empleados" />
-          </AssociationSet>
           <AssociationSet Name="FK_empleados_id_fotografia" Association="Portal_2_0Model.FK_empleados_id_fotografia">
             <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
             <End Role="empleados" EntitySet="empleados" />
@@ -7281,10 +7215,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <EntitySet Name="IT_epo" EntityType="Portal_2_0Model.IT_epo" />
           <EntitySet Name="IT_wsus" EntityType="Portal_2_0Model.IT_wsus" />
           <EntitySet Name="plantas" EntityType="Portal_2_0Model.plantas" />
-          <AssociationSet Name="FK_areas_planta_clave" Association="Portal_2_0Model.FK_areas_planta_clave">
-            <End Role="plantas" EntitySet="plantas" />
-            <End Role="Area" EntitySet="Area" />
-          </AssociationSet>
           <AssociationSet Name="FK_empleados_planta_clave" Association="Portal_2_0Model.FK_empleados_planta_clave">
             <End Role="plantas" EntitySet="plantas" />
             <End Role="empleados" EntitySet="empleados" />
@@ -7332,6 +7262,27 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <AssociationSet Name="FK_produccion_turnos_planta_clave" Association="Portal_2_0Model.FK_produccion_turnos_planta_clave">
             <End Role="plantas" EntitySet="plantas" />
             <End Role="produccion_turnos" EntitySet="produccion_turnos" />
+          </AssociationSet>
+          <EntitySet Name="Area" EntityType="Portal_2_0Model.Area" />
+          <AssociationSet Name="FK_areas_planta_clave" Association="Portal_2_0Model.FK_areas_planta_clave">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="Area" EntitySet="Area" />
+          </AssociationSet>
+          <AssociationSet Name="FK_empleados_area" Association="Portal_2_0Model.FK_empleados_area">
+            <End Role="Area" EntitySet="Area" />
+            <End Role="empleados" EntitySet="empleados" />
+          </AssociationSet>
+          <AssociationSet Name="FK_orden_trabajo_id_area" Association="Portal_2_0Model.FK_orden_trabajo_id_area">
+            <End Role="Area" EntitySet="Area" />
+            <End Role="orden_trabajo" EntitySet="orden_trabajo" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OT_rel_depto_aplica_linea_id_area" Association="Portal_2_0Model.FK_OT_rel_depto_aplica_linea_id_area">
+            <End Role="Area" EntitySet="Area" />
+            <End Role="OT_rel_depto_aplica_linea" EntitySet="OT_rel_depto_aplica_linea" />
+          </AssociationSet>
+          <AssociationSet Name="FK_puestos_area_clave" Association="Portal_2_0Model.FK_puestos_area_clave">
+            <End Role="Area" EntitySet="Area" />
+            <End Role="puesto" EntitySet="puesto" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="GV_usuarios">
@@ -8170,7 +8121,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="id_fotografia" Type="Int32" />
           <Property Name="mostrar_telefono" Type="Boolean" Nullable="false" />
           <Property Name="sexo" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
-          <NavigationProperty Name="Area" Relationship="Portal_2_0Model.FK_empleados_area" FromRole="empleados" ToRole="Area" />
           <NavigationProperty Name="biblioteca_digital" Relationship="Portal_2_0Model.FK_empleados_id_fotografia" FromRole="empleados" ToRole="biblioteca_digital" />
           <NavigationProperty Name="budget_responsables" Relationship="Portal_2_0Model.FK_budget_responsables_id_centro_costo" FromRole="empleados" ToRole="budget_responsables" />
           <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_empleados_jefe_directo" FromRole="empleados" ToRole="empleados1" />
@@ -8219,19 +8169,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="IT_site_checklist" Relationship="Portal_2_0Model.FK_site_checklist_id_sistemas" FromRole="empleados" ToRole="IT_site_checklist" />
           <NavigationProperty Name="upgrade_usuarios" Relationship="Portal_2_0Model.FK_upgrade_usuarios_empleado" FromRole="empleados" ToRole="upgrade_usuarios" />
           <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_empleados_planta_clave" FromRole="empleados" ToRole="plantas" />
+          <NavigationProperty Name="Area" Relationship="Portal_2_0Model.FK_empleados_area" FromRole="empleados" ToRole="Area" />
         </EntityType>
-        <Association Name="FK_empleados_area">
-          <End Type="Portal_2_0Model.Area" Role="Area" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Area">
-              <PropertyRef Name="clave" />
-            </Principal>
-            <Dependent Role="empleados">
-              <PropertyRef Name="id_area" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_empleados_id_fotografia">
           <End Type="Portal_2_0Model.biblioteca_digital" Role="biblioteca_digital" Multiplicity="0..1" />
           <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="*" />
@@ -8834,7 +8773,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="tkorgcountry" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="tkorgcountrykey" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
           <Property Name="tkapsite" Type="String" MaxLength="80" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="Area" Relationship="Portal_2_0Model.FK_areas_planta_clave" FromRole="plantas" ToRole="Area" />
           <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_empleados_planta_clave" FromRole="plantas" ToRole="empleados" />
           <NavigationProperty Name="IATF_documentos" Relationship="Portal_2_0Model.FK_IATF_documentos_id_planta" FromRole="plantas" ToRole="IATF_documentos" />
           <NavigationProperty Name="IT_inventory_cellular_line" Relationship="Portal_2_0Model.FK_IT_inventory_cellular_line_id_planta" FromRole="plantas" ToRole="IT_inventory_cellular_line" />
@@ -8847,19 +8785,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="produccion_registros" Relationship="Portal_2_0Model.FK_produccion_registros_planta_clave" FromRole="plantas" ToRole="produccion_registros" />
           <NavigationProperty Name="produccion_supervisores" Relationship="Portal_2_0Model.FK_produccion_supervisores_clave_planta" FromRole="plantas" ToRole="produccion_supervisores" />
           <NavigationProperty Name="produccion_turnos" Relationship="Portal_2_0Model.FK_produccion_turnos_planta_clave" FromRole="plantas" ToRole="produccion_turnos" />
+          <NavigationProperty Name="Area" Relationship="Portal_2_0Model.FK_areas_planta_clave" FromRole="plantas" ToRole="Area" />
         </EntityType>
-        <Association Name="FK_areas_planta_clave">
-          <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.Area" Role="Area" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="plantas">
-              <PropertyRef Name="clave" />
-            </Principal>
-            <Dependent Role="Area">
-              <PropertyRef Name="plantaClave" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_empleados_planta_clave">
           <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="0..1" />
           <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="*" />
@@ -9004,23 +8931,89 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="Area">
+          <Key>
+            <PropertyRef Name="clave" />
+          </Key>
+          <Property Name="clave" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="80" FixedLength="false" Unicode="false" />
+          <Property Name="listaCorreoElectronico" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="plantaClave" Type="Int32" />
+          <Property Name="numero_centro_costo" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="shared_services" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_areas_planta_clave" FromRole="Area" ToRole="plantas" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_empleados_area" FromRole="Area" ToRole="empleados" />
+          <NavigationProperty Name="orden_trabajo" Relationship="Portal_2_0Model.FK_orden_trabajo_id_area" FromRole="Area" ToRole="orden_trabajo" />
+          <NavigationProperty Name="OT_rel_depto_aplica_linea" Relationship="Portal_2_0Model.FK_OT_rel_depto_aplica_linea_id_area" FromRole="Area" ToRole="OT_rel_depto_aplica_linea" />
+          <NavigationProperty Name="puesto" Relationship="Portal_2_0Model.FK_puestos_area_clave" FromRole="Area" ToRole="puesto" />
+        </EntityType>
+        <Association Name="FK_areas_planta_clave">
+          <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.Area" Role="Area" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="Area">
+              <PropertyRef Name="plantaClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_empleados_area">
+          <End Type="Portal_2_0Model.Area" Role="Area" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Area">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="empleados">
+              <PropertyRef Name="id_area" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_orden_trabajo_id_area">
+          <End Type="Portal_2_0Model.Area" Role="Area" Multiplicity="1" />
+          <End Type="Portal_2_0Model.orden_trabajo" Role="orden_trabajo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Area">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="orden_trabajo">
+              <PropertyRef Name="id_area" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OT_rel_depto_aplica_linea_id_area">
+          <End Type="Portal_2_0Model.Area" Role="Area" Multiplicity="1" />
+          <End Type="Portal_2_0Model.OT_rel_depto_aplica_linea" Role="OT_rel_depto_aplica_linea" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Area">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="OT_rel_depto_aplica_linea">
+              <PropertyRef Name="id_area" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_puestos_area_clave">
+          <End Type="Portal_2_0Model.Area" Role="Area" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.puesto" Role="puesto" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Area">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="puesto">
+              <PropertyRef Name="areaClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="Portal_2_0ModelStoreContainer" CdmEntityContainer="Portal_2_0Entities">
-          <EntitySetMapping Name="Area">
-            <EntityTypeMapping TypeName="Portal_2_0Model.Area">
-              <MappingFragment StoreEntitySet="Area">
-                <ScalarProperty Name="clave" ColumnName="clave" />
-                <ScalarProperty Name="activo" ColumnName="activo" />
-                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
-                <ScalarProperty Name="listaCorreoElectronico" ColumnName="listaCorreoElectronico" />
-                <ScalarProperty Name="plantaClave" ColumnName="plantaClave" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="AspNetRoles">
             <EntityTypeMapping TypeName="Portal_2_0Model.AspNetRoles">
               <MappingFragment StoreEntitySet="AspNetRoles">
@@ -10637,6 +10630,19 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
                 <ScalarProperty Name="codigoSap" ColumnName="codigoSap" />
                 <ScalarProperty Name="activo" ColumnName="activo" />
                 <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="clave" ColumnName="clave" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Area">
+            <EntityTypeMapping TypeName="Portal_2_0Model.Area">
+              <MappingFragment StoreEntitySet="Area">
+                <ScalarProperty Name="shared_services" ColumnName="shared_services" />
+                <ScalarProperty Name="numero_centro_costo" ColumnName="numero_centro_costo" />
+                <ScalarProperty Name="plantaClave" ColumnName="plantaClave" />
+                <ScalarProperty Name="listaCorreoElectronico" ColumnName="listaCorreoElectronico" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="activo" ColumnName="activo" />
                 <ScalarProperty Name="clave" ColumnName="clave" />
               </MappingFragment>
             </EntityTypeMapping>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
 
@@ -27,6 +28,8 @@ namespace Portal_2_0.Models
     [MetadataType(typeof(puestoMetadata))]
     public partial class puesto
     {
-
+        [NotMapped]
+        [Display(Name = "Shared Services")]
+        public bool shared_services { get; set; }
     }
 }

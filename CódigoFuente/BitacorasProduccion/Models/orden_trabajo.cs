@@ -41,7 +41,6 @@ namespace Portal_2_0.Models
         public string comentario { get; set; }
         public Nullable<int> id_zona_falla { get; set; }
     
-        public virtual Area Area { get; set; }
         public virtual OT_zona_falla OT_zona_falla { get; set; }
         public virtual OT_grupo_trabajo OT_grupo_trabajo { get; set; }
         public virtual produccion_lineas produccion_lineas { get; set; }
@@ -52,5 +51,6 @@ namespace Portal_2_0.Models
         public virtual empleados empleados { get; set; }
         public virtual empleados empleados1 { get; set; }
         public virtual empleados empleados2 { get; set; }
+        public virtual Area Area { get; set; }
     }
 }

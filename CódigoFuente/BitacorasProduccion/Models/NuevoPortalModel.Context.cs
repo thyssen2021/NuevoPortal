@@ -25,7 +25,6 @@ namespace Portal_2_0.Models
             throw new UnintentionalCodeFirstException();
         }
     
-        public virtual DbSet<Area> Area { get; set; }
         public virtual DbSet<AspNetRoles> AspNetRoles { get; set; }
         public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
         public virtual DbSet<biblioteca_digital> biblioteca_digital { get; set; }
@@ -138,5 +137,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_epo> IT_epo { get; set; }
         public virtual DbSet<IT_wsus> IT_wsus { get; set; }
         public virtual DbSet<plantas> plantas { get; set; }
+        public virtual DbSet<Area> Area { get; set; }
     }
 }

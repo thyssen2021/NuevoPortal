@@ -23,8 +23,11 @@ namespace Portal_2_0.Controllers
         public JsonResult obtieneAreas(int clavePlanta = 0)
         {
             //obtiene todos los posibles valores
-            List<Area> listado = db.Area.Where(p => p.plantaClave.Value == clavePlanta && p.activo == true).ToList();
+            List<Area> listado = db.Area.Where(p => p.plantaClave.Value == clavePlanta && p.activo == true && !p.shared_services).ToList();
 
+            //shared services
+            if(clavePlanta==99)
+                listado = db.Area.Where(p => p.shared_services && p.activo == true).ToList();
 
             //inserta el valor por default
             listado.Insert(0, new Area
@@ -42,7 +45,7 @@ namespace Portal_2_0.Controllers
                 if (i == 0)//en caso de item por defecto
                     list[i] = new { value = "", name = listado[i].descripcion };
                 else
-                    list[i] = new { value = listado[i].clave, name = listado[i].descripcion };
+                    list[i] = new { value = listado[i].clave, name = listado[i].ConcatDeptoCeCo };
             }
             return Json(list, JsonRequestBehavior.AllowGet);
         }

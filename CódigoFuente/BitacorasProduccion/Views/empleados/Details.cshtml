@@ -76,6 +76,10 @@
                             <div class="col-md-2 col-sm-2">
                                 <input type="text" class="form-control" value="@Html.DisplayFor(model => model.nueva_fecha_nacimiento)" readonly />
                             </div>
+                            @Html.LabelFor(model => model.ingresoFecha, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                            <div class="col-md-2 col-sm-2">
+                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.ingresoFecha)" readonly />
+                            </div>
                             @Html.LabelFor(model => model.sexo, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                             <div class="col-md-2 col-sm-2">
                                 <div class="col-md-6 col-sm-6">
@@ -104,10 +108,11 @@
                             @Html.LabelFor(model => model.id_jefe_directo, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                             <div class="col-md-3 col-sm-3">
                                 <input type="text" class="form-control" value="@Html.DisplayFor(model => model.empleados2.ConcatNombre)" readonly />
-                            </div>
-                            @Html.LabelFor(model => model.ingresoFecha, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                            <div class="col-md-2 col-sm-2">
-                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.ingresoFecha)" readonly />
+                            </div>                         
+                            @Html.LabelFor(model => model.shared_services, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-1 col-sm-1">
+                                @Html.EditorFor(m => m.shared_services, new { htmlAttributes = new { @class = "form-control", @disabled="disabled" } })
+                                @Html.ValidationMessageFor(model => model.shared_services, "", new { @class = "text-danger" })
                             </div>
                         </div>
                         <div class="item form-group">
@@ -215,6 +220,7 @@
     <!-- iCheck -->
     @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
     <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+    <script src="~/Content/vendors/multiselect_filter/jquery.bootstrap-duallistbox.js"></script>
     <script>
 
         $(document).ready(function () {

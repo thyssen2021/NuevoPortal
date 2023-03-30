@@ -4234,7 +4234,7 @@ namespace Portal_2_0.Models
                 row["tkfkzext"] = "801495";     //unico
                 row["tkuniqueid"] = "801495-01";    //unico
                 row["tkpstatus"] = "40";    //unico
-                row["tkcostcenter"] = string.Empty;
+                row["tkcostcenter"] = item.Area != null ? item.Area.numero_centro_costo : String.Empty;
                 row["tkdepartment"] = item.Area != null ? item.Area.descripcion : String.Empty;
                 row["tkfunction"] = item.puesto1 != null ? item.puesto1.descripcion : String.Empty;
                 row["tkorgstreet"] = item.plantas != null ? item.plantas.tkorgstreet : String.Empty;
@@ -4299,7 +4299,7 @@ namespace Portal_2_0.Models
 
             ////estilo para fecha
             SLStyle styleShortDate = oSLDocument.CreateStyle();
-            styleShortDate.FormatCode = "yyyy/MM/dd";
+            styleShortDate.FormatCode = "yyyy.MM.dd";
             oSLDocument.SetColumnStyle(tkbirthColumn, styleShortDate);
 
 

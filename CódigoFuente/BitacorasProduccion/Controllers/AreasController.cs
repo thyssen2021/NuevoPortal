@@ -17,7 +17,7 @@ namespace Portal_2_0.Controllers
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
         // GET: Areas
-        public ActionResult Index()
+        public ActionResult Index(int? clave_planta)
         {
             if (TieneRol(TipoRoles.RH))
             {
@@ -27,14 +27,40 @@ namespace Portal_2_0.Controllers
                     ViewBag.MensajeAlert = TempData["Mensaje"];
                 }
 
-                var area = db.Area.Include(a => a.plantas);
-                return View(area.ToList());
+                var area = db.Area.Where(x => ((clave_planta == null || (clave_planta == x.plantaClave && !x.shared_services)))
+                                        || (clave_planta != null && clave_planta == 99 && x.shared_services)
+                ).ToList();
+
+                //busca todas las plantas que tengan un area 
+                List<plantas> plantasList = db.Area.Where(x => x.plantas != null).Select(x => x.plantas).Distinct().ToList();
+                //crea el select list para plantas
+                List<SelectListItem> newList = new List<SelectListItem>();
+                foreach (var p in plantasList)
+                {
+                    newList.Add(new SelectListItem()
+                    {
+                        Text = p.descripcion,
+                        Value = p.clave.ToString()
+                    });
+                }
+
+                //agrega el valor paras shared services
+                newList.Add(new SelectListItem()
+                {
+                    Text = "SHARED SERVICES",
+                    Value = "99"    //valor para shared services
+                });
+
+                //envia el select list por viewbag
+                ViewBag.clave_planta = AddFirstItem(new SelectList(newList, "Value", "Text", clave_planta.ToString()), textoPorDefecto: "-- Todas --");
+
+                return View(area);
             }
             else
             {
                 return View("../Home/ErrorPermisos");
             }
-           
+
         }
 
         // GET: Areas/Details/5
@@ -60,7 +86,7 @@ namespace Portal_2_0.Controllers
                 return View("../Home/ErrorPermisos");
             }
 
-           
+
         }
 
         // GET: Areas/Create
@@ -68,14 +94,14 @@ namespace Portal_2_0.Controllers
         {
             if (TieneRol(TipoRoles.RH))
             {
-                ViewBag.plantaClave = new SelectList(db.plantas.Where(p => p.activo==true), "clave", "descripcion");
+                ViewBag.plantaClave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
                 return View();
             }
             else
             {
                 return View("../Home/ErrorPermisos");
             }
-            
+
         }
 
         // POST: Areas/Create
@@ -83,33 +109,37 @@ namespace Portal_2_0.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "clave,activo,descripcion,listaCorreoElectronico,plantaClave")] Area area)
+        public ActionResult Create(Area area)
         {
+
             if (ModelState.IsValid)
             {
 
                 //busca si ya exite un area con esos valores
-                Area areaBusca = db.Area.Where(s => s.plantaClave == area.plantaClave && s.descripcion.ToUpper() == area.descripcion.ToUpper())
+                Area areaBusca = db.Area.Where(s => s.plantaClave == area.plantaClave && s.descripcion.ToUpper() == area.descripcion.ToUpper()
+                                            && s.shared_services == area.shared_services
+                                            //&& s.numero_centro_costo == area.numero_centro_costo
+                                            )
                                         .FirstOrDefault();
 
                 if (areaBusca == null) //no existe el area
                 {
                     area.activo = true;
                     area.descripcion = area.descripcion.ToUpper();
-                    
+
                     db.Area.Add(area);
                     db.SaveChanges();
                 }
                 else
                 {
                     ModelState.AddModelError("", "Ya existe un registro con los mismos valores.");
-                    ViewBag.plantaClave = new SelectList(db.plantas.Where(p => p.activo==true), "clave", "descripcion");
+                    ViewBag.plantaClave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
                     return View(area);
                 }
 
                 //para mostrar la alerta de exito
                 TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.CREATE, TipoMensajesSweetAlerts.SUCCESS);
-               
+
                 return RedirectToAction("Index");
             }
 
@@ -147,12 +177,19 @@ namespace Portal_2_0.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "clave,activo,descripcion,listaCorreoElectronico,plantaClave")] Area area)
+        public ActionResult Edit(Area area)
         {
+
+            if (db.Area.Any(s => s.plantaClave == area.plantaClave && s.descripcion.ToUpper() == area.descripcion.ToUpper()
+                                            && s.shared_services == area.shared_services
+                                            && s.clave != area.clave
+                                            ))
+                ModelState.AddModelError("", "Ya existe un registro con los mismos valores.");
+
             if (ModelState.IsValid)
             {
                 area.descripcion = area.descripcion.ToUpper();
-               
+
                 db.Entry(area).State = EntityState.Modified;
                 db.SaveChanges();
                 TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
@@ -172,7 +209,7 @@ namespace Portal_2_0.Controllers
                 if (id == null)
                 {
                     return View("../Error/BadRequest");
-                }               
+                }
                 Area area = db.Area.Find(id);
                 if (area == null)
                 {
@@ -183,7 +220,7 @@ namespace Portal_2_0.Controllers
             else
             {
                 return View("../Home/ErrorPermisos");
-            }           
+            }
         }
 
         // POST: Areas/Disable/5

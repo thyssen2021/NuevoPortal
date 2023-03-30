@@ -115,6 +115,10 @@ namespace Portal_2_0.Models
                 return string.Format("{0} {1} {2}", nombre, apellido1, apellido2).ToUpper();
             }
         }
+         //concatena el nombre
+        [NotMapped]
+        [Display(Name = "Shared Services")]
+        public bool shared_services { get; set; }        
 
         //concatena el número de empleado con el nombre
         [NotMapped]

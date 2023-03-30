@@ -124,9 +124,10 @@
                                                 @if (User.IsInRole(TipoRoles.RH))
                                                 {
                                                     <h3>Empleados</h3>
-                                                    <li class="@(ViewBag.SegundoNivel == "areas" ? "current-page" : null )"><a href="@Url.Action("Index", "Areas")">Areas</a></li>
-                                                    <li class="@(ViewBag.SegundoNivel == "puestos" ? "current-page" : null )"><a href="@Url.Action("Index", "Puestos")">Puestos</a></li>
+
                                                     <li class="@(ViewBag.SegundoNivel == "empleados" ? "current-page" : null )"><a href="@Url.Action("Index", "Empleados")">Empleados</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "puestos" ? "current-page" : null )"><a href="@Url.Action("Index", "Puestos")">Puestos</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "areas" ? "current-page" : null )"><a href="@Url.Action("Index", "Areas")">Departamentos</a></li>
                                                 }
                                                 @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CREAR))
                                                 {

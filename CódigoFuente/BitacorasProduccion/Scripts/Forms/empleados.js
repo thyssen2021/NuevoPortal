@@ -1,5 +1,55 @@
 ﻿$(document).ready(function () {
 
+    $('input').iCheck({
+        checkboxClass: 'icheckbox_square-green',
+        radioClass: 'iradio_square-green',
+        increaseArea: '20%' // optional
+    });
+
+    var demo1 = $('[name=subordinados]').bootstrapDualListbox({
+        nonSelectedListLabel: 'Todos los Empleados',
+        selectedListLabel: 'Empleados Seleccionados',
+        filterTextClear: 'Mostrar todo',
+        filterPlaceHolder: 'Nombre',
+        moveSelectedLabel: 'Mover Seleccionados',
+        moveAllLabel: 'Mover Todo',
+        removeSelectedLabel: 'Quitar Seleccionados',
+        removeAllLabel: 'Quitar Todos',
+        moveOnSelect: false,
+    });
+    //elimina botones del DualList
+    CustomizeDuallistbox('subordinados');
+
+    //maneja el envió el del formulario
+    $('form #btn-ok').click(function (e) {
+        let $form = $(this).closest('form');
+
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-success',
+                cancelButton: 'btn btn-danger'
+            },
+            buttonsStyling: false,
+        })
+
+        swalWithBootstrapButtons.fire({
+            title: '¿Desea Continuar?',
+            html: "Se guardarán los cambios.",
+            showCancelButton: true,
+            confirmButtonText: 'Aceptar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.value) {
+                //espera a que se cierre el modal para enviar el formulario
+                setTimeout(function () {
+                    $form.submit();
+                }, 900);
+            }
+        });
+
+
+    });
+
     //inicializa en input file
     bsCustomFileInput.init()
 
@@ -10,14 +60,36 @@
         filePreview(this);
     });
 
+    $('.select2bs4').select2({
+        theme: 'bootstrap4'
+    })
+    //evita que se abra el select
+    $('select[data-select2-id]').on('select2:opening', function (e) {
+        if ($(this).attr('readonly') == 'readonly') { // Check if select tag is readonly.
+            console.log('readonly, cant be open!');
+            e.preventDefault();
+            $(this).select2('close');
+            return false;
+        } else {
+            console.log('expandable/selectable');
+        }
+    });
 
-       //carga los valores cuando se cambia la planta
+
+    //carga los valores cuando se cambia la planta
     $("#planta_clave").change(function () {
+        let checkedValue = $('#shared_services:checked').val();
+
+        let planta = $(this).val();
+
+        if (checkedValue == 'true')
+            planta = 99;
+
         //obtiene las areas
         $.ajax({
             type: 'POST',
             url: '/Combos/obtieneAreas',
-            data: { clavePlanta: $(this).val() },
+            data: { clavePlanta: planta },
             success: function (data) {
                 populateDropdown($("#id_area"), data);
             },
@@ -55,9 +127,48 @@
         verificaEstadoCombos();
     });
 
-    seleccionaValoresDefault();
+    $('input').on('ifChecked', function (event) {
+        verificaChecks();
+    });
+
+    $('input').on('ifUnchecked', function (event) {
+        verificaChecks();
+    });
+
+    //seleccionaValoresDefault();
+    //$("#planta_clave").change();
 
 });
+
+function verificaChecks(event) {
+
+    var checkedValue = $('#shared_services:checked').val();
+
+    if (checkedValue) {
+        let element = document.getElementById('planta_clave');
+        element.value = 1;
+        $('#planta_clave').attr('readonly', 'readonly');
+
+        $('.select2bs4').select2({
+            theme: 'bootstrap4'
+        })
+
+    } else {
+        $('#planta_clave').removeAttr('readonly');
+    }
+    $("#planta_clave").change();
+
+}
+
+//elimina los botones del multiselect
+function CustomizeDuallistbox(listboxID) {
+    var customSettings = $('#' + listboxID).bootstrapDualListbox('getContainer');
+    customSettings.find('.btn-group.buttons').remove();
+}
+
+window.onload = function () {
+    clicMenu(1);
+}
 
 function filePreview(input) {
     if (input.files && input.files[0]) {
@@ -101,7 +212,7 @@ function ocultaFileInput() {
 
     //muestra la imagen original
     let src = $("#imagen-previa").val();
-    $('#div-img-container').hide().html('<img src="' + src+ '" width="350" height="350"/>').show(150);
+    $('#div-img-container').hide().html('<img src="' + src + '" width="350" height="350"/>').show(150);
 }
 
 

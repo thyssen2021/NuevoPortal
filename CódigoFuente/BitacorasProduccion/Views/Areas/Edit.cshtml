@@ -1,7 +1,7 @@
 ﻿@model Portal_2_0.Models.Area
 
 @{
-    ViewBag.Title = "Editar Área";
+    ViewBag.Title = "Editar Departamento";
     ViewBag.PrimerNivel = "recursos_humanos";
     ViewBag.SegundoNivel = "areas";
     ViewBag.ControllerName = "Areas";
@@ -12,6 +12,15 @@
     <!-- Select2 -->
     <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/green.css")" rel="stylesheet">
+
+    <style>
+        select[readonly] ~ .select2.select2-container .selection [role="combobox"] {
+            background: repeating-linear-gradient(45deg, #eeeeee, #eeeeee 10px, rgba(255, 255, 255, 0.66) 10px, rgba(255, 255, 255, 0.66) 20px) !important;
+            box-shadow: inset 0 0 0px 1px #77859133;
+        }
+    </style>
 }
 
 @if (@ViewBag.pClave != null)
@@ -23,32 +32,35 @@
     <div class="">
         <div class="page-title">
             <div class="title_left">
-                <h3>@ViewBag.ControllerName</h3>
             </div>
         </div>
 
         <div class="clearfix"></div>
 
         <div class="row">
-            <div class="col-md-12 col-sm-12  ">
+            <div class="col-md-7 col-sm-12">
                 <div class="x_panel">
                     <div class="x_title">
                         <h2>@ViewBag.Title</h2>
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
-                        <br />
                         @using (Html.BeginForm("Edit", "Areas", FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
                         {
                             @Html.AntiForgeryToken()
-                            <h4>Datos del &Aacute;rea</h4>
-                            <hr />
                             @Html.ValidationSummary("", new { @class = "text-danger" })
                             @Html.HiddenFor(model => model.clave)
                             @Html.HiddenFor(model => model.activo)
                             <div class="item form-group">
+                                @Html.LabelFor(model => model.shared_services, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-1 col-sm-1">
+                                    @Html.EditorFor(m => m.shared_services, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.shared_services, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
                                 @Html.LabelFor(model => model.plantaClave, "Planta", htmlAttributes: new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
-                                <div class="col-md-6 col-sm-6 ">
+                                <div class="col-md-9 col-sm-9">
                                     @Html.DropDownList("plantaClave", null, "-- Seleccione un valor --", htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                     @Html.ValidationMessageFor(model => model.plantaClave, "", new { @class = "text-danger" })
                                 </div>
@@ -56,15 +68,22 @@
 
                             <div class="item form-group">
                                 @Html.LabelFor(model => model.descripcion, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
-                                <div class="col-md-6 col-sm-6 ">
+                                <div class="col-md-9 col-sm-9">
                                     @Html.EditorFor(model => model.descripcion, new { htmlAttributes = new { @class = "form-control" } })
                                     @Html.ValidationMessageFor(model => model.descripcion, "", new { @class = "text-danger" })
                                 </div>
                             </div>
 
                             <div class="item form-group">
+                                @Html.LabelFor(model => model.numero_centro_costo, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-9 col-sm-9">
+                                    @Html.EditorFor(m => m.numero_centro_costo, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.numero_centro_costo, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
                                 @Html.LabelFor(model => model.listaCorreoElectronico, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
-                                <div class="col-md-6 col-sm-6 ">
+                                <div class="col-md-9 col-sm-9">
                                     @Html.EditorFor(m => m.listaCorreoElectronico, new { htmlAttributes = new { @class = "form-control" } })
                                     @Html.ValidationMessageFor(model => model.listaCorreoElectronico, "", new { @class = "text-danger" })
                                 </div>
@@ -85,6 +104,18 @@
                     </a>
                 </div>
             </div>
+            <div class="col-md-5 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Departamentos actuales <span id="title-departamento" style="font-size:12px; font-weight:bold"></span></h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <ul id="areasActuales">
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -94,6 +125,111 @@
     @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
     @Scripts.Render(Url.Content("~/Scripts/Forms/areas.js"))
-    
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    <script>
+        $(document).ready(function () {
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+                increaseArea: '20%' // optional
+            });
 
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+            //evita que se abra el select
+            $('select[data-select2-id]').on('select2:opening', function (e) {
+                if ($(this).attr('readonly') == 'readonly') { // Check if select tag is readonly.
+                    console.log('readonly, cant be open!');
+                    e.preventDefault();
+                    $(this).select2('close');
+                    return false;
+                } else {
+                    console.log('expandable/selectable');
+                }
+            });
+
+            $('input').on('ifChecked', function (event) {
+                verificaChecks();
+            });
+
+            $('input').on('ifUnchecked', function (event) {
+                verificaChecks();
+            });
+
+            $("#plantaClave").change(function () {
+                let checkedValue = $('#shared_services:checked').val();
+
+                let planta = $(this).val();
+
+                if (checkedValue == 'true')
+                    planta = 99;
+
+                actualizaAreas(planta);
+            });
+
+            verificaChecks();
+
+            $("#plantaClave").change();
+
+        });
+
+        function actualizaAreas(id) {
+            let planta = $("#plantaClave option:selected").text();
+
+            $('#title-departamento').html('PLANTA ' + planta);
+
+            if (id == 0)
+                $('#title-departamento').html('');
+            else if (id == 99)
+                $('#title-departamento').html('SHARED SERVICES');
+            $.ajax({
+                type: 'POST',
+                url: '/Combos/obtieneAreas',
+                data: { clavePlanta: id },
+                success: function (data) {
+                    populateDropdown($("#areasActuales"), data);
+                },
+                async: true
+            });
+
+        }
+
+        //completa el selec con los datos recibidos
+        function populateDropdown(select, data) {
+            select.html('');
+            $.each(data, function (id, option) {
+                if (id != 0)
+                    select.append($('<li></li>').html(option.name));
+            });
+        }
+
+        function verificaChecks(event) {
+
+            var checkedValue = $('#shared_services:checked').val();
+
+            if (checkedValue) {
+                let element = document.getElementById('plantaClave');
+                element.value = 1;
+                $('#plantaClave').attr('readonly', 'readonly');
+
+                $('.select2bs4').select2({
+                    theme: 'bootstrap4'
+                })
+
+                actualizaAreas(99); //valor para shared sevices
+            } else {
+                $('#plantaClave').removeAttr('readonly');
+                actualizaAreas($("#plantaClave option:selected").val()); //por defecto el de puebla
+            }
+
+        }
+
+        //agranda el tamaño de la barra
+        window.onload = function () {
+            document.getElementById('menu_toggle').click();
+        }
+
+    </script>
 }

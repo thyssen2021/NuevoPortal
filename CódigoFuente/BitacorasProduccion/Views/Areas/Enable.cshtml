@@ -1,19 +1,22 @@
 ﻿@model Portal_2_0.Models.Area
 
 @{
-    ViewBag.Title = "Habilitar Área";
+    ViewBag.Title = "Habilitar Departamento";
     ViewBag.PrimerNivel = "recursos_humanos";
     ViewBag.SegundoNivel = "areas";
     ViewBag.ControllerName = "Areas";
 }
 
-
+@section estilos
+{
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/green.css")" rel="stylesheet">
+}
 
 <div class="right_col" role="main">
     <div class="">
         <div class="page-title">
             <div class="title_left">
-                <h3>@ViewBag.ControllerName</h3>
             </div>
         </div>
 
@@ -28,40 +31,47 @@
                     </div>
 
                     <!-- /.col -->
-                    <div class="col-md-8">
-                        <div class="table-responsive">
-                            <h3>¿Realmente desea habilitar este registro?</h3>
-                            <table class="table">
-                                <tbody>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.descripcion)</th>
-                                        <td>@Html.DisplayFor(model => model.descripcion)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(model => model.listaCorreoElectronico)</th>
-                                        <td>@Html.DisplayFor(model => model.listaCorreoElectronico)</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Planta</th>
-                                        <td>@Html.DisplayFor(model => model.plantas.descripcion)</td>
-                                    </tr>
-                                    <tr>
-                                        <th style="width:50%"> @Html.DisplayNameFor(model => model.activo)</th>
-                                        <td>
-                                            @if (Model.activo)
-                                            {
-                                                <span>Activo</span>
-                                            }
-                                            else
-                                            {
-                                                <span>Inactivo</span>
-                                            }
-                                        </td>
-                                    </tr>
-
-                                </tbody>
-                            </table>
+                    <div class="col-md-12">
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.shared_services, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-1 col-sm-1">
+                                @Html.EditorFor(m => m.shared_services, new { htmlAttributes = new { @class = "form-control", @disabled = "disabled" } })
+                            </div>
                         </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.plantaClave, htmlAttributes: new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                @if (Model.shared_services)
+                                {
+                                    <input type="text" class="form-control" value="Shared Services" readonly />
+                                }
+                                else
+                                {
+                                    <input type="text" class="form-control" value="@Html.DisplayFor(model => model.plantas.descripcion)" readonly />
+                                }
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.descripcion, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                @Html.EditorFor(model => model.descripcion, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.numero_centro_costo, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                @Html.EditorFor(m => m.numero_centro_costo, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.listaCorreoElectronico, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                            <div class="col-md-6 col-sm-6 ">
+                                @Html.EditorFor(m => m.listaCorreoElectronico, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <hr />
                     </div>
                     <div class="col-md-12">
                         <p class="float-md-left">
@@ -92,3 +102,16 @@
     </div>
 </div>
 
+@section Scripts {
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    <script>
+        $(document).ready(function () {
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+                increaseArea: '20%' // optional
+            });
+        });
+    </script>
+}

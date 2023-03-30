@@ -58,6 +58,9 @@ namespace Portal_2_0.Controllers
             {
                 return View("../Error/NotFound");
             }
+            //verifica si es shared services
+            empleados.shared_services = empleados.Area != null && empleados.Area.shared_services;
+
             ViewBag.PrimerNivel = "recursos_humanos";
             ViewBag.SegundoNivel = "empleados";
             ViewBag.ControllerName = "Empleados";
@@ -353,11 +356,16 @@ namespace Portal_2_0.Controllers
 
             }
 
-            ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
-            ViewBag.id_area = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
-            ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion");
+            //determina las areas a mostrar
+            var listArea = db.Area.Where(p => p.activo == true && !p.shared_services && p.plantaClave == empleados.planta_clave);
+            if (empleados.shared_services)
+                listArea = db.Area.Where(p => p.activo == true && p.shared_services);
+
+            ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion", selectedValue: empleados.planta_clave.ToString());
+            ViewBag.id_area = new SelectList(listArea, "clave", "descripcion", selectedValue: empleados.id_area.ToString());
+            ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion", selectedValue: empleados.puesto.ToString());
             ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true), nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)),
-                  textoPorDefecto: "-- Seleccione un valor --", selected: empleados.id_jefe_directo.ToString());
+            textoPorDefecto: "-- Seleccione un valor --", selected: empleados.id_jefe_directo.ToString());
 
             ViewBag.TotalEmpleados = db.empleados.Where(x => x.activo == true).ToList();
             List<int> SubordinadosSeleccionados = new List<int>();
@@ -365,10 +373,7 @@ namespace Portal_2_0.Controllers
                 SubordinadosSeleccionados = subordinados.ToList();
             ViewBag.SubordinadosSeleccionados = SubordinadosSeleccionados;
 
-            //claves seleccionadas
-            ViewBag.c_planta = c_planta;
-            ViewBag.c_area = c_area;
-            ViewBag.c_puesto = c_puesto;
+
             return View(empleados);
         }
 
@@ -387,17 +392,19 @@ namespace Portal_2_0.Controllers
                     return View("../Error/NotFound");
                 }
 
-                ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
-                ViewBag.id_area = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
-                ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion");
+                //verifica si es shared services
+                empleados.shared_services = empleados.Area != null && empleados.Area.shared_services;
+
+                //determina las areas a mostrar
+                var listArea = db.Area.Where(p => p.activo == true && !p.shared_services && p.plantaClave == empleados.planta_clave);
+                if (empleados.shared_services)
+                    listArea = db.Area.Where(p => p.activo == true && p.shared_services);
+
+                ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion", selectedValue: empleados.planta_clave.ToString());
+                ViewBag.id_area = new SelectList(listArea, "clave", "descripcion", selectedValue: empleados.id_area.ToString());
+                ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion", selectedValue: empleados.puesto.ToString());
                 ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true), nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)),
                 textoPorDefecto: "-- Seleccione un valor --", selected: empleados.id_jefe_directo.ToString());
-
-
-                //claves seleccionadas
-                ViewBag.c_planta = empleados.planta_clave;
-                ViewBag.c_area = empleados.id_area;
-                ViewBag.c_puesto = empleados.puesto;
 
                 ViewBag.TotalEmpleados = db.empleados.Where(x => x.activo == true).ToList();
 
@@ -620,16 +627,20 @@ namespace Portal_2_0.Controllers
                 return RedirectToAction("Index");
 
             }
-            ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion");
-            ViewBag.id_area = new SelectList(db.Area.Where(p => p.activo == true), "clave", "descripcion");
-            ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion");
+
+            //determina las areas a mostrar
+            var listArea = db.Area.Where(p => p.activo == true && !p.shared_services && p.plantaClave == empleados.planta_clave);
+            if (empleados.shared_services)
+                listArea = db.Area.Where(p => p.activo == true && p.shared_services);
+
+            ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion", selectedValue: empleados.planta_clave.ToString());
+            ViewBag.id_area = new SelectList(listArea, "clave", "descripcion", selectedValue: empleados.id_area.ToString());
+            ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion", selectedValue: empleados.puesto.ToString());
             ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true), nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)),
             textoPorDefecto: "-- Seleccione un valor --", selected: empleados.id_jefe_directo.ToString());
             ViewBag.TotalEmpleados = db.empleados.Where(x => x.activo == true).ToList();
-            //claves seleccionadas
-            ViewBag.c_planta = c_planta;
-            ViewBag.c_area = c_area;
-            ViewBag.c_puesto = c_puesto;
+
+
             return View(empleados);
         }
 
@@ -728,6 +739,9 @@ namespace Portal_2_0.Controllers
                 {
                     return View("../Error/NotFound");
                 }
+
+                //verifica si es shared services
+                empleado.shared_services = empleado.Area != null && empleado.Area.shared_services;
 
                 ViewBag.id_nuevo_jefe = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true), nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)),
                     textoPorDefecto: "-- Seleccione un valor --");
@@ -864,6 +878,9 @@ namespace Portal_2_0.Controllers
                 {
                     return View("../Error/NotFound");
                 }
+                //verifica si es shared services
+                empleado.shared_services = empleado.Area != null && empleado.Area.shared_services;
+
                 return View(empleado);
 
             }

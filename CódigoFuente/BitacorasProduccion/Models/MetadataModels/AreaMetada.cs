@@ -29,6 +29,14 @@ namespace Portal_2_0.Models
         [Required]
         [Display(Name = "Planta")]
         public Nullable<int> plantaClave { get; set; }
+
+        [StringLength(6)]
+        [RegularExpression("([0-9]+)", ErrorMessage = "Ingrese un número válido.")]
+        [Display(Name = "Centro de Costo")]
+        public string numero_centro_costo { get; set; }
+
+        [Display(Name = "¿Shared Services?")]
+        public bool shared_services { get; set; }
     }
 
     [MetadataType(typeof(AreaMetadata))]
@@ -47,6 +55,15 @@ namespace Portal_2_0.Models
 
 
                 return string.Format("({0}) {1}", pt, descripcion).ToUpper();
+            }
+        }
+        [NotMapped]
+        public string ConcatDeptoCeCo
+        {
+            get
+            {
+
+                return string.Format("{0} {1}", !string.IsNullOrEmpty(numero_centro_costo) ? "(" + numero_centro_costo + ")" : string.Empty, descripcion).ToUpper();
             }
         }
     }
