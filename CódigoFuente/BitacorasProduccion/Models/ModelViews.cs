@@ -78,4 +78,36 @@ namespace Portal_2_0.Models
 
 
     }
+    /// <summary>
+    /// Modelo para envio de Correo electrónico de phising
+    /// </summary>
+    public class EnvioCorreoViewModel
+    {
+
+        public EnvioCorreoViewModel()
+        {
+            this.ccList = new HashSet<string>();
+        }
+
+        [Required]
+        [Display(Name = "Nombre del Remitente")]
+        public string nombreRemitente { get; set; }
+
+        [Required]
+        [DataType(DataType.EmailAddress)]
+        [EmailAddress]
+        [Display(Name = "Correo Remitente")]
+        public string correoRemitente { get; set; }
+                
+        [Required]
+        [Display(Name = "Asunto")]
+        public string asunto { get; set; }
+
+        public string mensaje { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<string> ccList { get; set; }
+
+
+    }
 }

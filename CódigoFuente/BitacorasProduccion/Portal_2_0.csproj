@@ -910,7 +910,6 @@
     <Content Include="Content\emails_plantillas\PFA_solicitud_recibida.html" />
     <Content Include="Content\font-awesome.css" />
     <Content Include="Content\font-awesome.min.css" />
-    <Content Include="Content\images\BonoPTU.JPG" />
     <Content Include="Content\images\logo_174.png" />
     <Content Include="Content\images\logo_4.png" />
     <Content Include="Content\images\logo_1.png" />
@@ -919,6 +918,7 @@
     <Content Include="Content\images\logo_4_200px.png" />
     <Content Include="Content\images\logo_ico.png" />
     <Content Include="Content\images\user.png" />
+    <Content Include="Content\images\vacaciones-simula.jpg" />
     <Content Include="Content\login.css" />
     <Content Include="Content\menu-css.css" />
     <Content Include="Content\not-found.css" />
@@ -7128,7 +7128,7 @@
     <Content Include="Views\OT_rel_depto_aplica_linea\Create.cshtml" />
     <Content Include="Views\OT_rel_depto_aplica_linea\Delete.cshtml" />
     <Content Include="Views\OT_rel_depto_aplica_linea\Index.cshtml" />
-    <Content Include="Views\Information\BonoTPU.cshtml" />
+    <Content Include="Views\Information\Vacaciones.cshtml" />
     <Content Include="Views\Information\Log.cshtml" />
     <Content Include="Views\IT_matriz_requerimientos\CrearMatriz.cshtml" />
     <Content Include="Views\IT_matriz_requerimientos\ListadoUsuarios.cshtml" />
@@ -7321,6 +7321,7 @@
     <Content Include="Views\IT_matriz_requerimientos\IniciarMatriz.cshtml" />
     <Content Include="Views\empleados\CambioJefe.cshtml" />
     <Content Include="Views\empleados\Organigrama.cshtml" />
+    <Content Include="Views\Information\EnvioEmail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

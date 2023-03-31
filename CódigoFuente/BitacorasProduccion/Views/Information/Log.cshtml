@@ -7,15 +7,6 @@
 
     Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
 
-    //obtiene los filtros
-    Portal_2_0.Models.Paginacion paginacionFiltros = (Portal_2_0.Models.Paginacion)ViewBag.Paginacion;
-
-    string registros_por_pagina = string.Empty;
-    if (paginacionFiltros.ValoresQueryString["registros_por_pagina"] != null)
-    {
-        registros_por_pagina = paginacionFiltros.ValoresQueryString["registros_por_pagina"].ToString();
-    }
-
 
 }
 
@@ -67,32 +58,6 @@
                         <div class="row">
                             <div class="col-sm-12">
                                 <div class="card-box">
-                                    <div class="form-group">
-                                        @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
-                                        {
-
-
-                                        <div class="form-group row ">
-                                           
-                                            <label class="control-label col-md-1 col-sm-1" for="nombre_equipo" style="text-align:right">Nombre Equipo:</label>
-                                            <div class="col-md-3 col-sm-3 ">
-                                                @Html.DropDownList("nombre_equipo", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
-                                            </div>
-                                            <label class="control-label col-md-1 col-sm-1" for="registros_por_pagina" style="text-align:right">Registros por página:</label>
-                                            <div class="col-md-2 col-sm-2 ">
-                                                <input type="number" min="1" id="registros_por_pagina" name="registros_por_pagina" class="form-control" value="@registros_por_pagina" />
-                                            </div>
-
-                                            <div class="col-md-1 col-sm-1">
-                                                <input type="submit" value="Filtrar" class="btn btn-info float-right" />
-                                            </div>
-                                        </div>
-
-                                        }
-                                        <hr />
-
-
-                                    </div>
                                     <table id="datatable_1" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
                                         <thead>
                                             <tr>
@@ -107,27 +72,25 @@
                                                     Fecha
                                                 </th>
 
-
-
                                             </tr>
                                         </thead>
                                         <tbody>
                                             @foreach (var item in Model)
                                             {
-                                            <tr>
+                                                <tr>
 
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.id)
-                                                </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.id)
+                                                    </td>
 
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.nombre_equipo)
-                                                </td>
-                                                <td>
-                                                    @Html.DisplayFor(modelItem => item.fecha)
-                                                </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.nombre_equipo)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.fecha)
+                                                    </td>
 
-                                            </tr>
+                                                </tr>
                                             }
 
                                         </tbody>
@@ -136,10 +99,17 @@
                                 <br />
                                 @if (Model.Count() > 0)
                                 {
-                                    <nav id="nav_paginacion" aria-label="...">
-                                        @{Html.RenderPartial("_Paginacion", Model);}
-                                    </nav>
+
+                                    <div class="form-group">
+                                        <button type="button" id="btn-borrar-ok" class="btn btn-danger"> <i class="fa-solid fa-triangle-exclamation" style="color:yellow"></i> Restablecer registros <i class="fa-solid fa-triangle-exclamation" style="color:yellow"></i></button>
+                                    </div>
+
                                 }
+                                <div class="form-group">
+                                    <a href="@Url.Action("EnvioEmail", ViewBag.ControllerName)" class="btn btn-round btn-success" title="Enviar Email">
+                                        <i class="fa-solid fa-envelope"></i> Enviar Email
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -155,7 +125,19 @@
     @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
     @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
-    @Scripts.Render("~/bundles/dataTables_js")
+    <!-- datatables con bootstrap -->
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap5.min.js"></script>
+
+    <!-- Para usar los botones -->
+    <script src="https://cdn.datatables.net/buttons/1.6.5/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.6.5/js/buttons.html5.min.js"></script>
+
+
+    <!-- Para los estilos en Excel     -->
+    <script src="https://cdn.jsdelivr.net/npm/datatables-buttons-excel-styles@1.1.2/js/buttons.html5.styles.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables-buttons-excel-styles@1.1.2/js/buttons.html5.styles.templates.min.js"></script>
 
     <script>
 
@@ -167,13 +149,69 @@
                 "ordering": false,
                 "searching": false,
                 "scrollX": true,
-                "info": false
+                "info": false,
+                dom: "Bfrtip",
+                buttons: [
+
+                    {
+                        extend: "excel",
+                        text: "Exportar a Excel",
+                        className: "btn btn-success",
+                        excelStyles: [                     // Add an excelStyles definition      
+                            {
+                                cells: "1:2",  // Smart select Columns A and B
+                                style: {                        // The style block
+                                    font: {                     // Style the font
+                                        name: "Calibri",          // Font name
+                                        size: "11",             // Font size
+                                        color: "FFFFFF",        // Font Color
+                                        b: true,               // Remove bolding from header row
+                                    },
+                                    fill: {                     // Style the cell fill (background)
+                                        pattern: {              // Type of fill (pattern or gradient)
+                                            color: "0094ff",    // Fill color
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                template: [
+                                    "outline_blue_gray",
+                                    "title_medium"]
+                                ,   // Apply the "green_medium" template
+                            },
+                        ],
+                    },
+
+                ],
+                responsive: false
             });
 
             // Initialize Select2 Elements (debe ir después de asignar el valor)
             $('.select2bs4').select2({
                 theme: 'bootstrap4'
             })
+
+            //maneja el envió el del formulario
+            $('#btn-borrar-ok').click(function (e) {
+
+
+
+                Swal.fire({
+                    title: '¿Desea Continuar?',
+                    html: "Se borrarán todos los registros del log.",
+                    showCancelButton: true,
+                    confirmButtonText: 'Aceptar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.replace('/@ViewBag.ControllerName/Truncate/');
+                    } else if (result.isDismissed) {
+                        Swal.fire('Los cambios no han sido guardados.', '', 'info')
+                    }
+                });
+
+            });
 
         });
 

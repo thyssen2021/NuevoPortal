@@ -15,6 +15,7 @@ namespace Portal_2_0.Models
     public class EnvioCorreoElectronico
     {
         private delegate void DelegateEmail(List<string> emailsTo, string subject, string message); //delegate for the action
+        private delegate void DelegateEmailAuditoria(List<string> emailsCC, string nombreRemitente, string correoRemitente, string subject, string message); //delegate for the action
 
         public string NOMBRE_FROM { get { return "thyssenkrupp Materials de México"; } }
         public string FILA_GENERICA
@@ -36,6 +37,23 @@ namespace Portal_2_0.Models
                 DelegateEmail sd = DelegateEmailMethod;
 
                 IAsyncResult asyncResult = sd.BeginInvoke(emailsTo, subject, message, null, null);
+            }
+
+            catch (Exception ex)
+            {
+                // TODO: handle exception
+                throw new InvalidOperationException(ex.Message);
+            }
+
+            //return Task.FromResult(0);
+        }
+        public void SendEmailAsyncAuditoria(List<string> emailsCC,string nombreRemitente, string correoRemitente, string subject, string message)
+        {
+            try
+            {
+                DelegateEmailAuditoria sd = DelegateEmailMethodAuditoria;
+
+                IAsyncResult asyncResult = sd.BeginInvoke(emailsCC, nombreRemitente, correoRemitente, subject, message, null, null);
             }
 
             catch (Exception ex)
@@ -71,8 +89,8 @@ namespace Portal_2_0.Models
                 };
 
                 //********** Comentar para productivo ************//
-                emailsTo = new List<string>();
-                emailsTo.Add("alfredo.xochitemol@lagermex.com.mx");
+                //emailsTo = new List<string>();
+                //emailsTo.Add("alfredo.xochitemol@lagermex.com.mx");
                 // ************************************//
 
                 //agrega los destinatarios
@@ -96,6 +114,71 @@ namespace Portal_2_0.Models
 
                 // Send it...
                 if (mail.To.Count > 0)
+                    client.Send(mail);
+            }
+            catch (System.Net.Mail.SmtpException emailExeption)
+            {
+                System.Diagnostics.Debug.Print("Error:" + emailExeption.StackTrace);
+                System.Diagnostics.Debug.Print("Error:" + emailExeption.Message);
+                //throw emailExeption;
+            }
+            catch (Exception ex)
+            {
+                // TODO: handle exception
+                System.Diagnostics.Debug.Print("Error:" + ex.StackTrace);
+                // throw new InvalidOperationException(ex.Message);
+            }
+
+            //return Task.FromResult(0);
+        }
+         public void DelegateEmailMethodAuditoria(List<string> emailsCC, string nombreRemitente, string correoRemitente, string subject, string message)
+        {
+            try
+            {
+                System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
+                NameValueCollection appSettings = ConfigurationManager.AppSettings;
+                string smtpServer = appSettings["smtpServer"];
+                int portEmail = Int32.Parse(appSettings["portEmail"]);
+                string emailSMTP = correoRemitente;
+                string paswordEmail = appSettings["paswordEmail"];
+
+                // Credentials
+                var credentials = new NetworkCredential(emailSMTP, paswordEmail);
+                // Mail message
+                var mail = new MailMessage()
+                {
+                    From = new MailAddress(emailSMTP, nombreRemitente),
+                    Subject = subject,
+                    Body = message,
+                    IsBodyHtml = true
+                };
+
+                //********** Comentar para productivo ************//
+                //emailsTo = new List<string>();
+                //emailsTo.Add("alfredo.xochitemol@lagermex.com.mx");
+                // ************************************//
+
+                //agrega los destinatarios CC
+                foreach (string email in emailsCC)
+                {
+                    if (!string.IsNullOrEmpty(email))
+                        mail.CC.Add(new MailAddress(email));
+                }
+
+                // Smtp client
+                var client = new SmtpClient()
+                {
+                    Port = portEmail,
+                    DeliveryMethod = SmtpDeliveryMethod.Network,
+                    UseDefaultCredentials = false,
+                    Host = smtpServer,
+                    EnableSsl = true,
+                    Credentials = credentials
+                };
+
+                // Send it...
+                if (mail.CC.Count > 0)
                     client.Send(mail);
             }
             catch (System.Net.Mail.SmtpException emailExeption)

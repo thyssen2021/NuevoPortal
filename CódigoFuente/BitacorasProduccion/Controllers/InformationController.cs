@@ -1,4 +1,5 @@
-﻿using Portal_2_0.Models;
+﻿using Clases.Util;
+using Portal_2_0.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,12 +9,13 @@ using System.Web.Mvc;
 
 namespace Portal_2_0.Controllers
 {
+
     public class InformationController : BaseController
     {
         private Portal_2_0Entities db = new Portal_2_0Entities();
         // GET: Information
 
-        [ActionName("BonoTPU")]
+        [ActionName("Vacaciones")]
         public ActionResult Index()
         {
             try
@@ -56,79 +58,83 @@ namespace Portal_2_0.Controllers
             return View();
         }
 
-        public ActionResult Log(string usuario, string nombre_equipo, int registros_por_pagina = 20, int pagina = 1)
+        public ActionResult Log(string usuario, string nombre_equipo)
         {
 
             //mensaje en caso de crear, editar, etc
             if (TempData["Mensaje"] != null)
             {
                 ViewBag.MensajeAlert = TempData["Mensaje"];
+            }              
+          
+            return View(db.log_acceso_email.ToList());
+        }
+        public ActionResult Truncate()
+        {
+            db.Database.ExecuteSqlCommand("Truncate table [log_acceso_email]");
+
+            TempData["Mensaje"] = new MensajesSweetAlert("Se restableció el Log", TipoMensajesSweetAlerts.SUCCESS);
+
+            return RedirectToAction("Log");
+        }
+        public ActionResult EnvioEmail()
+        {
+            //mensaje en caso de crear, editar, etc
+            if (TempData["Mensaje"] != null)
+            {
+                ViewBag.MensajeAlert = TempData["Mensaje"];
             }
 
-            var cantidadRegistrosPorPagina = registros_por_pagina; // parámetro
+            List<string> correosCC = new List<string>();
 
-            var listado = db.log_acceso_email
-                   .Where(x => (x.usuario == usuario || String.IsNullOrEmpty(usuario)) && (x.nombre_equipo == nombre_equipo || String.IsNullOrEmpty(nombre_equipo)))
-                   .OrderBy(x => x.id)
-                   .Skip((pagina - 1) * cantidadRegistrosPorPagina)
-                  .Take(cantidadRegistrosPorPagina).ToList();
-
-            var totalDeRegistros = db.log_acceso_email
-                  .Where(x => (x.usuario == usuario || String.IsNullOrEmpty(usuario)) && (x.nombre_equipo == nombre_equipo || String.IsNullOrEmpty(nombre_equipo)))
-                .Count();
-
-            //para paginación
-
-            System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
-            routeValues["usuario"] = usuario;
-            routeValues["nombre_equipo"] = nombre_equipo;
-            routeValues["registros_por_pagina"] = registros_por_pagina;
-
-            Paginacion paginacion = new Paginacion
+            for (int i = 0; i < 8; i++)
             {
-                PaginaActual = pagina,
-                TotalDeRegistros = totalDeRegistros,
-                RegistrosPorPagina = cantidadRegistrosPorPagina,
-                ValoresQueryString = routeValues
+                correosCC.Add(string.Empty);
+            }
+
+            var model = new EnvioCorreoViewModel
+            {
+                nombreRemitente = "ThysenKrrupp",
+                correoRemitente = "notificaciones.tkNA@lagerrmex.com.mx",
+                asunto = "Actualización vacaciones",
+                ccList = correosCC,
+                mensaje = getBodyEmailAuditoria()
             };
 
+            return View(model);
+        }
 
-            List<string> usuariosList = db.log_acceso_email.Select(x => x.usuario).Distinct().ToList();
-            //crea un Select  list para el estatus
-            List<SelectListItem> newListUsuarios = new List<SelectListItem>();
+        [HttpPost]
+        [ValidateInput(false)]
+        [ValidateAntiForgeryToken]
+        public ActionResult EnvioEmail(EnvioCorreoViewModel model)
+        {
+            //envío de correo
+            List<string> correosCC = model.ccList.Where(x => !string.IsNullOrEmpty(x)).ToList();
 
-            foreach (string item in usuariosList)
+            if (correosCC.Count == 0)
             {
-                newListUsuarios.Add(new SelectListItem()
-                {
-                    Text = item,
-                    Value = item
-                });
+                ModelState.AddModelError("", "La lista de destinatarios se encuentra vacía.");
             }
 
-            List<string> equiposList = db.log_acceso_email.Select(x => x.nombre_equipo).Distinct().ToList();
-            //crea un Select  list para el estatus
-            List<SelectListItem> newListequipos = new List<SelectListItem>();
 
-            foreach (string item in equiposList)
+
+            if (ModelState.IsValid)
             {
-                newListequipos.Add(new SelectListItem()
-                {
-                    Text = item,
-                    Value = item
-                });
+                
+
+                //envia correo electronico
+                EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+                
+
+                envioCorreo.SendEmailAsyncAuditoria(correosCC, model.nombreRemitente, model.correoRemitente, model.asunto, model.mensaje);
+
+
+                TempData["Mensaje"] = new MensajesSweetAlert("Se envío el correo electrónico.", TipoMensajesSweetAlerts.SUCCESS);
+                return RedirectToAction("EnvioEmail");
             }
 
-            SelectList selectListItems_Usuarios = new SelectList(newListUsuarios, "Value", "Text", usuario);
-            SelectList selectListItems_Equipos = new SelectList(newListequipos, "Value", "Text", nombre_equipo);
-
-            ViewBag.usuario = AddFirstItem(selectListItems_Usuarios, textoPorDefecto: "-- Todos --");
-            ViewBag.nombre_equipo = AddFirstItem(selectListItems_Equipos, textoPorDefecto: "-- Todos --");
-
-            ViewBag.Paginacion = paginacion;
-
-            var upgrade_revision = listado;
-            return View(upgrade_revision.ToList());
+            return View(model);
         }
 
         public static string DetermineCompName(string IP)
@@ -145,6 +151,52 @@ namespace Portal_2_0.Controllers
                 return null;
             }
 
+        }
+
+        [NonAction]
+        public string getBodyEmailAuditoria()
+        {
+            string domainName = System.Web.HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+
+            string body = @"<style>                          
+                            h2,h3{color:#00a0f4;}                           
+                            .output {
+                                font: 1rem 'Fira Sans', sans-serif;
+                            }
+                            dt {
+								color:darkblue;
+                                font-weight: bold;
+                            }
+                            dl,
+                            dd {
+                                font-size: .9rem;
+                            }
+                            dd {
+                                margin-bottom: 1em;
+                            }		
+                            p{
+                                color:gray;
+                            }
+                            </style>
+                            <h2>Hola, se ha modificado o actualizado el estatus de tus vacaciones.</h2></br>
+
+                            <dl>
+                                <dt>Título<dt>
+                                <dd>" + "Vacacioness" + @"</dd>
+                                <dt>Situación Actual</dt>
+                                <dd>" + "Aun tienes diaz por tomar" + @"</dd>
+                                <dt>Objetivo</dt>
+                                <dd>" + "Regularizar diaz." + @"</dd>
+                                <dt>Descripción</dt>
+                                <dd>" + "Para poder validar los días a disfrutar favor de llenar y confirmar en el siguiente link" + @".</dd>
+                            </dl>
+
+                            <h3>Para ver los diaz pendientes haga clic en el siguente enlace:</h3>                           
+                            <a href='" + domainName + @"/Information/vacaciones'>Vacaciones</a>
+                            <hr />                          
+                            ";
+
+            return body;
         }
 
 
