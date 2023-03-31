@@ -363,7 +363,7 @@ namespace Portal_2_0.Controllers
 
             ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion", selectedValue: empleados.planta_clave.ToString());
             ViewBag.id_area = new SelectList(listArea, "clave", "descripcion", selectedValue: empleados.id_area.ToString());
-            ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion", selectedValue: empleados.puesto.ToString());
+            ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true && p.areaClave == empleados.id_area), "clave", "descripcion", selectedValue: empleados.puesto.ToString());
             ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true), nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)),
             textoPorDefecto: "-- Seleccione un valor --", selected: empleados.id_jefe_directo.ToString());
 
@@ -402,7 +402,7 @@ namespace Portal_2_0.Controllers
 
                 ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion", selectedValue: empleados.planta_clave.ToString());
                 ViewBag.id_area = new SelectList(listArea, "clave", "descripcion", selectedValue: empleados.id_area.ToString());
-                ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion", selectedValue: empleados.puesto.ToString());
+                ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true && p.areaClave == empleados.id_area), "clave", "descripcion", selectedValue: empleados.puesto.ToString());
                 ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true), nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)),
                 textoPorDefecto: "-- Seleccione un valor --", selected: empleados.id_jefe_directo.ToString());
 
@@ -635,7 +635,7 @@ namespace Portal_2_0.Controllers
 
             ViewBag.planta_clave = new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion", selectedValue: empleados.planta_clave.ToString());
             ViewBag.id_area = new SelectList(listArea, "clave", "descripcion", selectedValue: empleados.id_area.ToString());
-            ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true), "clave", "descripcion", selectedValue: empleados.puesto.ToString());
+            ViewBag.puesto = new SelectList(db.puesto.Where(p => p.activo == true && p.areaClave == empleados.id_area), "clave", "descripcion", selectedValue: empleados.puesto.ToString());
             ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(x => x.activo == true), nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)),
             textoPorDefecto: "-- Seleccione un valor --", selected: empleados.id_jefe_directo.ToString());
             ViewBag.TotalEmpleados = db.empleados.Where(x => x.activo == true).ToList();

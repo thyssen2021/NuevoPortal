@@ -121,7 +121,7 @@
                                 </div>
                                 @Html.LabelFor(model => model.ingresoFecha, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                                 <div class="col-md-2 col-sm-2">
-                                    @Html.EditorFor(model => model.ingresoFecha, new { htmlAttributes = new { @class = "form-control", @required = "required" } })
+                                    @Html.EditorFor(model => model.ingresoFecha, new { htmlAttributes = new { @class = "form-control" } })
                                     @Html.ValidationMessageFor(model => model.ingresoFecha, "", new { @class = "text-danger" })
                                 </div>
                                 @Html.LabelFor(model => model.sexo, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
