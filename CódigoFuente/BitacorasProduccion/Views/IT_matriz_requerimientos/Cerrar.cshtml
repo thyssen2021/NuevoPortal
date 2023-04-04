@@ -332,22 +332,22 @@
                                     <button type="button" id="btn-actualizar-software" class="btn btn-warning float-md-right"><i class="fa-solid fa-arrows-rotate"></i> Actualizar Software</button>
                                 </div>
                             </div>
-                            <div class="ln_solid"></div>
-                            <div class="form-group row">
-                                <span style="color:dimgrey"><b>&emsp; 3.3- INTERNET</b></span>
+                            @*<div class="ln_solid"></div>
+                                <div class="form-group row">
+                                    <span style="color:dimgrey"><b>&emsp; 3.3- INTERNET</b></span>
 
-                            </div>
-
-                            <div class="form-group row">
-                                @Html.LabelFor(model => model.matriz.id_internet_tipo, new { @class = "control-label col-md-2" })
-                                <div class="col-md-4 col-sm-4 ">
-                                    <input type="text" id="id_internet_tipo" class="form-control" value="@(Model.matriz.IT_internet_tipo!=null ? Model.matriz.IT_internet_tipo.descripcion : "NO DISPONIBLE" )" readonly="readonly" />
                                 </div>
-                            </div>
+
+                                <div class="form-group row">
+                                    @Html.LabelFor(model => model.matriz.id_internet_tipo, new { @class = "control-label col-md-2" })
+                                    <div class="col-md-4 col-sm-4 ">
+                                        <input type="text" id="id_internet_tipo" class="form-control" value="@(Model.matriz.IT_internet_tipo!=null ? Model.matriz.IT_internet_tipo.descripcion : "NO DISPONIBLE" )" readonly="readonly" />
+                                    </div>
+                                </div>*@
 
                             <div class="ln_solid"></div>
                             <div class="form-group row">
-                                <span style="color:dimgrey"><b>&emsp; 3.4- COMUNICACIONES</b></span>
+                                <span style="color:dimgrey"><b>&emsp; 3.3- COMUNICACIONES</b></span>
                             </div>
 
                             @*COMUNICACIONES*@
@@ -405,7 +405,7 @@
 
                             <div class="ln_solid"></div>
                             <div class="form-group row">
-                                <span style="color:dimgrey"><b>&emsp; 3.5- CARPETAS EN RED</b></span>
+                                <span style="color:dimgrey"><b>&emsp; 3.4- CARPETAS EN RED</b></span>
                             </div>
 
                             @*CARPETAS EN RED*@
@@ -602,12 +602,22 @@
 
                             <div class="ln_solid"></div>
                             <div class="form-group row">
-                                <div class="col-md-9 col-sm-9">
-                                    <button type="button" id="btn-progreso" class="btn btn-primary btn-lg float-md-right"><i class="fa-regular fa-bookmark"></i> Guardar Progreso</button>
-                                </div>
-                                <div class="col-md-3 col-sm-3 ">
-                                    <button type="button" id="btn-ok" class="btn btn-success btn-lg float-md-right"><i class="fa-solid fa-box-archive"></i> Cerrar Solicitud</button>
-                                </div>
+
+                                @if (Model.matriz.estatus != Bitacoras.Util.IT_MR_Status.FINALIZADO)
+                                {
+                                    <div class="col-md-9 col-sm-9">
+                                        <button type="button" id="btn-progreso" class="btn btn-primary btn-lg float-md-right"><i class="fa-regular fa-bookmark"></i> Guardar Progreso</button>
+                                    </div>
+                                    <div class="col-md-3 col-sm-3 ">
+                                        <button type="button" id="btn-ok" class="btn btn-success btn-lg float-md-right"><i class="fa-solid fa-box-archive"></i> Cerrar Solicitud</button>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="col-md-12 col-sm-12">
+                                        <button type="button" id="btn-actualizar" class="btn btn-primary btn-lg float-md-right"><i class="fa-regular fa-floppy-disk"></i> Actualizar</button>
+                                    </div>
+                                }
                             </div>
                         }
 
@@ -635,7 +645,7 @@
     @Scripts.Render("~/bundles/dataTables_js")
 
 
-<script>
+    <script>
 
         $(document).ready(function () {
 
@@ -675,7 +685,7 @@
 
                 swalWithBootstrapButtons.fire({
                     title: '¿Desea Continuar?',
-                    html: "Se guardará el progreso actual y la solicitud se marcará como <b>En proceso</b>. Se enviará notificación a RH.",
+                    html: "Se guardará el progreso actual y la solicitud se marcará como <b>En proceso</b>.",
                     showCancelButton: true,
                     confirmButtonText: 'Aceptar',
                     cancelButtonText: 'Cancelar'
@@ -684,6 +694,47 @@
 
                         //quita required
                         QuitaRequired();
+                        //espera a que se cierre el modal para enviar el formulario
+                        setTimeout(function () {
+                            $form.submit();
+                            clicMenu(2);
+                        }, 900);
+
+                    } else if (
+                        result.dismiss === Swal.DismissReason.cancel
+                    ) {
+                        swalWithBootstrapButtons.fire(
+                            'Advertencia', 'Los cambios no han sido guardados.', 'warning'
+                        );
+                    }
+                });
+
+
+            });
+            $('form #btn-actualizar').click(function (e) {
+                let $form = $(this).closest('form');
+
+                const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: 'btn btn-success',
+                        cancelButton: 'btn btn-danger'
+                    },
+                    buttonsStyling: false,
+                })
+
+
+                swalWithBootstrapButtons.fire({
+                    title: '¿Desea Continuar?',
+                    html: "Se actualizarán los datos de la Matriz de Requerimientos.",
+                    showCancelButton: true,
+                    confirmButtonText: 'Aceptar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.value) {
+
+                        $('#tipo_form').val("update");
+                        $('#correo').prop("required", true);
+                        $('#C8ID').prop("required", true);
                         //espera a que se cierre el modal para enviar el formulario
                         setTimeout(function () {
                             $form.submit();
@@ -893,5 +944,5 @@
             // disable unload warning
             $(window).off('beforeunload');
         });
-</script>
+    </script>
 }

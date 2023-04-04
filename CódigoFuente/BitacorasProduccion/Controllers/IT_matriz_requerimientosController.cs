@@ -18,6 +18,7 @@ using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 
@@ -90,7 +91,7 @@ namespace Portal_2_0.Controllers
 
         #region listado usuarios
         // GET: IT_matriz_requerimientos/SolicitudesEnProceso
-        public ActionResult SolicitudesEnProceso(int pagina = 1)
+        public ActionResult SolicitudesEnProceso(int? planta, int? solicitante, int pagina = 1)
         {
 
             if (TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CREAR))
@@ -105,14 +106,19 @@ namespace Portal_2_0.Controllers
 
 
                 var listado = db.IT_matriz_requerimientos
-                    .Where(x => (x.estatus == IT_MR_Status.ENVIADO_A_JEFE || x.estatus == IT_MR_Status.ENVIADO_A_IT || x.estatus == IT_MR_Status.CREADO || x.estatus == IT_MR_Status.EN_PROCESO))
+                    .Where(x => (x.estatus == IT_MR_Status.ENVIADO_A_JEFE || x.estatus == IT_MR_Status.ENVIADO_A_IT || x.estatus == IT_MR_Status.CREADO || x.estatus == IT_MR_Status.EN_PROCESO)
+                            && (planta == null || x.empleados.planta_clave == planta)
+                            && (solicitante == null || x.id_solicitante == solicitante)
+                    )
                     .OrderByDescending(x => x.fecha_solicitud)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
                 var totalDeRegistros = db.IT_matriz_requerimientos
-                    .Where(x => (x.estatus == IT_MR_Status.ENVIADO_A_JEFE || x.estatus == IT_MR_Status.ENVIADO_A_IT || x.estatus == IT_MR_Status.CREADO || x.estatus == IT_MR_Status.EN_PROCESO))
-                   .Count();
+                      .Where(x => (x.estatus == IT_MR_Status.ENVIADO_A_JEFE || x.estatus == IT_MR_Status.ENVIADO_A_IT || x.estatus == IT_MR_Status.CREADO || x.estatus == IT_MR_Status.EN_PROCESO)
+                            && (planta == null || x.empleados.planta_clave == planta)
+                            && (solicitante == null || x.id_solicitante == solicitante)
+                    ).Count();
 
                 //para paginación
 
@@ -135,7 +141,9 @@ namespace Portal_2_0.Controllers
                 ViewBag.SegundoNivel = "SolicitudesEnProceso";
                 ViewBag.Create = true;
 
-
+                ViewBag.RH = true;
+                ViewBag.planta = AddFirstItem(new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion", planta.ToString()), textoPorDefecto: "-- Todas --");
+                ViewBag.solicitante = AddFirstItem(new SelectList(db.IT_matriz_requerimientos.Select(x => x.empleados3).Distinct(), nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre), planta.ToString()), textoPorDefecto: "-- Todos --");
 
                 return View("ListadoSolicitudes", listado);
             }
@@ -205,7 +213,7 @@ namespace Portal_2_0.Controllers
         }
 
         // GET: IT_matriz_requerimientos/SolicitudesFinalizadas
-        public ActionResult SolicitudesFinalizadas(int pagina = 1)
+        public ActionResult SolicitudesFinalizadas(int? planta, int? solicitante, int pagina = 1)
         {
 
             if (TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CREAR))
@@ -220,13 +228,19 @@ namespace Portal_2_0.Controllers
 
 
                 var listado = db.IT_matriz_requerimientos
-                    .Where(x => (x.estatus == IT_MR_Status.FINALIZADO))
+                    .Where(x => (x.estatus == IT_MR_Status.FINALIZADO)
+                             && (planta == null || x.empleados.planta_clave == planta)
+                            && (solicitante == null || x.id_solicitante == solicitante)
+                    )
                     .OrderByDescending(x => x.fecha_solicitud)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
                 var totalDeRegistros = db.IT_matriz_requerimientos
-                   .Where(x => (x.estatus == IT_MR_Status.FINALIZADO))
+                   .Where(x => (x.estatus == IT_MR_Status.FINALIZADO)
+                            && (planta == null || x.empleados.planta_clave == planta)
+                            && (solicitante == null || x.id_solicitante == solicitante)
+                   )
                    .Count();
 
                 //para paginación
@@ -251,7 +265,9 @@ namespace Portal_2_0.Controllers
                 ViewBag.SegundoNivel = "SolicitudesFinalizadas";
                 ViewBag.Create = true;
 
-
+                ViewBag.RH = true;
+                ViewBag.planta = AddFirstItem(new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion", planta.ToString()), textoPorDefecto: "-- Todas --");
+                ViewBag.solicitante = AddFirstItem(new SelectList(db.IT_matriz_requerimientos.Select(x => x.empleados3).Distinct(), nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre), planta.ToString()), textoPorDefecto: "-- Todos --");
 
                 return View("ListadoSolicitudes", listado);
             }
@@ -676,7 +692,7 @@ namespace Portal_2_0.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult IniciarMatriz(IT_matriz_requerimientos matriz, FormCollection collection, string[] SelectedHardware, string[] SelectedSoftware, string[] SelectedComunicaciones, string[] SelectedCarpetas)
+        public async Task<ActionResult> IniciarMatriz(IT_matriz_requerimientos matriz, FormCollection collection, string[] SelectedHardware, string[] SelectedSoftware, string[] SelectedComunicaciones, string[] SelectedCarpetas)
         {
 
             //obtien el id de Matriz
@@ -788,6 +804,58 @@ namespace Portal_2_0.Controllers
                 {
                     matriz.fecha_aprobacion_jefe = DateTime.Now;
                 }
+
+                #region ValidaUsuarioJefeDirecto
+
+                var user = db.AspNetUsers.Where(x => x.IdEmpleado == matriz.id_jefe_directo).FirstOrDefault();
+
+                //verifica si jefe directo tiene usuario
+                if (user != null)
+                {
+                    //asigna los permisos Matriz JEFE Directo
+                    var userRoles = await _userManager.GetRolesAsync(user.Id);
+                    string[] selectedRole = { TipoRoles.IT_MATRIZ_REQUERIMIENTOS_AUTORIZAR, TipoRoles.IT_MATRIZ_REQUERIMIENTOS_DETALLES };
+                    var result = await _userManager.AddToRolesAsync(user.Id, selectedRole.Except(userRoles).ToArray<string>());
+
+                }
+                else
+                { //si no tiene crea una solicitud de creacion
+                    var jefeD = db.empleados.Find(matriz.id_jefe_directo);
+                  //crea un nuevo objeto de la solicitud
+                    IT_solicitud_usuarios solicitud = new IT_solicitud_usuarios
+                    {
+                        id_empleado = matriz.id_jefe_directo,
+                        comentario = "SOLICITUD DE USUARIO PARA JEFE DIRECTO EN AUTORIZACION DE MATRIZ DE REQUERIMIENTOS",
+                        fecha_solicitud = DateTime.Now,
+                        estatus = IT_solicitud_usuario_Status.CREADO,
+                        empleados = jefeD
+                    };
+
+                    //guarda en BD
+                    db.IT_solicitud_usuarios.Add(solicitud);
+                    db.SaveChanges();
+
+                    //envia correo electronico
+                    EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+                    List<String> correos = new List<string>(); //correos TO
+
+                    //-- INICIO POR TABLA NOTIFICACION
+                    List<notificaciones_correo> listadoNotificaciones = db.notificaciones_correo.Where(x => x.descripcion == NotificacionesCorreo.IT_SOLICITUD_PORTAL && x.activo).ToList();
+                    foreach (var n in listadoNotificaciones)
+                    {
+                        //si el campo correo no está vacio
+                        if (!String.IsNullOrEmpty(n.correo) && !n.id_empleado.HasValue)
+                            correos.Add(n.correo);
+                        //si tiene empleado asociado
+                        else if (n.empleados != null && !String.IsNullOrEmpty(n.empleados.correo))
+                            correos.Add(n.empleados.correo);
+                    }
+                    //-- FIN POR TABLA NOTIFICACION
+                    envioCorreo.SendEmailAsync(correos, "Se ha creado una solicitud de usuario para el Portal.", envioCorreo.getBodySolicitudUsuarioPortal(solicitud));
+
+                }
+
+                #endregion
 
                 string mensaje = "Se ha enviado la solicitud correctamente.";
                 TipoMensajesSweetAlerts tipoMensaje = TipoMensajesSweetAlerts.SUCCESS;
@@ -1597,11 +1665,15 @@ namespace Portal_2_0.Controllers
                     case "PROGRESO":
                         matriz.estatus = IT_MR_Status.EN_PROCESO;
                         break;
+                    case "UPDATE":
+                        matriz.estatus = IT_MR_Status.FINALIZADO;
+                        break;
                     default:
                         matriz.estatus = IT_MR_Status.ENVIADO_A_IT;
                         break;
                 }
 
+                //actualiza el correo en la tabla de usuarios
                 AspNetUsers user = db.AspNetUsers.Where(x => x.IdEmpleado == matriz.empleados.id).FirstOrDefault();
                 if (user != null)
                 {
@@ -1632,7 +1704,7 @@ namespace Portal_2_0.Controllers
                         //envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de Usuarios #" + matriz.id + " ha sido actualizada.", envioCorreo.getBody_IT_MR_Notificacion_En_Proceso(matriz));
                         TempData["Mensaje"] = new MensajesSweetAlert("Se ha actualizado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
                     }
-                    else if (matriz.estatus == IT_MR_Status.FINALIZADO)
+                    else if (matriz.estatus == IT_MR_Status.FINALIZADO && tipoSolicitud.ToUpper()=="CIERRE")
                     {
                         envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de usuarios #" + matriz.id + " ha sido cerrada.", envioCorreo.getBody_IT_MR_Notificacion_Cierre(matriz));
                         TempData["Mensaje"] = new MensajesSweetAlert("Se ha cerrado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
@@ -1660,6 +1732,34 @@ namespace Portal_2_0.Controllers
         }
 
         #endregion
+        /// <summary>
+        /// Muestra el manual de usuario
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult ManualUsuario()
+        {
+
+            String ruta = System.Web.HttpContext.Current.Server.MapPath("~/Content/manuales/Manual_Usuario_Matriz_requerimientos.pdf");
+
+            //byte[] array = System.IO.File.ReadAllBytes(ruta);
+
+            FileInfo archivo = new FileInfo(ruta);
+
+            var cd = new System.Net.Mime.ContentDisposition
+            {
+                // for example foo.bak
+                FileName = archivo.Name,
+                // always prompt the user for downloading, set to true if you want 
+                // the browser to try to show the file inline
+                Inline = true,
+            };
+
+            Response.AppendHeader("Content-Disposition", cd.ToString());
+
+            return File(ruta, "application/pdf");
+
+
+        }
 
         //genera el PDF
         public ActionResult GenerarPDF(int? id, bool inline = true)

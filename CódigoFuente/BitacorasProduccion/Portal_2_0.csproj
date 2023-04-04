@@ -6753,6 +6753,7 @@
     </Content>
     <Content Include="Content\vendors\multiselect\lwMultiSelect.jquery.json" />
     <Content Include="Content\vendors\multiselect\_config.yml" />
+    <Content Include="Content\manuales\Manual_Usuario_Matriz_requerimientos.pdf" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
     <Content Include="Scripts\jquery-3.4.1.min.js" />

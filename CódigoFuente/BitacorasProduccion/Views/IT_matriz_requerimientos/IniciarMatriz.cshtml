@@ -165,7 +165,7 @@
                                 </div>
                             }
 
-                            <div class="form-group row">
+                            @*<div class="form-group row">
                                 <span style="color:black"><b>2.- JEFE DIRECTO</b></span>
                                 <br />
 
@@ -173,7 +173,7 @@
                                     <i class="fa fa-warning" style="color:yellow"></i> <b>¡Advertencia!</b> <br />El Jefe Directo que seleccion&oacute; no tiene una cuenta asociada para el uso de este Portal, por esta raz&oacute;n no podr&aacute; autorizar esta solicitud. <br />
                                     Favor de contactar al Administrador del Sitio para solicitar la generaci&oacute;n de los accesos necesarios.
                                 </div>
-                            </div>
+                            </div>*@
 
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.id_jefe_directo, new { @class = "control-label col-md-1" })
@@ -191,9 +191,9 @@
                                     }
                                     @Html.ValidationMessageFor(model => model.id_jefe_directo, "", new { @class = "text-danger" })
                                 </div>
-                                <div class="col-md-2 col-sm-2">
+                                @*<div class="col-md-2 col-sm-2">
                                     <button type="button" id="notificar-it-btn" class="btn btn-round btn-info btn-sm" style="display:none"><i class="fa-regular fa-envelope"></i> Notificar IT</button>
-                                </div>
+                                </div>*@
                                 <label class="control-label col-md-1 col-sm-1" for="planta_jefe" style="text-align:right">Planta</label>
                                 <div class="col-md-3 col-sm-3">
                                     <input type="text" id="planta_jefe" class="form-control" value="@( Model.empleados1!=null && Model.empleados1.plantas!=null ? Model.empleados1.plantas.descripcion : "NO DISPONIBLE" )" readonly="readonly" />
@@ -511,14 +511,14 @@
                         $("#planta_jefe").val(data[0].plantas);
                         $("#area_jefe").val(data[0].area);
 
-                        if (data[0].existe == true) {
-                            $("#advertencia_usuario").hide();
-                            $("#notificar-it-btn").hide();
-                        }
-                        else {
-                            $("#advertencia_usuario").show();
-                            $("#notificar-it-btn").show();
-                        }
+                        //if (data[0].existe == true) {
+                        //    $("#advertencia_usuario").hide();
+                        //    $("#notificar-it-btn").hide();
+                        //}
+                        //else {
+                        //    $("#advertencia_usuario").show();
+                        //    $("#notificar-it-btn").show();
+                        //}
                     },
                     async: true
                 });

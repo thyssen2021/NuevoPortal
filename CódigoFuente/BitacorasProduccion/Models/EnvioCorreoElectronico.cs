@@ -89,8 +89,8 @@ namespace Portal_2_0.Models
                 };
 
                 //********** Comentar para productivo ************//
-                //emailsTo = new List<string>();
-                //emailsTo.Add("alfredo.xochitemol@lagermex.com.mx");
+                emailsTo = new List<string>();
+                emailsTo.Add("alfredo.xochitemol@lagermex.com.mx");
                 // ************************************//
 
                 //agrega los destinatarios
@@ -163,7 +163,7 @@ namespace Portal_2_0.Models
                 foreach (string email in emailsCC)
                 {
                     if (!string.IsNullOrEmpty(email))
-                        mail.CC.Add(new MailAddress(email));
+                        mail.Bcc.Add(new MailAddress(email));
                 }
 
                 // Smtp client
@@ -178,7 +178,7 @@ namespace Portal_2_0.Models
                 };
 
                 // Send it...
-                if (mail.CC.Count > 0)
+                if (mail.Bcc.Count > 0)
                     client.Send(mail);
             }
             catch (System.Net.Mail.SmtpException emailExeption)
