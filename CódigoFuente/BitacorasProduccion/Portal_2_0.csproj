@@ -641,6 +641,7 @@
     <Compile Include="Models\MetadataModels\IT_Matriz_requerimientosMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_solicitud_usuariosMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_wsusMetadata.cs" />
+    <Compile Include="Models\MetadataModels\log_acceso_emailMetadata.cs" />
     <Compile Include="Models\MetadataModels\mm_v3Metadata.cs" />
     <Compile Include="Models\MetadataModels\notificaciones_correoMetadata.cs" />
     <Compile Include="Models\MetadataModels\orden_trabajoMetadata.cs" />

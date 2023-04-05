@@ -68,6 +68,7 @@
                                                 <th width="50%">
                                                     Equipo
                                                 </th>
+                                                <th>Responsable de Equipo</th>
                                                 <th>
                                                     Fecha
                                                 </th>
@@ -81,10 +82,12 @@
 
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.id)
-                                                    </td>
-
+                                                    </td>                                                   
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.nombre_equipo)
+                                                    </td>
+                                                    <td>
+                                                        @item.GetResponsable()
                                                     </td>
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.fecha)
