@@ -182,6 +182,11 @@ namespace Portal_2_0.Controllers
                     return View("../Error/BadRequest");
                 }
 
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
                 //obtiene centro de costo
                 budget_centro_costo centroCosto = db.budget_centro_costo.Find(id);
                 if (centroCosto == null)
@@ -308,6 +313,12 @@ namespace Portal_2_0.Controllers
                     return View("../Error/BadRequest");
                 }
 
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+
                 //obtiene centro de costo
                 budget_centro_costo centroCosto = db.budget_centro_costo.Find(id);
                 if (centroCosto == null)
@@ -430,12 +441,15 @@ namespace Portal_2_0.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditCentro(FormCollection form)
+        public ActionResult EditCentro(FormCollection form )
         {
             //crea objetos apartir del form collection
 
             int id_rel_fy = 0;
             int.TryParse(form["id_rel_fy_centro"], out id_rel_fy);
+
+            bool continuar = false;
+            Boolean.TryParse(form["continuar"], out continuar);
 
 
             //1.-Obtiene los keys de tipo cantidad
@@ -699,8 +713,12 @@ namespace Portal_2_0.Controllers
             #endregion
 
             TempData["Mensaje"] = new MensajesSweetAlert("Se ha modificado correctamente. ", TipoMensajesSweetAlerts.SUCCESS);
+          
 
-            return RedirectToAction("Centros");
+            if (!continuar)
+                return RedirectToAction("Centros");
+            else
+                return RedirectToAction(form["action"].ToString(), new { id = form["id_cc"].ToString() });
         }
 
         [NonAction]

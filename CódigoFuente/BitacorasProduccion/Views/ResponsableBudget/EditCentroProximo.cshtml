@@ -95,9 +95,9 @@
                                 <div class="card-box">
                                     <div class="form-group">
                                         @*<a href="@Url.Action("Create", ViewBag.ControllerName)" class="btn btn-success">
-                                                <i class="fa fa-plus-square"></i>
-                                                Crear nuevo
-                                            </a>*@
+                <i class="fa fa-plus-square"></i>
+                Crear nuevo
+            </a>*@
                                     </div>
                                     @if (!rel_proximo.estatus)
                                     {
@@ -1205,12 +1205,20 @@
                                                             <input type="hidden" id="total_actual" name="total_actual" value="@sumaActual" />
                                                         </div>
                                                         <div class="item form-group">
-                                                            @if (rel_proximo.estatus)
+                                                            @if (rel_presente.estatus)
                                                             {
-                                                               <div class="col-md-12 col-sm-12 offset-md-12">
-                                                                   <button type="button" onclick="enviaFormulario(); return;" class="btn btn-success btn-lg float-lg-right"> <i class="fa-regular fa-floppy-disk"></i>&nbsp; Guardar</button>
-                                                                   <button style="display:none" type="submit" id="submit-btn"></button>
-                                                               </div>
+                                                                <input type="hidden" name="continuar" id="continuar" />
+                                                                <input type="hidden" name="action" id="action" value="@HttpContext.Current.Request.RequestContext.RouteData.Values["action"].ToString()" />
+                                                                <input type="hidden" name="id_cc" id="id_cc" value="@HttpContext.Current.Request.RequestContext.RouteData.Values["id"].ToString()" />
+
+                                                                <div class="col-md-10 col-sm-10">
+                                                                    <button type="button" onclick="enviaFormulario(0); return;" class="btn btn-warning btn-lg float-lg-right"> <i class="fa-regular fa-floppy-disk"></i>&nbsp; Guardar y Salir</button>
+                                                                    <button style="display:none" type="submit" id="submit-btn"></button>
+                                                                </div>
+                                                                <div class="col-md-2 col-sm-2">
+                                                                    <button type="button" onclick="enviaFormulario(1); return;" class="btn btn-success btn-lg float-lg-right"> <i class="fa-regular fa-floppy-disk"></i>&nbsp; Guardar y Continuar</button>
+                                                                    <button style="display:none" type="submit" id="submit-btn"></button>
+                                                                </div>
                                                             }
                                                         </div>
                                                     </div>
@@ -1220,9 +1228,10 @@
                                         </div>
                                     </div>
 
-                                    <a onclick="javascript: volverAtras()" class="btn btn-round btn-info btm-sm" style="color:white" title="Volver">
+                                    <a href="@Url.Action("Centros", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" style="color:white" title="Volver">
                                         <i class="fa fa-arrow-circle-left"></i> Volver al listado
                                     </a>
+
 
                                 </div>
                             </div>
@@ -1303,23 +1312,44 @@
                 });
             });
                       
+            //evita el enter en el formulario
+            $("form").keypress(function (e) {
+                if (e.which == 13) {
+                    return false;
+                }
+            });
 
+            setTimeout(Recordatorio, 600000); //diez minutos
             $.unblockUI();
 
         });
 
         var tabla3;
 
-        function enviaFormulario() {
+        function enviaFormulario(continuar) {
+            BloqueaPantalla();
+            if (continuar == "1")
+                $("#continuar").val('true');
+            else
+                $("#continuar").val('false');
+
             tabla3.search('');
             tabla3.columns().search('').draw();
             calculaTotal();
+            
             //envia el formulario con retraso
-            setTimeout(submit, 1500);
+            setTimeout(submit, 1200);
+           
         }
 
         function submit() {
             $('#submit-btn').click();
+            $.unblockUI();
+        }
+
+        function Recordatorio() {
+            Swal.fire('Recuerde guardar sus cambios constantemente, para evitar la perdida de información.', '', 'info')
+            setTimeout(Recordatorio, 600000); //diez minutos
         }
 
         function calculaFila(fila) {

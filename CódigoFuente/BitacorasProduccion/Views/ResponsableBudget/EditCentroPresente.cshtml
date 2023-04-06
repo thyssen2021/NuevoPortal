@@ -1084,7 +1084,7 @@
                                                                         <td id="total_fila_columna" name="total_fila_columna" style="background-color: #d4f2fc" class="text_derecha">$ @string.Format(System.Globalization.CultureInfo.GetCultureInfo("es-US"), "{0:N2}", valores_actual_forecast.Sum(item => item.TotalMeses()))</td>
                                                                         <td></td>
                                                                     </tr>
-                                                                </tbody>                                                                
+                                                                </tbody>
                                                             </table>
                                                             <input type="hidden" id="total_actual" name="total_actual" value="@sumaActual" />
 
@@ -1094,9 +1094,17 @@
                                                         <div class="item form-group">
                                                             @if (rel_presente.estatus)
                                                             {
-                                                                <div class="col-md-12 col-sm-12 offset-md-12">
-                                                                    <button type="button" onclick="enviaFormulario(); return;" class="btn btn-success btn-lg float-lg-right"> <i class="fa-regular fa-floppy-disk"></i>&nbsp; Guardar</button>
-                                                                    <button style="display:none" type="submit" id="submit-btn" ></button>
+                                                                <input type="hidden" name="continuar" id="continuar" />
+                                                                <input type="hidden" name="action" id="action" value="@HttpContext.Current.Request.RequestContext.RouteData.Values["action"].ToString()" />
+                                                                <input type="hidden" name="id_cc" id="id_cc" value="@HttpContext.Current.Request.RequestContext.RouteData.Values["id"].ToString()" />
+
+                                                                <div class="col-md-10 col-sm-10">
+                                                                    <button type="button" onclick="enviaFormulario(0); return;" class="btn btn-warning btn-lg float-lg-right"> <i class="fa-regular fa-floppy-disk"></i>&nbsp; Guardar y Salir</button>
+                                                                    <button style="display:none" type="submit" id="submit-btn"></button>
+                                                                </div>
+                                                                <div class="col-md-2 col-sm-2">
+                                                                    <button type="button" onclick="enviaFormulario(1); return;" class="btn btn-success btn-lg float-lg-right"> <i class="fa-regular fa-floppy-disk"></i>&nbsp; Guardar y Continuar</button>
+                                                                    <button style="display:none" type="submit" id="submit-btn"></button>
                                                                 </div>
                                                             }
                                                         </div>
@@ -1427,10 +1435,9 @@
                                             }
                                         </div>
                                     </div>
-
-                                    <a onclick="javascript: volverAtras()" class="btn btn-round btn-info btm-sm" style="color:white" title="Volver">
+                                    <a href="@Url.Action("Centros", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" style="color:white" title="Volver">
                                         <i class="fa fa-arrow-circle-left"></i> Volver al listado
-                                    </a>
+                                    </a>                                   
 
                                 </div>
                             </div>
@@ -1483,7 +1490,7 @@
                 'columnDefs': [     // see https://datatables.net/reference/option/columns.searchable
                     {
                         'searchable': false,
-                        'targets': [0,4,5,6,7,8,9,10,11,12,13,14,15,16,17]
+                        'targets': [0, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
                     },
                 ]
             });
@@ -1511,34 +1518,55 @@
                 });
             });
 
+            //evita el enter en el formulario
+            $("form").keypress(function (e) {
+                if (e.which == 13) {
+                    return false;
+                }
+            });
 
+            setTimeout(Recordatorio, 600000); //diez minutos
             $.unblockUI();
 
         });
 
         var tabla2;
 
-        function enviaFormulario() {
+        function enviaFormulario(continuar) {
+            BloqueaPantalla();
+
+            if (continuar == "1")
+                $("#continuar").val('true');
+            else
+                $("#continuar").val('false');
+
             tabla2.search('');
             tabla2.columns().search('').draw();
             calculaTotal();
             //envia el formulario con retraso
             setTimeout(submit, 1500);
+
         }
 
         function submit() {
             $('#submit-btn').click();
+            $.unblockUI();
+        }
+
+        function Recordatorio() {
+            Swal.fire('Recuerde guardar sus cambios constantemente, para evitar la perdida de información.', '', 'info')
+            setTimeout(Recordatorio, 600000); //diez minutos
         }
 
         function calculaFila(fila) {
             let sumaFila = 0;
             $("*[data-fila='" + fila + "']").each(function () {
-                
+
                 let valor = $(this).val();
                 if ($(this).val() == '') {
                     valor = $(this).html().replace(',', '').replace(',', '');
                 }
-                
+
 
                 sumaFila = sumaFila + ConvierteAFloat(valor, 0)
 
