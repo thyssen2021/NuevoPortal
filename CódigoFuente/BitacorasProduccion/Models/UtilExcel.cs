@@ -843,6 +843,7 @@ namespace Portal_2_0.Models
 
                                 if (fechaUso.HasValue)
                                 {
+                                    //obtiene el peso bruto (el de mayor peso)
                                     peso_bruto = listTemporalBOM.Where(x => x.LastDateUsed == fechaUso).Max(x => x.Quantity);
 
                                     //si el peso bruto aparece dos veces, lo marca como valores duplicados
@@ -855,8 +856,11 @@ namespace Portal_2_0.Models
                                     }
                                     else
                                     {
+                                        //obtiene la fecha validacion del mayor peso
+                                        var fechaCreacionPesoBruto = listTemporalBOM.Where(x => x.LastDateUsed == fechaUso).Select(x => x.Created).FirstOrDefault();
+
                                         //peso bruto + los negativos
-                                        peso_neto = peso_bruto + listTemporalBOM.Where(x => x.LastDateUsed == fechaUso && x.Quantity < (-0.001)).Sum(x => x.Quantity);
+                                        peso_neto = peso_bruto + listTemporalBOM.Where(x => x.LastDateUsed == fechaUso && x.Quantity < (-0.001) && x.Created == fechaCreacionPesoBruto).Sum(x => x.Quantity);
                                     }
                                 }
                                 else
@@ -1477,7 +1481,7 @@ namespace Portal_2_0.Models
                                 system_model = system_model,
                                 last_communication = last_communication,
                                 fecha = fecha
-                            }) ;
+                            });
                         }
                         catch (Exception e)
                         {
