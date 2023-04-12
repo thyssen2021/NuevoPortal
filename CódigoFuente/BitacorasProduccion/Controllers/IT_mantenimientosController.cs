@@ -46,7 +46,8 @@ namespace Portal_2_0.Controllers
 
             var listado = db.IT_mantenimientos
                 .Where(x =>
-                        (x.IT_inventory_items.id_planta == planta_clave || planta_clave == null)
+                         !x.IT_inventory_items.baja
+                        && (x.IT_inventory_items.id_planta == planta_clave || planta_clave == null)
                         //responsable
                         && (
                             x.IT_inventory_items.IT_asignacion_hardware_rel_items.Any(y => y.IT_asignacion_hardware.es_asignacion_actual == true
@@ -77,7 +78,8 @@ namespace Portal_2_0.Controllers
 
             var totalDeRegistros = db.IT_mantenimientos
                     .Where(x =>
-                        (x.IT_inventory_items.id_planta == planta_clave || planta_clave == null)
+                         !x.IT_inventory_items.baja
+                        && (x.IT_inventory_items.id_planta == planta_clave || planta_clave == null)
                         //responsable
                         && (
                             x.IT_inventory_items.IT_asignacion_hardware_rel_items.Any(y => y.IT_asignacion_hardware.es_asignacion_actual == true
