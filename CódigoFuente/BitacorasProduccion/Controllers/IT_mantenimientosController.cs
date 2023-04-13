@@ -775,7 +775,67 @@ namespace Portal_2_0.Controllers
         }
 
 
-        public ActionResult Exportar(int? id_empleado, int? planta_clave, bool? documento, DateTime? mes, string asignado = "true", string estatus_mantenimiento = "", int id_it_inventory_item = 0)
+        //public ActionResult Exportar(int? id_empleado, int? planta_clave, bool? documento, DateTime? mes, string asignado = "true", string estatus_mantenimiento = "", int id_it_inventory_item = 0)
+        //{
+        //    if (TieneRol(TipoRoles.IT_MANTENIMIENTO_REGISTRO))
+        //    {
+
+        //        bool sePuedeConvertir = Boolean.TryParse(asignado, out bool asignadoBoolean);
+
+        //        var listado = db.IT_mantenimientos
+        //          .Where(x =>
+        //                !x.IT_inventory_items.baja
+        //                && (x.IT_inventory_items.id_planta == planta_clave || planta_clave == null)
+        //                //responsable
+        //                && (
+        //                    x.IT_inventory_items.IT_asignacion_hardware_rel_items.Any(y => y.IT_asignacion_hardware.es_asignacion_actual == true
+        //                        && id_empleado == y.IT_asignacion_hardware.id_empleado) //es responsable actual
+        //                    || (id_empleado == null) // todos en caso de que no se haya enviado id                             
+        //                )
+        //                //existe asignacion
+        //                && (
+        //                !sePuedeConvertir
+        //                || asignadoBoolean == x.IT_inventory_items.IT_asignacion_hardware_rel_items.Any(y => y.IT_asignacion_hardware.es_asignacion_actual == true)
+
+        //                )
+        //                && (x.id_it_inventory_item == id_it_inventory_item || id_it_inventory_item == 0)
+        //                && (documento == null || x.id_biblioteca_digital.HasValue == documento)
+        //                && (mes == null || (x.fecha_programada.Year == mes.Value.Year && x.fecha_programada.Month == mes.Value.Month))
+        //                && (
+        //                ((estatus_mantenimiento == IT_matenimiento_Estatus.REALIZADO || estatus_mantenimiento == IT_matenimiento_Estatus.REALIZADO_CON_DOCUMENTO) && x.fecha_realizacion.HasValue)
+        //                || (estatus_mantenimiento == IT_matenimiento_Estatus.VENCIDO && x.fecha_programada < DateTime.Now && x.fecha_realizacion == null && !x.IT_mantenimientos_rel_checklist.Any())
+        //                || (estatus_mantenimiento == IT_matenimiento_Estatus.EN_PROCESO && x.IT_mantenimientos_rel_checklist.Any() && !x.fecha_realizacion.HasValue)
+        //                || (estatus_mantenimiento == IT_matenimiento_Estatus.PROXIMO && x.fecha_programada > DateTime.Now && x.fecha_realizacion == null)
+        //                || (estatus_mantenimiento == IT_matenimiento_Estatus.TODOS)
+        //                //|| String.IsNullOrEmpty(estatus_mantenimiento)
+        //                )
+        //        )
+        //            .OrderBy(x => x.fecha_programada)
+        //          .ToList();
+
+        //        byte[] stream = ExcelUtil.GeneraReporteITMantenimientos(listado);
+
+        //        var cd = new System.Net.Mime.ContentDisposition
+        //        {
+        //            // for example foo.bak
+        //            FileName = "Reporte_IT_Mantenimientos_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+        //            // always prompt the user for downloading, set to true if you want 
+        //            // the browser to try to show the file inline
+        //            Inline = false,
+        //        };
+
+        //        Response.AppendHeader("Content-Disposition", cd.ToString());
+
+        //        return File(stream, "application/vnd.ms-excel");
+        //    }
+        //    else
+        //    {
+        //        return View("../Home/ErrorPermisos");
+        //    }
+
+        //}
+        public ActionResult PlanMantenimiento(int? id_empleado, int? planta_clave, bool? documento, DateTime? mes, string asignado = "true", string estatus_mantenimiento = "", int id_it_inventory_item = 0)
         {
             if (TieneRol(TipoRoles.IT_MANTENIMIENTO_REGISTRO))
             {
@@ -784,7 +844,8 @@ namespace Portal_2_0.Controllers
 
                 var listado = db.IT_mantenimientos
                   .Where(x =>
-                        (x.IT_inventory_items.id_planta == planta_clave || planta_clave == null)
+                        !x.IT_inventory_items.baja
+                        && (x.IT_inventory_items.id_planta == planta_clave || planta_clave == null)
                         //responsable
                         && (
                             x.IT_inventory_items.IT_asignacion_hardware_rel_items.Any(y => y.IT_asignacion_hardware.es_asignacion_actual == true
@@ -812,12 +873,12 @@ namespace Portal_2_0.Controllers
                     .OrderBy(x => x.fecha_programada)
                   .ToList();
 
-                byte[] stream = ExcelUtil.GeneraReporteITMantenimientos(listado);
+                byte[] stream = ExcelUtil.GeneraReporteITPlanMantenimientos(listado);
 
                 var cd = new System.Net.Mime.ContentDisposition
                 {
                     // for example foo.bak
-                    FileName = "Reporte_IT_Mantenimientos_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+                    FileName = "ITF001-03 Plan de mantenimiento.xlsx",
 
                     // always prompt the user for downloading, set to true if you want 
                     // the browser to try to show the file inline

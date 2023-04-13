@@ -89,7 +89,7 @@
             <div class="col-md-12 col-sm-12 ">
                 <div class="x_panel">
                     <div class="x_title">
-                        <h2>@ViewBag.Title</h2>
+                        <h2>@ViewBag.Title <span>ITF001-03</span></h2>
                         <ul class="nav navbar-right panel_toolbox">
                             @*Utilizado para mover a la derecha los iconos del card*@
                             <span style="visibility:hidden">_______</span>
@@ -345,7 +345,7 @@
                                     </nav>
                                     <div class="form-group">
                                     
-                                        <a href="@Url.Action("Exportar", ViewBag.ControllerName, new
+                                        @*<a href="@Url.Action("Exportar", ViewBag.ControllerName, new
                                                 {
                                                    estatus_mantenimiento = paginacionFiltros.ValoresQueryString["estatus_mantenimiento"] != null? paginacionFiltros.ValoresQueryString["estatus_mantenimiento"] : string.Empty,
                                                    id_empleado = paginacionFiltros.ValoresQueryString["id_empleado"] != null? paginacionFiltros.ValoresQueryString["id_empleado"] : string.Empty,
@@ -357,6 +357,20 @@
 
                                                 })" class="btn btn-success btm-sm" target="_blank" title="Reporte">
                                             <i class="fa-regular fa-file-excel"></i> Exportar Excel
+                                        </a>*@
+                                    
+                                        <a href="@Url.Action("PlanMantenimiento", ViewBag.ControllerName, new
+                                                {
+                                                   estatus_mantenimiento = paginacionFiltros.ValoresQueryString["estatus_mantenimiento"] != null? paginacionFiltros.ValoresQueryString["estatus_mantenimiento"] : string.Empty,
+                                                   id_empleado = paginacionFiltros.ValoresQueryString["id_empleado"] != null? paginacionFiltros.ValoresQueryString["id_empleado"] : string.Empty,
+                                                   planta_clave = paginacionFiltros.ValoresQueryString["planta_clave"] != null? paginacionFiltros.ValoresQueryString["planta_clave"] : string.Empty,
+                                                   documento = paginacionFiltros.ValoresQueryString["documento"] != null? paginacionFiltros.ValoresQueryString["documento"] : string.Empty,
+                                                   mes = paginacionFiltros.ValoresQueryString["mes"] != null? paginacionFiltros.ValoresQueryString["mes"] : string.Empty,
+                                                   asignado = paginacionFiltros.ValoresQueryString["asignado"] != null? paginacionFiltros.ValoresQueryString["asignado"] : string.Empty,
+                                                   id_it_inventory_item = paginacionFiltros.ValoresQueryString["id_it_inventory_item"] != null? paginacionFiltros.ValoresQueryString["id_it_inventory_item"] : string.Empty,
+
+                                                })" class="btn btn-info btm-sm" target="_blank" title="Reporte">
+                                            <i class="fa-solid fa-calendar-days"></i> Plan de Mantenimiento - ITF001-03
                                         </a>
                                     </div>
                                 }

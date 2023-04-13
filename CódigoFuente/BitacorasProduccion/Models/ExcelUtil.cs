@@ -377,16 +377,103 @@ namespace Portal_2_0.Models
             return (array);
         }
 
+        ///// <summary>
+        ///// Genera reporte de IT_Mantenimientos
+        ///// </summary>
+        ///// <param name="listado"></param>
+        ///// <returns></returns>
+        //public static byte[] GeneraReporteITMantenimientos(List<IT_mantenimientos> listado)
+        //{
+
+        //    SLDocument oSLDocument = new SLDocument();
+
+
+        //    System.Data.DataTable dt = new System.Data.DataTable();
+
+        //    //columnas          
+        //    dt.Columns.Add("Folio", typeof(string));
+        //    dt.Columns.Add("Equipo", typeof(string));
+        //    dt.Columns.Add("Tipo", typeof(string));
+        //    dt.Columns.Add("Planta", typeof(string));
+        //    dt.Columns.Add("Marca", typeof(string));
+        //    dt.Columns.Add("Modelo", typeof(string));
+        //    dt.Columns.Add("Serie", typeof(string));
+        //    dt.Columns.Add("Fecha Programada", typeof(DateTime));   //8
+        //    dt.Columns.Add("Fecha Realización", typeof(DateTime));  //9
+        //    dt.Columns.Add("Estatus", typeof(string));
+        //    dt.Columns.Add("Documento", typeof(string));
+        //    dt.Columns.Add("Firma de Aceptación", typeof(string));
+        //    dt.Columns.Add("Responsable Principal (Actual)", typeof(string));
+
+
+
+        //    ////registros , rows
+        //    foreach (var item in listado)
+        //    {
+        //        dt.Rows.Add(item.id, item.IT_inventory_items.hostname, item.IT_inventory_items.IT_inventory_hardware_type.descripcion, item.IT_inventory_items.plantas.descripcion, item.IT_inventory_items.brand
+        //            , item.IT_inventory_items.model, item.IT_inventory_items.serial_number, item.fecha_programada, item.fecha_realizacion, Bitacoras.Util.IT_matenimiento_Estatus.DescripcionStatus(item.estatus),
+        //            item.id_biblioteca_digital.HasValue ? "Subido" : "Pendiente", item.empleados != null ? item.empleados.ConcatNombre : String.Empty,
+        //            item.responsable_principal
+        //            );
+        //    }
+
+        //    //crea la hoja de FACTURAS y la selecciona
+        //    oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Mantenimientos IT");
+        //    oSLDocument.ImportDataTable(1, 1, dt, true);
+
+        //    //estilo para ajustar al texto
+        //    SLStyle styleWrap = oSLDocument.CreateStyle();
+        //    styleWrap.SetWrapText(true);
+
+        //    //estilo para el encabezado
+        //    SLStyle styleHeader = oSLDocument.CreateStyle();
+        //    styleHeader.Font.Bold = true;
+        //    styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
+
+        //    ////estilo para fecha
+        //    SLStyle styleShortDate = oSLDocument.CreateStyle();
+        //    styleShortDate.FormatCode = "mmmm/yyyy";
+        //    oSLDocument.SetColumnStyle(8, styleShortDate);
+        //    oSLDocument.SetColumnStyle(9, styleShortDate);
+
+        //    SLStyle styleHeaderFont = oSLDocument.CreateStyle();
+        //    styleHeaderFont.Font.FontName = "Calibri";
+        //    styleHeaderFont.Font.FontSize = 11;
+        //    styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
+        //    styleHeaderFont.Font.Bold = true;
+
+        //    //da estilo a la hoja de excel
+        //    //inmoviliza el encabezado
+        //    oSLDocument.FreezePanes(1, 0);
+
+        //    oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
+        //    oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+
+        //    oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
+        //    oSLDocument.SetRowStyle(1, styleHeader);
+        //    oSLDocument.SetRowStyle(1, styleHeaderFont);
+
+        //    oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
+
+        //    System.IO.Stream stream = new System.IO.MemoryStream();
+
+        //    oSLDocument.SaveAs(stream);
+
+        //    byte[] array = Bitacoras.Util.StreamUtil.ToByteArray(stream);
+
+        //    return (array);
+        //}
         /// <summary>
-        /// Genera reporte de IT_Mantenimientos
+        /// Genera reporte de IT_Mantenimientos (plan de Mantenimiento)
         /// </summary>
         /// <param name="listado"></param>
         /// <returns></returns>
-        public static byte[] GeneraReporteITMantenimientos(List<IT_mantenimientos> listado)
+        public static byte[] GeneraReporteITPlanMantenimientos(List<IT_mantenimientos> listado)
         {
 
             SLDocument oSLDocument = new SLDocument();
 
+            #region hoja1
 
             System.Data.DataTable dt = new System.Data.DataTable();
 
@@ -454,6 +541,55 @@ namespace Portal_2_0.Models
             oSLDocument.SetRowStyle(1, styleHeaderFont);
 
             oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
+
+            #endregion
+                        
+            #region hoja2
+
+            //comienza la segunda hoja
+            string hojaControlCambios = "Control de Cambios";
+            //crear la hoja y la selecciona
+            oSLDocument.AddWorksheet(hojaControlCambios);
+            oSLDocument.SelectWorksheet(hojaControlCambios);
+
+            //reinicia la tabla
+            dt = new System.Data.DataTable();
+
+            dt.Columns.Add("No.", typeof(int));
+            dt.Columns.Add("Responsable del cambio", typeof(string));
+            dt.Columns.Add("Fecha", typeof(DateTime));
+            dt.Columns.Add("Descripción del Cambio", typeof(string));
+
+            dt.Rows.Add(1,"Gerente de Sistemas", new DateTime(2018,1,22),"Se da de alta el documento en el sistema.");
+            dt.Rows.Add(2,"Network administrator", new DateTime(2021,1,04), "Se sustituye el plan de mantenimiento por el calendario anual, se realiza por procesos.");
+            dt.Rows.Add(3,"Alfredo Xochitemol Cruz", new DateTime(2022,9,1), "Se genera plan de mantenimientos a través del Portal tkMM.");
+
+            oSLDocument.MergeWorksheetCells("A1","D1");
+            oSLDocument.SetCellValue("A1", "Control de Cambios");
+           
+
+            oSLDocument.ImportDataTable(2, 1, dt, true);
+
+            SLStyle styleLongDate = oSLDocument.CreateStyle();
+            styleShortDate.FormatCode = "yyyy-mm-dd";
+            oSLDocument.SetColumnStyle(3, styleShortDate);
+
+            oSLDocument.FreezePanes(2, 0);
+            //oSLDocument.Filter(2, 1, 1, dt.Columns.Count);
+            oSLDocument.AutoFitColumn(2, dt.Columns.Count);
+
+
+            styleHeaderFont.Alignment.Horizontal = HorizontalAlignmentValues.Center;
+
+            oSLDocument.SetColumnStyle(2, dt.Columns.Count, styleWrap);
+            oSLDocument.SetRowStyle(1,2, styleHeader);
+            oSLDocument.SetRowStyle(1,2, styleHeaderFont);
+
+            oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
+
+            #endregion
+
+            oSLDocument.SelectWorksheet("Mantenimientos IT");
 
             System.IO.Stream stream = new System.IO.MemoryStream();
 
