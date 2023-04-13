@@ -739,7 +739,6 @@
                                     @*DIRECTORIO*@
 
                                     @if (Request.IsAuthenticated
-                                        && User.IsInRole(TipoRoles.IT_INVENTORY) //temporal hasta que se libere a productivo
                                         )
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "directorio" ? "active" : null )">

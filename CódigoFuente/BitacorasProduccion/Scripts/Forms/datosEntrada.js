@@ -240,6 +240,7 @@ function ocultarModal(denominador) {
         let peso = TryParseFloat(peso_etiqueta, 0);
 
         let resultado = peso / denominador;
+        resultado = resultado.toFixed(3);
         if (peso_bascula_2)
             $('#produccion_datos_entrada_peso_real_pieza_neto_platina_2').val(resultado);
         else
@@ -280,7 +281,7 @@ function ObtenerPesoBascula(ip, denominador) {
                 if (data[0].Message == "OK") {
                     let peso = TryParseFloat(data[0].Peso, 0);
                     let resultado = peso / denominador;
-
+                    resultado = resultado.toFixed(3);
                     if (peso_bascula_2)
                         $('#produccion_datos_entrada_peso_real_pieza_neto_platina_2').val(resultado);
                     else
@@ -337,6 +338,11 @@ function calculaDatos() {
     let sap_platina_2 = $("#sap_platina_2").val();
     let tiene_platina2 = sap_platina_2 !== "";
 
+    //limita a tres decimales el peso real pieza bruto de la báscula
+    let pb2 = TryParseFloat($('#produccion_datos_entrada_peso_real_pieza_neto_platina_2').val(),0);
+    $('#produccion_datos_entrada_peso_real_pieza_neto_platina_2').val(pb2.toFixed(3));
+    let pb1 = TryParseFloat($('#produccion_datos_entrada_peso_real_pieza_neto').val(),0);
+    $('#produccion_datos_entrada_peso_real_pieza_neto').val(pb1.toFixed(3));
 
     //Variables
     let peso_etiqueta = TryParseFloat($('#produccion_datos_entrada_peso_etiqueta').val(), 0);

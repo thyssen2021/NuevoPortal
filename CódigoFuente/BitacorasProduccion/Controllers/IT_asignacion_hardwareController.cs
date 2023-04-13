@@ -1088,7 +1088,9 @@ namespace Portal_2_0.Controllers
                     }
 
                     if (_item.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.LAPTOP
-                        || _item.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.DESKTOP)
+                        || _item.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.DESKTOP 
+                        || _item.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.TABLET 
+                        )
                     {
                         table.AddCell(new Cell().Add(new Paragraph("Hostname:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
                         table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(_item.hostname) ? _item.hostname : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
