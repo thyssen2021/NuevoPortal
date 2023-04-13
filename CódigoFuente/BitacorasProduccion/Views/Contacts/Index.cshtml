@@ -80,7 +80,7 @@
                                 <div class="form-group">
                                     @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
                                     {
-                                        <input type="hidden" name="busqueda" value="true"/>
+                                        <input type="hidden" name="busqueda" value="true" />
                                         <div class="form-group row ">
                                             <label class="control-label col-md-1 col-sm-1" for="nombre" style="text-align:right">Nombre:</label>
                                             <div class="col-md-2 col-sm-2 ">
@@ -96,7 +96,7 @@
                                             </div>
                                             <!-- INICIA Telefono y extension-->
                                             <label for="incluye_telefono" class="col-form-label col-md-1 col-sm-1 label-align" data-toggle="tooltip" data-placement="top" title="Si se selecciona, sólo se mostrarán los resultados que incluyan télefono y/o extensión">Tel&eacute;fono y/o extensi&oacute;n</label>
-                                            <div class="col-md-1 col-sm-1" >
+                                            <div class="col-md-1 col-sm-1">
                                                 <input type="checkbox" id="incluye_telefono" name="incluye_telefono" value="true" @(Boolean.TryParse(incluye_telefono, out bool tel) && tel == true ? "checked" : String.Empty)>
                                             </div>
                                             <!--FIN Telefono y extension-->
@@ -104,9 +104,9 @@
                                                 <a href="@Url.Action( "Index", ViewBag.ControllerName)" class="btn btn-warning">
                                                     <i class="fa fa-refresh"></i>
                                                 </a>
-                                                <input type="submit" value="Buscar" class="btn btn-info" />
+                                                <button type="submit" class="btn btn-info"><i class='fa-solid fa-magnifying-glass'></i></button>
                                             </div>
-                                            
+
                                         </div>
                                     }
                                     <hr />
@@ -190,9 +190,17 @@
                                         @{Html.RenderPartial("_Paginacion", Model);}
                                     </nav>
                                 }
+                                else if (ViewBag.Index!=null)
+                                {
+                                    <h4>
+                                        Ingrese los valores de búsqueda para mostrar los resultados...
+                                    </h4>
+                                }
                                 else
                                 {
-                                    <h2>¡No hay resultados!</h2>
+                                    <h2>
+                                        ¡No hay resultados!
+                                    </h2>
                                 }
                             </div>
                         </div>
@@ -250,6 +258,18 @@
             $('input').on('ifChanged', function (event) {
                 EnviaFormulario();
             });
+
+            let $comment = document.getElementById("nombre")
+            let timeout
+
+            //El evento lo puedes reemplazar con keyup, keypress y el tiempo a tu necesidad
+            $comment.addEventListener('keydown', () => {
+                clearTimeout(timeout)
+                timeout = setTimeout(() => {
+                    EnviaFormulario();
+                    clearTimeout(timeout)
+                }, 1800)
+            })
 
         });
 

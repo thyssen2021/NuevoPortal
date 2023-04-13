@@ -1234,7 +1234,7 @@ namespace Portal_2_0.Controllers
             }
             // return new FileContentResult(pdfBytes, "application/pdf");
 
-            string filename = IT_matriz_requerimientosController.itfNumber + "_Responsiva de Equipo_" + item.empleados.ConcatNombre.Trim() + ".pdf";
+            string filename = item.IATF_revisiones.IATF_documentos.clave + "_" + item.IATF_revisiones.IATF_documentos.nombre_documento + "_" + item.empleados.ConcatNombre.Trim() + ".pdf";
 
             var cd = new System.Net.Mime.ContentDisposition
             {

@@ -810,10 +810,10 @@ namespace Portal_2_0.Controllers
                     {
 
                         //OBTIENE EL CORREO DE NOTIFICACION
+                        var itTicketEmail = db.notificaciones_correo.Where(x => x.descripcion == "IT_TICKET").FirstOrDefault();
                         var itEmail = db.notificaciones_correo.Where(x => x.descripcion == "IT_TKMM").FirstOrDefault();
-                        if (itEmail != null)
+                       if (itEmail != null && itTicketEmail !=null)
                         {
-
                             //envia correo electronico
                             EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
 
@@ -822,12 +822,15 @@ namespace Portal_2_0.Controllers
                             if (!String.IsNullOrEmpty(itEmail.correo))
                                 correos.Add(itEmail.correo); //agrega correo de validador
 
+                            if (!String.IsNullOrEmpty(itTicketEmail.correo))
+                                correos.Add(itTicketEmail.correo); //agrega correo de validador
+
                             //manda copia al usuario actual
                             empleados empleadoActualRH = obtieneEmpleadoLogeado();
                             if (!String.IsNullOrEmpty(empleadoActualRH.correo))
                                 correos.Add(empleadoActualRH.correo);
 
-                            envioCorreo.SendEmailAsync(correos, "Notificación de Baja de Empleado", envioCorreo.getBodyITBajaEmpleado(empleado));
+                            envioCorreo.SendEmailAsync(correos, "TKMM-LOCAL - Notificación de Baja de Empleado", envioCorreo.getBodyITBajaEmpleado(empleado));
                         }
 
                     }

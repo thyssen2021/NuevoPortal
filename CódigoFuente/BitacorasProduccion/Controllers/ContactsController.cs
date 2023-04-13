@@ -19,7 +19,7 @@ namespace Portal_2_0.Controllers
 
         // GET: Contacts
         [AllowAnonymous]
-        public ActionResult Index(string nombre, int? id_area, bool? incluye_telefono, bool? busqueda, int planta_clave = 0, int pagina = 1)
+        public ActionResult Index(string nombre, bool? incluye_telefono, bool? busqueda, int id_area = 0, int planta_clave = 0, int pagina = 1)
         {
 
             //mensaje en caso de crear, editar, etc
@@ -30,7 +30,7 @@ namespace Portal_2_0.Controllers
 
             //verifica si debe establecer como null el area
             if (!db.Area.Any(x => x.clave == id_area && x.plantaClave == planta_clave))
-                id_area = null;
+                id_area = 0;
 
             //establece el valor por defecto para incluye_telefono
             if (!busqueda.HasValue)
@@ -46,10 +46,15 @@ namespace Portal_2_0.Controllers
                    .Where(x =>
                        ((x.nombre + " " + x.apellido1 + " " + x.apellido2).Contains(nombre) || String.IsNullOrEmpty(nombre))
                        && (x.planta_clave == planta_clave || planta_clave == 0)
-                       && (id_area == null || x.id_area == id_area)
+                       && (id_area == 0 || x.id_area == id_area)
                        && (x.activo.HasValue && x.activo.Value) //si está activo
                        ).ToList();
 
+            if (id_area == 0 && planta_clave == 0 && string.IsNullOrEmpty(nombre))
+            {
+                listadoTemporal = new List<empleados>();
+                ViewBag.Index = true;
+            }
             //recorre todos los empleados y determina quién si tiene lineas o no        
             foreach (var e in listadoTemporal)
             {
@@ -66,7 +71,7 @@ namespace Portal_2_0.Controllers
             .Skip((pagina - 1) * cantidadRegistrosPorPagina)
            .Take(cantidadRegistrosPorPagina).ToList();
 
-           
+
 
             //para paginación
 
@@ -75,6 +80,7 @@ namespace Portal_2_0.Controllers
             routeValues["planta_clave"] = planta_clave;
             routeValues["id_area"] = id_area;
             routeValues["incluye_telefono"] = incluye_telefono;
+            routeValues["busqueda"] = busqueda;
 
             Paginacion paginacion = new Paginacion
             {
