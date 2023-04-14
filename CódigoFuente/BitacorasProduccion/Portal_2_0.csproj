@@ -325,6 +325,7 @@
     <Compile Include="Controllers\IT_mantenimientos_checklist_categoriasController.cs" />
     <Compile Include="Controllers\IT_mantenimientos_checklist_itemController.cs" />
     <Compile Include="Controllers\IT_matriz_requerimientosController.cs" />
+    <Compile Include="Controllers\IT_notificaciones_actividadController.cs" />
     <Compile Include="Controllers\IT_siteController.cs" />
     <Compile Include="Controllers\IT_site_actividadesController.cs" />
     <Compile Include="Controllers\IT_site_checklistController.cs" />
@@ -562,6 +563,18 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IT_matriz_software.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_notificaciones_actividad.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_notificaciones_email.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_notificaciones_recordatorio.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_notificaciones_usuarios.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IT_site.cs">
@@ -7324,6 +7337,11 @@
     <Content Include="Views\empleados\CambioJefe.cshtml" />
     <Content Include="Views\empleados\Organigrama.cshtml" />
     <Content Include="Views\Information\EnvioEmail.cshtml" />
+    <Content Include="Views\IT_notificaciones_actividad\Create.cshtml" />
+    <Content Include="Views\IT_notificaciones_actividad\Delete.cshtml" />
+    <Content Include="Views\IT_notificaciones_actividad\Details.cshtml" />
+    <Content Include="Views\IT_notificaciones_actividad\Edit.cshtml" />
+    <Content Include="Views\IT_notificaciones_actividad\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

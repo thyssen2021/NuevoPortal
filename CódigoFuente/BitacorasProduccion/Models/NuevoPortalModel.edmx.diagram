@@ -280,6 +280,15 @@
         <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_area" />
         <AssociationConnector Association="Portal_2_0Model.FK_OT_rel_depto_aplica_linea_id_area" />
         <AssociationConnector Association="Portal_2_0Model.FK_puestos_area_clave" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_notificaciones_actividad" Width="1.5" PointX="29.75" PointY="72.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_notificaciones_email" Width="1.5" PointX="34.25" PointY="79.875" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_notificaciones_recordatorio" Width="1.5" PointX="32" PointY="79.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_notificaciones_usuarios" Width="1.5" PointX="34.25" PointY="82.875" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_sistemas" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_notificaciones_usuarios_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_notificaciones_actividad" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_notificaciones_email_id_notificaciones_recodatorio" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_notificaciones_usuarios_id_notificaciones_recodatorio" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

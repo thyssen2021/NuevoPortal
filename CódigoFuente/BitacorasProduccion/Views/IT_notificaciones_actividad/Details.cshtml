@@ -1,0 +1,74 @@
+﻿@model Portal_2_0.Models.IT_notificaciones_actividad
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Details</title>
+</head>
+<body>
+    <div>
+        <h4>IT_notificaciones_actividad</h4>
+        <hr />
+        <dl class="dl-horizontal">
+            <dt>
+                @Html.DisplayNameFor(model => model.descripcion)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.descripcion)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.periodo)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.periodo)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.tipo_periodo)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.tipo_periodo)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.es_recurrente)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.es_recurrente)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.mensaje)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.mensaje)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.asunto)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.asunto)
+            </dd>
+    
+        </dl>
+    </div>
+    <p>
+        @Html.ActionLink("Edit", "Edit", new { id = Model.id }) |
+        @Html.ActionLink("Back to List", "Index")
+    </p>
+</body>
+</html>
