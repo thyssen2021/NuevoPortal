@@ -1427,7 +1427,7 @@ namespace Portal_2_0.Controllers
 
                 TempData["Mensaje"] = new MensajesSweetAlert("Se ha rechazado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
 
-                return RedirectToAction("solicitudes_pendientes_autorizador");
+                return RedirectToAction("solicitudes_sistemas");
 
 
             }
@@ -1445,13 +1445,13 @@ namespace Portal_2_0.Controllers
                 var exceptionMessage = string.Concat("Para continuar verifique: ", fullErrorMessage);
 
                 TempData["Mensaje"] = new MensajesSweetAlert(exceptionMessage, TipoMensajesSweetAlerts.WARNING);
-                return RedirectToAction("solicitudes_pendientes_autorizador");
+                return RedirectToAction("solicitudes_sistemas");
 
             }
             catch (Exception e)
             {
                 TempData["Mensaje"] = new MensajesSweetAlert("Ha ocurrido un error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
-                return RedirectToAction("solicitudes_pendientes_autorizador");
+                return RedirectToAction("solicitudes_sistemas");
             }
 
         }
