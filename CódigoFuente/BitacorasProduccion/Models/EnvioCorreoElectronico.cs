@@ -89,8 +89,8 @@ namespace Portal_2_0.Models
                 };
 
                 //********** Comentar para productivo ************//
-                //emailsTo = new List<string>();
-                //emailsTo.Add("alfredo.xochitemol@lagermex.com.mx");
+               // emailsTo = new List<string>();
+               // emailsTo.Add("alfredo.xochitemol@lagermex.com.mx");
                 // ************************************//
 
                 //agrega los destinatarios
@@ -154,10 +154,7 @@ namespace Portal_2_0.Models
                     IsBodyHtml = true
                 };
 
-                //********** Comentar para productivo ************//
-                //emailsTo = new List<string>();
-                //emailsTo.Add("alfredo.xochitemol@lagermex.com.mx");
-                // ************************************//
+               
 
                 //agrega los destinatarios CC
                 foreach (string email in emailsCC)
@@ -771,7 +768,7 @@ namespace Portal_2_0.Models
 
 
             //body = body.Replace("#VALIDADOR", poliza.PM_validadores.empleados.ConcatNombre);
-            body = body.Replace("#JEFE", item.empleados1.ConcatNombre); //jefe
+            body = body.Replace("#SISTEMAS", item.empleados2.ConcatNombre); //sistemas
             body = body.Replace("#ESTADO", IT_MR_Status.DescripcionStatus(item.estatus));
             body = body.Replace("#ID", item.id.ToString()); //elaborador
             body = body.Replace("#EMPLEADO", item.empleados.ConcatNombre);
@@ -779,7 +776,7 @@ namespace Portal_2_0.Models
             body = body.Replace("#COMENTARIO", item.comentario);
             body = body.Replace("#RECHAZO", item.comentario_rechazo);
             body = body.Replace("#FECHA_SOLICITUD", item.fecha_solicitud.ToString("dd/MM/yyyy"));
-            body = body.Replace("#ENLACE", domainName + "/IT_matriz_requerimientos/CrearMatriz/" + item.id_empleado);
+            body = body.Replace("#ENLACE", domainName + "/IT_matriz_requerimientos/Autorizar/" + item.id);
             body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
 
             return body;

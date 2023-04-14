@@ -165,6 +165,13 @@
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.estatus)
                                                 </th>
+                                                @if (ViewContext.RouteData.Values["action"].ToString() == "solicitudes_rechazadas_autorizador")
+                                                {
+                                                    <th>
+                                                        Comentario de rechazo
+                                                    </th>
+                                                }
+
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -175,9 +182,18 @@
 
                                                         @if (ViewBag.Autorizar != null && ViewBag.Autorizar)
                                                         {
-                                                            <a href="@Url.Action("Autorizar", ViewBag.ControllerName, new { id = item.id })" class="btn btn-primary" rel="tooltip" data-title="Autorizar" data-placement="right">
-                                                                <i class="fa fa-file-circle-check"></i>
-                                                            </a>
+                                                            if (item.estatus == Bitacoras.Util.IT_MR_Status.RECHAZADO)
+                                                            {
+                                                                <a href="@Url.Action("Autorizar", ViewBag.ControllerName, new { id = item.id })" class="btn btn-success" rel="tooltip" data-title="Editar" data-placement="right">
+                                                                    <i class="fa-solid fa-file-pen"></i>
+                                                                </a>
+                                                            }
+                                                            else
+                                                            {
+                                                                <a href="@Url.Action("Autorizar", ViewBag.ControllerName, new { id = item.id })" class="btn btn-primary" rel="tooltip" data-title="Autorizar" data-placement="right">
+                                                                    <i class="fa fa-file-circle-check"></i>
+                                                                </a>
+                                                            }
                                                         }
                                                         @if (ViewBag.Edit != null && ViewBag.Edit)
                                                         {
@@ -209,6 +225,12 @@
                                                                 </a>
                                                             }
                                                         }
+                                                        @if (item.estatus == Bitacoras.Util.IT_MR_Status.RECHAZADO && ViewContext.RouteData.Values["action"].ToString() == "solicitudes_rechazadas_autorizador")
+                                                        {
+                                                            <a href="@Url.Action("Autorizar", ViewBag.ControllerName, new { id = item.id })" class="btn btn-success" rel="tooltip" data-title="Editar" data-placement="right">
+                                                                <i class="fa-solid fa-file-pen"></i>
+                                                            </a>
+                                                        }
                                                     </td>
                                                     <td style="text-align:center">
                                                         @Html.DisplayFor(modelItem => item.id)
@@ -231,6 +253,14 @@
                                                     <td>
                                                         @Bitacoras.Util.IT_MR_Status.DescripcionStatus(item.estatus)
                                                     </td>
+
+                                                    @if (ViewContext.RouteData.Values["action"].ToString() == "solicitudes_rechazadas_autorizador")
+                                                    {
+                                                        <td style="font-weight:bold; color:red;" nowrap>
+                                                            @Html.DisplayFor(modelItem => item.comentario_rechazo)
+                                                        </td>
+                                                    }
+
 
                                                 </tr>
                                             }

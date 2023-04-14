@@ -414,7 +414,7 @@
                                             <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "autorizar_matriz" ? "display:block" : null )">
                                                 <h3>Solicitudes</h3>
                                                 <li class="@(ViewBag.SegundoNivel == "solicitudes_pendientes_autorizador" ? "current-page" : null )"><a href="@Url.Action("solicitudes_pendientes_autorizador", "IT_matriz_requerimientos")">Solicitudes Pendientes</a></li>
-                                              @*  <li class="@(ViewBag.SegundoNivel == "solicitudes_rechazadas_autorizador" ? "current-page" : null )"><a href="@Url.Action("solicitudes_rechazadas_autorizador", "IT_matriz_requerimientos")">Solicitudes Rechazadas</a></li>*@
+                                                <li class="@(ViewBag.SegundoNivel == "solicitudes_rechazadas_autorizador" ? "current-page" : null )"><a href="@Url.Action("solicitudes_rechazadas_autorizador", "IT_matriz_requerimientos")">Solicitudes Rechazadas</a></li>
                                                 <li class="@(ViewBag.SegundoNivel == "solicitudes_autorizadas_autorizador" ? "current-page" : null )"><a href="@Url.Action("solicitudes_autorizadas_autorizador", "IT_matriz_requerimientos")">Solicitudes Autorizadas</a></li>
                                             </ul>
                                         </li>

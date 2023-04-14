@@ -106,7 +106,7 @@ namespace Portal_2_0.Controllers
 
 
                 var listado = db.IT_matriz_requerimientos
-                    .Where(x => (x.estatus == IT_MR_Status.ENVIADO_A_JEFE || x.estatus == IT_MR_Status.ENVIADO_A_IT || x.estatus == IT_MR_Status.CREADO || x.estatus == IT_MR_Status.EN_PROCESO)
+                    .Where(x => (x.estatus == IT_MR_Status.ENVIADO_A_JEFE || x.estatus == IT_MR_Status.ENVIADO_A_IT || x.estatus == IT_MR_Status.CREADO || x.estatus == IT_MR_Status.EN_PROCESO || x.estatus == IT_MR_Status.RECHAZADO)
                             && (planta == null || x.empleados.planta_clave == planta)
                             && (solicitante == null || x.id_solicitante == solicitante)
                     )
@@ -115,7 +115,7 @@ namespace Portal_2_0.Controllers
                    .Take(cantidadRegistrosPorPagina).ToList();
 
                 var totalDeRegistros = db.IT_matriz_requerimientos
-                      .Where(x => (x.estatus == IT_MR_Status.ENVIADO_A_JEFE || x.estatus == IT_MR_Status.ENVIADO_A_IT || x.estatus == IT_MR_Status.CREADO || x.estatus == IT_MR_Status.EN_PROCESO)
+                      .Where(x => (x.estatus == IT_MR_Status.ENVIADO_A_JEFE || x.estatus == IT_MR_Status.ENVIADO_A_IT || x.estatus == IT_MR_Status.CREADO || x.estatus == IT_MR_Status.EN_PROCESO || x.estatus == IT_MR_Status.RECHAZADO)
                             && (planta == null || x.empleados.planta_clave == planta)
                             && (solicitante == null || x.id_solicitante == solicitante)
                     ).Count();
@@ -298,13 +298,13 @@ namespace Portal_2_0.Controllers
                 empleados empleado = obtieneEmpleadoLogeado();
 
                 var listado = db.IT_matriz_requerimientos
-                    .Where(x => x.estatus == IT_MR_Status.ENVIADO_A_JEFE && x.id_jefe_directo == empleado.id)
+                    .Where(x => (x.estatus == IT_MR_Status.ENVIADO_A_JEFE || x.estatus == IT_MR_Status.RECHAZADO) && x.id_jefe_directo == empleado.id)
                     .OrderByDescending(x => x.fecha_solicitud)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
                 var totalDeRegistros = db.IT_matriz_requerimientos
-                     .Where(x => x.estatus == IT_MR_Status.ENVIADO_A_JEFE && x.id_jefe_directo == empleado.id)
+                     .Where(x => (x.estatus == IT_MR_Status.ENVIADO_A_JEFE || x.estatus == IT_MR_Status.RECHAZADO) && x.id_jefe_directo == empleado.id)
                    .Count();
 
                 //para paginación
@@ -631,7 +631,7 @@ namespace Portal_2_0.Controllers
         // GET: IT_matriz_requerimientos/IniciarMatriz
         public ActionResult IniciarMatriz(int? id, string tipo = "")
         {
-            if (TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CREAR))
+            if (TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CREAR) || TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_AUTORIZAR))
             {
                 if (id == null)
                 {
@@ -788,6 +788,11 @@ namespace Portal_2_0.Controllers
                 }
             #endregion
 
+            //valida si la solicitud está vacia
+
+            if (SelectedHardware == null && SelectedSoftware == null && SelectedComunicaciones == null && SelectedCarpetas == null && matriz.id>0)
+                ModelState.AddModelError("", "La solicitud está vacía, seleccione el hardware y los sistema a solicitar para el empleado.");
+
             if (ModelState.IsValid)
             {
 
@@ -821,7 +826,7 @@ namespace Portal_2_0.Controllers
                 else
                 { //si no tiene crea una solicitud de creacion
                     var jefeD = db.empleados.Find(matriz.id_jefe_directo);
-                  //crea un nuevo objeto de la solicitud
+                    //crea un nuevo objeto de la solicitud
                     IT_solicitud_usuarios solicitud = new IT_solicitud_usuarios
                     {
                         id_empleado = matriz.id_jefe_directo,
@@ -1230,7 +1235,7 @@ namespace Portal_2_0.Controllers
                 }
 
                 //verifica si una matriz puede editarse
-                if (matriz.estatus != IT_MR_Status.ENVIADO_A_JEFE)
+                if (matriz.estatus != IT_MR_Status.ENVIADO_A_JEFE && matriz.estatus != IT_MR_Status.RECHAZADO)
                 {
                     ViewBag.Titulo = "¡Lo sentimos!¡No se puede modificar esta solicitud!";
                     ViewBag.Descripcion = "No pueden modificarse solicitudes que han sido enviadas o finalizadas.";
@@ -1405,16 +1410,19 @@ namespace Portal_2_0.Controllers
             {
                 db.SaveChanges();
 
-                //NOTIFICACIÓN A SOLICITANTE
+                //NOTIFICACIÓN A JEFE DIRECTO
                 //envia correo electronico notificación solicitante
                 EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
 
                 List<String> correos = new List<string>(); //correos TO
 
-                if (!String.IsNullOrEmpty(matriz.empleados3.correo))
-                    correos.Add(matriz.empleados3.correo); //agrega correo de elaborador
+                if (!String.IsNullOrEmpty(matriz.empleados1.correo))
+                    correos.Add(matriz.empleados1.correo); //agrega correo de elaborador
 
-                envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de usuarios #" + matriz.id + " ha sido rechazada por el Jefe Directo.", envioCorreo.getBody_IT_MR_Notificacion_Rechazado_Solicitante(matriz));
+                //agrega el usuario de sistemas
+                matriz.empleados2 = obtieneEmpleadoLogeado();
+
+                envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de usuarios #" + matriz.id + " ha sido rechazada por el Sistemas.", envioCorreo.getBody_IT_MR_Notificacion_Rechazado_Solicitante(matriz));
 
 
                 TempData["Mensaje"] = new MensajesSweetAlert("Se ha rechazado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
@@ -1704,7 +1712,7 @@ namespace Portal_2_0.Controllers
                         //envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de Usuarios #" + matriz.id + " ha sido actualizada.", envioCorreo.getBody_IT_MR_Notificacion_En_Proceso(matriz));
                         TempData["Mensaje"] = new MensajesSweetAlert("Se ha actualizado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
                     }
-                    else if (matriz.estatus == IT_MR_Status.FINALIZADO && tipoSolicitud.ToUpper()=="CIERRE")
+                    else if (matriz.estatus == IT_MR_Status.FINALIZADO && tipoSolicitud.ToUpper() == "CIERRE")
                     {
                         envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de usuarios #" + matriz.id + " ha sido cerrada.", envioCorreo.getBody_IT_MR_Notificacion_Cierre(matriz));
                         TempData["Mensaje"] = new MensajesSweetAlert("Se ha cerrado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);

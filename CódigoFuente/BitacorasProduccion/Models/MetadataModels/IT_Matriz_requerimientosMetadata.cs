@@ -79,6 +79,10 @@ namespace Portal_2_0.Models
         [Display(Name = "Comentario Cierre")]
         public string comentario_cierre { get; set; }
 
+        [StringLength(350, MinimumLength = 5)]
+        [Display(Name = "Razón Rechazo")]
+        public string comentario_rechazo { get; set; }
+
         public virtual IT_matriz_requerimientos matriz { get; set; }
     }
 }

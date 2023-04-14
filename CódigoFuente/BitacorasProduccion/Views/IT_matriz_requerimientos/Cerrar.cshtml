@@ -333,17 +333,17 @@
                                 </div>
                             </div>
                             @*<div class="ln_solid"></div>
-                                <div class="form-group row">
-                                    <span style="color:dimgrey"><b>&emsp; 3.3- INTERNET</b></span>
+            <div class="form-group row">
+                <span style="color:dimgrey"><b>&emsp; 3.3- INTERNET</b></span>
 
-                                </div>
+            </div>
 
-                                <div class="form-group row">
-                                    @Html.LabelFor(model => model.matriz.id_internet_tipo, new { @class = "control-label col-md-2" })
-                                    <div class="col-md-4 col-sm-4 ">
-                                        <input type="text" id="id_internet_tipo" class="form-control" value="@(Model.matriz.IT_internet_tipo!=null ? Model.matriz.IT_internet_tipo.descripcion : "NO DISPONIBLE" )" readonly="readonly" />
-                                    </div>
-                                </div>*@
+            <div class="form-group row">
+                @Html.LabelFor(model => model.matriz.id_internet_tipo, new { @class = "control-label col-md-2" })
+                <div class="col-md-4 col-sm-4 ">
+                    <input type="text" id="id_internet_tipo" class="form-control" value="@(Model.matriz.IT_internet_tipo!=null ? Model.matriz.IT_internet_tipo.descripcion : "NO DISPONIBLE" )" readonly="readonly" />
+                </div>
+            </div>*@
 
                             <div class="ln_solid"></div>
                             <div class="form-group row">
@@ -599,13 +599,33 @@
                                     </p>
                                 </div>
                             </div>
+                            if (!String.IsNullOrEmpty(Model.matriz.comentario_rechazo))
+                            {
+                                <div class="ln_solid"></div>
+
+                                <div class="form-group row">
+                                    <span style="color:#d01414"><b>¡RAZÓN DE RECHAZO ANTERIOR!</b></span>
+                                </div>
+
+                                <div class="item form-group">
+                                    <div class="col-md-12" >
+                                        @Html.TextAreaFor(model => model.matriz.comentario_rechazo, new { @class = "form-control", @rows = "5", @readonly = "readonly", @style= "color:#d01414" })
+                                        @Html.ValidationMessageFor(model => model.matriz.comentario_rechazo, "", new { @class = "text-danger" })
+                                    </div>
+
+                                </div>
+                            }
 
                             <div class="ln_solid"></div>
                             <div class="form-group row">
 
                                 @if (Model.matriz.estatus != Bitacoras.Util.IT_MR_Status.FINALIZADO)
                                 {
-                                    <div class="col-md-9 col-sm-9">
+                                    <div class="col-md-1 col-sm-1 ">
+                                        <button type="button" class="btn btn-danger btn-lg" onclick="mostrarModalRechazar()">Rechazar</button>
+                                    </div>
+
+                                    <div class="col-md-8 col-sm-8">
                                         <button type="button" id="btn-progreso" class="btn btn-primary btn-lg float-md-right"><i class="fa-regular fa-bookmark"></i> Guardar Progreso</button>
                                     </div>
                                     <div class="col-md-3 col-sm-3 ">
@@ -630,6 +650,44 @@
                     </a>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Rechazar -->
+<div class="modal fade" id="modalRechazar" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Rechazar</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("Rechazar", null, FormMethod.Post, new { }))
+            {
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <h6>¿Realmente desea rechazar esta solicitud?</h6>
+                        <br />
+                        <div class="col-md-12">
+                            <h6>Razón de Rechazo:</h6>
+                        </div>
+                        <div class="col-md-12">
+
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(model => model.id)
+                            @Html.TextAreaFor(model => model.comentario_rechazo, new { @class = "form-control", @rows = "4", @autocomplete = "off", @required = "required" })
+                            @Html.ValidationMessageFor(model => model.comentario_rechazo, "", new { @class = "text-danger" })
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning">Rechazar</button>
+                </div>
+            }
         </div>
     </div>
 </div>
@@ -735,6 +793,8 @@
                         $('#tipo_form').val("update");
                         $('#correo').prop("required", true);
                         $('#C8ID').prop("required", true);
+                        $('#comentario_cierre').prop("required", true);
+
                         //espera a que se cierre el modal para enviar el formulario
                         setTimeout(function () {
                             $form.submit();
@@ -938,6 +998,11 @@
         $(window).on('beforeunload', function () {
             return "Any changes will be lost";
         });
+
+        //muestra el modal de rechazar
+        function mostrarModalRechazar() {
+            $('#modalRechazar').modal('show')
+        }
 
         // Form Submit
         $(document).on("submit", "form", function (event) {
