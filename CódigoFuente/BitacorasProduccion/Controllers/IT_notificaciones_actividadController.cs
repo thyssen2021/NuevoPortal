@@ -332,5 +332,40 @@ namespace Portal_2_0.Controllers
             }
             base.Dispose(disposing);
         }
+
+        ///<summary>
+        ///Obtiene del empleado, según el id recibido
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        [AllowAnonymous]
+        public JsonResult GetEventos() {
+
+            var recordatoriosList = db.IT_notificaciones_recordatorio.ToList();
+
+            //inicializa la lista de objetos
+            var objeto = new object[recordatoriosList.Count];
+            var fechaHoy = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
+
+            for (int i = 0; i < recordatoriosList.Count; i++) {
+                
+                string color = "#008DFF";
+                if (recordatoriosList[i].fecha_programada < fechaHoy)
+                    color = "#7BC7F7";
+
+                objeto[i] = new
+                {
+                    id = recordatoriosList[i].id.ToString(),
+                    icon = "fa-check-circle",
+                    title = recordatoriosList[i].IT_notificaciones_actividad.titulo,
+                    start = recordatoriosList[i].fecha_programada.ToString("yyyy-MM-dd"),
+                    color = color,
+                    textColor = "white" // an option!
+
+                };
+            }
+
+            return Json(objeto, JsonRequestBehavior.AllowGet);
+        }
     }
 }

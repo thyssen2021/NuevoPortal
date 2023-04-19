@@ -90,6 +90,21 @@
         });
 
         function IniciaCalendar() {
+            var source;
+
+            //llamada para cargar los eventos
+            $.ajax({
+                type: 'POST',
+                url: '/IT_notificaciones_actividad/GetEventos',
+                data: {  },
+                success: function (data) {
+                    source = data;                   
+                },
+                async: false
+            });
+
+            var source 
+
             var calendarEl = document.getElementById('calendar');
             calendar = new FullCalendar.Calendar(calendarEl, {
                 themeSystem: 'bootstrap',
@@ -103,6 +118,7 @@
                     center: 'title',
                     right: 'addEventButton dayGridMonth,dayGridWeek,dayGridDay'
                 },
+
                 customButtons: {
                     addEventButton: {
                         text: 'Agregar Evento',
@@ -112,64 +128,31 @@
                         }
                     }
                 },
-                events: [
-                    {
-                        title: 'All Day Event',
-                        start: '2023-04-01'
-                    },
-                    {
-                        title: 'Long Event',
-                        start: '2023-04-07',
-                        end: '2023-04-10'
-                    },
-                    {
-                        groupId: 999,
-                        title: 'Repeating Event',
-                        start: '2023-04-09T16:00:00'
-                    },
-                    {
-                        groupId: 999,
-                        title: 'Repeating Event',
-                        start: '2023-04-16T16:00:00'
-                    },
-                    {
-                        title: 'Conference',
-                        start: '2023-04-11',
-                        end: '2023-04-13',
-                        color: 'yellow',   // an option!
-                        textColor: 'black' // an option!
-                    },
-                    {
-                        title: 'Meeting',
-                        start: '2023-04-12T10:30:00',
-                        end: '2023-04-12T12:30:00'
-                    },
-                    {
-                        title: 'Lunch',
-                        start: '2023-04-12T12:00:00'
-                    },
-                    {
-                        title: 'Meeting',
-                        start: '2023-04-12T14:30:00'
-                    },
-                    {
-                        title: 'Happy Hour',
-                        start: '2023-04-12T17:30:00'
-                    },
-                    {
-                        title: 'Dinner',
-                        start: '2023-04-12T20:00:00'
-                    },
-                    {
-                        title: 'Birthday Party',
-                        start: '2023-04-13T07:00:00'
-                    },
-                    {
-                        title: 'Click for Google',
-                        url: 'http://google.com/',
-                        start: '2023-04-28'
-                    }
-                ]
+               
+                events: [{
+                    start: '2023-04-01',
+                    end: '2023-03-03',
+                    title: '<i class="fa fa-phone" aria-hidden="true"></i> test fa-check-circle',
+                }, {
+                    start: '2023-04-05',
+                    end: '2023-04-10',
+                    title: 'testing fa-clock-o',
+                    icon: 'fa fa-phone'
+                }, {
+                    start: '2023-04-11',
+                    end: '2023-03-15',
+                    title: 'testing fa-times-circle',
+                }],
+                eventDidMount: function (info) {
+                    // Create the icon
+                    let icon = document.createElement("i");
+                    icon.classList.add('fa', 'fa-bus-alt');
+
+                    console.log(info);
+                    console.log(info.event);
+                    // Add icon before the title
+                    //element.querySelector(".fc-event-title").prepend(icon);
+                },
             });
 
             calendar.render();
