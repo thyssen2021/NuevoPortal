@@ -4308,7 +4308,7 @@ namespace Portal_2_0.Models
             dt.Columns.Add("tkempno", typeof(string));
             dt.Columns.Add("tkfkz6", typeof(string));
             dt.Columns.Add("tkfkzext", typeof(string));
-            dt.Columns.Add("tkuniqueid", typeof(string));
+           // dt.Columns.Add("tkuniqueid", typeof(string));
             dt.Columns.Add("tkpstatus", typeof(string));
             dt.Columns.Add("tkcostcenter", typeof(string));
             dt.Columns.Add("tkdepartment", typeof(string));
@@ -4322,7 +4322,7 @@ namespace Portal_2_0.Models
             dt.Columns.Add("tkorgcountrykey", typeof(string));
             dt.Columns.Add("tkapsite", typeof(string));
             dt.Columns.Add("tkorgkey", typeof(string));
-            dt.Columns.Add("tkbuilding", typeof(string));
+           // dt.Columns.Add("tkbuilding", typeof(string));
             dt.Columns.Add("email", typeof(string));
             dt.Columns.Add("tkareacode", typeof(string));
             dt.Columns.Add("tkphoneext", typeof(string));
@@ -4367,8 +4367,8 @@ namespace Portal_2_0.Models
                 row["tkpreflang"] = "es";
                 row["tkempno"] = item.numeroEmpleado != null ? item.numeroEmpleado : String.Empty;
                 row["tkfkz6"] = "801495";       //unico
-                row["tkfkzext"] = "801495";     //unico
-                row["tkuniqueid"] = "801495-01";    //unico
+                row["tkfkzext"] = string.Empty;     //unico
+               // row["tkuniqueid"] = "801495-01";    //unico
                 row["tkpstatus"] = "40";    //unico
                 row["tkcostcenter"] = item.Area != null ? item.Area.numero_centro_costo : String.Empty;
                 row["tkdepartment"] = item.Area != null ? item.Area.descripcion : String.Empty;
@@ -4382,7 +4382,7 @@ namespace Portal_2_0.Models
                 row["tkorgcountrykey"] = item.plantas != null ? item.plantas.tkorgcountrykey : String.Empty;
                 row["tkapsite"] = item.plantas != null ? item.plantas.tkapsite : String.Empty;
                 row["tkorgkey"] = String.Empty;
-                row["tkbuilding"] = String.Empty;
+                // row["tkbuilding"] = String.Empty;
                 row["email"] = item.correo != null ? item.correo : String.Empty;
                 row["tkareacode"] = String.Empty;
                 row["tkphoneext"] = String.Empty;
@@ -4435,7 +4435,7 @@ namespace Portal_2_0.Models
 
             ////estilo para fecha
             SLStyle styleShortDate = oSLDocument.CreateStyle();
-            styleShortDate.FormatCode = "yyyy.MM.dd";
+            styleShortDate.FormatCode = "dd.MM.yyyy";
             oSLDocument.SetColumnStyle(tkbirthColumn, styleShortDate);
 
 
