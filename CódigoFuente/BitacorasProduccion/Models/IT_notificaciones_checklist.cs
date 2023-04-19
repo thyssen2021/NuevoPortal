@@ -12,12 +12,12 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class IT_notificaciones_email
+    public partial class IT_notificaciones_checklist
     {
         public int id { get; set; }
         public int id_notificaciones_recordatorio { get; set; }
-        public System.DateTime fecha_recordatorio { get; set; }
-        public bool enviado { get; set; }
+        public string descripcion { get; set; }
+        public string estatus { get; set; }
     
         public virtual IT_notificaciones_recordatorio IT_notificaciones_recordatorio { get; set; }
     }

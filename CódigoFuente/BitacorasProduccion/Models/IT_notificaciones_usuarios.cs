@@ -15,10 +15,11 @@ namespace Portal_2_0.Models
     public partial class IT_notificaciones_usuarios
     {
         public int id { get; set; }
-        public int id_notificaciones_recordatorio { get; set; }
-        public int id_empleado { get; set; }
+        public int id_notificaciones_actividad { get; set; }
+        public Nullable<int> id_empleado { get; set; }
+        public string correo { get; set; }
     
         public virtual empleados empleados { get; set; }
-        public virtual IT_notificaciones_recordatorio IT_notificaciones_recordatorio { get; set; }
+        public virtual IT_notificaciones_actividad IT_notificaciones_actividad { get; set; }
     }
 }

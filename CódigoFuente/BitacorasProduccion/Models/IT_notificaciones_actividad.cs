@@ -18,17 +18,19 @@ namespace Portal_2_0.Models
         public IT_notificaciones_actividad()
         {
             this.IT_notificaciones_recordatorio = new HashSet<IT_notificaciones_recordatorio>();
+            this.IT_notificaciones_usuarios = new HashSet<IT_notificaciones_usuarios>();
         }
     
         public int id { get; set; }
+        public string titulo { get; set; }
         public string descripcion { get; set; }
         public Nullable<int> periodo { get; set; }
         public string tipo_periodo { get; set; }
         public bool es_recurrente { get; set; }
-        public string mensaje { get; set; }
-        public string asunto { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_notificaciones_recordatorio> IT_notificaciones_recordatorio { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_notificaciones_usuarios> IT_notificaciones_usuarios { get; set; }
     }
 }

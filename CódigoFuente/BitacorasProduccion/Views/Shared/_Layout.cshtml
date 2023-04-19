@@ -65,6 +65,45 @@
         .link:hover {
             color: azure;
         }
+
+        .colored-toast.swal2-icon-success {
+            background-color: #a5dc85 !important;
+        }
+
+        .colored-toast.swal2-icon-error {
+            background-color: #f27474 !important;           
+        }
+
+        .colored-toast.swal2-icon-warning {
+            background-color: #f8bb86 !important;
+        }
+
+        .colored-toast.swal2-icon-info {
+            background-color: #3fc3ee !important;
+        }
+
+        .colored-toast.swal2-icon-question {
+            background-color: #87adbd !important;
+        }
+
+        .colored-toast .swal2-title {
+            color: white;
+        }
+
+        .colored-toast .swal2-close {
+            color: white;
+        }
+
+        .colored-toast .swal2-html-container {
+            color: white;
+        }
+
+        .colored-toast:hover {
+            opacity: 1.0;
+        } 
+        .colored-toast {
+            opacity: 0.94;
+        }
     </style>
 
     @if (@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":9030")
@@ -221,7 +260,7 @@
                                                 {
                                                     <h3>Recordatorios</h3>
                                                     <li class="@(ViewBag.SegundoNivel == "it_notificaciones" ? "current-page" : null )"><a href="@Url.Action("index", "IT_notificaciones_actividad")">Recordatorios</a></li>
-                                                    
+
                                                 }
                                             </ul>
                                         </li>
@@ -283,7 +322,7 @@
 
                                         </li>
                                     }
-                                   
+
 
                                     @if (User.IsInRole(TipoRoles.ADMIN))
                                     {
@@ -420,7 +459,7 @@
                                             <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "autorizar_matriz" ? "display:block" : null )">
                                                 <h3>Solicitudes</h3>
                                                 <li class="@(ViewBag.SegundoNivel == "solicitudes_pendientes_autorizador" ? "current-page" : null )"><a href="@Url.Action("solicitudes_pendientes_autorizador", "IT_matriz_requerimientos")">Solicitudes Pendientes</a></li>
-                                              @*  <li class="@(ViewBag.SegundoNivel == "solicitudes_rechazadas_autorizador" ? "current-page" : null )"><a href="@Url.Action("solicitudes_rechazadas_autorizador", "IT_matriz_requerimientos")">Solicitudes Rechazadas</a></li>*@
+                                                @*  <li class="@(ViewBag.SegundoNivel == "solicitudes_rechazadas_autorizador" ? "current-page" : null )"><a href="@Url.Action("solicitudes_rechazadas_autorizador", "IT_matriz_requerimientos")">Solicitudes Rechazadas</a></li>*@
                                                 <li class="@(ViewBag.SegundoNivel == "solicitudes_autorizadas_autorizador" ? "current-page" : null )"><a href="@Url.Action("solicitudes_autorizadas_autorizador", "IT_matriz_requerimientos")">Solicitudes Autorizadas</a></li>
                                             </ul>
                                         </li>
@@ -683,8 +722,8 @@
                                                 {
                                                     <h3>Centros de Costo</h3>
                                                     @*<li class="@(ViewBag.SegundoNivel == "actual" ? "current-page" : null )"><a href="@Url.Action("Actual", "ResponsableBudget")">ACT FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)))</a></li>
-                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
-                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
+                                                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
+                                                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
                                                     <li class="@(ViewBag.SegundoNivel == "centros" ? "current-page" : null )"><a href="@Url.Action("Centros", "ResponsableBudget")">Mis Centros</a></li>
                                                 }
 

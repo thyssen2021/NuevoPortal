@@ -138,9 +138,9 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_wsus> IT_wsus { get; set; }
         public virtual DbSet<plantas> plantas { get; set; }
         public virtual DbSet<Area> Area { get; set; }
-        public virtual DbSet<IT_notificaciones_actividad> IT_notificaciones_actividad { get; set; }
-        public virtual DbSet<IT_notificaciones_email> IT_notificaciones_email { get; set; }
+        public virtual DbSet<IT_notificaciones_checklist> IT_notificaciones_checklist { get; set; }
         public virtual DbSet<IT_notificaciones_recordatorio> IT_notificaciones_recordatorio { get; set; }
+        public virtual DbSet<IT_notificaciones_actividad> IT_notificaciones_actividad { get; set; }
         public virtual DbSet<IT_notificaciones_usuarios> IT_notificaciones_usuarios { get; set; }
     }
 }

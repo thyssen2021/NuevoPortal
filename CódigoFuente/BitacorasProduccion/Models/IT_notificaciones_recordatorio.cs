@@ -17,20 +17,21 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public IT_notificaciones_recordatorio()
         {
-            this.IT_notificaciones_email = new HashSet<IT_notificaciones_email>();
-            this.IT_notificaciones_usuarios = new HashSet<IT_notificaciones_usuarios>();
+            this.IT_notificaciones_checklist = new HashSet<IT_notificaciones_checklist>();
         }
     
         public int id { get; set; }
         public int id_notificaciones_actividad { get; set; }
         public System.DateTime fecha_programada { get; set; }
         public Nullable<int> id_sistemas { get; set; }
+        public Nullable<int> dias_previos_notificacion { get; set; }
+        public bool notificacion_previa_enviada { get; set; }
+        public bool notificacion_dia_evento_eneviada { get; set; }
+        public string comentario_cierre { get; set; }
     
         public virtual empleados empleados { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_notificaciones_checklist> IT_notificaciones_checklist { get; set; }
         public virtual IT_notificaciones_actividad IT_notificaciones_actividad { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IT_notificaciones_email> IT_notificaciones_email { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IT_notificaciones_usuarios> IT_notificaciones_usuarios { get; set; }
     }
 }

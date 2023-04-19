@@ -20,12 +20,11 @@ GO
 
 CREATE TABLE [IT_notificaciones_actividad](
 	[id][int] IDENTITY(1,1) NOT NULL,
-	[descripcion] [varchar](100) NOT NULL,
+	[titulo] [varchar](50) NOT NULL,
+	[descripcion] [varchar](300) NOT NULL,
 	[periodo] [int] NULL,
 	[tipo_periodo] [varchar](20) NULL,
 	[es_recurrente] [bit] NOT NULL,
-	[mensaje][varchar](1000) NOT NULL,
-	[asunto][varchar](80) NOT NULL
  CONSTRAINT [PK_IT_notificaciones_actividad] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
@@ -37,7 +36,6 @@ GO
 ALTER TABLE [IT_notificaciones_actividad] ADD CONSTRAINT CK_it_notificaciones_actividad_tipo_periodo CHECK ([tipo_periodo] IN 
 ('DIAS', 'SEMANAS', 'MESES', 'AÑOS')
 )
-
 	  
 IF object_id(N'IT_notificaciones_actividad',N'U') IS NOT NULL
 	BEGIN

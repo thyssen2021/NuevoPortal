@@ -23,6 +23,10 @@ CREATE TABLE [IT_notificaciones_recordatorio](
 	[id_notificaciones_actividad] [int] NOT NULL,		--FK
 	[fecha_programada] [datetime] NOT NULL,
 	[id_sistemas] [int] NULL,			--FK
+	[dias_previos_notificacion][int] NULL,
+	[notificacion_previa_enviada][bit] NOT NULL DEFAULT 0,
+	[notificacion_dia_evento_eneviada][bit] NOT NULL DEFAULT 0,
+	[comentario_cierre][varchar](150),
  CONSTRAINT [PK_IT_notificaciones_recordatorio] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
