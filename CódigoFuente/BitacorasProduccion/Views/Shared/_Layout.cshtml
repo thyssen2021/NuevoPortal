@@ -35,7 +35,6 @@
             font-family: 'TKTypeMedium';
             src: url('../../fonts/tkmm/TKTypeRegular.ttf') format('truetype');
         }
-
         table.dataTable thead {
             background-color: #009ff5;
             color: azure;
@@ -115,13 +114,13 @@
                                         </ul>
                                     </li>
                                     @if (User.IsInRole(TipoRoles.RH) || User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CREAR)
-                                        || User.IsInRole(TipoRoles.RH_MENU_COMEDOR_PUEBLA)
+                                        || User.IsInRole(TipoRoles.RH_MENU_COMEDOR_PUEBLA) || User.IsInRole(TipoRoles.RH_DETALLES_EMPLEADOS)
                                         )
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "recursos_humanos" ? "active" : null )">
                                             <a><i class="fa fa-users-rectangle"></i>Recursos Humanos<span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "recursos_humanos" ? "display:block" : null )">
-                                                @if (User.IsInRole(TipoRoles.RH))
+                                                @if (User.IsInRole(TipoRoles.RH) || User.IsInRole(TipoRoles.RH_DETALLES_EMPLEADOS))
                                                 {
                                                     <h3>Empleados</h3>
 
