@@ -790,8 +790,8 @@ namespace Portal_2_0.Controllers
 
             //valida si la solicitud está vacia
 
-            if (SelectedHardware == null && SelectedSoftware == null && SelectedComunicaciones == null && SelectedCarpetas == null && matriz.id>0)
-                ModelState.AddModelError("", "La solicitud está vacía, seleccione el hardware y los sistema a solicitar para el empleado.");
+            if (SelectedHardware == null && SelectedSoftware == null && SelectedComunicaciones == null && SelectedCarpetas == null && matriz.id>0 && string.IsNullOrEmpty(matriz.comentario))
+                ModelState.AddModelError("", "Ingrese un comentario adicional para justificar porque no se seleccionó ningún software ni hardware.");
 
             if (ModelState.IsValid)
             {
