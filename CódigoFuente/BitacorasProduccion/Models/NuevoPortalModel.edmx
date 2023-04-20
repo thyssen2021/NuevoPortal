@@ -753,8 +753,9 @@
           <Property Name="id_sistemas" Type="int" />
           <Property Name="dias_previos_notificacion" Type="int" />
           <Property Name="notificacion_previa_enviada" Type="bit" Nullable="false" />
-          <Property Name="notificacion_dia_evento_eneviada" Type="bit" Nullable="false" />
+          <Property Name="notificacion_dia_evento_enviada" Type="bit" Nullable="false" />
           <Property Name="comentario_cierre" Type="varchar" MaxLength="150" />
+          <Property Name="estatus" Type="varchar" MaxLength="20" />
         </EntityType>
         <EntityType Name="IT_notificaciones_usuarios">
           <Key>
@@ -7411,20 +7412,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="puesto" EntitySet="puesto" />
           </AssociationSet>
           <EntitySet Name="IT_notificaciones_checklist" EntityType="Portal_2_0Model.IT_notificaciones_checklist" />
-          <EntitySet Name="IT_notificaciones_recordatorio" EntityType="Portal_2_0Model.IT_notificaciones_recordatorio" />
-          <AssociationSet Name="FK_IT_notificaciones_recordatorio_id_sistemas" Association="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_sistemas">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="IT_notificaciones_recordatorio" EntitySet="IT_notificaciones_recordatorio" />
-          </AssociationSet>
-          <AssociationSet Name="FK_IT_notificaciones_checklist_id_notificaciones_recodatorio" Association="Portal_2_0Model.FK_IT_notificaciones_checklist_id_notificaciones_recodatorio">
-            <End Role="IT_notificaciones_recordatorio" EntitySet="IT_notificaciones_recordatorio" />
-            <End Role="IT_notificaciones_checklist" EntitySet="IT_notificaciones_checklist" />
-          </AssociationSet>
           <EntitySet Name="IT_notificaciones_actividad" EntityType="Portal_2_0Model.IT_notificaciones_actividad" />
-          <AssociationSet Name="FK_IT_notificaciones_recordatorio_id_notificaciones_actividad" Association="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_notificaciones_actividad">
-            <End Role="IT_notificaciones_actividad" EntitySet="IT_notificaciones_actividad" />
-            <End Role="IT_notificaciones_recordatorio" EntitySet="IT_notificaciones_recordatorio" />
-          </AssociationSet>
           <EntitySet Name="IT_notificaciones_usuarios" EntityType="Portal_2_0Model.IT_notificaciones_usuarios" />
           <AssociationSet Name="FK_IT_notificaciones_usuarios_id_empleado" Association="Portal_2_0Model.FK_IT_notificaciones_usuarios_id_empleado">
             <End Role="empleados" EntitySet="empleados" />
@@ -7433,6 +7421,19 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <AssociationSet Name="FK_IT_notificaciones_usuarios_id_notificaciones_actividad" Association="Portal_2_0Model.FK_IT_notificaciones_usuarios_id_notificaciones_actividad">
             <End Role="IT_notificaciones_actividad" EntitySet="IT_notificaciones_actividad" />
             <End Role="IT_notificaciones_usuarios" EntitySet="IT_notificaciones_usuarios" />
+          </AssociationSet>
+          <EntitySet Name="IT_notificaciones_recordatorio" EntityType="Portal_2_0Model.IT_notificaciones_recordatorio" />
+          <AssociationSet Name="FK_IT_notificaciones_recordatorio_id_sistemas" Association="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_sistemas">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IT_notificaciones_recordatorio" EntitySet="IT_notificaciones_recordatorio" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_notificaciones_recordatorio_id_notificaciones_actividad" Association="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_notificaciones_actividad">
+            <End Role="IT_notificaciones_actividad" EntitySet="IT_notificaciones_actividad" />
+            <End Role="IT_notificaciones_recordatorio" EntitySet="IT_notificaciones_recordatorio" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_notificaciones_checklist_id_notificaciones_recodatorio" Association="Portal_2_0Model.FK_IT_notificaciones_checklist_id_notificaciones_recodatorio">
+            <End Role="IT_notificaciones_recordatorio" EntitySet="IT_notificaciones_recordatorio" />
+            <End Role="IT_notificaciones_checklist" EntitySet="IT_notificaciones_checklist" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="GV_usuarios">
@@ -8320,8 +8321,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="upgrade_usuarios" Relationship="Portal_2_0Model.FK_upgrade_usuarios_empleado" FromRole="empleados" ToRole="upgrade_usuarios" />
           <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_empleados_planta_clave" FromRole="empleados" ToRole="plantas" />
           <NavigationProperty Name="Area" Relationship="Portal_2_0Model.FK_empleados_area" FromRole="empleados" ToRole="Area" />
-          <NavigationProperty Name="IT_notificaciones_recordatorio" Relationship="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_sistemas" FromRole="empleados" ToRole="IT_notificaciones_recordatorio" />
           <NavigationProperty Name="IT_notificaciones_usuarios" Relationship="Portal_2_0Model.FK_IT_notificaciones_usuarios_id_empleado" FromRole="empleados" ToRole="IT_notificaciones_usuarios" />
+          <NavigationProperty Name="IT_notificaciones_recordatorio" Relationship="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_sistemas" FromRole="empleados" ToRole="IT_notificaciones_recordatorio" />
         </EntityType>
         <Association Name="FK_empleados_id_fotografia">
           <End Type="Portal_2_0Model.biblioteca_digital" Role="biblioteca_digital" Multiplicity="0..1" />
@@ -9170,46 +9171,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="estatus" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="IT_notificaciones_recordatorio" Relationship="Portal_2_0Model.FK_IT_notificaciones_checklist_id_notificaciones_recodatorio" FromRole="IT_notificaciones_checklist" ToRole="IT_notificaciones_recordatorio" />
         </EntityType>
-        <EntityType Name="IT_notificaciones_recordatorio">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_notificaciones_actividad" Type="Int32" Nullable="false" />
-          <Property Name="fecha_programada" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="id_sistemas" Type="Int32" />
-          <Property Name="dias_previos_notificacion" Type="Int32" />
-          <Property Name="notificacion_previa_enviada" Type="Boolean" Nullable="false" />
-          <Property Name="notificacion_dia_evento_eneviada" Type="Boolean" Nullable="false" />
-          <Property Name="comentario_cierre" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_sistemas" FromRole="IT_notificaciones_recordatorio" ToRole="empleados" />
-          <NavigationProperty Name="IT_notificaciones_checklist" Relationship="Portal_2_0Model.FK_IT_notificaciones_checklist_id_notificaciones_recodatorio" FromRole="IT_notificaciones_recordatorio" ToRole="IT_notificaciones_checklist" />
-          <NavigationProperty Name="IT_notificaciones_actividad" Relationship="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_notificaciones_actividad" FromRole="IT_notificaciones_recordatorio" ToRole="IT_notificaciones_actividad" />
-        </EntityType>
-        <Association Name="FK_IT_notificaciones_recordatorio_id_sistemas">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.IT_notificaciones_recordatorio" Role="IT_notificaciones_recordatorio" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_notificaciones_recordatorio">
-              <PropertyRef Name="id_sistemas" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_IT_notificaciones_checklist_id_notificaciones_recodatorio">
-          <End Type="Portal_2_0Model.IT_notificaciones_recordatorio" Role="IT_notificaciones_recordatorio" Multiplicity="1" />
-          <End Type="Portal_2_0Model.IT_notificaciones_checklist" Role="IT_notificaciones_checklist" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="IT_notificaciones_recordatorio">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_notificaciones_checklist">
-              <PropertyRef Name="id_notificaciones_recordatorio" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityType Name="IT_notificaciones_actividad">
           <Key>
             <PropertyRef Name="id" />
@@ -9220,21 +9181,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="periodo" Type="Int32" />
           <Property Name="tipo_periodo" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="es_recurrente" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="IT_notificaciones_recordatorio" Relationship="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_notificaciones_actividad" FromRole="IT_notificaciones_actividad" ToRole="IT_notificaciones_recordatorio" />
           <NavigationProperty Name="IT_notificaciones_usuarios" Relationship="Portal_2_0Model.FK_IT_notificaciones_usuarios_id_notificaciones_actividad" FromRole="IT_notificaciones_actividad" ToRole="IT_notificaciones_usuarios" />
+          <NavigationProperty Name="IT_notificaciones_recordatorio" Relationship="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_notificaciones_actividad" FromRole="IT_notificaciones_actividad" ToRole="IT_notificaciones_recordatorio" />
         </EntityType>
-        <Association Name="FK_IT_notificaciones_recordatorio_id_notificaciones_actividad">
-          <End Type="Portal_2_0Model.IT_notificaciones_actividad" Role="IT_notificaciones_actividad" Multiplicity="1" />
-          <End Type="Portal_2_0Model.IT_notificaciones_recordatorio" Role="IT_notificaciones_recordatorio" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="IT_notificaciones_actividad">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="IT_notificaciones_recordatorio">
-              <PropertyRef Name="id_notificaciones_actividad" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityType Name="IT_notificaciones_usuarios">
           <Key>
             <PropertyRef Name="id" />
@@ -9267,6 +9216,59 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Principal>
             <Dependent Role="IT_notificaciones_usuarios">
               <PropertyRef Name="id_notificaciones_actividad" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="IT_notificaciones_recordatorio">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_notificaciones_actividad" Type="Int32" Nullable="false" />
+          <Property Name="fecha_programada" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="id_sistemas" Type="Int32" />
+          <Property Name="dias_previos_notificacion" Type="Int32" />
+          <Property Name="notificacion_previa_enviada" Type="Boolean" Nullable="false" />
+          <Property Name="notificacion_dia_evento_enviada" Type="Boolean" Nullable="false" />
+          <Property Name="comentario_cierre" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="estatus" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_sistemas" FromRole="IT_notificaciones_recordatorio" ToRole="empleados" />
+          <NavigationProperty Name="IT_notificaciones_actividad" Relationship="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_notificaciones_actividad" FromRole="IT_notificaciones_recordatorio" ToRole="IT_notificaciones_actividad" />
+          <NavigationProperty Name="IT_notificaciones_checklist" Relationship="Portal_2_0Model.FK_IT_notificaciones_checklist_id_notificaciones_recodatorio" FromRole="IT_notificaciones_recordatorio" ToRole="IT_notificaciones_checklist" />
+        </EntityType>
+        <Association Name="FK_IT_notificaciones_recordatorio_id_sistemas">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.IT_notificaciones_recordatorio" Role="IT_notificaciones_recordatorio" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_notificaciones_recordatorio">
+              <PropertyRef Name="id_sistemas" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_notificaciones_recordatorio_id_notificaciones_actividad">
+          <End Type="Portal_2_0Model.IT_notificaciones_actividad" Role="IT_notificaciones_actividad" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_notificaciones_recordatorio" Role="IT_notificaciones_recordatorio" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_notificaciones_actividad">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_notificaciones_recordatorio">
+              <PropertyRef Name="id_notificaciones_actividad" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_notificaciones_checklist_id_notificaciones_recodatorio">
+          <End Type="Portal_2_0Model.IT_notificaciones_recordatorio" Role="IT_notificaciones_recordatorio" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_notificaciones_checklist" Role="IT_notificaciones_checklist" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_notificaciones_recordatorio">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_notificaciones_checklist">
+              <PropertyRef Name="id_notificaciones_recordatorio" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -10919,20 +10921,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="IT_notificaciones_recordatorio">
-            <EntityTypeMapping TypeName="Portal_2_0Model.IT_notificaciones_recordatorio">
-              <MappingFragment StoreEntitySet="IT_notificaciones_recordatorio">
-                <ScalarProperty Name="comentario_cierre" ColumnName="comentario_cierre" />
-                <ScalarProperty Name="notificacion_dia_evento_eneviada" ColumnName="notificacion_dia_evento_eneviada" />
-                <ScalarProperty Name="notificacion_previa_enviada" ColumnName="notificacion_previa_enviada" />
-                <ScalarProperty Name="dias_previos_notificacion" ColumnName="dias_previos_notificacion" />
-                <ScalarProperty Name="id_sistemas" ColumnName="id_sistemas" />
-                <ScalarProperty Name="fecha_programada" ColumnName="fecha_programada" />
-                <ScalarProperty Name="id_notificaciones_actividad" ColumnName="id_notificaciones_actividad" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="IT_notificaciones_actividad">
             <EntityTypeMapping TypeName="Portal_2_0Model.IT_notificaciones_actividad">
               <MappingFragment StoreEntitySet="IT_notificaciones_actividad">
@@ -10950,6 +10938,21 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
               <MappingFragment StoreEntitySet="IT_notificaciones_usuarios">
                 <ScalarProperty Name="correo" ColumnName="correo" />
                 <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
+                <ScalarProperty Name="id_notificaciones_actividad" ColumnName="id_notificaciones_actividad" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IT_notificaciones_recordatorio">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_notificaciones_recordatorio">
+              <MappingFragment StoreEntitySet="IT_notificaciones_recordatorio">
+                <ScalarProperty Name="estatus" ColumnName="estatus" />
+                <ScalarProperty Name="comentario_cierre" ColumnName="comentario_cierre" />
+                <ScalarProperty Name="notificacion_dia_evento_enviada" ColumnName="notificacion_dia_evento_enviada" />
+                <ScalarProperty Name="notificacion_previa_enviada" ColumnName="notificacion_previa_enviada" />
+                <ScalarProperty Name="dias_previos_notificacion" ColumnName="dias_previos_notificacion" />
+                <ScalarProperty Name="id_sistemas" ColumnName="id_sistemas" />
+                <ScalarProperty Name="fecha_programada" ColumnName="fecha_programada" />
                 <ScalarProperty Name="id_notificaciones_actividad" ColumnName="id_notificaciones_actividad" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>

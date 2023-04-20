@@ -25,8 +25,9 @@ CREATE TABLE [IT_notificaciones_recordatorio](
 	[id_sistemas] [int] NULL,			--FK
 	[dias_previos_notificacion][int] NULL,
 	[notificacion_previa_enviada][bit] NOT NULL DEFAULT 0,
-	[notificacion_dia_evento_eneviada][bit] NOT NULL DEFAULT 0,
+	[notificacion_dia_evento_enviada][bit] NOT NULL DEFAULT 0,
 	[comentario_cierre][varchar](150),
+	[estatus][varchar](20),
  CONSTRAINT [PK_IT_notificaciones_recordatorio] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
@@ -47,6 +48,11 @@ alter table [IT_notificaciones_recordatorio]
  add constraint FK_IT_notificaciones_recordatorio_id_sistemas
   foreign key (id_sistemas)
   references empleados(id);
+
+  ALTER TABLE [IT_notificaciones_recordatorio] ADD CONSTRAINT CK_IT_notificaciones_recordatorio_estatus CHECK ([estatus] IN 
+('PENDIENTE', 'EN PROCESO', 'TERMINADO')
+)
+ 
 	  
 IF object_id(N'IT_notificaciones_recordatorio',N'U') IS NOT NULL
 	BEGIN

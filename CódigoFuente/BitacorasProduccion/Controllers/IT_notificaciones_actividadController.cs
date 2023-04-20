@@ -60,16 +60,20 @@ namespace Portal_2_0.Controllers
         // GET: IT_notificaciones_actividad/Details/5
         public ActionResult Details(int? id)
         {
+            if (!TieneRol(TipoRoles.IT_NOTIFICACIONES))
+                return View("../Home/ErrorPermisos");
+
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            IT_notificaciones_actividad iT_notificaciones_actividad = db.IT_notificaciones_actividad.Find(id);
-            if (iT_notificaciones_actividad == null)
+
+            IT_notificaciones_recordatorio recordatorio = db.IT_notificaciones_recordatorio.Find(id);
+            if (recordatorio == null)
             {
                 return HttpNotFound();
             }
-            return View(iT_notificaciones_actividad);
+            return View(recordatorio);
         }
 
         // GET: IT_notificaciones_actividad/Create
@@ -148,6 +152,9 @@ namespace Portal_2_0.Controllers
                 if (iT_notificaciones_actividad.aplica_recordatorio && iT_notificaciones_actividad.dias_antes_recordatorio.HasValue)
                     dias_p = iT_notificaciones_actividad.dias_antes_recordatorio;
 
+                //inicializa checklist de actividades
+                iT_notificaciones_actividad.IT_notificaciones_checklist_temp = iT_notificaciones_actividad.IT_notificaciones_checklist_temp ?? new List<IT_notificaciones_checklist> { };
+
                 //calcula las notificaciones intermedias
                 DateTime fechaTemp = iT_notificaciones_actividad.fecha_inicio.Value;
                 do
@@ -156,7 +163,8 @@ namespace Portal_2_0.Controllers
                     List<IT_notificaciones_checklist> ckList = new List<IT_notificaciones_checklist>();
                     foreach (var notificacion in iT_notificaciones_actividad.IT_notificaciones_checklist_temp)
                     {
-                        ckList.Add(new IT_notificaciones_checklist { 
+                        ckList.Add(new IT_notificaciones_checklist
+                        {
                             descripcion = notificacion.descripcion,
                         });
                     }
@@ -334,12 +342,13 @@ namespace Portal_2_0.Controllers
         }
 
         ///<summary>
-        ///Obtiene del empleado, según el id recibido
+        ///Obtiene el total de los eventos
         ///</summary>
         ///<return>
         ///retorna un JsonResult con las opciones disponibles
         [AllowAnonymous]
-        public JsonResult GetEventos() {
+        public JsonResult GetEventos()
+        {
 
             var recordatoriosList = db.IT_notificaciones_recordatorio.ToList();
 
@@ -347,23 +356,83 @@ namespace Portal_2_0.Controllers
             var objeto = new object[recordatoriosList.Count];
             var fechaHoy = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
 
-            for (int i = 0; i < recordatoriosList.Count; i++) {
-                
+            for (int i = 0; i < recordatoriosList.Count; i++)
+            {
                 string color = "#008DFF";
                 if (recordatoriosList[i].fecha_programada < fechaHoy)
                     color = "#7BC7F7";
 
+                var icon = recordatoriosList[i].estatus == Bitacoras.Util.IT_notificaciones_recordatorio_estatus.TERMINADO ?
+                           "fa-regular fa-check-circle" : "fa-regular fa-circle-xmark";
+
+                var icon_color = "white";
+                //define el color del icono
+                if (recordatoriosList[i].estatus == Bitacoras.Util.IT_notificaciones_recordatorio_estatus.TERMINADO)
+                    if (recordatoriosList[i].fecha_programada < fechaHoy)
+                        icon_color = "green";
+                    else
+                        icon_color = "#4fff4d";
+                else
+                     if (recordatoriosList[i].fecha_programada < fechaHoy)
+                    icon_color = "green";
+                else
+                    icon_color = "#ff8080";
+
+
                 objeto[i] = new
                 {
                     id = recordatoriosList[i].id.ToString(),
-                    icon = "fa-check-circle",
+                    icon = icon,
                     title = recordatoriosList[i].IT_notificaciones_actividad.titulo,
                     start = recordatoriosList[i].fecha_programada.ToString("yyyy-MM-dd"),
                     color = color,
-                    textColor = "white" // an option!
-
+                    textColor = "white", // an option!
+                    icon_color = icon_color,
                 };
             }
+
+            return Json(objeto, JsonRequestBehavior.AllowGet);
+        }
+        ///<summary>
+        ///Obtiene el detalle de un evento en específico
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        [AllowAnonymous]
+        public JsonResult GetDetallesEvento(int id)
+        {
+            string estatus = "ERROR";
+
+            var recordatorio = db.IT_notificaciones_recordatorio.Find(id);
+
+            //actualiza el estatus según si se encontro
+            estatus = recordatorio != null ? "OK" : "ERROR";
+
+            //actualiza el estado de las actividades
+            string actividades = string.Empty;
+            actividades = @"<ol>";
+            foreach (var a in recordatorio.IT_notificaciones_checklist)
+            {
+                if (a.estatus == IT_notificaciones_checklist_estatus.TERMINADO)
+                    actividades += @"<li><i class=""fa-sharp fa-solid fa-check fa-beat-fade"" style=""color: #189a3f;""></i> " + a.descripcion + @" </li>";
+                else if (string.IsNullOrEmpty(a.estatus) || a.estatus == IT_notificaciones_checklist_estatus.PENDIENTE)
+                    actividades += @"<li><i class=""fa-sharp fa-solid fa-xmark fa-beat-fade"" style=""color: #f50000;""></i> " + a.descripcion + @" </li>";
+            }
+            actividades += "</ol>";
+
+
+            //inicializa la lista de objetos
+            var objeto = new object[1];
+            objeto[0] = new
+            {
+                mensaje = "Se obtuvo la información correctamente",
+                titulo = recordatorio.IT_notificaciones_actividad.titulo,
+                descripcion = recordatorio.IT_notificaciones_actividad.descripcion,
+                fecha = recordatorio.fecha_programada.ToString("yyyy/MM/dd"),
+                es_recurrente = recordatorio.IT_notificaciones_actividad.es_recurrente ? "Sí" : "No",
+                estatus = Bitacoras.Util.IT_notificaciones_recordatorio_estatus.DescripcionStatus(recordatorio.estatus),
+                actividades = actividades,
+            };
 
             return Json(objeto, JsonRequestBehavior.AllowGet);
         }

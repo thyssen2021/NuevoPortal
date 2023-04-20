@@ -26,12 +26,13 @@ namespace Portal_2_0.Models
         public Nullable<int> id_sistemas { get; set; }
         public Nullable<int> dias_previos_notificacion { get; set; }
         public bool notificacion_previa_enviada { get; set; }
-        public bool notificacion_dia_evento_eneviada { get; set; }
+        public bool notificacion_dia_evento_enviada { get; set; }
         public string comentario_cierre { get; set; }
+        public string estatus { get; set; }
     
         public virtual empleados empleados { get; set; }
+        public virtual IT_notificaciones_actividad IT_notificaciones_actividad { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_notificaciones_checklist> IT_notificaciones_checklist { get; set; }
-        public virtual IT_notificaciones_actividad IT_notificaciones_actividad { get; set; }
     }
 }

@@ -73,6 +73,8 @@
     <Compile Include="Util\GV_tipo_viaje.cs" />
     <Compile Include="Util\IT_MR_Status.cs" />
     <Compile Include="Util\IT_MR_tipo.cs" />
+    <Compile Include="Util\IT_notificaciones_checklist_estatus.cs" />
+    <Compile Include="Util\IT_notificaciones_recordatorio_estatus.cs" />
     <Compile Include="Util\IT_notificaciones_tipo_periodo.cs" />
     <Compile Include="Util\IT_site_actividad_estatus.cs" />
     <Compile Include="Util\IT_site_checklist_estatus.cs" />
