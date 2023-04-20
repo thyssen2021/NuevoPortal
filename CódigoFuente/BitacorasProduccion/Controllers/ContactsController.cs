@@ -39,7 +39,6 @@ namespace Portal_2_0.Controllers
             var cantidadRegistrosPorPagina = 12; // parámetro
 
             //primero obtiene el listado de empleado sin el filtro de líneas
-
             List<empleados> listado = new List<empleados>();
 
             var listadoTemporal = db.empleados
@@ -61,6 +60,13 @@ namespace Portal_2_0.Controllers
                 if (incluye_telefono == null || (!String.IsNullOrEmpty(e.extension) || e.GetIT_Inventory_Cellular_LinesActivas().Count > 0))
                     listado.Add(e);
             }
+
+            //quita excepciones
+            List<int> ListExcepciones = new List<int> {
+                78,     //francisco calyeca
+            };
+
+            listado = listado.Where(x=> !ListExcepciones.Contains(x.id)).ToList();
 
             //debe ir antes de obtener unicamente tomar los registros de las páginas
             var totalDeRegistros = listado
@@ -90,8 +96,8 @@ namespace Portal_2_0.Controllers
                 ValoresQueryString = routeValues
             };
 
-            ViewBag.planta_clave = AddFirstItem(new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion", planta_clave.ToString()), textoPorDefecto: "-- Todas --");
-            ViewBag.id_area = AddFirstItem(new SelectList(db.Area.Where(p => p.activo == true && (p.plantaClave == planta_clave)), nameof(Area.clave), nameof(Area.descripcion), planta_clave.ToString()), textoPorDefecto: "-- Todas --");
+            ViewBag.planta_clave = AddFirstItem(new SelectList(db.plantas.Where(p => p.activo == true).OrderBy(x=>x.descripcion), "clave", "descripcion", planta_clave.ToString()), textoPorDefecto: "-- Todas --");
+            ViewBag.id_area = AddFirstItem(new SelectList(db.Area.Where(p => p.activo == true && (p.plantaClave == planta_clave)).OrderBy(x => x.descripcion), nameof(Area.clave), nameof(Area.descripcion), planta_clave.ToString()), textoPorDefecto: "-- Todas --");
             ViewBag.Paginacion = paginacion;
 
             return View(listado);
