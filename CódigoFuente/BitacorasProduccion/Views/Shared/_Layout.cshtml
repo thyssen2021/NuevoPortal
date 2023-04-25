@@ -18,7 +18,7 @@
     <link href="@Url.Content("~/Content/vendors/nprogress/nprogress.css")" rel="stylesheet">
     <!-- jQuery custom content scroller -->
     <link href="@Url.Content("~/Content/vendors/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.min.css")" rel="stylesheet">
-
+    <link href="~/Content/vendors/cool-hint-css/src/hint-css.css" rel="stylesheet" />
 
     <!-- Custom Theme Style -->
     <link href="@Url.Content("~/Content/build/css/custom.css")" rel="stylesheet">
@@ -71,7 +71,7 @@
         }
 
         .colored-toast.swal2-icon-error {
-            background-color: #f27474 !important;           
+            background-color: #f27474 !important;
         }
 
         .colored-toast.swal2-icon-warning {
@@ -100,7 +100,8 @@
 
         .colored-toast:hover {
             opacity: 1.0;
-        } 
+        }
+
         .colored-toast {
             opacity: 0.94;
         }
@@ -846,7 +847,7 @@
     @Scripts.Render(Url.Content("~/Content/vendors/nprogress/nprogress.js"))
     <!-- jQuery custom content scroller -->
     @Scripts.Render(Url.Content("~/Content/vendors/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js"))
-
+    <script src="~/Content/vendors/cool-hint-css/src/hint-css.js"></script>
 
     @RenderSection("scripts", required: false)
 

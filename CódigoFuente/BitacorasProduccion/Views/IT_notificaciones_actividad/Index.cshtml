@@ -14,6 +14,10 @@
     <!-- DataTables -->
     @Styles.Render("~/Content/dataTables_css")
 
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+
 
     <style>
         /*Para fullcalendar*/
@@ -129,6 +133,25 @@
                     <div class="x_content">
                         <div class="row">
                             <div class="col-sm-12">
+                                <div class="form-group">
+                                    @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
+                                    {
+                                        <div class="form-group row ">
+                                            <label class="control-label col-md-1 col-sm-1" for="estatus" style="text-align:right">Estatus:</label>
+                                            <div class="col-md-3 col-sm-3 ">
+                                                @Html.DropDownList("estatus", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                            </div>
+                                            <div class="col-md-6 col-sm-6">
+                                            </div>
+                                            <div class="col-md-2 col-sm-2">
+                                                <button type="submit" class="btn btn-info float-right"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+                                            </div>
+                                        </div>
+
+                                    }
+                                    <hr />
+
+                                </div>
                                 <div class="card-box table-responsive">
 
                                     <div id="calendar"></div>
@@ -150,12 +173,21 @@
     @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlertColored.js"))
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.5/index.global.min.js'></script>
     <script src="~/Content/vendors/fullcalendar_6.1.5/es.global.min.js"></script>
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
     <script>
         //variables globales
         var calendar;
         var lastID;
         document.addEventListener('DOMContentLoaded', function () {
-
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+            //Envia el formulario cada vez que se modifica el combo
+            $(".select2bs4").change(function () {
+                $("#buscarForm").submit();
+                BloqueaPantalla();
+            });
             IniciaCalendar();
             clicMenu(1);
             $.unblockUI();
@@ -163,12 +195,13 @@
 
         function IniciaCalendar() {
             var source;
+            let estatus = $("#estatus option:selected").val();
 
             //llamada para cargar los eventos
             $.ajax({
                 type: 'POST',
                 url: '/IT_notificaciones_actividad/GetEventos',
-                data: {  },
+                data: { estatus: estatus },
                 success: function (data) {
                     source = data;
                 },
@@ -192,7 +225,7 @@
                     addEventButton: {
                         text: 'Agregar Evento',
                         click: function () {
-                            window.location.replace('/@ViewBag.ControllerName/Create/');
+                            window.location.href = '/@ViewBag.ControllerName/Create/';
                            // agregaEventoSweetAlert();
                         }
                     }
@@ -216,26 +249,25 @@
 
         $(document).on('click', '.SwalBtnDetails', function () {
             popupCenter({ url: '/@ViewBag.ControllerName/details/' + lastID, title: 'Detalles de evento', w: screen.width * .80, h: screen.height * .80 });
-           // window.open('/@ViewBag.ControllerName/details/' + lastID, 'popup', "width=" + screen.width * .70 + ",height=" + screen.height * .70 + "");
             swal.clickConfirm();
         });
         $(document).on('click', '.SwalBtnEditar', function () {
-            console.log('Editar');
+            window.location.href ='/@ViewBag.ControllerName/Edit/' + lastID;
             swal.clickConfirm();
         });
         $(document).on('click', '.SwalBtnEditarRecurrentes', function () {
-            console.log('Editar Recurrentes');
+            window.location.href ='/@ViewBag.ControllerName/EditRecurrentes/' + lastID;
             swal.clickConfirm();
         });
 
         function showEventModal(id) {
-            let titulo, descripcion, estatus, fecha, es_recurrente, actividades;
+            let titulo, descripcion, estatus, fecha, es_recurrente, actividades, estatus_r;
 
             //obtiene los detalles del evento
             $.ajax({
                 type: 'POST',
                 url: '/IT_notificaciones_actividad/GetDetallesEvento',
-                data: {id:id},
+                data: { id: id },
                 success: function (data) {
                     titulo = data[0].titulo;
                     descripcion = data[0].descripcion;
@@ -243,25 +275,38 @@
                     fecha = data[0].fecha;
                     es_recurrente = data[0].es_recurrente;
                     actividades = data[0].actividades;
+                    estatus_r = data[0].estatus;
+                    console.log(data[0])
                 },
                 async: false
             });
 
-            Swal.fire({
-                title: `<span style='font-style: italic; font-size: 25px !important; color: #007ADB'>` + titulo + `</span>`,
-                html: `
-                    <div class="align-left"><b style="color:#007ADB"><i>Descripción:</i></b>&ensp; ` + descripcion +`</div>
-                    <div class="align-left"><b style="color:#007ADB"><i>Fecha programada:</i></b>&ensp; ` + fecha +`</div>
+
+
+            let contenido = `
+                    <div class="align-left"><b style="color:#007ADB"><i>Descripción:</i></b>&ensp; ` + descripcion + `</div>
+                    <div class="align-left"><b style="color:#007ADB"><i>Fecha programada:</i></b>&ensp; ` + fecha + `</div>
                     <div class="align-left"><b style="color:#007ADB"><i>Estatus:</i></b>&ensp; ` + estatus + `</div>
                     <div class="align-left"><b style="color:#007ADB"><i>Es recurrente:</i></b>&ensp; ` + es_recurrente + `</div>
                     <hr>
-                    <div class="align-left"><b style="color:#007ADB"><i>Actividades:</i></b> ` + actividades +`</div>
+                    <div class="align-left"><b style="color:#007ADB"><i>Actividades:</i></b> ` + actividades + `</div>
                     <hr>
                     <div class="float-right">
                         <button type="button" role="button" tabindex="0" class="btn btn-info SwalBtnDetails"> <i class="fa-solid fa-circle-info"></i> Detalles </button>
-                        <button type="button" role="button" tabindex="0" class="btn btn-success SwalBtnEditar"> <i class="fa-solid fa-pen-to-square"></i> Editar </button>
-                        <button type="button" role="button" tabindex="0" class="btn btn-warning SwalBtnEditarRecurrentes"><i class="fa-solid fa-clock-rotate-left"></i> Editar Recurrentes </button>
-                    </div>`,
+                       `;
+            //determina si muestra el boton para editar
+            if (estatus_r != 'Terminado')
+                contenido += `<button type="button" role="button" tabindex="0" class="btn btn-success SwalBtnEditar"> <i class="fa-solid fa-pen-to-square"></i> Editar </button>`;
+            //determina si muestra el boton para editar recurrentes
+            if (es_recurrente == 'Sí')
+                contenido += `<button type="button" role="button" tabindex="0" class="btn btn-warning SwalBtnEditarRecurrentes"><i class="fa-solid fa-clock-rotate-left"></i> Editar Recurrentes </button>`;
+
+            contenido += `</div>`;
+
+
+            Swal.fire({
+                title: `<span style='font-style: italic; font-size: 25px !important; color: #007ADB'>` + titulo + `</span>`,
+                html: contenido,
                 showCancelButton: false,
                 showConfirmButton: false,
                 customClass: {

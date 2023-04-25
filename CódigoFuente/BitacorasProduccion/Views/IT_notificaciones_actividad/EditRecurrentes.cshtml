@@ -1,6 +1,6 @@
 ﻿@model Portal_2_0.Models.IT_notificaciones_recordatorio
 @{
-    ViewBag.Title = "Editar Evento de Calendario";
+    ViewBag.Title = "Editar Generales de Evento Recurrente";
     ViewBag.PrimerNivel = "sistemas";
     ViewBag.SegundoNivel = "it_notificaciones";
     ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
@@ -77,29 +77,15 @@
                             <div class="item form-group">
                                 <div class="col-md-5 col-sm-5">
                                     @Html.LabelFor(model => model.IT_notificaciones_actividad.titulo)
-                                    @if (Model.IT_notificaciones_actividad.es_recurrente)
-                                    {
-                                        @Html.EditorFor(m => m.IT_notificaciones_actividad.titulo, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
-                                    }
-                                    else
-                                    {
-                                        @Html.EditorFor(m => m.IT_notificaciones_actividad.titulo, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @required = "required" } })
-                                        @Html.ValidationMessageFor(model => model.IT_notificaciones_actividad.titulo, "", new { @class = "text-danger" })
-                                    }
+                                    @Html.EditorFor(m => m.IT_notificaciones_actividad.titulo, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @required = "required" } })
+                                    @Html.ValidationMessageFor(model => model.IT_notificaciones_actividad.titulo, "", new { @class = "text-danger" })
                                 </div>
                             </div>
                             <div class="item form-group">
                                 <div class="col-md-12 col-sm-12">
-                                    @Html.LabelFor(model => model.IT_notificaciones_actividad.descripcion)  @if (Model.IT_notificaciones_actividad.es_recurrente)
-                                    {
-                                        @Html.TextAreaFor(model => model.IT_notificaciones_actividad.descripcion, new { @class = "form-control", @rows = "3", @autocomplete = "off", @readonly = "readonly" })
-                                    }
-                                    else
-                                    {
-                                        @Html.TextAreaFor(model => model.IT_notificaciones_actividad.descripcion, new { @class = "form-control", @rows = "3", @autocomplete = "off", @required = "required" })
-                                        @Html.ValidationMessageFor(model => model.IT_notificaciones_actividad.descripcion, "", new { @class = "text-danger" })
-                                    }
-
+                                    @Html.LabelFor(model => model.IT_notificaciones_actividad.descripcion)
+                                    @Html.TextAreaFor(model => model.IT_notificaciones_actividad.descripcion, new { @class = "form-control", @rows = "3", @autocomplete = "off", @required = "required" })
+                                    @Html.ValidationMessageFor(model => model.IT_notificaciones_actividad.descripcion, "", new { @class = "text-danger" })
                                 </div>
                             </div>
                             <div class="ln_solid"></div>
@@ -107,13 +93,13 @@
                                 <span style="color:black"><b>RECORDATORIOS</b></span>
                             </div>
                             <div class="item form-group">
-                                @Html.LabelFor(model => model.fecha_programada, new { @class = "col-form-label col-md-1 col-sm-1" })
+                                <label class="col-form-label col-md-1 col-sm-1"> Fecha Inicio</label>
                                 <div class="col-md-2 col-sm-2">
-                                    @Html.EditorFor(m => m.fecha_programada, new { htmlAttributes = new { @class = "form-control", @required = "required" } })
+                                    <input type="hidden" name="IT_notificaciones_actividad.fecha_inicio" value="@(Model.IT_notificaciones_actividad.IT_notificaciones_recordatorio.OrderBy(x=>x.fecha_programada).FirstOrDefault().fecha_programada)" />
+                                    <input type="text" class="form-control" value="@Model.IT_notificaciones_actividad.IT_notificaciones_recordatorio.OrderBy(x=>x.fecha_programada).FirstOrDefault().fecha_programada.ToString("dd/MM/yyyy")" readonly />
                                     @Html.ValidationMessageFor(model => model.fecha_programada, "", new { @class = "text-danger" })
                                 </div>
                                 @Html.LabelFor(model => model.IT_notificaciones_actividad.es_recurrente, new { @class = "col-form-label col-md-1 col-sm-1 label-align hint--top", @data_hint = "Esta opción no puede editarse." })
-
                                 <div class="col-md-1 col-sm-1 hint--top" style="display: flex; align-items: center;" data-hint="Esta opción no puede editarse.">
                                     @if (Model.IT_notificaciones_actividad.es_recurrente)
                                     {
@@ -133,7 +119,11 @@
                                     <div class="col-md-3 col-sm-3">
                                         @Html.EditorFor(m => m.IT_notificaciones_actividad.tipo_periodo, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                                     </div>
-
+                                    @Html.LabelFor(model => model.IT_notificaciones_actividad.fecha_fin, new { @class = "col-form-label col-md-1 col-sm-1" })
+                                    <div class="col-md-3 col-sm-3">
+                                        @Html.EditorFor(m => m.IT_notificaciones_actividad.fecha_fin, new { htmlAttributes = new { @class = "form-control" } })
+                                        @Html.ValidationMessageFor(model => model.IT_notificaciones_actividad.fecha_fin, "", new { @class = "text-danger" })
+                                    </div>
                                 </div>
                             </div>
                             <br />
@@ -163,60 +153,33 @@
 
                             </div>
                             <div id="div_task">
-                                @if (Model != null && Model.IT_notificaciones_checklist != null)
+                                @foreach (Portal_2_0.Models.IT_notificaciones_checklist item in Model.IT_notificaciones_actividad.IT_notificaciones_checklist_temp)
                                 {
-                                    <table id="datatable_1" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
-                                        <thead>
-                                            <tr>
-                                                <th width="2%">#</th>
-                                                <th width="70%">
-                                                    Actividad
-                                                </th>
-                                                <th>
-                                                    Estado
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach (Portal_2_0.Models.IT_notificaciones_checklist item in Model.IT_notificaciones_checklist)
-                                            {
-                                                <tr>
-                                                    <td>@(Model.IT_notificaciones_checklist.ToList().IndexOf(item)+1)</td>
-                                                    <td>
-                                                        @item.descripcion
-                                                    </td>
-                                                    <td>
-                                                        <div class="col-md-12">
-                                                            <input type="hidden" name="IT_notificaciones_checklist.Index" id="IT_notificaciones_checklist.Index" value="@contador" />
+                                    <div class="form-group row" id="div_task_@contador">
+                                        <div class="col-md-1">
+                                            <input style="text-align:center; background-color:antiquewhite" type="text" class="form-control col-md-12 input-contador-task" value="" readonly="readonly">
+                                        </div>
+                                        <input type="hidden" name="IT_notificaciones_actividad.IT_notificaciones_checklist_temp.Index" id="IT_notificaciones_actividad.IT_notificaciones_checklist_temp.Index" value="@contador" />
+                                        <label class="control-label col-md-1" for="IT_notificaciones_actividad.IT_notificaciones_checklist_temp[@contador].descripcion">
+                                            <span class="float-right">Actividad</span>
+                                        </label>
+                                        <div class="col-md-7">
+                                            <input type="text" name="IT_notificaciones_actividad.IT_notificaciones_checklist_temp[@contador].descripcion" id="IT_notificaciones_actividad.IT_notificaciones_checklist_temp[@contador].descripcion" maxlength="80" class="form-control col-md-12" value="@item.descripcion" autocomplete="off" required>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="IT_notificaciones_actividad.IT_notificaciones_checklist_temp[@contador].descripcion" data-valmsg-replace="true"></span>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarTask(@contador); return false;">
+                                        </div>
+                                    </div>
 
-                                                            <input type="hidden" name="IT_notificaciones_checklist[@contador].id" value="@item.id" />
-                                                            <div>
-                                                                <input class="radio-estatus" type="radio" id="IT_notificaciones_checklist[@contador].estatus_pendiente" name="IT_notificaciones_checklist[@contador].estatus" data-row="@contador" value="@Bitacoras.Util.IT_notificaciones_checklist_estatus.PENDIENTE" @(item.estatus == Bitacoras.Util.IT_notificaciones_checklist_estatus.PENDIENTE ? "checked" : String.Empty)>
-                                                                <label for="IT_notificaciones_checklist[@contador].estatus_pendiente">Pendiente</label>
-                                                            </div>
-                                                            <div>
-                                                                <input class="radio-estatus" type="radio" id="IT_notificaciones_checklist[@contador].estatus_proceso" name="IT_notificaciones_checklist[@contador].estatus" data-row="@contador" value="@Bitacoras.Util.IT_notificaciones_checklist_estatus.EN_PROCESO" @(item.estatus == Bitacoras.Util.IT_notificaciones_checklist_estatus.EN_PROCESO ? "checked" : String.Empty)>
-                                                                <label for="IT_notificaciones_checklist[@contador].estatus_proceso">En proceso</label>
-                                                            </div>
-                                                            <div>
-                                                                <input class="radio-estatus" type="radio" id="IT_notificaciones_checklist[@contador].estatus_terminado" name="IT_notificaciones_checklist[@contador].estatus" data-row="@contador" value="@Bitacoras.Util.IT_notificaciones_checklist_estatus.TERMINADO" @(item.estatus == Bitacoras.Util.IT_notificaciones_checklist_estatus.TERMINADO || string.IsNullOrEmpty(item.estatus) ? "checked" : String.Empty)>
-                                                                <label for="IT_notificaciones_checklist[@contador].estatus_terminado">Terminado</label>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-
-                                                </tr>
-                                                contador++;
-                                            }
-                                        </tbody>
-                                    </table>
+                                    contador++;
                                 }
                             </div>
-                            @*<div class="form-group row">
-                                    <div class="col-md-1 offset-md-10">
-                                        <input type="button" value="Agregar" class="btn btn-round btn-warning" onclick="AgregarConcepto(); return false;">
-                                    </div>
-                                </div>*@
+                            <div class="form-group row">
+                                <div class="col-md-1 offset-md-10">
+                                    <input type="button" value="Agregar" class="btn btn-round btn-warning" onclick="AgregarConcepto(); return false;">
+                                </div>
+                            </div>
 
                             <div class="ln_solid"></div>
                             <div class="form-group row">
@@ -230,7 +193,7 @@
                                         {
                                             <div class="checkbox">
                                                 <label>
-                                                    <input type="checkbox" class="flat" name="selectedEmpleados" value="@item.Value" checked="@item.Selected" @(Model.IT_notificaciones_actividad.es_recurrente ? "disabled" : String.Empty)> @item.Text
+                                                    <input type="checkbox" class="flat" name="selectedEmpleados" value="@item.Value" checked="@item.Selected"> @item.Text
                                                 </label>
                                             </div>
                                         }
@@ -243,7 +206,7 @@
                                         {
                                             <div class="checkbox">
                                                 <label>
-                                                    <input type="checkbox" class="flat" name="selectedEmails" value="@item.Value" checked="@item.Selected" @(Model.IT_notificaciones_actividad.es_recurrente ? "disabled" : String.Empty)> @item.Text
+                                                    <input type="checkbox" class="flat" name="selectedEmails" value="@item.Value" checked="@item.Selected"> @item.Text
                                                 </label>
                                             </div>
                                         }
@@ -252,34 +215,53 @@
                             </div>
                             <div class="ln_solid"></div>
                             <div class="form-group row">
-                                <span style="color:black"><b>CIERRE</b></span>
+                                <span style="color:black"><b>NOTIFICACIONES RECURRENTES:</b></span>
                             </div>
-                            <div class="item form-group">
-                                <label class="col-form-label col-md-1 col-sm-1">Sistemas</label>
-                                <div class="col-md-4 col-sm-4" style="display: flex; align-items: center;">
-                                    <input type="text" value="@ViewBag.NombreEmpleado" class="form-control" readonly />
-                                </div>
+                            <div class="alert alert-warning" role="alert" style="color:black">
+                                <i class="fa-solid fa-warning" style="color:#5f5f5f"></i> Los cambios se aplicarán a las siguientes notificaciones recurrentes.
                             </div>
-                            <div class="item form-group">
-                                @Html.LabelFor(model => model.comentario_cierre, new { @class = "control-label col-md-12 col-sm-12" })
-                            </div>
-                            <div class="item form-group">
-                                <div class="col-md-12">
-                                    @Html.TextAreaFor(model => model.comentario_cierre, new { @class = "form-control", @rows = "4", @autocomplete = "off" })
-                                    @Html.ValidationMessageFor(model => model.comentario_cierre, "", new { @class = "text-danger" })
-                                </div>
+                            <div class="form-group row">
+
+                                <table id="datatable_2" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th width="2%">#</th>
+                                            <th width="20%">Fecha</th>
+                                            <th width="20%">Estatus</th>
+                                            <th>
+                                                Sistemas
+                                            </th>
+                                            <th>
+                                                Comentario Cierre
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.IT_notificaciones_actividad.IT_notificaciones_recordatorio.OrderBy(x => x.fecha_programada))
+                                        {
+                                            <tr>
+                                                <td>@(Model.IT_notificaciones_actividad.IT_notificaciones_recordatorio.OrderBy(x => x.fecha_programada).ToList().IndexOf(item)+1)</td>
+                                                <td>@item.fecha_programada.ToString("yyyy/MM/dd")</td>
+                                                <td>@Bitacoras.Util.IT_notificaciones_recordatorio_estatus.DescripcionStatus(item.estatus)</td>
+                                                <td>
+                                                    @(item.empleados!=null? item.empleados.ConcatNombre:"Pendiente")
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(model => item.comentario_cierre)
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
                             </div>
 
                             <div class="ln_solid"></div>
                             <div class="item form-group">
                                 <div class="col-md-2 col-sm-2">
-                                    <button type="button" id="btn-cancel" data-type="cancel" class="btn btn-lg btn-danger" style="width:100%"><i class="fa-regular fa-calendar-xmark"></i> Cancelar Evento</button>
+                                    <button type="button" id="btn-cancel" data-type="cancel" class="btn btn-lg btn-danger" style="width:100%"><i class="fa-regular fa-calendar-xmark"></i> Cancelar Eventos</button>
                                 </div>
-                                <div class="col-md-2 col-sm-2 offset-md-6">
+                                <div class="col-md-2 col-sm-2 offset-md-8">
                                     <button type="button" id="btn-save" data-type="save" class="btn btn-lg btn-success btn-load" style="width:100%"><i class="fa-regular fa-floppy-disk"></i> Guardar</button>
-                                </div>
-                                <div class="col-md-2 col-sm-2">
-                                    <button type="button" id="btn-finish" data-type="finish" class="btn btn-lg btn-warning btn-load" style="width:100%"><i class="fa-regular fa-circle-check"></i> Finalizar</button>
                                 </div>
                             </div>
                         }
@@ -314,15 +296,14 @@
 
     <script>
         //variables globales
-    var num = 0;
-    const swalWithBootstrapButtons = Swal.mixin({
-        customClass: {
-            confirmButton: 'btn btn-success',
-            cancelButton: 'btn btn-danger'
-        },
-        buttonsStyling: false,
-    })
-
+        var num = 0;
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-success',
+                cancelButton: 'btn btn-danger'
+            },
+            buttonsStyling: false,
+        })
 
         document.addEventListener('DOMContentLoaded', function () {
             $('input').iCheck({
@@ -331,10 +312,17 @@
                 increaseArea: '20%' // optional
             });
 
-
             //inicializa los data table
             var tabla = $('#datatable_1').DataTable({
                 "paging": false,
+                "ordering": false,
+                "searching": false,
+                "scrollX": true,
+                "info": false
+            });
+            //inicializa los data table
+            var tabla = $('#datatable_2').DataTable({
+                "paging": true,
                 "ordering": false,
                 "searching": false,
                 "scrollX": true,
@@ -393,13 +381,13 @@
                                                     <div class="col-md-1">
                                                         <input style="text-align:center; background-color:antiquewhite" type="text" class="form-control col-md-12 input-contador-task" value="" readonly="readonly">
                                                     </div>
-                                                    <input type="hidden" name="IT_notificaciones_checklist_temp.Index" id="IT_notificaciones_checklist_temp.Index" value="`+ num + `" />
-                                                    <label class="control-label col-md-1" for="IT_notificaciones_checklist_temp[`+ num + `].descripcion">
+                                                    <input type="hidden" name="IT_notificaciones_actividad.IT_notificaciones_checklist_temp.Index" id="IT_notificaciones_actividad.IT_notificaciones_checklist_temp.Index" value="`+ num + `" />
+                                                    <label class="control-label col-md-1" for="IT_notificaciones_actividad.IT_notificaciones_checklist_temp[`+ num + `].descripcion">
                                                         <span class="float-right">Actividad</span>
                                                     </label>
                                                     <div class="col-md-7">
-                                                        <input type="text" name="IT_notificaciones_checklist_temp[`+ num + `].descripcion" id="IT_notificaciones_checklist_temp[` + num + `].descripcion" maxlength="80" class="form-control col-md-12" value="" autocomplete="off" required>
-                                                        <span class="field-validation-valid text-danger" data-valmsg-for="IT_notificaciones_checklist_temp[` + num + `].descripcion" data-valmsg-replace="true"></span>
+                                                        <input type="text" name="IT_notificaciones_actividad.IT_notificaciones_checklist_temp[`+ num + `].descripcion" id="IT_notificaciones_actividad.IT_notificaciones_checklist_temp[` + num + `].descripcion" maxlength="80" class="form-control col-md-12" value="" autocomplete="off" required>
+                                                        <span class="field-validation-valid text-danger" data-valmsg-for="IT_notificaciones_actividad.IT_notificaciones_checklist_temp[` + num + `].descripcion" data-valmsg-replace="true"></span>
                                                     </div>
                                                     <div class="col-md-1">
                                                         <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarTask(` + num + `); return false;">
@@ -468,19 +456,19 @@
 
         });
 
-           //maneja el envió el del formulario
+          //maneja el envió el del formulario
         $('#btn-cancel').click(function (e) {
 
             swalWithBootstrapButtons.fire({
                 title: '¿Desea continuar?',
-                html: 'Se cancelará este evento.',
+                html: 'Se cancelarán todos los eventos recurrentes posteriores al día de hoy.',
                 showCancelButton: true,
                 icon: 'warning',
                 confirmButtonText: 'Aceptar',
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
                 if (result.value) {
-                    window.location.href = '/@ViewBag.ControllerName/Cancelar/@Model.id';
+                    window.location.href = '/@ViewBag.ControllerName/CancelarRecurrente/@Model.id';
                 }
             });
 

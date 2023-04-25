@@ -641,6 +641,7 @@
     <Compile Include="Models\MetadataModels\IT_mantenimientos_checklist_categoriasMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_mantenimientos_checklist_itemMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_notificaciones_actividadMetadata.cs" />
+    <Compile Include="Models\MetadataModels\IT_notificaciones_recordatorioMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_siteMetada.cs" />
     <Compile Include="Models\MetadataModels\IT_site_actividadesMetadata.cs" />
     <Compile Include="Models\MetadataModels\IT_site_checklistMetadata.cs" />
@@ -1404,6 +1405,8 @@
     <Content Include="Content\vendors\Chart.js\test\scale.logarithmic.tests.js" />
     <Content Include="Content\vendors\Chart.js\test\scale.radialLinear.tests.js" />
     <Content Include="Content\vendors\Chart.js\test\scale.time.tests.js" />
+    <Content Include="Content\vendors\cool-hint-css\src\hint-css.css" />
+    <Content Include="Content\vendors\cool-hint-css\src\hint-css.js" />
     <Content Include="Content\vendors\cropper\dist\cropper.css" />
     <Content Include="Content\vendors\cropper\dist\cropper.js" />
     <Content Include="Content\vendors\cropper\dist\cropper.min.css" />
@@ -5181,10 +5184,10 @@
     <Content Include="Views\empleados\Organigrama.cshtml" />
     <Content Include="Views\Information\EnvioEmail.cshtml" />
     <Content Include="Views\IT_notificaciones_actividad\Create.cshtml" />
-    <Content Include="Views\IT_notificaciones_actividad\Delete.cshtml" />
     <Content Include="Views\IT_notificaciones_actividad\Details.cshtml" />
     <Content Include="Views\IT_notificaciones_actividad\Edit.cshtml" />
     <Content Include="Views\IT_notificaciones_actividad\Index.cshtml" />
+    <Content Include="Views\IT_notificaciones_actividad\EditRecurrentes.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
