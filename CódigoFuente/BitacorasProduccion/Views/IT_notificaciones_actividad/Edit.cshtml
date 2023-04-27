@@ -471,16 +471,18 @@
            //maneja el envió el del formulario
         $('#btn-cancel').click(function (e) {
 
-            swalWithBootstrapButtons.fire({
+            Swal.fire({
                 title: '¿Desea continuar?',
                 html: 'Se cancelará este evento.',
-                showCancelButton: true,
-                icon: 'warning',
+                showDenyButton: true,
+                //showCancelButton: true,
                 confirmButtonText: 'Aceptar',
-                cancelButtonText: 'Cancelar'
+                denyButtonText: `Cerrar`,
             }).then((result) => {
                 if (result.value) {
                     window.location.href = '/@ViewBag.ControllerName/Cancelar/@Model.id';
+                } else if (result.isDenied) {
+                    Swal.fire('Los cambios no se guardaron.', '', 'info')
                 }
             });
 

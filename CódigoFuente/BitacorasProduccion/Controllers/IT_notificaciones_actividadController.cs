@@ -717,8 +717,18 @@ namespace Portal_2_0.Controllers
 
             try
             {
+                bool unico = recordatorio.IT_notificaciones_actividad.IT_notificaciones_recordatorio.Count == 1;
+                db.log_envio_correo.RemoveRange(recordatorio.log_envio_correo);
                 db.IT_notificaciones_checklist.RemoveRange(recordatorio.IT_notificaciones_checklist);
+               
+                //si no existen mas recordatorios, borra el listado de usuarios y la actividad
+                if (unico)
+                {
+                    db.IT_notificaciones_usuarios.RemoveRange(recordatorio.IT_notificaciones_actividad.IT_notificaciones_usuarios);
+                    db.IT_notificaciones_actividad.Remove(recordatorio.IT_notificaciones_actividad);
+                }
                 db.IT_notificaciones_recordatorio.Remove(recordatorio);
+
                 db.SaveChanges();
                 TempData["Mensaje"] = new MensajesSweetAlert("Se canceló el evento correctamente.", TipoMensajesSweetAlerts.SUCCESS);
             }
@@ -752,8 +762,10 @@ namespace Portal_2_0.Controllers
                 var recordatorioList = db.IT_notificaciones_recordatorio.Where(x => x.id_notificaciones_actividad == recordatorio.id_notificaciones_actividad && x.fecha_programada >= fecha);
                 foreach (var item in recordatorioList)
                 {
+                    db.log_envio_correo.RemoveRange(recordatorio.log_envio_correo);
                     db.IT_notificaciones_checklist.RemoveRange(item.IT_notificaciones_checklist);
                     db.IT_notificaciones_recordatorio.Remove(item);
+                   
                 }
 
                 db.SaveChanges();
