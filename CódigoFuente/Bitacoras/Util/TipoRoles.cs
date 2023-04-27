@@ -75,5 +75,11 @@ namespace Clases.Util
         public const string RH_DETALLES_EMPLEADOS = "RH_DETALLES_EMPLEADOS";
         //IT notificaciones
         public const string IT_NOTIFICACIONES= "IT_NOTIFICACIONES";
+        //Remisiones Manuales
+        public const string RM_DETALLES = "RM_Detalles";
+        public const string RM_CREACION = "RM_Creacion";
+        public const string RM_APROBAR = "RM_Aprobar";
+        public const string RM_REGULARIZAR = "RM_Regularizar";
+        public const string RM_REPORTES = "RM_Reportes";
     }
 }

@@ -143,5 +143,13 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_notificaciones_recordatorio> IT_notificaciones_recordatorio { get; set; }
         public virtual DbSet<log_envio_correo> log_envio_correo { get; set; }
         public virtual DbSet<IT_notificaciones_actividad> IT_notificaciones_actividad { get; set; }
+        public virtual DbSet<clientes> clientes { get; set; }
+        public virtual DbSet<RM_almacen> RM_almacen { get; set; }
+        public virtual DbSet<RM_cabecera> RM_cabecera { get; set; }
+        public virtual DbSet<RM_cambio_estatus> RM_cambio_estatus { get; set; }
+        public virtual DbSet<RM_elemento> RM_elemento { get; set; }
+        public virtual DbSet<RM_estatus> RM_estatus { get; set; }
+        public virtual DbSet<RM_remision_motivo> RM_remision_motivo { get; set; }
+        public virtual DbSet<RM_transporte_proveedor> RM_transporte_proveedor { get; set; }
     }
 }

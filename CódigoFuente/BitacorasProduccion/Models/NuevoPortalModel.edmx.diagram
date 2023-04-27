@@ -291,6 +291,25 @@
         <EntityTypeShape EntityType="Portal_2_0Model.IT_notificaciones_actividad" Width="1.5" PointX="0.75" PointY="14" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_notificaciones_actividad" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_notificaciones_usuarios_id_notificaciones_actividad" />
+        <EntityTypeShape EntityType="Portal_2_0Model.clientes" Width="1.5" PointX="3" PointY="58" />
+        <EntityTypeShape EntityType="Portal_2_0Model.RM_almacen" Width="1.5" PointX="3" PointY="68.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.RM_cabecera" Width="1.5" PointX="5.25" PointY="63.625" />
+        <EntityTypeShape EntityType="Portal_2_0Model.RM_cambio_estatus" Width="1.5" PointX="37" PointY="78.25" />
+        <EntityTypeShape EntityType="Portal_2_0Model.RM_elemento" Width="1.5" PointX="7.5" PointY="65.25" />
+        <EntityTypeShape EntityType="Portal_2_0Model.RM_estatus" Width="1.5" PointX="3" PointY="54.25" />
+        <EntityTypeShape EntityType="Portal_2_0Model.RM_remision_motivo" Width="1.5" PointX="3" PointY="64" />
+        <EntityTypeShape EntityType="Portal_2_0Model.RM_transporte_proveedor" Width="1.5" PointX="3" PointY="61.5" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RM_cabecera_clienteClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RM_cabecera_enviadoAClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RM_cambio_estatus_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RM_almacen_plantaClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RM_cabecera_almacenClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RM_cabecera_motivoClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RM_cabecera_transporteProveedorClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RM_cabecera_ultimoEstatus" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RM_cambio_remisionCabeceraClaveo" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RM_elemento_remisionCabeceraClave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RM_cambio_catalogoEstatusClave" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

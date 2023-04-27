@@ -1,0 +1,184 @@
+﻿@model Portal_2_0.Models.RM_cabecera
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Delete</title>
+</head>
+<body>
+    <h3>Are you sure you want to delete this?</h3>
+    <div>
+        <h4>RM_cabecera</h4>
+        <hr />
+        <dl class="dl-horizontal">
+            <dt>
+                @Html.DisplayNameFor(model => model.activo)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.activo)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.remisionNumero)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.remisionNumero)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.transporteOtro)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.transporteOtro)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.nombreChofer)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.nombreChofer)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.clienteOtro)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.clienteOtro)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.placaTractor)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.placaTractor)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.placaRemolque)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.placaRemolque)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.horarioDescarga)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.horarioDescarga)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.enviadoAOtro)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.enviadoAOtro)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.clienteOtroDireccion)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.clienteOtroDireccion)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.enviadoAOtroDireccion)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.enviadoAOtroDireccion)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.motivoTexto)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.motivoTexto)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.retornaMaterial)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.retornaMaterial)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.clientes.claveSAP)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.clientes.claveSAP)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.clientes1.claveSAP)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.clientes1.claveSAP)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.RM_almacen.descripcion)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.RM_almacen.descripcion)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.RM_remision_motivo.descripcion)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.RM_remision_motivo.descripcion)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.RM_transporte_proveedor.descripcion)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.RM_transporte_proveedor.descripcion)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.RM_estatus.descripcion)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.RM_estatus.descripcion)
+            </dd>
+    
+        </dl>
+    
+        @using (Html.BeginForm()) {
+            @Html.AntiForgeryToken()
+    
+            <div class="form-actions no-color">
+                <input type="submit" value="Delete" class="btn btn-default" /> |
+                @Html.ActionLink("Back to List", "Index")
+            </div>
+        }
+    </div>
+</body>
+</html>

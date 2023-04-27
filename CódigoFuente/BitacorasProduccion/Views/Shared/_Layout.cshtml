@@ -471,7 +471,7 @@
                                     @if (User.IsInRole(TipoRoles.PFA_REGISTRO) || User.IsInRole(TipoRoles.PFA_AUTORIZACION) || User.IsInRole(TipoRoles.PFA_VISUALIZACION))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "PFA" ? "active" : null )">
-                                            <a><i class="fa fa-truck-fast"></i> Formato PFA<span class="fa fa-chevron-down"></span></a>
+                                            <a><i class="fa fa-truck-plane"></i> Formato PFA<span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu">
 
                                                 @if (User.IsInRole(TipoRoles.PFA_REGISTRO))
@@ -652,7 +652,25 @@
 
                                     }
 
+                                    @*MENÚ REMISIONES MANUALES*@
 
+                                    @if (User.IsInRole(TipoRoles.RM_CREACION) || User.IsInRole(TipoRoles.RM_DETALLES) || User.IsInRole(TipoRoles.BG_REPORTES))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "remisiones_manuales" ? "active" : null )">
+                                            <a><i class="fa fa-truck-fast"></i> Remisiones Manuales <span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "remisiones_manuales" ? "display:block" : null )">
+                                                @if (User.IsInRole(TipoRoles.RM_CREACION) || User.IsInRole(TipoRoles.RM_DETALLES) || User.IsInRole(TipoRoles.BG_REPORTES))
+                                                {
+                                                    <li class="@(ViewBag.SegundoNivel == "listado_remisiones" ? "current-page" : null )"><a href="@Url.Action( "Index", "RM_cabecera")">Listado</a></li>
+                                                }
+                                                @if (User.IsInRole(TipoRoles.RM_REPORTES))
+                                                {
+                                                    <li class="@(ViewBag.SegundoNivel == "reportes_remisiones" ? "current-page" : null )"><a href="@Url.Action( "Reportes", "RM_cabecera")">Reportes</a></li>
+                                                }
+
+                                            </ul>
+                                        </li>
+                                    }
                                     @*MENÚ ORDENES DE TRABAJO*@
                                     @if (User.IsInRole(TipoRoles.OT_ASIGNACION) || User.IsInRole(TipoRoles.OT_REPORTE) || User.IsInRole(TipoRoles.OT_RESPONSABLE) || User.IsInRole(TipoRoles.OT_SOLICITUD) || User.IsInRole(TipoRoles.OT_CATALOGOS))
                                     {
@@ -722,8 +740,8 @@
                                                 {
                                                     <h3>Centros de Costo</h3>
                                                     @*<li class="@(ViewBag.SegundoNivel == "actual" ? "current-page" : null )"><a href="@Url.Action("Actual", "ResponsableBudget")">ACT FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)))</a></li>
-                                                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
-                                                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
+                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
+                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
                                                     <li class="@(ViewBag.SegundoNivel == "centros" ? "current-page" : null )"><a href="@Url.Action("Centros", "ResponsableBudget")">Mis Centros</a></li>
                                                 }
 

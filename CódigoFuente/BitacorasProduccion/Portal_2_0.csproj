@@ -364,6 +364,7 @@
     <Compile Include="Controllers\ReportePesadasController.cs" />
     <Compile Include="Controllers\ResponsableBudgetController.cs" />
     <Compile Include="Controllers\RH_menu_comedorController.cs" />
+    <Compile Include="Controllers\RM_cabeceraController.cs" />
     <Compile Include="Controllers\RolesAdminController.cs" />
     <Compile Include="Controllers\upgrade_revisionController.cs" />
     <Compile Include="Controllers\UserAdminController.cs" />
@@ -440,6 +441,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\class_v3.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\clientes.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\currency.cs">
@@ -619,6 +623,7 @@
     <Compile Include="Models\MetadataModels\budget_mappingMetadata.cs" />
     <Compile Include="Models\MetadataModels\budget_mapping_bridge_Metadata.cs" />
     <Compile Include="Models\MetadataModels\budget_plantasMetadata.cs" />
+    <Compile Include="Models\MetadataModels\clientesMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_medios_transporteMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_rel_gastos_solicitudMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_solicitudMetadata.cs" />
@@ -692,6 +697,9 @@
     <Compile Include="Models\MetadataModels\produccion_turnosMetadata.cs" />
     <Compile Include="Models\MetadataModels\puestoMetadata.cs" />
     <Compile Include="Models\MetadataModels\RH_menu_comedor_platillosMetadata.cs" />
+    <Compile Include="Models\MetadataModels\RM_almacenMetadata.cs" />
+    <Compile Include="Models\MetadataModels\RM_cabeceraMetadata.cs" />
+    <Compile Include="Models\MetadataModels\RM_cambio_estatusMetadata.cs" />
     <Compile Include="Models\MetadataModels\view_historico_resultadoMetadata.cs" />
     <Compile Include="Models\MetadataModels\view_valores_fiscal_yearMetadata.cs" />
     <Compile Include="Models\mm_v3.cs">
@@ -828,6 +836,27 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\RH_menu_comedor_platillos.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\RM_almacen.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\RM_cabecera.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\RM_cambio_estatus.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\RM_elemento.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\RM_estatus.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\RM_remision_motivo.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\RM_transporte_proveedor.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\upgrade_check_item.cs">
@@ -3772,6 +3801,7 @@
     <Content Include="Content\vendors\transitionize\examples\browserify.js" />
     <Content Include="Content\vendors\transitionize\examples\example.html" />
     <Content Include="Content\vendors\transitionize\transitionize.js" />
+    <Content Include="Content\vendors\twbs-toggle-buttons\jquery.twbs-toggle-buttons.min.js" />
     <Content Include="Content\vendors\validator\.gitattributes" />
     <Content Include="Content\vendors\validator\.gitignore" />
     <Content Include="Content\vendors\validator\fv.css" />
@@ -5191,6 +5221,11 @@
     <Content Include="Views\IT_notificaciones_actividad\Edit.cshtml" />
     <Content Include="Views\IT_notificaciones_actividad\Index.cshtml" />
     <Content Include="Views\IT_notificaciones_actividad\EditRecurrentes.cshtml" />
+    <Content Include="Views\RM_cabecera\Create.cshtml" />
+    <Content Include="Views\RM_cabecera\Delete.cshtml" />
+    <Content Include="Views\RM_cabecera\Details.cshtml" />
+    <Content Include="Views\RM_cabecera\Edit.cshtml" />
+    <Content Include="Views\RM_cabecera\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

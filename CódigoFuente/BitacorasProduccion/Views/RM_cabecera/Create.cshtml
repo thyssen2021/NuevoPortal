@@ -1,0 +1,567 @@
+﻿@model Portal_2_0.Models.RM_cabecera
+
+@{
+    ViewBag.Title = "Creación de Remisión Manual";
+    ViewBag.PrimerNivel = "remisiones_manuales";
+    ViewBag.SegundoNivel = "listado_remisiones";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+    Portal_2_0.Models.empleados EmpleadoActual = (Portal_2_0.Models.empleados)ViewBag.EmpleadoActual;
+}
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/blue.css")" rel="stylesheet">
+    <style>
+        .derecha {
+            text-align: right;
+        }
+    </style>
+
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_content">
+                        @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                        {
+                            @Html.AntiForgeryToken()
+
+                            <div class="form-group row">
+                                <div class="col-md-12" style="text-align:center">
+                                    <h3 class="green"><i class="fa-solid fa-file-lines"></i> REMISI&Oacute;N MANUAL</h3>
+                                </div>
+                            </div>
+                            <div class="ln_solid"></div>
+
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", new { @class = "text-white" })
+                                </div>
+                            }
+
+                            <input type="hidden" name="activo" id="activo" value="true" />
+                            <div class="form-group row">
+                                <span style="color:black"><b>DATOS GENERALES</b></span>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="control-label col-md-1">Fecha de Creaci&oacute;n</label>
+                                <div class="col-md-2">
+                                    <input type="text" class="form-control" value="@DateTime.Now.ToShortDateString()" readonly>
+                                </div>
+                                <label class="control-label col-md-2 derecha">Nombre Capturista</label>
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" value="@Html.DisplayFor(model => EmpleadoActual.ConcatNumEmpleadoNombre)" readonly>
+                                </div>
+                                <label class="control-label col-md-2 derecha">@Html.DisplayNameFor(model => model.remisionNumero)</label>
+                                <div class="col-md-1">
+                                    <input type="text" class="form-control" value="" readonly>
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>ALMAC&Eacute;N</b></span>
+                            </div>
+
+                            <div class="form-group row">
+                                <!--Planta Clave-->
+                                @Html.LabelFor(model => model.id_planta, new { @class = "control-label col-md-1" })
+                                <div class="col-md-3">
+                                    @Html.DropDownList("id_planta", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @Html.ValidationMessageFor(model => model.id_planta, "", new { @class = "text-danger" })
+                                </div>
+
+                                <!--Almacen Clave-->
+                                @Html.LabelFor(model => model.almacenClave, new { @class = "control-label col-md-1" })
+                                <div class="col-md-3">
+                                    @Html.DropDownList("almacenClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @Html.ValidationMessageFor(model => model.almacenClave, "", new { @class = "text-danger" })
+                                </div>
+
+                                @Html.LabelFor(model => model.retornaMaterial, htmlAttributes: new { @class = "control-label col-md-1 derecha" })
+                                <div class="col-md-1">
+                                    @Html.EditorFor(model => model.retornaMaterial, new { htmlAttributes = new { @class = "check", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.retornaMaterial, "", new { @class = "text-danger" })
+                                </div>
+
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>Motivo</b></span>
+                            </div>
+
+                            <div class="form-group row">
+                                <!--Motivo Clave-->
+                                @Html.LabelFor(model => model.motivoClave, new { @class = "control-label col-md-1" })
+                                <div class="col-md-5">
+                                    @Html.DropDownList("motivoClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    @Html.ValidationMessageFor(model => model.motivoClave, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.motivoTexto, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align:left" })
+                            </div>
+                            <div class="item form-group">
+                                <div class="col-md-12">
+                                    @Html.TextAreaFor(model => model.motivoTexto, new { @class = "form-control", @rows = "4", @autocomplete = "off" })
+                                    @Html.ValidationMessageFor(model => model.motivoTexto, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>CLIENTE</b></span>
+                            </div>
+
+                            <div class="form-group row">
+                                <!--Cliente Clave-->
+                                @Html.LabelFor(model => model.clienteClave, new { @class = "control-label col-md-1" })
+                                <div class="col-md-4">
+                                    @if (Model.aplicaClienteOtro)
+                                    {
+                                        @Html.DropDownList("clienteClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @disabled = "disabled" })
+                                    }
+                                    else
+                                    {
+                                        @Html.DropDownList("clienteClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    }
+                                    @Html.ValidationMessageFor(model => model.clienteClave, "", new { @class = "text-danger" })
+                                </div>
+                                <!--Aplica otro?-->
+                                @Html.LabelFor(model => model.aplicaClienteOtro, htmlAttributes: new { @class = "control-label col-md-1" })
+                                <div class="col-md-1">
+                                    @Html.EditorFor(model => model.aplicaClienteOtro, new { htmlAttributes = new { @class = "check", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.aplicaClienteOtro, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <!--Cliente Otro-->
+                                @Html.LabelFor(model => model.clienteOtro, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
+                                <div class="col-md-4">
+                                    @if (Model.aplicaClienteOtro)
+                                    {
+                                        @Html.EditorFor(model => model.clienteOtro, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    }
+                                    else
+                                    {
+                                        @Html.EditorFor(model => model.clienteOtro, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+                                    }
+                                    @Html.ValidationMessageFor(model => model.clienteOtro, "", new { @class = "text-danger" })
+                                </div>
+                                <!--Cliente Otro Dirección-->
+                                @Html.LabelFor(model => model.clienteOtroDireccion, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
+                                <div class="col-md-6">
+                                    @if (Model.aplicaClienteOtro)
+                                    {
+                                        @Html.EditorFor(model => model.clienteOtroDireccion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    }
+                                    else
+                                    {
+                                        @Html.EditorFor(model => model.clienteOtroDireccion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+                                    }
+                                    @Html.ValidationMessageFor(model => model.clienteOtroDireccion, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>ENVIADO A</b></span>
+                            </div>
+
+                            <div class="form-group row">
+                                <!--Enviado A Clave-->
+                                @Html.LabelFor(model => model.enviadoAClave, new { @class = "control-label col-md-1" })
+                                <div class="col-md-4">
+                                    @if (Model.aplicaEnviadoOtro)
+                                    {
+                                        @Html.DropDownList("enviadoAClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @disabled = "disabled" })
+                                    }
+                                    else
+                                    {
+                                        @Html.DropDownList("enviadoAClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    }
+                                    @Html.ValidationMessageFor(model => model.enviadoAClave, "", new { @class = "text-danger" })
+                                </div>
+                                <!--Aplica otro?-->
+                                @Html.LabelFor(model => model.aplicaEnviadoOtro, htmlAttributes: new { @class = "control-label col-md-1" })
+                                <div class="col-md-1">
+                                    @Html.EditorFor(model => model.aplicaEnviadoOtro, new { htmlAttributes = new { @class = "check", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.aplicaEnviadoOtro, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <!--Enviado a Otro-->
+                                @Html.LabelFor(model => model.enviadoAOtro, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
+                                <div class="col-md-4">
+                                    @if (Model.aplicaEnviadoOtro)
+                                    {
+                                        @Html.EditorFor(model => model.enviadoAOtro, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    }
+                                    else
+                                    {
+                                        @Html.EditorFor(model => model.enviadoAOtro, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+                                    }
+                                    @Html.ValidationMessageFor(model => model.enviadoAOtro, "", new { @class = "text-danger" })
+                                </div>
+                                <!--Enviado A Otro Dirección-->
+                                @Html.LabelFor(model => model.enviadoAOtroDireccion, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
+                                <div class="col-md-6">
+                                    @if (Model.aplicaEnviadoOtro)
+                                    {
+                                        @Html.EditorFor(model => model.enviadoAOtroDireccion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    }
+                                    else
+                                    {
+                                        @Html.EditorFor(model => model.enviadoAOtroDireccion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+                                    }
+                                    @Html.ValidationMessageFor(model => model.enviadoAOtroDireccion, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>TRANSPORTE</b></span>
+                            </div>
+
+                            <div class="form-group row">
+                                <!--Transporte Clave-->
+                                @Html.LabelFor(model => model.transporteProveedorClave, new { @class = "control-label col-md-1" })
+                                <div class="col-md-3">
+                                    @if (Model.aplicaTransporteOtro)
+                                    {
+                                        @Html.DropDownList("transporteProveedorClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @disabled = "disabled" })
+                                    }
+                                    else
+                                    {
+                                        @Html.DropDownList("transporteProveedorClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                    }
+                                    @Html.ValidationMessageFor(model => model.transporteProveedorClave, "", new { @class = "text-danger" })
+                                </div>
+                                <!--Aplica otro?-->
+                                @Html.LabelFor(model => model.aplicaTransporteOtro, htmlAttributes: new { @class = "control-label col-md-1" })
+                                <div class="col-md-1">
+                                    @Html.EditorFor(model => model.aplicaTransporteOtro, new { htmlAttributes = new { @class = "check", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.aplicaTransporteOtro, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <!--Transporte Otro-->
+                                @Html.LabelFor(model => model.transporteOtro, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
+                                <div class="col-md-4">
+                                    @if (Model.aplicaTransporteOtro)
+                                    {
+                                        @Html.EditorFor(model => model.transporteOtro, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    }
+                                    else
+                                    {
+                                        @Html.EditorFor(model => model.transporteOtro, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+                                    }
+                                    @Html.ValidationMessageFor(model => model.transporteOtro, "", new { @class = "text-danger" })
+                                </div>
+                                <!--placa tractor-->
+                                @Html.LabelFor(model => model.placaTractor, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
+                                <div class="col-md-2">
+                                    @Html.EditorFor(model => model.placaTractor, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.placaTractor, "", new { @class = "text-danger" })
+                                </div>
+                                <!--placa remolque-->
+                                @Html.LabelFor(model => model.placaRemolque, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
+                                <div class="col-md-2">
+                                    @Html.EditorFor(model => model.placaRemolque, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.placaRemolque, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <!--Nombre Chofer-->
+                                @Html.LabelFor(model => model.nombreChofer, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
+                                <div class="col-md-4">
+                                    @Html.EditorFor(model => model.nombreChofer, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.nombreChofer, "", new { @class = "text-danger" })
+                                </div>
+                                <!--Horario de Descarga-->
+                                @Html.LabelFor(model => model.horarioDescarga, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
+                                <div class="col-md-2">
+                                    @Html.EditorFor(model => model.horarioDescarga, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                    @Html.ValidationMessageFor(model => model.horarioDescarga, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>OBSERVACIONES</b></span>
+                            </div>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.observaciones, new { @class = "control-label col-md-12 col-sm-12", @style = "text-align:left" })
+                            </div>
+                            <div class="item form-group">
+                                <div class="col-md-12">
+                                    @Html.TextAreaFor(model => model.observaciones, new { @class = "form-control", @rows = "4", @autocomplete = "off" })
+                                    @Html.ValidationMessageFor(model => model.observaciones, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+
+                            <div class="ln_solid"></div>
+
+                            <div class="item form-group">
+                                <div class="col-md-12 col-sm-12 offset-md-12">
+                                    <button type="submit" class="btn btn-success btn-lg float-lg-right"> <i class="fa-regular fa-floppy-disk"></i>&nbsp; Guardar</button>
+                                </div>
+                            </div>
+
+
+                        }
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Scripts/MvcFoolproofJQueryValidation.js"))
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+
+    <script>
+
+        $(document).ready(function () {
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+            $('.check').iCheck({
+                checkboxClass: 'icheckbox_square-blue',
+                radioClass: 'iradio_square-blue',
+                increaseArea: '20%' // optional
+            });
+
+            //agrega evento OnChange para saber si el empleado tiene usuari
+            $("#id_planta").change(function () {
+                $.ajax({
+                    type: 'POST',
+                    url: '/Combos/obtieneAlmacenes',
+                    data: { id_planta: $(this).val() },
+                    success: function (data) {
+                        try {
+                            console.log(data);
+                            populateDropdown($("#almacenClave"), data);
+                        }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    error: function (textStatus, errorThrown) {
+                        //en caso de error en la llamada ajax
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ocurrió un error',
+                            text: 'Intente nuevamente.'
+                        })
+                    },
+                    async: true
+                });
+            });
+
+            //agrega evento OnChange para saber el detalle del cliente
+            $("#clienteClave").change(function () {
+                $.ajax({
+                    type: 'POST',
+                    url: '/Combos/obtieneClienteDetalles',
+                    data: { id_cliente: $(this).val() },
+                    success: function (data) {
+                        try {
+                            console.log(data);
+                            $('#clienteOtro').val(data[0].nombre);
+                            $('#clienteOtroDireccion').val(data[0].direccion);
+                        }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    error: function (textStatus, errorThrown) {
+                        //en caso de error en la llamada ajax
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ocurrió un error',
+                            text: 'Intente nuevamente.'
+                        })
+                    },
+                    async: true
+                });
+            });
+            //agrega evento OnChange para saber el detalle del cliente (enviado a)
+            $("#enviadoAClave").change(function () {
+                $.ajax({
+                    type: 'POST',
+                    url: '/Combos/obtieneClienteDetalles',
+                    data: { id_cliente: $(this).val() },
+                    success: function (data) {
+                        try {
+                            console.log(data);
+                            $('#enviadoAOtro').val(data[0].nombre);
+                            $('#enviadoAOtroDireccion').val(data[0].direccion);
+                        }
+                        catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error obteniendo la información: ' + error,
+                                confirmButtonText: 'Aceptar',
+                            })
+                        }
+                    },
+                    error: function (textStatus, errorThrown) {
+                        //en caso de error en la llamada ajax
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ocurrió un error',
+                            text: 'Intente nuevamente.'
+                        })
+                    },
+                    async: true
+                });
+            });
+
+            $("#transporteProveedorClave").change(function () {
+                let transporte = $("#transporteProveedorClave option:selected").text();
+                let valor = $("#transporteProveedorClave option:selected").val();
+                if (valor == 0)
+                    $('#transporteOtro').val('');
+                else
+                    $('#transporteOtro').val(transporte);
+            });
+
+            $('input').on('ifChecked', function (event) {
+                verificaChecks(event);
+            });
+
+            $('input').on('ifUnchecked', function (event) {
+                verificaChecks(event);
+            });
+        });
+
+        function verificaChecks(event) {
+            if (event.target.id == 'aplicaClienteOtro') {
+                checkInputCliente(event);
+            } else if (event.target.id == 'aplicaEnviadoOtro') {
+                checkInputEnviado(event);
+            } else if (event.target.id == 'aplicaTransporteOtro') {
+                checkInputTransporte(event);
+            }
+        }
+
+        function checkInputCliente(event) {
+            //si cliente otro esta seleccionado
+            if (event.target.checked) {
+                $("#clienteClave").val("");
+                $('#clienteClave').prop('disabled', true);
+                $('#clienteOtro').prop('readonly', false);
+                $('#clienteOtroDireccion').prop('readonly', false);
+                $('#clienteOtro').val("");
+                $('#clienteOtroDireccion').val("");
+                $('.select2bs4').select2({
+                    theme: 'bootstrap4'
+                })
+            } else { //si cliente otro no está seleccionado
+                $('#clienteClave').prop('disabled', false);
+                $('#clienteOtro').prop('readonly', true);
+                $('#clienteOtroDireccion').prop('readonly', true);
+                $('#clienteOtro').val("");
+                $('#clienteOtroDireccion').val("");
+            }
+        }
+        function checkInputEnviado(event) {
+            //si cliente otro esta seleccionado
+            if (event.target.checked) {
+                $("#enviadoAClave").val("");
+                $('#enviadoAClave').prop('disabled', true);
+                $('#enviadoAOtro').prop('readonly', false);
+                $('#enviadoAOtroDireccion').prop('readonly', false);
+                $('#enviadoAOtro').val("");
+                $('#enviadoAOtroDireccion').val("");
+                $('.select2bs4').select2({
+                    theme: 'bootstrap4'
+                })
+            } else { //si cliente otro no está seleccionado
+                $('#enviadoAClave').prop('disabled', false);
+                $('#enviadoAOtro').prop('readonly', true);
+                $('#enviadoAOtroDireccion').prop('readonly', true);
+                $('#enviadoAOtro').val("");
+                $('#enviadoAOtroDireccion').val("");
+            }
+        }
+        function checkInputTransporte(event) {
+            //si cliente otro esta seleccionado
+            if (event.target.checked) {
+                $("#transporteProveedorClave").val("");
+                $('#transporteProveedorClave').prop('disabled', true);
+                $('#transporteOtro').prop('readonly', false);
+                $('#transporteOtro').val("");
+                $('.select2bs4').select2({
+                    theme: 'bootstrap4'
+                })
+            } else { //si cliente otro no está seleccionado
+                $('#transporteProveedorClave').prop('disabled', false);
+                $('#transporteOtro').prop('readonly', true);
+                $('#transporteOtro').val("");
+            }
+        }
+
+
+        //completa el select con los datos recibidos
+        function populateDropdown(select, data) {
+            select.html('');
+            $.each(data, function (id, option) {
+                select.append($('<option></option>').val(option.value).html(option.name));
+            });
+        }
+
+        window.onload = function () {
+            clicMenu(1);
+        }
+
+    </script>
+}
+
+
