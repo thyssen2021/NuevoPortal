@@ -598,6 +598,9 @@
     <Compile Include="Models\log_acceso_email.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\log_envio_correo.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\log_inicio_sesion.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>

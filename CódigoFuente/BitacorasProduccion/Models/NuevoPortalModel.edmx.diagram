@@ -289,6 +289,8 @@
         <AssociationConnector Association="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_sistemas" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_notificaciones_actividad" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_notificaciones_checklist_id_notificaciones_recodatorio" />
+        <EntityTypeShape EntityType="Portal_2_0Model.log_envio_correo" Width="1.5" PointX="34.25" PointY="86.75" />
+        <AssociationConnector Association="Portal_2_0Model.FK_log_envio_correo_id_it_notificacion" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

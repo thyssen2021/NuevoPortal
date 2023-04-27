@@ -844,6 +844,19 @@
           <Property Name="nombre_equipo" Type="varchar" MaxLength="50" />
           <Property Name="usuario" Type="varchar" MaxLength="100" />
         </EntityType>
+        <EntityType Name="log_envio_correo">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="email" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="categoria" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="fecha" Type="datetime" Nullable="false" />
+          <Property Name="intentos_envio" Type="int" Nullable="false" />
+          <Property Name="mensaje" Type="nvarchar" MaxLength="100" />
+          <Property Name="enviado" Type="bit" Nullable="false" />
+          <Property Name="id_it_notificacion" Type="int" />
+        </EntityType>
         <EntityType Name="log_inicio_sesion">
           <Key>
             <PropertyRef Name="id" />
@@ -2734,6 +2747,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_log_envio_correo_id_it_notificacion">
+          <End Role="IT_notificaciones_recordatorio" Type="Self.IT_notificaciones_recordatorio" Multiplicity="0..1" />
+          <End Role="log_envio_correo" Type="Self.log_envio_correo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_notificaciones_recordatorio">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="log_envio_correo">
+              <PropertyRef Name="id_it_notificacion" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_log_inicio_sesion_id_usuario">
           <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="1" />
           <End Role="log_inicio_sesion" Type="Self.log_inicio_sesion" Multiplicity="*" />
@@ -3693,6 +3718,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <EntitySet Name="IT_solicitud_usuarios" EntityType="Self.IT_solicitud_usuarios" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_wsus" EntityType="Self.IT_wsus" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="log_acceso_email" EntityType="Self.log_acceso_email" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="log_envio_correo" EntityType="Self.log_envio_correo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="log_inicio_sesion" EntityType="Self.log_inicio_sesion" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="mm_v3" EntityType="Self.mm_v3" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="notificaciones_correo" EntityType="Self.notificaciones_correo" Schema="dbo" store:Type="Tables" />
@@ -4270,6 +4296,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <AssociationSet Name="FK_IT_solicitud_usuarios_id_planta" Association="Self.FK_IT_solicitud_usuarios_id_planta">
             <End Role="plantas" EntitySet="plantas" />
             <End Role="IT_solicitud_usuarios" EntitySet="IT_solicitud_usuarios" />
+          </AssociationSet>
+          <AssociationSet Name="FK_log_envio_correo_id_it_notificacion" Association="Self.FK_log_envio_correo_id_it_notificacion">
+            <End Role="IT_notificaciones_recordatorio" EntitySet="IT_notificaciones_recordatorio" />
+            <End Role="log_envio_correo" EntitySet="log_envio_correo" />
           </AssociationSet>
           <AssociationSet Name="FK_log_inicio_sesion_id_usuario" Association="Self.FK_log_inicio_sesion_id_usuario">
             <End Role="AspNetUsers" EntitySet="AspNetUsers" />
@@ -7435,6 +7465,11 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="IT_notificaciones_recordatorio" EntitySet="IT_notificaciones_recordatorio" />
             <End Role="IT_notificaciones_checklist" EntitySet="IT_notificaciones_checklist" />
           </AssociationSet>
+          <EntitySet Name="log_envio_correo" EntityType="Portal_2_0Model.log_envio_correo" />
+          <AssociationSet Name="FK_log_envio_correo_id_it_notificacion" Association="Portal_2_0Model.FK_log_envio_correo_id_it_notificacion">
+            <End Role="IT_notificaciones_recordatorio" EntitySet="IT_notificaciones_recordatorio" />
+            <End Role="log_envio_correo" EntitySet="log_envio_correo" />
+          </AssociationSet>
           </EntityContainer>
         <EntityType Name="GV_usuarios">
           <Key>
@@ -9235,6 +9270,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_sistemas" FromRole="IT_notificaciones_recordatorio" ToRole="empleados" />
           <NavigationProperty Name="IT_notificaciones_actividad" Relationship="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_notificaciones_actividad" FromRole="IT_notificaciones_recordatorio" ToRole="IT_notificaciones_actividad" />
           <NavigationProperty Name="IT_notificaciones_checklist" Relationship="Portal_2_0Model.FK_IT_notificaciones_checklist_id_notificaciones_recodatorio" FromRole="IT_notificaciones_recordatorio" ToRole="IT_notificaciones_checklist" />
+          <NavigationProperty Name="log_envio_correo" Relationship="Portal_2_0Model.FK_log_envio_correo_id_it_notificacion" FromRole="IT_notificaciones_recordatorio" ToRole="log_envio_correo" />
         </EntityType>
         <Association Name="FK_IT_notificaciones_recordatorio_id_sistemas">
           <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
@@ -9269,6 +9305,32 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Principal>
             <Dependent Role="IT_notificaciones_checklist">
               <PropertyRef Name="id_notificaciones_recordatorio" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="log_envio_correo">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="email" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="categoria" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="fecha" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="intentos_envio" Type="Int32" Nullable="false" />
+          <Property Name="mensaje" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="enviado" Type="Boolean" Nullable="false" />
+          <Property Name="id_it_notificacion" Type="Int32" />
+          <NavigationProperty Name="IT_notificaciones_recordatorio" Relationship="Portal_2_0Model.FK_log_envio_correo_id_it_notificacion" FromRole="log_envio_correo" ToRole="IT_notificaciones_recordatorio" />
+        </EntityType>
+        <Association Name="FK_log_envio_correo_id_it_notificacion">
+          <End Type="Portal_2_0Model.IT_notificaciones_recordatorio" Role="IT_notificaciones_recordatorio" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.log_envio_correo" Role="log_envio_correo" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_notificaciones_recordatorio">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="log_envio_correo">
+              <PropertyRef Name="id_it_notificacion" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -10954,6 +11016,20 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
                 <ScalarProperty Name="id_sistemas" ColumnName="id_sistemas" />
                 <ScalarProperty Name="fecha_programada" ColumnName="fecha_programada" />
                 <ScalarProperty Name="id_notificaciones_actividad" ColumnName="id_notificaciones_actividad" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="log_envio_correo">
+            <EntityTypeMapping TypeName="Portal_2_0Model.log_envio_correo">
+              <MappingFragment StoreEntitySet="log_envio_correo">
+                <ScalarProperty Name="id_it_notificacion" ColumnName="id_it_notificacion" />
+                <ScalarProperty Name="enviado" ColumnName="enviado" />
+                <ScalarProperty Name="mensaje" ColumnName="mensaje" />
+                <ScalarProperty Name="intentos_envio" ColumnName="intentos_envio" />
+                <ScalarProperty Name="fecha" ColumnName="fecha" />
+                <ScalarProperty Name="categoria" ColumnName="categoria" />
+                <ScalarProperty Name="email" ColumnName="email" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

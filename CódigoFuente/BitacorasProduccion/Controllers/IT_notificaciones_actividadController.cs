@@ -396,6 +396,18 @@ namespace Portal_2_0.Controllers
             {
                 //obtiene el recordatorio a modificar
                 var recordatorioBD = db.IT_notificaciones_recordatorio.Find(recordatorio.id);
+                //si hay cambio en la fecha programada, borra el log de envio de recodatorio
+                if (recordatorio.fecha_programada != recordatorioBD.fecha_programada) //hubo cambio de fecha
+                {
+                    recordatorioBD.notificacion_dia_evento_enviada = false;
+                    recordatorioBD.notificacion_previa_enviada = false;
+                    
+                    //borra el log de los involucrados
+                    db.log_envio_correo.RemoveRange(recordatorioBD.log_envio_correo);
+                }  
+
+
+
                 //modifica los valores del recordatorio
                 recordatorioBD.fecha_programada = recordatorio.fecha_programada;
                 //obtiene el valor de aplica recordatorio 
