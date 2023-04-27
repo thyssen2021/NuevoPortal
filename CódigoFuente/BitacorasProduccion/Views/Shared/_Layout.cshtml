@@ -18,7 +18,7 @@
     <link href="@Url.Content("~/Content/vendors/nprogress/nprogress.css")" rel="stylesheet">
     <!-- jQuery custom content scroller -->
     <link href="@Url.Content("~/Content/vendors/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.min.css")" rel="stylesheet">
-
+    <link href="~/Content/vendors/cool-hint-css/src/hint-css.css" rel="stylesheet" />
 
     <!-- Custom Theme Style -->
     <link href="@Url.Content("~/Content/build/css/custom.css")" rel="stylesheet">
@@ -63,6 +63,46 @@
 
         .link:hover {
             color: azure;
+        }
+
+        .colored-toast.swal2-icon-success {
+            background-color: #a5dc85 !important;
+        }
+
+        .colored-toast.swal2-icon-error {
+            background-color: #f27474 !important;
+        }
+
+        .colored-toast.swal2-icon-warning {
+            background-color: #f8bb86 !important;
+        }
+
+        .colored-toast.swal2-icon-info {
+            background-color: #3fc3ee !important;
+        }
+
+        .colored-toast.swal2-icon-question {
+            background-color: #87adbd !important;
+        }
+
+        .colored-toast .swal2-title {
+            color: white;
+        }
+
+        .colored-toast .swal2-close {
+            color: white;
+        }
+
+        .colored-toast .swal2-html-container {
+            color: white;
+        }
+
+        .colored-toast:hover {
+            opacity: 1.0;
+        }
+
+        .colored-toast {
+            opacity: 0.94;
         }
     </style>
 
@@ -194,12 +234,10 @@
                                                     </li>
                                                     <li class="@(ViewBag.SegundoNivel == "IT_inventory_tipos_accesorios" ? "current-page" : null )"><a href="@Url.Action("index", "IT_inventory_tipos_accesorios")">Tipos de Accesorios</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "IT_Inventory_items_genericos" ? "current-page" : null )"><a href="@Url.Action("index", "IT_Inventory_items_genericos")">Hardware Gen&eacute;rico</a></li>
-
                                                 }
 
                                                 @if (User.IsInRole(TipoRoles.IT_ASIGNACION_HARDWARE))
                                                 {
-
                                                     <h3>Asignaci&oacute;n</h3>
                                                     <li class="@(ViewBag.SegundoNivel == "it_asignacion_hardware" ? "current-page" : null )"><a href="@Url.Action("index", "it_asignacion_hardware")">Asignaci&oacute;n a Usuarios</a></li>
                                                     <li class="@(ViewBag.SegundoNivel == "it_asignacion_hardware_responsivas" ? "current-page" : null )"><a href="@Url.Action("responsivas", "it_asignacion_hardware")">Responsivas</a></li>
@@ -216,6 +254,13 @@
                                                             <li class="@(ViewBag.TercelNivel == "IT_mantenimientos_checklist_item" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_mantenimientos_checklist_item")">Actividades </a></li>
                                                         </ul>
                                                     </li>
+                                                }
+
+                                                @if (User.IsInRole(TipoRoles.IT_NOTIFICACIONES))
+                                                {
+                                                    <h3>Recordatorios</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "it_notificaciones" ? "current-page" : null )"><a href="@Url.Action("index", "IT_notificaciones_actividad")">Recordatorios</a></li>
+
                                                 }
                                             </ul>
                                         </li>
@@ -255,6 +300,7 @@
 
                                         </li>
                                     }
+
                                     @if (User.IsInRole(TipoRoles.IT_INVENTORY))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "IT_epo_wsus" ? "active" : null )">
@@ -676,8 +722,8 @@
                                                 {
                                                     <h3>Centros de Costo</h3>
                                                     @*<li class="@(ViewBag.SegundoNivel == "actual" ? "current-page" : null )"><a href="@Url.Action("Actual", "ResponsableBudget")">ACT FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)))</a></li>
-                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
-                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
+                                                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
+                                                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
                                                     <li class="@(ViewBag.SegundoNivel == "centros" ? "current-page" : null )"><a href="@Url.Action("Centros", "ResponsableBudget")">Mis Centros</a></li>
                                                 }
 
@@ -800,7 +846,7 @@
     @Scripts.Render(Url.Content("~/Content/vendors/nprogress/nprogress.js"))
     <!-- jQuery custom content scroller -->
     @Scripts.Render(Url.Content("~/Content/vendors/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js"))
-
+    <script src="~/Content/vendors/cool-hint-css/src/hint-css.js"></script>
 
     @RenderSection("scripts", required: false)
 

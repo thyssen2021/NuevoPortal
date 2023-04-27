@@ -1,0 +1,331 @@
+﻿@model IEnumerable<Portal_2_0.Models.IT_notificaciones_actividad>
+@{
+    ViewBag.Title = "Calendario de eventos";
+    ViewBag.PrimerNivel = "sistemas";
+    ViewBag.SegundoNivel = "it_notificaciones";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+}
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+
+
+    <style>
+        /*Para fullcalendar*/
+        .fc-button-primary {
+            background-color: #009ff5 !important;
+        }
+
+        .fc-event:hover {
+            cursor: pointer;
+        }
+
+        #calendar {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        /*Para contenido del sweetalert2*/
+
+        .customSwalBtn {
+            background-color: #4CAF50; /* Green */
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+        }
+
+        .align-left {
+            text-align: left;
+        }
+
+        .container-class {
+            font-family: 'Gloria Hallelujah', cursive;
+            font-size: 1.4rem;
+            background: whitesmoke;
+            margin: 0;
+            padding: 1rem;
+            display: grid;
+            place-items: center;
+            min-height: 100vh;
+        }
+
+            .container-class ul {
+                list-style-position: inside;
+                width: 600px;
+                max-width: 100%;
+                background: white;
+                box-shadow: 0.25rem 0.25rem 0.75rem rgb(0 0 0 / 0.15);
+                padding: 0;
+                margin: 0;
+                border-radius: 0.1rem;
+            }
+
+            .container-class li {
+                padding: 0 0 0 1rem;
+            }
+
+                .container-class li:not(:last-child) {
+                    border-bottom: 1px solid lightblue;
+                }
+
+                .container-class li:first-child {
+                    margin-top: 1rem;
+                }
+
+                .container-class li:last-child {
+                    margin-bottom: 1rem;
+                }
+
+            .container-class ::marker {
+                content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' xml:space='preserve' width='10' viewBox='0 0 50 50'%3E%3Cpath d='M46.4 16.2c-2.3-2.3-5.4-3.5-8.4-4.5-.5-.2-1.1-.3-1.6-.5-1.6-1.6-3.7-2.8-6.2-3.2-1-.2-1.9.1-2.5.6-.9-.3-1.8-.6-2.7-.8-3.2-1-6.4-1.8-9.5-.1-1 .5-1.9 1.2-2.7 2-6.4 1.4-11.7 5-12.4 12.7C0 27 1.9 31.5 4.9 34.9c.1.6.2 1.1.4 1.7 1 3.2 3.3 5.7 6.7 6.5 2.7.6 5.4-.2 7.9-1.2 3.3.4 6.7.3 9.9 0 6.5-.7 13.3-2.8 17.1-8.5 3.6-5.2 4-12.6-.5-17.2zm-17.3.9c2.1.4 4 1.7 4.7 3.8 0 .5-.1 1.1-.2 1.6-.3 1.4-.8 2.6-1.6 3.7-.7.2-1.5.1-2.3-.4-.8-.4-1.6-1-2.2-1.6-.4-.4-1.2-1.7-1.6-1.9 3.4 1.3 5.1-3 3.2-5.2zm-11.6 9.7c.2-1.9 1.1-3.9 2.3-5.5-.4 2.1.3 4.2 1.7 6 1.3 1.7 3.1 3.2 5 4.2-.2.1-.4.2-.6.4-.1 0-.1.1-.2.1-3.9.2-8.7-.8-8.2-5.2zm-6.4 3.1c.1.3.1.7.2 1 .2.6.4 1.2.7 1.8-.4-.2-.7-.5-1-.7.1-.8.1-1.4.1-2.1zm31.2-1.3c-.9 1.7-2.1 3.1-3.7 4.1 2-2.1 3.4-4.7 4-7.6.2-.7.3-1.4.3-2.1.6 1.5.5 3.3-.6 5.6z'/%3E%3C/svg%3E") ' ';
+            }
+
+            .container-class li:nth-child(3n)::marker {
+                content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' xml:space='preserve' width='10' viewBox='0 0 50 50'%3E%3Cpath d='M46.5 12.5c-.4-1.1-1.3-1.8-2.2-2-4.2-4-11.6-4.3-17.1-4.1-6.9.3-13.9 2.1-19.4 6.5C2 17.5-2.4 25.7 2.5 32.6c2.2 3.2 5.5 4.9 9 5.5 3.3 1.7 6.7 3.3 10.2 4.4 7.8 2.3 17 1.6 23.2-4.3 7.3-7 4.8-17.3 1.6-25.7zm-20.2 2.7c.6 0 1.3 0 1.8.2 1.1.4 1.7 1.3 2 2.3-1-1.2-2.4-2.1-3.8-2.5zm-1.4 6.6c.9.9 1.3 2.2-.2 2.3-2 .2-1.1-1.9.2-2.3zm-11.8 9.8c-.6-.3-2.9-1.1-3.2-1.8-.2-.5 1.4-3.1 2.1-4.2.3.5.7 1 1.2 1.4 0 .3.1.6.2.8.5 1.9 1.5 3.1 2.9 4h-.2c-.8.1-1.6.1-2.5-.1-.2 0-.3 0-.5-.1zM24 36.4c1.6-.7 3-1.5 4.3-2.5.8.2 1.7.3 2.5.5 2.5.4 5.2.9 7.7.6-.9.6-2 1.1-3 1.4-3.9 1.3-7.7 1-11.5 0z'/%3E%3C/svg%3E") ' ';
+            }
+
+            .container-class li:nth-child(3n - 1)::marker {
+                content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' xml:space='preserve' width='10' viewBox='0 0 50 50'%3E%3Cpath d='M48.3 23.7c-1-9.9-9.9-15.6-18.8-17.8-8.2-2.1-18.8-2.6-24.6 4.8C.6 16.2 1 23.6 4.3 29.3c-.5 1-.8 2-1 3-.6 4 2 7.6 5.1 10 5.9 4.4 14 4.2 19.6-.4 1.5 0 2.9-.2 4.4-.5 1.8 0 3.5 0 5.3-.1 2.3-.1 3.5-1.9 3.5-3.7 4.5-3.3 7.7-8.2 7.1-13.9zM9.1 17.8c1.1-4.1 4.9-5.8 8.8-6.1.9-.1 1.9-.1 2.9-.1-3.2 1.6-6.3 4.6-8 7.4-.1.1-.1.2-.2.3-1.1.9-2.1 1.9-3 2.9-.2.2-.4.4-.5.6-.4-1.7-.5-3.3 0-5z'/%3E%3C/svg%3E") ' ';
+            }
+    </style>
+}
+@{Html.RenderPartial("_BlockUI", Model);}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
+                                    {
+                                        <div class="form-group row ">
+                                            <label class="control-label col-md-1 col-sm-1" for="estatus" style="text-align:right">Estatus:</label>
+                                            <div class="col-md-3 col-sm-3 ">
+                                                @Html.DropDownList("estatus", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                            </div>
+                                            <div class="col-md-6 col-sm-6">
+                                            </div>
+                                            <div class="col-md-2 col-sm-2">
+                                                <button type="submit" class="btn btn-info float-right"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+                                            </div>
+                                        </div>
+
+                                    }
+                                    <hr />
+
+                                </div>
+                                <div class="card-box table-responsive">
+
+                                    <div id="calendar"></div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    @Scripts.Render("~/bundles/dataTables_js")
+    <!-- SweetAlert2 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.3/sweetalert2.all.min.js" integrity="sha512-/iBgV43zPirSC0tue+PT/1VHGs7En24twBmT+sVMgn9PTaOpKfbgIyL5YsGKlbAIxcwz9S8W/YEnYjpIYj2Axw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlertColored.js"))
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.5/index.global.min.js'></script>
+    <script src="~/Content/vendors/fullcalendar_6.1.5/es.global.min.js"></script>
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <script>
+        //variables globales
+        var calendar;
+        var lastID;
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+            //Envia el formulario cada vez que se modifica el combo
+            $(".select2bs4").change(function () {
+                $("#buscarForm").submit();
+                BloqueaPantalla();
+            });
+            IniciaCalendar();
+            clicMenu(1);
+            $.unblockUI();
+        });
+
+        function IniciaCalendar() {
+            var source;
+            let estatus = $("#estatus option:selected").val();
+
+            //llamada para cargar los eventos
+            $.ajax({
+                type: 'POST',
+                url: '/IT_notificaciones_actividad/GetEventos',
+                data: { estatus: estatus },
+                success: function (data) {
+                    source = data;
+                },
+                async: false
+            });
+
+            var calendarEl = document.getElementById('calendar');
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                themeSystem: 'bootstrap',
+                initialView: 'dayGridMonth',
+                locale: 'es',
+                firstDay: 0,
+                businessHours: true,
+                dayMaxEvents: true, // allow "more" link when too many events
+                headerToolbar: {
+                    left: 'prevYear,prev,next,nextYear today',
+                    center: 'title',
+                    right: 'addEventButton dayGridMonth,dayGridWeek,dayGridDay'
+                },
+                customButtons: {
+                    addEventButton: {
+                        text: 'Agregar Evento',
+                        click: function () {
+                            window.location.href = '/@ViewBag.ControllerName/Create/';
+                           // agregaEventoSweetAlert();
+                        }
+                    }
+                },
+                events: source,
+                eventDidMount: function (info) {
+                    // Create the icon
+                    if (info.event.extendedProps.icon) {
+                        $(info.el).find('.fc-event-title').prepend("<i class='" + info.event.extendedProps.icon + "' style='color:" + info.event.extendedProps.icon_color +"'></i> ");
+                    }
+                },
+                eventClick: function (arg) {
+                    //asigna el último id presionado
+                    lastID = arg.event.id;
+                    showEventModal(arg.event.id);
+                },
+            });
+
+            calendar.render();
+        }
+
+        $(document).on('click', '.SwalBtnDetails', function () {
+            popupCenter({ url: '/@ViewBag.ControllerName/details/' + lastID, title: 'Detalles de evento', w: screen.width * .80, h: screen.height * .80 });
+            swal.clickConfirm();
+        });
+        $(document).on('click', '.SwalBtnEditar', function () {
+            window.location.href ='/@ViewBag.ControllerName/Edit/' + lastID;
+            swal.clickConfirm();
+        });
+        $(document).on('click', '.SwalBtnEditarRecurrentes', function () {
+            window.location.href ='/@ViewBag.ControllerName/EditRecurrentes/' + lastID;
+            swal.clickConfirm();
+        });
+
+        function showEventModal(id) {
+            let titulo, descripcion, estatus, fecha, es_recurrente, actividades, estatus_r;
+
+            //obtiene los detalles del evento
+            $.ajax({
+                type: 'POST',
+                url: '/IT_notificaciones_actividad/GetDetallesEvento',
+                data: { id: id },
+                success: function (data) {
+                    titulo = data[0].titulo;
+                    descripcion = data[0].descripcion;
+                    estatus = data[0].estatus;
+                    fecha = data[0].fecha;
+                    es_recurrente = data[0].es_recurrente;
+                    actividades = data[0].actividades;
+                    estatus_r = data[0].estatus;
+                    console.log(data[0])
+                },
+                async: false
+            });
+
+
+
+            let contenido = `
+                    <div class="align-left"><b style="color:#007ADB"><i>Descripción:</i></b>&ensp; ` + descripcion + `</div>
+                    <div class="align-left"><b style="color:#007ADB"><i>Fecha programada:</i></b>&ensp; ` + fecha + `</div>
+                    <div class="align-left"><b style="color:#007ADB"><i>Estatus:</i></b>&ensp; ` + estatus + `</div>
+                    <div class="align-left"><b style="color:#007ADB"><i>Es recurrente:</i></b>&ensp; ` + es_recurrente + `</div>
+                    <hr>
+                    <div class="align-left"><b style="color:#007ADB"><i>Actividades:</i></b> ` + actividades + `</div>
+                    <hr>
+                    <div class="float-right">
+                        <button type="button" role="button" tabindex="0" class="btn btn-info SwalBtnDetails"> <i class="fa-solid fa-circle-info"></i> Detalles </button>
+                       `;
+            //determina si muestra el boton para editar
+            if (estatus_r != 'Terminado')
+                contenido += `<button type="button" role="button" tabindex="0" class="btn btn-success SwalBtnEditar"> <i class="fa-solid fa-pen-to-square"></i> Editar </button>`;
+            //determina si muestra el boton para editar recurrentes
+            if (es_recurrente == 'Sí')
+                contenido += `<button type="button" role="button" tabindex="0" class="btn btn-warning SwalBtnEditarRecurrentes"><i class="fa-solid fa-clock-rotate-left"></i> Editar Recurrentes </button>`;
+
+            contenido += `</div>`;
+
+
+            Swal.fire({
+                title: `<span style='font-style: italic; font-size: 25px !important; color: #007ADB'>` + titulo + `</span>`,
+                html: contenido,
+                showCancelButton: false,
+                showConfirmButton: false,
+                customClass: {
+                    container: 'container-class',
+                },
+                width: '800px'
+            });
+        }
+
+        function actualizarSizeCalendario() {
+            calendar.updateSize();
+        }
+
+
+        $("#menu_toggle").click(function () {
+            setTimeout(actualizarSizeCalendario), 1000;
+        });
+
+    </script>
+
+
+}

@@ -73,5 +73,7 @@ namespace Clases.Util
         public const string RH_MENU_COMEDOR_VISUALIZAR_PUEBLA = "Menu_Comedor_Visualizar_Puebla";
         //RH empleados
         public const string RH_DETALLES_EMPLEADOS = "RH_DETALLES_EMPLEADOS";
+        //IT notificaciones
+        public const string IT_NOTIFICACIONES= "IT_NOTIFICACIONES";
     }
 }

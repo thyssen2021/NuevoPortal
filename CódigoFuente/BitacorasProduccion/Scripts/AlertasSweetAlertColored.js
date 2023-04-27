@@ -11,7 +11,7 @@
         title: 'General Title',
         animation: false,
         position: 'top-right',
-        showConfirmButton: true,
+        showConfirmButton: false,
         timer: 5000,
         timerProgressBar: true,
         didOpen: (toast) => {
@@ -20,7 +20,6 @@
         }
     });
 
-    
     mostrarAlerta();
 
     //muestra una alerta solo si existen los elementos de mensaje y tipoMensaje

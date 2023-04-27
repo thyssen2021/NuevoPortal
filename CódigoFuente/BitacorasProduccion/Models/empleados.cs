@@ -61,6 +61,8 @@ namespace Portal_2_0.Models
             this.produccion_supervisores = new HashSet<produccion_supervisores>();
             this.IT_site_checklist = new HashSet<IT_site_checklist>();
             this.upgrade_usuarios = new HashSet<upgrade_usuarios>();
+            this.IT_notificaciones_usuarios = new HashSet<IT_notificaciones_usuarios>();
+            this.IT_notificaciones_recordatorio = new HashSet<IT_notificaciones_recordatorio>();
         }
     
         public int id { get; set; }
@@ -182,5 +184,9 @@ namespace Portal_2_0.Models
         public virtual ICollection<upgrade_usuarios> upgrade_usuarios { get; set; }
         public virtual plantas plantas { get; set; }
         public virtual Area Area { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_notificaciones_usuarios> IT_notificaciones_usuarios { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_notificaciones_recordatorio> IT_notificaciones_recordatorio { get; set; }
     }
 }

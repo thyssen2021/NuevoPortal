@@ -10,7 +10,7 @@ namespace Portal_2_0.Models
     public class ExcelViewModel
     {
         [Required(ErrorMessage = "Por favor seleccione un archivo.")]
-     //   [RegularExpression(@"^.*\.(xls|xlsx|XLS|XLSX)$", ErrorMessage = "Sólo se permite seleccionar archivos Excel.")]
+        //   [RegularExpression(@"^.*\.(xls|xlsx|XLS|XLSX)$", ErrorMessage = "Sólo se permite seleccionar archivos Excel.")]
         [Display(Name = "Archivo Excel")]
         public HttpPostedFileBase PostedFile { get; set; }
     }
@@ -20,7 +20,7 @@ namespace Portal_2_0.Models
     /// </summary>
     public class UserInspectorViewModel
     {
-        [Required]       
+        [Required]
         [Display(Name = "Usuario")]
         public string id_usuario { get; set; }
     }
@@ -50,7 +50,7 @@ namespace Portal_2_0.Models
         public empleados EmpleadoUsuario;
         public empleados EmpleadoSistemas;
 
-        
+
     }
 
     /// <summary>
@@ -61,7 +61,7 @@ namespace Portal_2_0.Models
 
         public CambioJefeViewModel()
         {
-            
+
         }
 
         [Required]
@@ -72,7 +72,7 @@ namespace Portal_2_0.Models
         [Display(Name = "Nuevo Jefe")]
         public int id_nuevo_jefe { get; set; }
 
-        
+
         public empleados JefeActual;
         public empleados Nuevo;
 
@@ -98,7 +98,7 @@ namespace Portal_2_0.Models
         [EmailAddress]
         [Display(Name = "Correo Remitente")]
         public string correoRemitente { get; set; }
-                
+
         [Required]
         [Display(Name = "Asunto")]
         public string asunto { get; set; }
@@ -110,4 +110,5 @@ namespace Portal_2_0.Models
 
 
     }
+
 }

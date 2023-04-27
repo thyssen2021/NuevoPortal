@@ -1,0 +1,292 @@
+﻿@model Portal_2_0.Models.IT_notificaciones_recordatorio
+@{
+    ViewBag.Title = "Detalles de Evento";
+    ViewBag.PrimerNivel = "sistemas";
+    ViewBag.SegundoNivel = "it_notificaciones";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+}
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/blue.css")" rel="stylesheet">
+
+    <style>
+        .frame {
+            border: 2px solid #97c2d9;
+            padding: 8px 30px;
+            background: #fefefe;
+            width: 300px;
+            border-radius: 25px;
+        }
+    </style>
+}
+
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box">
+                                    @if (Model.fecha_programada < new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day))
+                                    {
+                                        <div class="alert alert-danger" role="alert">
+                                            <i class="fa-solid fa-circle-info"></i> <texto id="texto">Este evento ya ocurri&oacute;.</texto>
+                                        </div>
+                                    }
+
+                                    <div class="form-group row">
+                                        <span style="color:black"><b>DATOS GENERALES</b></span>
+                                    </div>
+                                    <div class="item form-group">
+                                        <div class="col-md-5 col-sm-5">
+                                            @Html.LabelFor(model => model.IT_notificaciones_actividad.titulo)
+                                            @Html.EditorFor(m => m.IT_notificaciones_actividad.titulo, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+
+                                        </div>
+                                    </div>
+                                    <div class="item form-group">
+                                        <div class="col-md-12 col-sm-12">
+                                            @Html.LabelFor(model => model.IT_notificaciones_actividad.descripcion)
+                                            @Html.TextAreaFor(model => model.IT_notificaciones_actividad.descripcion, new { @class = "form-control", @rows = "3", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="ln_solid"></div>
+                                    <div class="form-group row">
+                                        <span style="color:black"><b>RECORDATORIOS</b></span>
+                                    </div>
+                                    <div class="item form-group">
+                                        @Html.LabelFor(model => model.fecha_programada, new { @class = "col-form-label col-md-1 col-sm-1" })
+                                        <div class="col-md-2 col-sm-2">
+                                            <input type="text" class="form-control" value="@Model.fecha_programada.ToString("yyyy/MM/dd")" readonly />
+                                        </div>
+                                        @Html.LabelFor(model => model.IT_notificaciones_actividad.es_recurrente, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                        <div class="col-md-1 col-sm-1" style="display: flex; align-items: center;">
+                                            @Html.EditorFor(m => m.IT_notificaciones_actividad.es_recurrente, new { htmlAttributes = new { @class = "form-control", @disabled = "disabled" } })
+                                        </div>
+                                    </div>
+                                    <div class="item form-group">
+                                        @Html.LabelFor(model => model.IT_notificaciones_actividad.aplica_recordatorio, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                        <div class="col-md-1 col-sm-1" style="display: flex; align-items: center;">
+                                            <input type="checkbox" class="form-control" @(Model.dias_previos_notificacion.HasValue ? "checked" : string.Empty) disabled>
+                                        </div>
+                                        <div id="div_previo" class="col-md-2 col-sm-2" style="@(!Model.dias_previos_notificacion.HasValue? "display:none":String.Empty)">
+                                            @Html.LabelFor(model => model.IT_notificaciones_actividad.dias_antes_recordatorio, new { @class = "col-form-label col-md-6 col-sm-6" })
+                                            <div class="col-md-6 col-sm-6">
+                                                @Html.EditorFor(m => m.dias_previos_notificacion, new { htmlAttributes = new { @class = "form-control", @type = "text", @readonly = "readonly" } })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="alert alert-info" role="alert">
+                                        @if (Model.fecha_programada < new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day))
+                                        {
+                                            <i class="fa-solid fa-circle-info"></i> <texto id="texto">Este evento ya ocurri&oacute;.</texto>
+                                        }
+                                        else if (Model.dias_previos_notificacion.HasValue)
+                                        {
+                                            <i class="fa-solid fa-circle-info"></i> <texto id="texto">Se mandar&aacute; recordatorio por email el d&iacute;a del Evento y <b>@Model.dias_previos_notificacion</b> d&iacute;as antes.</texto>
+                                        }
+                                        else
+                                        {
+                                            <i class="fa-solid fa-circle-info"></i> <texto id="texto">Se mandará recordatorio por email el día del Evento.</texto>
+                                        }
+                                    </div>
+
+                                    <div class="ln_solid"></div>
+                                    <div class="form-group row">
+                                        <span style="color:black"><b>ACTIVIDADES</b></span>
+                                    </div>
+                                    <div class="form-group row">
+
+                                    </div>
+                                    <div class="form-group row">
+
+                                        <table id="datatable_1" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                            <thead>
+                                                <tr>
+                                                    <th width="2%">#</th>
+                                                    <th width="70%">
+                                                        Actividad
+                                                    </th>
+                                                    <th>
+                                                        Estado
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (Portal_2_0.Models.IT_notificaciones_checklist item in Model.IT_notificaciones_checklist)
+                                                {
+                                                    <tr>
+                                                        <td>@(Model.IT_notificaciones_checklist.ToList().IndexOf(item)+1)</td>
+                                                        <td>
+                                                            @item.descripcion
+                                                        </td>
+                                                        <td>
+                                                            @(Bitacoras.Util.IT_notificaciones_checklist_estatus.DescripcionStatus(item.estatus))
+                                                        </td>
+
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="ln_solid"></div>
+                                    <div class="form-group row">
+                                        <span style="color:black"><b>NOTIFICAR A:</b></span>
+                                    </div>
+                                    <div class="item form-group">
+                                        <div class="col-md-4 col-sm-4 frame">
+                                            <fieldset>
+                                                <legend style="color: #009ff5; font-weight: bold;">Usuarios</legend>
+                                                @foreach (var item in Model.IT_notificaciones_actividad.IT_notificaciones_usuarios.Where(x => x.id_empleado.HasValue))
+                                                {
+                                                    <div class="checkbox">
+                                                        <label>
+                                                            <input type="checkbox" class="flat" checked="checked" disabled> @item.empleados.ConcatNombre <@item.empleados.correo>
+                                                        </label>
+                                                    </div>
+                                                }
+                                            </fieldset>
+                                        </div>
+                                        <div class="col-md-4 col-sm-4 offset-md-1 frame">
+                                            <fieldset>
+                                                <legend style="color: #009ff5; font-weight: bold;">Correos</legend>
+                                                @foreach (var item in Model.IT_notificaciones_actividad.IT_notificaciones_usuarios.Where(x => !x.id_empleado.HasValue))
+                                                {
+                                                    <div class="checkbox">
+                                                        <label>
+                                                            <input type="checkbox" class="flat" checked="checked" disabled> @item.correo
+                                                        </label>
+                                                    </div>
+                                                }
+                                            </fieldset>
+                                        </div>
+                                    </div>
+
+                                    @if (Model.IT_notificaciones_actividad.es_recurrente)
+                                    {
+                                        <div class="ln_solid"></div>
+                                        <div class="form-group row">
+                                            <span style="color:black"><b>NOTIFICACIONES RECURRENTES:</b></span>
+                                        </div>
+
+                                        <div class="form-group row">
+
+                                            <table id="datatable_2" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th width="2%">#</th>
+                                                        <th width="20%">Fecha</th>
+                                                        <th width="20%">Estatus</th>
+                                                        <th>
+                                                            Sistemas
+                                                        </th>
+                                                        <th>
+                                                            Comentario Cierre
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var item in Model.IT_notificaciones_actividad.IT_notificaciones_recordatorio.OrderBy(x => x.fecha_programada))
+                                                    {
+                                                        <tr style="background-color:@(Model.id == item.id ? "#fff5bf":String.Empty)">
+                                                            <td>@(Model.IT_notificaciones_actividad.IT_notificaciones_recordatorio.OrderBy(x => x.fecha_programada).ToList().IndexOf(item)+1)</td>
+                                                            <td>@item.fecha_programada.ToString("yyyy/MM/dd")</td>
+                                                            <td>@Bitacoras.Util.IT_notificaciones_recordatorio_estatus.DescripcionStatus(item.estatus)</td>
+                                                            <td>
+                                                                @(item.empleados!=null? item.empleados.ConcatNombre:"Pendiente")
+                                                            </td>
+                                                            <td>
+                                                                @Html.DisplayFor(model => item.comentario_cierre)
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                    }
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    @Scripts.Render("~/bundles/dataTables_js")
+    <!-- SweetAlert2 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.3/sweetalert2.all.min.js" integrity="sha512-/iBgV43zPirSC0tue+PT/1VHGs7En24twBmT+sVMgn9PTaOpKfbgIyL5YsGKlbAIxcwz9S8W/YEnYjpIYj2Axw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlertColored.js"))
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    <script>
+        //variables globales
+        document.addEventListener('DOMContentLoaded', function () {
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-blue',
+                radioClass: 'iradio_square-blue',
+                increaseArea: '20%' // optional
+            });
+
+            //inicializa los data table
+            var tabla = $('#datatable_1').DataTable({
+                "paging": false,
+                "ordering": false,
+                "searching": false,
+                "scrollX": true,
+                "info": false
+            });
+            //inicializa los data table
+            var tabla = $('#datatable_2').DataTable({
+                "paging": true,
+                "ordering": false,
+                "searching": false,
+                "scrollX": true,
+                "info": false
+            });
+
+            clicMenu(1);
+        });
+
+
+
+    </script>
+
+
+}

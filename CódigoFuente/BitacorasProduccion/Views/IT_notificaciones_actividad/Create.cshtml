@@ -1,0 +1,406 @@
+﻿@model Portal_2_0.Models.IT_notificaciones_actividad
+@{
+    ViewBag.Title = "Crear Evento de Calendario";
+    ViewBag.PrimerNivel = "sistemas";
+    ViewBag.SegundoNivel = "it_notificaciones";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+    int contador = 100;
+
+}
+
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/blue.css")" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+
+    <style>
+        .frame {
+            border: 2px solid #97c2d9;
+            padding: 8px 30px;
+            background: #fefefe;
+            width: 300px;
+            border-radius: 25px;
+        }
+    </style>
+}
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", new { @class = "text-white" })
+                                </div>
+                            }
+                            <div class="form-group row">
+                                <span style="color:black"><b>DATOS GENERALES</b></span>
+                            </div>
+
+                            <div class="item form-group">
+                                <div class="col-md-5 col-sm-5">
+                                    @Html.LabelFor(model => model.titulo)
+                                    @Html.EditorFor(m => m.titulo, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @required = "required" } })
+                                    @Html.ValidationMessageFor(model => model.titulo, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                <div class="col-md-12 col-sm-12">
+                                    @Html.LabelFor(model => model.descripcion)
+                                    @Html.TextAreaFor(model => model.descripcion, new { @class = "form-control", @rows = "3", @autocomplete = "off", @required = "required" })
+                                    @Html.ValidationMessageFor(model => model.descripcion, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>RECORDATORIOS</b></span>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.fecha_inicio, new { @class = "col-form-label col-md-1 col-sm-1" })
+                                <div class="col-md-2 col-sm-2">
+                                    @Html.EditorFor(m => m.fecha_inicio, new { htmlAttributes = new { @class = "form-control", @required = "required" } })
+                                    @Html.ValidationMessageFor(model => model.fecha_inicio, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.es_recurrente, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-1 col-sm-1" style="display: flex; align-items: center;">
+                                    @Html.EditorFor(m => m.es_recurrente, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.es_recurrente, "", new { @class = "text-danger" })
+                                </div>
+                                <div id="div_recurrente" class="col-md-6 col-sm-6" style="@(!Model.es_recurrente? "display:none":String.Empty)">
+                                    <label for="periodo" class="col-form-label col-md-2 col-sm-2">Repetir cada:</label>
+                                    <div class="col-md-2 col-sm-2">
+                                        @Html.EditorFor(m => m.periodo, new { htmlAttributes = new { @class = "form-control entero", @type = "text", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.periodo, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="col-md-3 col-sm-3">
+                                        @Html.DropDownList("tipo_periodo", (IEnumerable<SelectListItem>)ViewBag.tipo_periodo, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                        @Html.ValidationMessageFor(model => model.tipo_periodo, "", new { @class = "text-danger" })
+                                    </div>
+                                    @Html.LabelFor(model => model.fecha_fin, new { @class = "col-form-label col-md-1 col-sm-1" })
+                                    <div class="col-md-3 col-sm-3">
+                                        @Html.EditorFor(m => m.fecha_fin, new { htmlAttributes = new { @class = "form-control" } })
+                                        @Html.ValidationMessageFor(model => model.fecha_fin, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.aplica_recordatorio, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-1 col-sm-1" style="display: flex; align-items: center;">
+                                    @Html.EditorFor(m => m.aplica_recordatorio, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.aplica_recordatorio, "", new { @class = "text-danger" })
+                                </div>
+                                <div id="div_previo" class="col-md-2 col-sm-2" style="@(!Model.aplica_recordatorio? "display:none":String.Empty)">
+                                    @Html.LabelFor(model => model.dias_antes_recordatorio, new { @class = "col-form-label col-md-6 col-sm-6" })
+                                    <div class="col-md-6 col-sm-6">
+                                        @Html.EditorFor(m => m.dias_antes_recordatorio, new { htmlAttributes = new { @class = "form-control entero", @type = "text", @autocomplete = "off" } })
+                                        @Html.ValidationMessageFor(model => model.dias_antes_recordatorio, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="alert alert-info" role="alert">
+                                <i class="fa-solid fa-circle-info"></i> <texto id="texto">Se mandará recordatorio por email el día del Evento.</texto>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>ACTIVIDADES</b></span>
+                            </div>
+                            <div class="form-group row">
+
+                            </div>
+                            <div id="div_task">
+                                @if (Model != null && Model.IT_notificaciones_checklist_temp != null)
+                                {
+                                    foreach (Portal_2_0.Models.IT_notificaciones_checklist item in Model.IT_notificaciones_checklist_temp)
+                                    {
+                                        <div class="form-group row" id="div_task_@contador">
+                                            <div class="col-md-1">
+                                                <input style="text-align:center; background-color:antiquewhite" type="text" class="form-control col-md-12 input-contador-task" value="" readonly="readonly">
+                                            </div>
+                                            <input type="hidden" name="IT_notificaciones_checklist_temp.Index" id="IT_notificaciones_checklist_temp.Index" value="@contador" />
+                                            <label class="control-label col-md-1" for="IT_notificaciones_checklist_temp[@contador].descripcion">
+                                                <span class="float-right">Actividad</span>
+                                            </label>
+                                            <div class="col-md-7">
+                                                <input type="text" name="IT_notificaciones_checklist_temp[@contador].descripcion" id="IT_notificaciones_checklist_temp[@contador].descripcion" maxlength="80" class="form-control col-md-12" value="@item.descripcion" autocomplete="off" required>
+                                                <span class="field-validation-valid text-danger" data-valmsg-for="IT_notificaciones_checklist_temp[@contador].descripcion" data-valmsg-replace="true"></span>
+                                            </div>
+                                            <div class="col-md-1">
+                                                <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarTask(@contador); return false;">
+                                            </div>
+                                        </div>
+
+                                        contador++;
+                                    }
+                                }
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-1 offset-md-10">
+                                    <input type="button" value="Agregar" class="btn btn-round btn-warning" onclick="AgregarConcepto(); return false;">
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>NOTIFICAR A:</b></span>
+                            </div>
+                            <div class="item form-group">
+                                <div class="col-md-4 col-sm-4 frame">
+                                    <fieldset>
+                                        <legend style="color: #009ff5; font-weight: bold;">Usuarios</legend>
+                                        @foreach (var item in Model.EmpleadosList)
+                                        {
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input type="checkbox" class="flat" name="selectedEmpleados" value="@item.Value" checked="@item.Selected"> @item.Text
+                                                </label>
+                                            </div>
+                                        }
+                                    </fieldset>
+                                </div>
+                                <div class="col-md-4 col-sm-4 offset-md-1 frame">
+                                    <fieldset>
+                                        <legend style="color: #009ff5; font-weight: bold;">Correos</legend>
+                                        @foreach (var item in Model.CorreosList)
+                                        {
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input type="checkbox" class="flat" name="selectedEmails" value="@item.Value" checked="@item.Selected"> @item.Text
+                                                </label>
+                                            </div>
+                                        }
+                                    </fieldset>
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="item form-group">
+                                <div class="col-md-2 col-sm-2 offset-md-9">
+                                    <button type="button" id="btn-ok" class="btn btn-lg btn-success" style="width:100%"><i class="fa-regular fa-floppy-disk"></i> Guardar</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al calendario
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery-iu/jquery-ui.min.js"))
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    <!-- SweetAlert2 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.3/sweetalert2.all.min.js" integrity="sha512-/iBgV43zPirSC0tue+PT/1VHGs7En24twBmT+sVMgn9PTaOpKfbgIyL5YsGKlbAIxcwz9S8W/YEnYjpIYj2Axw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlertColored.js"))
+    <!--select2-->
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render("~/bundles/dataTables_js")
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/inputmask/inputmask.extensions.js"))
+
+
+    <script>
+        //variables globales
+        var num = 0;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-blue',
+                radioClass: 'iradio_square-blue',
+                increaseArea: '20%' // optional
+            });
+
+            $('#es_recurrente').on('ifToggled', function (event) {
+                verificaChecks(event.target.checked);
+            });
+            $('#aplica_recordatorio').on('ifToggled', function (event) {
+                verificaChecksPrevio(event.target.checked);
+            });
+
+            //asigna mask
+            $('.entero').inputmask({ 'alias': 'integer', 'placeholder': '0', 'allowMinus': false, 'min': 0, 'max': 32767, 'autoGroup': true, 'autoUnmask': true, 'removeMaskOnSubmit': true });
+
+            //inicializa select2
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //verificaChecks
+            verificaChecks($('#es_recurrente').is(':checked'));
+            verificaChecksPrevio($('#aplica_recordatorio').is(':checked'));
+
+            //evento para cambio de alert
+            $('#dias_antes_recordatorio').on('blur input focus on', function (e) {
+                verificaChecksPrevio($('#aplica_recordatorio').is(':checked'));
+            });        
+
+            AsignaNumeroTask();
+
+            clicMenu(1);
+
+        });
+
+        //oculta/muestra div de recurrente
+        function verificaChecks(checked) {
+
+            if (checked) {
+                $('#div_recurrente').show('highlight', 1000);
+                $("#periodo").prop("required", true);
+                $("#tipo_periodo").prop("required", true);
+                $("#fecha_fin").prop("required", true);
+            } else {
+                $('#div_recurrente').hide('fade', 500);
+                $("#periodo").prop("required", false);
+                $("#tipo_periodo").prop("required", false);
+                $("#fecha_fin").prop("required", false);
+            }
+        }
+        //oculta/muestra div de recurrente
+        function verificaChecksPrevio(checked) {
+
+            if (checked) {
+                $('#div_previo').show('highlight', 1000);
+                $("#dias_antes_recordatorio").prop("required", true);
+                let texto = $("#dias_antes_recordatorio").val();
+                if (texto=='')
+                    texto = '--';
+                $("#texto").html("Se mandará recordatorio por email el día del Evento y <b>" + texto + "</b> días antes del evento.");
+            } else {
+                $('#div_previo').hide('fade', 500);
+                $("#dias_antes_recordatorio").prop("required", false);
+                $("#texto").html("Se mandará recordatorio por email el día del Evento.");
+            }
+        }
+
+        //agreaga una fila para lotes
+        function AgregarConcepto() {
+
+            let cadena = `
+                                <div class="form-group row" id="div_task_`+ num + `">
+                                    <div class="col-md-1">
+                                        <input style="text-align:center; background-color:antiquewhite" type="text" class="form-control col-md-12 input-contador-task" value="" readonly="readonly">
+                                    </div>
+                                    <input type="hidden" name="IT_notificaciones_checklist_temp.Index" id="IT_notificaciones_checklist_temp.Index" value="`+ num + `" />
+                                    <label class="control-label col-md-1" for="IT_notificaciones_checklist_temp[`+ num + `].descripcion">
+                                        <span class="float-right">Actividad</span>
+                                    </label>
+                                    <div class="col-md-7">
+                                        <input type="text" name="IT_notificaciones_checklist_temp[`+ num + `].descripcion" id="IT_notificaciones_checklist_temp[` + num + `].descripcion" maxlength="80" class="form-control col-md-12" value="" autocomplete="off" required>
+                                        <span class="field-validation-valid text-danger" data-valmsg-for="IT_notificaciones_checklist_temp[` + num + `].descripcion" data-valmsg-replace="true"></span>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarTask(` + num + `); return false;">
+                                    </div>
+                                </div>
+                                                                                                                            `;
+
+            $("#div_task").append(cadena);
+
+            $("#div_task_" + num).hide().fadeIn(500);
+
+            AsignaNumeroTask();
+
+            num++;
+        }
+        //numera las tareas
+        function AsignaNumeroTask() {
+            let indice = 1;
+
+            $('.input-contador-task').each(function (index) {
+                $(this).val(indice);
+                indice++;
+            });
+        }
+
+        //borra una tarea
+        function borrarTask(id) {
+
+            $("#div_task_" + id).fadeOut(0, function () {
+                $(this).remove();
+            });
+            AsignaNumeroTask();
+        }
+
+        //maneja el envió el del formulario
+        $('form #btn-ok').click(function (e) {
+            let $form = $(this).closest('form');
+
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false,
+            })
+
+            swalWithBootstrapButtons.fire({
+                title: '¿Desea continuar?',
+                html: "Se creará un nuevo evento en el calendario.",
+                showCancelButton: true,
+                confirmButtonText: 'Aceptar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.value) {
+                    //espera a que se cierre el modal para enviar el formulario
+                    setTimeout(function () {
+                        $form.submit();
+                    }, 900);
+                }
+            });
+
+        });
+
+    </script>
+
+
+}
