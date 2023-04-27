@@ -17,8 +17,8 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public IT_notificaciones_actividad()
         {
-            this.IT_notificaciones_usuarios = new HashSet<IT_notificaciones_usuarios>();
             this.IT_notificaciones_recordatorio = new HashSet<IT_notificaciones_recordatorio>();
+            this.IT_notificaciones_usuarios = new HashSet<IT_notificaciones_usuarios>();
         }
     
         public int id { get; set; }
@@ -29,8 +29,8 @@ namespace Portal_2_0.Models
         public bool es_recurrente { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IT_notificaciones_usuarios> IT_notificaciones_usuarios { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_notificaciones_recordatorio> IT_notificaciones_recordatorio { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_notificaciones_usuarios> IT_notificaciones_usuarios { get; set; }
     }
 }

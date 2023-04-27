@@ -869,7 +869,7 @@ namespace Portal_2_0.Controllers
             {
                 if (a.estatus == IT_notificaciones_checklist_estatus.TERMINADO)
                     actividades += @"<li><i class=""fa-sharp fa-solid fa-check fa-beat-fade"" style=""color: #189a3f;""></i> " + a.descripcion + @" </li>";
-                else if (string.IsNullOrEmpty(a.estatus) || a.estatus == IT_notificaciones_checklist_estatus.PENDIENTE)
+                else 
                     actividades += @"<li><i class=""fa-sharp fa-solid fa-xmark fa-beat-fade"" style=""color: #f50000;""></i> " + a.descripcion + @" </li>";
             }
             actividades += "</ol>";

@@ -14,11 +14,11 @@ namespace Portal_2_0.Models
         public int id { get; set; }
 
         [Display(Name = "Título")]
-        [StringLength(50, MinimumLength = 1)]
+        [StringLength(120, MinimumLength = 1)]
         public string titulo { get; set; }
 
         [Display(Name = "Descripción")]
-        [StringLength(300, MinimumLength = 1)]
+        [StringLength(400, MinimumLength = 1)]
         public string descripcion { get; set; }
 
         [Display(Name = "Periodo")]

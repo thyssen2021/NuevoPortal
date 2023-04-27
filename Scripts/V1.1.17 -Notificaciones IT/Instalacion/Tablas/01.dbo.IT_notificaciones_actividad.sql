@@ -20,8 +20,8 @@ GO
 
 CREATE TABLE [IT_notificaciones_actividad](
 	[id][int] IDENTITY(1,1) NOT NULL,
-	[titulo] [varchar](50) NOT NULL,
-	[descripcion] [varchar](300) NOT NULL,
+	[titulo] [varchar](120) NOT NULL,
+	[descripcion] [varchar](400) NOT NULL,
 	[periodo] [int] NULL,
 	[tipo_periodo] [varchar](20) NULL,
 	[es_recurrente] [bit] NOT NULL,

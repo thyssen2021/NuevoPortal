@@ -281,16 +281,16 @@
         <AssociationConnector Association="Portal_2_0Model.FK_OT_rel_depto_aplica_linea_id_area" />
         <AssociationConnector Association="Portal_2_0Model.FK_puestos_area_clave" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_notificaciones_checklist" Width="1.5" PointX="34.25" PointY="79.875" />
-        <EntityTypeShape EntityType="Portal_2_0Model.IT_notificaciones_actividad" Width="1.5" PointX="29.75" PointY="72.375" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_notificaciones_usuarios" Width="1.5" PointX="35" PointY="82.875" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_notificaciones_usuarios_id_empleado" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_notificaciones_usuarios_id_notificaciones_actividad" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_notificaciones_recordatorio" Width="1.5" PointX="32" PointY="79.375" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_sistemas" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_notificaciones_actividad" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_notificaciones_checklist_id_notificaciones_recodatorio" />
         <EntityTypeShape EntityType="Portal_2_0Model.log_envio_correo" Width="1.5" PointX="34.25" PointY="86.75" />
         <AssociationConnector Association="Portal_2_0Model.FK_log_envio_correo_id_it_notificacion" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_notificaciones_actividad" Width="1.5" PointX="0.75" PointY="14" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_notificaciones_actividad" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_notificaciones_usuarios_id_notificaciones_actividad" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
