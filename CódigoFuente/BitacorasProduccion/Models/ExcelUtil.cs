@@ -1384,6 +1384,7 @@ namespace Portal_2_0.Models
             oSLDocument.SetCellStyle(valoresListAnioAnterior.Count + filaInicial + 1, 4, valoresListAnioAnterior.Count + filaInicial + 1, 45, styleTotales);
 
             oSLDocument.SetRowHeight(2, valoresListAnioAnterior.Count + filaInicial + 1, 15.0);
+            oSLDocument.SetColumnWidth (3, 40);
 
             System.IO.Stream stream = new System.IO.MemoryStream();
 

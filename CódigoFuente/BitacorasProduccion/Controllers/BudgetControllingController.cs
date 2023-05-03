@@ -1236,7 +1236,7 @@ namespace Portal_2_0.Controllers
 
         public ActionResult Exportar(int? id_centro_costo)
         {
-            if (TieneRol(TipoRoles.BG_CONTROLLING))
+            if (TieneRol(TipoRoles.BG_CONTROLLING)|| TieneRol(TipoRoles.BG_RESPONSABLE))
             {
                 if (id_centro_costo == null)
                 {
