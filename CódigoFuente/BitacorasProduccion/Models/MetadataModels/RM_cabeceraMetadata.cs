@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 
 namespace Portal_2_0.Models
@@ -65,7 +66,7 @@ namespace Portal_2_0.Models
         [RequiredIf("aplicaEnviadoOtro", false, ErrorMessage = "El campo {0} es requerido.")]
         public Nullable<int> enviadoAClave { get; set; }
 
-        [Display(Name = "Enviada A (otro)")]
+        [Display(Name = "Enviado A (otro)")]
         [StringLength(50, MinimumLength = 1)]
         [RequiredIf("aplicaEnviadoOtro", true, ErrorMessage = "El campo {0} es requerido.")]
         public string enviadoAOtro { get; set; }
@@ -119,7 +120,7 @@ namespace Portal_2_0.Models
         [NotMapped]
         [Required]
         [Display(Name = "Observaciones")]
-        [StringLength(1000, MinimumLength = 1)]
+        [StringLength(950, MinimumLength = 1)]
         public string observaciones { get; set; }
 
         //concatena el nombre
@@ -227,6 +228,18 @@ namespace Portal_2_0.Models
                 return RM_cambio_estatus.Where(x => x.catalogoEstatusClave == 1).OrderBy(x => x.clave).FirstOrDefault().NombreUsuario;
             }
         }
+
+        //public string GetDisplayName(string propertyName) {
+        //    string name = string.Empty;
+        //    MemberInfo property = typeof(RM_cabeceraMetadata).GetProperty(nameof(RM_cabeceraMetadata.retornaMaterial));
+        //    var dd = property.GetCustomAttribute(typeof(DisplayAttribute)) as DisplayAttribute;
+        //    if (dd != null)
+        //    {
+        //        name = dd.Name;
+        //    }
+
+        //    return name;
+        //}
 
     }
 }

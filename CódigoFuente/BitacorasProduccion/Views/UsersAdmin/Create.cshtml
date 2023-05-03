@@ -9,8 +9,9 @@
 
     //agrega los permisos por defecto
     List<string> valoresDefault = new List<string>();
+    List<Portal_2_0.Models.AspNetRoles> rolesBD = (List<Portal_2_0.Models.AspNetRoles>)ViewBag.RolesBD;
 
-    valoresDefault.Add(TipoRoles.OT_SOLICITUD);
+    //valoresDefault.Add(TipoRoles.OT_SOLICITUD);
 }
 
 @section estilos
@@ -122,16 +123,33 @@
                             </div>
 
                             <div class="item form-group">
-                                @Html.Label("Roles", new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
-                                <div class="col-md-6 col-sm-6 ">
-                                    @foreach (var item in (SelectList)ViewBag.RoleId)
-                                    {
-                                        <div class="checkbox">
-                                            <label>
-                                                <input type="checkbox" class="flat" name="SelectedRoles" value="@item.Value" @(valoresDefault.Contains(item.Value) ? "checked" : "")>@item.Value
-                                            </label>
-                                        </div>
-                                    }
+                             
+                                <div class="col-md-8 col-sm-8 offset-md-2">
+                                    <table class="dataTable table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th width="50%" nowrap>Rol</th>
+                                                <th>Descripci&oacute;n</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in (SelectList)ViewBag.RoleId)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        <div class="checkbox">
+                                                            <label>
+                                                                <input type="checkbox" class="flat" name="SelectedRoles" value="@item.Value" @(valoresDefault.Contains(item.Value) ? "checked" : "")>@item.Value
+                                                            </label>
+                                                        </div>
+                                                    </td>
+                                                    <td>@(rolesBD.Where(x=>x.Name==item.Value).FirstOrDefault().descripcion)</td>
+
+                                                </tr>
+
+                                            }
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
 

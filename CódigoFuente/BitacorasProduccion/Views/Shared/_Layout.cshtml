@@ -74,7 +74,7 @@
         }
 
         .colored-toast.swal2-icon-warning {
-            background-color: #f8bb86 !important;
+            background-color: #ed8f3e !important;
         }
 
         .colored-toast.swal2-icon-info {
@@ -102,7 +102,7 @@
         }
 
         .colored-toast {
-            opacity: 0.94;
+            opacity: 0.9;
         }
     </style>
 
@@ -654,7 +654,7 @@
 
                                     @*MENÚ REMISIONES MANUALES*@
 
-                                    @if (User.IsInRole(TipoRoles.RM_CREACION) || User.IsInRole(TipoRoles.RM_DETALLES) || User.IsInRole(TipoRoles.BG_REPORTES))
+                                    @if (User.IsInRole(TipoRoles.RM_CREACION) || User.IsInRole(TipoRoles.RM_DETALLES) || User.IsInRole(TipoRoles.RM_REPORTES))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "remisiones_manuales" ? "active" : null )">
                                             <a><i class="fa fa-truck-fast"></i> Remisiones Manuales <span class="fa fa-chevron-down"></span></a>

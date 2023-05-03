@@ -1,5 +1,5 @@
 ﻿@model IEnumerable<Portal_2_0.Models.RM_cabecera>
-
+@using Clases.Util;
 @{
     ViewBag.Title = "Listado de Remisiones";
     ViewBag.PrimerNivel = "remisiones_manuales";
@@ -61,12 +61,16 @@
                         <div class="row">
                             <div class="col-sm-12">
                                 <div class="card-box ">
-                                    <div class="form-group">
-                                        <a href="@Url.Action( "Create", ViewBag.ControllerName)" class="btn btn-success">
-                                            <i class="fa fa-plus-square"></i>
-                                            Crear nuevo
-                                        </a>
-                                    </div><div class="ln_solid"></div>
+                                    @if (User.IsInRole(TipoRoles.RM_CREACION))
+                                    {
+                                        <div class="form-group">
+                                            <a href="@Url.Action("Create", ViewBag.ControllerName)" class="btn btn-success">
+                                                <i class="fa fa-plus-square"></i>
+                                                Crear nuevo
+                                            </a>
+                                        </div>
+                                    }
+                                    <div class="ln_solid"></div>
                                     <div class="form-group row">
                                         <span style="color:black"><b>B&Uacute;SQUEDA</b></span>
                                     </div>
@@ -184,12 +188,19 @@
                                         {
                                             <tr>
                                                 <td>
-                                                    <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = item.clave })" class="btn btn-success btn-sm" title="Editar">
-                                                        <i class="fa-regular fa-pen-to-square"></i>
-                                                    </a>
-                                                    <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.clave })" class="btn btn-info btn-sm" title="Detalles">
-                                                        <i class="fa fa-info-circle"></i>
-                                                    </a>
+                                                    @if (User.IsInRole(TipoRoles.RM_CREACION))
+                                                    {
+                                                        <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = item.clave })" class="btn btn-success btn-sm" title="Editar">
+                                                            <i class="fa-regular fa-pen-to-square"></i>
+                                                        </a>
+                                                    }
+                                                    @if (User.IsInRole(TipoRoles.RM_CREACION) || User.IsInRole(TipoRoles.RM_DETALLES))
+                                                    {
+                                                        <a href="@Url.Action("Details", ViewBag.ControllerName, new { id = item.clave })" class="btn btn-info btn-sm" title="Detalles">
+                                                            <i class="fa fa-info-circle"></i>
+                                                        </a>
+                                                    }
+
                                                 </td>
                                                 <td style="font-weight:bold">
                                                     @Html.DisplayFor(modelItem => item.ConcatNumeroRemision)

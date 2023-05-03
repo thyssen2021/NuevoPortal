@@ -20,12 +20,12 @@ GO
 
 CREATE TABLE [dbo].[RM_cambio_estatus](
 	[clave] [int] IDENTITY(1,1) NOT NULL,
-	[capturaFecha] [smalldatetime] NOT NULL,
+	[capturaFecha] [datetime] NOT NULL,
 	[id_empleado] int NULL,		--FK
 	[remisionCabeceraClave] [int] NOT NULL,  --FK
 	[catalogoEstatusClave] [int] NOT NULL,		--FK
 	[nombre_usuario_old][varchar](50)  NULL,
-	[texto] [varchar](1000) NOT NULL,	
+	[texto] [varchar](1200) NOT NULL,	
  CONSTRAINT [PK_RemisionEstatus] PRIMARY KEY CLUSTERED 
 (
 	[clave] ASC

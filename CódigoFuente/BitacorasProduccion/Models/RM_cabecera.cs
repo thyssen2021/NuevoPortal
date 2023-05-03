@@ -17,8 +17,8 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public RM_cabecera()
         {
-            this.RM_cambio_estatus = new HashSet<RM_cambio_estatus>();
             this.RM_elemento = new HashSet<RM_elemento>();
+            this.RM_cambio_estatus = new HashSet<RM_cambio_estatus>();
         }
     
         public int clave { get; set; }
@@ -49,8 +49,8 @@ namespace Portal_2_0.Models
         public virtual RM_transporte_proveedor RM_transporte_proveedor { get; set; }
         public virtual RM_estatus RM_estatus { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<RM_cambio_estatus> RM_cambio_estatus { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<RM_elemento> RM_elemento { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<RM_cambio_estatus> RM_cambio_estatus { get; set; }
     }
 }

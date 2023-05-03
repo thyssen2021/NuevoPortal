@@ -25,7 +25,6 @@ namespace Portal_2_0.Models
             throw new UnintentionalCodeFirstException();
         }
     
-        public virtual DbSet<AspNetRoles> AspNetRoles { get; set; }
         public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
         public virtual DbSet<biblioteca_digital> biblioteca_digital { get; set; }
         public virtual DbSet<bom_en_sap> bom_en_sap { get; set; }
@@ -146,10 +145,11 @@ namespace Portal_2_0.Models
         public virtual DbSet<clientes> clientes { get; set; }
         public virtual DbSet<RM_almacen> RM_almacen { get; set; }
         public virtual DbSet<RM_cabecera> RM_cabecera { get; set; }
-        public virtual DbSet<RM_cambio_estatus> RM_cambio_estatus { get; set; }
-        public virtual DbSet<RM_elemento> RM_elemento { get; set; }
         public virtual DbSet<RM_estatus> RM_estatus { get; set; }
         public virtual DbSet<RM_remision_motivo> RM_remision_motivo { get; set; }
         public virtual DbSet<RM_transporte_proveedor> RM_transporte_proveedor { get; set; }
+        public virtual DbSet<AspNetRoles> AspNetRoles { get; set; }
+        public virtual DbSet<RM_elemento> RM_elemento { get; set; }
+        public virtual DbSet<RM_cambio_estatus> RM_cambio_estatus { get; set; }
     }
 }

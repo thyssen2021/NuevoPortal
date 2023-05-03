@@ -9,6 +9,7 @@
     Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
 
     Portal_2_0.Models.empleados EmpleadoActual = (Portal_2_0.Models.empleados)ViewBag.EmpleadoActual;
+    int contador = 200;
 }
 
 @section estilos
@@ -22,26 +23,26 @@
         .derecha {
             text-align: right;
         }
+
     </style>
 
 }
 
 <div class="right_col" role="main">
     <div class="">
-
         <div class="clearfix"></div>
 
         <div class="row">
             <div class="col-md-12 col-sm-12  ">
                 <div class="x_panel">
                     <div class="x_content">
-                        @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                        @using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal form-label-left", @id = "formulario" }))
                         {
                             @Html.AntiForgeryToken()
 
                             <div class="form-group row">
                                 <div class="col-md-12" style="text-align:center">
-                                    <h3 class="green"><i class="fa-solid fa-file-lines"></i> REMISI&Oacute;N MANUAL</h3>
+                                    <h3 class="green"><i class="fa-solid fa-file-lines"></i> REMISI&Oacute;N PROVISIONAL</h3>
                                 </div>
                             </div>
                             <div class="ln_solid"></div>
@@ -93,9 +94,9 @@
                                     @Html.ValidationMessageFor(model => model.almacenClave, "", new { @class = "text-danger" })
                                 </div>
 
-                                @Html.LabelFor(model => model.retornaMaterial, htmlAttributes: new { @class = "control-label col-md-1 derecha" })
-                                <div class="col-md-1">
-                                    @Html.EditorFor(model => model.retornaMaterial, new { htmlAttributes = new { @class = "check", @autocomplete = "off" } })
+                                @Html.LabelFor(model => model.retornaMaterial, htmlAttributes: new { @class = "control-label col-md-1 derecha", @data_toggle = "tooltip", @data_placement = "top", @title = "Marcar si retorna el material." })
+                                <div class="col-md-1" data-toggle="tooltip" data-placement="top" title="Marcar si retorna el material.">
+                                    @Html.EditorFor(model => model.retornaMaterial, new { htmlAttributes = new { @class = "check" } })
                                     @Html.ValidationMessageFor(model => model.retornaMaterial, "", new { @class = "text-danger" })
                                 </div>
 
@@ -103,7 +104,7 @@
 
                             <div class="ln_solid"></div>
                             <div class="form-group row">
-                                <span style="color:black"><b>Motivo</b></span>
+                                <span style="color:black"><b>MOTIVO</b></span>
                             </div>
 
                             <div class="form-group row">
@@ -308,6 +309,123 @@
 
                             <div class="ln_solid"></div>
                             <div class="form-group row">
+                                <span style="color:black"><b>ELEMENTOS</b></span>
+                            </div>
+                            <div class="table-responsive">
+                                <table id="datatable_1" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr style=" background-color: #0094ff; color: azure;">
+                                            <th width="1%">
+                                                #
+                                            </th>
+                                            <th width="15%">
+                                                N&uacute;mero de parte
+                                            </th>
+                                            <th width="15%">
+                                                N&uacute;mero de material
+                                            </th>
+                                            <th width="15%">
+                                                Lote
+                                            </th>
+                                            <th width="15%">
+                                                N&uacute;mero de rollo
+                                            </th>
+                                            <th width="10%">
+                                                Cantidad
+                                            </th>
+                                            <th width="10%">
+                                                Peso
+                                            </th>
+                                            <th width="1%">
+
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="body_conceptos">
+
+
+                                        @foreach (Portal_2_0.Models.RM_elemento item in Model.RM_elemento)
+                                        {
+                                            <tr id="div_concepto_@contador">
+                                                <input type="hidden" name="RM_elemento.Index" id="RM_elemento.Index" value="@contador" />
+                                                <input type="hidden" name="RM_elemento[@contador].activo" value="true" />
+                                                <input type="hidden" name="RM_elemento[@contador].clave" value="@item.remisionCabeceraClave" />
+                                                <td class="input-contador-conceptos"></td>
+                                                <td>
+                                                    <input style=" font-size: 12px;" type="text" name="RM_elemento[@contador].numeroParteCliente" id="RM_elemento[@contador].numeroParteCliente" class="form-control col-md-12" value="@item.numeroParteCliente" autocomplete="off" maxlength="50" required>
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="RM_elemento[@contador].numeroParteCliente" data-valmsg-replace="true"></span>
+                                                </td>
+                                                <td>
+                                                    <input style=" font-size: 12px;" type="text" name="RM_elemento[@contador].numeroMaterial" id="RM_elemento[@contador].numeroMaterial" class="form-control col-md-12" value="@item.numeroMaterial" autocomplete="off" maxlength="50" required>
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="RM_elemento[@contador].numeroMaterial" data-valmsg-replace="true"></span>
+                                                </td>
+                                                <td>
+                                                    <input style=" font-size: 12px;" type="text" name="RM_elemento[@contador].numeroLote" id="RM_elemento[@contador].numeroLote" class="form-control col-md-12" value="@item.numeroLote" autocomplete="off" maxlength="50" required>
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="RM_elemento[@contador].numeroLote" data-valmsg-replace="true"></span>
+                                                </td>
+                                                <td>
+                                                    <input style=" font-size: 12px;" type="text" name="RM_elemento[@contador].numeroRollo" id="RM_elemento[@contador].numeroRollo" class="form-control col-md-12" value="@item.numeroRollo" autocomplete="off" maxlength="50" required>
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="RM_elemento[@contador].numeroRollo" data-valmsg-replace="true"></span>
+                                                </td>
+                                                <td>
+                                                    <input style=" font-size: 12px;" type="text" name="RM_elemento[@contador].cantidad" id="RM_elemento[@contador].cantidad" class="form-control col-md-12 entero" value="@item.cantidad" autocomplete="off">
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="RM_elemento[@contador].cantidad" data-valmsg-replace="true"></span>
+                                                </td>
+                                                <td>
+                                                    <input style=" font-size: 12px;" type="text" name="RM_elemento[@contador].peso" id="RM_elemento[@contador].peso" class="form-control col-md-12 decimal" value="@item.peso" autocomplete="off">
+                                                    <span class="field-validation-valid text-danger" data-valmsg-for="RM_elemento[@contador].peso" data-valmsg-replace="true"></span>
+                                                </td>
+
+                                                <td>
+                                                    <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarConcepto(@contador); return false;">
+                                                </td>
+                                            </tr>
+
+                                            contador++;
+                                        }
+
+
+                                    </tbody>
+
+                                    <tfoot>
+                                        <tr>
+                                            <th colspan="5" style="text-align:right">Totales</th>
+                                            <th id="total_cantidad" style="text-align: right; background:#cef7cd"> 0</th>
+                                            <th id="total_peso" style="text-align: right; background: #cef7cd"> 0.000</th>
+                                            <th></th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                            <div class="form-group row">
+
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-11">
+                                    <input type="button" value="Agregar" class="btn btn-round btn-warning float-right" onclick="AgregarConcepto(); return false;">
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <span style="color:darkgray"><b>Opci&oacute;n 2 (Carga de archivo .xlsx):</b></span>
+                            </div>
+
+                            <div class="item form-group">
+                                <label for="archivo_xlsx" class="control-label col-md-1">Archivo Excel</label>
+                                <div class="custom-file col-md-4">
+                                    <input type="file" class="custom-file-input" id="archivo_xlsx" name="archivo_xlsx" aria-describedby="inputGroupFileAddon01" accept=".xlsx,.XLSX">
+                                    <label class="custom-file-label" for="archivo_xlsx">Seleccione un archivo...</label>
+                                </div>
+                                <div class="col-md-2 col-sm-2">
+                                    <button id="cargar-archivo-btn" type="button" class="btn btn-warning float-lg-left"><i class="fa-solid fa-upload"></i>&nbsp; Leer Archivo</button>
+                                </div>
+                                <div class="col-md-2 col-sm-2">
+                                    <a href="@Url.Action("FormatoEjemplo", ViewBag.ControllerName)" class="btn btn-info float-lg-left" ><i class="fa-solid fa-download"></i> Descargar Formato Ejemplo</a>
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
                                 <span style="color:black"><b>OBSERVACIONES</b></span>
                             </div>
 
@@ -352,215 +470,15 @@
     @Scripts.Render(Url.Content("~/Scripts/MvcFoolproofJQueryValidation.js"))
     <!-- iCheck -->
     @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
-
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.3/sweetalert2.all.min.js" integrity="sha512-/iBgV43zPirSC0tue+PT/1VHGs7En24twBmT+sVMgn9PTaOpKfbgIyL5YsGKlbAIxcwz9S8W/YEnYjpIYj2Axw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="~/Scripts/Forms/RemisionesManuales.js?date=@DateTime.Now"></script>
     <script>
 
-        $(document).ready(function () {
-            // Initialize Select2 Elements (debe ir después de asignar el valor)
-            $('.select2bs4').select2({
-                theme: 'bootstrap4'
-            })
-            $('.check').iCheck({
-                checkboxClass: 'icheckbox_square-blue',
-                radioClass: 'iradio_square-blue',
-                increaseArea: '20%' // optional
-            });
-
-            //agrega evento OnChange para saber si el empleado tiene usuari
-            $("#id_planta").change(function () {
-                $.ajax({
-                    type: 'POST',
-                    url: '/Combos/obtieneAlmacenes',
-                    data: { id_planta: $(this).val() },
-                    success: function (data) {
-                        try {
-                            console.log(data);
-                            populateDropdown($("#almacenClave"), data);
-                        }
-                        catch (error) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'Ocurrió un error obteniendo la información: ' + error,
-                                confirmButtonText: 'Aceptar',
-                            })
-                        }
-                    },
-                    error: function (textStatus, errorThrown) {
-                        //en caso de error en la llamada ajax
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Ocurrió un error',
-                            text: 'Intente nuevamente.'
-                        })
-                    },
-                    async: true
-                });
-            });
-
-            //agrega evento OnChange para saber el detalle del cliente
-            $("#clienteClave").change(function () {
-                $.ajax({
-                    type: 'POST',
-                    url: '/Combos/obtieneClienteDetalles',
-                    data: { id_cliente: $(this).val() },
-                    success: function (data) {
-                        try {
-                            console.log(data);
-                            $('#clienteOtro').val(data[0].nombre);
-                            $('#clienteOtroDireccion').val(data[0].direccion);
-                        }
-                        catch (error) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'Ocurrió un error obteniendo la información: ' + error,
-                                confirmButtonText: 'Aceptar',
-                            })
-                        }
-                    },
-                    error: function (textStatus, errorThrown) {
-                        //en caso de error en la llamada ajax
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Ocurrió un error',
-                            text: 'Intente nuevamente.'
-                        })
-                    },
-                    async: true
-                });
-            });
-            //agrega evento OnChange para saber el detalle del cliente (enviado a)
-            $("#enviadoAClave").change(function () {
-                $.ajax({
-                    type: 'POST',
-                    url: '/Combos/obtieneClienteDetalles',
-                    data: { id_cliente: $(this).val() },
-                    success: function (data) {
-                        try {
-                            console.log(data);
-                            $('#enviadoAOtro').val(data[0].nombre);
-                            $('#enviadoAOtroDireccion').val(data[0].direccion);
-                        }
-                        catch (error) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'Ocurrió un error obteniendo la información: ' + error,
-                                confirmButtonText: 'Aceptar',
-                            })
-                        }
-                    },
-                    error: function (textStatus, errorThrown) {
-                        //en caso de error en la llamada ajax
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Ocurrió un error',
-                            text: 'Intente nuevamente.'
-                        })
-                    },
-                    async: true
-                });
-            });
-
-            $("#transporteProveedorClave").change(function () {
-                let transporte = $("#transporteProveedorClave option:selected").text();
-                let valor = $("#transporteProveedorClave option:selected").val();
-                if (valor == 0)
-                    $('#transporteOtro').val('');
-                else
-                    $('#transporteOtro').val(transporte);
-            });
-
-            $('input').on('ifChecked', function (event) {
-                verificaChecks(event);
-            });
-
-            $('input').on('ifUnchecked', function (event) {
-                verificaChecks(event);
-            });
-        });
-
-        function verificaChecks(event) {
-            if (event.target.id == 'aplicaClienteOtro') {
-                checkInputCliente(event);
-            } else if (event.target.id == 'aplicaEnviadoOtro') {
-                checkInputEnviado(event);
-            } else if (event.target.id == 'aplicaTransporteOtro') {
-                checkInputTransporte(event);
-            }
-        }
-
-        function checkInputCliente(event) {
-            //si cliente otro esta seleccionado
-            if (event.target.checked) {
-                $("#clienteClave").val("");
-                $('#clienteClave').prop('disabled', true);
-                $('#clienteOtro').prop('readonly', false);
-                $('#clienteOtroDireccion').prop('readonly', false);
-                $('#clienteOtro').val("");
-                $('#clienteOtroDireccion').val("");
-                $('.select2bs4').select2({
-                    theme: 'bootstrap4'
-                })
-            } else { //si cliente otro no está seleccionado
-                $('#clienteClave').prop('disabled', false);
-                $('#clienteOtro').prop('readonly', true);
-                $('#clienteOtroDireccion').prop('readonly', true);
-                $('#clienteOtro').val("");
-                $('#clienteOtroDireccion').val("");
-            }
-        }
-        function checkInputEnviado(event) {
-            //si cliente otro esta seleccionado
-            if (event.target.checked) {
-                $("#enviadoAClave").val("");
-                $('#enviadoAClave').prop('disabled', true);
-                $('#enviadoAOtro').prop('readonly', false);
-                $('#enviadoAOtroDireccion').prop('readonly', false);
-                $('#enviadoAOtro').val("");
-                $('#enviadoAOtroDireccion').val("");
-                $('.select2bs4').select2({
-                    theme: 'bootstrap4'
-                })
-            } else { //si cliente otro no está seleccionado
-                $('#enviadoAClave').prop('disabled', false);
-                $('#enviadoAOtro').prop('readonly', true);
-                $('#enviadoAOtroDireccion').prop('readonly', true);
-                $('#enviadoAOtro').val("");
-                $('#enviadoAOtroDireccion').val("");
-            }
-        }
-        function checkInputTransporte(event) {
-            //si cliente otro esta seleccionado
-            if (event.target.checked) {
-                $("#transporteProveedorClave").val("");
-                $('#transporteProveedorClave').prop('disabled', true);
-                $('#transporteOtro').prop('readonly', false);
-                $('#transporteOtro').val("");
-                $('.select2bs4').select2({
-                    theme: 'bootstrap4'
-                })
-            } else { //si cliente otro no está seleccionado
-                $('#transporteProveedorClave').prop('disabled', false);
-                $('#transporteOtro').prop('readonly', true);
-                $('#transporteOtro').val("");
-            }
-        }
-
-
-        //completa el select con los datos recibidos
-        function populateDropdown(select, data) {
-            select.html('');
-            $.each(data, function (id, option) {
-                select.append($('<option></option>').val(option.value).html(option.name));
-            });
-        }
-
-        window.onload = function () {
-            clicMenu(1);
-        }
-
+       
     </script>
 }
 

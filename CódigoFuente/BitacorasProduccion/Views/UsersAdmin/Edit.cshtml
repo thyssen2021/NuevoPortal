@@ -5,6 +5,8 @@
     ViewBag.PrimerNivel = "usuarios";
     ViewBag.SegundoNivel = "usuarios";
     ViewBag.ControllerName = "UsersAdmin";
+
+    List<Portal_2_0.Models.AspNetRoles> rolesBD = (List<Portal_2_0.Models.AspNetRoles>)ViewBag.RolesBD;
 }
 
 @section estilos
@@ -100,16 +102,36 @@
                                 </div>
                             </div>
                             <div class="item form-group">
-                                @Html.Label("Roles", new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-8 col-sm-8 offset-md-2">
+                                    <table class="dataTable table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th width="50%" nowrap>Rol</th>
+                                                <th>Descripci&oacute;n</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model.RolesList)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        <div class="checkbox">
+                                                            <label>
+                                                                <input type="checkbox" class="flat" name="SelectedRole" value="@item.Value" checked="@item.Selected">@item.Value
+                                                            </label>
+                                                        </div>
+                                                    </td>
+                                                    <td>@(rolesBD.Where(x=>x.Name==item.Value).FirstOrDefault().descripcion)</td>
+
+                                                </tr>
+                                               
+                                            }
+                                           
+                                        </tbody>
+                                    </table>
+                                </div>
                                 <div class="col-md-6 col-sm-6 ">
-                                    @foreach (var item in Model.RolesList)
-                                    {
-                                        <div class="checkbox">
-                                            <label>
-                                                <input type="checkbox" class="flat" name="SelectedRole" value="@item.Value" checked="@item.Selected">@item.Value
-                                            </label>
-                                        </div>
-                                    }
+                                    
 
                                 </div>
                             </div>

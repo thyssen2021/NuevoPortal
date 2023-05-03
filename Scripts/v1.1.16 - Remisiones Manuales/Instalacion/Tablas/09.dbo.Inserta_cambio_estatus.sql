@@ -89,7 +89,7 @@ INSERT INTO [dbo].[RM_cambio_estatus]
            ,@user_old
 		   ,(SELECT TOP(1) remisionCabeceraClave FROM #stats_ddl)
            ,(SELECT TOP(1) catalogoEstatusClave FROM #stats_ddl)
-           ,(SELECT TOP(1) texto FROM #stats_ddl)
+           ,(SELECT TOP(1) REPLACE(texto,'<li>','<li class="last">') FROM #stats_ddl)
 		   )
     DELETE TOP (1) FROM #stats_ddl
     SELECT @count = COUNT(*) FROM #stats_ddl 

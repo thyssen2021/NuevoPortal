@@ -23,7 +23,7 @@ CREATE TABLE [dbo].[RM_elemento](
 	[activo] [bit] NULL,
 	--[usuarioClave] [int] NOT NULL,
 	[remisionCabeceraClave] [int] NOT NULL,  --FK
-	[capturaFecha] [smalldatetime] NOT NULL,
+	[capturaFecha] [datetime] NOT NULL,
 	[numeroParteCliente] [varchar](50) NOT NULL,
 	[numeroMaterial] [varchar](50) NOT NULL,
 	[numeroLote] [varchar](50) NOT NULL,

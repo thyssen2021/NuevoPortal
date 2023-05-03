@@ -971,6 +971,7 @@
     <Content Include="Content\menu-css.css" />
     <Content Include="Content\not-found.css" />
     <Content Include="Content\Site.css" />
+    <Content Include="Content\timeline.css" />
     <Content Include="Content\vendors\animate.css\animate.css" />
     <Content Include="Content\vendors\animate.css\animate.min.css" />
     <Content Include="Content\vendors\animate.css\gulpfile.js" />
@@ -3850,6 +3851,7 @@
     <Content Include="Scripts\Forms\ProduccionRegistrosEdit.js" />
     <Content Include="Scripts\Forms\ProduccionRegistrosIndex.js" />
     <Content Include="Scripts\Forms\puestos.js" />
+    <Content Include="Scripts\Forms\RemisionesManuales.js" />
     <Content Include="Scripts\Forms\ReportePesadas.js" />
     <Content Include="Scripts\Forms\supervisores_produccion.js" />
     <Content Include="Scripts\Forms\ThemeEcharts.js" />
@@ -4647,6 +4649,7 @@
     <Content Include="Content\vendors\multiselect\lwMultiSelect.jquery.json" />
     <Content Include="Content\vendors\multiselect\_config.yml" />
     <Content Include="Content\manuales\Manual_Usuario_Matriz_requerimientos.pdf" />
+    <Content Include="Content\plantillas_excel\formato_carga_remisiones.xlsx" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
     <Content Include="Scripts\jquery-3.4.1.min.js" />
