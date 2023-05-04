@@ -23,6 +23,7 @@
           </Key>
           <Property Name="Id" Type="nvarchar" MaxLength="128" Nullable="false" />
           <Property Name="Name" Type="nvarchar" MaxLength="256" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="100" />
         </EntityType>
         <EntityType Name="AspNetUserRoles">
           <Key>
@@ -203,6 +204,17 @@
           <Property Name="Width - Metr" Type="nvarchar" MaxLength="255" />
           <Property Name="Length(mm)" Type="nvarchar" MaxLength="255" />
           <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="clientes">
+          <Key>
+            <PropertyRef Name="clave" />
+          </Key>
+          <Property Name="clave" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="activo" Type="bit" />
+          <Property Name="claveSAP" Type="varchar" MaxLength="50" />
+          <Property Name="descripcion" Type="varchar" MaxLength="100" />
+          <Property Name="pais" Type="varchar" MaxLength="20" />
+          <Property Name="direccion" Type="varchar" MaxLength="100" />
         </EntityType>
         <EntityType Name="currency">
           <Key>
@@ -1361,6 +1373,95 @@
           <Property Name="nombre_platillo" Type="varchar" MaxLength="60" Nullable="false" />
           <Property Name="fecha" Type="datetime" Nullable="false" />
           <Property Name="kcal" Type="int" />
+        </EntityType>
+        <EntityType Name="RM_almacen">
+          <Key>
+            <PropertyRef Name="clave" />
+          </Key>
+          <Property Name="clave" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="plantaClave" Type="int" Nullable="false" />
+          <Property Name="responsableCorreoElectronico" Type="varchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="RM_cabecera">
+          <Key>
+            <PropertyRef Name="clave" />
+          </Key>
+          <Property Name="clave" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+          <Property Name="remisionNumero" Type="varchar" MaxLength="50" />
+          <Property Name="almacenClave" Type="int" Nullable="false" />
+          <Property Name="transporteOtro" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="transporteProveedorClave" Type="int" />
+          <Property Name="nombreChofer" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="clienteClave" Type="int" />
+          <Property Name="clienteOtro" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="placaTractor" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="placaRemolque" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="horarioDescarga" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="enviadoAClave" Type="int" />
+          <Property Name="enviadoAOtro" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="clienteOtroDireccion" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="enviadoAOtroDireccion" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="motivoClave" Type="int" Nullable="false" />
+          <Property Name="motivoTexto" Type="varchar" MaxLength="1500" Nullable="false" />
+          <Property Name="retornaMaterial" Type="bit" Nullable="false" />
+          <Property Name="ultimoEstatus" Type="int" />
+        </EntityType>
+        <EntityType Name="RM_cambio_estatus">
+          <Key>
+            <PropertyRef Name="clave" />
+          </Key>
+          <Property Name="clave" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="capturaFecha" Type="datetime" Nullable="false" />
+          <Property Name="id_empleado" Type="int" />
+          <Property Name="remisionCabeceraClave" Type="int" Nullable="false" />
+          <Property Name="catalogoEstatusClave" Type="int" Nullable="false" />
+          <Property Name="nombre_usuario_old" Type="varchar" MaxLength="50" />
+          <Property Name="texto" Type="varchar" MaxLength="1200" Nullable="false" />
+        </EntityType>
+        <EntityType Name="RM_elemento">
+          <Key>
+            <PropertyRef Name="clave" />
+          </Key>
+          <Property Name="clave" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="activo" Type="bit" />
+          <Property Name="remisionCabeceraClave" Type="int" Nullable="false" />
+          <Property Name="capturaFecha" Type="datetime" Nullable="false" />
+          <Property Name="numeroParteCliente" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="numeroMaterial" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="numeroLote" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="numeroRollo" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="cantidad" Type="float" Nullable="false" />
+          <Property Name="peso" Type="float" Nullable="false" />
+          <Property Name="remisionSap" Type="varchar" MaxLength="20" />
+        </EntityType>
+        <EntityType Name="RM_estatus">
+          <Key>
+            <PropertyRef Name="clave" />
+          </Key>
+          <Property Name="clave" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="RM_remision_motivo">
+          <Key>
+            <PropertyRef Name="clave" />
+          </Key>
+          <Property Name="clave" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="200" Nullable="false" />
+          <Property Name="correoElectronicoResponsable" Type="varchar" MaxLength="200" />
+          <Property Name="seCierraEnSAP" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="RM_transporte_proveedor">
+          <Key>
+            <PropertyRef Name="clave" />
+          </Key>
+          <Property Name="clave" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="50" Nullable="false" />
         </EntityType>
         <EntityType Name="upgrade_check_item">
           <Key>
@@ -3491,6 +3592,138 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_RM_almacen_plantaClave">
+          <End Role="plantas" Type="Self.plantas" Multiplicity="1" />
+          <End Role="RM_almacen" Type="Self.RM_almacen" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RM_almacen">
+              <PropertyRef Name="plantaClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RM_cabecera_almacenClave">
+          <End Role="RM_almacen" Type="Self.RM_almacen" Multiplicity="1" />
+          <End Role="RM_cabecera" Type="Self.RM_cabecera" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RM_almacen">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RM_cabecera">
+              <PropertyRef Name="almacenClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RM_cabecera_clienteClave">
+          <End Role="clientes" Type="Self.clientes" Multiplicity="0..1" />
+          <End Role="RM_cabecera" Type="Self.RM_cabecera" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="clientes">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RM_cabecera">
+              <PropertyRef Name="clienteClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RM_cabecera_enviadoAClave">
+          <End Role="clientes" Type="Self.clientes" Multiplicity="0..1" />
+          <End Role="RM_cabecera" Type="Self.RM_cabecera" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="clientes">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RM_cabecera">
+              <PropertyRef Name="enviadoAClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RM_cabecera_motivoClave">
+          <End Role="RM_remision_motivo" Type="Self.RM_remision_motivo" Multiplicity="1" />
+          <End Role="RM_cabecera" Type="Self.RM_cabecera" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RM_remision_motivo">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RM_cabecera">
+              <PropertyRef Name="motivoClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RM_cabecera_transporteProveedorClave">
+          <End Role="RM_transporte_proveedor" Type="Self.RM_transporte_proveedor" Multiplicity="0..1" />
+          <End Role="RM_cabecera" Type="Self.RM_cabecera" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RM_transporte_proveedor">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RM_cabecera">
+              <PropertyRef Name="transporteProveedorClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RM_cabecera_ultimoEstatus">
+          <End Role="RM_estatus" Type="Self.RM_estatus" Multiplicity="0..1" />
+          <End Role="RM_cabecera" Type="Self.RM_cabecera" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RM_estatus">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RM_cabecera">
+              <PropertyRef Name="ultimoEstatus" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RM_cambio_catalogoEstatusClave">
+          <End Role="RM_estatus" Type="Self.RM_estatus" Multiplicity="1" />
+          <End Role="RM_cambio_estatus" Type="Self.RM_cambio_estatus" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RM_estatus">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RM_cambio_estatus">
+              <PropertyRef Name="catalogoEstatusClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RM_cambio_estatus_id_empleado">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="0..1" />
+          <End Role="RM_cambio_estatus" Type="Self.RM_cambio_estatus" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="RM_cambio_estatus">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RM_cambio_remisionCabeceraClaveo">
+          <End Role="RM_cabecera" Type="Self.RM_cabecera" Multiplicity="1" />
+          <End Role="RM_cambio_estatus" Type="Self.RM_cambio_estatus" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RM_cabecera">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RM_cambio_estatus">
+              <PropertyRef Name="remisionCabeceraClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RM_elemento_remisionCabeceraClave">
+          <End Role="RM_cabecera" Type="Self.RM_cabecera" Multiplicity="1" />
+          <End Role="RM_elemento" Type="Self.RM_elemento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RM_cabecera">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RM_elemento">
+              <PropertyRef Name="remisionCabeceraClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_site_checklist_id_equipo_checklist">
           <End Role="IT_equipos_checklist" Type="Self.IT_equipos_checklist" Multiplicity="1" />
           <End Role="IT_equipos_rel_checklist_actividades" Type="Self.IT_equipos_rel_checklist_actividades" Multiplicity="*" />
@@ -3666,6 +3899,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <EntitySet Name="budget_rel_fy_centro" EntityType="Self.budget_rel_fy_centro" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="budget_responsables" EntityType="Self.budget_responsables" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="class_v3" EntityType="Self.class_v3" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="clientes" EntityType="Self.clientes" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="currency" EntityType="Self.currency" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="empleados" EntityType="Self.empleados" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="GV_medios_transporte" EntityType="Self.GV_medios_transporte" Schema="dbo" store:Type="Tables" />
@@ -3757,6 +3991,13 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <EntitySet Name="produccion_turnos" EntityType="Self.produccion_turnos" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="puesto" EntityType="Self.puesto" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="RH_menu_comedor_platillos" EntityType="Self.RH_menu_comedor_platillos" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RM_almacen" EntityType="Self.RM_almacen" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RM_cabecera" EntityType="Self.RM_cabecera" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RM_cambio_estatus" EntityType="Self.RM_cambio_estatus" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RM_elemento" EntityType="Self.RM_elemento" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RM_estatus" EntityType="Self.RM_estatus" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RM_remision_motivo" EntityType="Self.RM_remision_motivo" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RM_transporte_proveedor" EntityType="Self.RM_transporte_proveedor" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="upgrade_check_item" EntityType="Self.upgrade_check_item" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="upgrade_departamentos" EntityType="Self.upgrade_departamentos" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="upgrade_plantas" EntityType="Self.upgrade_plantas" Schema="dbo" store:Type="Tables" />
@@ -4545,6 +4786,50 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="Area" EntitySet="Area" />
             <End Role="puesto" EntitySet="puesto" />
           </AssociationSet>
+          <AssociationSet Name="FK_RM_almacen_plantaClave" Association="Self.FK_RM_almacen_plantaClave">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="RM_almacen" EntitySet="RM_almacen" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RM_cabecera_almacenClave" Association="Self.FK_RM_cabecera_almacenClave">
+            <End Role="RM_almacen" EntitySet="RM_almacen" />
+            <End Role="RM_cabecera" EntitySet="RM_cabecera" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RM_cabecera_clienteClave" Association="Self.FK_RM_cabecera_clienteClave">
+            <End Role="clientes" EntitySet="clientes" />
+            <End Role="RM_cabecera" EntitySet="RM_cabecera" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RM_cabecera_enviadoAClave" Association="Self.FK_RM_cabecera_enviadoAClave">
+            <End Role="clientes" EntitySet="clientes" />
+            <End Role="RM_cabecera" EntitySet="RM_cabecera" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RM_cabecera_motivoClave" Association="Self.FK_RM_cabecera_motivoClave">
+            <End Role="RM_remision_motivo" EntitySet="RM_remision_motivo" />
+            <End Role="RM_cabecera" EntitySet="RM_cabecera" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RM_cabecera_transporteProveedorClave" Association="Self.FK_RM_cabecera_transporteProveedorClave">
+            <End Role="RM_transporte_proveedor" EntitySet="RM_transporte_proveedor" />
+            <End Role="RM_cabecera" EntitySet="RM_cabecera" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RM_cabecera_ultimoEstatus" Association="Self.FK_RM_cabecera_ultimoEstatus">
+            <End Role="RM_estatus" EntitySet="RM_estatus" />
+            <End Role="RM_cabecera" EntitySet="RM_cabecera" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RM_cambio_catalogoEstatusClave" Association="Self.FK_RM_cambio_catalogoEstatusClave">
+            <End Role="RM_estatus" EntitySet="RM_estatus" />
+            <End Role="RM_cambio_estatus" EntitySet="RM_cambio_estatus" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RM_cambio_estatus_id_empleado" Association="Self.FK_RM_cambio_estatus_id_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="RM_cambio_estatus" EntitySet="RM_cambio_estatus" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RM_cambio_remisionCabeceraClaveo" Association="Self.FK_RM_cambio_remisionCabeceraClaveo">
+            <End Role="RM_cabecera" EntitySet="RM_cabecera" />
+            <End Role="RM_cambio_estatus" EntitySet="RM_cambio_estatus" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RM_elemento_remisionCabeceraClave" Association="Self.FK_RM_elemento_remisionCabeceraClave">
+            <End Role="RM_cabecera" EntitySet="RM_cabecera" />
+            <End Role="RM_elemento" EntitySet="RM_elemento" />
+          </AssociationSet>
           <AssociationSet Name="FK_site_checklist_id_equipo_checklist" Association="Self.FK_site_checklist_id_equipo_checklist">
             <End Role="IT_equipos_checklist" EntitySet="IT_equipos_checklist" />
             <End Role="IT_equipos_rel_checklist_actividades" EntitySet="IT_equipos_rel_checklist_actividades" />
@@ -4602,14 +4887,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="Portal_2_0Model" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
-        <EntityType Name="AspNetRoles">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Name" Type="String" MaxLength="256" FixedLength="false" Unicode="true" Nullable="false" />
-          <NavigationProperty Name="AspNetUsers" Relationship="Self.AspNetUserRoles" FromRole="AspNetRoles" ToRole="AspNetUsers" />
-        </EntityType>
         <EntityType Name="AspNetUsers">
           <Key>
             <PropertyRef Name="Id" />
@@ -4630,7 +4907,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="FechaCreacion" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="IdEmpleado" Type="Int32" Nullable="false" />
           <NavigationProperty Name="log_inicio_sesion" Relationship="Self.FK_log_inicio_sesion_id_usuario" FromRole="AspNetUsers" ToRole="log_inicio_sesion" />
-          <NavigationProperty Name="AspNetRoles" Relationship="Self.AspNetUserRoles" FromRole="AspNetUsers" ToRole="AspNetRoles" />
+          <NavigationProperty Name="AspNetRoles" Relationship="Portal_2_0Model.AspNetUserRoles" FromRole="AspNetUsers" ToRole="AspNetRoles" />
         </EntityType>
         <EntityType Name="biblioteca_digital">
           <Key>
@@ -6675,12 +6952,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="AspNetUserRoles">
-          <End Role="AspNetRoles" Type="Self.AspNetRoles" Multiplicity="*" />
-          <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="*" />
-        </Association>
         <EntityContainer Name="Portal_2_0Entities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="AspNetRoles" EntityType="Self.AspNetRoles" />
           <EntitySet Name="AspNetUsers" EntityType="Self.AspNetUsers" />
           <EntitySet Name="biblioteca_digital" EntityType="Self.biblioteca_digital" />
           <EntitySet Name="bom_en_sap" EntityType="Self.bom_en_sap" />
@@ -7018,10 +7290,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <AssociationSet Name="FK_upgrade_values_transaccion_revision" Association="Self.FK_upgrade_values_transaccion_revision">
             <End Role="upgrade_revision" EntitySet="upgrade_revision" />
             <End Role="upgrade_values_transaccion" EntitySet="upgrade_values_transaccion" />
-          </AssociationSet>
-          <AssociationSet Name="AspNetUserRoles" Association="Self.AspNetUserRoles">
-            <End Role="AspNetRoles" EntitySet="AspNetRoles" />
-            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
           </AssociationSet>
           <EntitySet Name="GV_usuarios" EntityType="Portal_2_0Model.GV_usuarios" />
           <EntitySet Name="GV_solicitud" EntityType="Portal_2_0Model.GV_solicitud" />
@@ -7469,6 +7737,63 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <AssociationSet Name="FK_IT_notificaciones_usuarios_id_notificaciones_actividad" Association="Portal_2_0Model.FK_IT_notificaciones_usuarios_id_notificaciones_actividad">
             <End Role="IT_notificaciones_actividad" EntitySet="IT_notificaciones_actividad" />
             <End Role="IT_notificaciones_usuarios" EntitySet="IT_notificaciones_usuarios" />
+          </AssociationSet>
+          <EntitySet Name="clientes" EntityType="Portal_2_0Model.clientes" />
+          <EntitySet Name="RM_almacen" EntityType="Portal_2_0Model.RM_almacen" />
+          <EntitySet Name="RM_cabecera" EntityType="Portal_2_0Model.RM_cabecera" />
+          <EntitySet Name="RM_estatus" EntityType="Portal_2_0Model.RM_estatus" />
+          <EntitySet Name="RM_remision_motivo" EntityType="Portal_2_0Model.RM_remision_motivo" />
+          <EntitySet Name="RM_transporte_proveedor" EntityType="Portal_2_0Model.RM_transporte_proveedor" />
+          <AssociationSet Name="FK_RM_cabecera_clienteClave" Association="Portal_2_0Model.FK_RM_cabecera_clienteClave">
+            <End Role="clientes" EntitySet="clientes" />
+            <End Role="RM_cabecera" EntitySet="RM_cabecera" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RM_cabecera_enviadoAClave" Association="Portal_2_0Model.FK_RM_cabecera_enviadoAClave">
+            <End Role="clientes" EntitySet="clientes" />
+            <End Role="RM_cabecera" EntitySet="RM_cabecera" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RM_almacen_plantaClave" Association="Portal_2_0Model.FK_RM_almacen_plantaClave">
+            <End Role="plantas" EntitySet="plantas" />
+            <End Role="RM_almacen" EntitySet="RM_almacen" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RM_cabecera_almacenClave" Association="Portal_2_0Model.FK_RM_cabecera_almacenClave">
+            <End Role="RM_almacen" EntitySet="RM_almacen" />
+            <End Role="RM_cabecera" EntitySet="RM_cabecera" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RM_cabecera_motivoClave" Association="Portal_2_0Model.FK_RM_cabecera_motivoClave">
+            <End Role="RM_remision_motivo" EntitySet="RM_remision_motivo" />
+            <End Role="RM_cabecera" EntitySet="RM_cabecera" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RM_cabecera_transporteProveedorClave" Association="Portal_2_0Model.FK_RM_cabecera_transporteProveedorClave">
+            <End Role="RM_transporte_proveedor" EntitySet="RM_transporte_proveedor" />
+            <End Role="RM_cabecera" EntitySet="RM_cabecera" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RM_cabecera_ultimoEstatus" Association="Portal_2_0Model.FK_RM_cabecera_ultimoEstatus">
+            <End Role="RM_estatus" EntitySet="RM_estatus" />
+            <End Role="RM_cabecera" EntitySet="RM_cabecera" />
+          </AssociationSet>
+          <EntitySet Name="AspNetRoles" EntityType="Portal_2_0Model.AspNetRoles" />
+          <AssociationSet Name="AspNetUserRoles" Association="Portal_2_0Model.AspNetUserRoles">
+            <End Role="AspNetRoles" EntitySet="AspNetRoles" />
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+          </AssociationSet>
+          <EntitySet Name="RM_elemento" EntityType="Portal_2_0Model.RM_elemento" />
+          <AssociationSet Name="FK_RM_elemento_remisionCabeceraClave" Association="Portal_2_0Model.FK_RM_elemento_remisionCabeceraClave">
+            <End Role="RM_cabecera" EntitySet="RM_cabecera" />
+            <End Role="RM_elemento" EntitySet="RM_elemento" />
+          </AssociationSet>
+          <EntitySet Name="RM_cambio_estatus" EntityType="Portal_2_0Model.RM_cambio_estatus" />
+          <AssociationSet Name="FK_RM_cambio_estatus_id_empleado" Association="Portal_2_0Model.FK_RM_cambio_estatus_id_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="RM_cambio_estatus" EntitySet="RM_cambio_estatus" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RM_cambio_remisionCabeceraClaveo" Association="Portal_2_0Model.FK_RM_cambio_remisionCabeceraClaveo">
+            <End Role="RM_cabecera" EntitySet="RM_cabecera" />
+            <End Role="RM_cambio_estatus" EntitySet="RM_cambio_estatus" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RM_cambio_catalogoEstatusClave" Association="Portal_2_0Model.FK_RM_cambio_catalogoEstatusClave">
+            <End Role="RM_estatus" EntitySet="RM_estatus" />
+            <End Role="RM_cambio_estatus" EntitySet="RM_cambio_estatus" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="GV_usuarios">
@@ -8358,6 +8683,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="Area" Relationship="Portal_2_0Model.FK_empleados_area" FromRole="empleados" ToRole="Area" />
           <NavigationProperty Name="IT_notificaciones_usuarios" Relationship="Portal_2_0Model.FK_IT_notificaciones_usuarios_id_empleado" FromRole="empleados" ToRole="IT_notificaciones_usuarios" />
           <NavigationProperty Name="IT_notificaciones_recordatorio" Relationship="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_sistemas" FromRole="empleados" ToRole="IT_notificaciones_recordatorio" />
+          <NavigationProperty Name="RM_cambio_estatus" Relationship="Portal_2_0Model.FK_RM_cambio_estatus_id_empleado" FromRole="empleados" ToRole="RM_cambio_estatus" />
         </EntityType>
         <Association Name="FK_empleados_id_fotografia">
           <End Type="Portal_2_0Model.biblioteca_digital" Role="biblioteca_digital" Multiplicity="0..1" />
@@ -8974,6 +9300,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="produccion_supervisores" Relationship="Portal_2_0Model.FK_produccion_supervisores_clave_planta" FromRole="plantas" ToRole="produccion_supervisores" />
           <NavigationProperty Name="produccion_turnos" Relationship="Portal_2_0Model.FK_produccion_turnos_planta_clave" FromRole="plantas" ToRole="produccion_turnos" />
           <NavigationProperty Name="Area" Relationship="Portal_2_0Model.FK_areas_planta_clave" FromRole="plantas" ToRole="Area" />
+          <NavigationProperty Name="RM_almacen" Relationship="Portal_2_0Model.FK_RM_almacen_plantaClave" FromRole="plantas" ToRole="RM_almacen" />
         </EntityType>
         <Association Name="FK_empleados_planta_clave">
           <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="0..1" />
@@ -9334,20 +9661,277 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="clientes">
+          <Key>
+            <PropertyRef Name="clave" />
+          </Key>
+          <Property Name="clave" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="activo" Type="Boolean" />
+          <Property Name="claveSAP" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="descripcion" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="pais" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="direccion" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="RM_cabecera" Relationship="Portal_2_0Model.FK_RM_cabecera_clienteClave" FromRole="clientes" ToRole="RM_cabecera" />
+          <NavigationProperty Name="RM_cabecera1" Relationship="Portal_2_0Model.FK_RM_cabecera_enviadoAClave" FromRole="clientes" ToRole="RM_cabecera" />
+        </EntityType>
+        <EntityType Name="RM_almacen">
+          <Key>
+            <PropertyRef Name="clave" />
+          </Key>
+          <Property Name="clave" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="plantaClave" Type="Int32" Nullable="false" />
+          <Property Name="responsableCorreoElectronico" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_RM_almacen_plantaClave" FromRole="RM_almacen" ToRole="plantas" />
+          <NavigationProperty Name="RM_cabecera" Relationship="Portal_2_0Model.FK_RM_cabecera_almacenClave" FromRole="RM_almacen" ToRole="RM_cabecera" />
+        </EntityType>
+        <EntityType Name="RM_cabecera">
+          <Key>
+            <PropertyRef Name="clave" />
+          </Key>
+          <Property Name="clave" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <Property Name="remisionNumero" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="almacenClave" Type="Int32" Nullable="false" />
+          <Property Name="transporteOtro" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="transporteProveedorClave" Type="Int32" />
+          <Property Name="nombreChofer" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="clienteClave" Type="Int32" />
+          <Property Name="clienteOtro" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="placaTractor" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="placaRemolque" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="horarioDescarga" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="enviadoAClave" Type="Int32" />
+          <Property Name="enviadoAOtro" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="clienteOtroDireccion" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="enviadoAOtroDireccion" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="motivoClave" Type="Int32" Nullable="false" />
+          <Property Name="motivoTexto" Type="String" Nullable="false" MaxLength="1500" FixedLength="false" Unicode="false" />
+          <Property Name="retornaMaterial" Type="Boolean" Nullable="false" />
+          <Property Name="ultimoEstatus" Type="Int32" />
+          <NavigationProperty Name="clientes" Relationship="Portal_2_0Model.FK_RM_cabecera_clienteClave" FromRole="RM_cabecera" ToRole="clientes" />
+          <NavigationProperty Name="clientes1" Relationship="Portal_2_0Model.FK_RM_cabecera_enviadoAClave" FromRole="RM_cabecera" ToRole="clientes" />
+          <NavigationProperty Name="RM_almacen" Relationship="Portal_2_0Model.FK_RM_cabecera_almacenClave" FromRole="RM_cabecera" ToRole="RM_almacen" />
+          <NavigationProperty Name="RM_remision_motivo" Relationship="Portal_2_0Model.FK_RM_cabecera_motivoClave" FromRole="RM_cabecera" ToRole="RM_remision_motivo" />
+          <NavigationProperty Name="RM_transporte_proveedor" Relationship="Portal_2_0Model.FK_RM_cabecera_transporteProveedorClave" FromRole="RM_cabecera" ToRole="RM_transporte_proveedor" />
+          <NavigationProperty Name="RM_estatus" Relationship="Portal_2_0Model.FK_RM_cabecera_ultimoEstatus" FromRole="RM_cabecera" ToRole="RM_estatus" />
+          <NavigationProperty Name="RM_elemento" Relationship="Portal_2_0Model.FK_RM_elemento_remisionCabeceraClave" FromRole="RM_cabecera" ToRole="RM_elemento" />
+          <NavigationProperty Name="RM_cambio_estatus" Relationship="Portal_2_0Model.FK_RM_cambio_remisionCabeceraClaveo" FromRole="RM_cabecera" ToRole="RM_cambio_estatus" />
+        </EntityType>
+        <EntityType Name="RM_estatus">
+          <Key>
+            <PropertyRef Name="clave" />
+          </Key>
+          <Property Name="clave" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="RM_cabecera" Relationship="Portal_2_0Model.FK_RM_cabecera_ultimoEstatus" FromRole="RM_estatus" ToRole="RM_cabecera" />
+          <NavigationProperty Name="RM_cambio_estatus" Relationship="Portal_2_0Model.FK_RM_cambio_catalogoEstatusClave" FromRole="RM_estatus" ToRole="RM_cambio_estatus" />
+        </EntityType>
+        <EntityType Name="RM_remision_motivo">
+          <Key>
+            <PropertyRef Name="clave" />
+          </Key>
+          <Property Name="clave" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="correoElectronicoResponsable" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="seCierraEnSAP" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="RM_cabecera" Relationship="Portal_2_0Model.FK_RM_cabecera_motivoClave" FromRole="RM_remision_motivo" ToRole="RM_cabecera" />
+        </EntityType>
+        <EntityType Name="RM_transporte_proveedor">
+          <Key>
+            <PropertyRef Name="clave" />
+          </Key>
+          <Property Name="clave" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="RM_cabecera" Relationship="Portal_2_0Model.FK_RM_cabecera_transporteProveedorClave" FromRole="RM_transporte_proveedor" ToRole="RM_cabecera" />
+        </EntityType>
+        <Association Name="FK_RM_cabecera_clienteClave">
+          <End Type="Portal_2_0Model.clientes" Role="clientes" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.RM_cabecera" Role="RM_cabecera" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="clientes">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RM_cabecera">
+              <PropertyRef Name="clienteClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RM_cabecera_enviadoAClave">
+          <End Type="Portal_2_0Model.clientes" Role="clientes" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.RM_cabecera" Role="RM_cabecera" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="clientes">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RM_cabecera">
+              <PropertyRef Name="enviadoAClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RM_almacen_plantaClave">
+          <End Type="Portal_2_0Model.plantas" Role="plantas" Multiplicity="1" />
+          <End Type="Portal_2_0Model.RM_almacen" Role="RM_almacen" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="plantas">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RM_almacen">
+              <PropertyRef Name="plantaClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RM_cabecera_almacenClave">
+          <End Type="Portal_2_0Model.RM_almacen" Role="RM_almacen" Multiplicity="1" />
+          <End Type="Portal_2_0Model.RM_cabecera" Role="RM_cabecera" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RM_almacen">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RM_cabecera">
+              <PropertyRef Name="almacenClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RM_cabecera_motivoClave">
+          <End Type="Portal_2_0Model.RM_remision_motivo" Role="RM_remision_motivo" Multiplicity="1" />
+          <End Type="Portal_2_0Model.RM_cabecera" Role="RM_cabecera" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RM_remision_motivo">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RM_cabecera">
+              <PropertyRef Name="motivoClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RM_cabecera_transporteProveedorClave">
+          <End Type="Portal_2_0Model.RM_transporte_proveedor" Role="RM_transporte_proveedor" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.RM_cabecera" Role="RM_cabecera" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RM_transporte_proveedor">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RM_cabecera">
+              <PropertyRef Name="transporteProveedorClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RM_cabecera_ultimoEstatus">
+          <End Type="Portal_2_0Model.RM_estatus" Role="RM_estatus" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.RM_cabecera" Role="RM_cabecera" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RM_estatus">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RM_cabecera">
+              <PropertyRef Name="ultimoEstatus" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="AspNetRoles">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="descripcion" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="AspNetUsers" Relationship="Portal_2_0Model.AspNetUserRoles" FromRole="AspNetRoles" ToRole="AspNetUsers" />
+        </EntityType>
+        <Association Name="AspNetUserRoles">
+          <End Type="Portal_2_0Model.AspNetRoles" Role="AspNetRoles" Multiplicity="*" />
+          <End Type="Portal_2_0Model.AspNetUsers" Role="AspNetUsers" Multiplicity="*" />
+        </Association>
+        <EntityType Name="RM_elemento">
+          <Key>
+            <PropertyRef Name="clave" />
+          </Key>
+          <Property Name="clave" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="activo" Type="Boolean" />
+          <Property Name="remisionCabeceraClave" Type="Int32" Nullable="false" />
+          <Property Name="capturaFecha" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="numeroParteCliente" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="numeroMaterial" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="numeroLote" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="numeroRollo" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="cantidad" Type="Double" Nullable="false" />
+          <Property Name="peso" Type="Double" Nullable="false" />
+          <Property Name="remisionSap" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="RM_cabecera" Relationship="Portal_2_0Model.FK_RM_elemento_remisionCabeceraClave" FromRole="RM_elemento" ToRole="RM_cabecera" />
+        </EntityType>
+        <Association Name="FK_RM_elemento_remisionCabeceraClave">
+          <End Type="Portal_2_0Model.RM_cabecera" Role="RM_cabecera" Multiplicity="1" />
+          <End Type="Portal_2_0Model.RM_elemento" Role="RM_elemento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RM_cabecera">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RM_elemento">
+              <PropertyRef Name="remisionCabeceraClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="RM_cambio_estatus">
+          <Key>
+            <PropertyRef Name="clave" />
+          </Key>
+          <Property Name="clave" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="capturaFecha" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="id_empleado" Type="Int32" />
+          <Property Name="remisionCabeceraClave" Type="Int32" Nullable="false" />
+          <Property Name="catalogoEstatusClave" Type="Int32" Nullable="false" />
+          <Property Name="nombre_usuario_old" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="texto" Type="String" Nullable="false" MaxLength="1200" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_RM_cambio_estatus_id_empleado" FromRole="RM_cambio_estatus" ToRole="empleados" />
+          <NavigationProperty Name="RM_cabecera" Relationship="Portal_2_0Model.FK_RM_cambio_remisionCabeceraClaveo" FromRole="RM_cambio_estatus" ToRole="RM_cabecera" />
+          <NavigationProperty Name="RM_estatus" Relationship="Portal_2_0Model.FK_RM_cambio_catalogoEstatusClave" FromRole="RM_cambio_estatus" ToRole="RM_estatus" />
+        </EntityType>
+        <Association Name="FK_RM_cambio_estatus_id_empleado">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.RM_cambio_estatus" Role="RM_cambio_estatus" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="RM_cambio_estatus">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RM_cambio_remisionCabeceraClaveo">
+          <End Type="Portal_2_0Model.RM_cabecera" Role="RM_cabecera" Multiplicity="1" />
+          <End Type="Portal_2_0Model.RM_cambio_estatus" Role="RM_cambio_estatus" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RM_cabecera">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RM_cambio_estatus">
+              <PropertyRef Name="remisionCabeceraClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RM_cambio_catalogoEstatusClave">
+          <End Type="Portal_2_0Model.RM_estatus" Role="RM_estatus" Multiplicity="1" />
+          <End Type="Portal_2_0Model.RM_cambio_estatus" Role="RM_cambio_estatus" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RM_estatus">
+              <PropertyRef Name="clave" />
+            </Principal>
+            <Dependent Role="RM_cambio_estatus">
+              <PropertyRef Name="catalogoEstatusClave" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="Portal_2_0ModelStoreContainer" CdmEntityContainer="Portal_2_0Entities">
-          <EntitySetMapping Name="AspNetRoles">
-            <EntityTypeMapping TypeName="Portal_2_0Model.AspNetRoles">
-              <MappingFragment StoreEntitySet="AspNetRoles">
-                <ScalarProperty Name="Id" ColumnName="Id" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="AspNetUsers">
             <EntityTypeMapping TypeName="Portal_2_0Model.AspNetUsers">
               <MappingFragment StoreEntitySet="AspNetUsers">
@@ -10537,14 +11121,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <AssociationSetMapping Name="AspNetUserRoles" TypeName="Portal_2_0Model.AspNetUserRoles" StoreEntitySet="AspNetUserRoles">
-            <EndProperty Name="AspNetRoles">
-              <ScalarProperty Name="Id" ColumnName="RoleId" />
-            </EndProperty>
-            <EndProperty Name="AspNetUsers">
-              <ScalarProperty Name="Id" ColumnName="UserId" />
-            </EndProperty>
-          </AssociationSetMapping>
           <EntitySetMapping Name="GV_usuarios">
             <EntityTypeMapping TypeName="Portal_2_0Model.GV_usuarios">
               <MappingFragment StoreEntitySet="GV_usuarios">
@@ -11031,6 +11607,131 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
                 <ScalarProperty Name="descripcion" ColumnName="descripcion" />
                 <ScalarProperty Name="titulo" ColumnName="titulo" />
                 <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="clientes">
+            <EntityTypeMapping TypeName="Portal_2_0Model.clientes">
+              <MappingFragment StoreEntitySet="clientes">
+                <ScalarProperty Name="direccion" ColumnName="direccion" />
+                <ScalarProperty Name="pais" ColumnName="pais" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="claveSAP" ColumnName="claveSAP" />
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="clave" ColumnName="clave" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="RM_almacen">
+            <EntityTypeMapping TypeName="Portal_2_0Model.RM_almacen">
+              <MappingFragment StoreEntitySet="RM_almacen">
+                <ScalarProperty Name="responsableCorreoElectronico" ColumnName="responsableCorreoElectronico" />
+                <ScalarProperty Name="plantaClave" ColumnName="plantaClave" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="clave" ColumnName="clave" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="RM_cabecera">
+            <EntityTypeMapping TypeName="Portal_2_0Model.RM_cabecera">
+              <MappingFragment StoreEntitySet="RM_cabecera">
+                <ScalarProperty Name="ultimoEstatus" ColumnName="ultimoEstatus" />
+                <ScalarProperty Name="retornaMaterial" ColumnName="retornaMaterial" />
+                <ScalarProperty Name="motivoTexto" ColumnName="motivoTexto" />
+                <ScalarProperty Name="motivoClave" ColumnName="motivoClave" />
+                <ScalarProperty Name="enviadoAOtroDireccion" ColumnName="enviadoAOtroDireccion" />
+                <ScalarProperty Name="clienteOtroDireccion" ColumnName="clienteOtroDireccion" />
+                <ScalarProperty Name="enviadoAOtro" ColumnName="enviadoAOtro" />
+                <ScalarProperty Name="enviadoAClave" ColumnName="enviadoAClave" />
+                <ScalarProperty Name="horarioDescarga" ColumnName="horarioDescarga" />
+                <ScalarProperty Name="placaRemolque" ColumnName="placaRemolque" />
+                <ScalarProperty Name="placaTractor" ColumnName="placaTractor" />
+                <ScalarProperty Name="clienteOtro" ColumnName="clienteOtro" />
+                <ScalarProperty Name="clienteClave" ColumnName="clienteClave" />
+                <ScalarProperty Name="nombreChofer" ColumnName="nombreChofer" />
+                <ScalarProperty Name="transporteProveedorClave" ColumnName="transporteProveedorClave" />
+                <ScalarProperty Name="transporteOtro" ColumnName="transporteOtro" />
+                <ScalarProperty Name="almacenClave" ColumnName="almacenClave" />
+                <ScalarProperty Name="remisionNumero" ColumnName="remisionNumero" />
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="clave" ColumnName="clave" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="RM_estatus">
+            <EntityTypeMapping TypeName="Portal_2_0Model.RM_estatus">
+              <MappingFragment StoreEntitySet="RM_estatus">
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="clave" ColumnName="clave" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="RM_remision_motivo">
+            <EntityTypeMapping TypeName="Portal_2_0Model.RM_remision_motivo">
+              <MappingFragment StoreEntitySet="RM_remision_motivo">
+                <ScalarProperty Name="seCierraEnSAP" ColumnName="seCierraEnSAP" />
+                <ScalarProperty Name="correoElectronicoResponsable" ColumnName="correoElectronicoResponsable" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="clave" ColumnName="clave" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="RM_transporte_proveedor">
+            <EntityTypeMapping TypeName="Portal_2_0Model.RM_transporte_proveedor">
+              <MappingFragment StoreEntitySet="RM_transporte_proveedor">
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="clave" ColumnName="clave" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AspNetRoles">
+            <EntityTypeMapping TypeName="Portal_2_0Model.AspNetRoles">
+              <MappingFragment StoreEntitySet="AspNetRoles">
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <AssociationSetMapping Name="AspNetUserRoles" TypeName="Portal_2_0Model.AspNetUserRoles" StoreEntitySet="AspNetUserRoles">
+            <EndProperty Name="AspNetUsers">
+              <ScalarProperty Name="Id" ColumnName="UserId" />
+            </EndProperty>
+            <EndProperty Name="AspNetRoles">
+              <ScalarProperty Name="Id" ColumnName="RoleId" />
+            </EndProperty>
+          </AssociationSetMapping>
+          <EntitySetMapping Name="RM_elemento">
+            <EntityTypeMapping TypeName="Portal_2_0Model.RM_elemento">
+              <MappingFragment StoreEntitySet="RM_elemento">
+                <ScalarProperty Name="remisionSap" ColumnName="remisionSap" />
+                <ScalarProperty Name="peso" ColumnName="peso" />
+                <ScalarProperty Name="cantidad" ColumnName="cantidad" />
+                <ScalarProperty Name="numeroRollo" ColumnName="numeroRollo" />
+                <ScalarProperty Name="numeroLote" ColumnName="numeroLote" />
+                <ScalarProperty Name="numeroMaterial" ColumnName="numeroMaterial" />
+                <ScalarProperty Name="numeroParteCliente" ColumnName="numeroParteCliente" />
+                <ScalarProperty Name="capturaFecha" ColumnName="capturaFecha" />
+                <ScalarProperty Name="remisionCabeceraClave" ColumnName="remisionCabeceraClave" />
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="clave" ColumnName="clave" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="RM_cambio_estatus">
+            <EntityTypeMapping TypeName="Portal_2_0Model.RM_cambio_estatus">
+              <MappingFragment StoreEntitySet="RM_cambio_estatus">
+                <ScalarProperty Name="texto" ColumnName="texto" />
+                <ScalarProperty Name="nombre_usuario_old" ColumnName="nombre_usuario_old" />
+                <ScalarProperty Name="catalogoEstatusClave" ColumnName="catalogoEstatusClave" />
+                <ScalarProperty Name="remisionCabeceraClave" ColumnName="remisionCabeceraClave" />
+                <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
+                <ScalarProperty Name="capturaFecha" ColumnName="capturaFecha" />
+                <ScalarProperty Name="clave" ColumnName="clave" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

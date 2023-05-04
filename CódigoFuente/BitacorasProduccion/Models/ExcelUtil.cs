@@ -4469,5 +4469,113 @@ namespace Portal_2_0.Models
 
             return (array);
         }
+        public static byte[] GeneraFormatoRM(RM_cabecera remision, empleados usuario)
+        {
+
+            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+            System.Data.DataTable dt = new System.Data.DataTable();
+
+            List<int> disabledItems = new List<int>();
+
+            //columnas          
+            dt.Columns.Add("Usuario", typeof(string));
+            dt.Columns.Add("NumeroRemision", typeof(string));
+            dt.Columns.Add("ItemClave", typeof(string));
+            dt.Columns.Add("NumeroMaterial", typeof(string));
+            dt.Columns.Add("NumeroLote", typeof(string));
+            dt.Columns.Add("Cantidad", typeof(double));
+            dt.Columns.Add("NumeroRollo", typeof(string));
+            dt.Columns.Add("Cliente", typeof(string));
+            dt.Columns.Add("EnviadoA", typeof(string));
+            dt.Columns.Add("Almacen", typeof(string));
+            dt.Columns.Add("PlacaTractor", typeof(string));
+            dt.Columns.Add("PlacaRemolque", typeof(string));
+            dt.Columns.Add("HorarioDescarga", typeof(string));
+            dt.Columns.Add("NombreChofer", typeof(string));
+            dt.Columns.Add("Transporte", typeof(string));
+            ////registros , rows
+            foreach (var item in remision.RM_elemento)
+            {
+                System.Data.DataRow row = dt.NewRow();
+
+                row["Usuario"] = usuario.ConcatNombre;            
+                row["NumeroRemision"] = remision.ConcatNumeroRemision;            
+                row["ItemClave"] = item.clave;            
+                row["NumeroMaterial"] = item.numeroMaterial;            
+                row["NumeroLote"] = item.numeroLote;            
+                row["Cantidad"] = item.cantidad;            
+                row["NumeroRollo"] = item.numeroRollo;            
+                row["Cliente"] = remision.clienteOtro;            
+                row["EnviadoA"] = remision.enviadoAOtro;            
+                row["Almacen"] = remision.RM_almacen.descripcion;            
+                row["PlacaTractor"] = remision.placaTractor;            
+                row["PlacaRemolque"] = remision.placaRemolque;            
+                row["HorarioDescarga"] = remision.horarioDescarga;            
+                row["NombreChofer"] = remision.nombreChofer;            
+                row["Transporte"] = remision.transporteOtro;            
+
+                dt.Rows.Add(row);
+            
+            }
+
+            //crea la hoja de FACTURAS y la selecciona
+            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Cierre Remisión");
+            oSLDocument.ImportDataTable(1, 1, dt, true);
+
+            //estilo para ajustar al texto
+            SLStyle styleWrap = oSLDocument.CreateStyle();
+            styleWrap.SetWrapText(true);
+
+            //estilo para el encabezado
+            SLStyle styleHeader = oSLDocument.CreateStyle();
+            styleHeader.Font.Bold = true;
+            styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
+
+            //estilo para bajas
+            SLStyle styleHeaderRowBaja = oSLDocument.CreateStyle();
+            styleHeaderRowBaja.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffa0a2"), System.Drawing.ColorTranslator.FromHtml("#ffa0a2"));
+
+            //estilo para numeros
+            SLStyle styleNumber = oSLDocument.CreateStyle();
+            styleNumber.FormatCode = "#,##0.00";
+
+            //da estilo a los numero
+            //oSLDocument.SetColumnStyle(18, styleNumber);
+
+            ////estilo para fecha
+            SLStyle styleShortDate = oSLDocument.CreateStyle();
+            styleShortDate.FormatCode = "dd.MM.yyyy";
+            //oSLDocument.SetColumnStyle(tkbirthColumn, styleShortDate);
+
+
+            SLStyle styleHeaderFont = oSLDocument.CreateStyle();
+            styleHeaderFont.Font.FontName = "Calibri";
+            styleHeaderFont.Font.FontSize = 11;
+            styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
+            styleHeaderFont.Font.Bold = true;
+
+            foreach (var baja in disabledItems)
+                oSLDocument.SetCellStyle(baja, 1, baja, dt.Columns.Count, styleHeaderRowBaja);
+
+            //da estilo a la hoja de excel
+            //inmoviliza el encabezado
+            oSLDocument.FreezePanes(1, 0);
+
+            oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
+            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+
+            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
+            oSLDocument.SetRowStyle(1, styleHeader);
+            oSLDocument.SetRowStyle(1, styleHeaderFont);
+            oSLDocument.SetRowHeight(1, dt.Rows.Count + 1, 15.0);
+
+            System.IO.Stream stream = new System.IO.MemoryStream();
+
+            oSLDocument.SaveAs(stream);
+
+            byte[] array = Bitacoras.Util.StreamUtil.ToByteArray(stream);
+
+            return (array);
+        }
     }
 }

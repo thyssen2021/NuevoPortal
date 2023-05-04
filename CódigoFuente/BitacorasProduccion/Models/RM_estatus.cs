@@ -12,19 +12,22 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class AspNetRoles
+    public partial class RM_estatus
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public AspNetRoles()
+        public RM_estatus()
         {
-            this.AspNetUsers = new HashSet<AspNetUsers>();
+            this.RM_cabecera = new HashSet<RM_cabecera>();
+            this.RM_cambio_estatus = new HashSet<RM_cambio_estatus>();
         }
     
-        public string Id { get; set; }
-        public string Name { get; set; }
+        public int clave { get; set; }
+        public bool activo { get; set; }
         public string descripcion { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<AspNetUsers> AspNetUsers { get; set; }
+        public virtual ICollection<RM_cabecera> RM_cabecera { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<RM_cambio_estatus> RM_cambio_estatus { get; set; }
     }
 }

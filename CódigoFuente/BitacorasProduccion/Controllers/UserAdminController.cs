@@ -11,6 +11,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Collections.Generic;
 using Bitacoras.Util;
+using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace IdentitySample.Controllers
 {
@@ -99,9 +100,11 @@ namespace IdentitySample.Controllers
             {
 
                 var s = new SelectList(await _roleManager.Roles.ToListAsync(), "Name", "Name");
+                //obtiene el listado de roles de BD
+                ViewBag.RolesBD = db.AspNetRoles.ToList();
 
                 //Get the list of Roles
-                ViewBag.RoleId = new SelectList(await _roleManager.Roles.ToListAsync(), "Name", "Name");
+                ViewBag.RoleId = new SelectList(await _roleManager.Roles.OrderBy(x => x.Name).ToListAsync(), "Name", "Name");
                 //empleados
                 ViewBag.EmpleadosList = ComboSelect.obtieneEmpleadosSelectList();
 
@@ -172,7 +175,9 @@ namespace IdentitySample.Controllers
                         if (!result.Succeeded)
                         {
                             ModelState.AddModelError("", result.Errors.First());
-                            ViewBag.RoleId = new SelectList(await _roleManager.Roles.ToListAsync(), "Name", "Name");
+                            ViewBag.RoleId = new SelectList(await _roleManager.Roles.OrderBy(x => x.Name).ToListAsync(), "Name", "Name");
+                            //obtiene el listado de roles de BD
+                            ViewBag.RolesBD = db.AspNetRoles.ToList();
                             ViewBag.EmpleadosList = ComboSelect.obtieneEmpleadosSelectList();
                             ViewBag.TipoU = tipoU;
                             ViewBag.numEmpleado = userViewModel.IdEmpleado.ToString();
@@ -184,7 +189,9 @@ namespace IdentitySample.Controllers
                 else
                 {
                     ModelState.AddModelError("", adminresult.Errors.First());
-                    ViewBag.RoleId = new SelectList(await _roleManager.Roles.ToListAsync(), "Name", "Name");
+                    //obtiene el listado de roles de BD
+                    ViewBag.RolesBD = db.AspNetRoles.ToList();
+                    ViewBag.RoleId = new SelectList(await _roleManager.Roles.OrderBy(x => x.Name).ToListAsync(), "Name", "Name");
                     ViewBag.EmpleadosList = ComboSelect.obtieneEmpleadosSelectList();
                     ViewBag.TipoU = tipoU;
                     ViewBag.numEmpleado = userViewModel.IdEmpleado.ToString();
@@ -194,7 +201,7 @@ namespace IdentitySample.Controllers
                 }
                 string mensaje = TextoMensajesSweetAlerts.CREATE;
 
-                
+
 
                 if (notificacion)
                 {
@@ -226,20 +233,23 @@ namespace IdentitySample.Controllers
                         mensaje += " Se cerró una solicitud usuario.";
                     }
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
 
                     System.Diagnostics.Debug.WriteLine(e.Message);
                 }
 
-                
+
 
                 //agrega el mensaje para sweetalert
                 TempData["Mensaje"] = new MensajesSweetAlert(mensaje, TipoMensajesSweetAlerts.SUCCESS);
 
                 return RedirectToAction("Index");
             }
-            ViewBag.RoleId = new SelectList(_roleManager.Roles, "Name", "Name");
+            ViewBag.RoleId = new SelectList(_roleManager.Roles.OrderBy(x => x.Name), "Name", "Name");
             //empleados
+            //obtiene el listado de roles de BD
+            ViewBag.RolesBD = db.AspNetRoles.ToList();
             ViewBag.EmpleadosList = ComboSelect.obtieneEmpleadosSelectList();
             ViewBag.TipoU = tipoU;
             ViewBag.numEmpleado = userViewModel.IdEmpleado.ToString();
@@ -281,11 +291,12 @@ namespace IdentitySample.Controllers
                     {
                         emp = db.empleados.Find(user.IdEmpleado);
                     }
-                    catch (Exception e) {
+                    catch (Exception e)
+                    {
                         System.Diagnostics.Debug.Print(e.Message);
                     }
 
-                        if (emp.activo.HasValue && !emp.activo.Value)
+                    if (emp.activo.HasValue && !emp.activo.Value)
                     {
                         ViewBag.Titulo = "¡Lo sentimos!¡No se puede editar el usuario de un empleado que ha sido dado de baja!";
                         ViewBag.Descripcion = "No se puede editar un usuario perteneciente a un usuario que ha sido dado de baja.";
@@ -301,7 +312,8 @@ namespace IdentitySample.Controllers
                 ViewBag.TipoU = tipoU;
                 ViewBag.numEmpleado = user.IdEmpleado;
                 ViewBag.NombreE = user.Nombre;
-
+                //obtiene el listado de roles de BD
+                ViewBag.RolesBD = db.AspNetRoles.ToList();
                 return View(new EditUserViewModel()
                 {
                     Id = user.Id,
@@ -309,7 +321,7 @@ namespace IdentitySample.Controllers
                     Nombre = user.Nombre,
                     //Apellidos = user.Apellidos,
                     FechaCreacion = user.FechaCreacion,
-                    RolesList = _roleManager.Roles.ToList().Select(x => new SelectListItem()
+                    RolesList = _roleManager.Roles.OrderBy(x => x.Name).ToList().Select(x => new SelectListItem()
                     {
                         Selected = userRoles.Contains(x.Name),
                         Text = x.Name,
@@ -361,6 +373,8 @@ namespace IdentitySample.Controllers
                 {
                     ModelState.AddModelError("", result.Errors.First());
                     ViewBag.EmpleadosList = ComboSelect.obtieneEmpleadosSelectList();
+                    //obtiene el listado de roles de BD
+                    ViewBag.RolesBD = db.AspNetRoles.ToList();
                     return View(new EditUserViewModel()
                     {
                         Id = user.Id,
@@ -368,7 +382,7 @@ namespace IdentitySample.Controllers
                         Nombre = user.Nombre,
                         //Apellidos = user.Apellidos,
                         FechaCreacion = user.FechaCreacion,
-                        RolesList = _roleManager.Roles.ToList().Select(x => new SelectListItem()
+                        RolesList = _roleManager.Roles.OrderBy(x=>x.Name).ToList().Select(x => new SelectListItem()
                         {
                             Selected = userRoles.Contains(x.Name),
                             Text = x.Name,
@@ -382,6 +396,8 @@ namespace IdentitySample.Controllers
                 {
                     ViewBag.EmpleadosList = ComboSelect.obtieneEmpleadosSelectList();
                     ModelState.AddModelError("", result.Errors.First());
+                    //obtiene el listado de roles de BD
+                    ViewBag.RolesBD = db.AspNetRoles.ToList();
                     return View(new EditUserViewModel()
                     {
                         Id = user.Id,
@@ -389,7 +405,7 @@ namespace IdentitySample.Controllers
                         Nombre = user.Nombre,
                         //Apellidos = user.Apellidos,
                         FechaCreacion = user.FechaCreacion,
-                        RolesList = _roleManager.Roles.ToList().Select(x => new SelectListItem()
+                        RolesList = _roleManager.Roles.OrderBy(x => x.Name).ToList().Select(x => new SelectListItem()
                         {
                             Selected = userRoles.Contains(x.Name),
                             Text = x.Name,

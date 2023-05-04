@@ -12,19 +12,25 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class AspNetRoles
+    public partial class clientes
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public AspNetRoles()
+        public clientes()
         {
-            this.AspNetUsers = new HashSet<AspNetUsers>();
+            this.RM_cabecera = new HashSet<RM_cabecera>();
+            this.RM_cabecera1 = new HashSet<RM_cabecera>();
         }
     
-        public string Id { get; set; }
-        public string Name { get; set; }
+        public int clave { get; set; }
+        public Nullable<bool> activo { get; set; }
+        public string claveSAP { get; set; }
         public string descripcion { get; set; }
+        public string pais { get; set; }
+        public string direccion { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<AspNetUsers> AspNetUsers { get; set; }
+        public virtual ICollection<RM_cabecera> RM_cabecera { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<RM_cabecera> RM_cabecera1 { get; set; }
     }
 }

@@ -856,7 +856,7 @@ namespace Portal_2_0.Models
                                     }
                                     else
                                     {
-                                        
+
                                         //peso bruto + los negativos
                                         peso_neto = peso_bruto + listTemporalBOM.Where(x => x.LastDateUsed == fechaUso && x.Quantity < (-0.001)).Sum(x => x.Quantity);
 
@@ -866,7 +866,7 @@ namespace Portal_2_0.Models
                                         {
                                             case "HD10928": //no tiene scrap
                                                 peso_bruto = peso_neto;
-                                            break;
+                                                break;
                                             default:
                                                 break;
                                         }
@@ -1602,6 +1602,119 @@ namespace Portal_2_0.Models
                     return lista;
                 }
             }
+
+            return lista;
+        }
+
+        ///<summary>
+        ///Lee un archivo de excel y carga formato de remisiones provisionales
+        ///</summary>
+        ///<return>
+        ///Devuelve un List<RM_elementos> con los datos leidos
+        ///</return>
+        ///<param name="streamPostedFile">
+        ///Stream del archivo recibido en el formulario
+        ///</param>
+        public static List<RM_elemento> LeeFormatoRemisionesProvisionales(HttpPostedFileBase streamPostedFile, ref string status, ref string msj)
+        {
+            List<RM_elemento> lista = new List<RM_elemento>();
+
+            //crea el reader del archivo
+            using (var reader = ExcelReaderFactory.CreateReader(streamPostedFile.InputStream))
+            {
+                //obtiene el dataset del archivo de excel
+                var result = reader.AsDataSet();
+
+                //para la primera hoja
+                DataTable table = result.Tables[0];
+
+
+                //se obtienen las cabeceras
+                List<string> encabezados = new List<string>();
+
+                for (int i = 0; i < table.Columns.Count; i++)
+                {
+                    string title = table.Rows[0][i].ToString();
+
+                    if (!string.IsNullOrEmpty(title))
+                        encabezados.Add(title.ToUpper());
+                }
+
+                List<string> titulos = new List<string> { "No. Parte Clte.", "Material", "Lote", "No. Bobina", "Piezas", "Peso Neto" };
+                foreach (string t in titulos)
+                {
+                    if (!encabezados.Contains(t.ToUpper()))
+                    {
+                        status = "ERROR";
+                        msj = "El archivo no contiene una columna llamada: " + t;
+                        return lista;
+                    }
+                }
+
+                //la fila cero se omite (encabezado)
+                for (int i = 1; i < table.Rows.Count; i++)
+                {
+                    try
+                    {
+                        //variables
+                        string NoParteCliente = String.Empty, material = String.Empty, lote = string.Empty, numRollo = string.Empty;
+
+                        double piezas = 0.0, peso = 0.0;
+                        
+                        //recorre todas los encabezados
+                        for (int j = 0; j < encabezados.Count; j++)
+                        {
+                            //obtiene la cabezara de i
+                            switch (encabezados[j])
+                            {
+                                //obligatorios
+                                case "NO. PARTE CLTE.":
+                                    NoParteCliente = table.Rows[i][j].ToString();
+                                    break;
+                                case "MATERIAL":
+                                    material = table.Rows[i][j].ToString();
+                                    break;
+                                case "LOTE":
+                                    lote = table.Rows[i][j].ToString();
+                                    break;
+                                case "NO. BOBINA":
+                                    numRollo = table.Rows[i][j].ToString();
+                                    break;
+                                case "PIEZAS":
+                                    if (Double.TryParse(table.Rows[i][j].ToString(), out double q))
+                                        piezas = q;
+                                    break;
+                               case "PESO NETO":
+                                    if (Double.TryParse(table.Rows[i][j].ToString(), out double p))
+                                        peso = p;
+                                    break;
+                               
+                            }
+                        }
+
+
+                        //agrega a la lista con los datos leidos
+                        lista.Add(new RM_elemento()
+                        {
+                           numeroParteCliente = NoParteCliente,
+                           numeroMaterial = material,
+                           numeroLote = lote,
+                           numeroRollo = numRollo,
+                           cantidad = piezas,
+                           peso = peso,
+                        });
+                    }
+                    catch (Exception e)
+                    {
+                        System.Diagnostics.Debug.Print("Error: " + e.Message);
+                    }
+                }
+
+
+            }
+
+            status = "SUCCESS";
+            msj = "Se leyeron "+lista.Count()+" elementos.";
 
             return lista;
         }

@@ -1,0 +1,315 @@
+﻿@model Portal_2_0.Models.RM_cabecera
+@{
+    Layout = null;
+}
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+        .letraPequeña {
+            font-size: x-small;
+        }
+    </style>
+
+    <title>
+        Remision impresion
+    </title>
+</head>
+<body>
+    <form method="post" action="./RemisionImpresion?r=3536&amp;u=1055" id="form1">
+        <div class="aspNetHidden">
+            <input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="tp8qJvhdnz/58GObG5GjK0jZdvPyWEei4Co/i3jeSFFydtcZeQOCHYA7bDU2qUNdlC7I4II60aj0LCTELCoF/X3UIbmq11SAGoMlmkEQ4Vo=" />
+        </div>
+
+        <div class="aspNetHidden">
+
+            <input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="375074E2" />
+        </div>
+        <div class="container small" id="cuerpo">
+            <div class="row">
+                <div class="col">
+                    <br />
+                </div>
+            </div>
+            <div class="row border">
+                <div class="col">
+                    KM. 117
+                    <br />
+                    AUTOPISTA
+                </div>
+                <div class="col">
+                    <p>
+                        thyssenkrup materials de Mexico. S. A. de C. V. - Lagermex
+                    </p>
+                    <span>
+                        PARQUE INDUSTRIAL BRALEMEX. TELEFONO: (222) 9 89 00 ...04 FAX: (222) 29 89 09
+                    </span>
+                    <span>
+                        AVENIDA SAN LORENZO ALMECATLA S/N
+                    </span>
+
+                </div>
+                <div class="col">
+                    <img class="float-right p-1" src="~/Content/images/245px-Thyssenkrupp_AG_Logo_2015.png" height="80" width="100" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <br />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col form-inline border">
+                    <label for="txtRemisionNumero">Número de remisión temporal</label>
+                    <div class="col">
+                        <label id="txtRemisionNumero" class="form-control-plaintext font-weight-bold">@Model.ConcatNumeroRemision</label>
+                    </div>
+                </div>
+                <div class="col form-inline border">
+                    <label for="txtRemisionFechaDos">Fecha creación</label>
+                    <div class="col">
+                        <label id="txtRemisionFecha" class="form-control-plaintext font-weight-bold">@Model.FechaCreacion</label>
+                    </div>
+                </div>
+                <div class="col form-inline border">
+                    <label for="txtRemisionFechaDos">Fecha Impresión</label>
+                    <div class="col">
+                        <label id="txtRemisionFechaImpresion" class="form-control-plaintext font-weight-bold">@DateTime.Now</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col form-inline border">
+                    <label for="txtRemisionTransporteProveedor">Nombre del transporte</label>
+                    <div class="col">
+                        <label id="txtRemisionTransporteProveedor" class="form-control-plaintext font-weight-bold">@Model.transporteOtro</label>
+                    </div>
+                </div>
+                <div class="col form-inline border">
+                    <label for="txtRemisionChofer">Nombre chofer</label>
+                    <div class="col">
+                        <label id="txtRemisionChofer" class="form-control-plaintext font-weight-bold">@Model.nombreChofer</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col form-inline border">
+                    <label for="txtRemisionPlacaTractor">Placa tractor</label>
+                    <div class="col">
+                        <label id="txtRemisionPlacaTractor" class="form-control-plaintext font-weight-bold">@Model.placaTractor</label>
+                    </div>
+                </div>
+                <div class="col form-inline border">
+                    <label for="txtRemisionPlacaRemolque">Placa remolque</label>
+                    <div class="col">
+                        <label id="txtRemisionPlacaRemolque" class="form-control-plaintext font-weight-bold">@Model.placaRemolque</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <br />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col form-inline border">
+                    <label for="txtRemisionCliente">Cliente</label>
+                    <div class="col">
+                        <label id="txtRemisionCliente" class="form-control-plaintext font-weight-bold">@Model.clienteOtro</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col form-inline border">
+                    <label for="txtRemisionClienteDireccion">Dirección cliente</label>
+                    <div class="col">
+                        <label id="txtRemisionClienteDireccion" class="form-control-plaintext font-weight-bold">@Model.clienteOtroDireccion</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col form-inline border">
+                    <label for="txtRemisionEnviadoA">Enviado a</label>
+                    <div class="col">
+                        <label id="txtRemisionEnviadoA" class="form-control-plaintext font-weight-bold">@Model.enviadoAOtro</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col form-inline border">
+                    <label for="txtRemisionEnviadoADireccion">Dirección enviado</label>
+                    <div class="col">
+                        <label id="txtRemisionEnviadoADireccion" class="form-control-plaintext font-weight-bold">@Model.enviadoAOtroDireccion</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <br />
+                </div>
+            </div>
+            <div id="divElementoRemisionCabecera">
+                <div class="row">
+                    <div class="col">
+                        <b>Consecutivo </b>
+                    </div>
+                    <div class="col">
+                        <b>NumeroParteCliente </b>
+                    </div>
+                    <div class="col">
+                        <b>NumeroMaterial </b>
+                    </div>
+                    <div class="col">
+                        <b>NumeroLote </b>
+                    </div>
+                    <div class="col">
+                        <b>NumeroRollo </b>
+                    </div>
+                    <div class="col">
+                        <b>Cantidad </b>
+                    </div>
+                    <div class="col">
+                        <b>Peso </b>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <hr />
+                </div>
+            </div>
+            <div id="divElementoRemision">
+                @foreach (var item in Model.RM_elemento)
+                {
+                    <div class="row small">
+                        <div class="col">@(Model.RM_elemento.ToList().IndexOf(item)+1)</div>
+                        <div class="col">@item.numeroParteCliente</div>
+                        <div class="col">@item.numeroMaterial</div>
+                        <div class="col">@item.numeroLote</div>
+                        <div class="col">@item.numeroRollo</div>
+                        <div class="col">@item.cantidad</div>
+                        <div class="col">@String.Format("{0:0.000}", item.peso)</div>
+                    </div>
+                }
+
+
+                <div class="row">
+                    <div class="col"><hr></div>
+                </div><div class="row small">
+                    <div class="col"></div>
+                    <div class="col"></div>
+                    <div class="col"></div>
+                    <div class="col"></div>
+                    <div class="col">
+                        <b>Total</b>
+                    </div>
+                    <div class="col"><b>@Model.TotalCantidadRemision</b></div>
+                    <div class="col">
+                        <b>@String.Format("{0:0.000}", @Model.TotalPesoRemision)</b>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <br />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <br />
+                </div>
+            </div>
+            <div class="row border">
+                <div class="col form-inline border">
+                    <label for="txtRemisionMotivoDescripcion">Motivo</label>
+                    <div class="col">
+                        <label id="txtRemisionMotivoDescripcion" class="form-control-plaintext font-weight-bold">@Model.RM_remision_motivo.descripcion</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row border">
+                <div class="col form-inline border">
+                    <label for="txtRemisionAutorizo">Temporal aprobada por</label>
+                    <div class="col">
+                        <label id="txtRemisionAutorizo" class="form-control-plaintext font-weight-bold">@Model.AprobadaPor</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row border">
+                <div class="col form-inline border">
+                    <label for="txtRemisionUsuarioCapturaCreacion">Realizo</label>
+                    <div class="col">
+                        <label id="txtRemisionUsuarioCapturaCreacion" class="form-control-plaintext font-weight-bold">@Model.CreadaPor</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <br />
+                </div>
+            </div>
+            <div class="row border">
+
+                <div class="col border">
+                    Sello de embarques
+                </div>
+                <div class="col border">
+                    Sello de vigilancia
+                </div>
+                <div class="col border">
+                    Sello, nombre y firma recibido
+                </div>
+            </div>
+            <div class="row ">
+                <div class="col">
+                    <br />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <br />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <button type="button" id="btnImprimir" class="btn btn-outline-info" onclick="imprimir()">Imprimir</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <br />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <br />
+                </div>
+            </div>
+        </div>
+    </form>
+    <!-- jQuery -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery/dist/jquery.min.js"))
+    <script>
+        function imprimir() {
+
+            //llamada ajax para obtener actualizar el estatus de la remisión
+            $.ajax({
+                type: 'POST',
+                url: '/RM_cabecera/ActualizaEstatusImpresión',
+                data: { id: @Model.clave },
+                success: function (data) {
+                    var btnImprimir = document.getElementById("btnImprimir");
+                    btnImprimir.style.visibility = 'hidden';
+                    window.print();
+                    btnImprimir.style.visibility = 'visible';
+                },
+                async: false
+            });
+        };//imprimir()
+    </script>
+</body>
+
+</html>

@@ -668,6 +668,66 @@ namespace Portal_2_0.Controllers
             return Json(list, JsonRequestBehavior.AllowGet);
         }
 
+        ///<summary>
+        ///Obtiene los almacenes por planta
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult obtieneAlmacenes(int id_planta = 0)
+        {
+            //obtiene todos los posibles valores
+            List<RM_almacen> listado = db.RM_almacen.Where(p => p.plantaClave == id_planta && p.activo == true).ToList();
+
+            //inserta el valor por default
+            listado.Insert(0, new RM_almacen
+            {
+                clave = 0,
+                descripcion = "-- Seleccione un valor --"
+            });
+
+            //inicializa la lista de objetos
+            var list = new object[listado.Count];
+
+            //completa la lista de objetos
+            for (int i = 0; i < listado.Count; i++)
+            {
+                if (i == 0)//en caso de item por defecto
+                    list[i] = new { value = "", name = listado[i].descripcion };
+                else
+                    list[i] = new { value = listado[i].clave, name = listado[i].descripcion };
+            }
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+        ///<summary>
+        ///Obtiene los detalles del cliente
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult obtieneClienteDetalles(int id_cliente = 0)
+        {
+            var detalles = new object[1];
+
+            //obtiene todos los posibles valores
+            clientes cliente = db.clientes.Find(id_cliente);
+
+            if (cliente == null)
+            {
+                detalles[0] = new
+                {
+                    nombre = "",
+                    direccion = ""
+                };
+                return Json(detalles, JsonRequestBehavior.AllowGet);
+            }
+
+            detalles[0] = new
+            {
+                nombre = Clases.Util.UsoStrings.RecortaString(cliente.descripcion, 50),
+                direccion = Clases.Util.UsoStrings.RecortaString(cliente.direccion, 100)
+            };
+
+            return Json(detalles, JsonRequestBehavior.AllowGet);
+        }
         public ActionResult DownloadFile(int? idDocumento, bool inline = false)
         {
             if (idDocumento == null)

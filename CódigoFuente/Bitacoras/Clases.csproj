@@ -90,6 +90,7 @@
     <Compile Include="Util\OT_tipo_refaccion.cs" />
     <Compile Include="Util\PFA_Status.cs" />
     <Compile Include="Util\PM_Status.cs" />
+    <Compile Include="Util\RM_estatus.cs" />
     <Compile Include="Util\StreamUtil.cs" />
     <Compile Include="Util\TimeSpanUtil.cs" />
     <Compile Include="Util\TipoRoles.cs" />
