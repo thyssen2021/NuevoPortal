@@ -313,7 +313,7 @@ namespace Portal_2_0.Controllers
         }
 
         // GET: RM_cabecera/Edit/5
-        public ActionResult Edit(int? id)
+        public ActionResult Edit(int? id, int tipo_edit = 2) //edit por defecto
         {
             if (!TieneRol(TipoRoles.RM_CREACION))
                 return View("../Home/ErrorPermisos");
@@ -324,6 +324,24 @@ namespace Portal_2_0.Controllers
             RM_cabecera rM_cabecera = db.RM_cabecera.Find(id);
             if (rM_cabecera == null)
                 return View("../Error/NotFound");
+
+            //verifica si se puede enviar para validacion
+            if (
+                rM_cabecera.ultimoEstatus != (int)Bitacoras.Util.RM_estatus_enum.Creada
+                && rM_cabecera.ultimoEstatus != (int)Bitacoras.Util.RM_estatus_enum.Editada
+                && rM_cabecera.ultimoEstatus != (int)Bitacoras.Util.RM_estatus_enum.Aprobada
+                )
+            {
+                ViewBag.Titulo = "¡Lo sentimos!¡No se puede editar esta remisión!";
+                ViewBag.Descripcion = "No se puede editar una remisón que ya ha sido cancelada o regularizada.";
+
+                return View("../Home/ErrorGenerico");
+            }
+
+            //establece el tipo de formulario
+            rM_cabecera.tipo_edit = (RM_estatus_enum)tipo_edit;
+            rM_cabecera.observaciones = rM_cabecera.tipo_edit == Bitacoras.Util.RM_estatus_enum.Aprobada ? "Se aprueba remisión." : "Se edita Remisión.";
+
 
             var empleado = obtieneEmpleadoLogeado();
             ViewBag.EmpleadoActual = empleado;
@@ -357,6 +375,9 @@ namespace Portal_2_0.Controllers
             {
                 DateTime fechaActual = DateTime.Now;
 
+                //actualiza la fecha para todos lo elementos
+                rM_form.RM_elemento = rM_form.RM_elemento.Select(x => { x.capturaFecha = fechaActual; x.activo = true; return x; }).ToList();
+
                 //obtiene el elemento desde BD
                 var remisionBD = db.RM_cabecera.Find(rM_form.clave);
 
@@ -370,19 +391,26 @@ namespace Portal_2_0.Controllers
                 {
                     capturaFecha = fechaActual,
                     id_empleado = empleado.id,
-                    catalogoEstatusClave = (int)RM_estatus_enum.Editada,
+                    catalogoEstatusClave = (int)rM_form.tipo_edit,
                     texto = texto
                 });
 
-                //establece el valor del último estatus en la cabecera
-                remisionBD.ultimoEstatus = (int)RM_estatus_enum.Editada;
-
+                //Si no se cierra en SAP
+                if (!db.RM_remision_motivo.Find(rM_form.motivoClave).seCierraEnSAP && rM_form.tipo_edit == RM_estatus_enum.Aprobada)
+                    remisionBD.ultimoEstatus = (int)RM_estatus_enum.Regulariza;
+                else // se cierra en SAP
+                    remisionBD.ultimoEstatus = (int)rM_form.tipo_edit;
 
                 try
                 {
                     db.Configuration.ValidateOnSaveEnabled = false;
                     db.SaveChanges();
-                    TempData["Mensaje"] = new MensajesSweetAlert("Se ha editado la remisión: " + remisionBD.ConcatNumeroRemision, TipoMensajesSweetAlerts.SUCCESS);
+                    //determina el mansaje a mostrar
+                    if (rM_form.tipo_edit == RM_estatus_enum.Aprobada)
+                        TempData["Mensaje"] = new MensajesSweetAlert("Se ha aprobado la remisión: " + remisionBD.ConcatNumeroRemision, TipoMensajesSweetAlerts.SUCCESS);
+                    else if (rM_form.tipo_edit == RM_estatus_enum.Editada)
+                        TempData["Mensaje"] = new MensajesSweetAlert("Se ha editado la remisión: " + remisionBD.ConcatNumeroRemision, TipoMensajesSweetAlerts.SUCCESS);
+
                     return RedirectToAction("Index");
                 }
                 catch (Exception e)
@@ -409,29 +437,188 @@ namespace Portal_2_0.Controllers
             return View(rM_form);
         }
 
-        // GET: RM_cabecera/Delete/5
-        public ActionResult Delete(int? id)
+        // GET: RM_cabecera/Regularizar/5
+        public ActionResult Regularizar(int? id)
         {
+            if (!TieneRol(TipoRoles.RM_REGULARIZAR))
+                return View("../Home/ErrorPermisos");
+
             if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
+                return View("../Error/BadRequest");
+
             RM_cabecera rM_cabecera = db.RM_cabecera.Find(id);
             if (rM_cabecera == null)
+                return View("../Error/NotFound");
+
+            //establece el tipo de formulario
+            rM_cabecera.tipo_edit = RM_estatus_enum.Regulariza;
+            rM_cabecera.observaciones = "Se regulariza en SAP de forma correcta.";
+
+            var empleado = obtieneEmpleadoLogeado();
+            ViewBag.EmpleadoActual = empleado;
+
+            //establece los valores para aplicaEnviadoOtro, aplicaClienteOtro y aplicaTransporteOtro
+            rM_cabecera.aplicaClienteOtro = rM_cabecera.clientes == null;
+            rM_cabecera.aplicaEnviadoOtro = rM_cabecera.clientes1 == null;
+            rM_cabecera.aplicaTransporteOtro = rM_cabecera.RM_transporte_proveedor == null;
+
+            return View(rM_cabecera);
+        }
+
+        // POST: RM_cabecera/Edit/5
+        // Para protegerse de ataques de publicación excesiva, habilite las propiedades específicas a las que quiere enlazarse. Para obtener 
+        // más detalles, vea https://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Regularizar(RM_cabecera rM_cabecera)
+        {
+
+            var empleado = obtieneEmpleadoLogeado();
+
+            //obtiene el elemento desde BD
+            var remisionBD = db.RM_cabecera.Find(rM_cabecera.clave);
+
+            //actualiza el número de remisión sap
+            foreach (var item in remisionBD.RM_elemento)
+                item.remisionSap = rM_cabecera.RM_elemento.FirstOrDefault(x => x.clave == item.clave).remisionSap;
+
+            //inicia texto de cambios             
+            string texto = String.Format("<code>Obsevaciones </code>{0}<br/>", UsoStrings.RecortaString(rM_cabecera.observaciones, 950));
+
+
+            //se agrega el cambio de estatus
+            remisionBD.RM_cambio_estatus.Add(new RM_cambio_estatus
             {
-                return HttpNotFound();
+                capturaFecha = DateTime.Now,
+                id_empleado = empleado.id,
+                catalogoEstatusClave = (int)rM_cabecera.tipo_edit,
+                texto = texto
+            });
+
+            remisionBD.ultimoEstatus = (int)RM_estatus_enum.Regulariza;
+
+
+            try
+            {
+                db.Configuration.ValidateOnSaveEnabled = false;
+                db.SaveChanges();
+                //determina el mansaje a mostrar
+                TempData["Mensaje"] = new MensajesSweetAlert("Se ha regularizado la remisión: " + remisionBD.ConcatNumeroRemision, TipoMensajesSweetAlerts.SUCCESS);
+
+                return RedirectToAction("Index");
             }
+            catch (Exception e)
+            {
+                ModelState.AddModelError("", "Ocurrió un error: " + e.Message); ViewBag.EmpleadoActual = empleado;
+
+                //establece los valores para aplicaEnviadoOtro, aplicaClienteOtro y aplicaTransporteOtro
+                rM_cabecera.aplicaClienteOtro = rM_cabecera.clientes == null;
+                rM_cabecera.aplicaEnviadoOtro = rM_cabecera.clientes1 == null;
+                rM_cabecera.aplicaTransporteOtro = rM_cabecera.RM_transporte_proveedor == null;
+            }
+            finally
+            {
+                db.Configuration.ValidateOnSaveEnabled = true;
+            }
+
+
+            ViewBag.EmpleadoActual = empleado;
+
+            //establece los valores para aplicaEnviadoOtro, aplicaClienteOtro y aplicaTransporteOtro
+            rM_cabecera.aplicaClienteOtro = rM_cabecera.clientes == null;
+            rM_cabecera.aplicaEnviadoOtro = rM_cabecera.clientes1 == null;
+            rM_cabecera.aplicaTransporteOtro = rM_cabecera.RM_transporte_proveedor == null;
+
+            return View(rM_cabecera);
+        }
+
+        // GET: RM_cabecera/Print/5
+        public ActionResult Print(int? id)
+        {
+            if (!TieneRol(TipoRoles.RM_DETALLES) && !TieneRol(TipoRoles.RM_CREACION) && !TieneRol(TipoRoles.RM_APROBAR) && !TieneRol(TipoRoles.RM_APROBAR) && !TieneRol(TipoRoles.RM_REPORTES))
+                return View("../Home/ErrorPermisos");
+
+            if (id == null)
+                return View("../Error/BadRequest");
+
+            RM_cabecera rM_cabecera = db.RM_cabecera.Find(id);
+            if (rM_cabecera == null)
+                return View("../Error/NotFound");
+
+            return View(rM_cabecera);
+        }
+
+        // GET: RM_cabecera/Cancel/5
+        public ActionResult Cancel(int? id)
+        {
+            if (!TieneRol(TipoRoles.RM_DETALLES) && !TieneRol(TipoRoles.RM_CREACION) && !TieneRol(TipoRoles.RM_APROBAR) && !TieneRol(TipoRoles.RM_APROBAR) && !TieneRol(TipoRoles.RM_REPORTES))
+                return View("../Home/ErrorPermisos");
+
+            if (id == null)
+                return View("../Error/BadRequest");
+
+            RM_cabecera rM_cabecera = db.RM_cabecera.Find(id);
+            if (rM_cabecera == null)
+                return View("../Error/NotFound");
+
+            //verifica si se puede enviar para validacion
+            if (
+                rM_cabecera.ultimoEstatus != (int)Bitacoras.Util.RM_estatus_enum.Creada
+                && rM_cabecera.ultimoEstatus != (int)Bitacoras.Util.RM_estatus_enum.Editada
+                && rM_cabecera.ultimoEstatus != (int)Bitacoras.Util.RM_estatus_enum.Aprobada
+                && rM_cabecera.ultimoEstatus != (int)Bitacoras.Util.RM_estatus_enum.Impresa
+                )
+            {
+                ViewBag.Titulo = "¡Lo sentimos!¡No se puede cancelar esta remisión!";
+                ViewBag.Descripcion = "No se puede cancelar una remisón que ya ha sido cancelada o regularizada.";
+
+                return View("../Home/ErrorGenerico");
+            }
+
+
+            //establece los valores para aplicaEnviadoOtro, aplicaClienteOtro y aplicaTransporteOtro
+            rM_cabecera.aplicaClienteOtro = rM_cabecera.clientes == null;
+            rM_cabecera.aplicaEnviadoOtro = rM_cabecera.clientes1 == null;
+            rM_cabecera.aplicaTransporteOtro = rM_cabecera.RM_transporte_proveedor == null;
+
             return View(rM_cabecera);
         }
 
         // POST: RM_cabecera/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost, ActionName("Cancel")]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
+        public ActionResult CancelConfirmed(int id, FormCollection collection)
         {
-            RM_cabecera rM_cabecera = db.RM_cabecera.Find(id);
-            db.RM_cabecera.Remove(rM_cabecera);
-            db.SaveChanges();
+            string texto = collection["observaciones"].ToString();
+            var empleado = obtieneEmpleadoLogeado();
+
+            RM_cabecera remisionBD = db.RM_cabecera.Find(id);
+
+            //se agrega el cambio de estatus
+            remisionBD.RM_cambio_estatus.Add(new RM_cambio_estatus
+            {
+                capturaFecha = DateTime.Now,
+                id_empleado = empleado.id,
+                catalogoEstatusClave = (int)RM_estatus_enum.Cancelada,
+                texto = texto
+            });
+
+            //establece el valor del último estatus en la cabecera
+            remisionBD.ultimoEstatus = (int)RM_estatus_enum.Cancelada;
+            try
+            {
+                db.Configuration.ValidateOnSaveEnabled = false;
+                db.SaveChanges();
+                TempData["Mensaje"] = new MensajesSweetAlert("Se ha cancelado la remisión: " + remisionBD.ConcatNumeroRemision, TipoMensajesSweetAlerts.SUCCESS);
+            }
+            catch (Exception e)
+            {
+                TempData["Mensaje"] = new MensajesSweetAlert("Ocurrió un error cancelando la remisión " + remisionBD.ConcatNumeroRemision + ": " + e.Message, TipoMensajesSweetAlerts.ERROR);
+            }
+            finally
+            {
+                db.Configuration.ValidateOnSaveEnabled = true;
+            }
             return RedirectToAction("Index");
         }
 
@@ -541,6 +728,65 @@ namespace Portal_2_0.Controllers
                 return json;
             }
         }
+        /// <summary>
+        /// Método que actualiza estatus impresión bd
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public JsonResult ActualizaEstatusImpresión(int id = 0)
+        {
+            var result = new object[1];
+
+            string estatus = string.Empty;
+            string msj = string.Empty;
+
+            if (id == 0)
+            {
+                result[0] = new { status = "ERROR", message = "No se envió ID" };
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+
+            //obtiene el elemento de BD
+            RM_cabecera remision = db.RM_cabecera.Find(id);
+
+            if (remision == null)
+            {
+                result[0] = new { status = "ERROR", message = "No se encontró el número de remisón" };
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+
+            //actualiza el estatus
+            //se agrega el cambio de estatus
+            remision.RM_cambio_estatus.Add(new RM_cambio_estatus
+            {
+                capturaFecha = DateTime.Now,
+                id_empleado = obtieneEmpleadoLogeado().id,
+                catalogoEstatusClave = (int)RM_estatus_enum.Impresa,
+                texto = String.Format("<code>Obsevaciones </code>{0}<br />", "Se imprime remisón.")
+            });
+
+            //no es necesario actualizar el último estatus
+            try
+            {
+                db.Configuration.ValidateOnSaveEnabled = false;
+                db.SaveChanges();
+                estatus = "SUCCESS";
+                msj = "Se guardó correctamente el estatus";
+            }
+            catch (Exception e)
+            {
+                ModelState.AddModelError("", "Ocurrió un error: " + e.Message);
+                estatus = "ERROR";
+                msj = "Ocurrió un error: " + e.Message;
+            }
+            finally
+            {
+                db.Configuration.ValidateOnSaveEnabled = true;
+            }
+            result[0] = new { status = estatus, message = msj };
+            return Json(result, JsonRequestBehavior.AllowGet);
+
+        }
 
         /// <summary>
         /// Muestra el manual de usuario
@@ -570,6 +816,30 @@ namespace Portal_2_0.Controllers
 
 
         }
+
+        public ActionResult FormatoCierreRemision(int? id)
+        {
+            var remision = db.RM_cabecera.Find(id);
+
+            byte[] stream = ExcelUtil.GeneraFormatoRM(remision, obtieneEmpleadoLogeado()) ;
+
+            var cd = new System.Net.Mime.ContentDisposition
+            {
+                // for example foo.bak
+                FileName = "Formato_remision_" +remision.ConcatNumeroRemision+"_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+                // always prompt the user for downloading, set to true if you want 
+                // the browser to try to show the file inline
+                Inline = false,
+            };
+
+            Response.AppendHeader("Content-Disposition", cd.ToString());
+
+            return File(stream, "application/vnd.ms-excel");
+
+
+
+        }
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -595,7 +865,126 @@ namespace Portal_2_0.Controllers
                 cambios.Add(String.Format("Cambio en <b>{0}</b>; original: <i>{1}</i>, cambio: <i>{2}</i>", "Almacén", original.RM_almacen.descripcion, db.RM_almacen.Find(modificado.almacenClave).descripcion));
                 original.almacenClave = modificado.almacenClave;
             }
+            //cambio de motivo
+            if (original.motivoClave != modificado.motivoClave)
+            {
+                cambios.Add(String.Format("Cambio en <b>{0}</b>; original: <i>{1}</i>, cambio: <i>{2}</i>", "Motivo", original.RM_remision_motivo.descripcion, db.RM_remision_motivo.Find(modificado.motivoClave).descripcion));
+                original.motivoClave = modificado.motivoClave;
+            }
+            //cambio de texto motivo
+            if (original.motivoTexto != modificado.motivoTexto)
+            {
+                cambios.Add(String.Format("Cambio en <b>{0}</b>; original: <i>{1}</i>, cambio: <i>{2}</i>", "Texto Motivo", original.motivoTexto, modificado.motivoTexto));
+                original.motivoTexto = modificado.motivoTexto;
+            }
+            //cambio de cliente
+            if (original.clienteOtro != modificado.clienteOtro)
+            {
+                cambios.Add(String.Format("Cambio en <b>{0}</b>; original: <i>{1}</i>, cambio: <i>{2}</i>", "Cliente", original.clienteOtro, modificado.clienteOtro));
+                original.clienteOtro = modificado.clienteOtro;
+                original.clienteClave = modificado.clienteClave;
+            }
+            //cambio de direccion cliente
+            if (original.clienteOtroDireccion != modificado.clienteOtroDireccion)
+            {
+                cambios.Add(String.Format("Cambio en <b>{0}</b>; original: <i>{1}</i>, cambio: <i>{2}</i>", "Cliente (Dirección)", original.clienteOtroDireccion, modificado.clienteOtroDireccion));
+                original.clienteOtroDireccion = modificado.clienteOtroDireccion;
+            }
+            //cambio de Enviado A
+            if (original.enviadoAOtro != modificado.enviadoAOtro)
+            {
+                cambios.Add(String.Format("Cambio en <b>{0}</b>; original: <i>{1}</i>, cambio: <i>{2}</i>", "Enviado A", original.enviadoAOtro, modificado.enviadoAOtro));
+                original.enviadoAOtro = modificado.enviadoAOtro;
+                original.enviadoAClave = modificado.enviadoAClave;
+            }
+            //cambio de direccion cliente
+            if (original.enviadoAOtroDireccion != modificado.enviadoAOtroDireccion)
+            {
+                cambios.Add(String.Format("Cambio en <b>{0}</b>; original: <i>{1}</i>, cambio: <i>{2}</i>", "Enviado A (Dirección)", original.enviadoAOtroDireccion, modificado.enviadoAOtroDireccion));
+                original.enviadoAOtroDireccion = modificado.enviadoAOtroDireccion;
+            }
+            //cambio de Transporte
+            if (original.transporteOtro != modificado.transporteOtro)
+            {
+                cambios.Add(String.Format("Cambio en <b>{0}</b>; original: <i>{1}</i>, cambio: <i>{2}</i>", "Transporte", original.transporteOtro, modificado.transporteOtro));
+                original.transporteOtro = modificado.transporteOtro;
+                original.transporteProveedorClave = modificado.transporteProveedorClave;
+            }
+            //cambio placa Tractor
+            if (original.placaTractor != modificado.placaTractor)
+            {
+                cambios.Add(String.Format("Cambio en <b>{0}</b>; original: <i>{1}</i>, cambio: <i>{2}</i>", "Placa Tractor", original.placaTractor, modificado.placaTractor));
+                original.placaTractor = modificado.placaTractor;
+            }
+            //cambio placa Remolque
+            if (original.placaRemolque != modificado.placaRemolque)
+            {
+                cambios.Add(String.Format("Cambio en <b>{0}</b>; original: <i>{1}</i>, cambio: <i>{2}</i>", "Placa Remolque", original.placaRemolque, modificado.placaRemolque));
+                original.placaRemolque = modificado.placaRemolque;
+            }
+            //cambio chofer
+            if (original.nombreChofer != modificado.nombreChofer)
+            {
+                cambios.Add(String.Format("Cambio en <b>{0}</b>; original: <i>{1}</i>, cambio: <i>{2}</i>", "Nombre Chofer", original.nombreChofer, modificado.nombreChofer));
+                original.nombreChofer = modificado.nombreChofer;
+            }
+            //horario descarga
+            if (original.horarioDescarga != modificado.horarioDescarga)
+            {
+                cambios.Add(String.Format("Cambio en <b>{0}</b>; original: <i>{1}</i>, cambio: <i>{2}</i>", "Horario Descarga", original.horarioDescarga, modificado.horarioDescarga));
+                original.horarioDescarga = modificado.horarioDescarga;
+            }
 
+            //agrega los nuevos elementos
+            foreach (var item in modificado.RM_elemento.Where(x => !(x.clave > 0)))
+            {
+                original.RM_elemento.Add(item);
+                cambios.Add(String.Format("Se agrega elemento; material: <i>{0}</i>, lote: <i>{1}</i>, cantidad: <i>{2}</i>, peso: <i>{3}</i>"
+                    , item.numeroMaterial, item.numeroLote, item.cantidad, item.peso));
+            }
+            //elimina elementos
+            List<RM_elemento> listTemp = new List<RM_elemento>();
+            foreach (var item in original.RM_elemento.Where(x => !modificado.RM_elemento.Any(y => y.clave == x.clave)))
+            {
+
+                listTemp.Add(item);
+                cambios.Add(String.Format("Se elimina; material: <i>{0}</i>, lote: <i>{1}</i>, cantidad: <i>{2}</i>, peso: <i>{3}</i>"
+                   , item.numeroMaterial, item.numeroLote, item.cantidad, item.peso));
+            }
+            //elimina los elementos
+            db.RM_elemento.RemoveRange(listTemp);
+
+            //modifica elementos elementos
+            foreach (var item in modificado.RM_elemento.Where(x => (x.clave > 0)))
+            {
+                var ori = original.RM_elemento.Where(x => x.clave == item.clave).FirstOrDefault();
+
+                if ((item.numeroParteCliente != ori.numeroParteCliente)
+                    || (item.numeroMaterial != ori.numeroMaterial)
+                    || (item.numeroLote != ori.numeroLote)
+                    || (item.numeroRollo != ori.numeroRollo)
+                    || (item.cantidad != ori.cantidad)
+                    || (item.peso != ori.peso)
+                    )
+                {
+                    cambios.Add(String.Format("Se modifica elemento; <b>ORIGINAL</b>:  parte: <i>{0}</i>, material: <i>{1}</i>, lote: <i>{2}</i>, rollo: <i>{3}</i>, cantidad: <i>{4}</i>, peso: <i>{5}</i>, <b>CAMBIO</b>:  parte: <i>{6}</i>, material: <i>{7}</i>, lote: <i>{8}</i>, rollo: <i>{9}</i>, cantidad: <i>{10}</i>, peso: <i>{11}</i>"
+                       , ori.numeroParteCliente, ori.numeroMaterial, ori.numeroLote, ori.numeroRollo, ori.cantidad, ori.peso
+                       , item.numeroParteCliente, item.numeroMaterial, item.numeroLote, item.numeroRollo, item.cantidad, item.peso
+                       ));
+
+                    //ejecuta los cambios
+                    ori.numeroParteCliente = item.numeroParteCliente;
+                    ori.numeroMaterial = item.numeroMaterial;
+                    ori.numeroLote = item.numeroLote;
+                    ori.numeroRollo = item.numeroRollo;
+                    ori.cantidad = item.cantidad;
+                    ori.peso = item.peso;
+
+
+                }
+
+
+            }
 
             //agrega el registro de cambios
             if (cambios.Count > 0)
@@ -605,7 +994,7 @@ namespace Portal_2_0.Controllers
                 foreach (var item in cambios)
                 {
                     //lo agrega solo si el resultado es menor 1000 carácteres
-                    if (texto.Length + item.Length <1180)
+                    if (texto.Length + item.Length < 1180)
                         texto += string.Format("<li class='last'>{0}</li>", item);
                 }
                 texto += "</ul>";

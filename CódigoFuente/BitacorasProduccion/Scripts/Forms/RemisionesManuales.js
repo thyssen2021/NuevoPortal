@@ -142,13 +142,50 @@ $(document).ready(function () {
         leeXLSX();
     });
 
+    //controla envio del formulario
+    $('form #btn-ok').click(function (e) {
+        let $form = $(this).closest('form');
+
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-success',
+                cancelButton: 'btn btn-danger'
+            },
+            buttonsStyling: false,
+        })
+
+
+        swalWithBootstrapButtons.fire({
+            title: '¿Desea Continuar?',
+            html: "Se guardarán los cambios realizados.",
+            showCancelButton: true,
+            confirmButtonText: 'Aceptar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.value) {
+                //espera a que se cierre el modal para enviar el formulario
+                setTimeout(function () {
+                    $form.submit();
+                }, 800);
+            }
+        });
+
+    });
     //eventos que se cargan por defecto
     asignaEventosInput();
     AsignaNumeroConcepto();
     calculaDatos();
     //inicializa en input file
     bsCustomFileInput.init();
+    //inicializa input mask
+    $('.sap').inputmask({ 'alias': 'integer', 'mask': '99999999', 'autoGroup': true, 'autoUnmask': true, 'removeMaskOnSubmit': true });
+
 });
+
+function imprimir(id) {
+    //window.open('/@ViewBag.ControllerName/print/' + id, 'popup', 'width=600,height=600');
+    popupCenter({ url: '/RM_cabecera/print/' + id, title: 'Imprimir Remisión', w: screen.width * .70, h: screen.height * .70 });
+}
 
 function leeXLSX() {
     //var f = $(this);

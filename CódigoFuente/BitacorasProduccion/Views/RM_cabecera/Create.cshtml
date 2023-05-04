@@ -349,7 +349,7 @@
                                             <tr id="div_concepto_@contador">
                                                 <input type="hidden" name="RM_elemento.Index" id="RM_elemento.Index" value="@contador" />
                                                 <input type="hidden" name="RM_elemento[@contador].activo" value="true" />
-                                                <input type="hidden" name="RM_elemento[@contador].clave" value="@item.remisionCabeceraClave" />
+                                                <input type="hidden" name="RM_elemento[@contador].clave" value="@item.clave" />
                                                 <td class="input-contador-conceptos"></td>
                                                 <td>
                                                     <input style=" font-size: 12px;" type="text" name="RM_elemento[@contador].numeroParteCliente" id="RM_elemento[@contador].numeroParteCliente" class="form-control col-md-12" value="@item.numeroParteCliente" autocomplete="off" maxlength="50" required>
@@ -444,7 +444,7 @@
 
                             <div class="item form-group">
                                 <div class="col-md-12 col-sm-12 offset-md-12">
-                                    <button type="submit" class="btn btn-success btn-lg float-lg-right"> <i class="fa-regular fa-floppy-disk"></i>&nbsp; Guardar</button>
+                                    <button type="button" id="btn-ok" class="btn btn-success btn-lg float-lg-right"> <i class="fa-regular fa-floppy-disk"></i>&nbsp; Guardar</button>
                                 </div>
                             </div>
 

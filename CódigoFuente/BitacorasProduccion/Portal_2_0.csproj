@@ -958,6 +958,7 @@
     <Content Include="Content\emails_plantillas\PFA_solicitud_recibida.html" />
     <Content Include="Content\font-awesome.css" />
     <Content Include="Content\font-awesome.min.css" />
+    <Content Include="Content\images\245px-Thyssenkrupp_AG_Logo_2015.png" />
     <Content Include="Content\images\logo_174.png" />
     <Content Include="Content\images\logo_4.png" />
     <Content Include="Content\images\logo_1.png" />
@@ -3780,13 +3781,7 @@
     <Content Include="Content\vendors\starrr\dist\starrr.css" />
     <Content Include="Content\vendors\starrr\dist\starrr.js" />
     <Content Include="Content\vendors\starrr\index.html" />
-    <Content Include="Content\vendors\sweetalert2-theme-bootstrap-4\bootstrap-4.css" />
     <Content Include="Content\vendors\sweetalert2-theme-bootstrap-4\bootstrap-4.min.css" />
-    <Content Include="Content\vendors\sweetalert2\sweetalert2.all.js" />
-    <Content Include="Content\vendors\sweetalert2\sweetalert2.all.min.js" />
-    <Content Include="Content\vendors\sweetalert2\sweetalert2.css" />
-    <Content Include="Content\vendors\sweetalert2\sweetalert2.js" />
-    <Content Include="Content\vendors\sweetalert2\sweetalert2.min.css" />
     <Content Include="Content\vendors\sweetalert2\sweetalert2.min.js" />
     <Content Include="Content\vendors\switchery\dist\switchery.css" />
     <Content Include="Content\vendors\switchery\dist\switchery.js" />
@@ -5225,10 +5220,12 @@
     <Content Include="Views\IT_notificaciones_actividad\Index.cshtml" />
     <Content Include="Views\IT_notificaciones_actividad\EditRecurrentes.cshtml" />
     <Content Include="Views\RM_cabecera\Create.cshtml" />
-    <Content Include="Views\RM_cabecera\Delete.cshtml" />
     <Content Include="Views\RM_cabecera\Details.cshtml" />
     <Content Include="Views\RM_cabecera\Edit.cshtml" />
     <Content Include="Views\RM_cabecera\Index.cshtml" />
+    <Content Include="Views\RM_cabecera\Cancel.cshtml" />
+    <Content Include="Views\RM_cabecera\Regularizar.cshtml" />
+    <Content Include="Views\RM_cabecera\Print.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

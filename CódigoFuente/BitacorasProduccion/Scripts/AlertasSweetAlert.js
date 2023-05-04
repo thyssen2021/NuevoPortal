@@ -1,24 +1,39 @@
 ﻿$(document).ready(function () {
-
-    var Toast = Swal.mixin({
+    const Toast = Swal.mixin({
         toast: true,
         position: 'top-right',
         iconColor: 'white',
         customClass: {
             popup: 'colored-toast'
         },
-        icon: 'success',
-        title: 'General Title',
-        animation: false,
-        position: 'top-right',
-        showConfirmButton: true,
+        showConfirmButton: false,
         timer: 5000,
         timerProgressBar: true,
         didOpen: (toast) => {
             toast.addEventListener('mouseenter', Swal.stopTimer)
             toast.addEventListener('mouseleave', Swal.resumeTimer)
         }
-    });
+    })
+
+    //var Toast = Swal.mixin({
+    //    toast: true,
+    //    position: 'top-right',
+    //    iconColor: 'white',
+    //    customClass: {
+    //        popup: 'colored-toast'
+    //    },
+    //    icon: 'success',
+    //    title: 'General Title',
+    //    animation: false,
+    //    position: 'top-right',
+    //    showConfirmButton: true,
+    //    timer: 5000,
+    //    timerProgressBar: true,
+    //    didOpen: (toast) => {
+    //        toast.addEventListener('mouseenter', Swal.stopTimer)
+    //        toast.addEventListener('mouseleave', Swal.resumeTimer)
+    //    }
+    //});
 
     
     mostrarAlerta();

@@ -38,7 +38,7 @@
                     <div class="x_content">
                         <div class="form-group row">
                             <div class="col-md-12" style="text-align:center">
-                                <h3 class="green"><i class="fa-solid fa-file-lines"></i> REMISI&Oacute;N PROVISIONAL (@(Model.tipo_edit == Bitacoras.Util.RM_estatus_enum.Aprobada?"Aprobar":"Editar"))</h3>
+                                <h3 class="green"><i class="fa-solid fa-file-lines"></i> REMISI&Oacute;N PROVISIONAL (Regularizar)</h3>
                             </div>
                         </div>
 
@@ -97,21 +97,18 @@
                                         <!--Planta Clave-->
                                         @Html.LabelFor(model => model.id_planta, new { @class = "control-label col-md-1" })
                                         <div class="col-md-3">
-                                            @Html.DropDownList("id_planta", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
-                                            @Html.ValidationMessageFor(model => model.id_planta, "", new { @class = "text-danger" })
+                                            <input class="form-control" value="@Html.DisplayFor(model => model.RM_almacen.plantas.descripcion)" readonly />
                                         </div>
 
                                         <!--Almacen Clave-->
                                         @Html.LabelFor(model => model.almacenClave, new { @class = "control-label col-md-1" })
                                         <div class="col-md-3">
-                                            @Html.DropDownList("almacenClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
-                                            @Html.ValidationMessageFor(model => model.almacenClave, "", new { @class = "text-danger" })
+                                            <input class="form-control" value="@Html.DisplayFor(model => model.RM_almacen.descripcion)" readonly />
                                         </div>
 
-                                        @Html.LabelFor(model => model.retornaMaterial, htmlAttributes: new { @class = "control-label col-md-1 derecha", @data_toggle = "tooltip", @data_placement = "top", @title = "Marcar si retorna el material." })
-                                        <div class="col-md-1" data-toggle="tooltip" data-placement="top" title="Marcar si retorna el material.">
-                                            @Html.EditorFor(model => model.retornaMaterial, new { htmlAttributes = new { @class = "check" } })
-                                            @Html.ValidationMessageFor(model => model.retornaMaterial, "", new { @class = "text-danger" })
+                                        @Html.LabelFor(model => model.retornaMaterial, htmlAttributes: new { @class = "control-label col-md-1 derecha" })
+                                        <div class="col-md-1">
+                                            @Html.EditorFor(model => model.retornaMaterial, new { htmlAttributes = new { @class = "check", @disabled = "disabled" } })
                                         </div>
 
                                     </div>
@@ -125,8 +122,7 @@
                                         <!--Motivo Clave-->
                                         @Html.LabelFor(model => model.motivoClave, new { @class = "control-label col-md-1" })
                                         <div class="col-md-5">
-                                            @Html.DropDownList("motivoClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
-                                            @Html.ValidationMessageFor(model => model.motivoClave, "", new { @class = "text-danger" })
+                                            <input type="text" class="form-control" value="@Html.DisplayFor(model => model.RM_remision_motivo.descripcion)" readonly>
                                         </div>
                                     </div>
                                     <div class="item form-group">
@@ -134,8 +130,7 @@
                                     </div>
                                     <div class="item form-group">
                                         <div class="col-md-12">
-                                            @Html.TextAreaFor(model => model.motivoTexto, new { @class = "form-control", @rows = "4", @autocomplete = "off" })
-                                            @Html.ValidationMessageFor(model => model.motivoTexto, "", new { @class = "text-danger" })
+                                            @Html.TextAreaFor(model => model.motivoTexto, new { @class = "form-control", @rows = "4", @autocomplete = "off", @readonly = "readonly" })
                                         </div>
                                     </div>
 
@@ -148,21 +143,19 @@
                                         <!--Cliente Clave-->
                                         @Html.LabelFor(model => model.clienteClave, new { @class = "control-label col-md-1" })
                                         <div class="col-md-4">
-                                            @if (Model.aplicaClienteOtro)
+                                            @if (Model.clientes != null)
                                             {
-                                                @Html.DropDownList("clienteClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @disabled = "disabled" })
+                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.clientes.descripcion)" readonly>
                                             }
                                             else
                                             {
-                                                @Html.DropDownList("clienteClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.clienteOtro)" readonly>
                                             }
-                                            @Html.ValidationMessageFor(model => model.clienteClave, "", new { @class = "text-danger" })
                                         </div>
                                         <!--Aplica otro?-->
                                         @Html.LabelFor(model => model.aplicaClienteOtro, htmlAttributes: new { @class = "control-label col-md-1" })
                                         <div class="col-md-1">
-                                            @Html.EditorFor(model => model.aplicaClienteOtro, new { htmlAttributes = new { @class = "check", @autocomplete = "off" } })
-                                            @Html.ValidationMessageFor(model => model.aplicaClienteOtro, "", new { @class = "text-danger" })
+                                            @Html.EditorFor(model => model.aplicaClienteOtro, new { htmlAttributes = new { @class = "check", @autocomplete = "off", @disabled = "@disabled" } })
                                         </div>
                                     </div>
 
@@ -170,28 +163,26 @@
                                         <!--Cliente Otro-->
                                         @Html.LabelFor(model => model.clienteOtro, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
                                         <div class="col-md-4">
-                                            @if (Model.aplicaClienteOtro)
+                                            @if (Model.clientes != null)
                                             {
-                                                @Html.EditorFor(model => model.clienteOtro, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.clientes.descripcion)" readonly>
                                             }
                                             else
                                             {
-                                                @Html.EditorFor(model => model.clienteOtro, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.clienteOtro)" readonly>
                                             }
-                                            @Html.ValidationMessageFor(model => model.clienteOtro, "", new { @class = "text-danger" })
                                         </div>
                                         <!--Cliente Otro Dirección-->
                                         @Html.LabelFor(model => model.clienteOtroDireccion, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
                                         <div class="col-md-6">
-                                            @if (Model.aplicaClienteOtro)
+                                            @if (Model.clientes != null)
                                             {
-                                                @Html.EditorFor(model => model.clienteOtroDireccion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.clientes.direccion)" readonly>
                                             }
                                             else
                                             {
-                                                @Html.EditorFor(model => model.clienteOtroDireccion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.clienteOtroDireccion)" readonly>
                                             }
-                                            @Html.ValidationMessageFor(model => model.clienteOtroDireccion, "", new { @class = "text-danger" })
                                         </div>
                                     </div>
 
@@ -204,21 +195,19 @@
                                         <!--Enviado A Clave-->
                                         @Html.LabelFor(model => model.enviadoAClave, new { @class = "control-label col-md-1" })
                                         <div class="col-md-4">
-                                            @if (Model.aplicaEnviadoOtro)
+                                            @if (Model.clientes1 != null)
                                             {
-                                                @Html.DropDownList("enviadoAClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @disabled = "disabled" })
+                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.clientes1.descripcion)" readonly>
                                             }
                                             else
                                             {
-                                                @Html.DropDownList("enviadoAClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.enviadoAOtro)" readonly>
                                             }
-                                            @Html.ValidationMessageFor(model => model.enviadoAClave, "", new { @class = "text-danger" })
                                         </div>
                                         <!--Aplica otro?-->
                                         @Html.LabelFor(model => model.aplicaEnviadoOtro, htmlAttributes: new { @class = "control-label col-md-1" })
                                         <div class="col-md-1">
-                                            @Html.EditorFor(model => model.aplicaEnviadoOtro, new { htmlAttributes = new { @class = "check", @autocomplete = "off" } })
-                                            @Html.ValidationMessageFor(model => model.aplicaEnviadoOtro, "", new { @class = "text-danger" })
+                                            @Html.EditorFor(model => model.aplicaEnviadoOtro, new { htmlAttributes = new { @class = "check", @disabled = "@disabled" } })
                                         </div>
                                     </div>
 
@@ -226,28 +215,26 @@
                                         <!--Enviado a Otro-->
                                         @Html.LabelFor(model => model.enviadoAOtro, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
                                         <div class="col-md-4">
-                                            @if (Model.aplicaEnviadoOtro)
+                                            @if (Model.clientes1 != null)
                                             {
-                                                @Html.EditorFor(model => model.enviadoAOtro, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.clientes1.descripcion)" readonly>
                                             }
                                             else
                                             {
-                                                @Html.EditorFor(model => model.enviadoAOtro, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.enviadoAOtro)" readonly>
                                             }
-                                            @Html.ValidationMessageFor(model => model.enviadoAOtro, "", new { @class = "text-danger" })
                                         </div>
                                         <!--Enviado A Otro Dirección-->
                                         @Html.LabelFor(model => model.enviadoAOtroDireccion, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
                                         <div class="col-md-6">
-                                            @if (Model.aplicaEnviadoOtro)
+                                            @if (Model.clientes1 != null)
                                             {
-                                                @Html.EditorFor(model => model.enviadoAOtroDireccion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.clientes1.direccion)" readonly>
                                             }
                                             else
                                             {
-                                                @Html.EditorFor(model => model.enviadoAOtroDireccion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.enviadoAOtroDireccion)" readonly>
                                             }
-                                            @Html.ValidationMessageFor(model => model.enviadoAOtroDireccion, "", new { @class = "text-danger" })
                                         </div>
                                     </div>
 
@@ -260,21 +247,19 @@
                                         <!--Transporte Clave-->
                                         @Html.LabelFor(model => model.transporteProveedorClave, new { @class = "control-label col-md-1" })
                                         <div class="col-md-3">
-                                            @if (Model.aplicaTransporteOtro)
+                                            @if (Model.RM_transporte_proveedor != null)
                                             {
-                                                @Html.DropDownList("transporteProveedorClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @disabled = "disabled" })
+                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.RM_transporte_proveedor.descripcion)" readonly>
                                             }
                                             else
                                             {
-                                                @Html.DropDownList("transporteProveedorClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.transporteOtro)" readonly>
                                             }
-                                            @Html.ValidationMessageFor(model => model.transporteProveedorClave, "", new { @class = "text-danger" })
                                         </div>
                                         <!--Aplica otro?-->
                                         @Html.LabelFor(model => model.aplicaTransporteOtro, htmlAttributes: new { @class = "control-label col-md-1" })
                                         <div class="col-md-1">
-                                            @Html.EditorFor(model => model.aplicaTransporteOtro, new { htmlAttributes = new { @class = "check", @autocomplete = "off" } })
-                                            @Html.ValidationMessageFor(model => model.aplicaTransporteOtro, "", new { @class = "text-danger" })
+                                            @Html.EditorFor(model => model.aplicaTransporteOtro, new { htmlAttributes = new { @class = "check", @disabled = "@disabled" } })
                                         </div>
                                     </div>
 
@@ -282,27 +267,24 @@
                                         <!--Transporte Otro-->
                                         @Html.LabelFor(model => model.transporteOtro, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
                                         <div class="col-md-4">
-                                            @if (Model.aplicaTransporteOtro)
+                                            @if (Model.RM_transporte_proveedor != null)
                                             {
-                                                @Html.EditorFor(model => model.transporteOtro, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.RM_transporte_proveedor.descripcion)" readonly>
                                             }
                                             else
                                             {
-                                                @Html.EditorFor(model => model.transporteOtro, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.transporteOtro)" readonly>
                                             }
-                                            @Html.ValidationMessageFor(model => model.transporteOtro, "", new { @class = "text-danger" })
                                         </div>
                                         <!--placa tractor-->
                                         @Html.LabelFor(model => model.placaTractor, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
                                         <div class="col-md-2">
-                                            @Html.EditorFor(model => model.placaTractor, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                                            @Html.ValidationMessageFor(model => model.placaTractor, "", new { @class = "text-danger" })
+                                            @Html.EditorFor(model => model.placaTractor, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                                         </div>
                                         <!--placa remolque-->
                                         @Html.LabelFor(model => model.placaRemolque, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
                                         <div class="col-md-2">
-                                            @Html.EditorFor(model => model.placaRemolque, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                                            @Html.ValidationMessageFor(model => model.placaRemolque, "", new { @class = "text-danger" })
+                                            @Html.EditorFor(model => model.placaRemolque, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                                         </div>
                                     </div>
 
@@ -310,14 +292,12 @@
                                         <!--Nombre Chofer-->
                                         @Html.LabelFor(model => model.nombreChofer, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
                                         <div class="col-md-4">
-                                            @Html.EditorFor(model => model.nombreChofer, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                                            @Html.ValidationMessageFor(model => model.nombreChofer, "", new { @class = "text-danger" })
+                                            @Html.EditorFor(model => model.nombreChofer, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                                         </div>
                                         <!--Horario de Descarga-->
                                         @Html.LabelFor(model => model.horarioDescarga, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
                                         <div class="col-md-2">
-                                            @Html.EditorFor(model => model.horarioDescarga, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                                            @Html.ValidationMessageFor(model => model.horarioDescarga, "", new { @class = "text-danger" })
+                                            @Html.EditorFor(model => model.horarioDescarga, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                                         </div>
                                     </div>
 
@@ -350,8 +330,8 @@
                                                     <th width="10%">
                                                         Peso
                                                     </th>
-                                                    <th width="1%">
-
+                                                    <th width="10%">
+                                                        Remisi&oacute;n SAP
                                                     </th>
                                                 </tr>
                                             </thead>
@@ -366,33 +346,28 @@
                                                         <input type="hidden" name="RM_elemento[@contador].clave" value="@item.clave" />
                                                         <td class="input-contador-conceptos"></td>
                                                         <td>
-                                                            <input style=" font-size: 12px;" type="text" name="RM_elemento[@contador].numeroParteCliente" id="RM_elemento[@contador].numeroParteCliente" class="form-control col-md-12" value="@item.numeroParteCliente" autocomplete="off" maxlength="50" required>
-                                                            <span class="field-validation-valid text-danger" data-valmsg-for="RM_elemento[@contador].numeroParteCliente" data-valmsg-replace="true"></span>
+                                                            @item.numeroParteCliente
                                                         </td>
                                                         <td>
-                                                            <input style=" font-size: 12px;" type="text" name="RM_elemento[@contador].numeroMaterial" id="RM_elemento[@contador].numeroMaterial" class="form-control col-md-12" value="@item.numeroMaterial" autocomplete="off" maxlength="50" required>
-                                                            <span class="field-validation-valid text-danger" data-valmsg-for="RM_elemento[@contador].numeroMaterial" data-valmsg-replace="true"></span>
+                                                            @item.numeroMaterial
                                                         </td>
                                                         <td>
-                                                            <input style=" font-size: 12px;" type="text" name="RM_elemento[@contador].numeroLote" id="RM_elemento[@contador].numeroLote" class="form-control col-md-12" value="@item.numeroLote" autocomplete="off" maxlength="50" required>
-                                                            <span class="field-validation-valid text-danger" data-valmsg-for="RM_elemento[@contador].numeroLote" data-valmsg-replace="true"></span>
+                                                            @item.numeroLote
                                                         </td>
                                                         <td>
-                                                            <input style=" font-size: 12px;" type="text" name="RM_elemento[@contador].numeroRollo" id="RM_elemento[@contador].numeroRollo" class="form-control col-md-12" value="@item.numeroRollo" autocomplete="off" maxlength="50" required>
-                                                            <span class="field-validation-valid text-danger" data-valmsg-for="RM_elemento[@contador].numeroRollo" data-valmsg-replace="true"></span>
+                                                            @item.numeroRollo
                                                         </td>
-                                                        <td>
-                                                            <input style=" font-size: 12px;" type="text" name="RM_elemento[@contador].cantidad" id="RM_elemento[@contador].cantidad" class="form-control col-md-12 entero" value="@item.cantidad" autocomplete="off">
-                                                            <span class="field-validation-valid text-danger" data-valmsg-for="RM_elemento[@contador].cantidad" data-valmsg-replace="true"></span>
+                                                        <td style="text-align:right">
+                                                            @item.cantidad
                                                         </td>
-                                                        <td>
-                                                            <input style=" font-size: 12px;" type="text" name="RM_elemento[@contador].peso" id="RM_elemento[@contador].peso" class="form-control col-md-12 decimal" value="@item.peso" autocomplete="off">
+                                                        <td style="text-align:right">
+                                                            @String.Format("{0:0.000}", item.peso)
+                                                        </td>
+                                                        <td style="background: #cef7cd;">
+                                                            <input style=" font-size: 12px;" type="text" name="RM_elemento[@contador].remisionSap" id="RM_elemento[@contador].remisionSap" class="form-control col-md-12 sap" value="@item.remisionSap" autocomplete="off" required>
                                                             <span class="field-validation-valid text-danger" data-valmsg-for="RM_elemento[@contador].peso" data-valmsg-replace="true"></span>
                                                         </td>
 
-                                                        <td>
-                                                            <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarConcepto(@contador); return false;">
-                                                        </td>
                                                     </tr>
 
                                                     contador++;
@@ -404,8 +379,8 @@
                                             <tfoot>
                                                 <tr>
                                                     <th colspan="5" style="text-align:right">Totales</th>
-                                                    <th id="total_cantidad" style="text-align: right; background:#cef7cd"> 0</th>
-                                                    <th id="total_peso" style="text-align: right; background: #cef7cd"> 0.000</th>
+                                                    <th style="text-align: right; background:#cef7cd">@Model.TotalCantidadRemision</th>
+                                                    <th style="text-align: right; background: #cef7cd"> @String.Format("{0:0.000}", @Model.TotalPesoRemision)</th>
                                                     <th></th>
                                                 </tr>
                                             </tfoot>
@@ -414,29 +389,7 @@
                                     <div class="form-group row">
 
                                     </div>
-                                    <div class="form-group row">
-                                        <div class="col-md-11">
-                                            <input type="button" value="Agregar" class="btn btn-round btn-warning float-right" onclick="AgregarConcepto(); return false;">
-                                        </div>
-                                    </div>
 
-                                    <div class="form-group row">
-                                        <span style="color:darkgray"><b>Opci&oacute;n 2 (Carga de archivo .xlsx):</b></span>
-                                    </div>
-
-                                    <div class="item form-group">
-                                        <label for="archivo_xlsx" class="control-label col-md-1">Archivo Excel</label>
-                                        <div class="custom-file col-md-4">
-                                            <input type="file" class="custom-file-input" id="archivo_xlsx" name="archivo_xlsx" aria-describedby="inputGroupFileAddon01" accept=".xlsx,.XLSX">
-                                            <label class="custom-file-label" for="archivo_xlsx">Seleccione un archivo...</label>
-                                        </div>
-                                        <div class="col-md-2 col-sm-2">
-                                            <button id="cargar-archivo-btn" type="button" class="btn btn-warning float-lg-left"><i class="fa-solid fa-upload"></i>&nbsp; Leer Archivo</button>
-                                        </div>
-                                        <div class="col-md-2 col-sm-2">
-                                            <a href="@Url.Action("FormatoEjemplo", ViewBag.ControllerName)" class="btn btn-info float-lg-left"><i class="fa-solid fa-download"></i> Descargar Formato Ejemplo</a>
-                                        </div>
-                                    </div>
 
                                     <div class="ln_solid"></div>
                                     <div class="form-group row">
@@ -454,15 +407,11 @@
                                     <div class="ln_solid"></div>
 
                                     <div class="item form-group">
-                                        <div class="col-md-12 col-sm-12 offset-md-12">
-                                            @if (Model.tipo_edit == Bitacoras.Util.RM_estatus_enum.Aprobada)
-                                            {
-                                                <button type="button" id="btn-ok" class="btn btn-warning btn-lg float-lg-right"> <i class="fa-solid fa-check-to-slot"></i>&nbsp; Aprobar</button>
-                                            }
-                                            else
-                                            {
-                                                <button type="button" id="btn-ok" class="btn btn-success btn-lg float-lg-right"> <i class="fa-regular fa-floppy-disk"></i>&nbsp; Guardar Cambios</button>
-                                            }
+                                        <div class="col-md-2 col-sm-2">
+                                            <a href="@Url.Action("FormatoCierreRemision", ViewBag.ControllerName, new { id = Model.clave })" class="btn btn-info float-lg-left" style="background-color:#1D6F42"><i class="fa-regular fa-file-excel"></i> Descargar Formato</a>
+                                        </div>
+                                        <div class="col-md-10 col-sm-10 ">
+                                            <button type="button" id="btn-ok" class="btn btn-primary btn-lg float-lg-right"> <i class="fa-solid fa-computer"></i>&nbsp; Regularizar</button>
                                         </div>
                                     </div>
 

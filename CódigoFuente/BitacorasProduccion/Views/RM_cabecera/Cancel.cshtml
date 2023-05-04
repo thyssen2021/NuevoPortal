@@ -1,7 +1,7 @@
 ﻿@model Portal_2_0.Models.RM_cabecera
 
 @{
-    ViewBag.Title = "Creación de Remisión Manual";
+    ViewBag.Title = "Cancelar de Remisión Manual";
     ViewBag.PrimerNivel = "remisiones_manuales";
     ViewBag.SegundoNivel = "listado_remisiones";
     ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
@@ -90,8 +90,8 @@
                                         <input class="form-control" value="@Html.DisplayFor(model => model.RM_almacen.descripcion)" readonly />
                                     </div>
 
-                                    @Html.LabelFor(model => model.retornaMaterial, htmlAttributes: new { @class = "control-label col-md-1 derecha" })
-                                    <div class="col-md-1">
+                                    @Html.LabelFor(model => model.retornaMaterial, htmlAttributes: new { @class = "control-label col-md-1 derecha", @data_toggle = "tooltip", @data_placement = "top", @title = "Marcar si retorna el material." })
+                                    <div class="col-md-1" data-toggle="tooltip" data-placement="top" title="Marcar si retorna el material.">
                                         @Html.EditorFor(model => model.retornaMaterial, new { htmlAttributes = new { @class = "check", @disabled = "disabled" } })
                                     </div>
 
@@ -308,9 +308,6 @@
                                                 <th width="15%">
                                                     N&uacute;mero de rollo
                                                 </th>
-                                                <th width="15%">
-                                                    Remisi&oacute;n SAP
-                                                </th>
                                                 <th width="10%">
                                                     Cantidad
                                                 </th>
@@ -339,9 +336,6 @@
                                                     <td>
                                                         @item.numeroRollo
                                                     </td>
-                                                    <td style="font-weight:bold">
-                                                        @item.remisionSap
-                                                    </td>
                                                     <td style="text-align: right;">
                                                         @item.cantidad
                                                     </td>
@@ -357,7 +351,7 @@
 
                                         <tfoot>
                                             <tr>
-                                                <th colspan="6" style="text-align:right">Totales</th>
+                                                <th colspan="5" style="text-align:right">Totales</th>
                                                 <th style="text-align: right; background:#cef7cd">@Model.TotalCantidadRemision</th>
                                                 <th style="text-align: right; background: #cef7cd"> @String.Format("{0:0.000}", @Model.TotalPesoRemision)</th>
 
@@ -392,34 +386,46 @@
 
                         </div>
 
-                        <div class="ln_solid"></div>
-                                  
-                        <div class="item form-group">
-                            <div class="col-md-2 col-sm-2">
-                                @if (Model.ultimoEstatus != (int)Bitacoras.Util.RM_estatus_enum.Regulariza && Model.ultimoEstatus != (int)Bitacoras.Util.RM_estatus_enum.Cancelada)
-                                {
-                                    <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = Model.clave, tipo_edit=(int)Bitacoras.Util.RM_estatus_enum.Editada })" class="btn btn-success btn-lg" title="Editar">
-                                        <i class="fa-regular fa-pen-to-square"></i> Editar
-                                    </a>
-                                }
+                        @using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal form-label-left", @id = "formulario" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(model => model.clave)
+                            @Html.HiddenFor(model => model.activo)
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>MOTIVO CANCELACI&Oacute;N</b></span>
                             </div>
-                            <div class="col-md-2 col-sm-2 offset-md-8">
-                                @if (Model.ultimoEstatus == (int)Bitacoras.Util.RM_estatus_enum.Regulariza || Model.ultimoEstatus == (int)Bitacoras.Util.RM_estatus_enum.Aprobada)
-                                {
-                                    <a onclick="imprimir(@Model.clave)" class="btn btn-success btn-lg float-right" style="background-color:#808080; color:white;" data-toggle="tooltip" data-placement="top" title="Imprimir">
-                                        <i class="fa-solid fa-print"></i> Imprimir
-                                    </a>
-                                }
-                                
+                            <div class="item form-group">
+                                <div class="col-md-12">
+                                    @Html.TextAreaFor(model => model.observaciones, new { @class = "form-control", @rows = "4", @required = "required" })
+                                    @Html.ValidationMessageFor(model => model.observaciones, "", new { @class = "text-danger" })
+                                </div>
                             </div>
 
-                        </div>
+
+                            <div class="ln_solid"></div>
+
+                            <div class="item form-group">
+                                <div class="col-md-2 col-sm-2">
+                                    @if (Model.ultimoEstatus != (int)Bitacoras.Util.RM_estatus_enum.Regulariza && Model.ultimoEstatus != (int)Bitacoras.Util.RM_estatus_enum.Cancelada)
+                                    {
+                                        <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = Model.clave, tipo_edit=(int)Bitacoras.Util.RM_estatus_enum.Editada })" class="btn btn-success btn-lg" title="Editar">
+                                            <i class="fa-regular fa-pen-to-square"></i> Editar
+                                        </a>
+                                    }
+                                </div>
+                                <div class="col-md-10 col-sm-10">
+                                    <button type="button" id="btn-ok" class="btn btn-danger btn-lg float-lg-right"> <i class="fa-regular fa-circle-xmark"></i>&nbsp; Cancelar</button>
+                                </div>
+                            </div>
+                        }
 
                     </div>
                 </div>
                 <div>
                     <br />
-                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info" title="Volver">
                         <i class="fa fa-arrow-circle-left"></i> Volver al listado
                     </a>
                 </div>

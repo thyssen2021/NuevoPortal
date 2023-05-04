@@ -1,4 +1,5 @@
-﻿using Foolproof;
+﻿using Bitacoras.Util;
+using Foolproof;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -228,6 +229,22 @@ namespace Portal_2_0.Models
                 return RM_cambio_estatus.Where(x => x.catalogoEstatusClave == 1).OrderBy(x => x.clave).FirstOrDefault().NombreUsuario;
             }
         }
+        //Aprobada por
+        [NotMapped]
+        [Display(Name = "Aprobada Por")]
+        public string AprobadaPor
+        {
+            get
+            {
+                if (RM_cambio_estatus.Where(x => x.catalogoEstatusClave == (int)Bitacoras.Util.RM_estatus_enum.Aprobada).Count() == 0)
+                    return null;
+
+                return RM_cambio_estatus.Where(x => x.catalogoEstatusClave == (int)Bitacoras.Util.RM_estatus_enum.Aprobada).OrderByDescending(x => x.clave).FirstOrDefault().NombreUsuario;
+            }
+        }
+
+        [NotMapped]
+        public RM_estatus_enum tipo_edit { get; set; }
 
         //public string GetDisplayName(string propertyName) {
         //    string name = string.Empty;
@@ -242,4 +259,6 @@ namespace Portal_2_0.Models
         //}
 
     }
+
+ 
 }
