@@ -64,6 +64,9 @@
                                         Usuario
                                     </th>
                                     <th>
+                                        Nombre
+                                    </th>
+                                    <th>
                                         @Html.DisplayNameFor(model => model.Email)
                                     </th>
                                     <th>
@@ -93,6 +96,9 @@
                                             @Html.DisplayFor(modelItem => item.UserName)
                                         </td>
                                         <td>
+                                            @Html.DisplayFor(modelItem => item.obtieneEmpleado().ConcatNombre)
+                                        </td>
+                                          <td>
                                             @Html.DisplayFor(modelItem => item.Email)
                                         </td>
                                         <td>
