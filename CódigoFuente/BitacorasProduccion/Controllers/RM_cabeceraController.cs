@@ -267,8 +267,7 @@ namespace Portal_2_0.Controllers
             //  ModelState.AddModelError("", "Error para depuración.");
 
             if (rM_cabecera.RM_elemento.Count == 0)
-                ModelState.AddModelError("", "No se agregaron elementos a la remisión.");
-
+                ModelState.AddModelError("", "No se agregaron elementos a la remisión.");  
 
             var empleado = obtieneEmpleadoLogeado();
 
@@ -280,6 +279,7 @@ namespace Portal_2_0.Controllers
                 rM_cabecera.RM_elemento = rM_cabecera.RM_elemento.Select(x => { x.capturaFecha = fechaActual; x.activo = true; return x; }).ToList();
 
                 //se agrega el cambio de estatus
+
                 rM_cabecera.RM_cambio_estatus.Add(new RM_cambio_estatus
                 {
                     capturaFecha = fechaActual,
@@ -293,6 +293,9 @@ namespace Portal_2_0.Controllers
                 //guarda en BD
                 db.RM_cabecera.Add(rM_cabecera);
                 db.SaveChanges();
+
+                //envia notificacion por correo electrónico
+                EnviaNotificacionEmail(db.RM_cabecera.Find(rM_cabecera.clave));
 
                 //obtiene el valor del almacen, para poder utilizar ConcatNumeroRemision
                 rM_cabecera.RM_almacen = db.RM_almacen.Find(rM_cabecera.almacenClave);
@@ -405,6 +408,11 @@ namespace Portal_2_0.Controllers
                 {
                     db.Configuration.ValidateOnSaveEnabled = false;
                     db.SaveChanges();
+
+                    //envia notificacion por correo electrónico
+                    EnviaNotificacionEmail(remisionBD);
+
+
                     //determina el mansaje a mostrar
                     if (rM_form.tipo_edit == RM_estatus_enum.Aprobada)
                         TempData["Mensaje"] = new MensajesSweetAlert("Se ha aprobado la remisión: " + remisionBD.ConcatNumeroRemision, TipoMensajesSweetAlerts.SUCCESS);
@@ -502,6 +510,10 @@ namespace Portal_2_0.Controllers
             {
                 db.Configuration.ValidateOnSaveEnabled = false;
                 db.SaveChanges();
+
+                //envia notificacion por correo electrónico
+                EnviaNotificacionEmail(remisionBD);
+
                 //determina el mansaje a mostrar
                 TempData["Mensaje"] = new MensajesSweetAlert("Se ha regularizado la remisión: " + remisionBD.ConcatNumeroRemision, TipoMensajesSweetAlerts.SUCCESS);
 
@@ -609,6 +621,10 @@ namespace Portal_2_0.Controllers
             {
                 db.Configuration.ValidateOnSaveEnabled = false;
                 db.SaveChanges();
+
+                //envia notificacion por correo electrónico
+                EnviaNotificacionEmail(remisionBD);
+
                 TempData["Mensaje"] = new MensajesSweetAlert("Se ha cancelado la remisión: " + remisionBD.ConcatNumeroRemision, TipoMensajesSweetAlerts.SUCCESS);
             }
             catch (Exception e)
@@ -821,12 +837,12 @@ namespace Portal_2_0.Controllers
         {
             var remision = db.RM_cabecera.Find(id);
 
-            byte[] stream = ExcelUtil.GeneraFormatoRM(remision, obtieneEmpleadoLogeado()) ;
+            byte[] stream = ExcelUtil.GeneraFormatoRM(remision, obtieneEmpleadoLogeado());
 
             var cd = new System.Net.Mime.ContentDisposition
             {
                 // for example foo.bak
-                FileName = "Formato_remision_" +remision.ConcatNumeroRemision+"_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+                FileName = "Formato_remision_" + remision.ConcatNumeroRemision + "_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
 
                 // always prompt the user for downloading, set to true if you want 
                 // the browser to try to show the file inline
@@ -849,6 +865,130 @@ namespace Portal_2_0.Controllers
             base.Dispose(disposing);
         }
 
+        /// <summary>
+        /// Muestra el manual de usuario
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult ManualUsuario()
+        {
+
+            String ruta = System.Web.HttpContext.Current.Server.MapPath("~/Content/manuales/Manual_Usuario_Remisiones_Manuales.pdf");
+
+            //byte[] array = System.IO.File.ReadAllBytes(ruta);
+
+            FileInfo archivo = new FileInfo(ruta);
+
+            var cd = new System.Net.Mime.ContentDisposition
+            {
+                // for example foo.bak
+                FileName = archivo.Name,
+                // always prompt the user for downloading, set to true if you want 
+                // the browser to try to show the file inline
+                Inline = true,
+            };
+
+            Response.AppendHeader("Content-Disposition", cd.ToString());
+
+            return File(ruta, "application/pdf");
+
+
+        }
+
+        /// <summary>
+        ///  Método para enviar notificacion por email
+        /// </summary>
+        [NonAction]
+        public void EnviaNotificacionEmail(RM_cabecera cabecera)
+        {
+            //asocia el almacén en caso de no tenerlo
+            if (cabecera.RM_almacen == null)
+                cabecera.RM_almacen = db.RM_almacen.Find(cabecera.almacenClave);
+
+            //envia correo electronico
+            EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+            List<String> correos = new List<string>(); //correos TO
+
+            //obtiene el ultimo cambio
+            var cambio = cabecera.RM_cambio_estatus.LastOrDefault();
+
+            //asocia el empleado al cambio, en caso de no tenerlo
+            if (cambio.empleados == null)
+                cambio.empleados = db.empleados.Find(cambio.id_empleado);
+            if (cambio.RM_estatus == null)
+                cambio.RM_estatus = db.RM_estatus.Find(cambio.catalogoEstatusClave);
+
+
+            string tipo_notificacion = string.Empty, asunto = string.Empty;
+
+            //determina el grupo de usuarios a notificar
+            switch (cabecera.id_planta)
+            {
+                case 1:
+                    tipo_notificacion = NotificacionesCorreo.RM_PUEBLA;
+                    break;
+                case 2:
+                    tipo_notificacion = NotificacionesCorreo.RM_SILAO;
+                    break;
+                case 3://saltillo
+                case 4://c&b
+                    tipo_notificacion = NotificacionesCorreo.RM_SALTILLO;
+                    break;
+                //case 4:
+                //    tipo_notificacion = NotificacionesCorreo.RM_CB;
+                //    break;
+                case 5:
+                    tipo_notificacion = NotificacionesCorreo.RM_SLP;
+                    break;
+
+                default:
+                    tipo_notificacion = String.Empty + "Empty";
+                    break;
+            }
+
+
+            //-- INICIO POR TABLA NOTIFICACION
+            List<notificaciones_correo> listadoNotificaciones = db.notificaciones_correo.Where(x => x.descripcion == tipo_notificacion && x.activo).ToList();
+            foreach (var n in listadoNotificaciones)
+            {
+                //si el campo correo no está vacio
+                if (!String.IsNullOrEmpty(n.correo) && !n.id_empleado.HasValue)
+                    correos.Add(n.correo);
+                //si tiene empleado asociado
+                else if (n.empleados != null && !String.IsNullOrEmpty(n.empleados.correo))
+                    correos.Add(n.empleados.correo);
+            }
+            //-- FIN POR TABLA NOTIFICACION
+
+            //obtiene el asunto del correo
+            switch (cambio.catalogoEstatusClave)
+            {
+                case 1:
+                    asunto = "Se ha creado la remisión " + cabecera.ConcatNumeroRemision;
+                    break;
+                case 2:
+                    asunto = "Se ha editado la remisión " + cabecera.ConcatNumeroRemision;
+                    break;
+                case 3:
+                    asunto = "Se ha aprobado la remisión " + cabecera.ConcatNumeroRemision;
+                    break;
+                case 4:
+                    asunto = "Se ha regularizado la remisión " + cabecera.ConcatNumeroRemision;
+                    break;
+                case 5:
+                    asunto = "Se ha cancelado la remisión " + cabecera.ConcatNumeroRemision;
+                    break;
+                case 6:
+                    asunto = "Se ha impreso la remisión " + cabecera.ConcatNumeroRemision;
+                    break;
+                default:
+                    break;
+            }
+
+            envioCorreo.SendEmailAsync(correos, asunto, envioCorreo.getBodyRemisiones(cabecera, asunto));
+
+        }
+
+        [NonAction]
         public void CompararPropiedades(RM_cabecera original, RM_cabecera modificado, ref string texto)
         {
             List<string> cambios = new List<string>();

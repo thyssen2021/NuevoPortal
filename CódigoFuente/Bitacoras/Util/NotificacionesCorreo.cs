@@ -12,6 +12,13 @@ namespace Bitacoras.Util
         public const string PM_DIRECCION = "PM_DIRECCION";
         public const string PO_ASIGNACION = "PO_asignacion"; //ordenes de trabajo
         public const string IT_SOLICITUD_PORTAL = "IT_SOLICITUD_PORTAL";
+        //remisiones manuales
+        public const string RM_PUEBLA = "RM_PUEBLA";
+        public const string RM_SILAO = "RM_SILAO";
+        public const string RM_SALTILLO = "RM_SALTILLO";
+        public const string RM_CB = "RM_CB";
+        public const string RM_SLP = "RM_SLP";
+
     }
        
 }

@@ -47,7 +47,7 @@ namespace Portal_2_0.Models
 
             //return Task.FromResult(0);
         }
-        public void SendEmailAsyncAuditoria(List<string> emailsCC,string nombreRemitente, string correoRemitente, string subject, string message)
+        public void SendEmailAsyncAuditoria(List<string> emailsCC, string nombreRemitente, string correoRemitente, string subject, string message)
         {
             try
             {
@@ -89,8 +89,8 @@ namespace Portal_2_0.Models
                 };
 
                 //********** Comentar para productivo ************//
-                emailsTo = new List<string>();
-                emailsTo.Add("alfredo.xochitemol@lagermex.com.mx");
+                //emailsTo = new List<string>();
+                //emailsTo.Add("alfredo.xochitemol@lagermex.com.mx");
                 // ************************************//
 
                 //agrega los destinatarios
@@ -131,7 +131,7 @@ namespace Portal_2_0.Models
 
             //return Task.FromResult(0);
         }
-         public void DelegateEmailMethodAuditoria(List<string> emailsCC, string nombreRemitente, string correoRemitente, string subject, string message)
+        public void DelegateEmailMethodAuditoria(List<string> emailsCC, string nombreRemitente, string correoRemitente, string subject, string message)
         {
             try
             {
@@ -154,7 +154,7 @@ namespace Portal_2_0.Models
                     IsBodyHtml = true
                 };
 
-               
+
 
                 //agrega los destinatarios CC
                 foreach (string email in emailsCC)
@@ -195,7 +195,7 @@ namespace Portal_2_0.Models
         }
 
         #region correos PFA
-        //metodo para el body de uuna solicitud enviada
+        //metodo para el body de uuna remiones enviada
         public string getBodyPFAEnviado(PFA pFA)
         {
             //obtiene la direccion del dominio
@@ -273,7 +273,7 @@ namespace Portal_2_0.Models
             return body;
         }
 
-        //metodo para el body de una solicitud PFA Authorizada
+        //metodo para el body de una remiones PFA Authorizada
         public string getBodyPFAAutorizado(PFA pFA)
         {
             //obtiene la direccion del dominio
@@ -299,7 +299,7 @@ namespace Portal_2_0.Models
             return body;
         }
 
-        //metodo para el body de una solicitud PFA Authorizada
+        //metodo para el body de una remiones PFA Authorizada
         public string getBodyPFAAutorizadoInfo(PFA pFA)
         {
             //obtiene la direccion del dominio
@@ -784,7 +784,7 @@ namespace Portal_2_0.Models
         }
 
         /// <summary>
-        /// metodo para obtener el body de email de notificación de cierre de solicitud
+        /// metodo para obtener el body de email de notificación de cierre de remiones
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
@@ -814,7 +814,7 @@ namespace Portal_2_0.Models
         }
 
         /// <summary>
-        /// metodo para obtener el body de email de notificación en proceso de solicitud
+        /// metodo para obtener el body de email de notificación en proceso de remiones
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
@@ -926,6 +926,46 @@ namespace Portal_2_0.Models
 
         #endregion
 
+        #region Remisiones Manuales
+        public string getBodyRemisiones(RM_cabecera remiones, string asunto)
+        {
+            //obtiene la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+
+            string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/Notificacion_solicitud_generica.html"));
+            string tablaContenido = String.Empty;
+
+            //obtiene el ultimo cambio
+            var cambio = remiones.RM_cambio_estatus.LastOrDefault();
+
+            //crea un diccionario para los valores de la tabla
+            Dictionary<string, string> tablaContentDictionary = new Dictionary<string, string>();
+
+            //agrega los valores al diccionario
+            tablaContentDictionary.Add("Remisión Número", remiones.ConcatNumeroRemision);
+            tablaContentDictionary.Add("Fecha Creación", remiones.FechaCreacion.ToString());           
+            tablaContentDictionary.Add("Cliente", remiones.clienteOtro);
+            tablaContentDictionary.Add("Enviado A", remiones.enviadoAOtro);
+            tablaContentDictionary.Add("Transporte", remiones.transporteOtro);
+            tablaContentDictionary.Add("Usuario", cambio.empleados.ConcatNombre);
+            tablaContentDictionary.Add("Movimiento", cambio.RM_estatus.descripcion);
+            tablaContentDictionary.Add("Detallles", cambio.texto);
+
+            //agrega los valores del diccionario al contenido de la tabla
+            foreach (KeyValuePair<string, string> kvp in tablaContentDictionary)
+                tablaContenido += FILA_GENERICA.Replace("#CONCEPTO", kvp.Key).Replace("#VALOR", kvp.Value);
+
+            //reemplaza los valores en la plantilla
+            body = body.Replace("#TITULO", "¡Hola! " + asunto + ":");
+            body = body.Replace("#SUBTITULO", "El usuario " + cambio.empleados.ConcatNombre + ", ha creado o realizado un cambio en la remisión "+remiones.ConcatNumeroRemision+". Haga clic en el enlace para más información."); //elaborador
+            body = body.Replace("#TABLA_CONTENIDO", tablaContenido);
+            body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
+            body = body.Replace("#ENLACE", domainName + "/RM_cabecera/Details/" + remiones.clave);
+
+            return body;
+        }
+        #endregion
+
         #region Gastos de Viaje
 
         //metodo para obtener el body de Gastos de Viaje cuando ha sido enviada a jefeDirecto
@@ -955,8 +995,8 @@ namespace Portal_2_0.Models
                 tablaContenido += FILA_GENERICA.Replace("#CONCEPTO", kvp.Key).Replace("#VALOR", kvp.Value);
 
             //reemplaza los valores en la plantilla
-            body = body.Replace("#TITULO", "¡Hola, ha recibido una solicitud de Anticipo de Gastos de Viaje para su Autorización!");
-            body = body.Replace("#SUBTITULO", "El usuario " + solicitud.empleados5.ConcatNombre + ", ha enviado una solicitud de Anticipo de Gastos de Viaje. Haga clic en el enlace para más información."); //elaborador
+            body = body.Replace("#TITULO", "¡Hola, ha recibido una remiones de Anticipo de Gastos de Viaje para su Autorización!");
+            body = body.Replace("#SUBTITULO", "El usuario " + solicitud.empleados5.ConcatNombre + ", ha enviado una remiones de Anticipo de Gastos de Viaje. Haga clic en el enlace para más información."); //elaborador
             body = body.Replace("#TABLA_CONTENIDO", tablaContenido);
             body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
             body = body.Replace("#ENLACE", domainName + "/GV_solicitud/AutorizarJefeDirecto/" + solicitud.id);
@@ -991,8 +1031,8 @@ namespace Portal_2_0.Models
                 tablaContenido += FILA_GENERICA.Replace("#CONCEPTO", kvp.Key).Replace("#VALOR", kvp.Value);
 
             //reemplaza los valores en la plantilla
-            body = body.Replace("#TITULO", "¡Hola, su solicitud de Anticipo de Gastos de Viaje ha sido rechazada!");
-            body = body.Replace("#SUBTITULO", "El usuario " + nombre + ", ha rechazado su solicitud de Anticipo de Gastos de Viaje. Verifique los datos y envíela nuevamente."); //elaborador
+            body = body.Replace("#TITULO", "¡Hola, su remiones de Anticipo de Gastos de Viaje ha sido rechazada!");
+            body = body.Replace("#SUBTITULO", "El usuario " + nombre + ", ha rechazado su remiones de Anticipo de Gastos de Viaje. Verifique los datos y envíela nuevamente."); //elaborador
             body = body.Replace("#TABLA_CONTENIDO", tablaContenido);
             body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
             body = body.Replace("#ENLACE", domainName + "/GV_solicitud/Edit/" + solicitud.id);
@@ -1028,8 +1068,8 @@ namespace Portal_2_0.Models
                 tablaContenido += FILA_GENERICA.Replace("#CONCEPTO", kvp.Key).Replace("#VALOR", kvp.Value);
 
             //reemplaza los valores en la plantilla
-            body = body.Replace("#TITULO", "¡Hola, el deposito de la solicitud de Anticipo de Gastos de Viaje ha sido rechazada!");
-            body = body.Replace("#SUBTITULO", "El usuario " + solicitud.empleados5.ConcatNombre + ", no ha confirmado el deposito de la solicitud #" + solicitud.id + "."); //elaborador
+            body = body.Replace("#TITULO", "¡Hola, el deposito de la remiones de Anticipo de Gastos de Viaje ha sido rechazada!");
+            body = body.Replace("#SUBTITULO", "El usuario " + solicitud.empleados5.ConcatNombre + ", no ha confirmado el deposito de la remiones #" + solicitud.id + "."); //elaborador
             body = body.Replace("#TABLA_CONTENIDO", tablaContenido);
             body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
             body = body.Replace("#ENLACE", domainName + "/GV_solicitud/AutorizarNomina/" + solicitud.id);
@@ -1064,8 +1104,8 @@ namespace Portal_2_0.Models
                 tablaContenido += FILA_GENERICA.Replace("#CONCEPTO", kvp.Key).Replace("#VALOR", kvp.Value);
 
             //reemplaza los valores en la plantilla
-            body = body.Replace("#TITULO", "¡Hola, ha recibido una solicitud de Anticipo de Gastos de viaje!");
-            body = body.Replace("#SUBTITULO", "El usuario " + solicitud.empleados3.ConcatNombre + ", ha autorizado una solicitud de Anticipo de Gastos de Viaje."); //elaborador
+            body = body.Replace("#TITULO", "¡Hola, ha recibido una remiones de Anticipo de Gastos de viaje!");
+            body = body.Replace("#SUBTITULO", "El usuario " + solicitud.empleados3.ConcatNombre + ", ha autorizado una remiones de Anticipo de Gastos de Viaje."); //elaborador
             body = body.Replace("#TABLA_CONTENIDO", tablaContenido);
             body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
             body = body.Replace("#ENLACE", domainName + "/GV_solicitud/AutorizarControlling/" + solicitud.id);
@@ -1100,8 +1140,8 @@ namespace Portal_2_0.Models
                 tablaContenido += FILA_GENERICA.Replace("#CONCEPTO", kvp.Key).Replace("#VALOR", kvp.Value);
 
             //reemplaza los valores en la plantilla
-            body = body.Replace("#TITULO", "¡Hola, ha recibido una solicitud de Anticipo de Gastos de viaje!");
-            body = body.Replace("#SUBTITULO", "El usuario " + solicitud.empleados1.ConcatNombre + ", ha autorizado una solicitud de Anticipo de Gastos de Viaje."); //elaborador
+            body = body.Replace("#TITULO", "¡Hola, ha recibido una remiones de Anticipo de Gastos de viaje!");
+            body = body.Replace("#SUBTITULO", "El usuario " + solicitud.empleados1.ConcatNombre + ", ha autorizado una remiones de Anticipo de Gastos de Viaje."); //elaborador
             body = body.Replace("#TABLA_CONTENIDO", tablaContenido);
             body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
             body = body.Replace("#ENLACE", domainName + "/GV_solicitud/AutorizarNomina/" + solicitud.id);
@@ -1137,8 +1177,8 @@ namespace Portal_2_0.Models
                 tablaContenido += FILA_GENERICA.Replace("#CONCEPTO", kvp.Key).Replace("#VALOR", kvp.Value);
 
             //reemplaza los valores en la plantilla
-            body = body.Replace("#TITULO", "¡Se ha confirmado el deposito de la solicitud de Anticipo de Gastos de Viaje #" + solicitud.id + "!");
-            body = body.Replace("#SUBTITULO", "El usuario " + solicitud.empleados4.ConcatNombre + ", ha confirmado el depósito de la solicitud de Anticipo de Gastos de Viaje #" + solicitud.id + "."); //elaborador
+            body = body.Replace("#TITULO", "¡Se ha confirmado el deposito de la remiones de Anticipo de Gastos de Viaje #" + solicitud.id + "!");
+            body = body.Replace("#SUBTITULO", "El usuario " + solicitud.empleados4.ConcatNombre + ", ha confirmado el depósito de la remiones de Anticipo de Gastos de Viaje #" + solicitud.id + "."); //elaborador
             body = body.Replace("#TABLA_CONTENIDO", tablaContenido);
             body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
             body = body.Replace("#ENLACE", domainName + "/GV_solicitud/" + metodo + "/" + solicitud.id);
@@ -1173,8 +1213,8 @@ namespace Portal_2_0.Models
                 tablaContenido += FILA_GENERICA.Replace("#CONCEPTO", kvp.Key).Replace("#VALOR", kvp.Value);
 
             //reemplaza los valores en la plantilla
-            body = body.Replace("#TITULO", "¡Se ha finalizado el proceso de registro de la solicitud de Anticipo de Gastos de Viaje #" + solicitud.id + "!");
-            body = body.Replace("#SUBTITULO", "Se ha completado el proceso de la solicitud de Anticipo de Gastos de Viaje #" + solicitud.id + ". Haga clic en el siguiente enlace para ver los detalles."); //elaborador
+            body = body.Replace("#TITULO", "¡Se ha finalizado el proceso de registro de la remiones de Anticipo de Gastos de Viaje #" + solicitud.id + "!");
+            body = body.Replace("#SUBTITULO", "Se ha completado el proceso de la remiones de Anticipo de Gastos de Viaje #" + solicitud.id + ". Haga clic en el siguiente enlace para ver los detalles."); //elaborador
             body = body.Replace("#TABLA_CONTENIDO", tablaContenido);
             body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
             body = body.Replace("#ENLACE", domainName + "/GV_solicitud/details/" + solicitud.id);

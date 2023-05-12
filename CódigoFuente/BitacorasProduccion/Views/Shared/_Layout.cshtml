@@ -662,6 +662,7 @@
                                                 @if (User.IsInRole(TipoRoles.RM_CREACION) || User.IsInRole(TipoRoles.RM_DETALLES) || User.IsInRole(TipoRoles.BG_REPORTES))
                                                 {
                                                     <li class="@(ViewBag.SegundoNivel == "listado_remisiones" ? "current-page" : null )"><a href="@Url.Action( "Index", "RM_cabecera")">Listado</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "Manual" ? "current-page" : null )"><a href="@Url.Action("ManualUsuario", "RM_cabecera")" target="_blank">Manual de Usuario</a></li>
                                                 }
                                                 @if (User.IsInRole(TipoRoles.RM_REPORTES))
                                                 {
