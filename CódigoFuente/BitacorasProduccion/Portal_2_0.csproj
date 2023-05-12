@@ -4645,6 +4645,7 @@
     <Content Include="Content\vendors\multiselect\_config.yml" />
     <Content Include="Content\manuales\Manual_Usuario_Matriz_requerimientos.pdf" />
     <Content Include="Content\plantillas_excel\formato_carga_remisiones.xlsx" />
+    <Content Include="Content\manuales\Manual_Usuario_Remisiones_manuales.pdf" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.4.1.js" />
     <Content Include="Scripts\jquery-3.4.1.min.js" />

@@ -153,7 +153,15 @@ $(document).ready(function () {
             },
             buttonsStyling: false,
         })
-
+        //establece en cero en caso de no tener valor
+        $('.entero').each(function () {
+            if ($(this).val() == '')
+                $(this).val(0);
+        });
+        $('.decimal').each(function () {
+            if ($(this).val() == '')
+                $(this).val(0);
+        });
 
         swalWithBootstrapButtons.fire({
             title: '¿Desea Continuar?',
