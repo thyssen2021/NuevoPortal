@@ -81,5 +81,9 @@ namespace Clases.Util
         public const string RM_APROBAR = "RM_Aprobar";
         public const string RM_REGULARIZAR = "RM_Regularizar";
         public const string RM_REPORTES = "RM_Reportes";
+        //ciclo/registro de unidades
+        public const string RU_VIGILANCIA = "RU_VIGILANCIA";
+        public const string RU_ALMACEN_RECEPCION = "RU_ALMACEN_RECEPCION";
+        public const string RU_ALMACEN_LIBERACION = "RU_ALMACEN_LIBERACION";
     }
 }

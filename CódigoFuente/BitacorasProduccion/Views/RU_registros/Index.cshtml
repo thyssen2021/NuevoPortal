@@ -1,0 +1,517 @@
+﻿@using Clases.Util;
+@model IEnumerable<Portal_2_0.Models.RU_registros>
+@{
+    ViewBag.Title = "Registro de Unidades";
+    ViewBag.PrimerNivel = "registro_unidades";
+    ViewBag.SegundoNivel = "registros";
+    ViewBag.nav_style = "nav-sm";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+    //obtiene los filtros
+    Portal_2_0.Models.Paginacion paginacionFiltros = (Portal_2_0.Models.Paginacion)ViewBag.Paginacion;
+
+}
+@section estilos
+{
+    <!-- DataTables -->
+    @Styles.Render("~/Content/dataTables_css")
+
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <link href="~/Content/step-progress-bar.css" rel="stylesheet" />
+    <style>
+    </style>
+}
+
+@*@{Html.RenderPartial("_BlockUI", Model);}*@
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+
+                                @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
+                                {
+                                    <div class="form-group row">
+                                        <span style="color:black"><b> B&Uacute;SQUEDA</b></span>
+                                    </div>
+                                    <div class="form-group row">
+
+                                        <label class="control-label col-md-1 col-sm-1" for="id" style="text-align:right">Folio:</label>
+                                        <div class="col-md-1 col-sm-1">
+                                            <input type="text" class="form-control entero search" name="id" id="id" value="@Request.Params["id"]" autocomplete="off">
+                                        </div>
+                                        <label class="control-label col-md-1 col-sm-1" for="estatus" style="text-align:right">Estatus:</label>
+                                        <div class="col-md-2 col-sm-2 ">
+                                            @Html.DropDownList("estatus", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                        </div>
+                                        <label class="control-label col-md-1 col-sm-1" for="carga" style="text-align:right">Tipo:</label>
+                                        <div class="col-md-2 col-sm-2 ">
+                                            @Html.DropDownList("carga", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                        </div>
+                                        <label class="control-label col-md-1 col-sm-1" for="linea" style="text-align:right">L&iacute;nea de Transporte:</label>
+                                        <div class="col-md-3 col-sm-3">
+                                            <input type="text" class="form-control search" name="linea" id="linea" value="@Request.Params["linea"]" autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="control-label col-md-1 col-sm-1" for="placas" style="text-align:right">Placas:</label>
+                                        <div class="col-md-2 col-sm-2">
+                                            <input type="text" class="form-control search" name="placas" id="id" value="@Request.Params["placas"]" autocomplete="off">
+                                        </div>
+                                        <label class="control-label col-md-2 col-sm-2" for="fecha_inicial">Fecha Inicial</label>
+                                        <div class="col-md-2 col-sm-2">
+                                            <input type="date" class="form-control search date" name="fecha_inicial" id="fecha_inicial" value="@Request.Params["fecha_inicial"]">
+                                        </div>
+                                        <label class="control-label col-md-1 col-sm-1" for="fecha_final">Fecha Final</label>
+                                        <div class="col-md-2 col-sm-2">
+                                            <input type="date" class="form-control search date" name="fecha_final" id="fecha_final" value="@Request.Params["fecha_final"]">
+                                        </div>
+                                        <div class="col-md-2 col-sm-2">
+                                            <a href="@Url.Action( "Index", ViewBag.ControllerName)" class="btn btn-danger" title="Borrar filtros" data-toggle="tooltip" data-placement="top">
+                                                <i class="fa-solid fa-eraser"></i>
+                                            </a>
+                                            <button type="submit" class="btn btn-info" title="Buscar" data-toggle="tooltip" data-placement="top"><i class='fa-solid fa-magnifying-glass'></i></button>
+                                        </div>
+                                    </div>
+                                }
+
+                                <div class="form-group col-sm-12">
+                                    <div class="ln_solid"></div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-sm-4">
+                                        @if (User.IsInRole(TipoRoles.RU_VIGILANCIA))
+                                        {
+                                            <button id="create-btn" class="btn btn-success">
+                                                <i class="fa-solid fa-truck-moving"></i>
+                                                Registrar Nuevo Ingreso
+                                            </button>
+                                        }
+                                    </div>
+
+                                    <div class="col-sm-4" style="text-align:center;">
+                                        <span style="font-size:large;"><i class="fa-regular fa-clock"></i> @DateTime.Now</span>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <button id="create-refresh" class="btn btn-warning float-right" title="Actualizar tabla" data-toggle="tooltip" data-placement="top">
+                                            <i class="fa-solid fa-arrows-rotate"></i>
+                                            Actualizar
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-box table-responsive">
+                                    <table id="datatable_1" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.id)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.EstadoString)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.TipoOperacion)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.linea_transporte)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.placas_tractor)
+                                                </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.nombre_operador)
+                                                </th>
+                                                <th>
+                                                    Progreso
+                                                </th>
+                                                <th>
+                                                    Acciones
+                                                </th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model)
+                                            {
+                                                bool complete = item.hora_vigilancia_salida.HasValue;
+                                                bool cancel = item.hora_cancelacion.HasValue;
+                                                <tr style="color:@(complete?"#009f00":item.hora_cancelacion.HasValue?"#f00000":"#009ff5"); font-weight:bold">
+                                                    <td nowrap>
+                                                        @Html.DisplayFor(modelItem => item.id)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.EstadoString)
+                                                    </td>
+                                                    <td nowrap>
+                                                        @Html.DisplayFor(modelItem => item.TipoOperacion)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.linea_transporte)
+                                                    </td>
+                                                    <td nowrap>
+                                                        @Html.DisplayFor(modelItem => item.placas_tractor)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.nombre_operador)
+                                                    </td>
+                                                    <td class="step-progress-bar">
+                                                        <!-- Smart Step Progress Bar -->
+                                                        <ul2>
+                                                            <li2 title="@Html.DisplayFor(modelItem => item.RU_usuarios_vigilancia.nombre)" data-toggle="tooltip" data-placement="top">
+                                                                <i class="icons awesome fa-solid fa-door-open activo @(complete?"complete-color":String.Empty) @(cancel?"cancel-color":String.Empty)"></i>
+                                                                <div onclick="details(@item.id)" class="step first active @(complete?"complete-background-color":String.Empty) @(cancel?"cancel-background-color":String.Empty)">
+                                                                    <p>1</p>
+                                                                    <i class="awesome fa-solid fa-check"></i>
+                                                                </div>
+                                                                <p class="label activo @(complete?"complete-color":String.Empty) @(cancel?"cancel-color":String.Empty)">Entrada<br />@item.fecha_ingreso_vigilancia.ToShortDateString()<br />@item.fecha_ingreso_vigilancia.ToShortTimeString()  </p>
+
+                                                            </li2>
+                                                            <li2 title="@Html.DisplayFor(modelItem => item.empleados1.ConcatNombre)" data-toggle="tooltip" data-placement="top">
+                                                                <i class="icons awesome fa-solid fa-warehouse @(item.hora_embarques_recepcion.HasValue?"activo":String.Empty) @(complete?"complete-color":String.Empty) @(cancel?"cancel-color":String.Empty)"></i>
+                                                                <div onclick="details(@item.id)" class="step second @(item.hora_embarques_recepcion.HasValue?"active":String.Empty) @(complete?"complete-background-color":String.Empty) @(cancel?"cancel-background-color":String.Empty)">
+                                                                    <p>2</p>
+                                                                    <i class="awesome fa-solid fa-check"></i>
+                                                                </div>
+                                                                <p class="label @(item.hora_embarques_recepcion.HasValue?"activo":String.Empty) @(complete?"complete-color":String.Empty) @(cancel?"cancel-color":String.Empty)">Embarques <br />@(item.hora_embarques_recepcion.HasValue? item.hora_embarques_recepcion.Value.ToShortDateString():String.Empty) &nbsp;<br />@(item.hora_embarques_recepcion.HasValue? item.hora_embarques_recepcion.Value.ToShortTimeString():String.Empty) &nbsp;</p>
+                                                            </li2>
+                                                            <li2 title="@Html.DisplayFor(modelItem => item.empleados.ConcatNombre)" data-toggle="tooltip" data-placement="top">
+                                                                <i class="icons awesome fa-solid fa-truck-ramp-box @(item.hora_embarques_liberacion.HasValue?"activo":String.Empty) @(complete?"complete-color":String.Empty) @(cancel?"cancel-color":String.Empty)"></i>
+                                                                <div onclick="details(@item.id)" class="step third @(item.hora_embarques_liberacion.HasValue?"active":String.Empty) @(complete?"complete-background-color":String.Empty) @(cancel?"cancel-background-color":String.Empty)">
+                                                                    <p>3</p>
+                                                                    <i class="awesome fa-solid fa-check"></i>
+                                                                </div>
+                                                                <p class="label @(item.hora_embarques_liberacion.HasValue?"activo":String.Empty) @(complete?"complete-color":String.Empty) @(cancel?"cancel-color":String.Empty)">Carga/Descarga <br />@(item.hora_embarques_liberacion.HasValue? item.hora_embarques_liberacion.Value.ToShortDateString():String.Empty) &nbsp;<br />@(item.hora_embarques_liberacion.HasValue? item.hora_embarques_liberacion.Value.ToShortTimeString():String.Empty) &nbsp;</p>
+                                                            </li2>
+                                                            <li2 title="@Html.DisplayFor(modelItem => item.RU_usuarios_vigilancia1.nombre)" data-toggle="tooltip" data-placement="top">
+                                                                <i class="icons awesome fa-solid fa-person-military-pointing fa-flip-horizontal @(item.hora_vigilancia_liberacion.HasValue?"activo":String.Empty) @(complete?"complete-color":String.Empty) @(cancel?"cancel-color":String.Empty)"></i>
+                                                                <div onclick="details(@item.id)" class="step fourth @(item.hora_vigilancia_liberacion.HasValue?"active":String.Empty) @(complete?"complete-background-color":String.Empty) @(cancel?"cancel-background-color":String.Empty)">
+                                                                    <p>4</p>
+                                                                    <i class="awesome fa-solid fa-check"></i>
+                                                                </div>
+                                                                <p class="label @(item.hora_vigilancia_liberacion.HasValue?"activo":String.Empty) @(complete?"complete-color":String.Empty) @(cancel?"cancel-color":String.Empty)">Liberaci&oacute;n <br />@(item.hora_vigilancia_liberacion.HasValue? item.hora_vigilancia_liberacion.Value.ToShortDateString():String.Empty) &nbsp;<br />@(item.hora_vigilancia_liberacion.HasValue? item.hora_vigilancia_liberacion.Value.ToShortTimeString():String.Empty) &nbsp;</p>
+                                                            </li2>
+                                                            <li2 title="@Html.DisplayFor(modelItem => item.RU_usuarios_vigilancia2.nombre)" data-toggle="tooltip" data-placement="top">
+                                                                <i class="icons awesome fa-solid fa-truck-fast @(item.hora_vigilancia_salida.HasValue?"activo":String.Empty) @(complete?"complete-color":String.Empty) @(cancel?"cancel-color":String.Empty)"></i>
+                                                                <div onclick="details(@item.id)" class="step fifth @(item.hora_vigilancia_salida.HasValue?"active":String.Empty) @(complete?"complete-background-color":String.Empty) @(cancel?"cancel-background-color":String.Empty)">
+                                                                    <p>5</p>
+                                                                    <i class="awesome fa-solid fa-check"></i>
+                                                                </div>
+                                                                <p class="label @(item.hora_vigilancia_salida.HasValue?"activo":String.Empty) @(complete?"complete-color":String.Empty) @(cancel?"cancel-color":String.Empty)">Salida <br />@(item.hora_vigilancia_salida.HasValue? item.hora_vigilancia_salida.Value.ToShortDateString():String.Empty) &nbsp;<br />@(item.hora_vigilancia_salida.HasValue? item.hora_vigilancia_salida.Value.ToShortTimeString():String.Empty) &nbsp;</p>
+                                                            </li2>
+                                                        </ul2>
+                                                        <!-- End Step Progress Bar -->
+                                                    </td>
+                                                    <td>
+                                                        @if (item.EstadoEnum == Portal_2_0.Models.EstatusRURegistrosEnum.RegistradoVigilancia
+                                                            && User.IsInRole(TipoRoles.RU_ALMACEN_RECEPCION)
+                                                            )
+                                                        {
+                                                            <button onclick="recepcionEmbarques(@item.id)" class="btn btn-success btn-sm">
+                                                                <i class="fa-regular fa-circle-check"></i>
+                                                                Confirmar Recepci&oacute;n
+                                                            </button>
+                                                        }
+                                                        @if (item.EstadoEnum == Portal_2_0.Models.EstatusRURegistrosEnum.RecibidoEmbarques
+                                                            && User.IsInRole(TipoRoles.RU_ALMACEN_LIBERACION)
+                                                            )
+                                                        {
+                                                            <button onclick="liberacionEmbarques(@item.id)" class="btn btn-warning btn-sm">
+                                                                <i class="fa-solid fa-truck-ramp-box"></i>
+                                                                Confirmar Liberaci&oacute;n
+                                                            </button>
+                                                        }
+                                                        @if (item.EstadoEnum == Portal_2_0.Models.EstatusRURegistrosEnum.LiberadoEmbarques
+                                                            && User.IsInRole(TipoRoles.RU_VIGILANCIA)
+                                                            )
+                                                        {
+                                                            <button onclick="liberacionVigilancia(@item.id)" class="btn btn-warning btn-sm">
+                                                                <i class="fa-solid fa-person-military-pointing fa-flip-horizontal"></i>
+                                                                Confirmar Liberaci&oacute;n
+                                                            </button>
+                                                        }
+                                                        @if (item.EstadoEnum == Portal_2_0.Models.EstatusRURegistrosEnum.LiberadoVigilancia
+                                                            && User.IsInRole(TipoRoles.RU_VIGILANCIA)
+                                                            )
+                                                        {
+                                                            <button onclick="salidaVigilancia(@item.id)" class="btn btn-success btn-sm">
+                                                                <i class="fa-solid fa-truck-fast"></i>
+                                                                Registrar Salida
+                                                            </button>
+                                                        }
+                                                        @if (!complete
+                                                            && (User.IsInRole(TipoRoles.RU_VIGILANCIA) || User.IsInRole(TipoRoles.RU_ALMACEN_RECEPCION))
+                                                            && (item.EstadoEnum != Portal_2_0.Models.EstatusRURegistrosEnum.Cancelada && item.EstadoEnum != Portal_2_0.Models.EstatusRURegistrosEnum.SalidaPlanta)
+                                                            )
+                                                        {
+                                                            <button onclick="cancel(@item.id)" class="btn btn-danger btn-sm">
+                                                                <i class="fa-solid fa-xmark"></i>
+                                                                Cancelar
+                                                            </button>
+                                                        }
+                                                        <button onclick="details(@item.id)" class="btn btn-info btn-sm" title="Detalles" data-toggle="tooltip" data-placement="top">
+                                                            <i class="fa-solid fa-circle-info"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                                <br />
+                                @if (Model.Count() > 0)
+                                {
+                                    <nav id="nav_paginacion" aria-label="...">
+                                        @{Html.RenderPartial("_Paginacion", Model);}
+                                    </nav>
+                                    <div class="form-group">
+
+                                        <a href="@Url.Action("Exportar", ViewBag.ControllerName, new
+                                                {
+                                                    id = Request.Params["id"],
+                                                    estatus = Request.Params["estatus"],
+                                                    carga = Request.Params["carga"],
+                                                    linea = Request.Params["linea"],
+                                                    placas = Request.Params["placas"],
+                                                    fecha_inicial = Request.Params["fecha_inicial"],
+                                                    fecha_final = Request.Params["fecha_final"],
+
+                                                })" class="btn btn-success btm-sm" style="background-color: #1D6F42;" target="_blank" title="Exportar a Excel" data-toggle="tooltip" data-placement="top">
+                                            <i class="fa-regular fa-file-excel"></i> Exportar Excel
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    @Scripts.Render("~/bundles/dataTables_js")
+    <!-- SweetAlert2 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.3/sweetalert2.all.min.js" integrity="sha512-/iBgV43zPirSC0tue+PT/1VHGs7En24twBmT+sVMgn9PTaOpKfbgIyL5YsGKlbAIxcwz9S8W/YEnYjpIYj2Axw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlertColored.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+    <script>
+        //steps funcionality
+
+        //end steps funcionality
+
+        //variables globales
+        let stop = false;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            //inicializa los data table
+            var tabla = $('#datatable_1').DataTable({
+                "paging": false,
+                "ordering": false,
+                "searching": false,
+                "scrollX": false,
+                "info": false,
+            });
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //Envia el formulario cada vez que se modifica el combo
+            $(".select2bs4").change(function () {
+                EnviaFormulario();
+            });
+
+            $('.entero').inputmask({ 'alias': 'integer', 'allowMinus': false, 'min': 0, 'max': 99999, 'autoGroup': true, 'autoUnmask': true, 'removeMaskOnSubmit': true });
+
+            let timeout
+            //El evento lo puedes reemplazar con keyup, keypress y el tiempo a tu necesidad
+            $(".search").on("keydown", function () {
+                clearTimeout(timeout)
+                timeout = setTimeout(() => {
+                    EnviaFormulario();
+                    clearTimeout(timeout)
+                }, 1800)
+            });
+            //El evento on change de date
+            $(".date").change(function () {
+                clearTimeout(timeout)
+                timeout = setTimeout(() => {
+                    EnviaFormulario();
+                    clearTimeout(timeout)
+                }, 1800)
+            });
+
+            //clicMenu(2);
+            $.unblockUI();
+
+            // Refresh every second
+            setInterval(reloadPage, 60000);
+
+
+        });
+
+        $("#create-btn").on("click", function () {
+            //abre la ventana emergente
+            popupCenterRU({ url: '/@ViewBag.ControllerName/create/', title: 'Nuevo Registro', w: screen.width * .60, h: screen.height * .60 });
+
+            //Deshabilita el contador
+            stop = true;
+        });
+
+        $("#create-refresh").on("click", function () {
+            window.location.reload();
+        });
+
+        function recepcionEmbarques(id) {
+             //abre la ventana emergente
+            popupCenterRU({ url: '/@ViewBag.ControllerName/confirmarRecepcion/'+id, title: 'Confirmar Recepción Embarques', w: screen.width * .60, h: screen.height * .60 });
+
+            //Deshabilita el contador
+            stop = true;
+        }
+        function liberacionEmbarques(id) {
+             //abre la ventana emergente
+            popupCenterRU({ url: '/@ViewBag.ControllerName/confirmarLiberacionEmbarques/'+id, title: 'Confirmar Liberación Embarques', w: screen.width * .60, h: screen.height * .60 });
+
+            //Deshabilita el contador
+            stop = true;
+        }
+        function liberacionVigilancia(id) {
+             //abre la ventana emergente
+            popupCenterRU({ url: '/@ViewBag.ControllerName/confirmarLiberacionVigilancia/'+id, title: 'Confirmar Liberación Vigilancia', w: screen.width * .60, h: screen.height * .60 });
+
+            //Deshabilita el contador
+            stop = true;
+        }
+        function salidaVigilancia(id) {
+             //abre la ventana emergente
+            popupCenterRU({ url: '/@ViewBag.ControllerName/confirmarSalidaVigilancia/'+id, title: 'Confirmar Salida Vigilancia', w: screen.width * .60, h: screen.height * .60 });
+
+            //Deshabilita el contador
+            stop = true;
+        }
+
+        function details(id) {
+             //abre la ventana emergente
+            popupCenterRU({ url: '/@ViewBag.ControllerName/Details/'+id, title: 'Detalles de unidad', w: screen.width * .60, h: screen.height * .60 });
+            stop = true;
+        }
+        function cancel(id) {
+             //abre la ventana emergente
+            popupCenterRU({ url: '/@ViewBag.ControllerName/Cancel/'+id, title: 'Cancelar Registro de Unidad', w: screen.width * .60, h: screen.height * .60 });
+            stop = true;
+        }
+
+        const popupCenterRU = ({ url, title, w, h }) => {
+            // Fixes dual-screen position                             Most browsers      Firefox
+            const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX;
+            const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY;
+
+            const width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+            const height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+            const systemZoom = width / window.screen.availWidth;
+            const left = (width - w) / 2 / systemZoom + dualScreenLeft
+            const top = (height - h) / 2 / systemZoom + dualScreenTop
+            const newWindow = window.open(url, title,
+                `
+                  scrollbars=yes,
+                  width=${w / systemZoom},
+                  height=${h / systemZoom},
+                  top=${top},
+                  left=${left}
+                `
+            )
+
+            if (window.focus) newWindow.focus();
+
+            //DETERMINA SI LA VENTANA HA SIDO CERRADA
+            var tiempo = 0;
+            var interval = setInterval(function () {
+                //Comprobamos que la ventana no este cerrada
+                if (newWindow.closed !== false) {
+                    //Si la ventana ha sido cerrada, limpiamos el contador
+                    window.clearInterval(interval)
+
+                    window.location.reload();
+                    //Deshabilita el contador
+                    stop = false;
+                } else {
+                    //Mientras no se cierra la ventana sumamos los segundos
+                    tiempo += 1;
+                }
+            }, 1000)
+
+        }
+
+        /**
+           * Method that reloads the page every 'x' seconds
+           */
+        function reloadPage() {
+            if (!stop) {
+                window.location.reload();
+            }
+        }
+
+        //Envía el formulario de búsqueda
+        function EnviaFormulario() {
+
+            $("#buscarForm").submit();
+            $.blockUI({
+                css: {
+                    border: 'none',
+                    padding: '15px',
+                    backgroundColor: '#000',
+                    '-webkit-border-radius': '10px',
+                    '-moz-border-radius': '10px',
+                    opacity: .3,
+                    color: '#fff'
+                },
+                message: '<h3>Cargando...</h3>'
+
+            });
+
+        }
+
+    </script>
+}

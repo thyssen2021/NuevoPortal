@@ -151,5 +151,9 @@ namespace Portal_2_0.Models
         public virtual DbSet<AspNetRoles> AspNetRoles { get; set; }
         public virtual DbSet<RM_elemento> RM_elemento { get; set; }
         public virtual DbSet<RM_cambio_estatus> RM_cambio_estatus { get; set; }
+        public virtual DbSet<RU_usuarios_vigilancia> RU_usuarios_vigilancia { get; set; }
+        public virtual DbSet<RU_usuarios_embarques> RU_usuarios_embarques { get; set; }
+        public virtual DbSet<budget_cantidad_budget_historico> budget_cantidad_budget_historico { get; set; }
+        public virtual DbSet<RU_registros> RU_registros { get; set; }
     }
 }

@@ -1,4 +1,7 @@
 ﻿@using Clases.Util;
+@{ 
+    bool nav_sm = ViewBag.nav_style != null && (string)ViewBag.nav_style == "nav-sm";
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -35,6 +38,7 @@
             font-family: 'TKTypeMedium';
             src: url('../../fonts/tkmm/TKTypeRegular.ttf') format('truetype');
         }
+
         table.dataTable thead {
             background-color: #009ff5;
             color: azure;
@@ -126,7 +130,7 @@
 
 </head>
 
-<body class="nav-md" id="body">
+<body class="@(ViewBag.nav_style == null ? "nav-md":ViewBag.nav_style)" id="body">
     <div class="container body">
         <div class="main_container">
             <div class="col-md-3 left_col">
@@ -651,9 +655,7 @@
                                         </li>
 
                                     }
-
                                     @*MENÚ REMISIONES MANUALES*@
-
                                     @if (User.IsInRole(TipoRoles.RM_CREACION) || User.IsInRole(TipoRoles.RM_DETALLES) || User.IsInRole(TipoRoles.RM_REPORTES))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "remisiones_manuales" ? "active" : null )">
@@ -668,7 +670,6 @@
                                                 {
                                                     @*<li class="@(ViewBag.SegundoNivel == "reportes_remisiones" ? "current-page" : null )"><a href="@Url.Action( "Reportes", "RM_cabecera")">Reportes</a></li>*@
                                                 }
-
                                             </ul>
                                         </li>
                                     }
@@ -741,8 +742,8 @@
                                                 {
                                                     <h3>Centros de Costo</h3>
                                                     @*<li class="@(ViewBag.SegundoNivel == "actual" ? "current-page" : null )"><a href="@Url.Action("Actual", "ResponsableBudget")">ACT FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)))</a></li>
-                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
-                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
+                                                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
+                                                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
                                                     <li class="@(ViewBag.SegundoNivel == "centros" ? "current-page" : null )"><a href="@Url.Action("Centros", "ResponsableBudget")">Mis Centros</a></li>
                                                 }
 
@@ -800,10 +801,24 @@
                                             </ul>
                                         </li>
                                     }
+                                    @*CICLO DE UNIDADES*@
+
+                                    @if (
+                                        User.IsInRole(TipoRoles.RU_ALMACEN_LIBERACION)
+                                        || User.IsInRole(TipoRoles.RU_VIGILANCIA)
+                                        || User.IsInRole(TipoRoles.RU_ALMACEN_RECEPCION)
+                                        )
+                                    {
+                                        <li class="@(!nav_sm && ViewBag.PrimerNivel == "registro_unidades" ? "active" : null )">
+                                            <a><i class="fa fa-truck-ramp-box"></i> Registro de Unidades<span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu" style="@(!nav_sm && ViewBag.PrimerNivel == "registro_unidades" ? "display:block" : null )">
+                                                <li class="@(!nav_sm && ViewBag.SegundoNivel == "registros" ? "current-page" : null )"><a href="@Url.Action( "Index", "RU_registros")">Listado</a></li>
+                                            </ul>
+                                        </li>
+                                    }
                                     @*DIRECTORIO*@
 
-                                    @if (Request.IsAuthenticated
-                                        )
+                                    @if (Request.IsAuthenticated)
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "directorio" ? "active" : null )">
                                             <a><i class="fa fa-address-book"></i> Contacto <span class="fa fa-chevron-down"></span></a>
@@ -855,6 +870,7 @@
         </div>
     </div>
 
+
     <!-- jQuery -->
     @Scripts.Render(Url.Content("~/Content/vendors/jquery/dist/jquery.min.js"))
     <!-- Bootstrap -->
@@ -868,13 +884,25 @@
     <script src="~/Content/vendors/cool-hint-css/src/hint-css.js"></script>
 
     @RenderSection("scripts", required: false)
+    @if (nav_sm) //si no esta en modo reducido hace clic dos veces sobre el menu, para ocultar los childs
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                clicMenu(2);
+            });
+        </script>
+    }
+
 
     <!-- Custom Theme Scripts -->
     @Scripts.Render(Url.Content("~/Content/build/js/custom.min.js"))
 
+
     @Scripts.Render(Url.Content("~/Content/vendors/jquery_block_ui/jquery.blockUI.js"))
 
     @Scripts.Render(Url.Content("~/Scripts/site.js"))
+
+
 
     @if (@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":9040"))
     {
@@ -905,6 +933,7 @@
 
         </script>
     }
+
 
 </body>
 </html>

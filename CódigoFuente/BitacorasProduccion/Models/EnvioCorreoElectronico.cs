@@ -89,8 +89,8 @@ namespace Portal_2_0.Models
                 };
 
                 //********** Comentar para productivo ************//
-                //emailsTo = new List<string>();
-                //emailsTo.Add("alfredo.xochitemol@lagermex.com.mx");
+                emailsTo = new List<string>();
+                emailsTo.Add("alfredo.xochitemol@lagermex.com.mx");
                 // ************************************//
 
                 //agrega los destinatarios
@@ -883,6 +883,8 @@ namespace Portal_2_0.Models
 
             if (emp != null)
                 nombre = emp.ConcatNombre;
+            else
+                nombre = model.Nombre;
 
 
 

@@ -1,0 +1,116 @@
+﻿.step-progress-bar > * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box !important;
+}
+
+
+
+.step-progress-bar > ul2 {
+    display: flex;
+}
+
+    .step-progress-bar > ul2 li2 {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin: 0 1px;
+    }
+
+        .step-progress-bar > ul2 li2 .icons {
+            font-size: 20px;
+            color: #c4c4bc;
+            margin: 0 53px;
+        }
+
+
+.activo {
+    color: #009ff5 !important;
+}
+
+.complete-color {
+    color: #009f00 !important;
+}
+
+.complete-background-color {
+    background-color: #009f00 !important;
+}
+
+.cancel-color {
+    color: #f00000 !important;
+}
+
+.cancel-background-color {
+    background-color: #f00000 !important;
+}
+
+
+.step-progress-bar > ul2 li2 .label {
+    font-family: sans-serif;
+    letter-spacing: 1px;
+    font-size: 11px;
+    font-weight: bold;
+    color: #c4c4bc;
+    text-align: center;
+}
+
+ul2 li2 .step {
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background-color: #c4c4bc;
+    margin: 5px 5px 5px;
+    display: grid;
+    place-items: center;
+    color: ghostwhite;
+    position: relative;
+    cursor: pointer;
+}
+
+.step::after {
+    content: "";
+    position: absolute;
+    width: 111px;
+    height: 3px;
+    background-color: #c4c4bc;
+    right: 20px;
+}
+
+.first::after {
+    width: 0;
+    height: 0;
+}
+
+ul2 li2 .active {
+    background-color: #009ff5;
+}
+
+ul2 li2 .step .awesome {
+    display: none;
+}
+
+ul2 li2 .step p {
+    font-size: 14px;
+}
+
+li2 .active::after {
+    background-color: #009ff5;
+}
+
+li2 .complete-background-color::after {
+    background-color: #009f00;
+}
+
+li2 .cancel-background-color::after {
+    background-color: #f00000;
+}
+
+ul2 li2 .active p {
+    display: none;
+}
+
+ul2 li2 .active .awesome {
+    display: flex;
+}
