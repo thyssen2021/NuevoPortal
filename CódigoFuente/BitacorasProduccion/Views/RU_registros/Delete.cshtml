@@ -1,0 +1,184 @@
+﻿@model Portal_2_0.Models.RU_registros
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Delete</title>
+</head>
+<body>
+    <h3>Are you sure you want to delete this?</h3>
+    <div>
+        <h4>RU_registros</h4>
+        <hr />
+        <dl class="dl-horizontal">
+            <dt>
+                @Html.DisplayNameFor(model => model.fecha_ingreso_vigilancia)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.fecha_ingreso_vigilancia)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.linea_transporte)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.linea_transporte)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.placas_tractor)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.placas_tractor)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.nombre_operador)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.nombre_operador)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.comentarios_vigilancia_ingreso)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.comentarios_vigilancia_ingreso)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.hora_embarques_recepcion)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.hora_embarques_recepcion)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.comentarios_embarques_recepcion)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.comentarios_embarques_recepcion)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.hora_embarques_liberacion)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.hora_embarques_liberacion)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.comentarios_embarques_liberacion)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.comentarios_embarques_liberacion)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.hora_vigilancia_liberacion)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.hora_vigilancia_liberacion)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.comentarios_vigilancia_liberacion)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.comentarios_vigilancia_liberacion)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.hora_vigilancia_salida)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.hora_vigilancia_salida)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.comentarios_vigilancia_salida)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.comentarios_vigilancia_salida)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.activo)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.activo)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.empleados.numeroEmpleado)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.empleados.numeroEmpleado)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.empleados1.numeroEmpleado)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.empleados1.numeroEmpleado)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.RU_usuarios_vigilancia.nombre)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.RU_usuarios_vigilancia.nombre)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.RU_usuarios_vigilancia1.nombre)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.RU_usuarios_vigilancia1.nombre)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.RU_usuarios_vigilancia2.nombre)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.RU_usuarios_vigilancia2.nombre)
+            </dd>
+    
+        </dl>
+    
+        @using (Html.BeginForm()) {
+            @Html.AntiForgeryToken()
+    
+            <div class="form-actions no-color">
+                <input type="submit" value="Delete" class="btn btn-default" /> |
+                @Html.ActionLink("Back to List", "Index")
+            </div>
+        }
+    </div>
+</body>
+</html>

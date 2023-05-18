@@ -366,6 +366,7 @@
     <Compile Include="Controllers\RH_menu_comedorController.cs" />
     <Compile Include="Controllers\RM_cabeceraController.cs" />
     <Compile Include="Controllers\RolesAdminController.cs" />
+    <Compile Include="Controllers\RU_registrosController.cs" />
     <Compile Include="Controllers\upgrade_revisionController.cs" />
     <Compile Include="Controllers\UserAdminController.cs" />
     <Compile Include="Global.asax.cs">
@@ -411,6 +412,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\budget_cantidad.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\budget_cantidad_budget_historico.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\budget_centro_costo.cs">
@@ -700,6 +704,7 @@
     <Compile Include="Models\MetadataModels\RM_almacenMetadata.cs" />
     <Compile Include="Models\MetadataModels\RM_cabeceraMetadata.cs" />
     <Compile Include="Models\MetadataModels\RM_cambio_estatusMetadata.cs" />
+    <Compile Include="Models\MetadataModels\RU_registrosMetadata.cs" />
     <Compile Include="Models\MetadataModels\view_historico_resultadoMetadata.cs" />
     <Compile Include="Models\MetadataModels\view_valores_fiscal_yearMetadata.cs" />
     <Compile Include="Models\mm_v3.cs">
@@ -859,6 +864,15 @@
     <Compile Include="Models\RM_transporte_proveedor.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\RU_registros.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\RU_usuarios_embarques.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\RU_usuarios_vigilancia.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\upgrade_check_item.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -927,7 +941,6 @@
     <Content Include="Content\build\images\forward_enabled.png" />
     <Content Include="Content\build\images\forward_enabled_hover.png" />
     <Content Include="Content\build\images\loading.gif" />
-    <Content Include="Content\build\js\custom.js" />
     <Content Include="Content\build\js\custom.min.js" />
     <Content Include="Content\emails_plantillas\Account_welcome.html" />
     <Content Include="Content\emails_plantillas\IT_MR_notificacion_autorizacion_sistemas.html" />
@@ -972,6 +985,7 @@
     <Content Include="Content\menu-css.css" />
     <Content Include="Content\not-found.css" />
     <Content Include="Content\Site.css" />
+    <Content Include="Content\step-progress-bar.css" />
     <Content Include="Content\timeline.css" />
     <Content Include="Content\vendors\animate.css\animate.css" />
     <Content Include="Content\vendors\animate.css\animate.min.css" />
@@ -3839,6 +3853,7 @@
     <Content Include="Scripts\Forms\datosEntrada.js" />
     <Content Include="Scripts\Forms\empleados.js" />
     <Content Include="Scripts\Forms\areas.js" />
+    <Content Include="Scripts\Forms\ModalConfirm.js" />
     <Content Include="Scripts\Forms\operadores_produccion.js" />
     <Content Include="Scripts\Forms\PFA_create.js" />
     <Content Include="Scripts\Forms\PFA_edit.js" />
@@ -5227,6 +5242,16 @@
     <Content Include="Views\RM_cabecera\Cancel.cshtml" />
     <Content Include="Views\RM_cabecera\Regularizar.cshtml" />
     <Content Include="Views\RM_cabecera\Print.cshtml" />
+    <Content Include="Views\RU_registros\Create.cshtml" />
+    <Content Include="Views\RU_registros\Delete.cshtml" />
+    <Content Include="Views\RU_registros\Details.cshtml" />
+    <Content Include="Views\RU_registros\confirmarRecepcion.cshtml" />
+    <Content Include="Views\RU_registros\Index.cshtml" />
+    <Content Include="Views\RU_registros\Message.cshtml" />
+    <Content Include="Views\RU_registros\confirmarLiberacionEmbarques.cshtml" />
+    <Content Include="Views\RU_registros\confirmarLiberacionVigilancia.cshtml" />
+    <Content Include="Views\RU_registros\confirmarSalidaVigilancia.cshtml" />
+    <Content Include="Views\RU_registros\Cancel.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

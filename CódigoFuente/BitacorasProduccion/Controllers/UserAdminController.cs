@@ -161,6 +161,7 @@ namespace IdentitySample.Controllers
 
 
                 username = Clases.Util.UsoStrings.ReemplazaCaracteres(username);
+                username = username.Replace(" ", String.Empty); //quita los espacios en blanco
 
                 var user = new ApplicationUser { UserName = username.ToUpper(), Email = userViewModel.Email, Nombre = nombre, IdEmpleado = userViewModel.IdEmpleado, FechaCreacion = DateTime.Now };
 
@@ -238,8 +239,6 @@ namespace IdentitySample.Controllers
 
                     System.Diagnostics.Debug.WriteLine(e.Message);
                 }
-
-
 
                 //agrega el mensaje para sweetalert
                 TempData["Mensaje"] = new MensajesSweetAlert(mensaje, TipoMensajesSweetAlerts.SUCCESS);

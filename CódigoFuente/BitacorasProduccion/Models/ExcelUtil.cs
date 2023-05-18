@@ -431,10 +431,10 @@ namespace Portal_2_0.Models
         //    styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
 
         //    ////estilo para fecha
-        //    SLStyle styleShortDate = oSLDocument.CreateStyle();
-        //    styleShortDate.FormatCode = "mmmm/yyyy";
-        //    oSLDocument.SetColumnStyle(8, styleShortDate);
-        //    oSLDocument.SetColumnStyle(9, styleShortDate);
+        //    SLStyle styleLongDate = oSLDocument.CreateStyle();
+        //    styleLongDate.FormatCode = "mmmm/yyyy";
+        //    oSLDocument.SetColumnStyle(8, styleLongDate);
+        //    oSLDocument.SetColumnStyle(9, styleLongDate);
 
         //    SLStyle styleHeaderFont = oSLDocument.CreateStyle();
         //    styleHeaderFont.Font.FontName = "Calibri";
@@ -543,7 +543,7 @@ namespace Portal_2_0.Models
             oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
 
             #endregion
-                        
+
             #region hoja2
 
             //comienza la segunda hoja
@@ -560,13 +560,13 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Fecha", typeof(DateTime));
             dt.Columns.Add("Descripción del Cambio", typeof(string));
 
-            dt.Rows.Add(1,"Gerente de Sistemas", new DateTime(2018,1,22),"Se da de alta el documento en el sistema.");
-            dt.Rows.Add(2,"Network administrator", new DateTime(2021,1,04), "Se sustituye el plan de mantenimiento por el calendario anual, se realiza por procesos.");
-            dt.Rows.Add(3,"Alfredo Xochitemol Cruz", new DateTime(2022,9,1), "Se genera plan de mantenimientos a través del Portal tkMM.");
+            dt.Rows.Add(1, "Gerente de Sistemas", new DateTime(2018, 1, 22), "Se da de alta el documento en el sistema.");
+            dt.Rows.Add(2, "Network administrator", new DateTime(2021, 1, 04), "Se sustituye el plan de mantenimiento por el calendario anual, se realiza por procesos.");
+            dt.Rows.Add(3, "Alfredo Xochitemol Cruz", new DateTime(2022, 9, 1), "Se genera plan de mantenimientos a través del Portal tkMM.");
 
-            oSLDocument.MergeWorksheetCells("A1","D1");
+            oSLDocument.MergeWorksheetCells("A1", "D1");
             oSLDocument.SetCellValue("A1", "Control de Cambios");
-           
+
 
             oSLDocument.ImportDataTable(2, 1, dt, true);
 
@@ -582,8 +582,8 @@ namespace Portal_2_0.Models
             styleHeaderFont.Alignment.Horizontal = HorizontalAlignmentValues.Center;
 
             oSLDocument.SetColumnStyle(2, dt.Columns.Count, styleWrap);
-            oSLDocument.SetRowStyle(1,2, styleHeader);
-            oSLDocument.SetRowStyle(1,2, styleHeaderFont);
+            oSLDocument.SetRowStyle(1, 2, styleHeader);
+            oSLDocument.SetRowStyle(1, 2, styleHeaderFont);
 
             oSLDocument.SetRowHeight(1, listado.Count + 1, 15.0);
 
@@ -3263,9 +3263,9 @@ namespace Portal_2_0.Models
             styleLoteInfo.Border.RightBorder.Color = System.Drawing.Color.LightGray;
 
             ////estilo para fecha
-            //SLStyle styleShortDate = oSLDocument.CreateStyle();
-            //styleShortDate.FormatCode = "yyyy/MM/dd";
-            //oSLDocument.SetColumnStyle(10, styleShortDate);
+            //SLStyle styleLongDate = oSLDocument.CreateStyle();
+            //styleLongDate.FormatCode = "yyyy/MM/dd";
+            //oSLDocument.SetColumnStyle(10, styleLongDate);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();
@@ -3365,9 +3365,9 @@ namespace Portal_2_0.Models
             styleLoteInfo.Border.RightBorder.Color = System.Drawing.Color.LightGray;
 
             //////estilo para fecha
-            //SLStyle styleShortDate = oSLDocument.CreateStyle();
-            //styleShortDate.FormatCode = "yyyy/MM/dd";
-            //oSLDocument.SetColumnStyle(7, styleShortDate);
+            //SLStyle styleLongDate = oSLDocument.CreateStyle();
+            //styleLongDate.FormatCode = "yyyy/MM/dd";
+            //oSLDocument.SetColumnStyle(7, styleLongDate);
 
             //oSLDocument.SetColumnStyle(10, 17, styleNumberInt);
 
@@ -4498,24 +4498,24 @@ namespace Portal_2_0.Models
             {
                 System.Data.DataRow row = dt.NewRow();
 
-                row["Usuario"] = usuario.ConcatNombre;            
-                row["NumeroRemision"] = remision.ConcatNumeroRemision;            
-                row["ItemClave"] = item.clave;            
-                row["NumeroMaterial"] = item.numeroMaterial;            
-                row["NumeroLote"] = item.numeroLote;            
-                row["Cantidad"] = item.cantidad;            
-                row["NumeroRollo"] = item.numeroRollo;            
-                row["Cliente"] = remision.clienteOtro;            
-                row["EnviadoA"] = remision.enviadoAOtro;            
-                row["Almacen"] = remision.RM_almacen.descripcion;            
-                row["PlacaTractor"] = remision.placaTractor;            
-                row["PlacaRemolque"] = remision.placaRemolque;            
-                row["HorarioDescarga"] = remision.horarioDescarga;            
-                row["NombreChofer"] = remision.nombreChofer;            
-                row["Transporte"] = remision.transporteOtro;            
+                row["Usuario"] = usuario.ConcatNombre;
+                row["NumeroRemision"] = remision.ConcatNumeroRemision;
+                row["ItemClave"] = item.clave;
+                row["NumeroMaterial"] = item.numeroMaterial;
+                row["NumeroLote"] = item.numeroLote;
+                row["Cantidad"] = item.cantidad;
+                row["NumeroRollo"] = item.numeroRollo;
+                row["Cliente"] = remision.clienteOtro;
+                row["EnviadoA"] = remision.enviadoAOtro;
+                row["Almacen"] = remision.RM_almacen.descripcion;
+                row["PlacaTractor"] = remision.placaTractor;
+                row["PlacaRemolque"] = remision.placaRemolque;
+                row["HorarioDescarga"] = remision.horarioDescarga;
+                row["NombreChofer"] = remision.nombreChofer;
+                row["Transporte"] = remision.transporteOtro;
 
                 dt.Rows.Add(row);
-            
+
             }
 
             //crea la hoja de FACTURAS y la selecciona
@@ -4545,7 +4545,158 @@ namespace Portal_2_0.Models
             ////estilo para fecha
             SLStyle styleShortDate = oSLDocument.CreateStyle();
             styleShortDate.FormatCode = "dd.MM.yyyy";
-            //oSLDocument.SetColumnStyle(tkbirthColumn, styleShortDate);
+            //oSLDocument.SetColumnStyle(tkbirthColumn, styleLongDate);
+
+
+            SLStyle styleHeaderFont = oSLDocument.CreateStyle();
+            styleHeaderFont.Font.FontName = "Calibri";
+            styleHeaderFont.Font.FontSize = 11;
+            styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
+            styleHeaderFont.Font.Bold = true;
+
+            foreach (var baja in disabledItems)
+                oSLDocument.SetCellStyle(baja, 1, baja, dt.Columns.Count, styleHeaderRowBaja);
+
+            //da estilo a la hoja de excel
+            //inmoviliza el encabezado
+            oSLDocument.FreezePanes(1, 0);
+
+            oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
+            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+
+            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
+            oSLDocument.SetRowStyle(1, styleHeader);
+            oSLDocument.SetRowStyle(1, styleHeaderFont);
+            oSLDocument.SetRowHeight(1, dt.Rows.Count + 1, 15.0);
+
+            System.IO.Stream stream = new System.IO.MemoryStream();
+
+            oSLDocument.SaveAs(stream);
+
+            byte[] array = Bitacoras.Util.StreamUtil.ToByteArray(stream);
+
+            return (array);
+        }
+
+        public static byte[] GeneraReporteRU(List<RU_registros> listado)
+        {
+
+            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+            System.Data.DataTable dt = new System.Data.DataTable();
+
+            List<int> disabledItems = new List<int>();
+
+            //columnas          
+            dt.Columns.Add("Folio", typeof(string));
+            dt.Columns.Add("Estado", typeof(string));
+            dt.Columns.Add("Línea de transporte", typeof(string));
+            dt.Columns.Add("Nombre Operador", typeof(string));
+            dt.Columns.Add("Placas Tractor", typeof(string));
+            dt.Columns.Add("Carga", typeof(string));
+            dt.Columns.Add("Descarga", typeof(string));
+            dt.Columns.Add("Hora Ingreso", typeof(DateTime));
+            dt.Columns.Add("Vigilancia (Ingreso)", typeof(string));
+            dt.Columns.Add("Comentarios (Ingreso)", typeof(string));
+            dt.Columns.Add("Hora Recepción", typeof(DateTime));
+            dt.Columns.Add("Embarques (Recepción)", typeof(string));
+            dt.Columns.Add("Comentarios (Recepción)", typeof(string));
+            dt.Columns.Add("Hora Liberación (Embarques)", typeof(DateTime));
+            dt.Columns.Add("Embarques (Liberación)", typeof(string));
+            dt.Columns.Add("Comentarios Liberación (Embarques)", typeof(string));
+            dt.Columns.Add("Hora Liberación (Vigilancia)", typeof(DateTime));
+            dt.Columns.Add("Vigilancia (Liberación)", typeof(string));
+            dt.Columns.Add("Comentarios Liberación (Vigilancia)", typeof(string));
+            dt.Columns.Add("Hora Salida (Vigilancia)", typeof(DateTime));
+            dt.Columns.Add("Vigilancia (Salida)", typeof(string));
+            dt.Columns.Add("Comentarios Salida (Vigilancia)", typeof(string));
+            dt.Columns.Add("Hora Cancelación", typeof(DateTime));
+            dt.Columns.Add("Canceló", typeof(string));
+            dt.Columns.Add("Comentarios Cancelación", typeof(string));
+
+            ////registros , rows
+            foreach (var item in listado)
+            {
+                System.Data.DataRow row = dt.NewRow();
+
+                row["Folio"] = item.id;
+                row["Estado"] = item.EstadoString;
+                row["Línea de transporte"] = item.linea_transporte;
+                row["Nombre Operador"] = item.nombre_operador;
+                row["Placas Tractor"] = item.placas_tractor;
+                row["Carga"] = item.carga ? "Sí" : "No";
+                row["Descarga"] = item.descarga ? "Sí" : "No";
+                row["Hora Ingreso"] = item.fecha_ingreso_vigilancia;
+                row["Vigilancia (Ingreso)"] = item.RU_usuarios_vigilancia.nombre;
+                row["Comentarios (Ingreso)"] = item.comentarios_vigilancia_ingreso;
+                if (item.hora_embarques_recepcion.HasValue)
+                    row["Hora Recepción"] = item.hora_embarques_recepcion;
+                else
+                    row["Hora Recepción"] = DBNull.Value;
+                row["Embarques (Recepción)"] = item.empleados1 != null ? item.empleados1.ConcatNombre : string.Empty;
+                row["Comentarios (Recepción)"] = item.comentarios_embarques_recepcion;
+                if (item.hora_embarques_liberacion.HasValue)
+                    row["Hora Liberación (Embarques)"] = item.hora_embarques_liberacion;
+                else
+                    row["Hora Liberación (Embarques)"] = DBNull.Value;
+                row["Embarques (Liberación)"] = item.empleados != null ? item.empleados.ConcatNombre : string.Empty;
+                row["Comentarios Liberación (Embarques)"] = item.comentarios_embarques_liberacion;
+                if (item.hora_vigilancia_liberacion.HasValue)
+                    row["Hora Liberación (Vigilancia)"] = item.hora_vigilancia_liberacion;
+                else
+                    row["Hora Liberación (Vigilancia)"] = DBNull.Value;
+                row["Vigilancia (Liberación)"] = item.RU_usuarios_vigilancia1 != null ? item.RU_usuarios_vigilancia1.nombre : string.Empty;
+                row["Comentarios Liberación (Vigilancia)"] = item.comentarios_vigilancia_liberacion;
+                if (item.hora_vigilancia_salida.HasValue)
+                    row["Hora Salida (Vigilancia)"] = item.hora_vigilancia_salida;
+                else
+                    row["Hora Salida (Vigilancia)"] = DBNull.Value;
+                row["Vigilancia (Salida)"] = item.RU_usuarios_vigilancia2 != null ? item.RU_usuarios_vigilancia2.nombre : string.Empty;
+                row["Comentarios Salida (Vigilancia)"] = item.comentarios_vigilancia_salida;
+                if (item.hora_cancelacion.HasValue)
+                    row["Hora Cancelación"] = item.hora_cancelacion;
+                else
+                    row["Hora Cancelación"] = DBNull.Value;
+                row["Canceló"] = item.nombre_cancelacion;
+                row["Comentarios Cancelación"] = item.comentario_cancelacion;
+
+
+                dt.Rows.Add(row);
+
+            }
+
+            //crea la hoja de FACTURAS y la selecciona
+            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Registro de Unidades");
+            oSLDocument.ImportDataTable(1, 1, dt, true);
+
+            //estilo para ajustar al texto
+            SLStyle styleWrap = oSLDocument.CreateStyle();
+            styleWrap.SetWrapText(true);
+
+            //estilo para el encabezado
+            SLStyle styleHeader = oSLDocument.CreateStyle();
+            styleHeader.Font.Bold = true;
+            styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
+
+            //estilo para bajas
+            SLStyle styleHeaderRowBaja = oSLDocument.CreateStyle();
+            styleHeaderRowBaja.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffa0a2"), System.Drawing.ColorTranslator.FromHtml("#ffa0a2"));
+
+            //estilo para numeros
+            SLStyle styleNumber = oSLDocument.CreateStyle();
+            styleNumber.FormatCode = "#,##0.00";
+
+            //da estilo a los numero
+            //oSLDocument.SetColumnStyle(18, styleNumber);
+
+            ////estilo para fecha
+            SLStyle styleLongDate = oSLDocument.CreateStyle();
+            styleLongDate.FormatCode = "dd/MM/yyyy hh:mm AM/PM";
+            oSLDocument.SetColumnStyle(dt.Columns["Hora Ingreso"].Ordinal + 1, styleLongDate);
+            oSLDocument.SetColumnStyle(dt.Columns["Hora Recepción"].Ordinal + 1, styleLongDate);
+            oSLDocument.SetColumnStyle(dt.Columns["Hora Liberación (Embarques)"].Ordinal + 1, styleLongDate);
+            oSLDocument.SetColumnStyle(dt.Columns["Hora Liberación (Vigilancia)"].Ordinal + 1, styleLongDate);
+            oSLDocument.SetColumnStyle(dt.Columns["Hora Salida (Vigilancia)"].Ordinal + 1, styleLongDate);
+            oSLDocument.SetColumnStyle(dt.Columns["Hora Cancelación"].Ordinal + 1, styleLongDate);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();

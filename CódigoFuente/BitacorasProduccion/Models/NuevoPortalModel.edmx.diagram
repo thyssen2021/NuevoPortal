@@ -310,6 +310,16 @@
         <AssociationConnector Association="Portal_2_0Model.FK_RM_cambio_estatus_id_empleado" />
         <AssociationConnector Association="Portal_2_0Model.FK_RM_cambio_remisionCabeceraClaveo" />
         <AssociationConnector Association="Portal_2_0Model.FK_RM_cambio_catalogoEstatusClave" />
+        <EntityTypeShape EntityType="Portal_2_0Model.RU_usuarios_vigilancia" Width="1.5" PointX="34.75" PointY="91" />
+        <EntityTypeShape EntityType="Portal_2_0Model.RU_usuarios_embarques" Width="1.5" PointX="32" PointY="90.125" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RU_usuarios_embarquess_id_empleado" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_cantidad_budget_historico" Width="1.5" PointX="13.375" PointY="3.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.RU_registros" Width="1.5" PointX="38" PointY="82.25" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RU_registros_id_embarques_liberacion" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RU_registros_id_embarques_recepcion" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RU_registros_id_vigilancia_ingreso" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RU_registros_id_vigilancia_liberacion" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RU_registros_id_vigilancia_salida" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
