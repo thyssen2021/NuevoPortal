@@ -612,6 +612,12 @@
     <Compile Include="Models\log_inicio_sesion.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\menu_item.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\menu_link.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\MetadataModels\budget_departamentosMetadata.cs" />
     <Compile Include="Models\ComboSelect.cs" />
     <Compile Include="Models\EncabezadoExcelBudget.cs" />
@@ -2558,6 +2564,7 @@
     <Content Include="Content\vendors\google-code-prettify\styles\index.html" />
     <Content Include="Content\vendors\google-code-prettify\styles\sons-of-obsidian.css" />
     <Content Include="Content\vendors\google-code-prettify\styles\sunburst.css" />
+    <Content Include="Content\home.css" />
     <Content Include="Content\vendors\iCheck\icheck.js" />
     <Content Include="Content\vendors\iCheck\icheck.min.js" />
     <Content Include="Content\vendors\iCheck\skins\all.css" />
@@ -5252,6 +5259,7 @@
     <Content Include="Views\RU_registros\confirmarLiberacionVigilancia.cshtml" />
     <Content Include="Views\RU_registros\confirmarSalidaVigilancia.cshtml" />
     <Content Include="Views\RU_registros\Cancel.cshtml" />
+    <Content Include="Views\Home\Menu.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

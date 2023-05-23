@@ -320,6 +320,9 @@
         <AssociationConnector Association="Portal_2_0Model.FK_RU_registros_id_vigilancia_ingreso" />
         <AssociationConnector Association="Portal_2_0Model.FK_RU_registros_id_vigilancia_liberacion" />
         <AssociationConnector Association="Portal_2_0Model.FK_RU_registros_id_vigilancia_salida" />
+        <EntityTypeShape EntityType="Portal_2_0Model.menu_item" Width="1.5" PointX="13.375" PointY="8" />
+        <EntityTypeShape EntityType="Portal_2_0Model.menu_link" Width="1.5" PointX="15.625" PointY="7.875" />
+        <AssociationConnector Association="Portal_2_0Model.FK_menu_link_id_menu_item" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

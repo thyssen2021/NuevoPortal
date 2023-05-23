@@ -1,0 +1,189 @@
+﻿@model IEnumerable<Portal_2_0.Models.menu_item>
+@{
+    ViewBag.Title = "Bienvenido";
+    ViewBag.nav_style = "nav-sm";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+}
+
+@section estilos
+{
+    <link href="~/Content/home.css" rel="stylesheet" />
+    <style>
+    </style>
+}
+
+<div class="right_col" role="main">
+    <div class="page-title">
+        <div class="title_left">
+            <h3>Listado de Desarrollos</h3>
+        </div>
+        <div class="title_right">
+            @using (Html.BeginForm(null, null, FormMethod.Get, new { id = "buscarForm", @class = "form-horizontal form-label-left" }))
+            {
+                <div class="col-md-8 col-sm-8  form-group pull-right top_search">
+                    <div class="input-group">
+                        <input type="text" id="nombre" name="nombre" class="form-control" autocomplete="off" placeholder="Buscar..." value="@Request.Params["nombre"]">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="submit">Buscar</button>
+                        </span>
+                        <a href="@Url.Action( "Menu", ViewBag.ControllerName)" class="btn btn-warning">
+                            <i class="fa fa-refresh"></i>
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="section_our_solution">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="our_solution_category">
+
+                    @if (Model.Count() == 0)
+                    {
+
+                        <h3>
+                            <a href="@Url.Action( "Menu", ViewBag.ControllerName)" class="btn btn-warning">
+                                <i class="fa fa-refresh"></i>
+                            </a><a href="@Url.Action( "Menu", ViewBag.ControllerName)" class="btn btn-warning">
+                                <i class="fa fa-refresh"></i>
+                            </a> No hay resultados...
+                        </h3>
+                    }
+                    <!--primera columna-->
+                    <div class="solution_cards_box">
+                        @foreach (var item in Model.Where(x => (Model.ToList().IndexOf(x) + 1) % 3 == 1))
+                        {
+                            <div class="solution_card">
+                                <div class="hover_color_bubble"></div>
+                                <div class="so_top_icon">
+                                    @Html.Raw(HttpUtility.HtmlDecode(item.svg))
+                                </div>
+                                <div class="solu_title">
+                                    <h3>@item.titulo</h3>
+                                </div>
+                                <div class="solu_description">
+                                    <p>
+                                        @item.descripcion
+                                    </p>
+                                    @foreach (var link in item.menu_link)
+                                    {
+                                        if (!link.link_externo)
+                                        {
+                                            <a type="button" class="read_more_btn" href="@Url.Action(link.action, link.controller)">@link.text</a>
+                                        }
+                                        else
+                                        {
+                                            <a type="button" class="read_more_btn" href="@link.enlace">@link.text</a>
+                                        }
+
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <!--segunda columna-->
+                    <div class="solution_cards_box">
+                        @foreach (var item in Model.Where(x => (Model.ToList().IndexOf(x) + 1) % 3 == 2))
+                        {
+                            <div class="solution_card">
+                                <div class="hover_color_bubble"></div>
+                                <div class="so_top_icon">
+                                    @Html.Raw(HttpUtility.HtmlDecode(item.svg))
+                                </div>
+                                <div class="solu_title">
+                                    <h3>@item.titulo</h3>
+                                </div>
+                                <div class="solu_description">
+                                    <p>
+                                        @item.descripcion
+                                    </p>
+                                    @foreach (var link in item.menu_link)
+                                    {
+                                        if (!link.link_externo)
+                                        {
+                                            <a type="button" class="read_more_btn" href="@Url.Action(link.action, link.controller)">@link.text</a>
+                                        }
+                                        else
+                                        {
+                                            <a type="button" class="read_more_btn" href="@link.enlace">@link.text</a>
+                                        }
+
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <!--tercera columna-->
+                    <div class="solution_cards_box">
+                        @foreach (var item in Model.Where(x => (Model.ToList().IndexOf(x) + 1) % 3 == 0))
+                        {
+                            <div class="solution_card">
+                                <div class="hover_color_bubble"></div>
+                                <div class="so_top_icon">
+                                    @Html.Raw(HttpUtility.HtmlDecode(item.svg))
+                                </div>
+                                <div class="solu_title">
+                                    <h3>@item.titulo</h3>
+                                </div>
+                                <div class="solu_description">
+                                    <p>
+                                        @item.descripcion
+                                    </p>
+                                    @foreach (var link in item.menu_link)
+                                    {
+                                        if (!link.link_externo)
+                                        {
+                                            <a type="button" class="read_more_btn" href="@Url.Action(link.action, link.controller)">@link.text</a>
+                                        }
+                                        else
+                                        {
+                                            <a type="button" class="read_more_btn" href="@link.enlace">@link.text</a>
+                                        }
+
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+    //agranda el tamaño de la barra
+    window.onload = function () {
+        let timeout;
+        //El evento lo puedes reemplazar con keyup, keypress y el tiempo a tu necesidad
+        $("#nombre").on("keydown", function () {
+            clearTimeout(timeout)
+            timeout = setTimeout(() => {
+                EnviaFormulario();
+                clearTimeout(timeout)
+            }, 1500)
+        });
+    }
+    //Envía el formulario de búsqueda
+    function EnviaFormulario() {
+
+        $("#buscarForm").submit();
+        $.blockUI({
+            css: {
+                border: 'none',
+                padding: '15px',
+                backgroundColor: '#000',
+                '-webkit-border-radius': '10px',
+                '-moz-border-radius': '10px',
+                opacity: .3,
+                color: '#fff'
+            },
+            message: '<h3>Cargando...</h3>'
+
+        });
+
+    }
+</script>

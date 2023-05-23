@@ -896,6 +896,29 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="id_usuario" Type="nvarchar" MaxLength="128" Nullable="false" />
           <Property Name="fecha" Type="datetime" Nullable="false" />
         </EntityType>
+        <EntityType Name="menu_item">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="titulo" Type="varchar" MaxLength="150" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="500" Nullable="false" />
+          <Property Name="svg" Type="varchar(max)" Nullable="false" />
+          <Property Name="prioridad" Type="tinyint" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="menu_link">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_menu_item" Type="int" Nullable="false" />
+          <Property Name="link_externo" Type="bit" Nullable="false" />
+          <Property Name="controller" Type="varchar" MaxLength="100" />
+          <Property Name="action" Type="varchar" MaxLength="100" />
+          <Property Name="enlace" Type="varchar" MaxLength="200" />
+          <Property Name="text" Type="varchar" MaxLength="100" Nullable="false" />
+        </EntityType>
         <EntityType Name="mm_v3">
           <Key>
             <PropertyRef Name="Material" />
@@ -2939,6 +2962,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_menu_link_id_menu_item">
+          <End Role="menu_item" Type="Self.menu_item" Multiplicity="1" />
+          <End Role="menu_link" Type="Self.menu_link" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="menu_item">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="menu_link">
+              <PropertyRef Name="id_menu_item" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_notificaciones_correo_empleado">
           <End Role="empleados" Type="Self.empleados" Multiplicity="0..1" />
           <End Role="notificaciones_correo" Type="Self.notificaciones_correo" Multiplicity="*" />
@@ -4093,6 +4128,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <EntitySet Name="log_acceso_email" EntityType="Self.log_acceso_email" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="log_envio_correo" EntityType="Self.log_envio_correo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="log_inicio_sesion" EntityType="Self.log_inicio_sesion" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="menu_item" EntityType="Self.menu_item" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="menu_link" EntityType="Self.menu_link" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="mm_v3" EntityType="Self.mm_v3" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="notificaciones_correo" EntityType="Self.notificaciones_correo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="orden_trabajo" EntityType="Self.orden_trabajo" Schema="dbo" store:Type="Tables" />
@@ -4698,6 +4735,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <AssociationSet Name="FK_log_inicio_sesion_id_usuario" Association="Self.FK_log_inicio_sesion_id_usuario">
             <End Role="AspNetUsers" EntitySet="AspNetUsers" />
             <End Role="log_inicio_sesion" EntitySet="log_inicio_sesion" />
+          </AssociationSet>
+          <AssociationSet Name="FK_menu_link_id_menu_item" Association="Self.FK_menu_link_id_menu_item">
+            <End Role="menu_item" EntitySet="menu_item" />
+            <End Role="menu_link" EntitySet="menu_link" />
           </AssociationSet>
           <AssociationSet Name="FK_notificaciones_correo_empleado" Association="Self.FK_notificaciones_correo_empleado">
             <End Role="empleados" EntitySet="empleados" />
@@ -8000,6 +8041,12 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="RU_usuarios_vigilancia" EntitySet="RU_usuarios_vigilancia" />
             <End Role="RU_registros" EntitySet="RU_registros" />
           </AssociationSet>
+          <EntitySet Name="menu_item" EntityType="Portal_2_0Model.menu_item" />
+          <EntitySet Name="menu_link" EntityType="Portal_2_0Model.menu_link" />
+          <AssociationSet Name="FK_menu_link_id_menu_item" Association="Portal_2_0Model.FK_menu_link_id_menu_item">
+            <End Role="menu_item" EntitySet="menu_item" />
+            <End Role="menu_link" EntitySet="menu_link" />
+          </AssociationSet>
           </EntityContainer>
         <EntityType Name="GV_usuarios">
           <Key>
@@ -10280,6 +10327,43 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="menu_item">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="titulo" Type="String" Nullable="false" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="descripcion" Type="String" Nullable="false" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="svg" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="prioridad" Type="Byte" Nullable="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="menu_link" Relationship="Portal_2_0Model.FK_menu_link_id_menu_item" FromRole="menu_item" ToRole="menu_link" />
+        </EntityType>
+        <EntityType Name="menu_link">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_menu_item" Type="Int32" Nullable="false" />
+          <Property Name="link_externo" Type="Boolean" Nullable="false" />
+          <Property Name="controller" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="action" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="enlace" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="text" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="menu_item" Relationship="Portal_2_0Model.FK_menu_link_id_menu_item" FromRole="menu_link" ToRole="menu_item" />
+        </EntityType>
+        <Association Name="FK_menu_link_id_menu_item">
+          <End Type="Portal_2_0Model.menu_item" Role="menu_item" Multiplicity="1" />
+          <End Type="Portal_2_0Model.menu_link" Role="menu_link" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="menu_item">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="menu_link">
+              <PropertyRef Name="id_menu_item" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -12149,6 +12233,31 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
                 <ScalarProperty Name="placas_tractor" ColumnName="placas_tractor" />
                 <ScalarProperty Name="linea_transporte" ColumnName="linea_transporte" />
                 <ScalarProperty Name="fecha_ingreso_vigilancia" ColumnName="fecha_ingreso_vigilancia" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="menu_item">
+            <EntityTypeMapping TypeName="Portal_2_0Model.menu_item">
+              <MappingFragment StoreEntitySet="menu_item">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="prioridad" ColumnName="prioridad" />
+                <ScalarProperty Name="svg" ColumnName="svg" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="titulo" ColumnName="titulo" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="menu_link">
+            <EntityTypeMapping TypeName="Portal_2_0Model.menu_link">
+              <MappingFragment StoreEntitySet="menu_link">
+                <ScalarProperty Name="text" ColumnName="text" />
+                <ScalarProperty Name="enlace" ColumnName="enlace" />
+                <ScalarProperty Name="action" ColumnName="action" />
+                <ScalarProperty Name="controller" ColumnName="controller" />
+                <ScalarProperty Name="link_externo" ColumnName="link_externo" />
+                <ScalarProperty Name="id_menu_item" ColumnName="id_menu_item" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

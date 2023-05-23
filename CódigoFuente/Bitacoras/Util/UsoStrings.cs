@@ -48,5 +48,9 @@ namespace Clases.Util
             }
             return valor;
         }
+        public static bool ContainsIgnoreCase(string source, string toCheck)
+        {
+            return source?.IndexOf(toCheck, StringComparison.OrdinalIgnoreCase) >= 0;
+        }
     }
 }
