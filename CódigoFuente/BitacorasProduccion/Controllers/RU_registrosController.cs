@@ -276,6 +276,12 @@ namespace Portal_2_0.Controllers
                 registroBD.id_embarques_liberacion = rU_registros.id_embarques_liberacion;
                 registroBD.comentarios_embarques_liberacion = rU_registros.comentarios_embarques_liberacion;
 
+                //en caso de que sea solamente descarga...
+                if (registroBD.descarga && !registroBD.carga)
+                {
+                    registroBD.hora_vigilancia_liberacion = DateTime.Now;
+                    registroBD.comentarios_vigilancia_liberacion = "No aplica";
+                }
                 db.SaveChanges();
                 ViewBag.Message = "Se liberó la unidad de Embarques.";
                 ViewBag.Tipo = TipoMensajesSweetAlerts.SUCCESS;
