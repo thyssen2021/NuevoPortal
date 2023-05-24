@@ -228,6 +228,10 @@ namespace Portal_2_0.Controllers
             if (!TieneRol(TipoRoles.RM_CREACION))
                 return View("../Home/ErrorPermisos");
 
+            //si se ingresa antes de la fecha de liberacion...
+            if (DateTime.Now < new DateTime(2023, 06, 01))
+                return ReturnErrorFecha();
+
             RM_cabecera model = new RM_cabecera
             {
                 observaciones = "Se crea remisión."
@@ -323,6 +327,10 @@ namespace Portal_2_0.Controllers
 
             if (id == null)
                 return View("../Error/BadRequest");
+
+            //si se ingresa antes de la fecha de liberacion...
+            if (DateTime.Now < new DateTime(2023, 06, 01))
+                return ReturnErrorFecha();
 
             RM_cabecera rM_cabecera = db.RM_cabecera.Find(id);
             if (rM_cabecera == null)
@@ -454,6 +462,10 @@ namespace Portal_2_0.Controllers
             if (id == null)
                 return View("../Error/BadRequest");
 
+            //si se ingresa antes de la fecha de liberacion...
+            if (DateTime.Now < new DateTime(2023, 06, 01))
+                return ReturnErrorFecha();
+
             RM_cabecera rM_cabecera = db.RM_cabecera.Find(id);
             if (rM_cabecera == null)
                 return View("../Error/NotFound");
@@ -553,6 +565,10 @@ namespace Portal_2_0.Controllers
             if (id == null)
                 return View("../Error/BadRequest");
 
+            //si se ingresa antes de la fecha de liberacion...
+            if (DateTime.Now < new DateTime(2023, 06, 01))
+                return ReturnErrorFecha();
+
             RM_cabecera rM_cabecera = db.RM_cabecera.Find(id);
             if (rM_cabecera == null)
                 return View("../Error/NotFound");
@@ -568,6 +584,10 @@ namespace Portal_2_0.Controllers
 
             if (id == null)
                 return View("../Error/BadRequest");
+
+            //si se ingresa antes de la fecha de liberacion...
+            if (DateTime.Now < new DateTime(2023, 06, 01))
+                return ReturnErrorFecha();
 
             RM_cabecera rM_cabecera = db.RM_cabecera.Find(id);
             if (rM_cabecera == null)
@@ -986,6 +1006,14 @@ namespace Portal_2_0.Controllers
 
             envioCorreo.SendEmailAsync(correos, asunto, envioCorreo.getBodyRemisiones(cabecera, asunto));
 
+        }
+
+        [NonAction]
+        public ActionResult ReturnErrorFecha() {
+            ViewBag.Titulo = "¡Lo sentimos!¡Esta sección se encuentra inhabilitada hasta el 01-jun-2023!";
+            ViewBag.Descripcion = "Esta sección se encuentra inhabilitada hasta el próximo 01 de junio, favor de continuar con el registro de las remisiones en http://10.122.163.24:8080/ .";
+
+            return View("../Home/ErrorGenerico");
         }
 
         [NonAction]
