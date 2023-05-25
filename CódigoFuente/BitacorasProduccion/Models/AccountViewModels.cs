@@ -49,8 +49,7 @@ namespace IdentitySample.Models
     public class LoginViewModel
     {
         [Required]
-        [Display(Name = "Email")]
-        [EmailAddress]
+        [Display(Name = "Usuario o correo eletrónico")]
         public string Email { get; set; }
 
         [Required]

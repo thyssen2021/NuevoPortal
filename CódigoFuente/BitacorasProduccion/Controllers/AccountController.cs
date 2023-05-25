@@ -81,8 +81,12 @@ namespace IdentitySample.Controllers
                 return View(model);
             }
 
+            //obtiene el dato ingresado por usuario
+            string username = model.Email;
+
             //Aqui realizar conexion a BD para consultar el username
-            string username = Clases.DBUtil.UsuariosDBUtil.ObtieneUsername(model.Email);
+            if (!db.AspNetUsers.Any(x => x.UserName == model.Email))
+                username = Clases.DBUtil.UsuariosDBUtil.ObtieneUsername(model.Email);
 
             // This doen't count login failures towards lockout only two factor authentication
             // To enable password failures to trigger lockout, change to shouldLockout: true
@@ -104,7 +108,6 @@ namespace IdentitySample.Controllers
                         db.log_inicio_sesion.Add(logLogin);
                         db.SaveChanges();
                     }
-
                     return RedirectToLocal(returnUrl);
                 case SignInStatus.LockedOut:
                     return View("Lockout");
@@ -112,7 +115,7 @@ namespace IdentitySample.Controllers
                     return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = false });
                 case SignInStatus.Failure:
                 default:
-                    if (String.IsNullOrEmpty(username))
+                    if (String.IsNullOrEmpty(username) || !db.AspNetUsers.Any(x => x.UserName == model.Email))
                         ModelState.AddModelError("", "No existe el usuario.");
                     else
                         ModelState.AddModelError("", "La contraseña ingresada no es válida.");
@@ -580,9 +583,9 @@ namespace IdentitySample.Controllers
         public ActionResult SolicitarUsuario(IT_solicitud_usuarios model)
         {
 
-            if(db.IT_solicitud_usuarios.Any(x=>
-                               ( model.no_encuentra_empleado==false && x.id_empleado == model.id_empleado)
-                               ||(!String.IsNullOrEmpty(model.correo) && x.correo == model.correo)
+            if (db.IT_solicitud_usuarios.Any(x =>
+                               (model.no_encuentra_empleado == false && x.id_empleado == model.id_empleado)
+                               || (!String.IsNullOrEmpty(model.correo) && x.correo == model.correo)
                                || (!String.IsNullOrEmpty(model.C8ID) && x.C8ID == model.C8ID)
                 ))
 
@@ -605,12 +608,12 @@ namespace IdentitySample.Controllers
                 //-- INICIO POR TABLA NOTIFICACION
                 List<notificaciones_correo> listadoNotificaciones = db.notificaciones_correo.Where(x => x.descripcion == NotificacionesCorreo.IT_SOLICITUD_PORTAL && x.activo).ToList();
                 foreach (var n in listadoNotificaciones)
-                {                    
+                {
                     //si el campo correo no está vacio
-                    if (!String.IsNullOrEmpty(n.correo) && !n.id_empleado.HasValue) 
+                    if (!String.IsNullOrEmpty(n.correo) && !n.id_empleado.HasValue)
                         correos.Add(n.correo);
                     //si tiene empleado asociado
-                    else if (n.empleados != null && !String.IsNullOrEmpty(n.empleados.correo) )
+                    else if (n.empleados != null && !String.IsNullOrEmpty(n.empleados.correo))
                         correos.Add(n.empleados.correo);
                 }
                 //-- FIN POR TABLA NOTIFICACION
