@@ -242,7 +242,7 @@ namespace Portal_2_0.Controllers
         // GET: RU_registros/confirmarLiberacionEmbarques/5
         public ActionResult confirmarLiberacionEmbarques(int? id)
         {
-            if (!TieneRol(TipoRoles.RU_ALMACEN_RECEPCION))
+            if (!TieneRol(TipoRoles.RU_ALMACEN_LIBERACION))
                 return View("../Home/ErrorPermisos");
 
             if (id == null)
