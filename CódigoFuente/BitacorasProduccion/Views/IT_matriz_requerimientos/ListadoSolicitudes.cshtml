@@ -85,8 +85,15 @@
                                                     <div class="col-md-2 col-sm-2">
                                                         <input type="text" id="nombre" name="nombre" class="form-control" value="@nombre" autocomplete="off" />
                                                     </div>
+                                                </div>
+                                                <div class="form-group row ">
+                                                    <label class="control-label col-md-1 col-sm-1" for="id_asignacion" style="text-align:right">Asignado a:</label>
+                                                    <div class="col-md-3 col-sm-0">
+                                                        @Html.DropDownList("id_asignacion", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                                    </div>
+                                                    <div class="col-md-6 col-sm-6">
+                                                    </div>
                                                     <div class="col-md-1 col-sm-1">
-
                                                         <a href="@Url.Action("solicitudes_sistemas", ViewBag.ControllerName)" class="btn btn-warning" title="Restablecer">
                                                             <i class="fa fa-refresh"></i>
                                                         </a>
@@ -156,6 +163,12 @@
                                                 <th>
                                                     Solicitante
                                                 </th>
+                                                @if (ViewContext.RouteData.Values["action"].ToString() == "solicitudes_sistemas")
+                                                {
+                                                    <th>
+                                                        Asignado A:
+                                                    </th>
+                                                }
                                                 <th>
                                                     Fecha Solicitud
                                                 </th>
@@ -177,7 +190,7 @@
                                         <tbody>
                                             @foreach (var item in Model)
                                             {
-                                                <tr>
+                                                <tr style="@(ViewBag.id_empleado_actual !=null && (int)ViewBag.id_empleado_actual==item.ultima_asignacion_id ? "background-color:#EBFCDC; font-weight:bold;color:green":String.Empty)">
                                                     <td>
 
                                                         @if (ViewBag.Autorizar != null && ViewBag.Autorizar)
@@ -205,6 +218,12 @@
                                                         {
                                                             <a href="@Url.Action("Cerrar", ViewBag.ControllerName, new { id = item.id })" class="btn btn-success" rel="tooltip" data-title="Cerrar Solicitud" data-placement="right">
                                                                 <i class="fa-solid fa-list-check"></i>
+                                                            </a>
+                                                        }
+                                                        @if (ViewBag.Sistemas != null && ViewBag.Sistemas && (item.estatus == Bitacoras.Util.IT_MR_Status.ENVIADO_A_IT || item.estatus == Bitacoras.Util.IT_MR_Status.EN_PROCESO || item.estatus == Bitacoras.Util.IT_MR_Status.FINALIZADO))
+                                                        {
+                                                            <a href="@Url.Action("Asignar", ViewBag.ControllerName, new { id = item.id })" class="btn btn-primary" rel="tooltip" data-title="Asignar Solicitud" data-placement="right">
+                                                                <i class="fa-solid fa-user-tag"></i>
                                                             </a>
                                                         }
                                                         @if (ViewBag.Details != null && ViewBag.Details)
@@ -243,6 +262,9 @@
                                                     </td>
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.empleados3.ConcatNombre)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.ultima_asignacion)
                                                     </td>
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.fecha_solicitud)

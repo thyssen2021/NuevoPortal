@@ -454,7 +454,7 @@ namespace Portal_2_0.Controllers
         #region listados sistemas
 
         // GET: IT_matriz_requerimientos/solicitudes_sistemas
-        public ActionResult solicitudes_sistemas(string estatus, string nombre, int? clave_planta, int pagina = 1)
+        public ActionResult solicitudes_sistemas(string estatus, string nombre, int? clave_planta, int? id_asignacion, int pagina = 1)
         {
 
             if (TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR))
@@ -472,15 +472,19 @@ namespace Portal_2_0.Controllers
                 var listado = db.IT_matriz_requerimientos
                     .Where(x => (String.IsNullOrEmpty(estatus) || x.estatus.Contains(estatus))
                     && (clave_planta == null || x.empleados.planta_clave == clave_planta)
-                    && ((x.empleados.nombre + " " + x.empleados.apellido1 + " " + x.empleados.apellido2).Contains(nombre) || String.IsNullOrEmpty(nombre)))
+                    && ((x.empleados.nombre + " " + x.empleados.apellido1 + " " + x.empleados.apellido2).Contains(nombre) || String.IsNullOrEmpty(nombre))
+                    && (id_asignacion == null || x.IT_matriz_asignaciones.Any(y => y.activo && y.id_sistemas == id_asignacion))
+                    )
                     .OrderByDescending(x => x.fecha_solicitud)
                     .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                    .Take(cantidadRegistrosPorPagina).ToList();
 
                 var totalDeRegistros = db.IT_matriz_requerimientos
-                       .Where(x => (String.IsNullOrEmpty(estatus) || x.estatus.Contains(estatus))
+                      .Where(x => (String.IsNullOrEmpty(estatus) || x.estatus.Contains(estatus))
                     && (clave_planta == null || x.empleados.planta_clave == clave_planta)
-                    && ((x.empleados.nombre + " " + x.empleados.apellido1 + " " + x.empleados.apellido2).Contains(nombre) || String.IsNullOrEmpty(nombre)))
+                    && ((x.empleados.nombre + " " + x.empleados.apellido1 + " " + x.empleados.apellido2).Contains(nombre) || String.IsNullOrEmpty(nombre))
+                    && (id_asignacion == null || x.IT_matriz_asignaciones.Any(y => y.activo && y.id_sistemas == id_asignacion))
+                    )
                    .Count();
 
                 //para paginación
@@ -489,6 +493,7 @@ namespace Portal_2_0.Controllers
                 routeValues["estatus"] = estatus;
                 routeValues["nombre"] = nombre;
                 routeValues["clave_planta"] = clave_planta;
+                routeValues["id_asignacion"] = id_asignacion;
 
                 Paginacion paginacion = new Paginacion
                 {
@@ -511,6 +516,18 @@ namespace Portal_2_0.Controllers
                     });
                 }
 
+                //recorre los usuarios con el permiso de IT_notificaciones
+                AspNetRoles rol = db.AspNetRoles.Where(x => x.Name == TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR).FirstOrDefault();
+                List<AspNetUsers> usuariosInRole = new List<AspNetUsers>();
+                if (rol != null)
+                    usuariosInRole = rol.AspNetUsers.ToList();
+
+                List<int> idsRol = usuariosInRole.Select(x => x.IdEmpleado).Distinct().ToList();
+                List<empleados> listEmpleados = db.empleados.Where(x => x.activo == true && idsRol.Contains(x.id) == true).ToList();
+
+                //envia el select list por viewbag
+                ViewBag.id_asignacion = AddFirstItem(new SelectList(listEmpleados, nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)), textoPorDefecto: "-- Seleccionar --");
+
                 SelectList selectListItemsStatus = new SelectList(newList, "Value", "Text", estatus);
                 ViewBag.estatus = AddFirstItem(selectListItemsStatus, textoPorDefecto: "-- Todos --");
 
@@ -518,6 +535,7 @@ namespace Portal_2_0.Controllers
                 //Viewbags para los botones
                 ViewBag.Details = true;
                 ViewBag.Sistemas = true;
+                ViewBag.id_empleado_actual = empleado.id;
                 ViewBag.Title = "Listado de Solicitudes";
                 ViewBag.PrimerNivel = "sistemas";
                 ViewBag.SegundoNivel = "solicitudes_usuarios_sistemas";
@@ -790,7 +808,7 @@ namespace Portal_2_0.Controllers
 
             //valida si la solicitud está vacia
 
-            if (SelectedHardware == null && SelectedSoftware == null && SelectedComunicaciones == null && SelectedCarpetas == null && matriz.id>0 && string.IsNullOrEmpty(matriz.comentario))
+            if (SelectedHardware == null && SelectedSoftware == null && SelectedComunicaciones == null && SelectedCarpetas == null && matriz.id > 0 && string.IsNullOrEmpty(matriz.comentario))
                 ModelState.AddModelError("", "Ingrese un comentario adicional para justificar porque no se seleccionó ningún software ni hardware.");
 
             if (ModelState.IsValid)
@@ -1476,13 +1494,17 @@ namespace Portal_2_0.Controllers
 
                 //asigna valor por defecto a todos los combo
                 foreach (var item in matriz.IT_matriz_hardware)
-                    item.completado = true;
+                    if (!item.completado.HasValue)
+                        item.completado = true;
                 foreach (var item in matriz.IT_matriz_software)
-                    item.completado = true;
+                    if (!item.completado.HasValue)
+                        item.completado = true;
                 foreach (var item in matriz.IT_matriz_comunicaciones)
-                    item.completado = true;
+                    if (!item.completado.HasValue)
+                        item.completado = true;
                 foreach (var item in matriz.IT_matriz_carpetas)
-                    item.completado = true;
+                    if (!item.completado.HasValue)
+                        item.completado = true;
 
 
 
@@ -1494,6 +1516,7 @@ namespace Portal_2_0.Controllers
             }
 
         }
+
 
         // POST: IT_matriz_requerimientos/Cerrar
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
@@ -1666,6 +1689,13 @@ namespace Portal_2_0.Controllers
                 //actualiza el estado de la solicitud según el tipo de formulario enviado
                 switch (tipoSolicitud.ToUpper())
                 {
+                    case "CIERRE_CLOSE":
+                        matriz.estatus = IT_MR_Status.FINALIZADO;
+                        matriz.fecha_cierre = DateTime.Now;
+                        //deshabilida la asignación actual
+                        foreach (var a in db.IT_matriz_asignaciones.Where(x => x.id_matriz_requerimientos == matriz.id))
+                            a.activo = false;
+                        break;
                     case "CIERRE":
                         matriz.estatus = IT_MR_Status.FINALIZADO;
                         matriz.fecha_cierre = DateTime.Now;
@@ -1675,6 +1705,12 @@ namespace Portal_2_0.Controllers
                         break;
                     case "UPDATE":
                         matriz.estatus = IT_MR_Status.FINALIZADO;
+                        break;
+                    case "FINALIZAR_ACTIVIDAD":
+                        matriz.estatus = IT_MR_Status.FINALIZADO;
+                        //deshabilida la asignación actual
+                        foreach (var a in db.IT_matriz_asignaciones.Where(x => x.id_matriz_requerimientos == matriz.id))
+                            a.activo = false;
                         break;
                     default:
                         matriz.estatus = IT_MR_Status.ENVIADO_A_IT;
@@ -1714,6 +1750,7 @@ namespace Portal_2_0.Controllers
                     }
                     else if (matriz.estatus == IT_MR_Status.FINALIZADO && tipoSolicitud.ToUpper() == "CIERRE")
                     {
+                        matriz.empleados2 = db.empleados.Find(matriz.id_sistemas);
                         envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de usuarios #" + matriz.id + " ha sido cerrada.", envioCorreo.getBody_IT_MR_Notificacion_Cierre(matriz));
                         TempData["Mensaje"] = new MensajesSweetAlert("Se ha cerrado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
 
@@ -1738,6 +1775,95 @@ namespace Portal_2_0.Controllers
             return View(matrizModel);
 
         }
+
+        public ActionResult Asignar(int? id)
+        {
+            if (TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR))
+            {
+                if (id == null)
+                {
+                    return View("../Error/BadRequest");
+                }
+                IT_matriz_requerimientos matriz = db.IT_matriz_requerimientos.Find(id);
+                if (matriz == null)
+                {
+                    return View("../Error/NotFound");
+                }
+
+                //recorre los usuarios con el permiso de IT_notificaciones
+                AspNetRoles rol = db.AspNetRoles.Where(x => x.Name == TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR).FirstOrDefault();
+                List<AspNetUsers> usuariosInRole = new List<AspNetUsers>();
+                if (rol != null)
+                    usuariosInRole = rol.AspNetUsers.ToList();
+
+                List<int> idsRol = usuariosInRole.Select(x => x.IdEmpleado).Distinct().ToList();
+                List<empleados> listEmpleados = db.empleados.Where(x => x.activo == true && idsRol.Contains(x.id) == true).ToList();
+
+                //envia el select list por viewbag
+                ViewBag.id_asignacion = AddFirstItem(new SelectList(listEmpleados, nameof(empleados.id), nameof(empleados.ConcatNumEmpleadoNombre)), textoPorDefecto: "-- Seleccionar --");
+
+                return View(matriz);
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Asignar(IT_matriz_requerimientos model)
+        {
+            string mensaje = string.Empty;
+            try
+            {
+                var matrizBD = db.IT_matriz_requerimientos.Find(model.id);
+
+                //desactiva el resto de asignaciones
+                foreach (var a in matrizBD.IT_matriz_asignaciones)
+                    a.activo = false;
+
+                matrizBD.IT_matriz_asignaciones.Add(
+                    new IT_matriz_asignaciones
+                    {
+                        id_sistemas = model.id_asignacion,
+                        comentario = model.comentario_asignacion,
+                        fecha_asignacion = DateTime.Now,
+                        activo = true
+                    }
+                    );
+
+                //todas las asi
+                db.SaveChanges();
+
+
+                EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+
+                List<String> correos = new List<string>(); //correos TO
+
+                var empleado = db.empleados.Find(model.id_asignacion);
+                correos.Add(empleado.correo);
+
+                //envía notificacion de solicitud de usuario
+                envioCorreo.SendEmailAsync(correos, "Se te ha asignado la matriz de requerimientos #" + matrizBD.id, envioCorreo.getBodyAsignacionITMatrizRequerimientos(matrizBD, model.comentario_asignacion, obtieneEmpleadoLogeado().ConcatNombre));
+                TempData["Mensaje"] = new MensajesSweetAlert("Se ha asignado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
+
+
+                return RedirectToAction("solicitudes_sistemas");
+            }
+            catch (Exception ex)
+            {
+                mensaje = "Error al guardar en BD.";
+                EscribeExcepcion(ex, Clases.Models.EntradaRegistroEvento.TipoEntradaRegistroEvento.Error);
+            }
+
+            TempData["Mensaje"] = new MensajesSweetAlert(mensaje, TipoMensajesSweetAlerts.ERROR);
+
+            return RedirectToAction("solicitudes_sistemas");
+
+        }
+
 
         #endregion
         /// <summary>

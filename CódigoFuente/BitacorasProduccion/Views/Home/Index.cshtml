@@ -1,12 +1,25 @@
-﻿
+﻿@using Clases.Util;
 @{
     ViewBag.Title = "Bienvenido";
 }
 
+@section estilos
+{
+    <style>
+        .altura_200 {
+            height: 235px;
+        }
+
+        .widget-style {
+            height: 200px;
+        }
+       
+    </style>
+}
 
 <div class="right_col" role="main">
     <div class="">
-       
+
 
         <div class="clearfix"></div>
 
@@ -14,9 +27,9 @@
             <div class="col-md-12 col-sm-12 text-thyssen-color">
                 <h3>thyssenkrupp Materials de M&eacute;xico S.A de C.V.</h3>
             </div>
-            <div class="col-md-4 col-sm-4">
-                <div class="x_panel">
-                    <div class="x_title">
+            <div class="col-md-4 col-sm-6">
+                <div class="x_panel altura_200">
+                    <div class="x_title text-thyssen-color">
                         <h2>Misi&oacute;n</h2>
                         <ul class="nav navbar-right panel_toolbox">
                             @*Utilizado para mover a la derecha los iconos del card*@
@@ -24,7 +37,6 @@
                             <li>
                                 <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                             </li>
-
                         </ul>
                         <div class="clearfix"></div>
                     </div>
@@ -37,9 +49,9 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 col-sm-4">
-                <div class="x_panel">
-                    <div class="x_title">
+            <div class="col-md-4 col-sm-6">
+                <div class="x_panel altura_200">
+                    <div class="x_title text-thyssen-color">
                         <h2>Visi&oacute;n</h2>
                         <ul class="nav navbar-right panel_toolbox">
                             @*Utilizado para mover a la derecha los iconos del card*@
@@ -60,9 +72,9 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 col-sm-4">
-                <div class="x_panel">
-                    <div class="x_title">
+            <div class="col-md-4 col-sm-6">
+                <div class="x_panel altura_200">
+                    <div class="x_title text-thyssen-color">
                         <h2>Valores</h2>
                         <ul class="nav navbar-right panel_toolbox">
                             @*Utilizado para mover a la derecha los iconos del card*@
@@ -76,19 +88,64 @@
                     </div>
                     <div class="x_content">
                         <div class="bs-example" data-example-id="simple-jumbotron">
-                            <p>
-                                El cumplimiento de nuestras metas estrat&eacute;gicas es resultado del apego a nuestros valores corporativos:
-                                <ul>
-                                    <li>FIABILIDAD</li>
-                                    <li>SINCERIDAD</li>
-                                    <li>CREDIBILIDAD</li>
-                                    <li>INTEGRIDAD</li>
-                                </ul>
-                            </p>
+
+                            El cumplimiento de nuestras metas estrat&eacute;gicas es resultado del apego a nuestros valores corporativos:
+                            <ul>
+                                <li>FIABILIDAD</li>
+                                <li>SINCERIDAD</li>
+                                <li>CREDIBILIDAD</li>
+                                <li>INTEGRIDAD</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!--#region Widgets Solicitudes GV -->
+            <!-- SOLICIRUDES MATRIZ REQUERIMIENTOS -->
+            @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR))
+            {
+                <div class="col-md-4 col-sm-6">
+                    <div class="x_panel altura_200">
+                        <div class="x_title text-thyssen-color">
+                            <h2><i class="fa-solid fa-users"></i> Solicitudes de Matriz de Requerimientos</h2>
+                            <ul class="nav navbar-right panel_toolbox">
+                                @*Utilizado para mover a la derecha los iconos del card*@
+                                <span style="visibility:hidden">_______</span>
+                                <li>
+                                    <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                </li>
+
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="x_content">
+                            <div class="bs-example" data-example-id="simple-jumbotron">
+                                Resumen de las solicitudes de Matriz de Requerimientos enviadas por RH (sin finalizar):
+                                <p></p>
+                                <table width="100%" style="font-size:17px">
+                                    <tr>
+                                        <th width="40%" nowrap>Pendientes Departamento:</th>
+                                        <td style="text-align:center">@ViewBag.PendientesDepto</td>
+                                    </tr>
+                                    <tr style="color:red">
+                                        <th width="1%" nowrap>Pendientes Propias:</th>
+                                        <td style="text-align:center">@ViewBag.totalPendientesPropias</td>
+                                    </tr>
+                                </table>
+
+                                <div class="item form-group">
+                                    <div class="col-md-12">
+                                        <a href="@Url.Action("solicitudes_sistemas", "IT_matriz_requerimientos")" class="btn btn-primary btn-sm float-right" title="Pendiente por departamento">
+                                            <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir
+                                        </a>
+                                    </div>
+                                </div>                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
     </div>
 </div>

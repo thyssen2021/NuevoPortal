@@ -157,5 +157,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<RU_registros> RU_registros { get; set; }
         public virtual DbSet<menu_item> menu_item { get; set; }
         public virtual DbSet<menu_link> menu_link { get; set; }
+        public virtual DbSet<IT_matriz_asignaciones> IT_matriz_asignaciones { get; set; }
     }
 }

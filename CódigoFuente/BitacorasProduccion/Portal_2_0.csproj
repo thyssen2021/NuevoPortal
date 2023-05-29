@@ -558,6 +558,9 @@
     <Compile Include="Models\IT_mantenimientos_rel_checklist.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\IT_matriz_asignaciones.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\IT_matriz_carpetas.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -5260,6 +5263,7 @@
     <Content Include="Views\RU_registros\confirmarSalidaVigilancia.cshtml" />
     <Content Include="Views\RU_registros\Cancel.cshtml" />
     <Content Include="Views\Home\Menu.cshtml" />
+    <Content Include="Views\IT_matriz_requerimientos\Asignar.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

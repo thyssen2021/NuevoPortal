@@ -6,10 +6,6 @@
     //ViewBag.SegundoNivel = "empleados";
     ViewBag.ControllerName = "IT_matriz_requerimientos";
 
-    List<Portal_2_0.Models.IT_inventory_hardware_type> listHardware = (List<Portal_2_0.Models.IT_inventory_hardware_type>)ViewBag.listHardware;
-    List<Portal_2_0.Models.IT_inventory_software> listSoftware = (List<Portal_2_0.Models.IT_inventory_software>)ViewBag.listSoftware;
-    List<Portal_2_0.Models.IT_comunicaciones_tipo> listComunicaciones = (List<Portal_2_0.Models.IT_comunicaciones_tipo>)ViewBag.listComunicaciones;
-    List<Portal_2_0.Models.IT_carpetas_red> listCarpetas = (List<Portal_2_0.Models.IT_carpetas_red>)ViewBag.listCarpetas;
 
 }
 
@@ -576,18 +572,45 @@
                         <div class="ln_solid"></div>
 
                         <div class="form-group row">
-                            <span style="color:black"><b>¡AVISO!</b></span>
+                            <span style="color:black"><b>ASIGNACI&Oacute;N</b></span>
                         </div>
+                        @using (Html.BeginForm(null, null, FormMethod.Post, new { }))
+                        {
 
-                        <div class="form-group row">
-                            <div class="col-md-12 col-sm-12 ">
-                                <p class="text-muted well well-sm no-shadow" style="margin-top: 10px; font-weight:bold; text-align:justify">
-                                    <i class="fa fa-warning"></i> Las credenciales de acceso ser&aacute;n otorgadas exclusivamente para el uso de sus funciones laborales en thyssenkrupp Materials de
-                                    M&eacute;xico, por lo tanto son consideradas intransferibles y de uso individual por parte del usuario, aceptando que cualquier uso no
-                                    autorizado o malversaci&oacute;n con &eacute;sta es de su exclusiva responsabilidad.
-                                </p>
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" id="id_matriz" name="id_matriz" value="@Model.id" />
+                            <input type="hidden" id="tipo_form" name="tipo_form" />
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.id_asignacion, new { @class = "col-form-label col-md-1 col-sm-1" })
+                                <div class="col-md-6 col-sm-6">
+                                    @Html.DropDownList("id_asignacion", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                    @Html.ValidationMessageFor(model => model.id_asignacion, "", new { @class = "text-danger" })
+                                </div>
                             </div>
-                        </div>
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>COMENTARIOS DE ASIGNACION</b></span>
+                            </div>
+                            <div class="item form-group">
+                                <div class="col-md-12">
+                                    @Html.TextAreaFor(model => model.comentario_asignacion, new { @class = "form-control", @rows = "5", @autocomplete = "off", @required = "required" })
+                                    @Html.ValidationMessageFor(model => model.comentario_asignacion, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+
+                                <div class="col-md-12 col-sm-12">
+                                    <button type="button" id="btn-ok" class="btn btn-primary btn-lg float-md-right"><i class="fa-solid fa-user-tag"></i> Asignar Solicitud</button>
+                                </div>
+
+                            </div>
+                        }
+
+
+
                         @if (Model.estatus == Bitacoras.Util.IT_MR_Status.FINALIZADO)
                         {
                             <div class="ln_solid"></div>
@@ -628,7 +651,7 @@
     @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
 
     @Scripts.Render("~/bundles/dataTables_js")
-
+    <script src="~/Scripts/Forms/ModalConfirm.js"></script>
     <script>
 
         $(document).ready(function () {
@@ -645,6 +668,7 @@
                     increaseArea: '20%' // optional
                 });
             });
+
 
         });
 

@@ -323,6 +323,9 @@
         <EntityTypeShape EntityType="Portal_2_0Model.menu_item" Width="1.5" PointX="13.375" PointY="8" />
         <EntityTypeShape EntityType="Portal_2_0Model.menu_link" Width="1.5" PointX="15.625" PointY="7.875" />
         <AssociationConnector Association="Portal_2_0Model.FK_menu_link_id_menu_item" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_matriz_asignaciones" Width="1.5" PointX="37.25" PointY="78" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_asignaciones_id_sistema" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_asignaciones_id_matriz_requerimientos" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -2,6 +2,7 @@
 using System.Web.Mvc;
 using System.Linq;
 using Clases.Util;
+using Bitacoras.Util;
 
 namespace IdentitySample.Controllers
 {
@@ -15,6 +16,29 @@ namespace IdentitySample.Controllers
         [HttpGet]
         public ActionResult Index()
         {
+
+            #region IT matriz de requerimientos
+
+            //Envia los datos para los widget
+            if (TieneRol(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR))
+            {
+                var totalPendientes = db.IT_matriz_requerimientos
+                  .Where(x => (x.estatus == IT_MR_Status.EN_PROCESO || x.estatus == IT_MR_Status.ENVIADO_A_IT))
+                  .Count();
+
+                var empleado = obtieneEmpleadoLogeado();
+
+                var totalPendientesPropias = db.IT_matriz_requerimientos
+                  .Where(x => (x.estatus == IT_MR_Status.EN_PROCESO || x.estatus == IT_MR_Status.ENVIADO_A_IT)
+                        && (x.IT_matriz_asignaciones.Any(y => y.activo && y.id_sistemas == empleado.id))
+                  )
+                  .Count();
+
+                ViewBag.PendientesDepto = totalPendientes;
+                ViewBag.totalPendientesPropias = totalPendientesPropias;
+            }
+
+            #endregion
             return View();
         }
 

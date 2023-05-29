@@ -842,6 +842,44 @@ namespace Portal_2_0.Models
 
         }
 
+
+        public string getBodyAsignacionITMatrizRequerimientos(IT_matriz_requerimientos matriz, string comentario_asignacion, string nombre_asigna)
+        {
+            //obtiene la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+
+            string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/Notificacion_solicitud_generica.html"));
+            string tablaContenido = String.Empty;
+
+            //crea un diccionario para los valores de la tabla
+            Dictionary<string, string> tablaContentDictionary = new Dictionary<string, string>();
+
+            //agrega los valores al diccionario
+            tablaContentDictionary.Add("Folio", matriz.id.ToString());
+            tablaContentDictionary.Add("Solicitante", matriz.empleados3.ConcatNombre);
+            tablaContentDictionary.Add("Empleado", matriz.empleados.ConcatNombre);
+            tablaContentDictionary.Add("Puesto", matriz.empleados.puesto1.descripcion);
+            tablaContentDictionary.Add("Departamento", matriz.empleados.Area.descripcion);
+            tablaContentDictionary.Add("Planta", matriz.empleados.plantas.descripcion);
+            tablaContentDictionary.Add("Comentario", matriz.comentario);
+            tablaContentDictionary.Add("Comentario Asignación", comentario_asignacion);
+
+            //agrega los valores del diccionario al contenido de la tabla
+            foreach (KeyValuePair<string, string> kvp in tablaContentDictionary)
+                tablaContenido += FILA_GENERICA.Replace("#CONCEPTO", kvp.Key).Replace("#VALOR", kvp.Value);
+
+            //reemplaza los valores en la plantilla
+            body = body.Replace("#TITULO", "¡Se te ha asignado la matriz de requerimientos #" + matriz.id + "!");
+            body = body.Replace("#SUBTITULO", "El usuario "+nombre_asigna+ " te ha asignado la matriz de requerimientos #"+matriz.id+". Para ver los detalles de la matriz de requerimientos, haga clic en el siguiente enlace."); //elaborador
+            body = body.Replace("#TABLA_CONTENIDO", tablaContenido);
+            body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
+            body = body.Replace("#ENLACE", domainName + "/IT_matriz_requerimientos/Cerrar/" + matriz.id);
+
+
+
+            return body;
+        }
+
         #endregion
 
         #region account
@@ -1260,6 +1298,7 @@ namespace Portal_2_0.Models
 
             return body;
         }
+
 
         #endregion
     }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
 
@@ -48,12 +49,55 @@ namespace Portal_2_0.Models
         [Display(Name = "Comentario Cierre")]
         public string comentario_cierre { get; set; }
 
-      
+
     }
 
     [MetadataType(typeof(IT_matriz_requerimientosMetadata))]
     public partial class IT_matriz_requerimientos
     {
+        [NotMapped]
+        [Display(Name = "Asignado A")]
+        public string ultima_asignacion
+        {
+            get
+            {
+                string result = "SIN ASIGNAR";
+
+                var last = this.IT_matriz_asignaciones.OrderByDescending(x => x.fecha_asignacion).FirstOrDefault();
+
+                if (last != null && last.activo)
+                    result = last.empleados.ConcatNombre;
+
+
+                return result;
+            }
+        }
+        
+        [NotMapped]
+        [Display(Name = "Última asiganación ID")]
+        public int ultima_asignacion_id
+        {
+            get
+            {
+                int result = 0;
+
+                var last = this.IT_matriz_asignaciones.OrderByDescending(x => x.fecha_asignacion).FirstOrDefault();
+
+                if (last != null && last.activo)
+                    result = last.id_sistemas;
+
+                return result;
+            }
+        }
+
+        [NotMapped]
+        [Display(Name = "Asignado A")]
+        public int id_asignacion { get; set; }
+
+        [StringLength(150, MinimumLength = 2)]
+        [Display(Name = "comentario_asignacion")]
+        public string comentario_asignacion { get; set; }
+
     }
 
     //modelo para formulario de cerrar sistemas
@@ -63,7 +107,7 @@ namespace Portal_2_0.Models
         public int id { get; set; }
 
         //para cierre de solicitud
- 
+
         [DataType(DataType.EmailAddress)]
         [EmailAddress]
         [Display(Name = "Correo")]

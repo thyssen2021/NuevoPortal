@@ -689,6 +689,17 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="terminado" Type="bit" />
           <Property Name="comentarios" Type="varchar" MaxLength="300" />
         </EntityType>
+        <EntityType Name="IT_matriz_asignaciones">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_matriz_requerimientos" Type="int" Nullable="false" />
+          <Property Name="id_sistemas" Type="int" Nullable="false" />
+          <Property Name="fecha_asignacion" Type="datetime" Nullable="false" />
+          <Property Name="comentario" Type="varchar" MaxLength="150" Nullable="false" />
+          <Property Name="activo" Type="bit" Nullable="false" />
+        </EntityType>
         <EntityType Name="IT_matriz_carpetas">
           <Key>
             <PropertyRef Name="id" />
@@ -2674,6 +2685,30 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_IT_matriz_asignaciones_id_matriz_requerimientos">
+          <End Role="IT_matriz_requerimientos" Type="Self.IT_matriz_requerimientos" Multiplicity="1" />
+          <End Role="IT_matriz_asignaciones" Type="Self.IT_matriz_asignaciones" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_matriz_requerimientos">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_matriz_asignaciones">
+              <PropertyRef Name="id_matriz_requerimientos" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_matriz_asignaciones_id_sistema">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="1" />
+          <End Role="IT_matriz_asignaciones" Type="Self.IT_matriz_asignaciones" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_matriz_asignaciones">
+              <PropertyRef Name="id_sistemas" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_IT_matriz_carpetas_id_it_carpetas">
           <End Role="IT_carpetas_red" Type="Self.IT_carpetas_red" Multiplicity="1" />
           <End Role="IT_matriz_carpetas" Type="Self.IT_matriz_carpetas" Multiplicity="*" />
@@ -4110,6 +4145,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <EntitySet Name="IT_mantenimientos_checklist_categorias" EntityType="Self.IT_mantenimientos_checklist_categorias" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_mantenimientos_checklist_item" EntityType="Self.IT_mantenimientos_checklist_item" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_mantenimientos_rel_checklist" EntityType="Self.IT_mantenimientos_rel_checklist" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IT_matriz_asignaciones" EntityType="Self.IT_matriz_asignaciones" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_matriz_carpetas" EntityType="Self.IT_matriz_carpetas" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_matriz_comunicaciones" EntityType="Self.IT_matriz_comunicaciones" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_matriz_hardware" EntityType="Self.IT_matriz_hardware" Schema="dbo" store:Type="Tables" />
@@ -4639,6 +4675,14 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <AssociationSet Name="FK_IT_mantenimientos_rel_checklist_id_mantenimiento" Association="Self.FK_IT_mantenimientos_rel_checklist_id_mantenimiento">
             <End Role="IT_mantenimientos" EntitySet="IT_mantenimientos" />
             <End Role="IT_mantenimientos_rel_checklist" EntitySet="IT_mantenimientos_rel_checklist" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_matriz_asignaciones_id_matriz_requerimientos" Association="Self.FK_IT_matriz_asignaciones_id_matriz_requerimientos">
+            <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
+            <End Role="IT_matriz_asignaciones" EntitySet="IT_matriz_asignaciones" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_matriz_asignaciones_id_sistema" Association="Self.FK_IT_matriz_asignaciones_id_sistema">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IT_matriz_asignaciones" EntitySet="IT_matriz_asignaciones" />
           </AssociationSet>
           <AssociationSet Name="FK_IT_matriz_carpetas_id_it_carpetas" Association="Self.FK_IT_matriz_carpetas_id_it_carpetas">
             <End Role="IT_carpetas_red" EntitySet="IT_carpetas_red" />
@@ -8047,6 +8091,15 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="menu_item" EntitySet="menu_item" />
             <End Role="menu_link" EntitySet="menu_link" />
           </AssociationSet>
+          <EntitySet Name="IT_matriz_asignaciones" EntityType="Portal_2_0Model.IT_matriz_asignaciones" />
+          <AssociationSet Name="FK_IT_matriz_asignaciones_id_sistema" Association="Portal_2_0Model.FK_IT_matriz_asignaciones_id_sistema">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IT_matriz_asignaciones" EntitySet="IT_matriz_asignaciones" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_matriz_asignaciones_id_matriz_requerimientos" Association="Portal_2_0Model.FK_IT_matriz_asignaciones_id_matriz_requerimientos">
+            <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
+            <End Role="IT_matriz_asignaciones" EntitySet="IT_matriz_asignaciones" />
+          </AssociationSet>
           </EntityContainer>
         <EntityType Name="GV_usuarios">
           <Key>
@@ -8472,6 +8525,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_jefe" FromRole="IT_matriz_requerimientos" ToRole="empleados" />
           <NavigationProperty Name="empleados2" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_sistemas" FromRole="IT_matriz_requerimientos" ToRole="empleados" />
           <NavigationProperty Name="empleados3" Relationship="Portal_2_0Model.FK_IT_mIT_matriz_requerimientos_id_solicitante" FromRole="IT_matriz_requerimientos" ToRole="empleados" />
+          <NavigationProperty Name="IT_matriz_asignaciones" Relationship="Portal_2_0Model.FK_IT_matriz_asignaciones_id_matriz_requerimientos" FromRole="IT_matriz_requerimientos" ToRole="IT_matriz_asignaciones" />
         </EntityType>
         <Association Name="FK_IT_mIT_matriz_requerimientos_id_internet_tipo">
           <End Type="Portal_2_0Model.IT_internet_tipo" Role="IT_internet_tipo" Multiplicity="1" />
@@ -8939,6 +8993,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="RU_usuarios_embarques" Relationship="Portal_2_0Model.FK_RU_usuarios_embarquess_id_empleado" FromRole="empleados" ToRole="RU_usuarios_embarques" />
           <NavigationProperty Name="RU_registros" Relationship="Portal_2_0Model.FK_RU_registros_id_embarques_liberacion" FromRole="empleados" ToRole="RU_registros" />
           <NavigationProperty Name="RU_registros1" Relationship="Portal_2_0Model.FK_RU_registros_id_embarques_recepcion" FromRole="empleados" ToRole="RU_registros" />
+          <NavigationProperty Name="IT_matriz_asignaciones" Relationship="Portal_2_0Model.FK_IT_matriz_asignaciones_id_sistema" FromRole="empleados" ToRole="IT_matriz_asignaciones" />
           </EntityType>
         <Association Name="FK_empleados_id_fotografia">
           <End Type="Portal_2_0Model.biblioteca_digital" Role="biblioteca_digital" Multiplicity="0..1" />
@@ -10361,6 +10416,43 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Principal>
             <Dependent Role="menu_link">
               <PropertyRef Name="id_menu_item" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="IT_matriz_asignaciones">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_matriz_requerimientos" Type="Int32" Nullable="false" />
+          <Property Name="id_sistemas" Type="Int32" Nullable="false" />
+          <Property Name="fecha_asignacion" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="comentario" Type="String" Nullable="false" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_IT_matriz_asignaciones_id_sistema" FromRole="IT_matriz_asignaciones" ToRole="empleados" />
+          <NavigationProperty Name="IT_matriz_requerimientos" Relationship="Portal_2_0Model.FK_IT_matriz_asignaciones_id_matriz_requerimientos" FromRole="IT_matriz_asignaciones" ToRole="IT_matriz_requerimientos" />
+        </EntityType>
+        <Association Name="FK_IT_matriz_asignaciones_id_sistema">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_matriz_asignaciones" Role="IT_matriz_asignaciones" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_matriz_asignaciones">
+              <PropertyRef Name="id_sistemas" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_matriz_asignaciones_id_matriz_requerimientos">
+          <End Type="Portal_2_0Model.IT_matriz_requerimientos" Role="IT_matriz_requerimientos" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_matriz_asignaciones" Role="IT_matriz_asignaciones" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_matriz_requerimientos">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_matriz_asignaciones">
+              <PropertyRef Name="id_matriz_requerimientos" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -12258,6 +12350,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
                 <ScalarProperty Name="controller" ColumnName="controller" />
                 <ScalarProperty Name="link_externo" ColumnName="link_externo" />
                 <ScalarProperty Name="id_menu_item" ColumnName="id_menu_item" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IT_matriz_asignaciones">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_matriz_asignaciones">
+              <MappingFragment StoreEntitySet="IT_matriz_asignaciones">
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="comentario" ColumnName="comentario" />
+                <ScalarProperty Name="fecha_asignacion" ColumnName="fecha_asignacion" />
+                <ScalarProperty Name="id_sistemas" ColumnName="id_sistemas" />
+                <ScalarProperty Name="id_matriz_requerimientos" ColumnName="id_matriz_requerimientos" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

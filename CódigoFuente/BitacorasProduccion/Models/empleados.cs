@@ -67,6 +67,7 @@ namespace Portal_2_0.Models
             this.RU_usuarios_embarques = new HashSet<RU_usuarios_embarques>();
             this.RU_registros = new HashSet<RU_registros>();
             this.RU_registros1 = new HashSet<RU_registros>();
+            this.IT_matriz_asignaciones = new HashSet<IT_matriz_asignaciones>();
         }
     
         public int id { get; set; }
@@ -200,5 +201,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<RU_registros> RU_registros { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<RU_registros> RU_registros1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_matriz_asignaciones> IT_matriz_asignaciones { get; set; }
     }
 }
