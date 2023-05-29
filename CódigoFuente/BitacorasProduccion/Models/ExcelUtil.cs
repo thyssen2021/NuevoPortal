@@ -4592,13 +4592,15 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Línea de transporte", typeof(string));
             dt.Columns.Add("Nombre Operador", typeof(string));
             dt.Columns.Add("Placas Tractor", typeof(string));
+            dt.Columns.Add("Placas Plataforma 1", typeof(string));
+            dt.Columns.Add("Placas Plataforma 2", typeof(string));
             dt.Columns.Add("Carga", typeof(string));
             dt.Columns.Add("Descarga", typeof(string));
             dt.Columns.Add("Hora Ingreso", typeof(DateTime));
             dt.Columns.Add("Vigilancia (Ingreso)", typeof(string));
             dt.Columns.Add("Comentarios (Ingreso)", typeof(string));
             dt.Columns.Add("Hora Recepción", typeof(DateTime));
-            dt.Columns.Add("Embarques (Recepción)", typeof(string));
+            dt.Columns.Add("Oficina (Recepción)", typeof(string));
             dt.Columns.Add("Comentarios (Recepción)", typeof(string));
             dt.Columns.Add("Hora Liberación (Embarques)", typeof(DateTime));
             dt.Columns.Add("Embarques (Liberación)", typeof(string));
@@ -4623,6 +4625,8 @@ namespace Portal_2_0.Models
                 row["Línea de transporte"] = item.linea_transporte;
                 row["Nombre Operador"] = item.nombre_operador;
                 row["Placas Tractor"] = item.placas_tractor;
+                row["Placas Plataforma 1"] = item.placa_plataforma_uno;
+                row["Placas Plataforma 2"] = item.placa_plataforma_dos;
                 row["Carga"] = item.carga ? "Sí" : "No";
                 row["Descarga"] = item.descarga ? "Sí" : "No";
                 row["Hora Ingreso"] = item.fecha_ingreso_vigilancia;
@@ -4632,7 +4636,7 @@ namespace Portal_2_0.Models
                     row["Hora Recepción"] = item.hora_embarques_recepcion;
                 else
                     row["Hora Recepción"] = DBNull.Value;
-                row["Embarques (Recepción)"] = item.empleados1 != null ? item.empleados1.ConcatNombre : string.Empty;
+                row["Oficina (Recepción)"] = item.empleados1 != null ? item.empleados1.ConcatNombre : string.Empty;
                 row["Comentarios (Recepción)"] = item.comentarios_embarques_recepcion;
                 if (item.hora_embarques_liberacion.HasValue)
                     row["Hora Liberación (Embarques)"] = item.hora_embarques_liberacion;

@@ -1545,6 +1545,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="carga" Type="bit" Nullable="false" />
           <Property Name="descarga" Type="bit" Nullable="false" />
           <Property Name="activo" Type="bit" Nullable="false" />
+          <Property Name="placa_plataforma_uno" Type="varchar" MaxLength="20" />
+          <Property Name="placa_plataforma_dos" Type="varchar" MaxLength="20" />
         </EntityType>
         <EntityType Name="RU_usuarios_embarques">
           <Key>
@@ -8064,6 +8066,21 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="RU_usuarios_embarques" EntitySet="RU_usuarios_embarques" />
           </AssociationSet>
           <EntitySet Name="budget_cantidad_budget_historico" EntityType="Portal_2_0Model.budget_cantidad_budget_historico" />
+          <EntitySet Name="menu_item" EntityType="Portal_2_0Model.menu_item" />
+          <EntitySet Name="menu_link" EntityType="Portal_2_0Model.menu_link" />
+          <AssociationSet Name="FK_menu_link_id_menu_item" Association="Portal_2_0Model.FK_menu_link_id_menu_item">
+            <End Role="menu_item" EntitySet="menu_item" />
+            <End Role="menu_link" EntitySet="menu_link" />
+          </AssociationSet>
+          <EntitySet Name="IT_matriz_asignaciones" EntityType="Portal_2_0Model.IT_matriz_asignaciones" />
+          <AssociationSet Name="FK_IT_matriz_asignaciones_id_sistema" Association="Portal_2_0Model.FK_IT_matriz_asignaciones_id_sistema">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IT_matriz_asignaciones" EntitySet="IT_matriz_asignaciones" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_matriz_asignaciones_id_matriz_requerimientos" Association="Portal_2_0Model.FK_IT_matriz_asignaciones_id_matriz_requerimientos">
+            <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
+            <End Role="IT_matriz_asignaciones" EntitySet="IT_matriz_asignaciones" />
+          </AssociationSet>
           <EntitySet Name="RU_registros" EntityType="Portal_2_0Model.RU_registros" />
           <AssociationSet Name="FK_RU_registros_id_embarques_liberacion" Association="Portal_2_0Model.FK_RU_registros_id_embarques_liberacion">
             <End Role="empleados" EntitySet="empleados" />
@@ -8084,21 +8101,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <AssociationSet Name="FK_RU_registros_id_vigilancia_salida" Association="Portal_2_0Model.FK_RU_registros_id_vigilancia_salida">
             <End Role="RU_usuarios_vigilancia" EntitySet="RU_usuarios_vigilancia" />
             <End Role="RU_registros" EntitySet="RU_registros" />
-          </AssociationSet>
-          <EntitySet Name="menu_item" EntityType="Portal_2_0Model.menu_item" />
-          <EntitySet Name="menu_link" EntityType="Portal_2_0Model.menu_link" />
-          <AssociationSet Name="FK_menu_link_id_menu_item" Association="Portal_2_0Model.FK_menu_link_id_menu_item">
-            <End Role="menu_item" EntitySet="menu_item" />
-            <End Role="menu_link" EntitySet="menu_link" />
-          </AssociationSet>
-          <EntitySet Name="IT_matriz_asignaciones" EntityType="Portal_2_0Model.IT_matriz_asignaciones" />
-          <AssociationSet Name="FK_IT_matriz_asignaciones_id_sistema" Association="Portal_2_0Model.FK_IT_matriz_asignaciones_id_sistema">
-            <End Role="empleados" EntitySet="empleados" />
-            <End Role="IT_matriz_asignaciones" EntitySet="IT_matriz_asignaciones" />
-          </AssociationSet>
-          <AssociationSet Name="FK_IT_matriz_asignaciones_id_matriz_requerimientos" Association="Portal_2_0Model.FK_IT_matriz_asignaciones_id_matriz_requerimientos">
-            <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
-            <End Role="IT_matriz_asignaciones" EntitySet="IT_matriz_asignaciones" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="GV_usuarios">
@@ -8991,9 +8993,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="IT_notificaciones_recordatorio" Relationship="Portal_2_0Model.FK_IT_notificaciones_recordatorio_id_sistemas" FromRole="empleados" ToRole="IT_notificaciones_recordatorio" />
           <NavigationProperty Name="RM_cambio_estatus" Relationship="Portal_2_0Model.FK_RM_cambio_estatus_id_empleado" FromRole="empleados" ToRole="RM_cambio_estatus" />
           <NavigationProperty Name="RU_usuarios_embarques" Relationship="Portal_2_0Model.FK_RU_usuarios_embarquess_id_empleado" FromRole="empleados" ToRole="RU_usuarios_embarques" />
+          <NavigationProperty Name="IT_matriz_asignaciones" Relationship="Portal_2_0Model.FK_IT_matriz_asignaciones_id_sistema" FromRole="empleados" ToRole="IT_matriz_asignaciones" />
           <NavigationProperty Name="RU_registros" Relationship="Portal_2_0Model.FK_RU_registros_id_embarques_liberacion" FromRole="empleados" ToRole="RU_registros" />
           <NavigationProperty Name="RU_registros1" Relationship="Portal_2_0Model.FK_RU_registros_id_embarques_recepcion" FromRole="empleados" ToRole="RU_registros" />
-          <NavigationProperty Name="IT_matriz_asignaciones" Relationship="Portal_2_0Model.FK_IT_matriz_asignaciones_id_sistema" FromRole="empleados" ToRole="IT_matriz_asignaciones" />
           </EntityType>
         <Association Name="FK_empleados_id_fotografia">
           <End Type="Portal_2_0Model.biblioteca_digital" Role="biblioteca_digital" Multiplicity="0..1" />
@@ -10287,101 +10289,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="cantidad" Type="Decimal" Nullable="false" Precision="14" Scale="2" />
           <Property Name="comentario" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
         </EntityType>
-        <EntityType Name="RU_registros">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="fecha_ingreso_vigilancia" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="linea_transporte" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="placas_tractor" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="nombre_operador" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="id_vigilancia_ingreso" Type="Int32" Nullable="false" />
-          <Property Name="comentarios_vigilancia_ingreso" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="hora_embarques_recepcion" Type="DateTime" Precision="3" />
-          <Property Name="id_embarques_recepcion" Type="Int32" />
-          <Property Name="comentarios_embarques_recepcion" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="hora_embarques_liberacion" Type="DateTime" Precision="3" />
-          <Property Name="id_embarques_liberacion" Type="Int32" />
-          <Property Name="comentarios_embarques_liberacion" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="hora_vigilancia_liberacion" Type="DateTime" Precision="3" />
-          <Property Name="comentarios_vigilancia_liberacion" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="id_vigilancia_liberacion" Type="Int32" />
-          <Property Name="hora_vigilancia_salida" Type="DateTime" Precision="3" />
-          <Property Name="comentarios_vigilancia_salida" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="id_vigilancia_salida" Type="Int32" />
-          <Property Name="hora_cancelacion" Type="DateTime" Precision="3" />
-          <Property Name="nombre_cancelacion" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="comentario_cancelacion" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="carga" Type="Boolean" Nullable="false" />
-          <Property Name="descarga" Type="Boolean" Nullable="false" />
-          <Property Name="activo" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_RU_registros_id_embarques_liberacion" FromRole="RU_registros" ToRole="empleados" />
-          <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_RU_registros_id_embarques_recepcion" FromRole="RU_registros" ToRole="empleados" />
-          <NavigationProperty Name="RU_usuarios_vigilancia" Relationship="Portal_2_0Model.FK_RU_registros_id_vigilancia_ingreso" FromRole="RU_registros" ToRole="RU_usuarios_vigilancia" />
-          <NavigationProperty Name="RU_usuarios_vigilancia1" Relationship="Portal_2_0Model.FK_RU_registros_id_vigilancia_liberacion" FromRole="RU_registros" ToRole="RU_usuarios_vigilancia" />
-          <NavigationProperty Name="RU_usuarios_vigilancia2" Relationship="Portal_2_0Model.FK_RU_registros_id_vigilancia_salida" FromRole="RU_registros" ToRole="RU_usuarios_vigilancia" />
-        </EntityType>
-        <Association Name="FK_RU_registros_id_embarques_liberacion">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.RU_registros" Role="RU_registros" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="RU_registros">
-              <PropertyRef Name="id_embarques_liberacion" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_RU_registros_id_embarques_recepcion">
-          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.RU_registros" Role="RU_registros" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="empleados">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="RU_registros">
-              <PropertyRef Name="id_embarques_recepcion" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_RU_registros_id_vigilancia_ingreso">
-          <End Type="Portal_2_0Model.RU_usuarios_vigilancia" Role="RU_usuarios_vigilancia" Multiplicity="1" />
-          <End Type="Portal_2_0Model.RU_registros" Role="RU_registros" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="RU_usuarios_vigilancia">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="RU_registros">
-              <PropertyRef Name="id_vigilancia_ingreso" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_RU_registros_id_vigilancia_liberacion">
-          <End Type="Portal_2_0Model.RU_usuarios_vigilancia" Role="RU_usuarios_vigilancia" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.RU_registros" Role="RU_registros" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="RU_usuarios_vigilancia">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="RU_registros">
-              <PropertyRef Name="id_vigilancia_liberacion" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_RU_registros_id_vigilancia_salida">
-          <End Type="Portal_2_0Model.RU_usuarios_vigilancia" Role="RU_usuarios_vigilancia" Multiplicity="0..1" />
-          <End Type="Portal_2_0Model.RU_registros" Role="RU_registros" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="RU_usuarios_vigilancia">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="RU_registros">
-              <PropertyRef Name="id_vigilancia_salida" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityType Name="menu_item">
           <Key>
             <PropertyRef Name="id" />
@@ -10453,6 +10360,103 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Principal>
             <Dependent Role="IT_matriz_asignaciones">
               <PropertyRef Name="id_matriz_requerimientos" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="RU_registros">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="fecha_ingreso_vigilancia" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="linea_transporte" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="placas_tractor" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="nombre_operador" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="id_vigilancia_ingreso" Type="Int32" Nullable="false" />
+          <Property Name="comentarios_vigilancia_ingreso" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="hora_embarques_recepcion" Type="DateTime" Precision="3" />
+          <Property Name="id_embarques_recepcion" Type="Int32" />
+          <Property Name="comentarios_embarques_recepcion" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="hora_embarques_liberacion" Type="DateTime" Precision="3" />
+          <Property Name="id_embarques_liberacion" Type="Int32" />
+          <Property Name="comentarios_embarques_liberacion" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="hora_vigilancia_liberacion" Type="DateTime" Precision="3" />
+          <Property Name="comentarios_vigilancia_liberacion" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="id_vigilancia_liberacion" Type="Int32" />
+          <Property Name="hora_vigilancia_salida" Type="DateTime" Precision="3" />
+          <Property Name="comentarios_vigilancia_salida" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="id_vigilancia_salida" Type="Int32" />
+          <Property Name="hora_cancelacion" Type="DateTime" Precision="3" />
+          <Property Name="nombre_cancelacion" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="comentario_cancelacion" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="carga" Type="Boolean" Nullable="false" />
+          <Property Name="descarga" Type="Boolean" Nullable="false" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <Property Name="placa_plataforma_uno" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="placa_plataforma_dos" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_RU_registros_id_embarques_liberacion" FromRole="RU_registros" ToRole="empleados" />
+          <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_RU_registros_id_embarques_recepcion" FromRole="RU_registros" ToRole="empleados" />
+          <NavigationProperty Name="RU_usuarios_vigilancia" Relationship="Portal_2_0Model.FK_RU_registros_id_vigilancia_ingreso" FromRole="RU_registros" ToRole="RU_usuarios_vigilancia" />
+          <NavigationProperty Name="RU_usuarios_vigilancia1" Relationship="Portal_2_0Model.FK_RU_registros_id_vigilancia_liberacion" FromRole="RU_registros" ToRole="RU_usuarios_vigilancia" />
+          <NavigationProperty Name="RU_usuarios_vigilancia2" Relationship="Portal_2_0Model.FK_RU_registros_id_vigilancia_salida" FromRole="RU_registros" ToRole="RU_usuarios_vigilancia" />
+        </EntityType>
+        <Association Name="FK_RU_registros_id_embarques_liberacion">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.RU_registros" Role="RU_registros" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="RU_registros">
+              <PropertyRef Name="id_embarques_liberacion" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RU_registros_id_embarques_recepcion">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.RU_registros" Role="RU_registros" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="RU_registros">
+              <PropertyRef Name="id_embarques_recepcion" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RU_registros_id_vigilancia_ingreso">
+          <End Type="Portal_2_0Model.RU_usuarios_vigilancia" Role="RU_usuarios_vigilancia" Multiplicity="1" />
+          <End Type="Portal_2_0Model.RU_registros" Role="RU_registros" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RU_usuarios_vigilancia">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="RU_registros">
+              <PropertyRef Name="id_vigilancia_ingreso" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RU_registros_id_vigilancia_liberacion">
+          <End Type="Portal_2_0Model.RU_usuarios_vigilancia" Role="RU_usuarios_vigilancia" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.RU_registros" Role="RU_registros" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RU_usuarios_vigilancia">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="RU_registros">
+              <PropertyRef Name="id_vigilancia_liberacion" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RU_registros_id_vigilancia_salida">
+          <End Type="Portal_2_0Model.RU_usuarios_vigilancia" Role="RU_usuarios_vigilancia" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.RU_registros" Role="RU_registros" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="RU_usuarios_vigilancia">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="RU_registros">
+              <PropertyRef Name="id_vigilancia_salida" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -12298,37 +12302,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="RU_registros">
-            <EntityTypeMapping TypeName="Portal_2_0Model.RU_registros">
-              <MappingFragment StoreEntitySet="RU_registros">
-                <ScalarProperty Name="activo" ColumnName="activo" />
-                <ScalarProperty Name="descarga" ColumnName="descarga" />
-                <ScalarProperty Name="carga" ColumnName="carga" />
-                <ScalarProperty Name="comentario_cancelacion" ColumnName="comentario_cancelacion" />
-                <ScalarProperty Name="nombre_cancelacion" ColumnName="nombre_cancelacion" />
-                <ScalarProperty Name="hora_cancelacion" ColumnName="hora_cancelacion" />
-                <ScalarProperty Name="id_vigilancia_salida" ColumnName="id_vigilancia_salida" />
-                <ScalarProperty Name="comentarios_vigilancia_salida" ColumnName="comentarios_vigilancia_salida" />
-                <ScalarProperty Name="hora_vigilancia_salida" ColumnName="hora_vigilancia_salida" />
-                <ScalarProperty Name="id_vigilancia_liberacion" ColumnName="id_vigilancia_liberacion" />
-                <ScalarProperty Name="comentarios_vigilancia_liberacion" ColumnName="comentarios_vigilancia_liberacion" />
-                <ScalarProperty Name="hora_vigilancia_liberacion" ColumnName="hora_vigilancia_liberacion" />
-                <ScalarProperty Name="comentarios_embarques_liberacion" ColumnName="comentarios_embarques_liberacion" />
-                <ScalarProperty Name="id_embarques_liberacion" ColumnName="id_embarques_liberacion" />
-                <ScalarProperty Name="hora_embarques_liberacion" ColumnName="hora_embarques_liberacion" />
-                <ScalarProperty Name="comentarios_embarques_recepcion" ColumnName="comentarios_embarques_recepcion" />
-                <ScalarProperty Name="id_embarques_recepcion" ColumnName="id_embarques_recepcion" />
-                <ScalarProperty Name="hora_embarques_recepcion" ColumnName="hora_embarques_recepcion" />
-                <ScalarProperty Name="comentarios_vigilancia_ingreso" ColumnName="comentarios_vigilancia_ingreso" />
-                <ScalarProperty Name="id_vigilancia_ingreso" ColumnName="id_vigilancia_ingreso" />
-                <ScalarProperty Name="nombre_operador" ColumnName="nombre_operador" />
-                <ScalarProperty Name="placas_tractor" ColumnName="placas_tractor" />
-                <ScalarProperty Name="linea_transporte" ColumnName="linea_transporte" />
-                <ScalarProperty Name="fecha_ingreso_vigilancia" ColumnName="fecha_ingreso_vigilancia" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="menu_item">
             <EntityTypeMapping TypeName="Portal_2_0Model.menu_item">
               <MappingFragment StoreEntitySet="menu_item">
@@ -12362,6 +12335,39 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
                 <ScalarProperty Name="fecha_asignacion" ColumnName="fecha_asignacion" />
                 <ScalarProperty Name="id_sistemas" ColumnName="id_sistemas" />
                 <ScalarProperty Name="id_matriz_requerimientos" ColumnName="id_matriz_requerimientos" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="RU_registros">
+            <EntityTypeMapping TypeName="Portal_2_0Model.RU_registros">
+              <MappingFragment StoreEntitySet="RU_registros">
+                <ScalarProperty Name="placa_plataforma_dos" ColumnName="placa_plataforma_dos" />
+                <ScalarProperty Name="placa_plataforma_uno" ColumnName="placa_plataforma_uno" />
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="descarga" ColumnName="descarga" />
+                <ScalarProperty Name="carga" ColumnName="carga" />
+                <ScalarProperty Name="comentario_cancelacion" ColumnName="comentario_cancelacion" />
+                <ScalarProperty Name="nombre_cancelacion" ColumnName="nombre_cancelacion" />
+                <ScalarProperty Name="hora_cancelacion" ColumnName="hora_cancelacion" />
+                <ScalarProperty Name="id_vigilancia_salida" ColumnName="id_vigilancia_salida" />
+                <ScalarProperty Name="comentarios_vigilancia_salida" ColumnName="comentarios_vigilancia_salida" />
+                <ScalarProperty Name="hora_vigilancia_salida" ColumnName="hora_vigilancia_salida" />
+                <ScalarProperty Name="id_vigilancia_liberacion" ColumnName="id_vigilancia_liberacion" />
+                <ScalarProperty Name="comentarios_vigilancia_liberacion" ColumnName="comentarios_vigilancia_liberacion" />
+                <ScalarProperty Name="hora_vigilancia_liberacion" ColumnName="hora_vigilancia_liberacion" />
+                <ScalarProperty Name="comentarios_embarques_liberacion" ColumnName="comentarios_embarques_liberacion" />
+                <ScalarProperty Name="id_embarques_liberacion" ColumnName="id_embarques_liberacion" />
+                <ScalarProperty Name="hora_embarques_liberacion" ColumnName="hora_embarques_liberacion" />
+                <ScalarProperty Name="comentarios_embarques_recepcion" ColumnName="comentarios_embarques_recepcion" />
+                <ScalarProperty Name="id_embarques_recepcion" ColumnName="id_embarques_recepcion" />
+                <ScalarProperty Name="hora_embarques_recepcion" ColumnName="hora_embarques_recepcion" />
+                <ScalarProperty Name="comentarios_vigilancia_ingreso" ColumnName="comentarios_vigilancia_ingreso" />
+                <ScalarProperty Name="id_vigilancia_ingreso" ColumnName="id_vigilancia_ingreso" />
+                <ScalarProperty Name="nombre_operador" ColumnName="nombre_operador" />
+                <ScalarProperty Name="placas_tractor" ColumnName="placas_tractor" />
+                <ScalarProperty Name="linea_transporte" ColumnName="linea_transporte" />
+                <ScalarProperty Name="fecha_ingreso_vigilancia" ColumnName="fecha_ingreso_vigilancia" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

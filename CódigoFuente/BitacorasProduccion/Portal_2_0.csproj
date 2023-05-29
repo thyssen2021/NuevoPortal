@@ -5253,7 +5253,6 @@
     <Content Include="Views\RM_cabecera\Regularizar.cshtml" />
     <Content Include="Views\RM_cabecera\Print.cshtml" />
     <Content Include="Views\RU_registros\Create.cshtml" />
-    <Content Include="Views\RU_registros\Delete.cshtml" />
     <Content Include="Views\RU_registros\Details.cshtml" />
     <Content Include="Views\RU_registros\confirmarRecepcion.cshtml" />
     <Content Include="Views\RU_registros\Index.cshtml" />

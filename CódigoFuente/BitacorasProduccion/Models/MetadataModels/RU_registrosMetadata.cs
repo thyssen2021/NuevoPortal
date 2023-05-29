@@ -107,6 +107,13 @@ namespace Portal_2_0.Models
         [Display(Name = "¿Activo?")]
         public bool activo { get; set; }
 
+        [Display(Name = "Placas Plataforma 1")]
+        [StringLength(20, MinimumLength = 1)]
+        public string placa_plataforma_uno { get; set; }
+
+        [Display(Name = "Placas Plataforma 2")]
+        [StringLength(20, MinimumLength = 1)]
+        public string placa_plataforma_dos { get; set; }
 
     }
 
@@ -124,7 +131,7 @@ namespace Portal_2_0.Models
                 else if (!this.carga && this.descarga)
                     return "Descarga";
                 else if (this.carga && this.descarga)
-                    return "Carga/Descarga";
+                    return "Carga / Descarga";
                 else
                     return string.Empty;
             }
@@ -136,8 +143,10 @@ namespace Portal_2_0.Models
         {
             get
             {
-                if(hora_cancelacion.HasValue)
-                    return "Cancelado";
+                if(hora_cancelacion.HasValue && !hora_vigilancia_salida.HasValue)
+                    return "Cancelado (dentro de planta)";
+                else if (hora_cancelacion.HasValue && hora_vigilancia_salida.HasValue)
+                    return "Cancelado (fuera de planta)";
                 else if (!hora_embarques_recepcion.HasValue)
                     return "Registrado por Vigilancia";
                 else if (hora_embarques_recepcion.HasValue && !hora_embarques_liberacion.HasValue)
@@ -158,7 +167,9 @@ namespace Portal_2_0.Models
         {
             get
             {
-                if (hora_cancelacion.HasValue)
+                if (hora_cancelacion.HasValue && !hora_vigilancia_salida.HasValue)
+                    return EstatusRURegistrosEnum.CanceladoEnPlanta;
+                else if (hora_cancelacion.HasValue && hora_vigilancia_salida.HasValue)
                     return EstatusRURegistrosEnum.Cancelada;
                 else if (!hora_embarques_recepcion.HasValue)
                     return EstatusRURegistrosEnum.RegistradoVigilancia;
@@ -170,7 +181,7 @@ namespace Portal_2_0.Models
                     return EstatusRURegistrosEnum.LiberadoVigilancia;
                 else //if (hora_vigilancia_salida.HasValue)
                     return EstatusRURegistrosEnum.SalidaPlanta;
-               
+                
             }
         }
     }
@@ -182,6 +193,7 @@ namespace Portal_2_0.Models
         LiberadoEmbarques,
         LiberadoVigilancia,
         SalidaPlanta,
+        CanceladoEnPlanta,
         Cancelada
     }
 }

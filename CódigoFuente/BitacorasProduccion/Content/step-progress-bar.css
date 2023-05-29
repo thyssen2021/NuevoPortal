@@ -46,6 +46,14 @@
     background-color: #f00000 !important;
 }
 
+.cancel-planta-color {
+    color: #EC781F !important;
+}
+
+.cancel-planta-background-color {
+    background-color: #EC781F !important;
+}
+
 
 .step-progress-bar > ul2 li2 .label {
     font-family: sans-serif;
@@ -105,6 +113,10 @@ li2 .complete-background-color::after {
 
 li2 .cancel-background-color::after {
     background-color: #f00000;
+}
+
+li2 .cancel-planta-background-color::after {
+    background-color: #EC781F;
 }
 
 ul2 li2 .active p {

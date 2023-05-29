@@ -94,7 +94,17 @@
                                 <div class="col-md-2 col-sm-2">
                                     @Html.EditorFor(model => model.placas_tractor, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                                 </div>
-                                @Html.LabelFor(model => model.carga, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                @Html.LabelFor(model => model.placa_plataforma_uno, new { @class = "col-form-label col-md-2 col-sm-2" })
+                                <div class="col-md-2 col-sm-2">
+                                    @Html.EditorFor(model => model.placa_plataforma_uno, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                </div>
+                                @Html.LabelFor(model => model.placa_plataforma_dos, new { @class = "col-form-label col-md-2 col-sm-2" })
+                                <div class="col-md-2 col-sm-2">
+                                    @Html.EditorFor(model => model.placa_plataforma_dos, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.carga, new { @class = "col-form-label col-md-1 col-sm-1" })
                                 <div class="col-md-1 col-sm-1">
                                     @Html.EditorFor(model => model.carga, new { htmlAttributes = new { @class = "form-control", @disabled = "disabled" } })
                                 </div>
@@ -126,7 +136,7 @@
 
                             <div class="ln_solid"></div>
                             <div class="form-group row">
-                                <span style="color:black"><b> 2.- Recepci&oacute;n Embarques</b></span>
+                                <span style="color:black"><b> 2.- Registro en Oficina</b></span>
                             </div>
 
                             <div class="form-group row">
@@ -140,7 +150,7 @@
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.id_embarques_recepcion, new { @class = "col-form-label col-md-2 col-sm-2" })
                                 <div class="col-md-6 col-sm-6">
-                                    @Html.DropDownList("id_embarques_recepcion", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required="required" })
+                                    @Html.DropDownList("id_embarques_recepcion", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
                                     @Html.ValidationMessageFor(model => model.id_embarques_recepcion, "", new { @class = "text-danger" })
                                 </div>
                             </div>

@@ -39,6 +39,8 @@ namespace Portal_2_0.Models
         public bool carga { get; set; }
         public bool descarga { get; set; }
         public bool activo { get; set; }
+        public string placa_plataforma_uno { get; set; }
+        public string placa_plataforma_dos { get; set; }
     
         public virtual empleados empleados { get; set; }
         public virtual empleados empleados1 { get; set; }
