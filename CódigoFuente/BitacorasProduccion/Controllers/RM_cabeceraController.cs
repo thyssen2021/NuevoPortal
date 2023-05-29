@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Data.Entity;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -21,7 +22,7 @@ namespace Portal_2_0.Controllers
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
         // GET: RM_cabecera
-        public ActionResult Index(int? id_planta, int? almacenClave, int? clave, int? motivoClave, int? clienteClave, string clienteOtro, string estatus, int pagina = 1)
+        public ActionResult Index(int? id_planta, int? almacenClave, int? clave, int? motivoClave, int? clienteClave, string clienteOtro, string estatus, string fecha_inicial, string fecha_final, int pagina = 1)
         {
             if (!TieneRol(TipoRoles.RM_CREACION) && !TieneRol(TipoRoles.RM_DETALLES) && !TieneRol(TipoRoles.RM_REPORTES))
                 return View("../Home/ErrorPermisos");
@@ -31,18 +32,46 @@ namespace Portal_2_0.Controllers
                 ViewBag.MensajeAlert = TempData["Mensaje"];
 
             var cantidadRegistrosPorPagina = 20; // parámetro
+                      
+            //convierte las fechas recibidas
+            CultureInfo provider = CultureInfo.InvariantCulture;
+
+            DateTime dateInicial = new DateTime(2000, 1, 1);  //fecha inicial por defecto
+            DateTime dateFinal = DateTime.Now;          //fecha final por defecto
+
+            try
+            {
+                if (!String.IsNullOrEmpty(fecha_inicial))
+                    dateInicial = Convert.ToDateTime(fecha_inicial);
+                if (!String.IsNullOrEmpty(fecha_final))
+                {
+                    dateFinal = Convert.ToDateTime(fecha_final);
+                    dateFinal = dateFinal.AddHours(23).AddMinutes(59).AddSeconds(59);
+                }
+            }
+            catch (FormatException e)
+            {
+                Console.WriteLine("Error de Formato: " + e.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error al convertir: " + ex.Message);
+            }
+
+            //variable para almacenar la totalidad de registros
+            var totalidadRegistrosBD = db.RM_cabecera.ToList();
 
             //valida almacen
             if (almacenClave != null && !db.RM_almacen.Any(x => x.clave == almacenClave && x.plantaClave == id_planta))
                 almacenClave = null;
 
             //valida id_remision
-            if (clave != null && !db.RM_cabecera.Any(x => (id_planta == null || x.RM_almacen.plantaClave == id_planta)
+            if (clave != null && !totalidadRegistrosBD.Any(x => (id_planta == null || x.RM_almacen.plantaClave == id_planta)
                                                         && (almacenClave == null || almacenClave == x.almacenClave)
                                                         && x.clave == clave
                                                         && (motivoClave == null || x.motivoClave == motivoClave)
                                                         && (clienteClave == null || x.clienteClave == clienteClave)
-                                                        && (string.IsNullOrEmpty(clienteOtro) || x.clienteOtro.Contains(clienteOtro))
+                                                        && (string.IsNullOrEmpty(clienteOtro) || UsoStrings.ContainsIgnoreCase(x.clienteOtro, clienteOtro))
                                                         && ((string.IsNullOrEmpty(estatus) && x.ultimoEstatus.HasValue)
                                                                         || (estatus == "PENDIENTES" && (x.ultimoEstatus == 1 || x.ultimoEstatus == 2))
                                                                         || (estatus == "APROBADAS" && (x.ultimoEstatus == 3))
@@ -50,17 +79,18 @@ namespace Portal_2_0.Controllers
                                                                         || (estatus == "CANCELADAS" && (x.ultimoEstatus == 5))
                                                            )
                                                         && x.activo
+                                                        && x.FechaCreacion >= dateInicial && x.FechaCreacion <= dateFinal
                                                         )
         )
                 clave = null;
 
             //valida cliente
-            if (clienteClave != null && !db.RM_cabecera.Any(x => (id_planta == null || x.RM_almacen.plantaClave == id_planta)
+            if (clienteClave != null && !totalidadRegistrosBD.Any(x => (id_planta == null || x.RM_almacen.plantaClave == id_planta)
                                                         && (almacenClave == null || almacenClave == x.almacenClave)
                                                         && (clave == null || x.clave == clave)
                                                         && (motivoClave == null || x.motivoClave == motivoClave)
                                                         && (x.clienteClave == clienteClave)
-                                                        && (string.IsNullOrEmpty(clienteOtro) || x.clienteOtro.Contains(clienteOtro))
+                                                        && (string.IsNullOrEmpty(clienteOtro) || UsoStrings.ContainsIgnoreCase(x.clienteOtro, clienteOtro))
                                                          && ((string.IsNullOrEmpty(estatus) && x.ultimoEstatus.HasValue)
                                                                         || (estatus == "PENDIENTES" && (x.ultimoEstatus == 1 || x.ultimoEstatus == 2))
                                                                         || (estatus == "APROBADAS" && (x.ultimoEstatus == 3))
@@ -68,19 +98,21 @@ namespace Portal_2_0.Controllers
                                                                         || (estatus == "CANCELADAS" && (x.ultimoEstatus == 5))
                                                            )
                                                         && x.activo
+                                                        && x.FechaCreacion >= dateInicial && x.FechaCreacion <= dateFinal
                                                         )
                                                         )
                 clienteClave = null;
+            
 
             //obtiene el total de registros, según los filtros 
-            var listado = db.RM_cabecera
+            var listado = totalidadRegistrosBD
                .Where(x =>
                        (id_planta == null || x.RM_almacen.plantaClave == id_planta)
                        && (almacenClave == null || almacenClave == x.almacenClave)
                        && (clave == null || x.clave == clave)
                        && (motivoClave == null || x.motivoClave == motivoClave)
                        && (clienteClave == null || x.clienteClave == clienteClave)
-                       && (string.IsNullOrEmpty(clienteOtro) || x.clienteOtro.Contains(clienteOtro))
+                       && (string.IsNullOrEmpty(clienteOtro) || UsoStrings.ContainsIgnoreCase(x.clienteOtro, clienteOtro))
                       && ((string.IsNullOrEmpty(estatus) && x.ultimoEstatus.HasValue)
                                                                         || (estatus == "PENDIENTES" && (x.ultimoEstatus == 1 || x.ultimoEstatus == 2))
                                                                         || (estatus == "APROBADAS" && (x.ultimoEstatus == 3))
@@ -88,21 +120,22 @@ namespace Portal_2_0.Controllers
                                                                         || (estatus == "CANCELADAS" && (x.ultimoEstatus == 5))
                                                            )
                                                         && x.activo
+                                                        && x.FechaCreacion >= dateInicial && x.FechaCreacion <= dateFinal
                  )
                 .OrderByDescending(x => x.clave)
                 .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                .Take(cantidadRegistrosPorPagina).ToList();
 
 
-            //obtiene el listado de renisiones
-            var remisionesList = db.RM_cabecera
+            //obtiene el listado de remisiones
+            var remisionesList = totalidadRegistrosBD
                   .Where(x =>
                         (id_planta == null || x.RM_almacen.plantaClave == id_planta)
                         && (almacenClave == null || almacenClave == x.almacenClave)
                         //&& (clave == null || x.clave == clave)
                         && (motivoClave == null || x.motivoClave == motivoClave)
                         && (clienteClave == null || x.clienteClave == clienteClave)
-                        && (string.IsNullOrEmpty(clienteOtro) || x.clienteOtro.Contains(clienteOtro))
+                        && (string.IsNullOrEmpty(clienteOtro) || UsoStrings.ContainsIgnoreCase(x.clienteOtro, clienteOtro))
                         && ((string.IsNullOrEmpty(estatus) && x.ultimoEstatus.HasValue)
                                                                         || (estatus == "PENDIENTES" && (x.ultimoEstatus == 1 || x.ultimoEstatus == 2))
                                                                         || (estatus == "APROBADAS" && (x.ultimoEstatus == 3))
@@ -110,6 +143,7 @@ namespace Portal_2_0.Controllers
                                                                         || (estatus == "CANCELADAS" && (x.ultimoEstatus == 5))
                                                            )
                         && x.activo
+                        && x.FechaCreacion >= dateInicial && x.FechaCreacion <= dateFinal
                      )
                     .OrderBy(x => x.almacenClave);
 
@@ -127,6 +161,8 @@ namespace Portal_2_0.Controllers
             routeValues["clienteOtro"] = clienteOtro;
             routeValues["estatus"] = estatus;
             routeValues["pagina"] = pagina;
+            routeValues["fecha_inicial"] = fecha_inicial;
+            routeValues["fecha_final"] = fecha_final;
 
             Paginacion paginacion = new Paginacion
             {
@@ -138,14 +174,14 @@ namespace Portal_2_0.Controllers
 
             ViewBag.Paginacion = paginacion;
 
-            var remisionesListClientes = db.RM_cabecera
+            var remisionesListClientes = totalidadRegistrosBD
                  .Where(x =>
                        (id_planta == null || x.RM_almacen.plantaClave == id_planta)
                        && (almacenClave == null || almacenClave == x.almacenClave)
                        && (clave == null || x.clave == clave)
                        && (motivoClave == null || x.motivoClave == motivoClave)
                        //& (clienteClave == null || x.clienteClave == clienteClave)
-                       && (string.IsNullOrEmpty(clienteOtro) || x.clienteOtro.Contains(clienteOtro))
+                       && (string.IsNullOrEmpty(clienteOtro) || UsoStrings.ContainsIgnoreCase(x.clienteOtro, clienteOtro))
                        && ((string.IsNullOrEmpty(estatus) && x.ultimoEstatus.HasValue)
                                                                         || (estatus == "PENDIENTES" && (x.ultimoEstatus == 1 || x.ultimoEstatus == 2))
                                                                         || (estatus == "APROBADAS" && (x.ultimoEstatus == 3))
@@ -153,6 +189,7 @@ namespace Portal_2_0.Controllers
                                                                         || (estatus == "CANCELADAS" && (x.ultimoEstatus == 5))
                                                            )
                        && x.activo
+                       && x.FechaCreacion >= dateInicial && x.FechaCreacion <= dateFinal
                     )
                     .Select(x => x.clientes)
                     .Distinct();
@@ -168,16 +205,17 @@ namespace Portal_2_0.Controllers
             ViewBag.estatusMap = estatusMap;
 
             //linq para obtener el total de registros con su estatus
-            var totalDeRegistrosEstatus = db.RM_cabecera
+            var totalDeRegistrosEstatus = totalidadRegistrosBD
                 .Where(x =>
                       (id_planta == null || x.RM_almacen.plantaClave == id_planta)
                       && (almacenClave == null || almacenClave == x.almacenClave)
                       && (clave == null || x.clave == clave)
                       && (motivoClave == null || x.motivoClave == motivoClave)
                       && (clienteClave == null || x.clienteClave == clienteClave)
-                      && (string.IsNullOrEmpty(clienteOtro) || x.clienteOtro.Contains(clienteOtro))
+                      && (string.IsNullOrEmpty(clienteOtro) || UsoStrings.ContainsIgnoreCase(x.clienteOtro, clienteOtro))
                       && x.ultimoEstatus.HasValue
                      && x.activo
+                     && x.FechaCreacion >= dateInicial && x.FechaCreacion <= dateFinal
               )
                 .Select(x => x.ultimoEstatus);
 
@@ -271,7 +309,7 @@ namespace Portal_2_0.Controllers
             //  ModelState.AddModelError("", "Error para depuración.");
 
             if (rM_cabecera.RM_elemento.Count == 0)
-                ModelState.AddModelError("", "No se agregaron elementos a la remisión.");  
+                ModelState.AddModelError("", "No se agregaron elementos a la remisión.");
 
             var empleado = obtieneEmpleadoLogeado();
 
@@ -872,10 +910,127 @@ namespace Portal_2_0.Controllers
             Response.AppendHeader("Content-Disposition", cd.ToString());
 
             return File(stream, "application/vnd.ms-excel");
+        }
+
+        public ActionResult Exportar(int? id_planta, int? almacenClave, int? clave, int? motivoClave, int? clienteClave, string clienteOtro, string estatus, string fecha_inicial, string fecha_final)
+        {
+            if (!TieneRol(TipoRoles.RM_DETALLES)
+                && !TieneRol(TipoRoles.RM_CREACION)
+                && !TieneRol(TipoRoles.RM_REPORTES))
+                return View("../Home/ErrorPermisos");
+                    
+
+            //convierte las fechas recibidas
+            CultureInfo provider = CultureInfo.InvariantCulture;
+
+            DateTime dateInicial = new DateTime(2000, 1, 1);  //fecha inicial por defecto
+            DateTime dateFinal = DateTime.Now;          //fecha final por defecto
+
+            try
+            {
+                if (!String.IsNullOrEmpty(fecha_inicial))
+                    dateInicial = Convert.ToDateTime(fecha_inicial);
+                if (!String.IsNullOrEmpty(fecha_final))
+                {
+                    dateFinal = Convert.ToDateTime(fecha_final);
+                    dateFinal = dateFinal.AddHours(23).AddMinutes(59).AddSeconds(59);
+                }
+            }
+            catch (FormatException e)
+            {
+                Console.WriteLine("Error de Formato: " + e.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error al convertir: " + ex.Message);
+            }
 
 
+            //valida almacen
+            if (almacenClave != null && !db.RM_almacen.Any(x => x.clave == almacenClave && x.plantaClave == id_planta))
+                almacenClave = null;
+
+            //variable para almacenar la totalidad de registros
+            var totalidadRegistrosBD = db.RM_cabecera.ToList();
+
+            //valida id_remision
+            if (clave != null && !totalidadRegistrosBD.Any(x => (id_planta == null || x.RM_almacen.plantaClave == id_planta)
+                                                        && (almacenClave == null || almacenClave == x.almacenClave)
+                                                        && x.clave == clave
+                                                        && (motivoClave == null || x.motivoClave == motivoClave)
+                                                        && (clienteClave == null || x.clienteClave == clienteClave)
+                                                        && (string.IsNullOrEmpty(clienteOtro) || UsoStrings.ContainsIgnoreCase(x.clienteOtro, clienteOtro))
+                                                        && ((string.IsNullOrEmpty(estatus) && x.ultimoEstatus.HasValue)
+                                                                        || (estatus == "PENDIENTES" && (x.ultimoEstatus == 1 || x.ultimoEstatus == 2))
+                                                                        || (estatus == "APROBADAS" && (x.ultimoEstatus == 3))
+                                                                        || (estatus == "REGULARIZADAS" && (x.ultimoEstatus == 4))
+                                                                        || (estatus == "CANCELADAS" && (x.ultimoEstatus == 5))
+                                                           )
+                                                        && x.activo
+                                                        && x.FechaCreacion >= dateInicial && x.FechaCreacion <= dateFinal
+                                                        )
+        )
+                clave = null;
+
+            //valida cliente
+            if (clienteClave != null && !totalidadRegistrosBD.Any(x => (id_planta == null || x.RM_almacen.plantaClave == id_planta)
+                                                        && (almacenClave == null || almacenClave == x.almacenClave)
+                                                        && (clave == null || x.clave == clave)
+                                                        && (motivoClave == null || x.motivoClave == motivoClave)
+                                                        && (x.clienteClave == clienteClave)
+                                                        && (string.IsNullOrEmpty(clienteOtro) || UsoStrings.ContainsIgnoreCase(x.clienteOtro, clienteOtro))
+                                                         && ((string.IsNullOrEmpty(estatus) && x.ultimoEstatus.HasValue)
+                                                                        || (estatus == "PENDIENTES" && (x.ultimoEstatus == 1 || x.ultimoEstatus == 2))
+                                                                        || (estatus == "APROBADAS" && (x.ultimoEstatus == 3))
+                                                                        || (estatus == "REGULARIZADAS" && (x.ultimoEstatus == 4))
+                                                                        || (estatus == "CANCELADAS" && (x.ultimoEstatus == 5))
+                                                           )
+                                                        && x.activo
+                                                        && x.FechaCreacion >= dateInicial && x.FechaCreacion <= dateFinal
+                                                        )
+                                                        )
+                clienteClave = null;
+
+
+
+            //obtiene el total de registros, según los filtros 
+            var listado = totalidadRegistrosBD
+               .Where(x =>
+                       (id_planta == null || x.RM_almacen.plantaClave == id_planta)
+                       && (almacenClave == null || almacenClave == x.almacenClave)
+                       && (clave == null || x.clave == clave)
+                       && (motivoClave == null || x.motivoClave == motivoClave)
+                       && (clienteClave == null || x.clienteClave == clienteClave)
+                       && (string.IsNullOrEmpty(clienteOtro) || UsoStrings.ContainsIgnoreCase(x.clienteOtro, clienteOtro))
+                      && ((string.IsNullOrEmpty(estatus) && x.ultimoEstatus.HasValue)
+                                                                        || (estatus == "PENDIENTES" && (x.ultimoEstatus == 1 || x.ultimoEstatus == 2))
+                                                                        || (estatus == "APROBADAS" && (x.ultimoEstatus == 3))
+                                                                        || (estatus == "REGULARIZADAS" && (x.ultimoEstatus == 4))
+                                                                        || (estatus == "CANCELADAS" && (x.ultimoEstatus == 5))
+                                                           )
+                                                        && x.activo
+                                                        && x.FechaCreacion >= dateInicial && x.FechaCreacion <= dateFinal
+                 ).ToList();
+
+            byte[] stream = ExcelUtil.GeneraReporteRemisionesManuales(listado);
+
+
+            var cd = new System.Net.Mime.ContentDisposition
+            {
+                // for example foo.bak
+                FileName = "Reporte_Remisiones_Provisionales_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+
+                // always prompt the user for downloading, set to true if you want 
+                // the browser to try to show the file inline
+                Inline = false,
+            };
+
+            Response.AppendHeader("Content-Disposition", cd.ToString());
+
+            return File(stream, "application/vnd.ms-excel");
 
         }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -1009,7 +1164,8 @@ namespace Portal_2_0.Controllers
         }
 
         [NonAction]
-        public ActionResult ReturnErrorFecha() {
+        public ActionResult ReturnErrorFecha()
+        {
             ViewBag.Titulo = "¡Lo sentimos!¡Esta sección se encuentra inhabilitada hasta el 01-jun-2023!";
             ViewBag.Descripcion = "Esta sección se encuentra inhabilitada hasta el próximo 01 de junio, favor de continuar con el registro de las remisiones en http://10.122.163.24:8080/ .";
 

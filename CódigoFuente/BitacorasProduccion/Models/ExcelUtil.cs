@@ -1384,7 +1384,7 @@ namespace Portal_2_0.Models
             oSLDocument.SetCellStyle(valoresListAnioAnterior.Count + filaInicial + 1, 4, valoresListAnioAnterior.Count + filaInicial + 1, 45, styleTotales);
 
             oSLDocument.SetRowHeight(2, valoresListAnioAnterior.Count + filaInicial + 1, 15.0);
-            oSLDocument.SetColumnWidth (3, 40);
+            oSLDocument.SetColumnWidth(3, 40);
 
             System.IO.Stream stream = new System.IO.MemoryStream();
 
@@ -4701,6 +4701,134 @@ namespace Portal_2_0.Models
             oSLDocument.SetColumnStyle(dt.Columns["Hora Liberación (Vigilancia)"].Ordinal + 1, styleLongDate);
             oSLDocument.SetColumnStyle(dt.Columns["Hora Salida (Vigilancia)"].Ordinal + 1, styleLongDate);
             oSLDocument.SetColumnStyle(dt.Columns["Hora Cancelación"].Ordinal + 1, styleLongDate);
+
+
+            SLStyle styleHeaderFont = oSLDocument.CreateStyle();
+            styleHeaderFont.Font.FontName = "Calibri";
+            styleHeaderFont.Font.FontSize = 11;
+            styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
+            styleHeaderFont.Font.Bold = true;
+
+            foreach (var baja in disabledItems)
+                oSLDocument.SetCellStyle(baja, 1, baja, dt.Columns.Count, styleHeaderRowBaja);
+
+            //da estilo a la hoja de excel
+            //inmoviliza el encabezado
+            oSLDocument.FreezePanes(1, 0);
+
+            oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
+            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+
+            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
+            oSLDocument.SetRowStyle(1, styleHeader);
+            oSLDocument.SetRowStyle(1, styleHeaderFont);
+            oSLDocument.SetRowHeight(1, dt.Rows.Count + 1, 15.0);
+
+            System.IO.Stream stream = new System.IO.MemoryStream();
+
+            oSLDocument.SaveAs(stream);
+
+            byte[] array = Bitacoras.Util.StreamUtil.ToByteArray(stream);
+
+            return (array);
+        }
+
+        public static byte[] GeneraReporteRemisionesManuales(List<RM_cabecera> listado)
+        {
+
+            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+            System.Data.DataTable dt = new System.Data.DataTable();
+
+            List<int> disabledItems = new List<int>();
+
+            //columnas          
+            dt.Columns.Add("Núm. Remisión", typeof(string));
+            dt.Columns.Add("Estatus Actual", typeof(string));
+            dt.Columns.Add("Fecha Creación", typeof(DateTime));
+            dt.Columns.Add("Creada Por", typeof(string));
+            dt.Columns.Add("Planta", typeof(string));
+            dt.Columns.Add("Almacén", typeof(string));
+            dt.Columns.Add("Motivo", typeof(string));
+            dt.Columns.Add("Texto Breve Motivo", typeof(string));
+            dt.Columns.Add("Nombre Cliente", typeof(string));
+            dt.Columns.Add("Dirección Cliente", typeof(string));
+            dt.Columns.Add("Enviado A", typeof(string));
+            dt.Columns.Add("Enviado A (Dirección)", typeof(string));
+            dt.Columns.Add("Transporte", typeof(string));
+            dt.Columns.Add("Placa Tractor", typeof(string));
+            dt.Columns.Add("Placa Remolque", typeof(string));
+            dt.Columns.Add("Nombre Chofer", typeof(string));
+            dt.Columns.Add("Horario Descarga", typeof(string));         
+            dt.Columns.Add("Total Cantidad", typeof(double));
+            dt.Columns.Add("Total Peso", typeof(double));
+
+
+            ////registros , rows
+            foreach (var item in listado)
+            {
+                System.Data.DataRow row = dt.NewRow();
+
+                row["Núm. Remisión"] = item.ConcatNumeroRemision;
+                row["Estatus Actual"] = item.RM_estatus != null ? item.RM_estatus.descripcion : String.Empty;
+                if (item.FechaCreacion.HasValue)
+                    row["Fecha Creación"] = item.FechaCreacion;
+                else
+                    row["Fecha Creación"] = DBNull.Value;
+                row["Creada Por"] = item.CreadaPor;
+                row["Planta"] = item.RM_almacen != null ? item.RM_almacen.plantas.descripcion : String.Empty;
+                row["Almacén"] = item.RM_almacen != null ? item.RM_almacen.descripcion : String.Empty;
+                row["Nombre Cliente"] = item.NombreCliente;
+                row["Dirección Cliente"] = item.clienteOtroDireccion;
+                row["Enviado A"] = item.EnviadoA;
+                row["Enviado A (Dirección)"] = item.enviadoAOtroDireccion;
+                row["Transporte"] = item.transporteOtro;               
+                row["Placa Tractor"] = item.placaTractor;               
+                row["Placa Remolque"] = item.placaRemolque;               
+                row["Nombre Chofer"] = item.nombreChofer;               
+                row["Horario Descarga"] = item.horarioDescarga;              
+                row["Total Cantidad"] = item.TotalCantidadRemision;
+                row["Total Peso"] = item.TotalPesoRemision;
+                row["Motivo"] = item.RM_remision_motivo != null ? item.RM_remision_motivo.descripcion.Trim() : String.Empty;
+                row["Texto Breve Motivo"] = item.motivoTexto;
+
+                dt.Rows.Add(row);
+
+            }
+
+            //crea la hoja de FACTURAS y la selecciona
+            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Registro de Unidades");
+            oSLDocument.ImportDataTable(1, 1, dt, true);
+
+            //estilo para ajustar al texto
+            SLStyle styleWrap = oSLDocument.CreateStyle();
+            styleWrap.SetWrapText(true);
+
+            //estilo para el encabezado
+            SLStyle styleHeader = oSLDocument.CreateStyle();
+            styleHeader.Font.Bold = true;
+            styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
+
+            //estilo para bajas
+            SLStyle styleHeaderRowBaja = oSLDocument.CreateStyle();
+            styleHeaderRowBaja.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffa0a2"), System.Drawing.ColorTranslator.FromHtml("#ffa0a2"));
+
+            //estilo para numeros
+            SLStyle styleNumber = oSLDocument.CreateStyle();
+            styleNumber.FormatCode = "#,##0.000";
+
+            //da estilo a los numero
+            oSLDocument.SetColumnStyle(dt.Columns["Total Peso"].Ordinal + 1, styleNumber);
+            oSLDocument.SetColumnStyle(dt.Columns["Total Cantidad"].Ordinal + 1, styleNumber);
+
+            ////estilo para fecha
+            SLStyle styleLongDate = oSLDocument.CreateStyle();
+            styleLongDate.FormatCode = "dd/MM/yyyy hh:mm AM/PM";
+            oSLDocument.SetColumnStyle(dt.Columns["Fecha Creación"].Ordinal + 1, styleLongDate);
+            //oSLDocument.SetColumnStyle(dt.Columns["Hora Recepción"].Ordinal + 1, styleLongDate);
+            //oSLDocument.SetColumnStyle(dt.Columns["Hora Liberación (Embarques)"].Ordinal + 1, styleLongDate);
+            //oSLDocument.SetColumnStyle(dt.Columns["Hora Liberación (Vigilancia)"].Ordinal + 1, styleLongDate);
+            //oSLDocument.SetColumnStyle(dt.Columns["Hora Salida (Vigilancia)"].Ordinal + 1, styleLongDate);
+            //oSLDocument.SetColumnStyle(dt.Columns["Hora Cancelación"].Ordinal + 1, styleLongDate);
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();

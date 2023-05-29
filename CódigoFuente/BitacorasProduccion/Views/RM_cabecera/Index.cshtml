@@ -119,6 +119,14 @@
                                                 <div class="col-md-4 col-sm-4">
                                                     @Html.DropDownList("motivoClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                                 </div>
+                                                <label class="control-label col-md-1 col-sm-1 label-align" for="fecha_inicial">Fecha Inicial</label>
+                                                <div class="col-md-2 col-sm-4">
+                                                    <input type="date" class="form-control search date" name="fecha_inicial" id="fecha_inicial" value="@Request.Params["fecha_inicial"]">
+                                                </div>
+                                                <label class="control-label col-md-1 col-sm-1 label-align" for="fecha_final">Fecha Final</label>
+                                                <div class="col-md-2 col-sm-4">
+                                                    <input type="date" class="form-control search date" name="fecha_final" id="fecha_final" value="@Request.Params["fecha_final"]">
+                                                </div>                                               
                                             </div>
                                             <div class="form-group row">
                                                 <label class="control-label col-md-1 col-sm-1" for="clienteClave" style="text-align:right">Cliente:</label>
@@ -126,7 +134,7 @@
                                                     @Html.DropDownList("clienteClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                                 </div>
                                                 <label class="control-label col-md-1 col-sm-1" for="clienteOtro" style="text-align:right">Cliente (otro):</label>
-                                                <div class="col-md-4 col-sm-4">
+                                                <div class="col-md-3 col-sm-3">
                                                     <input type="text" name="clienteOtro" id="clienteOtro" class="form-control" autocomplete="off" value="@Request.QueryString["clienteOtro"]" />
                                                 </div>
                                                 <div class="col-md-1 col-sm-1">
@@ -137,6 +145,9 @@
                                                 <div class="col-md-1 col-sm-1">
                                                     <input type="button" id="btn-submit" value="Buscar" class="btn btn-info" />
                                                 </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                
                                             </div>
                                         }
                                     </div>
@@ -306,21 +317,24 @@
                             <nav id="nav_paginacion" aria-label="...">
                                 @{Html.RenderPartial("_Paginacion", Model);}
                             </nav>
-                            @*<div class="form-group">
+                            <div class="form-group">
 
-                                    <a href="@Url.Action("Export", ViewBag.ControllerName, new
+                                <a href="@Url.Action("Exportar", ViewBag.ControllerName, new
                                                 {
-                                                    tipo_hardware = tipo_hardware_export,
-                                                    id_planta = id_planta,
-                                                    hostname = hostname,
-                                                    model = model_,
-                                                    active = active,
-                                                    id_tipo_accesorio = id_tipo_accesorio
+                                                    estatus = Request.QueryString["estatus"],
+                                                    id_planta = Request.QueryString["id_planta"],
+                                                    almacenClave = Request.QueryString["almacenClave"],
+                                                    clave = Request.QueryString["clave"],
+                                                    motivoClave = Request.QueryString["motivoClave"],
+                                                    clienteClave = Request.QueryString["clienteClave"],
+                                                    clienteOtro = Request.QueryString["clienteOtro"],
+                                                    fecha_inicial = Request.Params["fecha_inicial"],
+                                                    fecha_final = Request.Params["fecha_final"],
 
-                                                })" class="btn btn-success btm-sm" target="_blank" title="Reporte">
-                                        <i class="fa-regular fa-file-excel"></i> Export Excel
-                                    </a>
-                                </div>*@
+                                                })" class="btn btn-success btm-sm" target="_blank" title="Reporte" style="background-color:#1D6F42">
+                                    <i class="fa-regular fa-file-excel"></i> Exportar a Excel
+                                </a>
+                            </div>
                         }
                     </div>
                 </div>
@@ -383,8 +397,18 @@
                 timeout = setTimeout(() => {
                     EnviaBusqueda()
                     clearTimeout(timeout)
-                }, 2500)
+                }, 1800)
             })
+
+            //El evento on change de date
+            $(".date").change(function () {
+                clearTimeout(timeout)
+                timeout = setTimeout(() => {
+                    EnviaBusqueda();
+                    clearTimeout(timeout)
+                }, 1500)
+            });
+
             $.unblockUI();
         });
 
