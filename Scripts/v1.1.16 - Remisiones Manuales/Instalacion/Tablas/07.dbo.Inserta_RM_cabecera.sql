@@ -107,5 +107,5 @@ DROP TABLE #stats_ddl;
 
 --coloca como inactivo si no tiene ultimo estatus
 UPDATE RM_cabecera set activo=0 where ultimoEstatus is null
---se coloca como regularizada si el motivo
-UPDATE RM_cabecera set ultimoEstatus=4 where motivoClave = 14 and ultimoEstatus <> 5
+--se coloca como regularizada si el motivo es no se regulariza y el ultimo estatus es aprobada
+UPDATE RM_cabecera set ultimoEstatus=4 where motivoClave = 14 and ultimoEstatus = 3
