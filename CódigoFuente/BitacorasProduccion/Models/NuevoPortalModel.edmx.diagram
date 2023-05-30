@@ -326,6 +326,9 @@
         <AssociationConnector Association="Portal_2_0Model.FK_RU_registros_id_vigilancia_ingreso" />
         <AssociationConnector Association="Portal_2_0Model.FK_RU_registros_id_vigilancia_liberacion" />
         <AssociationConnector Association="Portal_2_0Model.FK_RU_registros_id_vigilancia_salida" />
+        <EntityTypeShape EntityType="Portal_2_0Model.IT_mantenimientos_aplazamientos" Width="1.5" PointX="40.25" PointY="80.25" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_mantenimientos_aplazamientos_id_sistemas" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_mantenimientos_aplazamientos_id_mantenimiento" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -94,8 +94,8 @@ namespace Portal_2_0.Models
         [Display(Name = "Asignado A")]
         public int id_asignacion { get; set; }
 
-        [StringLength(150, MinimumLength = 2)]
-        [Display(Name = "comentario_asignacion")]
+        [StringLength(350, MinimumLength = 2)]
+        [Display(Name = "Comentario asignación")]
         public string comentario_asignacion { get; set; }
 
     }

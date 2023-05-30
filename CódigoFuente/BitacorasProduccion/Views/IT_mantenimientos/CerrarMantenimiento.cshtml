@@ -289,6 +289,57 @@
                                 }
                             </table>
 
+                            if (Model.IT_mantenimientos_aplazamientos.Count > 0)
+                            {
+                                <div class="ln_solid"></div>
+
+                                <div class="form-group row">
+                                    <span style="color:black"><b>HISTORIAL DE APLAZOS</b></span>
+                                </div>
+                                <div class="item form-group">
+
+                                </div>
+                                <table id="datatable_2" class="table datatable table-bordered table-striped" cellspacing="0" width="100%">
+                                    <thead style="background-color: #009ff5; color: azure; border: #009ff5 1px solid;">
+                                        <tr>
+                                            <th width="1%">
+                                                #
+                                            </th>
+                                            <th width="15%">
+                                                Fecha Original
+                                            </th>
+                                            <th width="15%">
+                                                Nueva Fecha
+                                            </th>
+                                            <th width="50%">
+                                                Comentarios
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    @{int c = Model.IT_mantenimientos_aplazamientos.Count; }
+                                    @foreach (var aplazamiento in Model.IT_mantenimientos_aplazamientos.OrderByDescending(x => x.id))
+                                    {
+                                        <tbody style="border: #009ff5 1px solid;">
+                                            <tr style="background-color:@(c==Model.IT_mantenimientos_aplazamientos.Count?"#BBFFBB":String.Empty)">
+                                                <td>
+                                                    @(c--)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(model => aplazamiento.fecha_anterior)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(model => aplazamiento.nueva_fecha)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(model => aplazamiento.motivo)
+                                                </td>
+                                            </tr>
+                                        </tbody>
+
+                                    }
+                                </table>
+                            }
+
                             <div class="ln_solid"></div>
 
                             <div class="form-group row">
@@ -332,8 +383,11 @@
                             </div>
                             <div class="ln_solid"></div>
                             <div class="item form-group">
-                                <div class="col-md-2 col-sm-2 offset-md-10">
-                                    <button type="button" class="btn btn-success btn-lg float-right" onclick="showDialog()"><i class="fa-regular fa-floppy-disk"></i> Guardar</button>
+                                <div class="col-md-2 col-sm-2 offset-md-8">
+                                    <button type="button" class="btn btn-warning btn-lg btn-block float-right" onclick="showDialog(true)"><i class="fa-regular fa-floppy-disk"></i> Guardar y Finalizar</button>
+                                </div>
+                                <div class="col-md-2 col-sm-2 ">
+                                    <button type="button" class="btn btn-success btn-lg btn-block float-right" onclick="showDialog()"><i class="fa-regular fa-floppy-disk"></i> Guardar Cambios</button>
                                 </div>
                             </div>
                         }
@@ -427,11 +481,11 @@
             var next = moment(fechaRel);
 
             if (moment(next).isValid()) {
-                next.add(meses, 'M');               
+                next.add(meses, 'M');
                 $('#proximo').val(next.format('YYYY-MM'));
             }
 
-            
+
         }
 
     function ActualizaDatosEmpleados(idEmpleado) {
@@ -464,9 +518,15 @@
         });
     }
 
-        function showDialog() {
+        function showDialog(finalizar) {
 
             let mensaje = "Se guardarán los cambios, pero no se finalizará el mantenimiento. Se podrá continuar con el registro posteriormente.";
+
+            if (finalizar) {
+                $('#finalizar_mantenimiento').iCheck('check');              
+            } else {
+                $('#finalizar_mantenimiento').iCheck('uncheck');
+            }
 
             if ($('#@Html.IdFor(model => model.finalizar_mantenimiento)').prop('checked')) {
                 mensaje = "Se finalizará el mantenimiento con los valores actuales y ya NO se podrán hacer cambios."
@@ -484,6 +544,8 @@
                 /* Read more about isConfirmed, isDenied below */
 
                 if (result.isConfirmed) {
+
+
                     setTimeout(function () {
                         $('#formulario').submit();
                     }, 900);

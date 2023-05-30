@@ -662,6 +662,17 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="fecha_realizacion" Type="datetime" />
           <Property Name="comentarios" Type="varchar" MaxLength="300" />
         </EntityType>
+        <EntityType Name="IT_mantenimientos_aplazamientos">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_mantenimiento" Type="int" Nullable="false" />
+          <Property Name="id_sistemas" Type="int" Nullable="false" />
+          <Property Name="fecha_anterior" Type="datetime" Nullable="false" />
+          <Property Name="nueva_fecha" Type="datetime" Nullable="false" />
+          <Property Name="motivo" Type="varchar" MaxLength="300" Nullable="false" />
+        </EntityType>
         <EntityType Name="IT_mantenimientos_checklist_categorias">
           <Key>
             <PropertyRef Name="id" />
@@ -697,7 +708,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="id_matriz_requerimientos" Type="int" Nullable="false" />
           <Property Name="id_sistemas" Type="int" Nullable="false" />
           <Property Name="fecha_asignacion" Type="datetime" Nullable="false" />
-          <Property Name="comentario" Type="varchar" MaxLength="150" Nullable="false" />
+          <Property Name="comentario" Type="varchar" MaxLength="350" />
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="IT_matriz_carpetas">
@@ -719,7 +730,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="id_matriz_requerimientos" Type="int" Nullable="false" />
           <Property Name="id_it_comunicaciones" Type="int" Nullable="false" />
           <Property Name="descripcion" Type="varchar" MaxLength="90" />
-          <Property Name="comentario" Type="varchar" MaxLength="90" />
+          <Property Name="comentario" Type="varchar" MaxLength="250" />
           <Property Name="completado" Type="bit" />
         </EntityType>
         <EntityType Name="IT_matriz_hardware">
@@ -731,7 +742,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="id_it_hardware" Type="int" Nullable="false" />
           <Property Name="id_it_asignacion_hardware" Type="int" />
           <Property Name="descripcion" Type="varchar" MaxLength="90" />
-          <Property Name="comentario" Type="varchar" MaxLength="150" />
+          <Property Name="comentario" Type="varchar" MaxLength="250" />
           <Property Name="completado" Type="bit" />
         </EntityType>
         <EntityType Name="IT_matriz_requerimientos">
@@ -762,7 +773,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="id_it_software" Type="int" Nullable="false" />
           <Property Name="id_it_asignacion_software" Type="int" />
           <Property Name="descripcion" Type="varchar" MaxLength="90" />
-          <Property Name="comentario" Type="varchar" MaxLength="150" />
+          <Property Name="comentario" Type="varchar" MaxLength="250" />
           <Property Name="completado" Type="bit" />
         </EntityType>
         <EntityType Name="IT_notificaciones_actividad">
@@ -2591,6 +2602,30 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_IT_mantenimientos_aplazamientos_id_mantenimiento">
+          <End Role="IT_mantenimientos" Type="Self.IT_mantenimientos" Multiplicity="1" />
+          <End Role="IT_mantenimientos_aplazamientos" Type="Self.IT_mantenimientos_aplazamientos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_mantenimientos">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_mantenimientos_aplazamientos">
+              <PropertyRef Name="id_mantenimiento" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_mantenimientos_aplazamientos_id_sistemas">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="1" />
+          <End Role="IT_mantenimientos_aplazamientos" Type="Self.IT_mantenimientos_aplazamientos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_mantenimientos_aplazamientos">
+              <PropertyRef Name="id_sistemas" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_IT_mantenimientos_checklist_item_id_categoria">
           <End Role="IT_mantenimientos_checklist_categorias" Type="Self.IT_mantenimientos_checklist_categorias" Multiplicity="1" />
           <End Role="IT_mantenimientos_checklist_item" Type="Self.IT_mantenimientos_checklist_item" Multiplicity="*" />
@@ -4144,6 +4179,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <EntitySet Name="IT_inventory_software" EntityType="Self.IT_inventory_software" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_inventory_tipos_accesorios" EntityType="Self.IT_inventory_tipos_accesorios" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_mantenimientos" EntityType="Self.IT_mantenimientos" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IT_mantenimientos_aplazamientos" EntityType="Self.IT_mantenimientos_aplazamientos" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_mantenimientos_checklist_categorias" EntityType="Self.IT_mantenimientos_checklist_categorias" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_mantenimientos_checklist_item" EntityType="Self.IT_mantenimientos_checklist_item" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_mantenimientos_rel_checklist" EntityType="Self.IT_mantenimientos_rel_checklist" Schema="dbo" store:Type="Tables" />
@@ -4645,6 +4681,14 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <AssociationSet Name="FK_IT_inventory_items_id_planta" Association="Self.FK_IT_inventory_items_id_planta">
             <End Role="plantas" EntitySet="plantas" />
             <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_mantenimientos_aplazamientos_id_mantenimiento" Association="Self.FK_IT_mantenimientos_aplazamientos_id_mantenimiento">
+            <End Role="IT_mantenimientos" EntitySet="IT_mantenimientos" />
+            <End Role="IT_mantenimientos_aplazamientos" EntitySet="IT_mantenimientos_aplazamientos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_mantenimientos_aplazamientos_id_sistemas" Association="Self.FK_IT_mantenimientos_aplazamientos_id_sistemas">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IT_mantenimientos_aplazamientos" EntitySet="IT_mantenimientos_aplazamientos" />
           </AssociationSet>
           <AssociationSet Name="FK_IT_mantenimientos_checklist_item_id_categoria" Association="Self.FK_IT_mantenimientos_checklist_item_id_categoria">
             <End Role="IT_mantenimientos_checklist_categorias" EntitySet="IT_mantenimientos_checklist_categorias" />
@@ -5644,7 +5688,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="id_matriz_requerimientos" Type="Int32" Nullable="false" />
           <Property Name="id_it_comunicaciones" Type="Int32" Nullable="false" />
           <Property Name="descripcion" Type="String" MaxLength="90" FixedLength="false" Unicode="false" />
-          <Property Name="comentario" Type="String" MaxLength="90" FixedLength="false" Unicode="false" />
+          <Property Name="comentario" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
           <Property Name="completado" Type="Boolean" />
           <NavigationProperty Name="IT_comunicaciones_tipo" Relationship="Self.FK_IT_matriz_comunicaciones_id_it_comunicaciones" FromRole="IT_matriz_comunicaciones" ToRole="IT_comunicaciones_tipo" />
           <NavigationProperty Name="IT_matriz_requerimientos" Relationship="Portal_2_0Model.FK_IT_matriz_comunicaciones_id_matriz_requerimientos" FromRole="IT_matriz_comunicaciones" ToRole="IT_matriz_requerimientos" />
@@ -8102,6 +8146,15 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="RU_usuarios_vigilancia" EntitySet="RU_usuarios_vigilancia" />
             <End Role="RU_registros" EntitySet="RU_registros" />
           </AssociationSet>
+          <EntitySet Name="IT_mantenimientos_aplazamientos" EntityType="Portal_2_0Model.IT_mantenimientos_aplazamientos" />
+          <AssociationSet Name="FK_IT_mantenimientos_aplazamientos_id_sistemas" Association="Portal_2_0Model.FK_IT_mantenimientos_aplazamientos_id_sistemas">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="IT_mantenimientos_aplazamientos" EntitySet="IT_mantenimientos_aplazamientos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_IT_mantenimientos_aplazamientos_id_mantenimiento" Association="Portal_2_0Model.FK_IT_mantenimientos_aplazamientos_id_mantenimiento">
+            <End Role="IT_mantenimientos" EntitySet="IT_mantenimientos" />
+            <End Role="IT_mantenimientos_aplazamientos" EntitySet="IT_mantenimientos_aplazamientos" />
+          </AssociationSet>
           </EntityContainer>
         <EntityType Name="GV_usuarios">
           <Key>
@@ -8431,7 +8484,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="id_it_hardware" Type="Int32" Nullable="false" />
           <Property Name="id_it_asignacion_hardware" Type="Int32" />
           <Property Name="descripcion" Type="String" MaxLength="90" FixedLength="false" Unicode="false" />
-          <Property Name="comentario" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="comentario" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
           <Property Name="completado" Type="Boolean" />
           <NavigationProperty Name="IT_asignacion_hardware" Relationship="Portal_2_0Model.FK_IT_matriz_hardware_id_it_asignacion_hardware" FromRole="IT_matriz_hardware" ToRole="IT_asignacion_hardware" />
           <NavigationProperty Name="IT_inventory_hardware_type" Relationship="Portal_2_0Model.FK_IT_matriz_hardware_id_it_hardware" FromRole="IT_matriz_hardware" ToRole="IT_inventory_hardware_type" />
@@ -8446,7 +8499,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="id_it_software" Type="Int32" Nullable="false" />
           <Property Name="id_it_asignacion_software" Type="Int32" />
           <Property Name="descripcion" Type="String" MaxLength="90" FixedLength="false" Unicode="false" />
-          <Property Name="comentario" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="comentario" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
           <Property Name="completado" Type="Boolean" />
           <NavigationProperty Name="IT_asignacion_software" Relationship="Portal_2_0Model.FK_IT_matriz_hardware_id_it_asignacion_software" FromRole="IT_matriz_software" ToRole="IT_asignacion_software" />
           <NavigationProperty Name="IT_inventory_software" Relationship="Portal_2_0Model.FK_IT_matriz_software_id_it_software" FromRole="IT_matriz_software" ToRole="IT_inventory_software" />
@@ -8670,6 +8723,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="IT_mantenimientos_rel_checklist" Relationship="Portal_2_0Model.FK_IT_mantenimientos_rel_checklist_id_mantenimiento" FromRole="IT_mantenimientos" ToRole="IT_mantenimientos_rel_checklist" />
           <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_IT_mantenimientos_id_empleado_responsable" FromRole="IT_mantenimientos" ToRole="empleados" />
           <NavigationProperty Name="empleados1" Relationship="Portal_2_0Model.FK_IT_mantenimientos_id_empleado_sistemas" FromRole="IT_mantenimientos" ToRole="empleados" />
+          <NavigationProperty Name="IT_mantenimientos_aplazamientos" Relationship="Portal_2_0Model.FK_IT_mantenimientos_aplazamientos_id_mantenimiento" FromRole="IT_mantenimientos" ToRole="IT_mantenimientos_aplazamientos" />
         </EntityType>
         <Association Name="FK_IT_mantenimientos_id_biblioteca_digital">
           <End Type="Portal_2_0Model.biblioteca_digital" Role="biblioteca_digital" Multiplicity="0..1" />
@@ -8996,6 +9050,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="IT_matriz_asignaciones" Relationship="Portal_2_0Model.FK_IT_matriz_asignaciones_id_sistema" FromRole="empleados" ToRole="IT_matriz_asignaciones" />
           <NavigationProperty Name="RU_registros" Relationship="Portal_2_0Model.FK_RU_registros_id_embarques_liberacion" FromRole="empleados" ToRole="RU_registros" />
           <NavigationProperty Name="RU_registros1" Relationship="Portal_2_0Model.FK_RU_registros_id_embarques_recepcion" FromRole="empleados" ToRole="RU_registros" />
+          <NavigationProperty Name="IT_mantenimientos_aplazamientos" Relationship="Portal_2_0Model.FK_IT_mantenimientos_aplazamientos_id_sistemas" FromRole="empleados" ToRole="IT_mantenimientos_aplazamientos" />
           </EntityType>
         <Association Name="FK_empleados_id_fotografia">
           <End Type="Portal_2_0Model.biblioteca_digital" Role="biblioteca_digital" Multiplicity="0..1" />
@@ -10334,7 +10389,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="id_matriz_requerimientos" Type="Int32" Nullable="false" />
           <Property Name="id_sistemas" Type="Int32" Nullable="false" />
           <Property Name="fecha_asignacion" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="comentario" Type="String" Nullable="false" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="comentario" Type="String" MaxLength="350" FixedLength="false" Unicode="false" />
           <Property Name="activo" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_IT_matriz_asignaciones_id_sistema" FromRole="IT_matriz_asignaciones" ToRole="empleados" />
           <NavigationProperty Name="IT_matriz_requerimientos" Relationship="Portal_2_0Model.FK_IT_matriz_asignaciones_id_matriz_requerimientos" FromRole="IT_matriz_asignaciones" ToRole="IT_matriz_requerimientos" />
@@ -10457,6 +10512,43 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Principal>
             <Dependent Role="RU_registros">
               <PropertyRef Name="id_vigilancia_salida" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="IT_mantenimientos_aplazamientos">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_mantenimiento" Type="Int32" Nullable="false" />
+          <Property Name="id_sistemas" Type="Int32" Nullable="false" />
+          <Property Name="fecha_anterior" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="nueva_fecha" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="motivo" Type="String" Nullable="false" MaxLength="300" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_IT_mantenimientos_aplazamientos_id_sistemas" FromRole="IT_mantenimientos_aplazamientos" ToRole="empleados" />
+          <NavigationProperty Name="IT_mantenimientos" Relationship="Portal_2_0Model.FK_IT_mantenimientos_aplazamientos_id_mantenimiento" FromRole="IT_mantenimientos_aplazamientos" ToRole="IT_mantenimientos" />
+        </EntityType>
+        <Association Name="FK_IT_mantenimientos_aplazamientos_id_sistemas">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_mantenimientos_aplazamientos" Role="IT_mantenimientos_aplazamientos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_mantenimientos_aplazamientos">
+              <PropertyRef Name="id_sistemas" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_IT_mantenimientos_aplazamientos_id_mantenimiento">
+          <End Type="Portal_2_0Model.IT_mantenimientos" Role="IT_mantenimientos" Multiplicity="1" />
+          <End Type="Portal_2_0Model.IT_mantenimientos_aplazamientos" Role="IT_mantenimientos_aplazamientos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="IT_mantenimientos">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="IT_mantenimientos_aplazamientos">
+              <PropertyRef Name="id_mantenimiento" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -12368,6 +12460,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
                 <ScalarProperty Name="placas_tractor" ColumnName="placas_tractor" />
                 <ScalarProperty Name="linea_transporte" ColumnName="linea_transporte" />
                 <ScalarProperty Name="fecha_ingreso_vigilancia" ColumnName="fecha_ingreso_vigilancia" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IT_mantenimientos_aplazamientos">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_mantenimientos_aplazamientos">
+              <MappingFragment StoreEntitySet="IT_mantenimientos_aplazamientos">
+                <ScalarProperty Name="motivo" ColumnName="motivo" />
+                <ScalarProperty Name="nueva_fecha" ColumnName="nueva_fecha" />
+                <ScalarProperty Name="fecha_anterior" ColumnName="fecha_anterior" />
+                <ScalarProperty Name="id_sistemas" ColumnName="id_sistemas" />
+                <ScalarProperty Name="id_mantenimiento" ColumnName="id_mantenimiento" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

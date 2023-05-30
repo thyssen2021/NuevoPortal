@@ -42,7 +42,7 @@ namespace Portal_2_0.Controllers
             }
 
             var cantidadRegistrosPorPagina = 20; // parámetro
-           bool sePuedeConvertir = Boolean.TryParse(asignado, out bool asignadoBoolean);
+            bool sePuedeConvertir = Boolean.TryParse(asignado, out bool asignadoBoolean);
 
             var listado = db.IT_mantenimientos
                 .Where(x =>
@@ -303,7 +303,7 @@ namespace Portal_2_0.Controllers
                 {
                     //si no es finalizar, la fecha de realización es null
                     iT_mantenimientos.fecha_realizacion = null;
-                    
+
                 }
 
                 db.SaveChanges();
@@ -371,7 +371,7 @@ namespace Portal_2_0.Controllers
 
                 return View("../Home/ErrorGenerico");
             }
-              if (item.id_empleado_responsable==null)
+            if (item.id_empleado_responsable == null)
             {
                 ViewBag.Titulo = "¡Lo sentimos!¡No se puede generar el PDF de este mantenimiento!";
                 ViewBag.Descripcion = "No se puede generar la Plantilla PDF debido a que se trata de un primer mantenimiento. En su lugar suba el último Documento PDF escaneado.";
@@ -650,7 +650,85 @@ namespace Portal_2_0.Controllers
             {
                 return HttpNotFound();
             }
+
+            var empleado = db.empleados.Find(iT_mantenimientos.responsable_principal_id_empleado);
+
+            //valores por defecto para formulario
+            iT_mantenimientos.empleados = empleado;
             return View(iT_mantenimientos);
+        }
+
+        // GET: IT_mantenimientos/PosponerMantenimiento/5
+        public ActionResult PosponerMantenimiento(int? id, string estatus_mantenimiento = "")
+        {
+            if (!TieneRol(TipoRoles.IT_MANTENIMIENTO_REGISTRO))
+                return View("../Home/ErrorPermisos");
+
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            IT_mantenimientos iT_mantenimientos = db.IT_mantenimientos.Find(id);
+            if (iT_mantenimientos == null)
+            {
+                return HttpNotFound();
+            }
+
+            var sistemas = obtieneEmpleadoLogeado();
+
+            var empleado = db.empleados.Find(iT_mantenimientos.responsable_principal_id_empleado);
+
+            //valores por defecto para formulario
+            iT_mantenimientos.id_empleado_sistemas = sistemas.id;
+            iT_mantenimientos.empleados1 = sistemas;
+            iT_mantenimientos.nueva_fecha = iT_mantenimientos.fecha_programada;
+            iT_mantenimientos.empleados = empleado;
+
+
+            return View(iT_mantenimientos);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult PosponerMantenimiento(IT_mantenimientos model, string estatus_mantenimiento = "")
+        {
+            string mensaje = string.Empty;
+            try
+            {
+                var mantenimientoBD = db.IT_mantenimientos.Find(model.id);
+
+                
+
+                mantenimientoBD.IT_mantenimientos_aplazamientos.Add(
+                    new IT_mantenimientos_aplazamientos
+                    {
+                        id_sistemas = model.id_empleado_sistemas.Value,
+                        motivo = model.comentarios_aplazamiento,
+                        nueva_fecha = model.nueva_fecha,
+                        fecha_anterior = mantenimientoBD.fecha_programada
+                    }
+                    );
+
+                mantenimientoBD.fecha_programada = model.nueva_fecha;
+
+                //todas las asi
+                db.SaveChanges();
+
+                TempData["Mensaje"] = new MensajesSweetAlert("Se ha pospuesto el mantenimiento correctamente.", TipoMensajesSweetAlerts.SUCCESS);
+
+
+                return RedirectToAction("Index", new { estatus_mantenimiento = estatus_mantenimiento });
+            }
+            catch (Exception ex)
+            {
+                mensaje = "Error al guardar en BD.";
+                return RedirectToAction("Index", new { estatus_mantenimiento = estatus_mantenimiento });
+            }
+
+            TempData["Mensaje"] = new MensajesSweetAlert(mensaje, TipoMensajesSweetAlerts.ERROR);
+
+            return RedirectToAction("solicitudes_sistemas");
+
         }
 
         // GET: IT_mantenimientos/CargarDocumento/5

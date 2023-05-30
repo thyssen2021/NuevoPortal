@@ -549,6 +549,9 @@
     <Compile Include="Models\IT_mantenimientos.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\IT_mantenimientos_aplazamientos.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\IT_mantenimientos_checklist_categorias.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -735,6 +738,11 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\NuevoPortalModel.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Models\NuevoPortalModel1.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
@@ -4661,7 +4669,7 @@
     <None Include="Connected Services\ServiceReferenceBasculas\WebServiceBasculas.wsdl" />
     <EntityDeploy Include="Models\NuevoPortalModel.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>NuevoPortalModel.Designer.cs</LastGenOutput>
+      <LastGenOutput>NuevoPortalModel1.Designer.cs</LastGenOutput>
     </EntityDeploy>
     <Content Include="Models\NuevoPortalModel.edmx.diagram">
       <DependentUpon>NuevoPortalModel.edmx</DependentUpon>
@@ -5263,6 +5271,7 @@
     <Content Include="Views\RU_registros\Cancel.cshtml" />
     <Content Include="Views\Home\Menu.cshtml" />
     <Content Include="Views\IT_matriz_requerimientos\Asignar.cshtml" />
+    <Content Include="Views\IT_mantenimientos\PosponerMantenimiento.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

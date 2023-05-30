@@ -254,6 +254,9 @@
                                                                 <a href="@Url.Action("CerrarMantenimiento", null, new { id = item.id, estatus_mantenimiento = estatus_mantenimiento })" class="btn btn-success btn-sm" title="Cerrar Mantenimiento">
                                                                     <i class="fa-solid fa-screwdriver-wrench"></i>
                                                                 </a>
+                                                                <a href="@Url.Action("PosponerMantenimiento", null, new { id = item.id, estatus_mantenimiento = estatus_mantenimiento })" class="btn btn-info btn-sm" title="Posponer Mantenimiento">
+                                                                    <i class="fa-regular fa-calendar-xmark"></i>
+                                                                </a>
                                                             }
                                                             @if (item.estatus == Bitacoras.Util.IT_matenimiento_Estatus.REALIZADO)
                                                             {
@@ -344,21 +347,21 @@
                                         @{Html.RenderPartial("_Paginacion", Model);}
                                     </nav>
                                     <div class="form-group">
-                                    
-                                        @*<a href="@Url.Action("Exportar", ViewBag.ControllerName, new
-                                                {
-                                                   estatus_mantenimiento = paginacionFiltros.ValoresQueryString["estatus_mantenimiento"] != null? paginacionFiltros.ValoresQueryString["estatus_mantenimiento"] : string.Empty,
-                                                   id_empleado = paginacionFiltros.ValoresQueryString["id_empleado"] != null? paginacionFiltros.ValoresQueryString["id_empleado"] : string.Empty,
-                                                   planta_clave = paginacionFiltros.ValoresQueryString["planta_clave"] != null? paginacionFiltros.ValoresQueryString["planta_clave"] : string.Empty,
-                                                   documento = paginacionFiltros.ValoresQueryString["documento"] != null? paginacionFiltros.ValoresQueryString["documento"] : string.Empty,
-                                                   mes = paginacionFiltros.ValoresQueryString["mes"] != null? paginacionFiltros.ValoresQueryString["mes"] : string.Empty,
-                                                   asignado = paginacionFiltros.ValoresQueryString["asignado"] != null? paginacionFiltros.ValoresQueryString["asignado"] : string.Empty,
-                                                   id_it_inventory_item = paginacionFiltros.ValoresQueryString["id_it_inventory_item"] != null? paginacionFiltros.ValoresQueryString["id_it_inventory_item"] : string.Empty,
 
-                                                })" class="btn btn-success btm-sm" target="_blank" title="Reporte">
-                                            <i class="fa-regular fa-file-excel"></i> Exportar Excel
-                                        </a>*@
-                                    
+                                        @*<a href="@Url.Action("Exportar", ViewBag.ControllerName, new
+                                                    {
+                                                       estatus_mantenimiento = paginacionFiltros.ValoresQueryString["estatus_mantenimiento"] != null? paginacionFiltros.ValoresQueryString["estatus_mantenimiento"] : string.Empty,
+                                                       id_empleado = paginacionFiltros.ValoresQueryString["id_empleado"] != null? paginacionFiltros.ValoresQueryString["id_empleado"] : string.Empty,
+                                                       planta_clave = paginacionFiltros.ValoresQueryString["planta_clave"] != null? paginacionFiltros.ValoresQueryString["planta_clave"] : string.Empty,
+                                                       documento = paginacionFiltros.ValoresQueryString["documento"] != null? paginacionFiltros.ValoresQueryString["documento"] : string.Empty,
+                                                       mes = paginacionFiltros.ValoresQueryString["mes"] != null? paginacionFiltros.ValoresQueryString["mes"] : string.Empty,
+                                                       asignado = paginacionFiltros.ValoresQueryString["asignado"] != null? paginacionFiltros.ValoresQueryString["asignado"] : string.Empty,
+                                                       id_it_inventory_item = paginacionFiltros.ValoresQueryString["id_it_inventory_item"] != null? paginacionFiltros.ValoresQueryString["id_it_inventory_item"] : string.Empty,
+
+                                                    })" class="btn btn-success btm-sm" target="_blank" title="Reporte">
+                                                <i class="fa-regular fa-file-excel"></i> Exportar Excel
+                                            </a>*@
+
                                         <a href="@Url.Action("PlanMantenimiento", ViewBag.ControllerName, new
                                                 {
                                                    estatus_mantenimiento = paginacionFiltros.ValoresQueryString["estatus_mantenimiento"] != null? paginacionFiltros.ValoresQueryString["estatus_mantenimiento"] : string.Empty,

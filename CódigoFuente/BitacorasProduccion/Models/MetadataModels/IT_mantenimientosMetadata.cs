@@ -99,6 +99,29 @@ namespace Portal_2_0.Models
 
         }
 
+        // obtiene el responsable principal
+        [NotMapped]
+        [Display(Name = "Responsable Principal empleado")]
+        public int responsable_principal_id_empleado
+        {
+            get
+            {
+                int id = 0; 
+
+                using (var db = new Portal_2_0Entities())
+                {
+                    var asignacion_principal = db.IT_asignacion_hardware_rel_items.Where(x => x.id_it_inventory_item == this.id_it_inventory_item && x.IT_asignacion_hardware.es_asignacion_actual == true && x.IT_asignacion_hardware.id_empleado == x.IT_asignacion_hardware.id_responsable_principal).FirstOrDefault();
+
+                    if (asignacion_principal != null && asignacion_principal.IT_asignacion_hardware.empleados != null)
+                        return asignacion_principal.IT_asignacion_hardware.empleados.id;
+                }
+
+                //valor por defecto
+                return id;
+            }
+
+        }
+
 
 
         // obtiene si es el prim mantenimiento
@@ -160,5 +183,21 @@ namespace Portal_2_0.Models
         [NotMapped]
         [Display(Name = "Documento de Aceptación")]
         public HttpPostedFileBase PostedFileDocumentoAceptacion { get; set; }
+
+        //Campos para posponer mantenimiento
+        [NotMapped]
+        [DataType(DataType.Date)]
+        [Display(Name = "Nueva Fecha")]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        public System.DateTime nueva_fecha { get; set; }
+
+        //Campos para posponer mantenimiento
+        [NotMapped]
+        [StringLength(300, MinimumLength = 1)]
+        [Display(Name = "Razón de Aplazamiento")]
+        public string comentarios_aplazamiento { get; set; }
+
+
+
     }
 }

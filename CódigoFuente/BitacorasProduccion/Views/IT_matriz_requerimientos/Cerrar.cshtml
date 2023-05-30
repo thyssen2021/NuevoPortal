@@ -220,7 +220,7 @@
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="hardware_@(item.id)_estado" data-valmsg-replace="true"></span>
                                                 </td>
                                                 <td>
-                                                    <textarea style="font-size: 12px;" type="text" name="hardware_@(item.id)_comentarios" id="hardware_@(item.id)_comentarios" class="form-control col-md-12" autocomplete="off" maxlength="150">@item.comentario</textarea>
+                                                    <textarea style="font-size: 12px;" type="text" name="hardware_@(item.id)_comentarios" id="hardware_@(item.id)_comentarios" class="form-control col-md-12" autocomplete="off" maxlength="250">@item.comentario</textarea>
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="hardware_@(item.id)_comentarios" data-valmsg-replace="true"></span>
                                                 </td>
                                                 <td id="hardware_view_asignacion_@(item.id)">
@@ -303,7 +303,7 @@
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="software_@(item.id)_estado" data-valmsg-replace="true"></span>
                                                 </td>
                                                 <td>
-                                                    <textarea style="font-size: 12px;" type="text" name="software_@(item.id)_comentarios" id="software_@(item.id)_comentarios" class="form-control col-md-12" autocomplete="off" maxlength="90">@item.comentario</textarea>
+                                                    <textarea style="font-size: 12px;" type="text" name="software_@(item.id)_comentarios" id="software_@(item.id)_comentarios" class="form-control col-md-12" autocomplete="off" maxlength="250">@item.comentario</textarea>
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="software_@(item.id)_comentarios" data-valmsg-replace="true"></span>
 
                                                 </td>
@@ -393,7 +393,7 @@
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="comunicaciones_@(item.id)_estado" data-valmsg-replace="true"></span>
                                                 </td>
                                                 <td>
-                                                    <textarea style="font-size: 12px;" type="text" name="comunicaciones_@(item.id)_comentarios" id="comunicaciones_@(item.id)_comentarios" class="form-control col-md-12" autocomplete="off" maxlength="90">@item.comentario</textarea>
+                                                    <textarea style="font-size: 12px;" type="text" name="comunicaciones_@(item.id)_comentarios" id="comunicaciones_@(item.id)_comentarios" class="form-control col-md-12" autocomplete="off" maxlength="250">@item.comentario</textarea>
                                                     <span class="field-validation-valid text-danger" data-valmsg-for="comunicaciones_@(item.id)_comentarios" data-valmsg-replace="true"></span>
 
                                                 </td>
@@ -641,7 +641,6 @@
                                                 <th width="35%">
                                                     Comentarios de Asignación
                                                 </th>
-
                                             </tr>
                                         </thead>
                                         <tbody>
