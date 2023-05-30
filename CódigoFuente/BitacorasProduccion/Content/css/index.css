@@ -1,0 +1,106 @@
+﻿
+/* Design */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body .main {
+    color: #009ff5;
+    font-style: normal;
+    font-weight: 400;
+    letter-spacing: 0.3px;
+    padding: 1rem;
+}
+
+.main {
+    max-width: auto;
+    margin: 0 auto;
+}
+
+    .main > h1 {
+        font-size: 30px;
+        font-weight: 400;
+        text-align: center;
+    }
+
+    .main img {
+        height: auto;
+        max-width: 100%;
+        vertical-align: middle;
+    }
+
+    .main .btn {
+        color: #ffd;
+        padding: 0.rem;
+        font-size: 14px;
+        text-transform: uppercase;
+        border-radius: 4px;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        display: block;
+        /*width: 50%; se define desde html*/
+        cursor: pointer;
+        border: 1px solid rgba(0, 159, 245, .9);
+        background: #009ff5;
+    }
+
+.btn:hover {
+    background-color: rgba(0, 159, 245, .65);
+}
+
+.main .cards {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.main .cards_item {
+    display: flex;
+    padding: 1rem;
+}
+
+@media (min-width: 40rem) {
+    .main .cards_item {
+        width: 50%;
+    }
+}
+
+@media (min-width: 56rem) {
+    .main .cards_item {
+        width: 33.3333%;
+    }
+}
+
+.main .card {
+    background-color: rgba(255, 255, 255, 1);
+    border-radius: 0.25rem;
+    box-shadow: 5px 5px 10px 2px rgba(0, 0, 0, 0.13);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.main .card_content {
+    padding: 1rem;
+    background: linear-gradient(to bottom left, rgb(0, 159, 245, 0) 40%, rgb(0, 159, 245, 0) 100%);
+}
+
+.main .card_title {
+    color: #009ff5;
+    font-size: 1.3rem;
+    letter-spacing: 1px;
+    font-weight: bold;
+    margin: 0px;
+}
+
+.main .card_text {
+    color: #000;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin-bottom: 1.25rem;
+    font-weight: 400;
+}

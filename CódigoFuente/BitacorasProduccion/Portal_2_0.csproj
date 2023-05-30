@@ -959,6 +959,7 @@
     <Content Include="Content\build\images\forward_enabled_hover.png" />
     <Content Include="Content\build\images\loading.gif" />
     <Content Include="Content\build\js\custom.min.js" />
+    <Content Include="Content\css\index.css" />
     <Content Include="Content\emails_plantillas\Account_welcome.html" />
     <Content Include="Content\emails_plantillas\IT_MR_notificacion_autorizacion_sistemas.html" />
     <Content Include="Content\emails_plantillas\IT_MR_notificacion_en_proceso.html" />
