@@ -12,12 +12,12 @@ namespace Portal_2_0.Models
         public int orden_display { get; set; }
 
         [Required(AllowEmptyStrings = false)]
-        [StringLength(30, MinimumLength = 2)]
+        [StringLength(50, MinimumLength = 2)]
         [Display(Name = "Tipo de Platillo")]
         public string tipo_platillo { get; set; }
 
         [Required(AllowEmptyStrings = false)]
-        [StringLength(60, MinimumLength = 2)]
+        [StringLength(100, MinimumLength = 2)]
         [Display(Name = "Nombre de Platillo")]
         public string nombre_platillo { get; set; }
 

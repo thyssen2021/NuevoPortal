@@ -1299,8 +1299,8 @@ namespace Portal_2_0.Models
                                     lista.Add(new RH_menu_comedor_platillos()
                                     {
                                         orden_display = i - filaCabera - 1,
-                                        tipo_platillo = platillo_tipo.Trim(), //quita espacios en blanco al inicio y al final del string
-                                        nombre_platillo = platillo_nombre.Trim(),
+                                        tipo_platillo = UsoStrings.RecortaString(platillo_tipo.Trim(),50), //quita espacios en blanco al inicio y al final del string
+                                        nombre_platillo = UsoStrings.RecortaString (platillo_nombre.Trim(),100),
                                         fecha = fecha,
                                         kcal = kcal,
 

@@ -204,7 +204,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_notificaciones_id_tipo_accesorio" />
         <AssociationConnector Association="Portal_2_0Model.FK_notificaciones_virtual_server" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_mantenimientos_rel_checklist_id_mantenimiento" />
-        <EntityTypeShape EntityType="Portal_2_0Model.RH_menu_comedor_platillos" Width="1.5" PointX="0.75" PointY="10.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_cantidad" Width="1.5" PointX="23.75" PointY="77.25" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_currency_iso" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_id_cuenta_sap" />
@@ -329,6 +328,7 @@
         <EntityTypeShape EntityType="Portal_2_0Model.IT_mantenimientos_aplazamientos" Width="1.5" PointX="40.25" PointY="80.25" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_mantenimientos_aplazamientos_id_sistemas" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_mantenimientos_aplazamientos_id_mantenimiento" />
+        <EntityTypeShape EntityType="Portal_2_0Model.RH_menu_comedor_platillos" Width="1.5" PointX="0.75" PointY="10.75" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
