@@ -5057,7 +5057,6 @@
     <Content Include="Views\OT_rel_depto_aplica_linea\Index.cshtml" />
     <Content Include="Views\Information\Vacaciones.cshtml" />
     <Content Include="Views\Information\Log.cshtml" />
-    <Content Include="Views\IT_matriz_requerimientos\CrearMatriz.cshtml" />
     <Content Include="Views\IT_matriz_requerimientos\ListadoUsuarios.cshtml" />
     <Content Include="Views\IT_matriz_requerimientos\ListadoSolicitudes.cshtml" />
     <Content Include="Views\IT_matriz_requerimientos\Details.cshtml" />

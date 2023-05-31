@@ -4,7 +4,9 @@
     ViewBag.Title = "Listado de Empleados";
     ViewBag.PrimerNivel = "recursos_humanos";
     ViewBag.SegundoNivel = "ListadoUsuarios";
-    ViewBag.ControllerName = "IT_matriz_requerimientos";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+
+    ViewBag.nav_style = "nav-sm";
 
     Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
 
@@ -28,13 +30,11 @@
 {
     <!-- DataTables -->
     @Styles.Render("~/Content/dataTables_css")
-
-    <!-- SweetAlert2 -->
-    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
     <!-- Select2 -->
     <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
-
+    <style>
+    </style>
 }
 
 @*Para SweetAlert*@
@@ -92,7 +92,7 @@
                                                     <input type="text" id="num_empleado" name="num_empleado" class="form-control" value="@num_empleado" autocomplete="off" />
                                                 </div>
                                                 <div class="col-md-1 col-sm-1">
-                                                    <a href="@Url.Action( "Index", ViewBag.ControllerName)" class="btn btn-warning">
+                                                    <a href="@Url.Action( ViewContext.RouteData.Values["action"].ToString(), ViewBag.ControllerName)" class="btn btn-warning">
                                                         <i class="fa fa-refresh"></i>
                                                     </a>
                                                 </div>
@@ -138,18 +138,10 @@
                                                         <a href="@Url.Action("Details", "empleados", new { id = item.id})" class="btn btn-info btn-sm" rel="tooltip" data-title="Detalles de empleado">
                                                             <i class="fa fa-info-circle"></i>
                                                         </a>
-                                                        @if (item.IT_matriz_requerimientos.Count == 0)
+
+                                                        @if (item.IT_matriz_requerimientos.Count == 0 || item.IT_matriz_requerimientos.OrderByDescending(x => x.id).FirstOrDefault().estatus == Bitacoras.Util.IT_MR_Status.FINALIZADO)
                                                         {
-                                                            @*<a href="@Url.Action("CrearMatriz", ViewBag.ControllerName, new { id = item.id,tipo = Bitacoras.Util.IT_MR_tipo.CREACION })" class="btn btn-primary btn-sm" rel="tooltip" data-title="Iniciar Matriz de Requerimientos">
-                                                                <i class="fa fa-users"></i>
-                                                            </a>*@
-                                                            <a href="@Url.Action("IniciarMatriz", ViewBag.ControllerName, new { id = item.id,tipo = Bitacoras.Util.IT_MR_tipo.CREACION })" class="btn btn-primary btn-sm" rel="tooltip" data-title="Iniciar Matriz de Requerimientos">
-                                                                <i class="fa fa-users"></i>
-                                                            </a>
-                                                        }
-                                                        else if (item.IT_matriz_requerimientos.OrderByDescending(x => x.id).FirstOrDefault().estatus == Bitacoras.Util.IT_MR_Status.FINALIZADO)
-                                                        {
-                                                            <a href="@Url.Action("CrearMatriz", ViewBag.ControllerName, new { id = item.id, tipo = Bitacoras.Util.IT_MR_tipo.MODIFICACION})" class="btn btn-secondary btn-sm" rel="tooltip" data-title="Modificación de Usuario">
+                                                            <a href="#" class="btn btn-primary btn-sm" rel="tooltip" onclick="MuestraOpcion(@item.id);" data-title="Iniciar Matriz de Requerimientos">
                                                                 <i class="fa fa-users"></i>
                                                             </a>
                                                         }
@@ -217,11 +209,12 @@
 </div>
 @section scripts
 {
-    <!-- SweetAlert2 -->
-    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+
     @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
     @Scripts.Render("~/bundles/dataTables_js")
+    <!-- SweetAlert2 (css incluido) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.3/sweetalert2.all.min.js" integrity="sha512-/iBgV43zPirSC0tue+PT/1VHGs7En24twBmT+sVMgn9PTaOpKfbgIyL5YsGKlbAIxcwz9S8W/YEnYjpIYj2Axw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <script>
         $(document).ready(function () {
@@ -248,49 +241,91 @@
 
         });
 
-        function MuestraModalInicio(idEmpleado) {
+        function MuestraOpcion(id_empleado) {
+            //variable para indicar si se trata de creación
+            let creacion = false;
 
-            const swalWithBootstrapButtons = Swal.mixin({
-                customClass: {
-                    confirmButton: 'btn btn-success',
-                    cancelButton: 'btn btn-danger'
+            $.ajax({
+                type: 'POST',
+                url: '/Combos/RH_MR_creacion_modificacion',
+                data: { id_empleado: id_empleado },
+                success: function (data) {
+                    if (data[0].tipo == '@Bitacoras.Util.IT_MR_tipo.CREACION')
+                        creacion = true;
+
+                    Swal.fire({
+                        title: 'Mensaje',
+                        html: `<h4>¿Qué tipo de Solicitud desea crear?</h4>
+                                <br/>
+                                <p style="text-align:justify;"><span style="color:#3085d6">Nuevo Ingreso:</span> Seleccione está opción para nuevos colaboradores.</p>
+                                <p style="text-align:justify;"><span style="color:#159B60">Modificación:</span> Seleccione está opción si el colaborador ya estaba registrado previamente en el sistema.</p>
+                         `,
+                        showDenyButton: creacion,
+                        showCancelButton: true,
+                         confirmButtonText: '<i class="fa-solid fa-pen-to-square"></i> Modificación',
+                        confirmButtonColor: '#159B60',
+                        denyButtonText: '<i class="fa-regular fa-square-plus"></i> Nuevo Ingreso',
+                        cancelButtonText: 'Cancelar',
+                         denyButtonColor: '#3085d6',
+                         reverseButtons: true,                         
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '/@ViewBag.ControllerName/IniciarMatriz/' + id_empleado + '?tipo=@Bitacoras.Util.IT_MR_tipo.MODIFICACION';
+                            } else if (result.isDenied) {
+                                window.location.href = '/@ViewBag.ControllerName/IniciarMatriz/' + id_empleado + '?tipo=@Bitacoras.Util.IT_MR_tipo.CREACION';
+                            }
+                        })
+
                 },
-                buttonsStyling: false,
-            })
-
-            if ($('#advertencia_usuario').is(':visible')) {
-                swalWithBootstrapButtons.fire(
-                    'Advertencia', 'Seleccione un jefe directo válido o contacte al Administrador del Sitio para solicitar la creación de los usuarios y permisos necesarios.', 'error'
-                );
-            } else {
-                swalWithBootstrapButtons.fire({
-                    title: '¿Desea Continuar?',
-                    html: "Se enviará la solicitud al <b>Jefe Directo</b> para su autorización. Una vez enviada la solicitud, no podrá modificarse.",
-                    showCancelButton: true,
-                    confirmButtonText: 'Aceptar',
-                    cancelButtonText: 'Cancelar'
-                }).then((result) => {
-                    if (result.value) {
-                        //espera a que se cierre el modal para enviar el formulario
-                        setTimeout(function () {
-                            $form.submit();
-                        }, 900);
-
-                    } else if (
-                        result.dismiss === Swal.DismissReason.cancel
-                    ) {
-                        swalWithBootstrapButtons.fire(
-                            'Advertencia', 'Los cambios no han sido guardados.', 'warning'
-                        );
-                    }
-                });
-            }
+                async: true
+            });
         }
+
+
+ //       function MuestraModalInicio(idEmpleado)
+ //{
+
+ //           const swalWithBootstrapButtons = Swal.mixin({
+ //               customClass: {
+ //                   confirmButton: 'btn btn-success',
+ //                   cancelButton: 'btn btn-danger'
+ //               },
+ //               buttonsStyling: false,
+ //           })
+
+ //           if ($('#advertencia_usuario').is(':visible')) {
+ //               swalWithBootstrapButtons.fire(
+ //                   'Advertencia', 'Seleccione un jefe directo válido o contacte al Administrador del Sitio para solicitar la creación de los usuarios y permisos necesarios.', 'error'
+ //               );
+ //           } else {
+ //               swalWithBootstrapButtons.fire({
+ //                   title: '¿Desea Continuar?',
+ //                   html: "Se enviará la solicitud al <b>Jefe Directo</b> para su autorización. Una vez enviada la solicitud, no podrá modificarse.",
+ //                   showCancelButton: true,
+ //                   confirmButtonText: 'Aceptar',
+ //                   cancelButtonText: 'Cancelar'
+ //               }).then((result) => {
+ //                   if (result.value) {
+ //                       //espera a que se cierre el modal para enviar el formulario
+ //                       setTimeout(function () {
+ //                           $form.submit();
+ //                       }, 900);
+
+ //                   } else if (
+ //                       result.dismiss === Swal.DismissReason.cancel
+ //                   ) {
+ //                       swalWithBootstrapButtons.fire(
+ //                           'Advertencia', 'Los cambios no han sido guardados.', 'warning'
+ //                       );
+ //                   }
+ //               });
+ //           }
+ //       }
 
 
         //agranda el tamaño de la barra
         window.onload = function () {
-            document.getElementById('menu_toggle').click();
+            //document.getElementById('menu_toggle').click();
         }
     </script>
 

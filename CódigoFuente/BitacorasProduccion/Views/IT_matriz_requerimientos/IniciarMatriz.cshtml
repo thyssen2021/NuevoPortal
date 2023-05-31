@@ -5,6 +5,7 @@
     ViewBag.PrimerNivel = "recursos_humanos";
     ViewBag.SegundoNivel = "ListadoUsuarios";
     ViewBag.ControllerName = "Empleados";
+    ViewBag.nav_style = "nav-sm";
 
     List<Portal_2_0.Models.IT_inventory_hardware_type> listHardware = (List<Portal_2_0.Models.IT_inventory_hardware_type>)ViewBag.listHardware;
     List<Portal_2_0.Models.IT_inventory_software> listSoftware = (List<Portal_2_0.Models.IT_inventory_software>)ViewBag.listSoftware;
@@ -80,13 +81,13 @@
             <div class="col-md-12 col-sm-12  ">
                 <div class="x_panel">
                     <div class="x_title">
-                        @if (Model.estatus == Bitacoras.Util.IT_MR_Status.FINALIZADO)
+                        @if (Model.tipo == Bitacoras.Util.IT_MR_tipo.MODIFICACION)
                         {
                             <h2>Solicitud de Modificaci&oacute;n de Usuario  <i class="fa-regular fa-pen-to-square" style="color:green"></i></h2>
                         }
                         else
                         {
-                            <h2>Solicitud de Creaci&oacute;n de Usuario </h2>
+                            <h2>Solicitud de Creaci&oacute;n de Usuario <i class="fa-regular fa-square-plus" style="color:green"></i></h2>
                         }
 
                         <div class="clearfix"></div>
@@ -148,15 +149,16 @@
 
                             <input type="hidden" id="id_internet_tipo" name="id_internet_tipo" value="1" /> //por defecto SÍ
                             <input type="hidden" id="id_matriz" name="id_matriz" value="@Model.id" />
+                            <input type="hidden" id="action" name="action" value="@ViewContext.RouteData.Values["action"].ToString()" />
 
-                            if (Model.id>0)
+                            @*if (Model.id>0)
                             {
                                 <input type="hidden" id="estatus" name="estatus" value="@Bitacoras.Util.IT_MR_Status.ENVIADO_A_IT" />
                             }
                             else
                             {
                                 <input type="hidden" id="estatus" name="estatus" value="@Bitacoras.Util.IT_MR_Status.ENVIADO_A_JEFE" />
-                            }
+                            }*@
 
                             if (!Html.ViewData.ModelState.IsValid)
                             {
@@ -669,7 +671,7 @@
 
         //agranda el tamaño de la barra
         window.onload = function () {
-            clicMenu(1);
+            //clicMenu(1);
         }
 
         // Warning

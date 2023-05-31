@@ -1,5 +1,5 @@
 ﻿@using Clases.Util;
-@{ 
+@{
     bool nav_sm = ViewBag.nav_style != null && (string)ViewBag.nav_style == "nav-sm";
 }
 <!DOCTYPE html>
@@ -129,6 +129,9 @@
     @RenderSection("estilos", required: false)
 
 </head>
+
+
+
 
 <body class="@(ViewBag.nav_style == null ? "nav-md":ViewBag.nav_style)" id="body">
     <div class="container body">
@@ -869,6 +872,17 @@
             <!-- /footer content -->
         </div>
     </div>
+    @if (nav_sm) //si no esta en modo reducido hace clic dos veces sobre el menu, para ocultar los childs
+    {
+        <script>
+            //obtiene el elemento activo
+            var menus = document.querySelectorAll(".active .child_menu");
+
+            for (i = 0; i < menus.length; i++) {
+                menus[i].style.display = 'none'
+            }          
+        </script>
+    }
 
 
     <!-- jQuery -->
@@ -883,7 +897,10 @@
     @Scripts.Render(Url.Content("~/Content/vendors/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js"))
     <script src="~/Content/vendors/cool-hint-css/src/hint-css.js"></script>
 
-    @RenderSection("scripts", required: false)
+
+    <!-- Custom Theme Scripts -->
+    @Scripts.Render(Url.Content("~/Content/build/js/custom.min.js"))
+
     @if (nav_sm) //si no esta en modo reducido hace clic dos veces sobre el menu, para ocultar los childs
     {
         <script>
@@ -893,15 +910,11 @@
         </script>
     }
 
-
-    <!-- Custom Theme Scripts -->
-    @Scripts.Render(Url.Content("~/Content/build/js/custom.min.js"))
-
+    @RenderSection("scripts", required: false)
 
     @Scripts.Render(Url.Content("~/Content/vendors/jquery_block_ui/jquery.blockUI.js"))
 
     @Scripts.Render(Url.Content("~/Scripts/site.js"))
-
 
 
     @if (@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":9040"))

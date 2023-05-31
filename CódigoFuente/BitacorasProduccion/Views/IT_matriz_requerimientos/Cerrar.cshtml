@@ -6,6 +6,7 @@
     ViewBag.SegundoNivel = "solicitudes_usuarios_sistemas";
     ViewBag.ControllerName = "IT_matriz_requerimientos";
 
+    ViewBag.nav_style = "nav-sm";
 
 }
 
@@ -671,34 +672,34 @@
 
                                 @if (Model.matriz.estatus != Bitacoras.Util.IT_MR_Status.FINALIZADO)
                                 {
-                                    <div class="col-md-1 col-sm-1 ">
-                                        <button type="button" class="btn btn-danger btn-lg" onclick="mostrarModalRechazar()">Rechazar</button>
+                                    <div class="col-md-2 col-sm-4">
+                                        <button type="button" class="btn btn-danger btn-block" onclick="mostrarModalRechazar()">Rechazar</button>
                                     </div>
-                                    <div class="col-md-2 col-sm-2 ">
-                                        <a href="@Url.Action("Asignar", ViewBag.ControllerName, new { id = Model.id })" class="btn btn-primary btn-lg" rel="tooltip" data-title="Asignar Solicitud" data-placement="right">
+                                    <div class="col-md-2 col-sm-4">
+                                        <a href="@Url.Action("Asignar", ViewBag.ControllerName, new { id = Model.id })" class="btn btn-primary btn-block" rel="tooltip" data-title="Asignar Solicitud" data-placement="right">
                                             <i class="fa-solid fa-user-tag"></i> Asignar
                                         </a>
                                     </div>
 
-                                    <div class="col-md-3 col-sm-3">
+                                    <div class="col-md-2 col-sm-4">
                                     </div>
-                                    <div class="col-md-2 col-sm-2">
-                                        <button type="button" id="btn-progreso" class="btn btn-primary btn-lg btn-block float-md-right"><i class="fa-regular fa-bookmark"></i> Guardar Progreso</button>
+                                    <div class="col-md-2 col-sm-4">
+                                        <button type="button" id="btn-progreso" class="btn btn-primary btn-block float-md-right"><i class="fa-regular fa-bookmark"></i> Guardar Progreso</button>
                                     </div>
-                                    <div class="col-md-2 col-sm-2 ">
-                                        <button type="button" id="btn-ok" class="btn btn-info btn-lg btn-block float-md-right"><i class="fa-regular fa-floppy-disk"></i> Notificar</button>
+                                    <div class="col-md-2 col-sm-4 ">
+                                        <button type="button" id="btn-ok" class="btn btn-info  btn-block float-md-right"><i class="fa-regular fa-floppy-disk"></i> Notificar</button>
                                     </div>
-                                    <div class="col-md-2 col-sm-2 ">
-                                        <button type="button" id="btn-ok-close" class="btn btn-success btn-lg btn-block float-md-right"><i class="fa-solid fa-box-archive"></i> Notificar y Cerrar</button>
+                                    <div class="col-md-2 col-sm-4 ">
+                                        <button type="button" id="btn-ok-close" class="btn btn-success  btn-block float-md-right"><i class="fa-solid fa-box-archive"></i> Notificar y Cerrar</button>
                                     </div>
                                 }
                                 else
                                 {
                                     <div class="col-md-10 col-sm-10">
-                                        <button type="button" id="btn-actualizar-acividad" class="btn btn-warning btn-lg  float-md-right"><i class="fa-regular fa-floppy-disk"></i> Actualizar y Finalizar Actividad</button>
+                                        <button type="button" id="btn-actualizar-acividad" class="btn btn-warning float-md-right"><i class="fa-regular fa-floppy-disk"></i> Actualizar y Finalizar Actividad</button>
                                     </div>
                                     <div class="col-md-2 col-sm-2">
-                                        <button type="button" id="btn-actualizar" class="btn btn-primary btn-lg float-md-right"><i class="fa-regular fa-floppy-disk"></i> Actualizar</button>
+                                        <button type="button" id="btn-actualizar" class="btn btn-primary  float-md-right"><i class="fa-regular fa-floppy-disk"></i> Actualizar</button>
                                     </div>
                                 }
                             </div>
@@ -755,8 +756,7 @@
     </div>
 </div>
 
-@section Scripts {
-
+@section Scripts {  
 
     @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
@@ -767,8 +767,10 @@
 
 
     <script>
-
+        
         $(document).ready(function () {
+
+           // clicMenu(1);
 
             // Initialize Select2 Elements (debe ir después de asignar el valor)
             $('.select2bs4').select2({
@@ -1125,10 +1127,7 @@
             window.open('/it_asignacion_hardware/DetailsEmpleado/' + id_empleado, 'popup', "width=" + screen.width * .70 + ",height=" + screen.height * .70 + "");
         }
 
-        //agranda el tamaño de la barra
-        window.onload = function () {
-            clicMenu(1);
-        }
+       
 
         function AgregaRequired() {
             $('#tipo_form').val("cierre");

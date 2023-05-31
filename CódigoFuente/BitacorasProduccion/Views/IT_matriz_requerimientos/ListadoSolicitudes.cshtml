@@ -4,6 +4,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 
     ViewBag.ControllerName = "IT_matriz_requerimientos";
+    ViewBag.nav_style = "nav-sm";
 
     Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
 
@@ -31,6 +32,7 @@
     <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
 }
+@{Html.RenderPartial("_BlockUI", Model);}
 
 @*Para SweetAlert*@
 @if (mensajeAlerta != null)
@@ -88,10 +90,14 @@
                                                 </div>
                                                 <div class="form-group row ">
                                                     <label class="control-label col-md-1 col-sm-1" for="id_asignacion" style="text-align:right">Asignado a:</label>
-                                                    <div class="col-md-3 col-sm-0">
+                                                    <div class="col-md-3 col-sm-3">
                                                         @Html.DropDownList("id_asignacion", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                                     </div>
-                                                    <div class="col-md-6 col-sm-6">
+                                                     <label class="control-label col-md-1 col-sm-1" for="id_asignacion" style="text-align:right">Tipo solicitud:</label>
+                                                    <div class="col-md-2 col-sm-2">
+                                                        @Html.DropDownList("tipo", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                    </div>
+                                                    <div class="col-md-3 col-sm-3">
                                                     </div>
                                                     <div class="col-md-1 col-sm-1">
                                                         <a href="@Url.Action("solicitudes_sistemas", ViewBag.ControllerName)" class="btn btn-warning" title="Restablecer">
@@ -263,13 +269,16 @@
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.empleados3.ConcatNombre)
                                                     </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.ultima_asignacion)
-                                                    </td>
+                                                    @if (ViewContext.RouteData.Values["action"].ToString() == "solicitudes_sistemas")
+                                                    {
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.ultima_asignacion)
+                                                        </td>
+                                                    }
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.fecha_solicitud)
                                                     </td>
-                                                    <td>
+                                                    <td style="font-weight:bold">
                                                         @(Bitacoras.Util.IT_MR_tipo.DescripcionStatus(item.tipo))
                                                     </td>
                                                     <td>
@@ -372,7 +381,7 @@
                 $("#buscarForm").submit();
                 BloqueaPantalla();
             });
-
+            $.unblockUI();
         });
 
         //muestra el modal de autorizar
@@ -380,13 +389,6 @@
             $('#modalModelo').modal('show')
 
         }
-
-        //agranda el tamaño de la barra
-        window.onload = function () {
-            clicMenu(1); //dos veces para acomodar la tabla
-        }
-
-
     </script>
 
 }

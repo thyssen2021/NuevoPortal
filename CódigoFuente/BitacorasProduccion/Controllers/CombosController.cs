@@ -26,7 +26,7 @@ namespace Portal_2_0.Controllers
             List<Area> listado = db.Area.Where(p => p.plantaClave.Value == clavePlanta && p.activo == true && !p.shared_services).ToList();
 
             //shared services
-            if(clavePlanta==99)
+            if (clavePlanta == 99)
                 listado = db.Area.Where(p => p.shared_services && p.activo == true).ToList();
 
             //inserta el valor por default
@@ -757,6 +757,29 @@ namespace Portal_2_0.Controllers
 
             return File(archivo.Datos, archivo.MimeType);
 
+        }
+
+        ///<summary>
+        ///Obtiene las lineas de la plantas enviada
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult RH_MR_creacion_modificacion(int id_empleado = 0)
+        {
+            //obtiene todos los posibles valores
+            var empleado = db.empleados.Find(id_empleado);
+
+            //inicializa la lista de objetos
+            var list = new object[1];
+
+            if (empleado == null)
+                list[0] = new { result = "ERROR", message = "No se pudo obtener el empleado.", tipo = Bitacoras.Util.IT_MR_tipo.CREACION };
+            else if (empleado.IT_matriz_requerimientos.Count==0)
+                list[0] = new { result = "OK", message = "No hay solicitudes previas.", tipo = Bitacoras.Util.IT_MR_tipo.CREACION };
+            else
+                list[0] = new { result = "OK", message = "Hay solicitudes previas.", tipo = Bitacoras.Util.IT_MR_tipo.MODIFICACION };
+
+            return Json(list, JsonRequestBehavior.AllowGet);
         }
     }
 }

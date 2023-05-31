@@ -84,9 +84,15 @@ namespace IdentitySample.Controllers
             //obtiene el dato ingresado por usuario
             string username = model.Email;
 
+            bool existeUsuario = false;
+
             //Aqui realizar conexion a BD para consultar el username
             if (!db.AspNetUsers.Any(x => x.UserName == model.Email))
                 username = Clases.DBUtil.UsuariosDBUtil.ObtieneUsername(model.Email);
+
+            //determina si el usuario existe en la BD
+            if (db.AspNetUsers.Any(x => x.UserName == model.Email || x.UserName == username))
+                existeUsuario = true;
 
             // This doen't count login failures towards lockout only two factor authentication
             // To enable password failures to trigger lockout, change to shouldLockout: true
@@ -115,7 +121,7 @@ namespace IdentitySample.Controllers
                     return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = false });
                 case SignInStatus.Failure:
                 default:
-                    if (String.IsNullOrEmpty(username) || !db.AspNetUsers.Any(x => x.UserName == model.Email))
+                    if (!existeUsuario)
                         ModelState.AddModelError("", "No existe el usuario.");
                     else
                         ModelState.AddModelError("", "La contraseña ingresada no es válida.");
