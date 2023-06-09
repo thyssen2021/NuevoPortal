@@ -222,7 +222,7 @@
                                                         }
                                                         @if (ViewBag.Sistemas != null && ViewBag.Sistemas && (item.estatus == Bitacoras.Util.IT_MR_Status.ENVIADO_A_IT || item.estatus == Bitacoras.Util.IT_MR_Status.EN_PROCESO))
                                                         {
-                                                            <a href="@Url.Action("Cerrar", ViewBag.ControllerName, new { id = item.id })" class="btn btn-success" rel="tooltip" data-title="Cerrar Solicitud" data-placement="right">
+                                                            <a href="@Url.Action("Cerrar", ViewBag.ControllerName, new { id = item.id })" class="btn btn-success" rel="tooltip" data-title="Cerrar/modificar Solicitud" data-placement="right">
                                                                 <i class="fa-solid fa-list-check"></i>
                                                             </a>
                                                         }
