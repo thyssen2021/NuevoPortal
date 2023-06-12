@@ -697,6 +697,8 @@ namespace Portal_2_0.Controllers
             {
                 var mantenimientoBD = db.IT_mantenimientos.Find(model.id);
 
+                //mueve la nueva fecha al último día del mes
+                DateTime finMes = new DateTime (model.nueva_fecha.Year, model.nueva_fecha.Month, 1,23,59,59).AddMonths(1).AddDays(-1);
                 
 
                 mantenimientoBD.IT_mantenimientos_aplazamientos.Add(
@@ -704,12 +706,12 @@ namespace Portal_2_0.Controllers
                     {
                         id_sistemas = model.id_empleado_sistemas.Value,
                         motivo = model.comentarios_aplazamiento,
-                        nueva_fecha = model.nueva_fecha,
+                        nueva_fecha = finMes,
                         fecha_anterior = mantenimientoBD.fecha_programada
                     }
                     );
 
-                mantenimientoBD.fecha_programada = model.nueva_fecha;
+                mantenimientoBD.fecha_programada = finMes;
 
                 //todas las asi
                 db.SaveChanges();
@@ -725,9 +727,9 @@ namespace Portal_2_0.Controllers
                 return RedirectToAction("Index", new { estatus_mantenimiento = estatus_mantenimiento });
             }
 
-            TempData["Mensaje"] = new MensajesSweetAlert(mensaje, TipoMensajesSweetAlerts.ERROR);
+            //TempData["Mensaje"] = new MensajesSweetAlert(mensaje, TipoMensajesSweetAlerts.ERROR);
 
-            return RedirectToAction("solicitudes_sistemas");
+            //return RedirectToAction("solicitudes_sistemas");
 
         }
 

@@ -365,7 +365,7 @@
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.nueva_fecha, new { @class = "col-form-label col-md-1 col-sm-1" })
                                 <div class="col-md-2 col-sm-2">
-                                    @Html.EditorFor(model => model.nueva_fecha, new { htmlAttributes = new { @class = "form-control", @required = "required" } })
+                                    @Html.EditorFor(model => model.nueva_fecha, new { htmlAttributes = new { @type="month", @class = "form-control", @required = "required" } })
                                     @Html.ValidationMessageFor(model => model.nueva_fecha, "", new { @class = "text-danger" })
                                 </div>
                             </div>
