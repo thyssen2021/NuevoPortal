@@ -4752,13 +4752,15 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Texto Breve Motivo", typeof(string));
             dt.Columns.Add("Nombre Cliente", typeof(string));
             dt.Columns.Add("Dirección Cliente", typeof(string));
+            dt.Columns.Add("Nombre Proveedor", typeof(string));
+            dt.Columns.Add("Dirección Proveedor", typeof(string));
             dt.Columns.Add("Enviado A", typeof(string));
             dt.Columns.Add("Enviado A (Dirección)", typeof(string));
             dt.Columns.Add("Transporte", typeof(string));
             dt.Columns.Add("Placa Tractor", typeof(string));
             dt.Columns.Add("Placa Remolque", typeof(string));
             dt.Columns.Add("Nombre Chofer", typeof(string));
-            dt.Columns.Add("Horario Descarga", typeof(string));         
+            dt.Columns.Add("Horario Descarga", typeof(string));
             dt.Columns.Add("Total Cantidad", typeof(double));
             dt.Columns.Add("Total Peso", typeof(double));
 
@@ -4779,13 +4781,15 @@ namespace Portal_2_0.Models
                 row["Almacén"] = item.RM_almacen != null ? item.RM_almacen.descripcion : String.Empty;
                 row["Nombre Cliente"] = item.NombreCliente;
                 row["Dirección Cliente"] = item.clienteOtroDireccion;
+                row["Nombre Proveedor"] = item.NombreProveedor;
+                row["Dirección Proveedor"] = item.proveedorOtroDireccion;
                 row["Enviado A"] = item.EnviadoA;
                 row["Enviado A (Dirección)"] = item.enviadoAOtroDireccion;
-                row["Transporte"] = item.transporteOtro;               
-                row["Placa Tractor"] = item.placaTractor;               
-                row["Placa Remolque"] = item.placaRemolque;               
-                row["Nombre Chofer"] = item.nombreChofer;               
-                row["Horario Descarga"] = item.horarioDescarga;              
+                row["Transporte"] = item.transporteOtro;
+                row["Placa Tractor"] = item.placaTractor;
+                row["Placa Remolque"] = item.placaRemolque;
+                row["Nombre Chofer"] = item.nombreChofer;
+                row["Horario Descarga"] = item.horarioDescarga;
                 row["Total Cantidad"] = item.TotalCantidadRemision;
                 row["Total Peso"] = item.TotalPesoRemision;
                 row["Motivo"] = item.RM_remision_motivo != null ? item.RM_remision_motivo.descripcion.Trim() : String.Empty;

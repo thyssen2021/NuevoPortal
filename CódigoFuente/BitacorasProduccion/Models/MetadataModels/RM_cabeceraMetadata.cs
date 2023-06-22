@@ -40,12 +40,10 @@ namespace Portal_2_0.Models
         public string nombreChofer { get; set; }
 
         [Display(Name = "Cliente")]
-        [RequiredIf("aplicaClienteOtro", false, ErrorMessage = "El campo {0} es requerido.")]
         public Nullable<int> clienteClave { get; set; }
 
         [Display(Name = "Cliente (otro)")]
         [StringLength(50, MinimumLength = 1)]
-        [RequiredIf("aplicaClienteOtro", true, ErrorMessage = "El campo {0} es requerido.")]
         public string clienteOtro { get; set; }
 
         [Required]
@@ -63,23 +61,19 @@ namespace Portal_2_0.Models
         [StringLength(50, MinimumLength = 1)]
         public string horarioDescarga { get; set; }
 
-        [Display(Name = "Enviado A")]
-        [RequiredIf("aplicaEnviadoOtro", false, ErrorMessage = "El campo {0} es requerido.")]
+        [Display(Name = "Cliente")]        
         public Nullable<int> enviadoAClave { get; set; }
 
         [Display(Name = "Enviado A (otro)")]
-        [StringLength(50, MinimumLength = 1)]
-        [RequiredIf("aplicaEnviadoOtro", true, ErrorMessage = "El campo {0} es requerido.")]
+        [StringLength(50, MinimumLength = 1)]        
         public string enviadoAOtro { get; set; }
 
         [Display(Name = "Cliente Dirección (otro)")]
-        [StringLength(100, MinimumLength = 1)]
-        [RequiredIf("aplicaClienteOtro", true, ErrorMessage = "El campo {0} es requerido.")]
+        [StringLength(100, MinimumLength = 1)]        
         public string clienteOtroDireccion { get; set; }
 
         [Display(Name = "Enviado Dirección (otro)")]
-        [StringLength(100, MinimumLength = 1)]
-        [RequiredIf("aplicaEnviadoOtro", true, ErrorMessage = "El campo {0} es requerido.")]
+        [StringLength(100, MinimumLength = 1)]      
         public string enviadoAOtroDireccion { get; set; }
 
         [Required]
@@ -96,6 +90,21 @@ namespace Portal_2_0.Models
 
         [Display(Name = "Estatus Actual")]
         public Nullable<int> ultimoEstatus { get; set; }
+
+
+        [Display(Name = "Proveedor")]
+        public Nullable<int> proveedorClave { get; set; }
+
+        [Display(Name = "Proveedor (otro)")]
+        [StringLength(50, MinimumLength = 1)]
+        public string proveedorOtro { get; set; }
+
+        [Display(Name = "Proveedor Dirección (otro)")]
+        [StringLength(100, MinimumLength = 1)]        
+        public string proveedorOtroDireccion { get; set; }
+
+        [Display(Name = "Proveedor")]      
+        public Nullable<int> EnviadoAProveedorClave { get; set; }
     }
 
     [MetadataType(typeof(RM_cabeceraMetadata))]
@@ -111,8 +120,22 @@ namespace Portal_2_0.Models
         public bool aplicaClienteOtro { get; set; }
 
         [NotMapped]
+        [Display(Name = "¿Otro Proveedor?")]
+        public bool aplicaProveedorOtro { get; set; }
+
+        [NotMapped]
         [Display(Name = "¿Enviado a Otro?")]
         public bool aplicaEnviadoOtro { get; set; }
+
+        [NotMapped]
+        [Display(Name = "Cliente?")]
+        public bool aplicaCliente { get; set; }
+
+
+        [NotMapped]
+        [Display(Name = "¿Enviado A?")]
+        public bool aplicaEnviadoACliente { get; set; }
+
 
         [NotMapped]
         [Display(Name = "¿Transporte Otro?")]
@@ -158,6 +181,19 @@ namespace Portal_2_0.Models
                     return clientes.descripcion;
 
                 return clienteOtro;
+            }
+        }
+            //Nombre Cliente
+        [NotMapped]
+        [Display(Name = "Nombre Proveedor")]
+        public string NombreProveedor
+        {
+            get
+            {
+                if (this.proveedores1 != null)
+                    return proveedores1.descripcion;
+
+                return proveedorOtro;
             }
         }
         //Nombre Enviado A
@@ -260,5 +296,5 @@ namespace Portal_2_0.Models
 
     }
 
- 
+
 }

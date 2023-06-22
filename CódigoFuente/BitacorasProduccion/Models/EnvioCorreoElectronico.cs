@@ -984,7 +984,8 @@ namespace Portal_2_0.Models
             //agrega los valores al diccionario
             tablaContentDictionary.Add("Remisión Número", remiones.ConcatNumeroRemision);
             tablaContentDictionary.Add("Fecha Creación", remiones.FechaCreacion.ToString());           
-            tablaContentDictionary.Add("Cliente", remiones.clienteOtro);
+            tablaContentDictionary.Add("Cliente", !string.IsNullOrEmpty(remiones.clienteOtro)? remiones.clienteOtro:"N/A");
+            tablaContentDictionary.Add("Proveedor", !String.IsNullOrEmpty(remiones.proveedorOtro)? remiones.proveedorOtro :"N/A");
             tablaContentDictionary.Add("Enviado A", remiones.enviadoAOtro);
             tablaContentDictionary.Add("Transporte", remiones.transporteOtro);
             tablaContentDictionary.Add("Usuario", cambio.empleados.ConcatNombre);

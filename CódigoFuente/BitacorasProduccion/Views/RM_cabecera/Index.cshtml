@@ -137,6 +137,17 @@
                                                 <div class="col-md-3 col-sm-3">
                                                     <input type="text" name="clienteOtro" id="clienteOtro" class="form-control" autocomplete="off" value="@Request.QueryString["clienteOtro"]" />
                                                 </div>
+                                                @Request.QueryString["clienteOtro"]
+                                            </div>
+                                            <div class="form-group row">
+                                                <label class="control-label col-md-1 col-sm-1" for="proveedorClave" style="text-align:right">Proveedor:</label>
+                                                <div class="col-md-4 col-sm-4">
+                                                    @Html.DropDownList("proveedorClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                </div>
+                                                <label class="control-label col-md-1 col-sm-1" for="proveedorOtro" style="text-align:right">Proveedor (otro):</label>
+                                                <div class="col-md-3 col-sm-3">
+                                                    <input type="text" name="proveedorOtro" id="proveedorOtro" class="form-control" autocomplete="off" value="@Request.QueryString["proveedorOtro"]" />
+                                                </div>
                                                 <div class="col-md-1 col-sm-1">
                                                     <a id="btn-refresh" href="@Url.Action( "Index", ViewBag.ControllerName)" class="btn btn-warning float-right">
                                                         <i class="fa fa-refresh"></i>
@@ -176,6 +187,9 @@
                                             </th>
                                             <th>
                                                 @Html.DisplayNameFor(model => model.NombreCliente)
+                                            </th>
+                                            <th>
+                                                @Html.DisplayNameFor(model => model.NombreProveedor)
                                             </th>
                                             <th>
                                                 @Html.DisplayNameFor(model => model.EnviadoA)
@@ -291,6 +305,9 @@
                                                     @Html.DisplayFor(modelItem => item.NombreCliente)
                                                 </td>
                                                 <td>
+                                                    @Html.DisplayFor(modelItem => item.NombreProveedor)
+                                                </td>
+                                                <td>
                                                     @Html.DisplayFor(modelItem => item.EnviadoA)
                                                 </td>
                                                 <td>
@@ -328,6 +345,8 @@
                                                     motivoClave = Request.QueryString["motivoClave"],
                                                     clienteClave = Request.QueryString["clienteClave"],
                                                     clienteOtro = Request.QueryString["clienteOtro"],
+                                                    proveedorClave = Request.QueryString["proveedorClave"],
+                                                    proveedorOtro = Request.QueryString["proveedorOtro"],
                                                     fecha_inicial = Request.Params["fecha_inicial"],
                                                     fecha_final = Request.Params["fecha_final"],
 

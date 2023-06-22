@@ -22,7 +22,7 @@ namespace Portal_2_0.Controllers
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
         // GET: RM_cabecera
-        public ActionResult Index(int? id_planta, int? almacenClave, int? clave, int? motivoClave, int? clienteClave, string clienteOtro, string estatus, string fecha_inicial, string fecha_final, int pagina = 1)
+        public ActionResult Index(int? id_planta, int? almacenClave, int? clave, int? motivoClave, int? clienteClave, string clienteOtro, int? proveedorClave, string proveedorOtro, string estatus, string fecha_inicial, string fecha_final, int pagina = 1)
         {
             if (!TieneRol(TipoRoles.RM_CREACION) && !TieneRol(TipoRoles.RM_DETALLES) && !TieneRol(TipoRoles.RM_REPORTES))
                 return View("../Home/ErrorPermisos");
@@ -32,7 +32,7 @@ namespace Portal_2_0.Controllers
                 ViewBag.MensajeAlert = TempData["Mensaje"];
 
             var cantidadRegistrosPorPagina = 20; // parámetro
-                      
+
             //convierte las fechas recibidas
             CultureInfo provider = CultureInfo.InvariantCulture;
 
@@ -72,6 +72,8 @@ namespace Portal_2_0.Controllers
                                                         && (motivoClave == null || x.motivoClave == motivoClave)
                                                         && (clienteClave == null || x.clienteClave == clienteClave)
                                                         && (string.IsNullOrEmpty(clienteOtro) || UsoStrings.ContainsIgnoreCase(x.clienteOtro, clienteOtro))
+                                                        && (proveedorClave == null || x.proveedorClave == proveedorClave)
+                                                        && (string.IsNullOrEmpty(proveedorOtro) || UsoStrings.ContainsIgnoreCase(x.proveedorOtro, proveedorOtro))
                                                         && ((string.IsNullOrEmpty(estatus) && x.ultimoEstatus.HasValue)
                                                                         || (estatus == "PENDIENTES" && (x.ultimoEstatus == 1 || x.ultimoEstatus == 2))
                                                                         || (estatus == "APROBADAS" && (x.ultimoEstatus == 3))
@@ -91,7 +93,9 @@ namespace Portal_2_0.Controllers
                                                         && (motivoClave == null || x.motivoClave == motivoClave)
                                                         && (x.clienteClave == clienteClave)
                                                         && (string.IsNullOrEmpty(clienteOtro) || UsoStrings.ContainsIgnoreCase(x.clienteOtro, clienteOtro))
-                                                         && ((string.IsNullOrEmpty(estatus) && x.ultimoEstatus.HasValue)
+                                                        && (proveedorClave == null || x.proveedorClave == proveedorClave)
+                                                        && (string.IsNullOrEmpty(proveedorOtro) || UsoStrings.ContainsIgnoreCase(x.proveedorOtro, proveedorOtro))
+                                                        && ((string.IsNullOrEmpty(estatus) && x.ultimoEstatus.HasValue)
                                                                         || (estatus == "PENDIENTES" && (x.ultimoEstatus == 1 || x.ultimoEstatus == 2))
                                                                         || (estatus == "APROBADAS" && (x.ultimoEstatus == 3))
                                                                         || (estatus == "REGULARIZADAS" && (x.ultimoEstatus == 4))
@@ -102,7 +106,28 @@ namespace Portal_2_0.Controllers
                                                         )
                                                         )
                 clienteClave = null;
-            
+
+            //valida proveedor
+            if (proveedorClave != null && !totalidadRegistrosBD.Any(x => (id_planta == null || x.RM_almacen.plantaClave == id_planta)
+                                                        && (almacenClave == null || almacenClave == x.almacenClave)
+                                                        && (clave == null || x.clave == clave)
+                                                        && (motivoClave == null || x.motivoClave == motivoClave)
+                                                        && (x.clienteClave == clienteClave)
+                                                        && (string.IsNullOrEmpty(clienteOtro) || UsoStrings.ContainsIgnoreCase(x.clienteOtro, clienteOtro))
+                                                        && (proveedorClave == null || x.proveedorClave == proveedorClave)
+                                                        && (string.IsNullOrEmpty(proveedorOtro) || UsoStrings.ContainsIgnoreCase(x.proveedorOtro, proveedorOtro))
+                                                        && ((string.IsNullOrEmpty(estatus) && x.ultimoEstatus.HasValue)
+                                                                        || (estatus == "PENDIENTES" && (x.ultimoEstatus == 1 || x.ultimoEstatus == 2))
+                                                                        || (estatus == "APROBADAS" && (x.ultimoEstatus == 3))
+                                                                        || (estatus == "REGULARIZADAS" && (x.ultimoEstatus == 4))
+                                                                        || (estatus == "CANCELADAS" && (x.ultimoEstatus == 5))
+                                                           )
+                                                        && x.activo
+                                                        && x.FechaCreacion >= dateInicial && x.FechaCreacion <= dateFinal
+                                                        )
+                                                        )
+                proveedorClave = null;
+
 
             //obtiene el total de registros, según los filtros 
             var listado = totalidadRegistrosBD
@@ -113,6 +138,8 @@ namespace Portal_2_0.Controllers
                        && (motivoClave == null || x.motivoClave == motivoClave)
                        && (clienteClave == null || x.clienteClave == clienteClave)
                        && (string.IsNullOrEmpty(clienteOtro) || UsoStrings.ContainsIgnoreCase(x.clienteOtro, clienteOtro))
+                       && (proveedorClave == null || x.proveedorClave == proveedorClave)
+                       && (string.IsNullOrEmpty(proveedorOtro) || UsoStrings.ContainsIgnoreCase(x.proveedorOtro, proveedorOtro))
                       && ((string.IsNullOrEmpty(estatus) && x.ultimoEstatus.HasValue)
                                                                         || (estatus == "PENDIENTES" && (x.ultimoEstatus == 1 || x.ultimoEstatus == 2))
                                                                         || (estatus == "APROBADAS" && (x.ultimoEstatus == 3))
@@ -136,6 +163,8 @@ namespace Portal_2_0.Controllers
                         && (motivoClave == null || x.motivoClave == motivoClave)
                         && (clienteClave == null || x.clienteClave == clienteClave)
                         && (string.IsNullOrEmpty(clienteOtro) || UsoStrings.ContainsIgnoreCase(x.clienteOtro, clienteOtro))
+                        && (proveedorClave == null || x.proveedorClave == proveedorClave)
+                        && (string.IsNullOrEmpty(proveedorOtro) || UsoStrings.ContainsIgnoreCase(x.proveedorOtro, proveedorOtro))
                         && ((string.IsNullOrEmpty(estatus) && x.ultimoEstatus.HasValue)
                                                                         || (estatus == "PENDIENTES" && (x.ultimoEstatus == 1 || x.ultimoEstatus == 2))
                                                                         || (estatus == "APROBADAS" && (x.ultimoEstatus == 3))
@@ -158,7 +187,9 @@ namespace Portal_2_0.Controllers
             routeValues["clave"] = clave;
             routeValues["motivoClave"] = motivoClave;
             routeValues["clienteClave"] = clienteClave;
-            routeValues["clienteOtro"] = clienteOtro;
+            routeValues["clienteOtro"] = clienteOtro;            
+            routeValues["proveedorClave"] = clienteClave;
+            routeValues["proveedorOtro"] = clienteOtro;
             routeValues["estatus"] = estatus;
             routeValues["pagina"] = pagina;
             routeValues["fecha_inicial"] = fecha_inicial;
@@ -194,6 +225,27 @@ namespace Portal_2_0.Controllers
                     .Select(x => x.clientes)
                     .Distinct();
 
+             var remisionesListProveedores = totalidadRegistrosBD
+                 .Where(x =>
+                       (id_planta == null || x.RM_almacen.plantaClave == id_planta)
+                       && (almacenClave == null || almacenClave == x.almacenClave)
+                       && (clave == null || x.clave == clave)
+                       && (motivoClave == null || x.motivoClave == motivoClave)
+                       //& (clienteClave == null || x.clienteClave == clienteClave)
+                       && (string.IsNullOrEmpty(clienteOtro) || UsoStrings.ContainsIgnoreCase(x.clienteOtro, clienteOtro))
+                       && (string.IsNullOrEmpty(proveedorOtro) || UsoStrings.ContainsIgnoreCase(x.proveedorOtro, proveedorOtro))
+                       && ((string.IsNullOrEmpty(estatus) && x.ultimoEstatus.HasValue)
+                                                                        || (estatus == "PENDIENTES" && (x.ultimoEstatus == 1 || x.ultimoEstatus == 2))
+                                                                        || (estatus == "APROBADAS" && (x.ultimoEstatus == 3))
+                                                                        || (estatus == "REGULARIZADAS" && (x.ultimoEstatus == 4))
+                                                                        || (estatus == "CANCELADAS" && (x.ultimoEstatus == 5))
+                                                           )
+                       && x.activo
+                       && x.FechaCreacion >= dateInicial && x.FechaCreacion <= dateFinal
+                    )
+                    .Select(x => x.proveedores1)
+                    .Distinct();
+
 
             //map para estatus
             Dictionary<string, string> estatusMap = new Dictionary<string, string>();
@@ -213,9 +265,11 @@ namespace Portal_2_0.Controllers
                       && (motivoClave == null || x.motivoClave == motivoClave)
                       && (clienteClave == null || x.clienteClave == clienteClave)
                       && (string.IsNullOrEmpty(clienteOtro) || UsoStrings.ContainsIgnoreCase(x.clienteOtro, clienteOtro))
+                      && (proveedorClave == null || x.proveedorClave == proveedorClave)
+                      && (string.IsNullOrEmpty(proveedorOtro) || UsoStrings.ContainsIgnoreCase(x.proveedorOtro, proveedorOtro))
                       && x.ultimoEstatus.HasValue
-                     && x.activo
-                     && x.FechaCreacion >= dateInicial && x.FechaCreacion <= dateFinal
+                      && x.activo
+                      && x.FechaCreacion >= dateInicial && x.FechaCreacion <= dateFinal
               )
                 .Select(x => x.ultimoEstatus);
 
@@ -235,6 +289,7 @@ namespace Portal_2_0.Controllers
             ViewBag.clave = AddFirstItem(new SelectList(remisionesList, nameof(RM_cabecera.clave), nameof(RM_cabecera.ConcatNumeroRemision)), textoPorDefecto: "-- Todos --", selected: clave.ToString());
             ViewBag.motivoClave = AddFirstItem(new SelectList(db.RM_remision_motivo.Where(x => x.activo), nameof(RM_remision_motivo.clave), nameof(RM_remision_motivo.descripcion)), textoPorDefecto: "-- Cualquiera --", selected: motivoClave.ToString());
             ViewBag.clienteClave = AddFirstItem(new SelectList(remisionesListClientes.Where(x => x != null), nameof(clientes.clave), nameof(clientes.ConcatClienteSAP)), textoPorDefecto: "-- Cualquiera --", selected: clienteClave.ToString());
+            ViewBag.proveedorClave = AddFirstItem(new SelectList(remisionesListProveedores.Where(x => x != null), nameof(proveedores.clave), nameof(proveedores.ConcatproveedoresAP)), textoPorDefecto: "-- Cualquiera --", selected: proveedorClave.ToString());
 
             return View(listado);
         }
@@ -253,8 +308,31 @@ namespace Portal_2_0.Controllers
                 return View("../Error/NotFound");
 
             //establece los valores para aplicaEnviadoOtro, aplicaClienteOtro y aplicaTransporteOtro
-            rM_cabecera.aplicaClienteOtro = rM_cabecera.clientes == null;
-            rM_cabecera.aplicaEnviadoOtro = rM_cabecera.clientes1 == null;
+            //determina si aplica cliente o no
+            #region validaciones de formulario
+            if (rM_cabecera.clienteClave.HasValue || !string.IsNullOrEmpty(rM_cabecera.clienteOtro) || !string.IsNullOrEmpty(rM_cabecera.clienteOtroDireccion))
+                rM_cabecera.aplicaCliente = true;
+            else
+                rM_cabecera.aplicaCliente = false;
+
+            if ((!string.IsNullOrEmpty(rM_cabecera.clienteOtro) || !string.IsNullOrEmpty(rM_cabecera.clienteOtro)) && !rM_cabecera.clienteClave.HasValue)
+                rM_cabecera.aplicaClienteOtro = true;
+
+            if ((!string.IsNullOrEmpty(rM_cabecera.proveedorOtro) || !string.IsNullOrEmpty(rM_cabecera.proveedorOtroDireccion)) && !rM_cabecera.proveedorClave.HasValue)
+                rM_cabecera.aplicaProveedorOtro = true;
+
+            if (rM_cabecera.EnviadoAProveedorClave.HasValue)
+                rM_cabecera.aplicaEnviadoACliente = false;
+            else
+                rM_cabecera.aplicaEnviadoACliente = true;
+
+            if (!rM_cabecera.enviadoAClave.HasValue && !rM_cabecera.EnviadoAProveedorClave.HasValue)
+                rM_cabecera.aplicaEnviadoOtro = true;
+            else
+                rM_cabecera.aplicaEnviadoOtro = false;
+
+            #endregion
+
             rM_cabecera.aplicaTransporteOtro = rM_cabecera.RM_transporte_proveedor == null;
 
             return View(rM_cabecera);
@@ -272,7 +350,9 @@ namespace Portal_2_0.Controllers
 
             RM_cabecera model = new RM_cabecera
             {
-                observaciones = "Se crea remisión."
+                observaciones = "Se crea remisión.",
+                aplicaCliente = true,
+                aplicaEnviadoACliente = true
             };
 
             var empleado = obtieneEmpleadoLogeado();
@@ -289,12 +369,18 @@ namespace Portal_2_0.Controllers
             if (almacenesPrefList.Count() > 0)
                 almacenPreferido = almacenesPrefList.OrderByDescending(x => x.Count()).First().Key;
 
-            ViewBag.clienteClave = AddFirstItem(new SelectList(db.clientes, nameof(clientes.clave), nameof(clientes.ConcatClienteSAP)));
-            ViewBag.enviadoAClave = AddFirstItem(new SelectList(db.clientes, nameof(clientes.clave), nameof(clientes.ConcatClienteSAP)));
+            ViewBag.clienteClave = AddFirstItem(new SelectList(db.clientes.Where(x => x.RM_cabecera.Count > 0), nameof(clientes.clave), nameof(clientes.ConcatClienteSAP)));
+            ViewBag.enviadoAClave = AddFirstItem(new SelectList(db.clientes.Where(x => x.RM_cabecera.Count > 0), nameof(clientes.clave), nameof(clientes.ConcatClienteSAP)));
             ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas.Where(x => x.activo), nameof(plantas.clave), nameof(plantas.descripcion)), selected: almacenPreferido != null ? almacenPreferido.plantaClave.ToString() : String.Empty);
             ViewBag.almacenClave = AddFirstItem(new SelectList(db.RM_almacen.Where(x => x.activo && x.plantaClave == almacenPreferido.plantaClave), nameof(RM_almacen.clave), nameof(RM_almacen.descripcion)), selected: almacenPreferido != null ? almacenPreferido.clave.ToString() : String.Empty);
             ViewBag.motivoClave = AddFirstItem(new SelectList(db.RM_remision_motivo.Where(x => x.activo), nameof(RM_remision_motivo.clave), nameof(RM_remision_motivo.descripcion)));
             ViewBag.transporteProveedorClave = AddFirstItem(new SelectList(db.RM_transporte_proveedor.Where(x => x.activo), nameof(RM_transporte_proveedor.clave), nameof(RM_transporte_proveedor.descripcion)));
+            ViewBag.listadoClientes = AddFirstItem(new SelectList(db.clientes.Where(x => x.RM_cabecera.Count == 0), nameof(clientes.clave), nameof(clientes.ConcatClienteSAP)));
+            ViewBag.listadoProveedores = AddFirstItem(new SelectList(db.proveedores, nameof(proveedores.clave), nameof(proveedores.ConcatproveedoresAP)));
+            ViewBag.proveedorClave = AddFirstItem(new SelectList(db.proveedores.Where(x => x.RM_cabecera1.Count > 0), nameof(proveedores.clave), nameof(proveedores.ConcatproveedoresAP)));
+            ViewBag.EnviadoAProveedorClave = AddFirstItem(new SelectList(db.proveedores.Where(x => x.RM_cabecera.Count > 0), nameof(proveedores.clave), nameof(proveedores.ConcatproveedoresAP)));
+
+
             return View(model);
         }
 
@@ -306,16 +392,87 @@ namespace Portal_2_0.Controllers
         public ActionResult Create(RM_cabecera rM_cabecera)
         {
 
-            //  ModelState.AddModelError("", "Error para depuración.");
-
             if (rM_cabecera.RM_elemento.Count == 0)
                 ModelState.AddModelError("", "No se agregaron elementos a la remisión.");
+
+            #region validaFormulario
+            //valida cliente
+            if (rM_cabecera.aplicaCliente && !rM_cabecera.aplicaClienteOtro)
+                if (rM_cabecera.clienteClave == null)
+                    ModelState.AddModelError(nameof(RM_cabecera.clienteClave), string.Format("El campo {0} es obligatorio.", "Cliente"));
+
+            if (rM_cabecera.aplicaCliente && rM_cabecera.aplicaClienteOtro)
+            {
+                if (string.IsNullOrEmpty(rM_cabecera.clienteOtro))
+                    ModelState.AddModelError(nameof(rM_cabecera.clienteOtro), string.Format("El campo {0} es obligatorio.", "Cliente (otro)"));
+                if (string.IsNullOrEmpty(rM_cabecera.clienteOtroDireccion))
+                    ModelState.AddModelError(nameof(RM_cabecera.clienteOtroDireccion), string.Format("El campo {0} es obligatorio.", "Cliente Dirección"));
+            }
+            //valida proveedor
+            if (!rM_cabecera.aplicaCliente && !rM_cabecera.aplicaProveedorOtro)
+                if (rM_cabecera.proveedorClave == null)
+                    ModelState.AddModelError(nameof(RM_cabecera.proveedorClave), string.Format("El campo {0} es obligatorio.", "Proveedor"));
+
+            if (!rM_cabecera.aplicaCliente && rM_cabecera.aplicaProveedorOtro)
+            {
+                if (string.IsNullOrEmpty(rM_cabecera.proveedorOtro))
+                    ModelState.AddModelError(nameof(rM_cabecera.proveedorOtro), string.Format("El campo {0} es obligatorio.", "Proveedor (otro)"));
+                if (string.IsNullOrEmpty(rM_cabecera.proveedorOtroDireccion))
+                    ModelState.AddModelError(nameof(RM_cabecera.proveedorOtroDireccion), string.Format("El campo {0} es obligatorio.", "Proveedor Dirección"));
+            }
+
+            //valida Enviado a Cliente
+            if (rM_cabecera.aplicaEnviadoACliente && !rM_cabecera.aplicaEnviadoOtro && rM_cabecera.enviadoAClave == null)
+                ModelState.AddModelError(nameof(RM_cabecera.enviadoAClave), string.Format("El campo {0} es obligatorio.", "Cliente (enviado a)"));
+            //valida Enviado a proveedor
+            if (!rM_cabecera.aplicaEnviadoACliente && !rM_cabecera.aplicaEnviadoOtro && rM_cabecera.EnviadoAProveedorClave == null)
+                ModelState.AddModelError(nameof(RM_cabecera.EnviadoAProveedorClave), string.Format("El campo {0} es obligatorio.", "Proveedor (enviado a)"));
+
+            if (rM_cabecera.aplicaEnviadoOtro && string.IsNullOrEmpty(rM_cabecera.enviadoAOtro))
+                ModelState.AddModelError(nameof(RM_cabecera.enviadoAOtro), string.Format("El campo {0} es obligatorio.", "Otro Nombre"));
+
+            if (rM_cabecera.aplicaEnviadoOtro && string.IsNullOrEmpty(rM_cabecera.enviadoAOtroDireccion))
+                ModelState.AddModelError(nameof(RM_cabecera.enviadoAOtroDireccion), string.Format("El campo {0} es obligatorio.", "Otro Dirección"));
+
+            #endregion
 
             var empleado = obtieneEmpleadoLogeado();
 
             if (ModelState.IsValid)
             {
+
+
                 DateTime fechaActual = DateTime.Now;
+
+                //borra cliente o proveedor
+                if (rM_cabecera.aplicaCliente)
+                {
+                    rM_cabecera.proveedorClave = null;
+                    rM_cabecera.proveedorOtro = null;
+                    rM_cabecera.proveedorOtroDireccion = null;
+                    //recorta string
+                    rM_cabecera.clienteOtro = UsoStrings.RecortaString(rM_cabecera.clienteOtro, 50);
+                    rM_cabecera.clienteOtroDireccion = UsoStrings.RecortaString(rM_cabecera.clienteOtroDireccion, 100);
+                }
+                else
+                {
+                    rM_cabecera.clienteClave = null;
+                    rM_cabecera.clienteOtro = null;
+                    rM_cabecera.clienteOtroDireccion = null;
+                    //recorta string
+                    rM_cabecera.proveedorOtro = UsoStrings.RecortaString(rM_cabecera.proveedorOtro, 50);
+                    rM_cabecera.proveedorOtroDireccion = UsoStrings.RecortaString(rM_cabecera.proveedorOtroDireccion, 100);
+                }
+
+                //borra enviado a cliente o proveedor
+                if (rM_cabecera.aplicaEnviadoACliente)
+                { //enviado a Cliente, se borra proveedor
+                    rM_cabecera.EnviadoAProveedorClave = null;
+                }
+                else
+                { //Enviado a proveedor se borra cliente
+                    rM_cabecera.enviadoAClave = null;
+                }
 
                 //actualiza la fecha para todos lo elementos
                 rM_cabecera.RM_elemento = rM_cabecera.RM_elemento.Select(x => { x.capturaFecha = fechaActual; x.activo = true; return x; }).ToList();
@@ -348,12 +505,18 @@ namespace Portal_2_0.Controllers
 
             ViewBag.EmpleadoActual = empleado;
 
-            ViewBag.clienteClave = AddFirstItem(new SelectList(db.clientes, nameof(clientes.clave), nameof(clientes.ConcatClienteSAP)));
-            ViewBag.enviadoAClave = AddFirstItem(new SelectList(db.clientes, nameof(clientes.clave), nameof(clientes.ConcatClienteSAP)));
+            ViewBag.clienteClave = AddFirstItem(new SelectList(db.clientes.Where(x => x.RM_cabecera.Count > 0), nameof(clientes.clave), nameof(clientes.ConcatClienteSAP)));
+            ViewBag.enviadoAClave = AddFirstItem(new SelectList(db.clientes.Where(x => x.RM_cabecera.Count > 0), nameof(clientes.clave), nameof(clientes.ConcatClienteSAP)));
             ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas.Where(x => x.activo), nameof(plantas.clave), nameof(plantas.descripcion)));
             ViewBag.almacenClave = AddFirstItem(new SelectList(db.RM_almacen.Where(x => x.activo && x.plantaClave == rM_cabecera.id_planta), nameof(RM_almacen.clave), nameof(RM_almacen.descripcion)));
             ViewBag.motivoClave = AddFirstItem(new SelectList(db.RM_remision_motivo.Where(x => x.activo), nameof(RM_remision_motivo.clave), nameof(RM_remision_motivo.descripcion)));
             ViewBag.transporteProveedorClave = AddFirstItem(new SelectList(db.RM_transporte_proveedor.Where(x => x.activo), nameof(RM_transporte_proveedor.clave), nameof(RM_transporte_proveedor.descripcion)));
+            ViewBag.listadoClientes = AddFirstItem(new SelectList(db.clientes.Where(x => x.RM_cabecera.Count == 0), nameof(clientes.clave), nameof(clientes.ConcatClienteSAP)));
+            ViewBag.listadoProveedores = AddFirstItem(new SelectList(db.proveedores, nameof(proveedores.clave), nameof(proveedores.ConcatproveedoresAP)));
+            ViewBag.proveedorClave = AddFirstItem(new SelectList(db.proveedores.Where(x => x.RM_cabecera1.Count > 0), nameof(proveedores.clave), nameof(proveedores.ConcatproveedoresAP)), selected: rM_cabecera.proveedorClave.ToString());
+            ViewBag.EnviadoAProveedorClave = AddFirstItem(new SelectList(db.proveedores.Where(x => x.RM_cabecera.Count > 0), nameof(proveedores.clave), nameof(proveedores.ConcatproveedoresAP)), selected: rM_cabecera.EnviadoAProveedorClave.ToString());
+
+
             return View(rM_cabecera);
         }
 
@@ -373,6 +536,31 @@ namespace Portal_2_0.Controllers
             RM_cabecera rM_cabecera = db.RM_cabecera.Find(id);
             if (rM_cabecera == null)
                 return View("../Error/NotFound");
+
+            //determina si aplica cliente o no
+            #region validaciones de formulario
+            if (rM_cabecera.clienteClave.HasValue || !string.IsNullOrEmpty(rM_cabecera.clienteOtro) || !string.IsNullOrEmpty(rM_cabecera.clienteOtroDireccion))
+                rM_cabecera.aplicaCliente = true;
+            else
+                rM_cabecera.aplicaCliente = false;
+
+            if ((!string.IsNullOrEmpty(rM_cabecera.clienteOtro) || !string.IsNullOrEmpty(rM_cabecera.clienteOtro)) && !rM_cabecera.clienteClave.HasValue)
+                rM_cabecera.aplicaClienteOtro = true;
+
+            if ((!string.IsNullOrEmpty(rM_cabecera.proveedorOtro) || !string.IsNullOrEmpty(rM_cabecera.proveedorOtroDireccion)) && !rM_cabecera.proveedorClave.HasValue)
+                rM_cabecera.aplicaProveedorOtro = true;
+
+            if (rM_cabecera.EnviadoAProveedorClave.HasValue)
+                rM_cabecera.aplicaEnviadoACliente = false;
+            else
+                rM_cabecera.aplicaEnviadoACliente = true;
+
+            if (!rM_cabecera.enviadoAClave.HasValue && !rM_cabecera.EnviadoAProveedorClave.HasValue)
+                rM_cabecera.aplicaEnviadoOtro = true;
+            else
+                rM_cabecera.aplicaEnviadoOtro = false;
+
+            #endregion
 
             //verifica si se puede enviar para validacion
             if (
@@ -396,8 +584,7 @@ namespace Portal_2_0.Controllers
             ViewBag.EmpleadoActual = empleado;
 
             //establece los valores para aplicaEnviadoOtro, aplicaClienteOtro y aplicaTransporteOtro
-            rM_cabecera.aplicaClienteOtro = rM_cabecera.clientes == null;
-            rM_cabecera.aplicaEnviadoOtro = rM_cabecera.clientes1 == null;
+
             rM_cabecera.aplicaTransporteOtro = rM_cabecera.RM_transporte_proveedor == null;
 
             ViewBag.clienteClave = AddFirstItem(new SelectList(db.clientes, nameof(clientes.clave), nameof(clientes.ConcatClienteSAP)), selected: rM_cabecera.clienteClave.ToString());
@@ -406,6 +593,12 @@ namespace Portal_2_0.Controllers
             ViewBag.almacenClave = AddFirstItem(new SelectList(db.RM_almacen.Where(x => x.activo && x.plantaClave == rM_cabecera.RM_almacen.plantas.clave), nameof(RM_almacen.clave), nameof(RM_almacen.descripcion)), selected: rM_cabecera.RM_almacen.clave.ToString());
             ViewBag.motivoClave = AddFirstItem(new SelectList(db.RM_remision_motivo.Where(x => x.activo), nameof(RM_remision_motivo.clave), nameof(RM_remision_motivo.descripcion)), selected: rM_cabecera.motivoClave.ToString());
             ViewBag.transporteProveedorClave = AddFirstItem(new SelectList(db.RM_transporte_proveedor.Where(x => x.activo), nameof(RM_transporte_proveedor.clave), nameof(RM_transporte_proveedor.descripcion)), selected: rM_cabecera.transporteProveedorClave.ToString());
+            ViewBag.listadoClientes = AddFirstItem(new SelectList(db.clientes.Where(x => x.RM_cabecera.Count == 0), nameof(clientes.clave), nameof(clientes.ConcatClienteSAP)));
+            ViewBag.listadoProveedores = AddFirstItem(new SelectList(db.proveedores, nameof(proveedores.clave), nameof(proveedores.ConcatproveedoresAP)));
+            ViewBag.proveedorClave = AddFirstItem(new SelectList(db.proveedores.Where(x => x.RM_cabecera1.Count > 0), nameof(proveedores.clave), nameof(proveedores.ConcatproveedoresAP)), selected: rM_cabecera.proveedorClave.ToString());
+            ViewBag.EnviadoAProveedorClave = AddFirstItem(new SelectList(db.proveedores.Where(x => x.RM_cabecera.Count > 0), nameof(proveedores.clave), nameof(proveedores.ConcatproveedoresAP)), selected: rM_cabecera.EnviadoAProveedorClave.ToString());
+
+
             return View(rM_cabecera);
         }
 
@@ -417,12 +610,83 @@ namespace Portal_2_0.Controllers
         public ActionResult Edit(RM_cabecera rM_form)
         {
             // ModelState.AddModelError("", "Error para depuración.");
+            #region validaFormulario
+            //valida cliente
+            if (rM_form.aplicaCliente && !rM_form.aplicaClienteOtro)
+                if (rM_form.clienteClave == null)
+                    ModelState.AddModelError(nameof(rM_form.clienteClave), string.Format("El campo {0} es obligatorio.", "Cliente"));
+
+            if (rM_form.aplicaCliente && rM_form.aplicaClienteOtro)
+            {
+                if (string.IsNullOrEmpty(rM_form.clienteOtro))
+                    ModelState.AddModelError(nameof(rM_form.clienteOtro), string.Format("El campo {0} es obligatorio.", "Cliente (otro)"));
+                if (string.IsNullOrEmpty(rM_form.clienteOtroDireccion))
+                    ModelState.AddModelError(nameof(rM_form.clienteOtroDireccion), string.Format("El campo {0} es obligatorio.", "Cliente Dirección"));
+            }
+            //valida proveedor
+            if (!rM_form.aplicaCliente && !rM_form.aplicaProveedorOtro)
+                if (rM_form.proveedorClave == null)
+                    ModelState.AddModelError(nameof(rM_form.proveedorClave), string.Format("El campo {0} es obligatorio.", "Proveedor"));
+
+            if (!rM_form.aplicaCliente && rM_form.aplicaProveedorOtro)
+            {
+                if (string.IsNullOrEmpty(rM_form.proveedorOtro))
+                    ModelState.AddModelError(nameof(rM_form.proveedorOtro), string.Format("El campo {0} es obligatorio.", "Proveedor (otro)"));
+                if (string.IsNullOrEmpty(rM_form.proveedorOtroDireccion))
+                    ModelState.AddModelError(nameof(rM_form.proveedorOtroDireccion), string.Format("El campo {0} es obligatorio.", "Proveedor Dirección"));
+            }
+
+            //valida Enviado a Cliente
+            if (rM_form.aplicaEnviadoACliente && !rM_form.aplicaEnviadoOtro && rM_form.enviadoAClave == null)
+                ModelState.AddModelError(nameof(rM_form.enviadoAClave), string.Format("El campo {0} es obligatorio.", "Cliente (enviado a)"));
+            //valida Enviado a proveedor
+            if (!rM_form.aplicaEnviadoACliente && !rM_form.aplicaEnviadoOtro && rM_form.EnviadoAProveedorClave == null)
+                ModelState.AddModelError(nameof(rM_form.EnviadoAProveedorClave), string.Format("El campo {0} es obligatorio.", "Proveedor (enviado a)"));
+
+            if (rM_form.aplicaEnviadoOtro && string.IsNullOrEmpty(rM_form.enviadoAOtro))
+                ModelState.AddModelError(nameof(rM_form.enviadoAOtro), string.Format("El campo {0} es obligatorio.", "Otro Nombre"));
+
+            if (rM_form.aplicaEnviadoOtro && string.IsNullOrEmpty(rM_form.enviadoAOtroDireccion))
+                ModelState.AddModelError(nameof(rM_form.enviadoAOtroDireccion), string.Format("El campo {0} es obligatorio.", "Otro Dirección"));
+
+            #endregion
+
 
             var empleado = obtieneEmpleadoLogeado();
 
             if (ModelState.IsValid)
             {
                 DateTime fechaActual = DateTime.Now;
+
+                //borra cliente o proveedor
+                if (rM_form.aplicaCliente)
+                {
+                    rM_form.proveedorClave = null;
+                    rM_form.proveedorOtro = null;
+                    rM_form.proveedorOtroDireccion = null;
+                    //recorta string
+                    rM_form.clienteOtro = UsoStrings.RecortaString(rM_form.clienteOtro, 50);
+                    rM_form.clienteOtroDireccion = UsoStrings.RecortaString(rM_form.clienteOtroDireccion, 100);
+                }
+                else
+                {
+                    rM_form.clienteClave = null;
+                    rM_form.clienteOtro = null;
+                    rM_form.clienteOtroDireccion = null;
+                    //recorta string
+                    rM_form.proveedorOtro = UsoStrings.RecortaString(rM_form.proveedorOtro, 50);
+                    rM_form.proveedorOtroDireccion = UsoStrings.RecortaString(rM_form.proveedorOtroDireccion, 100);
+                }
+
+                //borra enviado a cliente o proveedor
+                if (rM_form.aplicaEnviadoACliente)
+                { //enviado a Cliente, se borra proveedor
+                    rM_form.EnviadoAProveedorClave = null;
+                }
+                else
+                { //Enviado a proveedor se borra cliente
+                    rM_form.enviadoAClave = null;
+                }
 
                 //actualiza la fecha para todos lo elementos
                 rM_form.RM_elemento = rM_form.RM_elemento.Select(x => { x.capturaFecha = fechaActual; x.activo = true; return x; }).ToList();
@@ -458,7 +722,6 @@ namespace Portal_2_0.Controllers
                     //envia notificacion por correo electrónico
                     EnviaNotificacionEmail(remisionBD);
 
-
                     //determina el mansaje a mostrar
                     if (rM_form.tipo_edit == RM_estatus_enum.Aprobada)
                         TempData["Mensaje"] = new MensajesSweetAlert("Se ha aprobado la remisión: " + remisionBD.ConcatNumeroRemision, TipoMensajesSweetAlerts.SUCCESS);
@@ -488,6 +751,15 @@ namespace Portal_2_0.Controllers
             ViewBag.almacenClave = AddFirstItem(new SelectList(db.RM_almacen.Where(x => x.activo && x.plantaClave == rM_form.RM_almacen.plantas.clave), nameof(RM_almacen.clave), nameof(RM_almacen.descripcion)), selected: rM_form.almacenClave.ToString());
             ViewBag.motivoClave = AddFirstItem(new SelectList(db.RM_remision_motivo.Where(x => x.activo), nameof(RM_remision_motivo.clave), nameof(RM_remision_motivo.descripcion)), selected: rM_form.motivoClave.ToString());
             ViewBag.transporteProveedorClave = AddFirstItem(new SelectList(db.RM_transporte_proveedor.Where(x => x.activo), nameof(RM_transporte_proveedor.clave), nameof(RM_transporte_proveedor.descripcion)), selected: rM_form.transporteProveedorClave.ToString());
+            ViewBag.listadoClientes = AddFirstItem(new SelectList(db.clientes.Where(x => x.RM_cabecera.Count == 0), nameof(clientes.clave), nameof(clientes.ConcatClienteSAP)));
+            ViewBag.listadoProveedores = AddFirstItem(new SelectList(db.proveedores.Where(x => x.RM_cabecera.Count == 0), nameof(proveedores.clave), nameof(proveedores.ConcatproveedoresAP)));
+            ViewBag.proveedorClave = AddFirstItem(new SelectList(db.proveedores.Where(x => x.RM_cabecera.Count > 0), nameof(proveedores.clave), nameof(proveedores.ConcatproveedoresAP)));
+            ViewBag.EnviadoAProveedorClave = AddFirstItem(new SelectList(db.proveedores.Where(x => x.RM_cabecera.Count > 0), nameof(proveedores.clave), nameof(proveedores.ConcatproveedoresAP)));
+            ViewBag.listadoClientes = AddFirstItem(new SelectList(db.clientes.Where(x => x.RM_cabecera.Count == 0), nameof(clientes.clave), nameof(clientes.ConcatClienteSAP)));
+            ViewBag.listadoProveedores = AddFirstItem(new SelectList(db.proveedores, nameof(proveedores.clave), nameof(proveedores.ConcatproveedoresAP)));
+            ViewBag.proveedorClave = AddFirstItem(new SelectList(db.proveedores.Where(x => x.RM_cabecera1.Count > 0), nameof(proveedores.clave), nameof(proveedores.ConcatproveedoresAP)), selected: rM_form.proveedorClave.ToString());
+            ViewBag.EnviadoAProveedorClave = AddFirstItem(new SelectList(db.proveedores.Where(x => x.RM_cabecera.Count > 0), nameof(proveedores.clave), nameof(proveedores.ConcatproveedoresAP)), selected: rM_form.EnviadoAProveedorClave.ToString());
+
             return View(rM_form);
         }
 
@@ -516,8 +788,30 @@ namespace Portal_2_0.Controllers
             ViewBag.EmpleadoActual = empleado;
 
             //establece los valores para aplicaEnviadoOtro, aplicaClienteOtro y aplicaTransporteOtro
-            rM_cabecera.aplicaClienteOtro = rM_cabecera.clientes == null;
-            rM_cabecera.aplicaEnviadoOtro = rM_cabecera.clientes1 == null;
+            //determina si aplica cliente o no
+            #region validaciones de formulario
+            if (rM_cabecera.clienteClave.HasValue || !string.IsNullOrEmpty(rM_cabecera.clienteOtro) || !string.IsNullOrEmpty(rM_cabecera.clienteOtroDireccion))
+                rM_cabecera.aplicaCliente = true;
+            else
+                rM_cabecera.aplicaCliente = false;
+
+            if ((!string.IsNullOrEmpty(rM_cabecera.clienteOtro) || !string.IsNullOrEmpty(rM_cabecera.clienteOtro)) && !rM_cabecera.clienteClave.HasValue)
+                rM_cabecera.aplicaClienteOtro = true;
+
+            if ((!string.IsNullOrEmpty(rM_cabecera.proveedorOtro) || !string.IsNullOrEmpty(rM_cabecera.proveedorOtroDireccion)) && !rM_cabecera.proveedorClave.HasValue)
+                rM_cabecera.aplicaProveedorOtro = true;
+
+            if (rM_cabecera.EnviadoAProveedorClave.HasValue)
+                rM_cabecera.aplicaEnviadoACliente = false;
+            else
+                rM_cabecera.aplicaEnviadoACliente = true;
+
+            if (!rM_cabecera.enviadoAClave.HasValue && !rM_cabecera.EnviadoAProveedorClave.HasValue)
+                rM_cabecera.aplicaEnviadoOtro = true;
+            else
+                rM_cabecera.aplicaEnviadoOtro = false;
+
+            #endregion
             rM_cabecera.aplicaTransporteOtro = rM_cabecera.RM_transporte_proveedor == null;
 
             return View(rM_cabecera);
@@ -647,8 +941,31 @@ namespace Portal_2_0.Controllers
 
 
             //establece los valores para aplicaEnviadoOtro, aplicaClienteOtro y aplicaTransporteOtro
-            rM_cabecera.aplicaClienteOtro = rM_cabecera.clientes == null;
-            rM_cabecera.aplicaEnviadoOtro = rM_cabecera.clientes1 == null;
+            //determina si aplica cliente o no
+            #region validaciones de formulario
+            if (rM_cabecera.clienteClave.HasValue || !string.IsNullOrEmpty(rM_cabecera.clienteOtro) || !string.IsNullOrEmpty(rM_cabecera.clienteOtroDireccion))
+                rM_cabecera.aplicaCliente = true;
+            else
+                rM_cabecera.aplicaCliente = false;
+
+            if ((!string.IsNullOrEmpty(rM_cabecera.clienteOtro) || !string.IsNullOrEmpty(rM_cabecera.clienteOtro)) && !rM_cabecera.clienteClave.HasValue)
+                rM_cabecera.aplicaClienteOtro = true;
+
+            if ((!string.IsNullOrEmpty(rM_cabecera.proveedorOtro) || !string.IsNullOrEmpty(rM_cabecera.proveedorOtroDireccion)) && !rM_cabecera.proveedorClave.HasValue)
+                rM_cabecera.aplicaProveedorOtro = true;
+
+            if (rM_cabecera.EnviadoAProveedorClave.HasValue)
+                rM_cabecera.aplicaEnviadoACliente = false;
+            else
+                rM_cabecera.aplicaEnviadoACliente = true;
+
+            if (!rM_cabecera.enviadoAClave.HasValue && !rM_cabecera.EnviadoAProveedorClave.HasValue)
+                rM_cabecera.aplicaEnviadoOtro = true;
+            else
+                rM_cabecera.aplicaEnviadoOtro = false;
+
+            #endregion
+
             rM_cabecera.aplicaTransporteOtro = rM_cabecera.RM_transporte_proveedor == null;
 
             return View(rM_cabecera);
@@ -912,13 +1229,13 @@ namespace Portal_2_0.Controllers
             return File(stream, "application/vnd.ms-excel");
         }
 
-        public ActionResult Exportar(int? id_planta, int? almacenClave, int? clave, int? motivoClave, int? clienteClave, string clienteOtro, string estatus, string fecha_inicial, string fecha_final)
+        public ActionResult Exportar(int? id_planta, int? almacenClave, int? clave, int? motivoClave, int? clienteClave, string clienteOtro, int? proveedorClave, string proveedorOtro, string estatus, string fecha_inicial, string fecha_final)
         {
             if (!TieneRol(TipoRoles.RM_DETALLES)
                 && !TieneRol(TipoRoles.RM_CREACION)
                 && !TieneRol(TipoRoles.RM_REPORTES))
                 return View("../Home/ErrorPermisos");
-                    
+
 
             //convierte las fechas recibidas
             CultureInfo provider = CultureInfo.InvariantCulture;
@@ -960,6 +1277,8 @@ namespace Portal_2_0.Controllers
                                                         && (motivoClave == null || x.motivoClave == motivoClave)
                                                         && (clienteClave == null || x.clienteClave == clienteClave)
                                                         && (string.IsNullOrEmpty(clienteOtro) || UsoStrings.ContainsIgnoreCase(x.clienteOtro, clienteOtro))
+                                                        && (proveedorClave == null || x.proveedorClave == proveedorClave)
+                                                        && (string.IsNullOrEmpty(proveedorOtro) || UsoStrings.ContainsIgnoreCase(x.proveedorOtro, proveedorOtro))
                                                         && ((string.IsNullOrEmpty(estatus) && x.ultimoEstatus.HasValue)
                                                                         || (estatus == "PENDIENTES" && (x.ultimoEstatus == 1 || x.ultimoEstatus == 2))
                                                                         || (estatus == "APROBADAS" && (x.ultimoEstatus == 3))
@@ -979,7 +1298,9 @@ namespace Portal_2_0.Controllers
                                                         && (motivoClave == null || x.motivoClave == motivoClave)
                                                         && (x.clienteClave == clienteClave)
                                                         && (string.IsNullOrEmpty(clienteOtro) || UsoStrings.ContainsIgnoreCase(x.clienteOtro, clienteOtro))
-                                                         && ((string.IsNullOrEmpty(estatus) && x.ultimoEstatus.HasValue)
+                                                        && (proveedorClave == null || x.proveedorClave == proveedorClave)
+                                                        && (string.IsNullOrEmpty(proveedorOtro) || UsoStrings.ContainsIgnoreCase(x.proveedorOtro, proveedorOtro))
+                                                        && ((string.IsNullOrEmpty(estatus) && x.ultimoEstatus.HasValue)
                                                                         || (estatus == "PENDIENTES" && (x.ultimoEstatus == 1 || x.ultimoEstatus == 2))
                                                                         || (estatus == "APROBADAS" && (x.ultimoEstatus == 3))
                                                                         || (estatus == "REGULARIZADAS" && (x.ultimoEstatus == 4))
@@ -991,7 +1312,26 @@ namespace Portal_2_0.Controllers
                                                         )
                 clienteClave = null;
 
-
+            //valida proveedor
+            if (proveedorClave != null && !totalidadRegistrosBD.Any(x => (id_planta == null || x.RM_almacen.plantaClave == id_planta)
+                                                        && (almacenClave == null || almacenClave == x.almacenClave)
+                                                        && (clave == null || x.clave == clave)
+                                                        && (motivoClave == null || x.motivoClave == motivoClave)
+                                                        && (x.clienteClave == clienteClave)
+                                                        && (string.IsNullOrEmpty(clienteOtro) || UsoStrings.ContainsIgnoreCase(x.clienteOtro, clienteOtro))
+                                                        && (proveedorClave == null || x.proveedorClave == proveedorClave)
+                                                        && (string.IsNullOrEmpty(proveedorOtro) || UsoStrings.ContainsIgnoreCase(x.proveedorOtro, proveedorOtro))
+                                                        && ((string.IsNullOrEmpty(estatus) && x.ultimoEstatus.HasValue)
+                                                                        || (estatus == "PENDIENTES" && (x.ultimoEstatus == 1 || x.ultimoEstatus == 2))
+                                                                        || (estatus == "APROBADAS" && (x.ultimoEstatus == 3))
+                                                                        || (estatus == "REGULARIZADAS" && (x.ultimoEstatus == 4))
+                                                                        || (estatus == "CANCELADAS" && (x.ultimoEstatus == 5))
+                                                           )
+                                                        && x.activo
+                                                        && x.FechaCreacion >= dateInicial && x.FechaCreacion <= dateFinal
+                                                        )
+                                                        )
+                proveedorClave = null;
 
             //obtiene el total de registros, según los filtros 
             var listado = totalidadRegistrosBD
@@ -1002,6 +1342,8 @@ namespace Portal_2_0.Controllers
                        && (motivoClave == null || x.motivoClave == motivoClave)
                        && (clienteClave == null || x.clienteClave == clienteClave)
                        && (string.IsNullOrEmpty(clienteOtro) || UsoStrings.ContainsIgnoreCase(x.clienteOtro, clienteOtro))
+                       && (proveedorClave == null || x.proveedorClave == proveedorClave)
+                       && (string.IsNullOrEmpty(proveedorOtro) || UsoStrings.ContainsIgnoreCase(x.proveedorOtro, proveedorOtro))
                       && ((string.IsNullOrEmpty(estatus) && x.ultimoEstatus.HasValue)
                                                                         || (estatus == "PENDIENTES" && (x.ultimoEstatus == 1 || x.ultimoEstatus == 2))
                                                                         || (estatus == "APROBADAS" && (x.ultimoEstatus == 3))
@@ -1214,12 +1556,28 @@ namespace Portal_2_0.Controllers
                 cambios.Add(String.Format("Cambio en <b>{0}</b>; original: <i>{1}</i>, cambio: <i>{2}</i>", "Cliente (Dirección)", original.clienteOtroDireccion, modificado.clienteOtroDireccion));
                 original.clienteOtroDireccion = modificado.clienteOtroDireccion;
             }
+            //cambio en proveedor
+            if (original.proveedorOtro != modificado.proveedorOtro)
+            {
+                cambios.Add(String.Format("Cambio en <b>{0}</b>; original: <i>{1}</i>, cambio: <i>{2}</i>", "Cliente", original.proveedorOtro, modificado.proveedorOtro));
+                original.proveedorOtro = modificado.proveedorOtro;
+                original.proveedorClave = modificado.proveedorClave;
+            }
+
+            //cambio de direccion proveedor
+            if (original.proveedorOtroDireccion != modificado.proveedorOtroDireccion)
+            {
+                cambios.Add(String.Format("Cambio en <b>{0}</b>; original: <i>{1}</i>, cambio: <i>{2}</i>", "Proveedor (Dirección)", original.clienteOtroDireccion, modificado.clienteOtroDireccion));
+                original.proveedorOtroDireccion = modificado.proveedorOtroDireccion;
+            }
+
             //cambio de Enviado A
             if (original.enviadoAOtro != modificado.enviadoAOtro)
             {
                 cambios.Add(String.Format("Cambio en <b>{0}</b>; original: <i>{1}</i>, cambio: <i>{2}</i>", "Enviado A", original.enviadoAOtro, modificado.enviadoAOtro));
                 original.enviadoAOtro = modificado.enviadoAOtro;
                 original.enviadoAClave = modificado.enviadoAClave;
+                original.EnviadoAProveedorClave = modificado.EnviadoAProveedorClave;
             }
             //cambio de direccion cliente
             if (original.enviadoAOtroDireccion != modificado.enviadoAOtroDireccion)

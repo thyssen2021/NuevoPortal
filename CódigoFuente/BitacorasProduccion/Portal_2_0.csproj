@@ -711,6 +711,7 @@
     <Compile Include="Models\MetadataModels\produccion_respaldoMetadata.cs" />
     <Compile Include="Models\MetadataModels\produccion_supervisoresMetadata.cs" />
     <Compile Include="Models\MetadataModels\produccion_turnosMetadata.cs" />
+    <Compile Include="Models\MetadataModels\proveedoresMetadata.cs" />
     <Compile Include="Models\MetadataModels\puestoMetadata.cs" />
     <Compile Include="Models\MetadataModels\RH_menu_comedor_platillosMetadata.cs" />
     <Compile Include="Models\MetadataModels\RM_almacenMetadata.cs" />
@@ -852,6 +853,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\produccion_turnos.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\proveedores.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\puesto.cs">

@@ -8,6 +8,8 @@
 
     Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
 
+    ViewBag.nav_style = "nav-sm";
+
     Portal_2_0.Models.empleados EmpleadoActual = (Portal_2_0.Models.empleados)ViewBag.EmpleadoActual;
     int contador = 200;
 }
@@ -134,57 +136,74 @@
                                         </div>
                                     </div>
 
-                                    <div class="ln_solid"></div>
-                                    <div class="form-group row">
-                                        <span style="color:black"><b>CLIENTE</b></span>
-                                    </div>
+                                    if (Model.clienteClave.HasValue || !String.IsNullOrEmpty(Model.clienteOtro) || !String.IsNullOrEmpty(Model.clienteOtroDireccion))
+                                    {
+                                        <div class="ln_solid"></div>
+                                        <div class="form-group row">
+                                            <span style="color:black"><b>CLIENTE</b></span>
+                                        </div>
 
-                                    <div class="form-group row">
-                                        <!--Cliente Clave-->
-                                        @Html.LabelFor(model => model.clienteClave, new { @class = "control-label col-md-1" })
-                                        <div class="col-md-4">
-                                            @if (Model.clientes != null)
-                                            {
-                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.clientes.descripcion)" readonly>
-                                            }
-                                            else
-                                            {
+                                        <div class="form-group row">
+                                            <!--Cliente Clave-->
+                                            @Html.LabelFor(model => model.clienteClave, new { @class = "control-label col-md-1" })
+                                            <div class="col-md-4">
                                                 <input type="text" class="form-control" value="@Html.DisplayFor(model => model.clienteOtro)" readonly>
-                                            }
+                                            </div>
+                                            <!--Aplica otro?-->
+                                            @Html.LabelFor(model => model.aplicaClienteOtro, htmlAttributes: new { @class = "control-label col-md-1" })
+                                            <div class="col-md-1">
+                                                @Html.EditorFor(model => model.aplicaClienteOtro, new { htmlAttributes = new { @class = "check", @autocomplete = "off", @disabled = "@disabled" } })
+                                            </div>
                                         </div>
-                                        <!--Aplica otro?-->
-                                        @Html.LabelFor(model => model.aplicaClienteOtro, htmlAttributes: new { @class = "control-label col-md-1" })
-                                        <div class="col-md-1">
-                                            @Html.EditorFor(model => model.aplicaClienteOtro, new { htmlAttributes = new { @class = "check", @autocomplete = "off", @disabled = "@disabled" } })
-                                        </div>
-                                    </div>
 
-                                    <div class="form-group row">
-                                        <!--Cliente Otro-->
-                                        @Html.LabelFor(model => model.clienteOtro, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
-                                        <div class="col-md-4">
-                                            @if (Model.clientes != null)
-                                            {
-                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.clientes.descripcion)" readonly>
-                                            }
-                                            else
-                                            {
+                                        <div class="form-group row">
+                                            <!--Cliente Otro-->
+                                            @Html.LabelFor(model => model.clienteOtro, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
+                                            <div class="col-md-4">
                                                 <input type="text" class="form-control" value="@Html.DisplayFor(model => model.clienteOtro)" readonly>
-                                            }
-                                        </div>
-                                        <!--Cliente Otro Dirección-->
-                                        @Html.LabelFor(model => model.clienteOtroDireccion, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
-                                        <div class="col-md-6">
-                                            @if (Model.clientes != null)
-                                            {
-                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.clientes.direccion)" readonly>
-                                            }
-                                            else
-                                            {
+                                            </div>
+                                            <!--Cliente Otro Dirección-->
+                                            @Html.LabelFor(model => model.clienteOtroDireccion, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
+                                            <div class="col-md-6">
                                                 <input type="text" class="form-control" value="@Html.DisplayFor(model => model.clienteOtroDireccion)" readonly>
-                                            }
+                                            </div>
                                         </div>
-                                    </div>
+                                    }
+                                    else if (Model.proveedorClave.HasValue || !String.IsNullOrEmpty(Model.proveedorOtro) || !String.IsNullOrEmpty(Model.proveedorOtroDireccion))
+                                    {
+                                        <div class="ln_solid"></div>
+                                        <div class="form-group row">
+                                            <span style="color:black"><b>PROVEEDOR</b></span>
+                                        </div>
+
+                                        <div class="form-group row">
+                                            <!--proveedor Clave-->
+                                            @Html.LabelFor(model => model.proveedorClave, new { @class = "control-label col-md-1" })
+                                            <div class="col-md-4">
+                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.proveedorOtro)" readonly>
+                                            </div>
+                                            <!--Aplica otro?-->
+                                            @Html.LabelFor(model => model.aplicaProveedorOtro, htmlAttributes: new { @class = "control-label col-md-1" })
+                                            <div class="col-md-1">
+                                                @Html.EditorFor(model => model.aplicaProveedorOtro, new { htmlAttributes = new { @class = "check", @autocomplete = "off", @disabled = "@disabled" } })
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group row">
+                                            <!--proveedor Otro-->
+                                            @Html.LabelFor(model => model.clienteOtro, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
+                                            <div class="col-md-4">
+                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.proveedorOtro)" readonly>
+                                            </div>
+                                            <!--proveedor Otro Dirección-->
+                                            @Html.LabelFor(model => model.clienteOtroDireccion, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
+                                            <div class="col-md-6">
+                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.proveedorOtroDireccion)" readonly>
+                                            </div>
+                                        </div>
+                                    }
+
+
 
                                     <div class="ln_solid"></div>
                                     <div class="form-group row">
@@ -193,16 +212,9 @@
 
                                     <div class="form-group row">
                                         <!--Enviado A Clave-->
-                                        @Html.LabelFor(model => model.enviadoAClave, new { @class = "control-label col-md-1" })
+                                        <label class="control-label col-md-1">Enviado A:</label>
                                         <div class="col-md-4">
-                                            @if (Model.clientes1 != null)
-                                            {
-                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.clientes1.descripcion)" readonly>
-                                            }
-                                            else
-                                            {
-                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.enviadoAOtro)" readonly>
-                                            }
+                                            <input type="text" class="form-control" value="@Html.DisplayFor(model => model.enviadoAOtro)" readonly>
                                         </div>
                                         <!--Aplica otro?-->
                                         @Html.LabelFor(model => model.aplicaEnviadoOtro, htmlAttributes: new { @class = "control-label col-md-1" })
@@ -215,26 +227,12 @@
                                         <!--Enviado a Otro-->
                                         @Html.LabelFor(model => model.enviadoAOtro, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
                                         <div class="col-md-4">
-                                            @if (Model.clientes1 != null)
-                                            {
-                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.clientes1.descripcion)" readonly>
-                                            }
-                                            else
-                                            {
-                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.enviadoAOtro)" readonly>
-                                            }
+                                            <input type="text" class="form-control" value="@Html.DisplayFor(model => model.enviadoAOtro)" readonly>
                                         </div>
                                         <!--Enviado A Otro Dirección-->
                                         @Html.LabelFor(model => model.enviadoAOtroDireccion, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
                                         <div class="col-md-6">
-                                            @if (Model.clientes1 != null)
-                                            {
-                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.clientes1.direccion)" readonly>
-                                            }
-                                            else
-                                            {
-                                                <input type="text" class="form-control" value="@Html.DisplayFor(model => model.enviadoAOtroDireccion)" readonly>
-                                            }
+                                            <input type="text" class="form-control" value="@Html.DisplayFor(model => model.enviadoAOtroDireccion)" readonly>
                                         </div>
                                     </div>
 
