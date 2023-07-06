@@ -16,6 +16,8 @@
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
     <!-- iCheck -->
     <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/blue.css")" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
     <style>
         /* Oculta el menu del sistema */
         footer {
@@ -101,12 +103,12 @@
                         <div class="col-md-2 col-sm-2">
                             @Html.EditorFor(model => model.placa_plataforma_uno, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                         </div>
-                         @Html.LabelFor(model => model.placa_plataforma_dos, new { @class = "col-form-label col-md-2 col-sm-2" })
+                        @Html.LabelFor(model => model.placa_plataforma_dos, new { @class = "col-form-label col-md-2 col-sm-2" })
                         <div class="col-md-2 col-sm-2">
                             @Html.EditorFor(model => model.placa_plataforma_dos, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
-                        </div>                       
+                        </div>
                     </div>
-                     <div class="form-group row">                     
+                    <div class="form-group row">
                         @Html.LabelFor(model => model.carga, new { @class = "col-form-label col-md-1 col-sm-1" })
                         <div class="col-md-1 col-sm-1">
                             @Html.EditorFor(model => model.carga, new { htmlAttributes = new { @class = "form-control", @disabled = "disabled" } })
@@ -332,8 +334,8 @@
     @Scripts.Render("~/bundles/jqueryval")
     <!-- iCheck -->
     @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
-    <!-- SweetAlert2 (css incluido) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.3/sweetalert2.all.min.js" integrity="sha512-/iBgV43zPirSC0tue+PT/1VHGs7En24twBmT+sVMgn9PTaOpKfbgIyL5YsGKlbAIxcwz9S8W/YEnYjpIYj2Axw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
     <script src="~/Scripts/Forms/ModalConfirm.js"></script>
     <script>
 

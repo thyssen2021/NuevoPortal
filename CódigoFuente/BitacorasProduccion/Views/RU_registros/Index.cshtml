@@ -22,8 +22,8 @@
     <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
     <link href="~/Content/step-progress-bar.css?fecha=@DateTime.Now" rel="stylesheet" />
-    <style>
-    </style>
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
 }
 
 @*@{Html.RenderPartial("_BlockUI", Model);}*@
@@ -177,8 +177,8 @@
                                                 bool complete = item.hora_vigilancia_salida.HasValue;
                                                 bool cancel = item.hora_cancelacion.HasValue && item.hora_vigilancia_salida.HasValue;
                                                 bool cancelEnPlanta = item.hora_cancelacion.HasValue && !item.hora_vigilancia_salida.HasValue;
-                                                string styleColor = (complete ? "complete-color" : string.Empty) + " " + (cancel ? "cancel-color" : String.Empty)+ " " + (cancelEnPlanta ? "cancel-planta-color" : String.Empty);
-                                                string styleBackgroundColor = (complete ? "complete-background-color" : string.Empty) + " " + (cancel ? "cancel-background-color" : String.Empty)+ " " + (cancelEnPlanta ? "cancel-planta-background-color" : String.Empty);
+                                                string styleColor = (complete ? "complete-color" : string.Empty) + " " + (cancel ? "cancel-color" : String.Empty) + " " + (cancelEnPlanta ? "cancel-planta-color" : String.Empty);
+                                                string styleBackgroundColor = (complete ? "complete-background-color" : string.Empty) + " " + (cancel ? "cancel-background-color" : String.Empty) + " " + (cancelEnPlanta ? "cancel-planta-background-color" : String.Empty);
 
                                                 <tr style="font-weight:bold" class="activo @styleColor">
                                                     <td nowrap>
@@ -281,7 +281,7 @@
                                                             </button>
                                                         }
                                                         @if ((item.EstadoEnum == Portal_2_0.Models.EstatusRURegistrosEnum.LiberadoVigilancia
-                                                            ||item.EstadoEnum == Portal_2_0.Models.EstatusRURegistrosEnum.CanceladoEnPlanta )
+                                                            || item.EstadoEnum == Portal_2_0.Models.EstatusRURegistrosEnum.CanceladoEnPlanta)
                                                             && User.IsInRole(TipoRoles.RU_VIGILANCIA)
                                                             )
                                                         {
@@ -348,7 +348,7 @@
 {
     @Scripts.Render("~/bundles/dataTables_js")
     <!-- SweetAlert2 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.3/sweetalert2.all.min.js" integrity="sha512-/iBgV43zPirSC0tue+PT/1VHGs7En24twBmT+sVMgn9PTaOpKfbgIyL5YsGKlbAIxcwz9S8W/YEnYjpIYj2Axw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
     @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlertColored.js"))
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
     <!-- input mask -->
