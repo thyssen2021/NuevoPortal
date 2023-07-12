@@ -1,5 +1,7 @@
 ﻿//variables globales
 var num = 0;
+var tipoModal = 0;
+
 const Toast = Swal.mixin({
     toast: true,
     position: 'top-right',
@@ -13,6 +15,41 @@ const Toast = Swal.mixin({
 })
 
 $(document).ready(function () {
+    //inicializa el botón toggle
+    $(function () {
+        $('#cliente_proveedor').bootstrapToggle();
+        $('#enviado_cliente_proveedor').bootstrapToggle();
+    })
+
+    $('#cliente_proveedor').change(function () {
+        if (this.checked) {
+            //cliente
+            $('#div_cliente').show('fade', 50);
+            $('#div_proveedor').hide();
+            $('#aplicaCliente').val(true);
+        } else {
+            //proveedor
+            $('#div_proveedor').show('fade', 50);
+            $('#div_cliente').hide();
+            $('#aplicaCliente').val(false);
+        }
+    });
+    $('#enviado_cliente_proveedor').change(function () {
+        if (this.checked) {
+            //cliente
+            $('.div_enviado_cliente').show('fade', 50);
+            $('.div_enviado_proveedor').hide();
+            $("#enviadoAClave").change();
+            $('#aplicaEnviadoACliente').val(true);
+        } else {
+            //proveedor
+            $('.div_enviado_proveedor').show('fade', 50);
+            $('.div_enviado_cliente').hide();
+            $("#EnviadoAProveedorClave").change();
+            $('#aplicaEnviadoACliente').val(false);
+        }
+    });
+
     // Initialize Select2 Elements (debe ir después de asignar el valor)
     $('.select2bs4').select2({
         theme: 'bootstrap4'
@@ -87,12 +124,76 @@ $(document).ready(function () {
             async: true
         });
     });
+    //agrega evento OnChange para saber el detalle del cliente
+    $("#proveedorClave").change(function () {
+        $.ajax({
+            type: 'POST',
+            url: '/Combos/obtieneProveedorDetalles',
+            data: { id_proveedor: $(this).val() },
+            success: function (data) {
+                try {
+                    console.log(data);
+                    $('#proveedorOtro').val(data[0].nombre);
+                    $('#proveedorOtroDireccion').val(data[0].direccion);
+                }
+                catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ocurrió un error obteniendo la información: ' + error,
+                        confirmButtonText: 'Aceptar',
+                    })
+                }
+            },
+            error: function (textStatus, errorThrown) {
+                //en caso de error en la llamada ajax
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Ocurrió un error',
+                    text: 'Intente nuevamente.'
+                })
+            },
+            async: true
+        });
+    });
     //agrega evento OnChange para saber el detalle del cliente (enviado a)
     $("#enviadoAClave").change(function () {
         $.ajax({
             type: 'POST',
             url: '/Combos/obtieneClienteDetalles',
             data: { id_cliente: $(this).val() },
+            success: function (data) {
+                try {
+                    console.log(data);
+                    $('#enviadoAOtro').val(data[0].nombre);
+                    $('#enviadoAOtroDireccion').val(data[0].direccion);
+                }
+                catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ocurrió un error obteniendo la información: ' + error,
+                        confirmButtonText: 'Aceptar',
+                    })
+                }
+            },
+            error: function (textStatus, errorThrown) {
+                //en caso de error en la llamada ajax
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Ocurrió un error',
+                    text: 'Intente nuevamente.'
+                })
+            },
+            async: true
+        });
+    });
+    //agrega evento OnChange para saber el detalle del cliente (enviado a)
+    $("#EnviadoAProveedorClave").change(function () {
+        $.ajax({
+            type: 'POST',
+            url: '/Combos/obtieneProveedorDetalles',
+            data: { id_proveedor: $(this).val() },
             success: function (data) {
                 try {
                     console.log(data);
@@ -144,6 +245,7 @@ $(document).ready(function () {
 
     //controla envio del formulario
     $('form #btn-ok').click(function (e) {
+
         let $form = $(this).closest('form');
 
         const swalWithBootstrapButtons = Swal.mixin({
@@ -277,11 +379,14 @@ function leeXLSX() {
 
 
 function verificaChecks(event) {
+    //cliente
     if (event.target.id == 'aplicaClienteOtro') {
         checkInputCliente(event);
-    } else if (event.target.id == 'aplicaEnviadoOtro') {
+    }if (event.target.id == 'aplicaProveedorOtro') {
+        checkInputProveedor(event);
+    }else if (event.target.id == 'aplicaEnviadoOtro') {
         checkInputEnviado(event);
-    } else if (event.target.id == 'aplicaTransporteOtro') {
+    }else if (event.target.id == 'aplicaTransporteOtro') {
         checkInputTransporte(event);
     }
 }
@@ -306,11 +411,33 @@ function checkInputCliente(event) {
         $('#clienteOtroDireccion').val("");
     }
 }
+function checkInputProveedor(event) {
+    //si cliente otro esta seleccionado
+    if (event.target.checked) {
+        $("#proveedorClave").val("");
+        $('#proveedorClave').prop('disabled', true);
+        $('#proveedorOtro').prop('readonly', false);
+        $('#proveedorOtroDireccion').prop('readonly', false);
+        $('#proveedorOtro').val("");
+        $('#proveedorOtroDireccion').val("");
+        $('.select2bs4').select2({
+            theme: 'bootstrap4'
+        })
+    } else { //si proveedor otro no está seleccionado
+        $('#proveedorClave').prop('disabled', false);
+        $('#proveedorOtro').prop('readonly', true);
+        $('#proveedorOtroDireccion').prop('readonly', true);
+        $('#proveedorOtro').val("");
+        $('#proveedorOtroDireccion').val("");
+    }
+}
 function checkInputEnviado(event) {
     //si cliente otro esta seleccionado
     if (event.target.checked) {
         $("#enviadoAClave").val("");
         $('#enviadoAClave').prop('disabled', true);
+        $("#EnviadoAProveedorClave").val("");
+        $('#EnviadoAProveedorClave').prop('disabled', true);
         $('#enviadoAOtro').prop('readonly', false);
         $('#enviadoAOtroDireccion').prop('readonly', false);
         $('#enviadoAOtro').val("");
@@ -320,6 +447,7 @@ function checkInputEnviado(event) {
         })
     } else { //si cliente otro no está seleccionado
         $('#enviadoAClave').prop('disabled', false);
+        $('#EnviadoAProveedorClave').prop('disabled', false);
         $('#enviadoAOtro').prop('readonly', true);
         $('#enviadoAOtroDireccion').prop('readonly', true);
         $('#enviadoAOtro').val("");
@@ -470,7 +598,7 @@ function calculaDatos() {
 }
 
 window.onload = function () {
-    clicMenu(1);
+    //clicMenu(1);
 }
 
 function ObtieneTotalCantidad() {
@@ -489,4 +617,71 @@ function ObtieneTotalPeso() {
     });
 
     return suma;
+}
+
+//muestra el modal de cliente
+function mostrarModalCliente(tipo) {
+    $('#modalCliente').modal('show');
+    tipoModal = tipo;
+}
+
+//muestra el modal de proveedor
+function mostrarModalProveedor(tipo) {
+    $('#modalProveedor').modal('show');
+    tipoModal = tipo;
+}
+
+function AgregaCliente() {
+    $('#modalCliente').modal('hide');
+
+    //determina el combo
+    let combo = ''
+    if (tipoModal == 1) {
+        combo = 'clienteClave';
+    } else {
+        combo = 'enviadoAClave';
+    }
+
+    //define el nuevo item
+    var data = {
+        id: $("#listadoClientes option:selected").val(),
+        text: $("#listadoClientes option:selected").text()
+    };
+
+    // Set the value, creating a new option if necessary
+    if ($('#' + combo).find("option[value='" + data.id + "']").length) {
+        $('#' + combo).val(data.id).trigger('change');
+    } else {
+        // Create a DOM Option and pre-select by default
+        var newOption = new Option(data.text, data.id, true, true);
+        // Append it to the select
+        $('#' + combo).append(newOption).trigger('change');
+    }
+}
+function AgregaProveedor() {
+    $('#modalProveedor').modal('hide');
+
+    //determina el combo
+    let combo = ''
+    if (tipoModal == 1) {
+        combo = 'proveedorClave';
+    } else {
+        combo = 'EnviadoAProveedorClave';
+    }
+
+    //define el nuevo item
+    var data = {
+        id: $("#listadoProveedores option:selected").val(),
+        text: $("#listadoProveedores option:selected").text()
+    };
+
+    // Set the value, creating a new option if necessary
+    if ($('#' + combo).find("option[value='" + data.id + "']").length) {
+        $('#' + combo).val(data.id).trigger('change');
+    } else {
+        // Create a DOM Option and pre-select by default
+        var newOption = new Option(data.text, data.id, true, true);
+        // Append it to the select
+        $('#' + combo).append(newOption).trigger('change');
+    }
 }

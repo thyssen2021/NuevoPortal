@@ -7,17 +7,17 @@ using System.Web;
 
 namespace Portal_2_0.Models
 {
-    public class clientesMetadata
+    public class proveedoresMetadata
     {
 
     }
 
-    [MetadataType(typeof(clientesMetadata))]
-    public partial class clientes
+    [MetadataType(typeof(proveedoresMetadata))]
+    public partial class proveedores
     {
         //concatena el nombre
         [NotMapped]
-        public string ConcatClienteSAP
+        public string ConcatproveedoresAP
         {
             get
             {
@@ -27,7 +27,7 @@ namespace Portal_2_0.Models
         public string ConcatDireccion
         {
             get
-            {                
+            {
                 return string.Format("{0}, {1}, {2}, CP.:{3}, {4} "
                     , !string.IsNullOrEmpty(this.calle) ? calle : "-"
                     , !string.IsNullOrEmpty(this.ciudad) ? ciudad : "-"

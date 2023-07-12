@@ -699,7 +699,7 @@ namespace Portal_2_0.Controllers
             return Json(list, JsonRequestBehavior.AllowGet);
         }
         ///<summary>
-        ///Obtiene los detalles del cliente
+        ///Obtiene los detalles del proveedor
         ///</summary>
         ///<return>
         ///retorna un JsonResult con las opciones disponibles
@@ -723,7 +723,37 @@ namespace Portal_2_0.Controllers
             detalles[0] = new
             {
                 nombre = Clases.Util.UsoStrings.RecortaString(cliente.descripcion, 50),
-                direccion = Clases.Util.UsoStrings.RecortaString(cliente.direccion, 100)
+                direccion = Clases.Util.UsoStrings.RecortaString(cliente.ConcatDireccion, 100)
+            };
+
+            return Json(detalles, JsonRequestBehavior.AllowGet);
+        }
+        ///<summary>
+        ///Obtiene los detalles del proveedor
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult obtieneProveedorDetalles(int id_proveedor = 0)
+        {
+            var detalles = new object[1];
+
+            //obtiene todos los posibles valores
+            proveedores proveedor = db.proveedores.Find(id_proveedor);
+
+            if (proveedor == null)
+            {
+                detalles[0] = new
+                {
+                    nombre = "",
+                    direccion = ""
+                };
+                return Json(detalles, JsonRequestBehavior.AllowGet);
+            }
+
+            detalles[0] = new
+            {
+                nombre = Clases.Util.UsoStrings.RecortaString(proveedor.descripcion, 50),
+                direccion = Clases.Util.UsoStrings.RecortaString(proveedor.ConcatDireccion, 100)
             };
 
             return Json(detalles, JsonRequestBehavior.AllowGet);

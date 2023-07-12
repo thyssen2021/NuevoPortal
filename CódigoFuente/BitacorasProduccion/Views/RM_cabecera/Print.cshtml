@@ -114,22 +114,53 @@
                     <br />
                 </div>
             </div>
-            <div class="row">
-                <div class="col form-inline border">
-                    <label for="txtRemisionCliente">Cliente</label>
-                    <div class="col">
-                        <label id="txtRemisionCliente" class="form-control-plaintext font-weight-bold">@Model.clienteOtro</label>
+
+            @if (!String.IsNullOrEmpty(Model.clienteOtro))
+            {
+                <div class="row">
+                    <div class="col form-inline border">
+                        <label for="txtRemisionCliente">Cliente</label>
+                        <div class="col">
+                            <label id="txtRemisionCliente" class="form-control-plaintext font-weight-bold">@Model.clienteOtro</label>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col form-inline border">
-                    <label for="txtRemisionClienteDireccion">Dirección cliente</label>
-                    <div class="col">
-                        <label id="txtRemisionClienteDireccion" class="form-control-plaintext font-weight-bold">@Model.clienteOtroDireccion</label>
+            }
+            @if (!String.IsNullOrEmpty(Model.clienteOtroDireccion))
+            {
+                <div class="row">
+                    <div class="col form-inline border">
+                        <label for="txtRemisionClienteDireccion">Dirección cliente</label>
+                        <div class="col">
+                            <label id="txtRemisionClienteDireccion" class="form-control-plaintext font-weight-bold">@Model.clienteOtroDireccion</label>
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.proveedorOtro))
+            {
+                <div class="row">
+                    <div class="col form-inline border">
+                        <label for="txtRemisionCliente">Proveedor</label>
+                        <div class="col">
+                            <label id="txtRemisionCliente" class="form-control-plaintext font-weight-bold">@Model.proveedorOtro</label>
+                        </div>
+                    </div>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.proveedorOtroDireccion))
+            {
+                <div class="row">
+                    <div class="col form-inline border">
+                        <label for="txtRemisionClienteDireccion">Dirección Proveedor</label>
+                        <div class="col">
+                            <label id="txtRemisionClienteDireccion" class="form-control-plaintext font-weight-bold">@Model.proveedorOtroDireccion</label>
+                        </div>
+                    </div>
+                </div>
+            }
+
+
             <div class="row">
                 <div class="col form-inline border">
                     <label for="txtRemisionEnviadoA">Enviado a</label>

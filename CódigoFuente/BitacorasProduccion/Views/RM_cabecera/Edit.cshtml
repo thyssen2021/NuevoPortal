@@ -6,6 +6,8 @@
     ViewBag.SegundoNivel = "listado_remisiones";
     ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
 
+    ViewBag.nav_style = "nav-sm";
+
     Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
 
     Portal_2_0.Models.empleados EmpleadoActual = (Portal_2_0.Models.empleados)ViewBag.EmpleadoActual;
@@ -19,7 +21,9 @@
     <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
     <!-- iCheck -->
     <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/blue.css")" rel="stylesheet">
-    <link href="~/Content/timeline.css" rel="stylesheet" />
+    <!-- toggle -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap4-toggle/3.6.1/bootstrap4-toggle.min.css" integrity="sha512-EzrsULyNzUc4xnMaqTrB4EpGvudqpetxG/WNjCpG6ZyyAGxeB6OBF9o246+mwx3l/9Cn838iLIcrxpPHTiygAA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+   <link href="~/Content/timeline.css" rel="stylesheet" />
     <style>
         .derecha {
             text-align: right;
@@ -58,6 +62,8 @@
                                     @Html.HiddenFor(model => model.clave)
                                     @Html.HiddenFor(model => model.activo)
                                     @Html.HiddenFor(model => model.tipo_edit)
+                                    <input type="hidden" id="aplicaCliente" name="aplicaCliente" value="@(Model.aplicaCliente ? "true" : "false")" />
+                                    <input type="hidden" id="aplicaEnviadoACliente" name="aplicaEnviadoACliente" value="@(Model.aplicaEnviadoACliente ? "true" : "false")" />
 
 
 
@@ -139,71 +145,144 @@
                                         </div>
                                     </div>
 
+
+
                                     <div class="ln_solid"></div>
                                     <div class="form-group row">
-                                        <span style="color:black"><b>CLIENTE</b></span>
+                                        <input type="checkbox" id="cliente_proveedor" checkeddata-toggle="toggle" data-on="Cliente" data-off="Proveedor" data-onstyle="success" data-offstyle="info" @(Model.aplicaCliente ? "checked" : String.Empty)>
                                     </div>
 
-                                    <div class="form-group row">
-                                        <!--Cliente Clave-->
-                                        @Html.LabelFor(model => model.clienteClave, new { @class = "control-label col-md-1" })
-                                        <div class="col-md-4">
-                                            @if (Model.aplicaClienteOtro)
-                                            {
-                                                @Html.DropDownList("clienteClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @disabled = "disabled" })
-                                            }
-                                            else
-                                            {
-                                                @Html.DropDownList("clienteClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
-                                            }
-                                            @Html.ValidationMessageFor(model => model.clienteClave, "", new { @class = "text-danger" })
+                                    <div id="div_cliente" style="@(Model.aplicaCliente?"display:block":"display:none")">
+                                        <div class="form-group row">
+                                            <span style="color:black"><b>CLIENTE</b></span>
                                         </div>
-                                        <!--Aplica otro?-->
-                                        @Html.LabelFor(model => model.aplicaClienteOtro, htmlAttributes: new { @class = "control-label col-md-1" })
-                                        <div class="col-md-1">
-                                            @Html.EditorFor(model => model.aplicaClienteOtro, new { htmlAttributes = new { @class = "check", @autocomplete = "off" } })
-                                            @Html.ValidationMessageFor(model => model.aplicaClienteOtro, "", new { @class = "text-danger" })
+
+                                        <div class="form-group row">
+                                            <!--Cliente Clave-->
+                                            @Html.LabelFor(model => model.clienteClave, new { @class = "control-label col-md-1" })
+                                            <div class="col-md-4">
+                                                @if (Model.aplicaClienteOtro)
+                                                {
+                                                    @Html.DropDownList("clienteClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @disabled = "disabled" })
+                                                }
+                                                else
+                                                {
+                                                    @Html.DropDownList("clienteClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                }
+                                                @Html.ValidationMessageFor(model => model.clienteClave, "", new { @class = "text-danger" })
+                                            </div>
+                                            <div class="col-md-1">
+                                                <button type="button" class="btn btn-sm btn-round btn-warning float-left" onclick="mostrarModalCliente(1); return false;"><i class="fa-solid fa-magnifying-glass-plus"></i> Agregar</button>
+                                            </div>
+                                            <!--Aplica otro?-->
+                                            @Html.LabelFor(model => model.aplicaClienteOtro, htmlAttributes: new { @class = "control-label col-md-1" })
+                                            <div class="col-md-1">
+                                                @Html.EditorFor(model => model.aplicaClienteOtro, new { htmlAttributes = new { @class = "check", @autocomplete = "off" } })
+                                                @Html.ValidationMessageFor(model => model.aplicaClienteOtro, "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group row">
+                                            <!--Cliente Otro-->
+                                            @Html.LabelFor(model => model.clienteOtro, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
+                                            <div class="col-md-4">
+                                                @if (Model.aplicaClienteOtro)
+                                                {
+                                                    @Html.EditorFor(model => model.clienteOtro, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                                }
+                                                else
+                                                {
+                                                    @Html.EditorFor(model => model.clienteOtro, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+                                                }
+                                                @Html.ValidationMessageFor(model => model.clienteOtro, "", new { @class = "text-danger" })
+                                            </div>
+                                            <!--Cliente Otro Dirección-->
+                                            @Html.LabelFor(model => model.clienteOtroDireccion, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
+                                            <div class="col-md-6">
+                                                @if (Model.aplicaClienteOtro)
+                                                {
+                                                    @Html.EditorFor(model => model.clienteOtroDireccion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                                }
+                                                else
+                                                {
+                                                    @Html.EditorFor(model => model.clienteOtroDireccion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+                                                }
+                                                @Html.ValidationMessageFor(model => model.clienteOtroDireccion, "", new { @class = "text-danger" })
+                                            </div>
                                         </div>
                                     </div>
-
-                                    <div class="form-group row">
-                                        <!--Cliente Otro-->
-                                        @Html.LabelFor(model => model.clienteOtro, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
-                                        <div class="col-md-4">
-                                            @if (Model.aplicaClienteOtro)
-                                            {
-                                                @Html.EditorFor(model => model.clienteOtro, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                                            }
-                                            else
-                                            {
-                                                @Html.EditorFor(model => model.clienteOtro, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
-                                            }
-                                            @Html.ValidationMessageFor(model => model.clienteOtro, "", new { @class = "text-danger" })
+                                    <div id="div_proveedor" style="@(!Model.aplicaCliente?"display:block":"display:none")">
+                                        <div class="form-group row">
+                                            <span style="color:black"><b>PROVEEDOR</b></span>
                                         </div>
-                                        <!--Cliente Otro Dirección-->
-                                        @Html.LabelFor(model => model.clienteOtroDireccion, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
-                                        <div class="col-md-6">
-                                            @if (Model.aplicaClienteOtro)
-                                            {
-                                                @Html.EditorFor(model => model.clienteOtroDireccion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
-                                            }
-                                            else
-                                            {
-                                                @Html.EditorFor(model => model.clienteOtroDireccion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
-                                            }
-                                            @Html.ValidationMessageFor(model => model.clienteOtroDireccion, "", new { @class = "text-danger" })
+
+                                        <div class="form-group row">
+                                            <!--Provedor Clave-->
+                                            @Html.LabelFor(model => model.proveedorClave, new { @class = "control-label col-md-1" })
+                                            <div class="col-md-4">
+                                                @if (Model.aplicaProveedorOtro)
+                                                {
+                                                    @Html.DropDownList("proveedorClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @disabled = "disabled" })
+                                                }
+                                                else
+                                                {
+                                                    @Html.DropDownList("proveedorClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                }
+                                                @Html.ValidationMessageFor(model => model.proveedorClave, "", new { @class = "text-danger" })
+                                            </div>
+                                            <div class="col-md-1">
+                                                <button type="button" class="btn btn-sm btn-round btn-warning float-left" onclick="mostrarModalProveedor(1); return false;"><i class="fa-solid fa-magnifying-glass-plus"></i> Agregar</button>
+                                            </div>
+                                            <!--Aplica otro?-->
+                                            @Html.LabelFor(model => model.aplicaProveedorOtro, htmlAttributes: new { @class = "control-label col-md-1" })
+                                            <div class="col-md-1">
+                                                @Html.EditorFor(model => model.aplicaProveedorOtro, new { htmlAttributes = new { @class = "check", @autocomplete = "off" } })
+                                                @Html.ValidationMessageFor(model => model.aplicaProveedorOtro, "", new { @class = "text-danger" })
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group row">
+                                            <!--Proveedor Otro-->
+                                            @Html.LabelFor(model => model.proveedorOtro, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
+                                            <div class="col-md-4">
+                                                @if (Model.aplicaProveedorOtro)
+                                                {
+                                                    @Html.EditorFor(model => model.proveedorOtro, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                                }
+                                                else
+                                                {
+                                                    @Html.EditorFor(model => model.proveedorOtro, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+                                                }
+                                                @Html.ValidationMessageFor(model => model.proveedorOtro, "", new { @class = "text-danger" })
+                                            </div>
+                                            <!--Proveedor Otro Dirección-->
+                                            @Html.LabelFor(model => model.proveedorOtroDireccion, htmlAttributes: new { @class = "control-label col-md-1 control-label col-md-1 float-right" })
+                                            <div class="col-md-6">
+                                                @if (Model.aplicaProveedorOtro)
+                                                {
+                                                    @Html.EditorFor(model => model.proveedorOtroDireccion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                                }
+                                                else
+                                                {
+                                                    @Html.EditorFor(model => model.proveedorOtroDireccion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+                                                }
+                                                @Html.ValidationMessageFor(model => model.proveedorOtroDireccion, "", new { @class = "text-danger" })
+                                            </div>
                                         </div>
                                     </div>
-
                                     <div class="ln_solid"></div>
                                     <div class="form-group row">
                                         <span style="color:black"><b>ENVIADO A</b></span>
                                     </div>
+                                    <div class="form-group row">
+                                        <input type="checkbox" id="enviado_cliente_proveedor" checkeddata-toggle="toggle" data-on="Cliente" data-off="Proveedor" data-onstyle="success" data-offstyle="info" @(Model.aplicaEnviadoACliente ? "checked" : String.Empty)>
+                                    </div>
+
 
                                     <div class="form-group row">
                                         <!--Enviado A Clave-->
-                                        @Html.LabelFor(model => model.enviadoAClave, new { @class = "control-label col-md-1" })
-                                        <div class="col-md-4">
+                                        @Html.LabelFor(model => model.enviadoAClave, new { @class = "control-label col-md-1 div_enviado_cliente", @style = Model.aplicaEnviadoACliente ? "display:block" : "display:none" })
+                                        <div class="col-md-4 div_enviado_cliente" style="@(Model.aplicaEnviadoACliente?"display:block":"display:none")">
                                             @if (Model.aplicaEnviadoOtro)
                                             {
                                                 @Html.DropDownList("enviadoAClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @disabled = "disabled" })
@@ -212,7 +291,27 @@
                                             {
                                                 @Html.DropDownList("enviadoAClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
                                             }
-                                            @Html.ValidationMessageFor(model => model.enviadoAClave, "", new { @class = "text-danger" })
+                                            @Html.ValidationMessageFor(model => model.enviadoAClave, "", new { @class = "text-danger div_enviado_proveedor", @style = Model.aplicaEnviadoACliente ? "display:block" : "display:none" })
+                                        </div>
+
+                                        <div class="col-md-1 div_enviado_cliente" style="@(Model.aplicaEnviadoACliente?"display:block":"display:none")">
+                                            <button type="button" class="btn btn-sm btn-round btn-warning float-left" onclick="mostrarModalCliente(2); return false;"><i class="fa-solid fa-magnifying-glass-plus"></i> Agregar</button>
+                                        </div>
+                                        <!--Enviado A Proveedor-->
+                                        @Html.LabelFor(model => model.EnviadoAProveedorClave, new { @class = "control-label col-md-1 div_enviado_proveedor", @style = !Model.aplicaEnviadoACliente ? "display:block" : "display:none" })
+                                        <div class="col-md-4 div_enviado_proveedor" style="@(!Model.aplicaEnviadoACliente?"display:block":"display:none")">
+                                            @if (Model.aplicaEnviadoOtro)
+                                            {
+                                                @Html.DropDownList("EnviadoAProveedorClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @disabled = "disabled" })
+                                            }
+                                            else
+                                            {
+                                                @Html.DropDownList("EnviadoAProveedorClave", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                            }
+                                            @Html.ValidationMessageFor(model => model.EnviadoAProveedorClave, "", new { @class = "text-danger div_enviado_proveedor", @style = !Model.aplicaEnviadoACliente ? "display:block" : "display:none" })
+                                        </div>
+                                        <div class="col-md-1 div_enviado_proveedor" style="@(!Model.aplicaEnviadoACliente?"display:block":"display:none")">
+                                            <button type="button" class="btn btn-sm btn-round btn-warning float-left" onclick="mostrarModalProveedor(2); return false;"><i class="fa-solid fa-magnifying-glass-plus"></i> Agregar</button>
                                         </div>
                                         <!--Aplica otro?-->
                                         @Html.LabelFor(model => model.aplicaEnviadoOtro, htmlAttributes: new { @class = "control-label col-md-1" })
@@ -250,6 +349,7 @@
                                             @Html.ValidationMessageFor(model => model.enviadoAOtroDireccion, "", new { @class = "text-danger" })
                                         </div>
                                     </div>
+
 
                                     <div class="ln_solid"></div>
                                     <div class="form-group row">
@@ -503,6 +603,68 @@
 </div>
 
 
+<!-- Modal DEMO Modelo -->
+<div class="modal fade" id="modalProveedor" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title" id="exampleModalLongTitle">Agregar Proveedor</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="form-group row">
+                    <div class="col-md-12">
+                        <h6>Seleccione el proveedor que desea agregar al listado.</h6>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-12">
+                        @Html.DropDownList("listadoProveedores", null, htmlAttributes: new { @class = "select2bs4 col-md-12", @style = "width:100%", @required = "required" })
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="AgregaProveedor(); return false;">Continuar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal DEMO Modelo -->
+<div class="modal fade" id="modalCliente" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title" id="exampleModalLongTitle">Agregar Cliente</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="form-group row">
+                    <div class="col-md-12">
+                        <h6>Seleccione el cliente que desea agregar al listado.</h6>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-12">
+                        @Html.DropDownList("listadoClientes", null, htmlAttributes: new { @class = "select2bs4 col-md-12", @style = "width:100%", @required = "required" })
+                        <span class="field-validation-valid text-danger" data-valmsg-for="id_centro_costo" data-valmsg-replace="true"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="AgregaCliente(); return false;">Continuar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
     @Scripts.Render("~/bundles/jqueryval")
@@ -514,6 +676,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
     <!-- SweetAlert2 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.3/sweetalert2.all.min.js" integrity="sha512-/iBgV43zPirSC0tue+PT/1VHGs7En24twBmT+sVMgn9PTaOpKfbgIyL5YsGKlbAIxcwz9S8W/YEnYjpIYj2Axw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- toggle -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap4-toggle/3.6.1/bootstrap4-toggle.min.js" integrity="sha512-bAjB1exAvX02w2izu+Oy4J96kEr1WOkG6nRRlCtOSQ0XujDtmAstq5ytbeIxZKuT9G+KzBmNq5d23D6bkGo8Kg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery-iu/jquery-ui.min.js"))
     <script src="~/Scripts/Forms/RemisionesManuales.js?date=@DateTime.Now"></script>
     <script>
 

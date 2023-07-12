@@ -12,22 +12,28 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class RM_estatus
+    public partial class proveedores
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public RM_estatus()
+        public proveedores()
         {
-            this.RM_cambio_estatus = new HashSet<RM_cambio_estatus>();
             this.RM_cabecera = new HashSet<RM_cabecera>();
+            this.RM_cabecera1 = new HashSet<RM_cabecera>();
         }
     
         public int clave { get; set; }
-        public bool activo { get; set; }
+        public Nullable<bool> activo { get; set; }
+        public string claveSAP { get; set; }
         public string descripcion { get; set; }
+        public string pais { get; set; }
+        public string ciudad { get; set; }
+        public string codigo_postal { get; set; }
+        public string calle { get; set; }
+        public string estado { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<RM_cambio_estatus> RM_cambio_estatus { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<RM_cabecera> RM_cabecera { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<RM_cabecera> RM_cabecera1 { get; set; }
     }
 }

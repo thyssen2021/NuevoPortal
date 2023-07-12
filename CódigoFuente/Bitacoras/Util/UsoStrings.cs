@@ -40,7 +40,12 @@ namespace Clases.Util
 
         public static string RecortaString(string inputString, int limite)
         {
+
             string valor = inputString;
+
+            if (String.IsNullOrEmpty(inputString)) { 
+                valor= String.Empty;
+            }           
 
             if (valor.Length > limite)
             {
