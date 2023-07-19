@@ -19,6 +19,7 @@ namespace Portal_2_0.Models
         {
             this.RM_cabecera = new HashSet<RM_cabecera>();
             this.RM_cabecera1 = new HashSet<RM_cabecera>();
+            this.SCDM_solicitud_rel_item_material = new HashSet<SCDM_solicitud_rel_item_material>();
         }
     
         public int clave { get; set; }
@@ -36,5 +37,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<RM_cabecera> RM_cabecera { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<RM_cabecera> RM_cabecera1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SCDM_solicitud_rel_item_material> SCDM_solicitud_rel_item_material { get; set; }
     }
 }

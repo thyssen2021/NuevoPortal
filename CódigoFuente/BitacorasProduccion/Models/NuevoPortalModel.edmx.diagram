@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="e491ff9c3c62497ba77b67c445b21bb2" Name="Diagram1" ZoomLevel="77">
+      <Diagram DiagramId="e491ff9c3c62497ba77b67c445b21bb2" Name="Diagram1" ZoomLevel="72">
         <EntityTypeShape EntityType="Portal_2_0Model.AspNetUsers" Width="1.5" PointX="3" PointY="1" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.biblioteca_digital" Width="1.5" PointX="16.5" PointY="67.25" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.bom_en_sap" Width="1.5" PointX="0.75" PointY="6.75" IsExpanded="true" />
@@ -332,6 +332,99 @@
         <AssociationConnector Association="Portal_2_0Model.FK_RM_cabecera_ultimoEstatus" />
         <AssociationConnector Association="Portal_2_0Model.FK_RM_cambio_remisionCabeceraClaveo" />
         <AssociationConnector Association="Portal_2_0Model.FK_RM_elemento_remisionCabeceraClave" />
+        <EntityTypeShape EntityType="Portal_2_0Model.registro_eventos" Width="2.25" PointX="13.375" PointY="11.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_centro_recibo" Width="2.25" PointX="43.25" PointY="63.625" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_clase_aprovisionamiento" Width="2.25" PointX="38" PointY="107.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_clave_paises" Width="2.25" PointX="43.25" PointY="90.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_departamentos_asignacion" Width="2.25" PointX="3" PointY="106" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_diametro_interior" Width="2.25" PointX="38" PointY="110" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_dias_feriados" Width="2.25" PointX="14.375" PointY="0.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_disponentes" Width="2.25" PointX="32" PointY="93.625" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_frontera_puerto_planta" Width="2.25" PointX="43.25" PointY="81.875" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_ihs" Width="2.25" PointX="38" PointY="104.125" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_incoterm" Width="2.25" PointX="43.25" PointY="79.125" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_modelo_negocio" Width="2.25" PointX="38" PointY="75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_molino" Width="2.25" PointX="38" PointY="59.25" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_parte_interior_exterior" Width="2.25" PointX="38" PointY="67.25" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_peso_recubrimiento" Width="2.25" PointX="38" PointY="69.875" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_po_condiciones_pago" Width="2.25" PointX="43.25" PointY="73.875" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_po_existente" Width="2.25" PointX="43.25" PointY="76.625" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_po_transporte" Width="2.25" PointX="43.25" PointY="66.125" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_posicion_rollo_embarques" Width="2.25" PointX="38" PointY="56.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_prioridad" Width="2.25" PointX="34.75" PointY="99.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_tipo_cambio" Width="2.25" PointX="34.75" PointY="96.875" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_tipo_materiales_solicitud" Width="2.25" PointX="37" PointY="96.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_tipo_metal" Width="2.25" PointX="38" PointY="54" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_tipo_recubrimiento" Width="2.25" PointX="38" PointY="64.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_tipo_solicitud" Width="2.25" PointX="34.875" PointY="93.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_tipo_transito" Width="2.25" PointX="38" PointY="101.625" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_tipo_venta" Width="2.25" PointX="38" PointY="62" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_unidades_medida" Width="2.25" PointX="38" PointY="72.375" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_usuarios_revision_departamento" Width="2.25" PointX="32" PointY="97" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_rel_solicitud_archivos" Width="2.25" PointX="40.25" PointY="84.25" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_rel_solicitud_materiales_solicitados" Width="2.25" PointX="39.25" PointY="91.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_rel_solicitud_plantas" Width="2.25" PointX="40.25" PointY="87.625" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud" Width="2.25" PointX="37" PointY="90.25" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_asignaciones" Width="2.25" PointX="39.25" PointY="97.875" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_historial" Width="2.25" PointX="43.25" PointY="86.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_item_material" Width="2.25" PointX="40.25" PointY="63" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_lista_tecnica" Width="2.25" PointX="42.5" PointY="69.5" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_solicitud_rel_orden_compra" Width="2.25" PointX="45.5" PointY="68.375" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SSCDM_rel_solicitud_archivos_id_archivo" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_cliente" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_cat_disponentes_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_cat_usuarios_revision_departamento_id_empleado" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_id_solicitante" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SSCDM_solicitud_historial_id_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_cat_departamentos_asignacion_id_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SSCDM_rel_solicitud_plantas_id_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_procesador_externo" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_proveedor" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_orden_compra_id_proveedor" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_orden_compra_id_centro_recibo" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_clase_aprovisionamiento" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_orden_compra_id_clave_pais_origen" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_cat_usuarios_revision_departamento_id_scdm_departamento" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_asignaciones_id_scdm_departamento" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_diametro_interior" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_disponente" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_orden_compra_id_frontera_puesto_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_ihs_1" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_ihs_2" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_ihs_3" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_ihs_4" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_ihs_5" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_orden_compra_id_incoterm" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_modelo_negocio" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_molino" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_orden_compra_id_molino" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_parte_interior_exterior" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_peso_recubrimiento" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_orden_compra_id_condiciones_pago" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_orden_compra_id_oc_existente" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_orden_compra_id_transporte_1" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_orden_compra_id_transporte_2" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_posicion_rollo" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_id_prioridad" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_id_tipo_cambio" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_rel_solicitud_materiales_solicitados_id_tipo_material" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_tipo_material" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_metal" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_tipo_recubrimiento" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_id_tipo_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_tipo_transito" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_tipo_venta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_unidad_medida_inventario" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_rel_solicitud_archivos_id_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_rel_solicitud_materiales_solicitados_id_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_rel_solicitud_plantas_id_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_asignaciones_id_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_historial_id_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_item_material_id_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_orden_compra_id_solicitud" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_lista_tecnica_id_componente" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_lista_tecnica_id_solicitud_rel_item_material" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_orden_compra_id_solicitud_rel_material_item" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

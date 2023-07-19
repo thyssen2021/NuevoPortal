@@ -19,6 +19,9 @@ namespace Portal_2_0.Models
         {
             this.RM_cabecera = new HashSet<RM_cabecera>();
             this.RM_cabecera1 = new HashSet<RM_cabecera>();
+            this.SCDM_solicitud_rel_item_material = new HashSet<SCDM_solicitud_rel_item_material>();
+            this.SCDM_solicitud_rel_item_material1 = new HashSet<SCDM_solicitud_rel_item_material>();
+            this.SCDM_solicitud_rel_orden_compra = new HashSet<SCDM_solicitud_rel_orden_compra>();
         }
     
         public int clave { get; set; }
@@ -35,5 +38,11 @@ namespace Portal_2_0.Models
         public virtual ICollection<RM_cabecera> RM_cabecera { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<RM_cabecera> RM_cabecera1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SCDM_solicitud_rel_item_material> SCDM_solicitud_rel_item_material { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SCDM_solicitud_rel_item_material> SCDM_solicitud_rel_item_material1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SCDM_solicitud_rel_orden_compra> SCDM_solicitud_rel_orden_compra { get; set; }
     }
 }

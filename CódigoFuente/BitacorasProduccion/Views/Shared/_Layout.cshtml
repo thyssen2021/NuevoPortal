@@ -459,6 +459,19 @@
 
                                     }
 
+                                    @*MASTER DATA MM*@
+
+                                    @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_AUTORIZAR))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "scdm_mm" ? "active" : null )">
+                                            <a><i class="fa fa-boxes-packing" style="color:#e8f579"></i> SCDM<span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "scdm_mm" ? "display:block" : null )">
+                                                <h3>Maestro Materiales</h3>
+                                                <li class="@(ViewBag.SegundoNivel == "mis_solicitudes_mm" ? "current-page" : null )"><a href="@Url.Action("Index", "SCDM_solicitud")">MM - Mis Solicitudes</a></li>
+                                            </ul>
+                                        </li>
+                                    }
+
                                     @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_AUTORIZAR))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "autorizar_matriz" ? "active" : null )">
@@ -745,8 +758,8 @@
                                                 {
                                                     <h3>Centros de Costo</h3>
                                                     @*<li class="@(ViewBag.SegundoNivel == "actual" ? "current-page" : null )"><a href="@Url.Action("Actual", "ResponsableBudget")">ACT FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)))</a></li>
-                                                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
-                                                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
+                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
+                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
                                                     <li class="@(ViewBag.SegundoNivel == "centros" ? "current-page" : null )"><a href="@Url.Action("Centros", "ResponsableBudget")">Mis Centros</a></li>
                                                 }
 

@@ -31,6 +31,8 @@ namespace Portal_2_0.Models
             this.produccion_turnos = new HashSet<produccion_turnos>();
             this.Area = new HashSet<Area>();
             this.RM_almacen = new HashSet<RM_almacen>();
+            this.SCDM_cat_departamentos_asignacion = new HashSet<SCDM_cat_departamentos_asignacion>();
+            this.SCDM_rel_solicitud_plantas = new HashSet<SCDM_rel_solicitud_plantas>();
         }
     
         public int clave { get; set; }
@@ -45,6 +47,7 @@ namespace Portal_2_0.Models
         public string tkorgcountry { get; set; }
         public string tkorgcountrykey { get; set; }
         public string tkapsite { get; set; }
+        public Nullable<bool> aplica_solicitud_scdm { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<empleados> empleados { get; set; }
@@ -74,5 +77,9 @@ namespace Portal_2_0.Models
         public virtual ICollection<Area> Area { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<RM_almacen> RM_almacen { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SCDM_cat_departamentos_asignacion> SCDM_cat_departamentos_asignacion { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SCDM_rel_solicitud_plantas> SCDM_rel_solicitud_plantas { get; set; }
     }
 }

@@ -69,6 +69,10 @@ namespace Portal_2_0.Models
             this.RU_registros = new HashSet<RU_registros>();
             this.RU_registros1 = new HashSet<RU_registros>();
             this.IT_mantenimientos_aplazamientos = new HashSet<IT_mantenimientos_aplazamientos>();
+            this.SCDM_cat_disponentes = new HashSet<SCDM_cat_disponentes>();
+            this.SCDM_cat_usuarios_revision_departamento = new HashSet<SCDM_cat_usuarios_revision_departamento>();
+            this.SCDM_solicitud = new HashSet<SCDM_solicitud>();
+            this.SCDM_solicitud_historial = new HashSet<SCDM_solicitud_historial>();
         }
     
         public int id { get; set; }
@@ -206,5 +210,13 @@ namespace Portal_2_0.Models
         public virtual ICollection<RU_registros> RU_registros1 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_mantenimientos_aplazamientos> IT_mantenimientos_aplazamientos { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SCDM_cat_disponentes> SCDM_cat_disponentes { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SCDM_cat_usuarios_revision_departamento> SCDM_cat_usuarios_revision_departamento { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SCDM_solicitud> SCDM_solicitud { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SCDM_solicitud_historial> SCDM_solicitud_historial { get; set; }
     }
 }

@@ -85,5 +85,10 @@ namespace Clases.Util
         public const string RU_VIGILANCIA = "RU_VIGILANCIA";
         public const string RU_ALMACEN_RECEPCION = "RU_ALMACEN_RECEPCION";
         public const string RU_ALMACEN_LIBERACION = "RU_ALMACEN_LIBERACION";
+        //SCDM - MasterData
+        public const string SCDM_MM_ADMINISTRADOR = "SCDM_MM_ADMINISTRADOR";
+        public const string SCDM_MM_CREACION_SOLICITUDES = "SCDM_MM_CREACION_SOLICITUDES";
+        public const string SCDM_MM_APROBACION_SOLICITUDES = "SCDM_MM_APROBACION_SOLICITUDES";
+        public const string SCDM_MM_REPORTES = "SCDM_MM_REPORTES";
     }
 }
