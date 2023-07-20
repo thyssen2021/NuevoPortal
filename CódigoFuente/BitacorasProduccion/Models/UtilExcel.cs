@@ -3,6 +3,7 @@ using ExcelDataReader;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Web;
 
@@ -1299,8 +1300,8 @@ namespace Portal_2_0.Models
                                     lista.Add(new RH_menu_comedor_platillos()
                                     {
                                         orden_display = i - filaCabera - 1,
-                                        tipo_platillo = UsoStrings.RecortaString(platillo_tipo.Trim(),50), //quita espacios en blanco al inicio y al final del string
-                                        nombre_platillo = UsoStrings.RecortaString (platillo_nombre.Trim(),100),
+                                        tipo_platillo = UsoStrings.RecortaString(platillo_tipo.Trim(), 50), //quita espacios en blanco al inicio y al final del string
+                                        nombre_platillo = UsoStrings.RecortaString(platillo_nombre.Trim(), 100),
                                         fecha = fecha,
                                         kcal = kcal,
 
@@ -1660,7 +1661,7 @@ namespace Portal_2_0.Models
                         string NoParteCliente = String.Empty, material = String.Empty, lote = string.Empty, numRollo = string.Empty;
 
                         double piezas = 0.0, peso = 0.0;
-                        
+
                         //recorre todas los encabezados
                         for (int j = 0; j < encabezados.Count; j++)
                         {
@@ -1684,11 +1685,11 @@ namespace Portal_2_0.Models
                                     if (Double.TryParse(table.Rows[i][j].ToString(), out double q))
                                         piezas = q;
                                     break;
-                               case "PESO NETO":
+                                case "PESO NETO":
                                     if (Double.TryParse(table.Rows[i][j].ToString(), out double p))
                                         peso = p;
                                     break;
-                               
+
                             }
                         }
 
@@ -1696,12 +1697,12 @@ namespace Portal_2_0.Models
                         //agrega a la lista con los datos leidos
                         lista.Add(new RM_elemento()
                         {
-                           numeroParteCliente = NoParteCliente,
-                           numeroMaterial = material,
-                           numeroLote = lote,
-                           numeroRollo = numRollo,
-                           cantidad = piezas,
-                           peso = peso,
+                            numeroParteCliente = NoParteCliente,
+                            numeroMaterial = material,
+                            numeroLote = lote,
+                            numeroRollo = numRollo,
+                            cantidad = piezas,
+                            peso = peso,
                         });
                     }
                     catch (Exception e)
@@ -1714,15 +1715,91 @@ namespace Portal_2_0.Models
             }
 
             status = "SUCCESS";
-            msj = "Se leyeron "+lista.Count()+" elementos.";
+            msj = "Se leyeron " + lista.Count() + " elementos.";
 
             return lista;
         }
-    }
 
-    public class EncabezadoTableMenu
-    {
-        public string fecha { get; set; }
-        public int columna { get; set; }
+        public static List<CorreoMWP> LeeFormatoCorreosMWP()
+        {
+            List<CorreoMWP> lista = new List<CorreoMWP>();
+            using (var stream = System.IO.File.Open(@"\\lagermex1.com.mx\fs$\FileServer\Sistemas\alfredo.xochitemol\My Documents\Desarrollos\GruposMWP.xlsx", FileMode.Open, FileAccess.Read))
+            {
+                //crea el reader del archivo
+                using (var reader = ExcelReaderFactory.CreateReader(stream))
+                {
+                    //obtiene el dataset del archivo de excel
+                    var result = reader.AsDataSet();
+
+
+                    //recorre todas las hojas del archivo
+                    foreach (DataTable table in result.Tables)
+                    {
+                        //busca si existe una hoja llamada "dante"
+                        if (table.TableName.ToUpper() == "SHEET1" || table.TableName.ToUpper() == "HOJA1")
+                        {
+                            //la fila cero se omite (encabezado)
+                            for (int i = 1; i < table.Rows.Count; i++)
+                            {
+                                try
+                                {
+                                    //variables
+                                    string hostname = String.Empty;
+                                    string correo = String.Empty;
+                                    string horario = String.Empty;
+                                    string usuario = String.Empty;
+                                    Nullable<System.DateTime> fecha = null;
+
+
+                                    hostname = table.Rows[i][4].ToString();
+                                    correo = table.Rows[i][14].ToString();
+                                    horario = table.Rows[i][12].ToString();
+                                    usuario = table.Rows[i][5].ToString().ToUpper();
+
+                                    if (!String.IsNullOrEmpty(table.Rows[i][11].ToString()))
+                                        fecha = Convert.ToDateTime(table.Rows[i][11].ToString());
+
+
+                                    //agrega a la lista con los datos leidos
+                                    if (!String.IsNullOrEmpty(correo))
+                                        lista.Add(new CorreoMWP()
+                                        {
+                                            hostname = hostname,
+                                            correo = correo,
+                                            fecha = fecha,
+                                            horario_asignado = horario,
+                                            usuario = usuario,
+                                        });
+                                }
+                                catch (Exception e)
+                                {
+                                    System.Diagnostics.Debug.Print("Error: " + e.Message);
+                                }
+                            }
+
+                        }
+                    }
+                }
+            }
+            return lista;
+
+        }
+
+        public class EncabezadoTableMenu
+        {
+            public string fecha { get; set; }
+            public int columna { get; set; }
+        }
+
+        public class CorreoMWP
+        {
+            public string hostname { get; set; }
+            public string usuario { get; set; }
+            public string correo { get; set; }
+            public DateTime? fecha { get; set; }
+            public string horario_asignado { get; set; }
+
+
+        }
     }
 }

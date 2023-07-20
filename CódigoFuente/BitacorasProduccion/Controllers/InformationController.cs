@@ -4,8 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management;
+using System.Threading;
 using System.Web;
 using System.Web.Mvc;
+using static Portal_2_0.Models.UtilExcel;
 
 namespace Portal_2_0.Controllers
 {
@@ -69,6 +71,53 @@ namespace Portal_2_0.Controllers
           
             return View(db.log_acceso_email.ToList());
         }
+
+        public string EnvioMailMWP()
+        {
+            System.Diagnostics.Debug.WriteLine("Envio de correos iniciado");
+
+            //envia correo electronico
+            EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+
+            List<CorreoMWP> listado = UtilExcel.LeeFormatoCorreosMWP();
+
+            int c = 1;
+            int total = listado.Count;
+
+            foreach(var empleado in listado)
+            {
+                Thread.Sleep(12000);
+
+                List<string> emailsTo = new List<string>();
+                emailsTo.Add(empleado.correo);
+
+                string body = @"<p>Hola,</p>
+                        <p>Próximamente tu equipo será migrado a Modern Workplace, la cual será nuestra nueva forma de trabajo más segura. Este proceso nos tomará aproximadamente dos horas, por lo que te solicitamos que nos prestes tu equipo durante este periodo de tiempo. 
+                        Tu horario asignado es el siguiente:</p>                        
+                        <b>Usuario: </b>&nbsp; "+empleado.usuario+ @"</br>
+                        <b>Equipo: </b>&nbsp; "+empleado.hostname+ @"</br>
+                        <b>Fecha: </b>&nbsp; " + empleado.fecha.Value.ToLongDateString() + @"</br>
+                        <b>Hora: </b>&nbsp; " + empleado.horario_asignado + @"</br>
+                        </br>    
+                        <b style=""color:red;"">Importante:</b> Recuerda que debes respaldar todos tus archivos en OneDrive antes de la migración, ya que sólo los archivos que hayas respaldado estarán disponibles después de la migración.
+                        </br>
+                        </br>        
+                        Si tienes alguna duda respecto al proceso o tienes conflictos con el horario asigando, por favor háznoslo saber a través del correo: <a href=""mailto:IT.tkMM@lagermex.com.mx"">IT.tkMM@lagermex.com.mx</a> .
+                        </br>
+                        </br>   
+                        <p>Saludos.</p>                            
+                        ";
+
+                envioCorreo.SendEmailAsync(emailsTo, "Horario de Migración a Modern Workplace", body);
+                System.Diagnostics.Debug.WriteLine((c++)+"/"+total+" Enviando correo a:"+empleado.usuario );
+            }
+
+            System.Diagnostics.Debug.WriteLine("Envio de correos Finalizado");
+
+            return "Email enviados";
+        }
+
+
         public ActionResult Truncate()
         {
             db.Database.ExecuteSqlCommand("Truncate table [log_acceso_email]");
