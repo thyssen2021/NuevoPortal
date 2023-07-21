@@ -34,7 +34,7 @@ GO
 SET IDENTITY_INSERT [dbo].[SCDM_cat_tipo_solicitud] ON 
 
 GO
-INSERT [dbo].[SCDM_cat_tipo_solicitud] ([id], [activo], [descripcion]) VALUES (1, 1, N'Creacion de Materiales')  
+INSERT [dbo].[SCDM_cat_tipo_solicitud] ([id], [activo], [descripcion]) VALUES (1, 1, N'Creación de Materiales')  
 GO
 INSERT [dbo].[SCDM_cat_tipo_solicitud] ([id], [activo], [descripcion]) VALUES (2, 1, N'Creación con Referencia')
 GO
@@ -42,7 +42,7 @@ INSERT [dbo].[SCDM_cat_tipo_solicitud] ([id], [activo], [descripcion]) VALUES (3
 GO
 INSERT [dbo].[SCDM_cat_tipo_solicitud] ([id], [activo], [descripcion]) VALUES (4, 1, N'Crear Servicios')
 GO
-INSERT [dbo].[SCDM_cat_tipo_solicitud] ([id], [activo], [descripcion]) VALUES (5, 1, N'Extension')
+INSERT [dbo].[SCDM_cat_tipo_solicitud] ([id], [activo], [descripcion]) VALUES (5, 1, N'Extensión')
 GO
 INSERT [dbo].[SCDM_cat_tipo_solicitud] ([id], [activo], [descripcion]) VALUES (6, 1, N'Crear MRO') -- no hay solicitudes en el archivo de metricas
 GO

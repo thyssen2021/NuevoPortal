@@ -425,6 +425,10 @@
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_lista_tecnica_id_componente" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_lista_tecnica_id_solicitud_rel_item_material" />
         <AssociationConnector Association="Portal_2_0Model.FK_SCDM_solicitud_rel_orden_compra_id_solicitud_rel_material_item" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_cat_secciones" Width="1.5" PointX="37.75" PointY="112.875" />
+        <EntityTypeShape EntityType="Portal_2_0Model.SCDM_rel_solicitud_secciones_activas" Width="1.5" PointX="40" PointY="94.875" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_rel_solicitud_secciones_activas_id_seccion" />
+        <AssociationConnector Association="Portal_2_0Model.FK_SCDM_rel_solicitud_secciones_activas_id_solicitud" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -1,111 +1,285 @@
 ﻿@model Portal_2_0.Models.SCDM_solicitud
 
 @{
-    Layout = null;
+    ViewBag.Title = "Crear nueva Solicitud de Maestro de Materiales";
+    ViewBag.PrimerNivel = "scdm_mm";
+    ViewBag.SegundoNivel = "mis_solicitudes_mm";
+
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+
+    ViewBag.nav_style = "nav-sm";
+
+    List<Portal_2_0.Models.plantas> listPlantas = (List<Portal_2_0.Models.plantas>)ViewBag.listPlantas;
+    List<Portal_2_0.Models.SCDM_cat_tipo_materiales_solicitud> listTipoMateriales = (List<Portal_2_0.Models.SCDM_cat_tipo_materiales_solicitud>)ViewBag.listTipoMateriales;
+}
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/flat/green.css")" rel="stylesheet">
+   
 }
 
-<!DOCTYPE html>
+<div class="right_col" role="main">
+    <div class="">
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Create</title>
-</head>
-<body>
-    @using (Html.BeginForm()) 
-    {
-        @Html.AntiForgeryToken()
-        
-        <div class="form-horizontal">
-            <h4>SCDM_solicitud</h4>
-            <hr />
-            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-            <div class="form-group">
-                @Html.LabelFor(model => model.id_tipo_solicitud, "id_tipo_solicitud", htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.DropDownList("id_tipo_solicitud", null, htmlAttributes: new { @class = "form-control" })
-                    @Html.ValidationMessageFor(model => model.id_tipo_solicitud, "", new { @class = "text-danger" })
-                </div>
-            </div>
-    
-            <div class="form-group">
-                @Html.LabelFor(model => model.id_tipo_cambio, "id_tipo_cambio", htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.DropDownList("id_tipo_cambio", null, htmlAttributes: new { @class = "form-control" })
-                    @Html.ValidationMessageFor(model => model.id_tipo_cambio, "", new { @class = "text-danger" })
-                </div>
-            </div>
-    
-            <div class="form-group">
-                @Html.LabelFor(model => model.id_prioridad, "id_prioridad", htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.DropDownList("id_prioridad", null, htmlAttributes: new { @class = "form-control" })
-                    @Html.ValidationMessageFor(model => model.id_prioridad, "", new { @class = "text-danger" })
-                </div>
-            </div>
-    
-            <div class="form-group">
-                @Html.LabelFor(model => model.id_solicitante, "id_solicitante", htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.DropDownList("id_solicitante", null, htmlAttributes: new { @class = "form-control" })
-                    @Html.ValidationMessageFor(model => model.id_solicitante, "", new { @class = "text-danger" })
-                </div>
-            </div>
-    
-            <div class="form-group">
-                @Html.LabelFor(model => model.descripcion, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.EditorFor(model => model.descripcion, new { htmlAttributes = new { @class = "form-control" } })
-                    @Html.ValidationMessageFor(model => model.descripcion, "", new { @class = "text-danger" })
-                </div>
-            </div>
-    
-            <div class="form-group">
-                @Html.LabelFor(model => model.justificacion, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.EditorFor(model => model.justificacion, new { htmlAttributes = new { @class = "form-control" } })
-                    @Html.ValidationMessageFor(model => model.justificacion, "", new { @class = "text-danger" })
-                </div>
-            </div>
-    
-            <div class="form-group">
-                @Html.LabelFor(model => model.fecha_creacion, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.EditorFor(model => model.fecha_creacion, new { htmlAttributes = new { @class = "form-control" } })
-                    @Html.ValidationMessageFor(model => model.fecha_creacion, "", new { @class = "text-danger" })
-                </div>
-            </div>
-    
-            <div class="form-group">
-                @Html.LabelFor(model => model.on_hold, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    <div class="checkbox">
-                        @Html.EditorFor(model => model.on_hold)
-                        @Html.ValidationMessageFor(model => model.on_hold, "", new { @class = "text-danger" })
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <br />
+                        @using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal form-label-left" }))
+                        {
+                            @Html.AntiForgeryToken()
+
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", "Advertencia:")
+                                </div>
+                            }
+
+                            <input type="hidden" name="cambio_documento_soporte" id="cambio_documento_soporte" value="0" />
+                            @Html.HiddenFor(model => model.id_solicitante)
+                            @Html.HiddenFor(model => model.activo)
+                            @Html.HiddenFor(model => model.on_hold)
+
+                            <div class="form-group row">
+                                <div class="col-md-12" style="text-align:center">
+                                    <h3 style="color: #009ff5">
+                                        <svg width="32px" height="32px" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="http://www.w3.org/2000/svg" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M853.333333 960H170.666667V64h469.333333l213.333333 213.333333z" fill="#90CAF9"></path><path d="M821.333333 298.666667H618.666667V96z" fill="#E1F5FE"></path><path d="M341.333333 448h362.666667v42.666667H341.333333zM341.333333 533.333333h277.333334v42.666667H341.333333zM341.333333 618.666667h362.666667v42.666666H341.333333zM341.333333 704h277.333334v42.666667H341.333333z" fill="#1976D2"></path></g></svg>
+                                        SOLICITUD DE MAESTRO DE MATERIALES
+                                    </h3>
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id_solicitante, htmlAttributes: new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-3 col-sm-3">
+                                    <input type="text" class="form-control" value="@Html.DisplayFor(model => model.empleados.ConcatNumEmpleadoNombre)" readonly />
+                                    @Html.ValidationMessageFor(model => model.id_solicitante, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.fecha_creacion, htmlAttributes: new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-2 col-sm-2">
+                                    <input type="text" class="form-control" value="@Model.fecha_creacion.ToString()" readonly />
+                                    @Html.ValidationMessageFor(model => model.fecha_creacion, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id_tipo_solicitud, htmlAttributes: new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6">
+                                    @Html.DropDownList("id_tipo_solicitud", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                    @Html.ValidationMessageFor(model => model.id_tipo_solicitud, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group tipo-materiales" style="@(Model.id_tipo_solicitud != 1 && Model.id_tipo_solicitud != 2 && Model.id_tipo_solicitud != 5 ?"display:none;":String.Empty)">
+                            </div>
+                            <div class="item form-group tipo-materiales" style="@(Model.id_tipo_solicitud != 1 && Model.id_tipo_solicitud != 2 && Model.id_tipo_solicitud != 5 ?"display:none;":String.Empty)">
+                                <label class="col-form-label col-md-3 col-sm-3 label-align">Tipos de Materiales:</label>
+
+                                <div class="item form-group col-md-6 col-sm-6 row" style="border: 1px solid; margin-left: 9px;">
+                                    <div class="col-md-12 col-sm-12">
+                                        &nbsp;&nbsp;
+                                    </div>
+                                    @foreach (var item in listTipoMateriales)
+                                    {
+                                        <div class="col-md-4 col-sm-4">
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input type="checkbox" class="flat" name="SelectedMateriales" value="materiales_@item.id" @(Model.SCDM_rel_solicitud_materiales_solicitados.Any(x => x.id_tipo_material == item.id) == true ? "checked" : null )> @item.descripcion
+                                                </label>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                            <div class="item form-group" id="div-cambios" style="@(Model.id_tipo_solicitud!=3?"display:none;":String.Empty)">
+                                @Html.LabelFor(model => model.id_tipo_cambio, htmlAttributes: new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6">
+                                    @Html.DropDownList("id_tipo_cambio", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                    @Html.ValidationMessageFor(model => model.id_tipo_cambio, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.id_prioridad, htmlAttributes: new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6">
+                                    @Html.DropDownList("id_prioridad", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                                    @Html.ValidationMessageFor(model => model.id_prioridad, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                            </div>
+                            <div class="item form-group ">
+                                <label class="col-form-label col-md-3 col-sm-3 label-align">Plantas:</label>
+
+                                <div class="item form-group col-md-6 col-sm-6 row" style="border: 1px solid; margin-left: 9px;">
+                                    <div class="col-md-12 col-sm-12">
+                                        &nbsp;&nbsp;
+                                    </div>
+                                    @foreach (var item in listPlantas)
+                                    {
+                                        <div class="col-md-4 col-sm-4">
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input type="checkbox" class="flat" name="SelectedPlantas" value="plantas_@item.clave" @(Model.SCDM_rel_solicitud_plantas.Any(x => x.id_planta == item.clave) == true ? "checked" : null )> @item.descripcion
+                                                </label>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.descripcion, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6">
+                                    @Html.EditorFor(model => model.descripcion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @required = "required" } })
+                                    @Html.ValidationMessageFor(model => model.descripcion, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.justificacion, htmlAttributes: new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6">
+                                    @Html.TextAreaFor(model => model.justificacion, new { @class = "form-control", @rows = "3", @autocomplete = "off", @required = "required" })
+                                    @Html.ValidationMessageFor(model => model.justificacion, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:black" class="offset-md-3"><b>DOCUMENTOS SOPORTE</b></span>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="control-label col-md-3 label-align">Documento 1 (opcional) </label>
+                                <div class="col-md-6">
+
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            @Html.TextBoxFor(m => m.PostedFileSolicitud_1, new { @class = "custom-file-input", type = "file" })
+                                            <label class="custom-file-label" for="PostedFileSolicitud_1" style="text-align:left" data-browse="Seleccionar">Seleccione un archivo...</label>
+                                        </div>
+                                    </div>
+                                    @Html.ValidationMessageFor(m => m.PostedFileSolicitud_1, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="control-label col-md-3 label-align">Documento 2 (opcional) </label>
+                                <div class="col-md-6">
+
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            @Html.TextBoxFor(m => m.PostedFileSolicitud_2, new { @class = "custom-file-input", type = "file" })
+                                            <label class="custom-file-label" for="PostedFileSolicitud_2" style="text-align:left" data-browse="Seleccionar">Seleccione un archivo...</label>
+                                        </div>
+                                    </div>
+                                    @Html.ValidationMessageFor(m => m.PostedFileSolicitud_2, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="control-label col-md-3 label-align">Documento 3 (opcional) </label>
+                                <div class="col-md-6">
+
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            @Html.TextBoxFor(m => m.PostedFileSolicitud_3, new { @class = "custom-file-input", type = "file" })
+                                            <label class="custom-file-label" for="PostedFileSolicitud_3" style="text-align:left" data-browse="Seleccionar">Seleccione un archivo...</label>
+                                        </div>
+                                    </div>
+                                    @Html.ValidationMessageFor(m => m.PostedFileSolicitud_3, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="item form-group">
+                                <div class="col-md-2 col-sm-3 offset-md-7">
+                                    <button type="submit" class="btn btn-success btn-block"> <i class="fa-regular fa-floppy-disk"></i> Guardar</button>
+                                </div>
+                            </div>
+                        }
                     </div>
                 </div>
-            </div>
-    
-            <div class="form-group">
-                @Html.LabelFor(model => model.activo, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    <div class="checkbox">
-                        @Html.EditorFor(model => model.activo)
-                        @Html.ValidationMessageFor(model => model.activo, "", new { @class = "text-danger" })
-                    </div>
-                </div>
-            </div>
-    
-            <div class="form-group">
-                <div class="col-md-offset-2 col-md-10">
-                    <input type="submit" value="Create" class="btn btn-default" />
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
                 </div>
             </div>
         </div>
-    }
-    
-    <div>
-        @Html.ActionLink("Back to List", "Index")
     </div>
-</body>
-</html>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery-iu/jquery-ui.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+    <script>
+        //variable para saber si ha cambiado el formulario y asi no se detenga por doble submit
+        var documento_soporte_cambios = 1;
+
+        $(document).ready(function () {
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //inicializa icheck
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+                increaseArea: '20%' // optional
+            });
+
+            //inicializa en input file
+            bsCustomFileInput.init()
+
+            //aumenta en uso cada vez que se hace un cambio en el archivo de soporte
+            $(".custom-file-input").on("change", function () {
+                document.getElementById('cambio_documento_soporte').value = ++documento_soporte_cambios;
+                console.log("entra")
+            });
+
+            $("#id_tipo_solicitud").change(function () {
+                //obtiene la opcion seleccionada
+                let opcion = $("#id_tipo_solicitud option:selected").val();
+
+                //si creación, creación con referencia o extension
+                if (opcion == 1 || opcion == 2 || opcion == 5) {
+                    $(".tipo-materiales").show('fade', 700);
+                } else {
+                    $(".tipo-materiales").hide('fade', 500);
+                }
+
+                //valida si mostrar cambios o no
+                if (opcion == 3) {
+                    $("#div-cambios").show('fade', 700);
+                } else {
+                    $("#div-cambios").hide('fade', 500);
+                }
+            });
+
+        });
+
+    </script>
+
+}

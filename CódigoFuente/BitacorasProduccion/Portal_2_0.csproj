@@ -719,6 +719,7 @@
     <Compile Include="Models\MetadataModels\RM_cabeceraMetadata.cs" />
     <Compile Include="Models\MetadataModels\RM_cambio_estatusMetadata.cs" />
     <Compile Include="Models\MetadataModels\RU_registrosMetadata.cs" />
+    <Compile Include="Models\MetadataModels\SCDM_solicitudMetadata.cs" />
     <Compile Include="Models\MetadataModels\view_historico_resultadoMetadata.cs" />
     <Compile Include="Models\MetadataModels\view_valores_fiscal_yearMetadata.cs" />
     <Compile Include="Models\mm_v3.cs">
@@ -955,6 +956,9 @@
     <Compile Include="Models\SCDM_cat_prioridad.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\SCDM_cat_secciones.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\SCDM_cat_tipo_cambio.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -989,6 +993,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\SCDM_rel_solicitud_plantas.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\SCDM_rel_solicitud_secciones_activas.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\SCDM_solicitud.cs">
@@ -3956,6 +3963,7 @@
     <Content Include="Content\vendors\validator\index.html" />
     <Content Include="Content\vendors\validator\multifield.js" />
     <Content Include="Content\vendors\validator\validator.js" />
+    <Content Include="Content\vendors\wfaccordion\wf.accordion.min.js" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\fontawesome-webfont.svg" />
     <Content Include="Global.asax" />
@@ -5396,6 +5404,7 @@
     <Content Include="Views\SCDM_solicitud\Details.cshtml" />
     <Content Include="Views\SCDM_solicitud\Edit.cshtml" />
     <Content Include="Views\SCDM_solicitud\Index.cshtml" />
+    <Content Include="Views\SCDM_solicitud\EditarSolicitud.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

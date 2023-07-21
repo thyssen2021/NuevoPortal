@@ -1,0 +1,468 @@
+﻿@model Portal_2_0.Models.SCDM_solicitud
+
+@{
+    ViewBag.Title = "Editar Solicitud de Maestro de Materiales";
+    ViewBag.PrimerNivel = "scdm_mm";
+    ViewBag.SegundoNivel = "mis_solicitudes_mm";
+
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+
+    ViewBag.nav_style = "nav-sm";
+}
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/flat/green.css")" rel="stylesheet">
+
+    <style>
+
+        dl {
+            border: 3px double #ccc;
+            padding: 0.5em;
+            background-color: #fffdf0
+        }
+
+        dt {
+            font-weight: bold;
+            color: green;
+        }
+
+        dd {
+            font-weight: bold;
+            color: #454545;
+        }
+
+        dt::after {
+            content: ":";
+        }
+
+        .fondo_verde > td {
+            background-color: green;
+            color: #fffdf0;
+            font-weight: bolder;
+        }
+
+        .fondo_amarillo > td {
+            background-color: orange;
+            color: #221f1f;
+            font-weight: bolder;
+        }
+
+        .fondo_rojo > td {
+            background-color: red;
+            color: #fffdf0;
+            font-weight: bolder;
+        }
+
+        input {
+            text-align: right;
+        }
+
+        /**
+        * Accordion example styles
+        */
+
+        /**
+         * Accordion example styles
+         */
+
+        .wf-accordion-group {
+            margin-top: 15px;
+        }
+
+            /* All elements succeeding an accordion group use margin-top to create white space */
+            .wf-accordion-group + * {
+                margin-top: 30px;
+            }
+
+        /* All accordions have borders… */
+        .wf-accordion {
+            border-top: 1px solid #bfbfbf;
+            border-bottom: 1px solid #bfbfbf;
+            border-left: 1px solid #bfbfbf;
+            border-right: 1px solid #bfbfbf;
+        }
+
+            /* …unless they directly succeed another accordion, in which case we reset the top-border
+          to avoid duplicate white space */
+            .wf-accordion + .wf-accordion {
+                border-top-width: 0;
+            }
+
+        .wf-accordion__header {
+            color: #616163;
+        }
+
+        /* Please note: The trigger element is a <button> create via JS. To achieve consistent aesthetics,
+           the native button styles have to be resetted here */
+        .wf-accordion__trigger {
+            /* baseline resets */
+            background: transparent;
+            border-width: 0;
+            border-radius: 0;
+            box-sizing: border-box;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-block;
+            font-size: inherit;
+            letter-spacing: inherit;
+            line-height: inherit;
+            margin: 0;
+            padding: 0;
+            text-align: left;
+            text-decoration: none;
+            /* end of baseline resets */
+            /* additional styles for the demo */
+            display: block;
+            padding: 10px 1.25em 10px 8px;
+            position: relative;
+            width: 100%;
+        }
+
+            .wf-accordion__trigger::after {
+                content: '';
+                border: solid #fff;
+                border-width: 0 2px 2px 0;
+                height: 0.5em;
+                position: absolute;
+                right: 10px;
+                top: 50%;
+                transform: translateY(-60%) rotate(45deg);
+                width: 0.5em;
+            }
+
+            .wf-accordion__trigger[aria-disabled=true] {
+                cursor: not-allowed;
+                opacity: 0.5;
+            }
+
+            .wf-accordion__trigger[aria-expanded=true]::after {
+                transform: translateY(-30%) rotate(-135deg);
+            }
+
+            .wf-accordion__trigger:hover,
+            .wf-accordion__trigger:focus {
+                opacity: 0.8;
+                /*  background: #f5f5f5;
+                color: #161616;*/
+            }
+
+                .wf-accordion__trigger:hover::after,
+                .wf-accordion__trigger:focus::after {
+                    border-color: #fff;
+                }
+
+        .wf-accordion__panel {
+            background-color: #fff;
+            padding: 10px 8px;
+        }
+
+            .wf-accordion__panel[aria-hidden=true] {
+                display: none;
+            }
+
+        .fondo-pendiente {
+            background-color: #009ff5;
+        }
+
+        .fondo-completado {
+            background-color: #009ff5;
+        }
+    </style>
+
+}
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="col-sm-12">
+                            <div class="card-box ">
+                                <dl class="row">
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.id)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_tipo_solicitud)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.SCDM_cat_tipo_solicitud.descripcion)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_solicitante)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.ConcatNombre)</dd>
+                                    @if (Model.SCDM_rel_solicitud_materiales_solicitados.Count > 0 && (Model.id_tipo_solicitud == 1 || Model.id_tipo_solicitud == 2 || Model.id_tipo_solicitud == 5))
+                                    {
+                                        <dt class="col-sm-2">Tipo de Materiales</dt>
+                                        <dd class="col-sm-2">@String.Join(", ", @Model.SCDM_rel_solicitud_materiales_solicitados.Select(x => x.SCDM_cat_tipo_materiales_solicitud.descripcion).Distinct().ToList())</dd>
+                                    }
+                                    @if (Model.id_tipo_solicitud == 3)
+                                    {
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_tipo_cambio)</dt>
+                                        <dd class="col-sm-2">@Html.DisplayFor(model => model.SCDM_cat_tipo_cambio.descripcion)</dd>
+                                    }
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.id_prioridad)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.SCDM_cat_prioridad.descripcion)</dd>
+                                    <dt class="col-sm-2">Plantas</dt>
+                                    <dd class="col-sm-2">@String.Join(", ", @Model.SCDM_rel_solicitud_plantas.Select(x => x.plantas.descripcion).Distinct().ToList())</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.descripcion)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.descripcion)</dd>
+                                    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.justificacion)</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.justificacion)</dd>
+                                </dl>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <a href="@Url.Action("create", ViewBag.ControllerName)" class="btn btn-success btn-sm float-right" style="color:white">
+                                <i class="fa-regular fa-pen-to-square"></i>
+                                Editar Datos Generales
+                            </a>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <h4 style="color:#7c7c7c"><b>Elementos de la Solicitud</b></h4>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <button type="submit" class="btn btn-info btn-sm float-lg-left" onclick="mostrarModalSecciones()">
+                                <svg width="18px" height="18px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M3 10V18C3 19.1046 3.89543 20 5 20H11M3 10V6C3 4.89543 3.89543 4 5 4H19C20.1046 4 21 4.89543 21 6V10M3 10H21M21 10V13" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M17 14V17M17 20V17M17 17H14M17 17H20" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> <circle cx="6" cy="7" r="1" fill="#ffffff"></circle> <circle cx="9" cy="7" r="1" fill="#ffffff"></circle> </g></svg>
+                                Agregar Elementos
+                            </button>
+                        </div>
+
+                        @*Inicia acordeon*@
+                        <div class="col-sm-12">
+                            <div class="wf-accordion-group js-accordion-group">
+                                @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == 1))
+                                {
+                                    // 1 = lista tecnica
+                                    <div class="wf-accordion js-accordion">
+                                        <div class="wf-accordion__header js-accordion__header">
+                                            <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Lista Técnica</button></h3>
+                                        </div>
+                                        <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                            Lista Técnica...
+                                        </div>
+                                    </div>
+                                }
+                                  @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == 2))
+                                {
+                                    //2 = formato compra
+                                    <div class="wf-accordion js-accordion">
+                                        <div class="wf-accordion__header js-accordion__header">
+                                            <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Formato de Compra</button></h3>
+                                        </div>
+                                        <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                            Formaro de Compra
+                                        </div>
+                                    </div>
+                                }
+                                @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == 3))
+                                {
+                                    //3 = Rollo
+                                    <div class="wf-accordion js-accordion">
+                                        <div class="wf-accordion__header js-accordion__header">
+                                            <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Rollo</button></h3>
+                                        </div>
+                                        <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                           Rollo...
+                                        </div>
+                                    </div>
+                                }
+                                 @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == 4))
+                                {
+                                    //4 = Cinta
+                                    <div class="wf-accordion js-accordion">
+                                        <div class="wf-accordion__header js-accordion__header">
+                                            <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Cinta</button></h3>
+                                        </div>
+                                        <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                           Cinta...
+                                        </div>
+                                    </div>
+                                }
+                                 @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == 5))
+                                {
+                                    //5 = Platina
+                                    <div class="wf-accordion js-accordion">
+                                        <div class="wf-accordion__header js-accordion__header">
+                                            <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Platina</button></h3>
+                                        </div>
+                                        <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                           Platina...
+                                        </div>
+                                    </div>
+                                }
+                                @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == 6))
+                                {
+                                    //6 = Shearing
+                                    <div class="wf-accordion js-accordion">
+                                        <div class="wf-accordion__header js-accordion__header">
+                                            <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Shearing</button></h3>
+                                        </div>
+                                        <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                           Shearing...
+                                        </div>
+                                    </div>
+                                }
+                                 @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == 7))
+                                {
+                                    //7 = Platina Soldada
+                                    <div class="wf-accordion js-accordion">
+                                        <div class="wf-accordion__header js-accordion__header">
+                                            <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Platina Soldada</button></h3>
+                                        </div>
+                                        <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                           Platina Soldada...
+                                        </div>
+                                    </div>
+                                }
+                                 @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == 8))
+                                {
+                                    //8 = C&B
+                                    <div class="wf-accordion js-accordion">
+                                        <div class="wf-accordion__header js-accordion__header">
+                                            <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">C&B</button></h3>
+                                        </div>
+                                        <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                           C&B...
+                                        </div>
+                                    </div>
+                                }
+                                 @if (Model.SCDM_rel_solicitud_secciones_activas.Any(x => x.id_seccion == 9))
+                                {
+                                    //9 = Cambio Descripcion
+                                    <div class="wf-accordion js-accordion">
+                                        <div class="wf-accordion__header js-accordion__header">
+                                            <h3><button class="wf-accordion__trigger js-accordion__trigger fondo-completado" aria-expanded="true" aria-controls="accordion-1__panel-0" id="accordion-1__header-0">Cambio Descripci&oacute;n </button></h3>
+                                        </div>
+                                        <div class="wf-accordion__panel js-accordion__panel" aria-hidden="false" id="accordion-1__panel-0" aria-labelledby="accordion-1__header-0">
+                                           Cambio Descripción...
+                                        </div>
+                                    </div>
+                                }
+
+                              
+
+                            </div>
+                        </div>
+
+                        @*Finaliza acordeon*@
+
+                        <div class="col-md-12">
+                            <div class="ln_solid"></div>
+                            <button type="submit" class="btn btn-primary btn-lg float-lg-right" onclick="mostrarModalEnviar()"><i class="fa-solid fa-envelope-circle-check"></i>  Enviar</button>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Modal DEMO Modelo -->
+<div class="modal fade" id="modalSecciones" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title" id="exampleModalLongTitle">Agregar Elemento</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("AddSeccion", null, FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(model => model.id)
+
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <h6>Seccione de la lista la secci&oacute;n que desea agregar a la solicitud</h6>
+                    </div>
+
+
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            @Html.DropDownList("secciones", null, htmlAttributes: new { @class = "select2bs4 col-md-12", @style = "width:100%", @required = "required" })
+                            <span class="field-validation-valid text-danger" data-valmsg-for="secciones" data-valmsg-replace="true"></span>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Continuar</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery-iu/jquery-ui.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <!-- SweetAlert2 (css incluido) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.3/sweetalert2.all.min.js" integrity="sha512-/iBgV43zPirSC0tue+PT/1VHGs7En24twBmT+sVMgn9PTaOpKfbgIyL5YsGKlbAIxcwz9S8W/YEnYjpIYj2Axw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+    <script src="~/Content/vendors/wfaccordion/wf.accordion.min.js"></script>
+    <script>
+        //variable para saber si ha cambiado el formulario y asi no se detenga por doble submit
+        var documento_soporte_cambios = 1;
+
+        $(document).ready(function () {
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            //inicializa icheck
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+                increaseArea: '20%' // optional
+            });
+
+          
+           
+        });
+
+        //muestra el modal de autorizar
+        function mostrarModalSecciones() {
+            $('#modalSecciones').modal('show')
+
+        }
+
+    </script>
+
+}
