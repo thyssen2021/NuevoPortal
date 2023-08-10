@@ -134,7 +134,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<empleados> empleados { get; set; }
         public virtual DbSet<IT_epo> IT_epo { get; set; }
         public virtual DbSet<IT_wsus> IT_wsus { get; set; }
-        public virtual DbSet<plantas> plantas { get; set; }
         public virtual DbSet<Area> Area { get; set; }
         public virtual DbSet<IT_notificaciones_checklist> IT_notificaciones_checklist { get; set; }
         public virtual DbSet<IT_notificaciones_usuarios> IT_notificaciones_usuarios { get; set; }
@@ -160,5 +159,7 @@ namespace Portal_2_0.Models
         public virtual DbSet<clientes> clientes { get; set; }
         public virtual DbSet<proveedores> proveedores { get; set; }
         public virtual DbSet<RM_cabecera> RM_cabecera { get; set; }
+        public virtual DbSet<plantas> plantas { get; set; }
+        public virtual DbSet<RD_hits> RD_hits { get; set; }
     }
 }

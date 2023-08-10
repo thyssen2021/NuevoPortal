@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Script.Serialization;
 
 namespace Portal_2_0.Controllers
 {
@@ -804,12 +805,134 @@ namespace Portal_2_0.Controllers
 
             if (empleado == null)
                 list[0] = new { result = "ERROR", message = "No se pudo obtener el empleado.", tipo = Bitacoras.Util.IT_MR_tipo.CREACION };
-            else if (empleado.IT_matriz_requerimientos.Count==0)
+            else if (empleado.IT_matriz_requerimientos.Count == 0)
                 list[0] = new { result = "OK", message = "No hay solicitudes previas.", tipo = Bitacoras.Util.IT_MR_tipo.CREACION };
             else
                 list[0] = new { result = "OK", message = "Hay solicitudes previas.", tipo = Bitacoras.Util.IT_MR_tipo.MODIFICACION };
 
             return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+        #region Revista Digital
+
+        /// <summary>
+        /// Registra visita, like o dislike
+        /// </summary>
+        /// <param name="tipo"></param>
+        /// <returns></returns>
+        [AllowAnonymous]
+        public JsonpResult RegistraVisita(string tipo = "")
+        {
+            var resultado = new object[1];
+
+            //string x = Request.UserHostName;
+
+            try
+            {
+
+                string nombreEquipo = String.Empty;
+                // string nombreUsuario =  String.Empty;
+
+                // nombreEquipo = DetermineCompName(ip);
+
+
+                //if (String.IsNullOrEmpty(nombreEquipo))
+                //    nombreEquipo = ip;
+
+                RD_hits hit = new RD_hits
+                {
+                    fecha = DateTime.Now,
+                    // usuario = nombreEquipo,
+                    tipo = tipo
+                };
+
+
+                db.RD_hits.Add(hit);
+
+                db.SaveChanges();
+
+                resultado[0] = new { result = "OK", message = "Nueva Entrada", contador = db.RD_hits.Where(x => x.tipo == tipo).Count() };
+            }
+            catch (Exception e)
+            {
+                resultado[0] = new { result = "ERROR", message = e.Message, contador = db.RD_hits.Where(x => x.tipo == tipo).Count() };
+            }
+
+            return new JsonpResult(resultado);
+        }
+
+        [AllowAnonymous]
+
+        public JsonpResult GetVisita(string tipo = "")
+        {
+            var resultado = new object[1];
+
+            //string x = Request.UserHostName;
+
+            try
+            {
+                resultado[0] = new { result = "OK", message = "Obtencion de cantidad", contador = db.RD_hits.Where(x => x.tipo == tipo).Count() };
+            }
+            catch (Exception e)
+            {
+                resultado[0] = new { result = "ERROR", message = e.Message, contador = db.RD_hits.Where(x => x.tipo == tipo).Count() };
+            }
+
+            return new JsonpResult(resultado);
+        }
+
+
+        [NonAction]
+        public static string DetermineCompName(string IP)
+        {
+            try
+            {
+                System.Net.IPAddress myIP = System.Net.IPAddress.Parse(IP);
+                System.Net.IPHostEntry GetIPHost = System.Net.Dns.GetHostEntry(myIP);
+                List<string> compName = GetIPHost.HostName.ToString().Split('.').ToList();
+                return compName.First();
+            }
+            catch
+            {
+                return null;
+            }
+
+        }
+        #endregion
+    }
+    public class JsonpResult : JsonResult
+    {
+        object data = null;
+
+        public JsonpResult()
+        {
+        }
+
+        public JsonpResult(object data)
+        {
+            this.data = data;
+        }
+
+        public override void ExecuteResult(ControllerContext controllerContext)
+        {
+            if (controllerContext != null)
+            {
+                HttpResponseBase Response = controllerContext.HttpContext.Response;
+                HttpRequestBase Request = controllerContext.HttpContext.Request;
+
+                string callbackfunction = Request["callback"];
+
+                if (string.IsNullOrEmpty(callbackfunction))
+                {
+                    throw new Exception("Callback function name must be provided in the request!");
+                }
+                Response.ContentType = "application/x-javascript";
+                if (data != null)
+                {
+                    JavaScriptSerializer serializer = new JavaScriptSerializer();
+                    Response.Write(string.Format("{0}({1});", callbackfunction, serializer.Serialize(data)));
+                }
+            }
         }
     }
 }

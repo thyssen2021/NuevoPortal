@@ -258,21 +258,7 @@
         <AssociationConnector Association="Portal_2_0Model.FK_upgrade_usuarios_empleado" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_epo" Width="1.5" PointX="11.375" PointY="12.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_wsus" Width="1.5" PointX="12.375" PointY="0.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.plantas" Width="1.5" PointX="0.75" PointY="75.875" />
-        <AssociationConnector Association="Portal_2_0Model.FK_empleados_planta_clave" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IATF_documentos_id_planta" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_cellular_line_id_planta" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_items_id_planta" />
-        <AssociationConnector Association="Portal_2_0Model.FK_id_planta" />
-        <AssociationConnector Association="Portal_2_0Model.FK_IT_solicitud_usuarios_id_planta" />
-        <AssociationConnector Association="Portal_2_0Model.FK_notificaciones_correo_planta" />
-        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_planta" />
-        <AssociationConnector Association="Portal_2_0Model.FK_produccion_lineas_planta_clave" />
-        <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_planta_clave" />
-        <AssociationConnector Association="Portal_2_0Model.FK_produccion_supervisores_clave_planta" />
-        <AssociationConnector Association="Portal_2_0Model.FK_produccion_turnos_planta_clave" />
         <EntityTypeShape EntityType="Portal_2_0Model.Area" Width="1.5" PointX="2.875" PointY="72.125" />
-        <AssociationConnector Association="Portal_2_0Model.FK_areas_planta_clave" />
         <AssociationConnector Association="Portal_2_0Model.FK_empleados_area" />
         <AssociationConnector Association="Portal_2_0Model.FK_orden_trabajo_id_area" />
         <AssociationConnector Association="Portal_2_0Model.FK_OT_rel_depto_aplica_linea_id_area" />
@@ -292,7 +278,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.RM_estatus" Width="1.5" PointX="3" PointY="54.25" />
         <EntityTypeShape EntityType="Portal_2_0Model.RM_remision_motivo" Width="1.5" PointX="3" PointY="64" />
         <EntityTypeShape EntityType="Portal_2_0Model.RM_transporte_proveedor" Width="1.5" PointX="3" PointY="61.5" />
-        <AssociationConnector Association="Portal_2_0Model.FK_RM_almacen_plantaClave" />
         <EntityTypeShape EntityType="Portal_2_0Model.AspNetRoles" Width="1.5" PointX="0.75" PointY="2.25" />
         <AssociationConnector Association="Portal_2_0Model.AspNetUserRoles" />
         <EntityTypeShape EntityType="Portal_2_0Model.RM_elemento" Width="1.5" PointX="7.5" PointY="65.125" />
@@ -332,6 +317,22 @@
         <AssociationConnector Association="Portal_2_0Model.FK_RM_cabecera_ultimoEstatus" />
         <AssociationConnector Association="Portal_2_0Model.FK_RM_cambio_remisionCabeceraClaveo" />
         <AssociationConnector Association="Portal_2_0Model.FK_RM_elemento_remisionCabeceraClave" />
+        <EntityTypeShape EntityType="Portal_2_0Model.plantas" Width="1.5" PointX="0.75" PointY="75.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.RD_hits" Width="1.5" PointX="13.5" PointY="11.75" />
+        <AssociationConnector Association="Portal_2_0Model.FK_areas_planta_clave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_empleados_planta_clave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IATF_documentos_id_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_cellular_line_id_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_inventory_items_id_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_id_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_IT_solicitud_usuarios_id_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_notificaciones_correo_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_lineas_planta_clave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_planta_clave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_supervisores_clave_planta" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_turnos_planta_clave" />
+        <AssociationConnector Association="Portal_2_0Model.FK_RM_almacen_plantaClave" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
