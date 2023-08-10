@@ -109,7 +109,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<upgrade_usuarios> upgrade_usuarios { get; set; }
         public virtual DbSet<upgrade_values_checklist> upgrade_values_checklist { get; set; }
         public virtual DbSet<upgrade_values_transaccion> upgrade_values_transaccion { get; set; }
-        public virtual DbSet<view_historico_resultado> view_historico_resultado { get; set; }
         public virtual DbSet<view_valores_fiscal_year> view_valores_fiscal_year { get; set; }
         public virtual DbSet<GV_usuarios> GV_usuarios { get; set; }
         public virtual DbSet<GV_solicitud> GV_solicitud { get; set; }
@@ -161,5 +160,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<RM_cabecera> RM_cabecera { get; set; }
         public virtual DbSet<plantas> plantas { get; set; }
         public virtual DbSet<RD_hits> RD_hits { get; set; }
+        public virtual DbSet<view_historico_resultado> view_historico_resultado { get; set; }
     }
 }

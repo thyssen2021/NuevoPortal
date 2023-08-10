@@ -63,13 +63,14 @@ namespace Portal_2_0.Models
             dt.Columns.Add(nameof(view_historico_resultado.Orden_SAP), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.SAP_Platina), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Tipo_de_Material), typeof(string));
-            dt.Columns.Add(nameof(view_historico_resultado.Número_de_Parte__de_cliente), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.Número_de_Parte__de_cliente), typeof(string));            
             dt.Columns.Add(nameof(view_historico_resultado.Material), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Orden_en_SAP_2), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.SAP_Platina_2), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Tipo_de_Material_platina2), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Número_de_Parte_de_Cliente_platina2), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Material_platina2), typeof(string));
+            dt.Columns.Add(nameof(view_historico_resultado.ConcatCliente), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.SAP_Rollo), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.N__de_Rollo), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Lote_de_rollo), typeof(string));
@@ -166,7 +167,7 @@ namespace Portal_2_0.Models
 
                 dt.Rows.Add(item.Planta, item.Linea, item.Operador, item.Supervisor, item.Fecha, String.Format("{0:T}", item.Hora), item.Turno, item.Orden_SAP, item.SAP_Platina,
                     item.Tipo_de_Material, item.Número_de_Parte__de_cliente, item.Material, item.Orden_en_SAP_2, item.SAP_Platina_2, item.Tipo_de_Material_platina2, item.Número_de_Parte_de_Cliente_platina2,
-                    item.Material_platina2, item.SAP_Rollo, item.N__de_Rollo, item.Lote_de_rollo, item.Peso_Etiqueta__Kg_, item.Peso_de_regreso_de_rollo_Real,
+                    item.Material_platina2, item.ConcatCliente, item.SAP_Rollo, item.N__de_Rollo, item.Lote_de_rollo, item.Peso_Etiqueta__Kg_, item.Peso_de_regreso_de_rollo_Real,
                     item.Peso_de_rollo_usado, item.Peso_Báscula_Kgs, item.Pieza_por_Golpe, item.Ordenes_por_pieza, null, null, null, null, item.Total_de_piezas_platina1, item.Total_de_piezas_platina2, item.Total_de_piezas,
                     item.Peso_de_rollo_consumido, item.Numero_de_golpes, item.Kg_restante_de_rollo, item.Peso_despunte_kgs_, item.Peso_cola_Kgs_, item.Porcentaje_de_puntas_y_colas,
                     item.Total_de_piezas_de_Ajustes_platina1, item.Total_de_piezas_de_Ajustes_platina2, item.Total_de_piezas_de_Ajustes,
@@ -321,7 +322,7 @@ namespace Portal_2_0.Models
                 }
                 else if (i >= 3)
                 {
-                    oSLDocument.SetCellStyle(i + 1, 27, i + 1, 30, styleLoteInfo);
+                    oSLDocument.SetCellStyle(i + 1, 28, i + 1, 31, styleLoteInfo);
                 }
                 //colapsa todas las filas
                 oSLDocument.CollapseRows(i + 3);

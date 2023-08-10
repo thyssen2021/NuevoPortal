@@ -15,6 +15,8 @@ namespace Portal_2_0.Models
     public partial class view_historico_resultado
     {
         public long id { get; set; }
+        public string clave_sap_cliente { get; set; }
+        public string cliente { get; set; }
         public string Operador { get; set; }
         public string Supervisor { get; set; }
         public string SAP_Platina { get; set; }

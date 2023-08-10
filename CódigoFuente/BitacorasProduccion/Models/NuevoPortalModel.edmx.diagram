@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="e491ff9c3c62497ba77b67c445b21bb2" Name="Diagram1" ZoomLevel="77">
+      <Diagram DiagramId="e491ff9c3c62497ba77b67c445b21bb2" Name="Diagram1" ZoomLevel="74">
         <EntityTypeShape EntityType="Portal_2_0Model.AspNetUsers" Width="1.5" PointX="3" PointY="1" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.biblioteca_digital" Width="1.5" PointX="16.5" PointY="67.25" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.bom_en_sap" Width="1.5" PointX="0.75" PointY="6.75" IsExpanded="true" />
@@ -89,7 +89,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.upgrade_usuarios" Width="1.5" PointX="9.75" PointY="169.125" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.upgrade_values_checklist" Width="1.5" PointX="14.25" PointY="169" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.upgrade_values_transaccion" Width="1.5" PointX="14.25" PointY="172.375" IsExpanded="true" />
-        <EntityTypeShape EntityType="Portal_2_0Model.view_historico_resultado" Width="1.5" PointX="6.75" PointY="9.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.view_valores_fiscal_year" Width="1.5" PointX="8.75" PointY="9.75" IsExpanded="true" />
         <AssociationConnector Association="Portal_2_0Model.FK_log_inicio_sesion_id_usuario" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_id_biblioteca_digital" ManuallyRouted="false" />
@@ -333,6 +332,7 @@
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_supervisores_clave_planta" />
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_turnos_planta_clave" />
         <AssociationConnector Association="Portal_2_0Model.FK_RM_almacen_plantaClave" />
+        <EntityTypeShape EntityType="Portal_2_0Model.view_historico_resultado" Width="1.5" PointX="13.375" PointY="14.75" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

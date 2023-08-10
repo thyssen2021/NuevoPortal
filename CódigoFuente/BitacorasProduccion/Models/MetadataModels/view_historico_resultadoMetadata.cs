@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -260,6 +261,12 @@ namespace Portal_2_0.Models
         [Display(Name = "Balance de Scrap Real (General)")]
         public Nullable<double> Balance_de_Scrap_Real_general { get; set; }
 
+        [Display(Name = "Clave SAP cliente")]
+        public string clave_sap_cliente { get; set; }
+
+        [Display(Name = "Cliente SAP")]
+        public string cliente { get; set; }
+
     }
 
     [MetadataType(typeof(view_historico_resultadoMetadata))]
@@ -279,6 +286,16 @@ namespace Portal_2_0.Models
                 {
                     return null;
                 }
+            }
+        }
+
+        [NotMapped]
+        [Display(Name = "Cliente")]
+        public string ConcatCliente
+        {
+            get
+            {
+                return string.Format("({0}) {1}", clave_sap_cliente, cliente).ToUpper();
             }
         }
     }

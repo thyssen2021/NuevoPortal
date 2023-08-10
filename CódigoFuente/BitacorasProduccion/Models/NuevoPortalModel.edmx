@@ -1680,6 +1680,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_historico_resultado' no 
             <PropertyRef Name="id" />
           </Key>
           <Property Name="id" Type="bigint" Nullable="false" />
+          <Property Name="clave_sap_cliente" Type="nvarchar" MaxLength="30" />
+          <Property Name="cliente" Type="varchar" MaxLength="100" />
           <Property Name="Operador" Type="nvarchar" MaxLength="767" />
           <Property Name="Supervisor" Type="nvarchar" MaxLength="767" />
           <Property Name="SAP Platina" Type="nvarchar" MaxLength="255" />
@@ -4329,6 +4331,8 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <EntitySet Name="view_historico_resultado" EntityType="Self.view_historico_resultado" store:Type="Views" store:Schema="dbo">
             <DefiningQuery>SELECT 
     [view_historico_resultado].[id] AS [id], 
+    [view_historico_resultado].[clave_sap_cliente] AS [clave_sap_cliente], 
+    [view_historico_resultado].[cliente] AS [cliente], 
     [view_historico_resultado].[Operador] AS [Operador], 
     [view_historico_resultado].[Supervisor] AS [Supervisor], 
     [view_historico_resultado].[SAP Platina] AS [SAP Platina], 
@@ -6433,96 +6437,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="activo" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="upgrade_revision" Relationship="Self.FK_upgrade_values_transaccion_revision" FromRole="upgrade_values_transaccion" ToRole="upgrade_revision" />
         </EntityType>
-        <EntityType Name="view_historico_resultado">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int64" Nullable="false" />
-          <Property Name="Operador" Type="String" MaxLength="767" FixedLength="false" Unicode="true" />
-          <Property Name="Supervisor" Type="String" MaxLength="767" FixedLength="false" Unicode="true" />
-          <Property Name="SAP_Platina" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="SAP_Platina_2" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="Tipo_de_Material" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Número_de_Parte__de_cliente" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="SAP_Rollo" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Material" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Fecha" Type="DateTime" Precision="3" />
-          <Property Name="Turno" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Hora" Type="DateTime" Precision="3" />
-          <Property Name="Orden_SAP" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
-          <Property Name="Orden_en_SAP_2" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
-          <Property Name="Pieza_por_Golpe" Type="Double" />
-          <Property Name="N__de_Rollo" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Lote_de_rollo" Type="String" MaxLength="256" FixedLength="false" Unicode="false" />
-          <Property Name="Peso_Etiqueta__Kg_" Type="Double" />
-          <Property Name="Peso_de_regreso_de_rollo_Real" Type="Double" />
-          <Property Name="Peso_de_rollo_usado" Type="Double" />
-          <Property Name="Peso_Báscula_Kgs" Type="Double" />
-          <Property Name="Piezas_por_paquete" Type="Double" />
-          <Property Name="Total_de_piezas" Type="Double" />
-          <Property Name="Peso_de_rollo_consumido" Type="Double" />
-          <Property Name="Numero_de_golpes" Type="Double" />
-          <Property Name="Kg_restante_de_rollo" Type="Double" />
-          <Property Name="Peso_despunte_kgs_" Type="Double" />
-          <Property Name="Peso_cola_Kgs_" Type="Double" />
-          <Property Name="Porcentaje_de_puntas_y_colas" Type="Double" />
-          <Property Name="Total_de_piezas_de_Ajustes" Type="Double" />
-          <Property Name="Peso_Bruto_Kgs" Type="Double" />
-          <Property Name="Peso_Real_Pieza_Bruto" Type="Double" />
-          <Property Name="Peso_Real_Pieza_Neto" Type="Double" />
-          <Property Name="Scrap_Natural" Type="Double" />
-          <Property Name="Peso_neto_SAP" Type="Double" />
-          <Property Name="Peso_Bruto_SAP" Type="Double" />
-          <Property Name="Balance_de_Scrap" Type="Double" />
-          <Property Name="Linea" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Planta" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Anio" Type="Int32" />
-          <Property Name="Column40" Type="Double" />
-          <Property Name="Ordenes_por_pieza" Type="Double" />
-          <Property Name="Peso_de_rollo_usado_real__Kg" Type="Double" />
-          <Property Name="Peso_bruto_Total_piezas_Kg" Type="Double" />
-          <Property Name="Peso_NetoTotal_piezas_Kg" Type="Double" />
-          <Property Name="Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg" Type="Double" />
-          <Property Name="Peso_Neto_total_piezas_de_ajuste_Kgs" Type="Double" />
-          <Property Name="Peso_puntas_y_colas_reales_Kg" Type="Double" />
-          <Property Name="Balance_de_Scrap_Real" Type="Double" />
-          <Property Name="Tipo_de_Material_platina2" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="Número_de_Parte_de_Cliente_platina2" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Material_platina2" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
-          <Property Name="Total_de_piezas_platina1" Type="Int32" />
-          <Property Name="Total_de_piezas_platina2" Type="Int32" />
-          <Property Name="Total_de_piezas_de_Ajustes_platina1" Type="Int32" />
-          <Property Name="Total_de_piezas_de_Ajustes_platina2" Type="Int32" />
-          <Property Name="Peso_Bruto_Kgs_platina2" Type="Double" />
-          <Property Name="Peso_Real_Pieza_Bruto_platina2" Type="Double" />
-          <Property Name="Peso_Real_Pieza_Neto_platina2" Type="Double" />
-          <Property Name="Scrap_Natural_platina2" Type="Double" />
-          <Property Name="Peso_neto_SAP_platina2" Type="Double" />
-          <Property Name="Peso_Bruto_SAP_platina2" Type="Double" />
-          <Property Name="Balance_de_Scrap_platina2" Type="Double" />
-          <Property Name="Peso_de_rollo_usado_real__Kg_platina2" Type="Double" />
-          <Property Name="Peso_bruto_Total_piezas_Kg_platina2" Type="Double" />
-          <Property Name="Peso_NetoTotal_piezas_Kg_platina2" Type="Double" />
-          <Property Name="Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg_platina2" Type="Double" />
-          <Property Name="Peso_Neto_total_piezas_de_ajuste_Kgs_platina2" Type="Double" />
-          <Property Name="Peso_puntas_y_colas_reales_Kg_platina2" Type="Double" />
-          <Property Name="Balance_de_Scrap_Real_platina2" Type="Double" />
-          <Property Name="Peso_Bruto_Kgs_general" Type="Double" />
-          <Property Name="Peso_Real_Pieza_Bruto_general" Type="Double" />
-          <Property Name="Peso_Real_Pieza_Neto_general" Type="Double" />
-          <Property Name="Scrap_Natural_general" Type="Double" />
-          <Property Name="Peso_neto_SAP_general" Type="Double" />
-          <Property Name="Peso_Bruto_SAP_general" Type="Double" />
-          <Property Name="Balance_de_Scrap_general" Type="Double" />
-          <Property Name="Peso_de_rollo_usado_real__Kg_general" Type="Double" />
-          <Property Name="Peso_bruto_Total_piezas_Kg_general" Type="Double" />
-          <Property Name="Peso_NetoTotal_piezas_Kg_general" Type="Double" />
-          <Property Name="Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg_general" Type="Double" />
-          <Property Name="Peso_Neto_total_piezas_de_ajuste_Kgs_general" Type="Double" />
-          <Property Name="Peso_puntas_y_colas_reales_Kg_general" Type="Double" />
-          <Property Name="Balance_de_Scrap_Real_general" Type="Double" />
-          <Property Name="comentario" Type="String" MaxLength="600" FixedLength="false" Unicode="false" />
-        </EntityType>
         <EntityType Name="view_valores_fiscal_year">
           <Key>
             <PropertyRef Name="id" />
@@ -7410,7 +7324,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <EntitySet Name="upgrade_usuarios" EntityType="Self.upgrade_usuarios" />
           <EntitySet Name="upgrade_values_checklist" EntityType="Self.upgrade_values_checklist" />
           <EntitySet Name="upgrade_values_transaccion" EntityType="Self.upgrade_values_transaccion" />
-          <EntitySet Name="view_historico_resultado" EntityType="Self.view_historico_resultado" />
           <EntitySet Name="view_valores_fiscal_year" EntityType="Self.view_valores_fiscal_year" />
           <AssociationSet Name="FK_log_inicio_sesion_id_usuario" Association="Self.FK_log_inicio_sesion_id_usuario">
             <End Role="AspNetUsers" EntitySet="AspNetUsers" />
@@ -8230,6 +8143,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="plantas" EntitySet="plantas" />
             <End Role="RM_almacen" EntitySet="RM_almacen" />
           </AssociationSet>
+          <EntitySet Name="view_historico_resultado" EntityType="Portal_2_0Model.view_historico_resultado" />
           </EntityContainer>
         <EntityType Name="GV_usuarios">
           <Key>
@@ -10686,6 +10600,98 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="view_historico_resultado">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int64" Nullable="false" />
+          <Property Name="clave_sap_cliente" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="cliente" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Operador" Type="String" MaxLength="767" FixedLength="false" Unicode="true" />
+          <Property Name="Supervisor" Type="String" MaxLength="767" FixedLength="false" Unicode="true" />
+          <Property Name="SAP_Platina" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="SAP_Platina_2" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="Tipo_de_Material" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Número_de_Parte__de_cliente" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="SAP_Rollo" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Material" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Fecha" Type="DateTime" Precision="3" />
+          <Property Name="Turno" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Hora" Type="DateTime" Precision="3" />
+          <Property Name="Orden_SAP" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="Orden_en_SAP_2" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="Pieza_por_Golpe" Type="Double" />
+          <Property Name="N__de_Rollo" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Lote_de_rollo" Type="String" MaxLength="256" FixedLength="false" Unicode="false" />
+          <Property Name="Peso_Etiqueta__Kg_" Type="Double" />
+          <Property Name="Peso_de_regreso_de_rollo_Real" Type="Double" />
+          <Property Name="Peso_de_rollo_usado" Type="Double" />
+          <Property Name="Peso_Báscula_Kgs" Type="Double" />
+          <Property Name="Piezas_por_paquete" Type="Double" />
+          <Property Name="Total_de_piezas" Type="Double" />
+          <Property Name="Peso_de_rollo_consumido" Type="Double" />
+          <Property Name="Numero_de_golpes" Type="Double" />
+          <Property Name="Kg_restante_de_rollo" Type="Double" />
+          <Property Name="Peso_despunte_kgs_" Type="Double" />
+          <Property Name="Peso_cola_Kgs_" Type="Double" />
+          <Property Name="Porcentaje_de_puntas_y_colas" Type="Double" />
+          <Property Name="Total_de_piezas_de_Ajustes" Type="Double" />
+          <Property Name="Peso_Bruto_Kgs" Type="Double" />
+          <Property Name="Peso_Real_Pieza_Bruto" Type="Double" />
+          <Property Name="Peso_Real_Pieza_Neto" Type="Double" />
+          <Property Name="Scrap_Natural" Type="Double" />
+          <Property Name="Peso_neto_SAP" Type="Double" />
+          <Property Name="Peso_Bruto_SAP" Type="Double" />
+          <Property Name="Balance_de_Scrap" Type="Double" />
+          <Property Name="Linea" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Planta" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Anio" Type="Int32" />
+          <Property Name="Column40" Type="Double" />
+          <Property Name="Ordenes_por_pieza" Type="Double" />
+          <Property Name="Peso_de_rollo_usado_real__Kg" Type="Double" />
+          <Property Name="Peso_bruto_Total_piezas_Kg" Type="Double" />
+          <Property Name="Peso_NetoTotal_piezas_Kg" Type="Double" />
+          <Property Name="Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg" Type="Double" />
+          <Property Name="Peso_Neto_total_piezas_de_ajuste_Kgs" Type="Double" />
+          <Property Name="Peso_puntas_y_colas_reales_Kg" Type="Double" />
+          <Property Name="Balance_de_Scrap_Real" Type="Double" />
+          <Property Name="Tipo_de_Material_platina2" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Número_de_Parte_de_Cliente_platina2" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Material_platina2" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="Total_de_piezas_platina1" Type="Int32" />
+          <Property Name="Total_de_piezas_platina2" Type="Int32" />
+          <Property Name="Total_de_piezas_de_Ajustes_platina1" Type="Int32" />
+          <Property Name="Total_de_piezas_de_Ajustes_platina2" Type="Int32" />
+          <Property Name="Peso_Bruto_Kgs_platina2" Type="Double" />
+          <Property Name="Peso_Real_Pieza_Bruto_platina2" Type="Double" />
+          <Property Name="Peso_Real_Pieza_Neto_platina2" Type="Double" />
+          <Property Name="Scrap_Natural_platina2" Type="Double" />
+          <Property Name="Peso_neto_SAP_platina2" Type="Double" />
+          <Property Name="Peso_Bruto_SAP_platina2" Type="Double" />
+          <Property Name="Balance_de_Scrap_platina2" Type="Double" />
+          <Property Name="Peso_de_rollo_usado_real__Kg_platina2" Type="Double" />
+          <Property Name="Peso_bruto_Total_piezas_Kg_platina2" Type="Double" />
+          <Property Name="Peso_NetoTotal_piezas_Kg_platina2" Type="Double" />
+          <Property Name="Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg_platina2" Type="Double" />
+          <Property Name="Peso_Neto_total_piezas_de_ajuste_Kgs_platina2" Type="Double" />
+          <Property Name="Peso_puntas_y_colas_reales_Kg_platina2" Type="Double" />
+          <Property Name="Balance_de_Scrap_Real_platina2" Type="Double" />
+          <Property Name="Peso_Bruto_Kgs_general" Type="Double" />
+          <Property Name="Peso_Real_Pieza_Bruto_general" Type="Double" />
+          <Property Name="Peso_Real_Pieza_Neto_general" Type="Double" />
+          <Property Name="Scrap_Natural_general" Type="Double" />
+          <Property Name="Peso_neto_SAP_general" Type="Double" />
+          <Property Name="Peso_Bruto_SAP_general" Type="Double" />
+          <Property Name="Balance_de_Scrap_general" Type="Double" />
+          <Property Name="Peso_de_rollo_usado_real__Kg_general" Type="Double" />
+          <Property Name="Peso_bruto_Total_piezas_Kg_general" Type="Double" />
+          <Property Name="Peso_NetoTotal_piezas_Kg_general" Type="Double" />
+          <Property Name="Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg_general" Type="Double" />
+          <Property Name="Peso_Neto_total_piezas_de_ajuste_Kgs_general" Type="Double" />
+          <Property Name="Peso_puntas_y_colas_reales_Kg_general" Type="Double" />
+          <Property Name="Balance_de_Scrap_Real_general" Type="Double" />
+          <Property Name="comentario" Type="String" MaxLength="600" FixedLength="false" Unicode="false" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -11754,97 +11760,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="view_historico_resultado">
-            <EntityTypeMapping TypeName="Portal_2_0Model.view_historico_resultado">
-              <MappingFragment StoreEntitySet="view_historico_resultado">
-                <ScalarProperty Name="id" ColumnName="id" />
-                <ScalarProperty Name="Operador" ColumnName="Operador" />
-                <ScalarProperty Name="Supervisor" ColumnName="Supervisor" />
-                <ScalarProperty Name="SAP_Platina" ColumnName="SAP Platina" />
-                <ScalarProperty Name="SAP_Platina_2" ColumnName="SAP Platina 2" />
-                <ScalarProperty Name="Tipo_de_Material" ColumnName="Tipo de Material" />
-                <ScalarProperty Name="Número_de_Parte__de_cliente" ColumnName="Número de Parte  de cliente" />
-                <ScalarProperty Name="SAP_Rollo" ColumnName="SAP Rollo" />
-                <ScalarProperty Name="Material" ColumnName="Material" />
-                <ScalarProperty Name="Fecha" ColumnName="Fecha" />
-                <ScalarProperty Name="Turno" ColumnName="Turno" />
-                <ScalarProperty Name="Hora" ColumnName="Hora" />
-                <ScalarProperty Name="Orden_SAP" ColumnName="Orden SAP" />
-                <ScalarProperty Name="Orden_en_SAP_2" ColumnName="Orden en SAP 2" />
-                <ScalarProperty Name="Pieza_por_Golpe" ColumnName="Pieza por Golpe" />
-                <ScalarProperty Name="N__de_Rollo" ColumnName="N° de Rollo" />
-                <ScalarProperty Name="Lote_de_rollo" ColumnName="Lote de rollo" />
-                <ScalarProperty Name="Peso_Etiqueta__Kg_" ColumnName="Peso Etiqueta (Kg)" />
-                <ScalarProperty Name="Peso_de_regreso_de_rollo_Real" ColumnName="Peso de regreso de rollo Real" />
-                <ScalarProperty Name="Peso_de_rollo_usado" ColumnName="Peso de rollo usado" />
-                <ScalarProperty Name="Peso_Báscula_Kgs" ColumnName="Peso Báscula Kgs" />
-                <ScalarProperty Name="Piezas_por_paquete" ColumnName="Piezas por paquete" />
-                <ScalarProperty Name="Total_de_piezas" ColumnName="Total de piezas" />
-                <ScalarProperty Name="Peso_de_rollo_consumido" ColumnName="Peso de rollo consumido" />
-                <ScalarProperty Name="Numero_de_golpes" ColumnName="Numero de golpes" />
-                <ScalarProperty Name="Kg_restante_de_rollo" ColumnName="Kg restante de rollo" />
-                <ScalarProperty Name="Peso_despunte_kgs_" ColumnName="Peso despunte kgs#" />
-                <ScalarProperty Name="Peso_cola_Kgs_" ColumnName="Peso cola Kgs#" />
-                <ScalarProperty Name="Porcentaje_de_puntas_y_colas" ColumnName="Porcentaje de puntas y colas" />
-                <ScalarProperty Name="Total_de_piezas_de_Ajustes" ColumnName="Total de piezas de Ajustes" />
-                <ScalarProperty Name="Peso_Bruto_Kgs" ColumnName="Peso Bruto_Kgs" />
-                <ScalarProperty Name="Peso_Real_Pieza_Bruto" ColumnName="Peso Real Pieza Bruto" />
-                <ScalarProperty Name="Peso_Real_Pieza_Neto" ColumnName="Peso Real Pieza Neto" />
-                <ScalarProperty Name="Scrap_Natural" ColumnName="Scrap Natural" />
-                <ScalarProperty Name="Peso_neto_SAP" ColumnName="Peso neto SAP" />
-                <ScalarProperty Name="Peso_Bruto_SAP" ColumnName="Peso Bruto SAP" />
-                <ScalarProperty Name="Balance_de_Scrap" ColumnName="Balance_de_Scrap" />
-                <ScalarProperty Name="Linea" ColumnName="Linea" />
-                <ScalarProperty Name="Planta" ColumnName="Planta" />
-                <ScalarProperty Name="Anio" ColumnName="Anio" />
-                <ScalarProperty Name="Column40" ColumnName="Column40" />
-                <ScalarProperty Name="Ordenes_por_pieza" ColumnName="Ordenes por pieza" />
-                <ScalarProperty Name="Peso_de_rollo_usado_real__Kg" ColumnName="Peso de rollo usado real _Kg" />
-                <ScalarProperty Name="Peso_bruto_Total_piezas_Kg" ColumnName="Peso bruto Total piezas_Kg" />
-                <ScalarProperty Name="Peso_NetoTotal_piezas_Kg" ColumnName="Peso NetoTotal piezas_Kg" />
-                <ScalarProperty Name="Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg" ColumnName="Scrap de ingeniería (buenas + Ajuste)_Total_Piezas_Kg" />
-                <ScalarProperty Name="Peso_Neto_total_piezas_de_ajuste_Kgs" ColumnName="Peso Neto_total piezas de ajuste_Kgs" />
-                <ScalarProperty Name="Peso_puntas_y_colas_reales_Kg" ColumnName="Peso puntas y colas reales_Kg" />
-                <ScalarProperty Name="Balance_de_Scrap_Real" ColumnName="Balance_de_Scrap_Real" />
-                <ScalarProperty Name="Tipo_de_Material_platina2" ColumnName="Tipo de Material_platina2" />
-                <ScalarProperty Name="Número_de_Parte_de_Cliente_platina2" ColumnName="Número de Parte de Cliente_platina2" />
-                <ScalarProperty Name="Material_platina2" ColumnName="Material_platina2" />
-                <ScalarProperty Name="Total_de_piezas_platina1" ColumnName="Total de piezas_platina1" />
-                <ScalarProperty Name="Total_de_piezas_platina2" ColumnName="Total de piezas_platina2" />
-                <ScalarProperty Name="Total_de_piezas_de_Ajustes_platina1" ColumnName="Total de piezas de Ajustes_platina1" />
-                <ScalarProperty Name="Total_de_piezas_de_Ajustes_platina2" ColumnName="Total de piezas de Ajustes_platina2" />
-                <ScalarProperty Name="Peso_Bruto_Kgs_platina2" ColumnName="Peso Bruto Kgs_platina2" />
-                <ScalarProperty Name="Peso_Real_Pieza_Bruto_platina2" ColumnName="Peso Real Pieza Bruto_platina2" />
-                <ScalarProperty Name="Peso_Real_Pieza_Neto_platina2" ColumnName="Peso Real Pieza Neto_platina2" />
-                <ScalarProperty Name="Scrap_Natural_platina2" ColumnName="Scrap Natural_platina2" />
-                <ScalarProperty Name="Peso_neto_SAP_platina2" ColumnName="Peso neto SAP_platina2" />
-                <ScalarProperty Name="Peso_Bruto_SAP_platina2" ColumnName="Peso Bruto SAP_platina2" />
-                <ScalarProperty Name="Balance_de_Scrap_platina2" ColumnName="Balance de Scrap_platina2" />
-                <ScalarProperty Name="Peso_de_rollo_usado_real__Kg_platina2" ColumnName="Peso de rollo usado real _Kg_platina2" />
-                <ScalarProperty Name="Peso_bruto_Total_piezas_Kg_platina2" ColumnName="Peso bruto Total piezas_Kg_platina2" />
-                <ScalarProperty Name="Peso_NetoTotal_piezas_Kg_platina2" ColumnName="Peso NetoTotal piezas_Kg_platina2" />
-                <ScalarProperty Name="Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg_platina2" ColumnName="Scrap de ingeniería (buenas + Ajuste)_Total_Piezas_Kg_platina2" />
-                <ScalarProperty Name="Peso_Neto_total_piezas_de_ajuste_Kgs_platina2" ColumnName="Peso Neto_total piezas de ajuste_Kgs_platina2" />
-                <ScalarProperty Name="Peso_puntas_y_colas_reales_Kg_platina2" ColumnName="Peso puntas y colas reales_Kg_platina2" />
-                <ScalarProperty Name="Balance_de_Scrap_Real_platina2" ColumnName="Balance_de_Scrap_Real_platina2" />
-                <ScalarProperty Name="Peso_Bruto_Kgs_general" ColumnName="Peso Bruto Kgs_general" />
-                <ScalarProperty Name="Peso_Real_Pieza_Bruto_general" ColumnName="Peso Real Pieza Bruto_general" />
-                <ScalarProperty Name="Peso_Real_Pieza_Neto_general" ColumnName="Peso Real Pieza Neto_general" />
-                <ScalarProperty Name="Scrap_Natural_general" ColumnName="Scrap Natural_general" />
-                <ScalarProperty Name="Peso_neto_SAP_general" ColumnName="Peso neto SAP_general" />
-                <ScalarProperty Name="Peso_Bruto_SAP_general" ColumnName="Peso Bruto SAP_general" />
-                <ScalarProperty Name="Balance_de_Scrap_general" ColumnName="Balance de Scrap_general" />
-                <ScalarProperty Name="Peso_de_rollo_usado_real__Kg_general" ColumnName="Peso de rollo usado real _Kg_general" />
-                <ScalarProperty Name="Peso_bruto_Total_piezas_Kg_general" ColumnName="Peso bruto Total piezas_Kg_general" />
-                <ScalarProperty Name="Peso_NetoTotal_piezas_Kg_general" ColumnName="Peso NetoTotal piezas_Kg_general" />
-                <ScalarProperty Name="Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg_general" ColumnName="Scrap de ingeniería (buenas + Ajuste)_Total_Piezas_Kg_general" />
-                <ScalarProperty Name="Peso_Neto_total_piezas_de_ajuste_Kgs_general" ColumnName="Peso Neto_total piezas de ajuste_Kgs_general" />
-                <ScalarProperty Name="Peso_puntas_y_colas_reales_Kg_general" ColumnName="Peso puntas y colas reales_Kg_general" />
-                <ScalarProperty Name="Balance_de_Scrap_Real_general" ColumnName="Balance_de_Scrap_Real_general" />
-                <ScalarProperty Name="comentario" ColumnName="comentario" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="view_valores_fiscal_year">
             <EntityTypeMapping TypeName="Portal_2_0Model.view_valores_fiscal_year">
               <MappingFragment StoreEntitySet="view_valores_fiscal_year">
@@ -12639,6 +12554,99 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
                 <ScalarProperty Name="tipo" ColumnName="tipo" />
                 <ScalarProperty Name="usuario" ColumnName="usuario" />
                 <ScalarProperty Name="fecha" ColumnName="fecha" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="view_historico_resultado">
+            <EntityTypeMapping TypeName="Portal_2_0Model.view_historico_resultado">
+              <MappingFragment StoreEntitySet="view_historico_resultado">
+                <ScalarProperty Name="comentario" ColumnName="comentario" />
+                <ScalarProperty Name="Balance_de_Scrap_Real_general" ColumnName="Balance_de_Scrap_Real_general" />
+                <ScalarProperty Name="Peso_puntas_y_colas_reales_Kg_general" ColumnName="Peso puntas y colas reales_Kg_general" />
+                <ScalarProperty Name="Peso_Neto_total_piezas_de_ajuste_Kgs_general" ColumnName="Peso Neto_total piezas de ajuste_Kgs_general" />
+                <ScalarProperty Name="Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg_general" ColumnName="Scrap de ingeniería (buenas + Ajuste)_Total_Piezas_Kg_general" />
+                <ScalarProperty Name="Peso_NetoTotal_piezas_Kg_general" ColumnName="Peso NetoTotal piezas_Kg_general" />
+                <ScalarProperty Name="Peso_bruto_Total_piezas_Kg_general" ColumnName="Peso bruto Total piezas_Kg_general" />
+                <ScalarProperty Name="Peso_de_rollo_usado_real__Kg_general" ColumnName="Peso de rollo usado real _Kg_general" />
+                <ScalarProperty Name="Balance_de_Scrap_general" ColumnName="Balance de Scrap_general" />
+                <ScalarProperty Name="Peso_Bruto_SAP_general" ColumnName="Peso Bruto SAP_general" />
+                <ScalarProperty Name="Peso_neto_SAP_general" ColumnName="Peso neto SAP_general" />
+                <ScalarProperty Name="Scrap_Natural_general" ColumnName="Scrap Natural_general" />
+                <ScalarProperty Name="Peso_Real_Pieza_Neto_general" ColumnName="Peso Real Pieza Neto_general" />
+                <ScalarProperty Name="Peso_Real_Pieza_Bruto_general" ColumnName="Peso Real Pieza Bruto_general" />
+                <ScalarProperty Name="Peso_Bruto_Kgs_general" ColumnName="Peso Bruto Kgs_general" />
+                <ScalarProperty Name="Balance_de_Scrap_Real_platina2" ColumnName="Balance_de_Scrap_Real_platina2" />
+                <ScalarProperty Name="Peso_puntas_y_colas_reales_Kg_platina2" ColumnName="Peso puntas y colas reales_Kg_platina2" />
+                <ScalarProperty Name="Peso_Neto_total_piezas_de_ajuste_Kgs_platina2" ColumnName="Peso Neto_total piezas de ajuste_Kgs_platina2" />
+                <ScalarProperty Name="Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg_platina2" ColumnName="Scrap de ingeniería (buenas + Ajuste)_Total_Piezas_Kg_platina2" />
+                <ScalarProperty Name="Peso_NetoTotal_piezas_Kg_platina2" ColumnName="Peso NetoTotal piezas_Kg_platina2" />
+                <ScalarProperty Name="Peso_bruto_Total_piezas_Kg_platina2" ColumnName="Peso bruto Total piezas_Kg_platina2" />
+                <ScalarProperty Name="Peso_de_rollo_usado_real__Kg_platina2" ColumnName="Peso de rollo usado real _Kg_platina2" />
+                <ScalarProperty Name="Balance_de_Scrap_platina2" ColumnName="Balance de Scrap_platina2" />
+                <ScalarProperty Name="Peso_Bruto_SAP_platina2" ColumnName="Peso Bruto SAP_platina2" />
+                <ScalarProperty Name="Peso_neto_SAP_platina2" ColumnName="Peso neto SAP_platina2" />
+                <ScalarProperty Name="Scrap_Natural_platina2" ColumnName="Scrap Natural_platina2" />
+                <ScalarProperty Name="Peso_Real_Pieza_Neto_platina2" ColumnName="Peso Real Pieza Neto_platina2" />
+                <ScalarProperty Name="Peso_Real_Pieza_Bruto_platina2" ColumnName="Peso Real Pieza Bruto_platina2" />
+                <ScalarProperty Name="Peso_Bruto_Kgs_platina2" ColumnName="Peso Bruto Kgs_platina2" />
+                <ScalarProperty Name="Total_de_piezas_de_Ajustes_platina2" ColumnName="Total de piezas de Ajustes_platina2" />
+                <ScalarProperty Name="Total_de_piezas_de_Ajustes_platina1" ColumnName="Total de piezas de Ajustes_platina1" />
+                <ScalarProperty Name="Total_de_piezas_platina2" ColumnName="Total de piezas_platina2" />
+                <ScalarProperty Name="Total_de_piezas_platina1" ColumnName="Total de piezas_platina1" />
+                <ScalarProperty Name="Material_platina2" ColumnName="Material_platina2" />
+                <ScalarProperty Name="Número_de_Parte_de_Cliente_platina2" ColumnName="Número de Parte de Cliente_platina2" />
+                <ScalarProperty Name="Tipo_de_Material_platina2" ColumnName="Tipo de Material_platina2" />
+                <ScalarProperty Name="Balance_de_Scrap_Real" ColumnName="Balance_de_Scrap_Real" />
+                <ScalarProperty Name="Peso_puntas_y_colas_reales_Kg" ColumnName="Peso puntas y colas reales_Kg" />
+                <ScalarProperty Name="Peso_Neto_total_piezas_de_ajuste_Kgs" ColumnName="Peso Neto_total piezas de ajuste_Kgs" />
+                <ScalarProperty Name="Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg" ColumnName="Scrap de ingeniería (buenas + Ajuste)_Total_Piezas_Kg" />
+                <ScalarProperty Name="Peso_NetoTotal_piezas_Kg" ColumnName="Peso NetoTotal piezas_Kg" />
+                <ScalarProperty Name="Peso_bruto_Total_piezas_Kg" ColumnName="Peso bruto Total piezas_Kg" />
+                <ScalarProperty Name="Peso_de_rollo_usado_real__Kg" ColumnName="Peso de rollo usado real _Kg" />
+                <ScalarProperty Name="Ordenes_por_pieza" ColumnName="Ordenes por pieza" />
+                <ScalarProperty Name="Column40" ColumnName="Column40" />
+                <ScalarProperty Name="Anio" ColumnName="Anio" />
+                <ScalarProperty Name="Planta" ColumnName="Planta" />
+                <ScalarProperty Name="Linea" ColumnName="Linea" />
+                <ScalarProperty Name="Balance_de_Scrap" ColumnName="Balance_de_Scrap" />
+                <ScalarProperty Name="Peso_Bruto_SAP" ColumnName="Peso Bruto SAP" />
+                <ScalarProperty Name="Peso_neto_SAP" ColumnName="Peso neto SAP" />
+                <ScalarProperty Name="Scrap_Natural" ColumnName="Scrap Natural" />
+                <ScalarProperty Name="Peso_Real_Pieza_Neto" ColumnName="Peso Real Pieza Neto" />
+                <ScalarProperty Name="Peso_Real_Pieza_Bruto" ColumnName="Peso Real Pieza Bruto" />
+                <ScalarProperty Name="Peso_Bruto_Kgs" ColumnName="Peso Bruto_Kgs" />
+                <ScalarProperty Name="Total_de_piezas_de_Ajustes" ColumnName="Total de piezas de Ajustes" />
+                <ScalarProperty Name="Porcentaje_de_puntas_y_colas" ColumnName="Porcentaje de puntas y colas" />
+                <ScalarProperty Name="Peso_cola_Kgs_" ColumnName="Peso cola Kgs#" />
+                <ScalarProperty Name="Peso_despunte_kgs_" ColumnName="Peso despunte kgs#" />
+                <ScalarProperty Name="Kg_restante_de_rollo" ColumnName="Kg restante de rollo" />
+                <ScalarProperty Name="Numero_de_golpes" ColumnName="Numero de golpes" />
+                <ScalarProperty Name="Peso_de_rollo_consumido" ColumnName="Peso de rollo consumido" />
+                <ScalarProperty Name="Total_de_piezas" ColumnName="Total de piezas" />
+                <ScalarProperty Name="Piezas_por_paquete" ColumnName="Piezas por paquete" />
+                <ScalarProperty Name="Peso_Báscula_Kgs" ColumnName="Peso Báscula Kgs" />
+                <ScalarProperty Name="Peso_de_rollo_usado" ColumnName="Peso de rollo usado" />
+                <ScalarProperty Name="Peso_de_regreso_de_rollo_Real" ColumnName="Peso de regreso de rollo Real" />
+                <ScalarProperty Name="Peso_Etiqueta__Kg_" ColumnName="Peso Etiqueta (Kg)" />
+                <ScalarProperty Name="Lote_de_rollo" ColumnName="Lote de rollo" />
+                <ScalarProperty Name="N__de_Rollo" ColumnName="N° de Rollo" />
+                <ScalarProperty Name="Pieza_por_Golpe" ColumnName="Pieza por Golpe" />
+                <ScalarProperty Name="Orden_en_SAP_2" ColumnName="Orden en SAP 2" />
+                <ScalarProperty Name="Orden_SAP" ColumnName="Orden SAP" />
+                <ScalarProperty Name="Hora" ColumnName="Hora" />
+                <ScalarProperty Name="Turno" ColumnName="Turno" />
+                <ScalarProperty Name="Fecha" ColumnName="Fecha" />
+                <ScalarProperty Name="Material" ColumnName="Material" />
+                <ScalarProperty Name="SAP_Rollo" ColumnName="SAP Rollo" />
+                <ScalarProperty Name="Número_de_Parte__de_cliente" ColumnName="Número de Parte  de cliente" />
+                <ScalarProperty Name="Tipo_de_Material" ColumnName="Tipo de Material" />
+                <ScalarProperty Name="SAP_Platina_2" ColumnName="SAP Platina 2" />
+                <ScalarProperty Name="SAP_Platina" ColumnName="SAP Platina" />
+                <ScalarProperty Name="Supervisor" ColumnName="Supervisor" />
+                <ScalarProperty Name="Operador" ColumnName="Operador" />
+                <ScalarProperty Name="cliente" ColumnName="cliente" />
+                <ScalarProperty Name="clave_sap_cliente" ColumnName="clave_sap_cliente" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
