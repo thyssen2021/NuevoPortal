@@ -1093,6 +1093,7 @@ namespace Portal_2_0.Controllers
             ServiceReferenceBasculas.WebServiceBasculasSoapClient cliente = new ServiceReferenceBasculas.WebServiceBasculasSoapClient();
 
             //primero trata de obtener el peso desde webservice
+            /*
             try
             {
                 string peso = String.Empty;
@@ -1108,6 +1109,7 @@ namespace Portal_2_0.Controllers
             catch (Exception e) {
                 list[0] = new { Message = "Error: " + e.Message };
             }
+            */
 
             //conecta con la báscula (en caso de que no funcionará el webservice)
             try
