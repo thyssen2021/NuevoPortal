@@ -712,9 +712,17 @@ namespace Portal_2_0.Controllers
                 if (!String.IsNullOrEmpty(tipo) && (tipo == Bitacoras.Util.IT_MR_tipo.CREACION || tipo == Bitacoras.Util.IT_MR_tipo.MODIFICACION))
                     matriz.tipo = tipo;
 
+                //coloca el manualmente el correo de tyssen la primera psosicion 
+                List<IT_inventory_software> listSoftware = new List<IT_inventory_software>();
+                if (db.IT_inventory_software.Any(x => x.id == 30))
+                    listSoftware.Add(db.IT_inventory_software.Find(30));
+                //agrega todos excepto el 30 = correo
+                listSoftware.AddRange(db.IT_inventory_software.Where(x => x.id != 30));
+
+
                 //obtiene la lista de hardware
                 ViewBag.listHardware = db.IT_inventory_hardware_type.Where(x => x.activo == true && x.disponible_en_matriz_rh).ToList();
-                ViewBag.listSoftware = db.IT_inventory_software.Where(x => x.activo == true && x.disponible_en_matriz_rh).ToList();
+                ViewBag.listSoftware = listSoftware;
                 ViewBag.id_internet_tipo = AddFirstItem(new SelectList(db.IT_internet_tipo.Where(p => p.activo == true), "id", "descripcion"), selected: matriz.id_internet_tipo.ToString());
                 ViewBag.listCarpetas = db.IT_carpetas_red.Where(x => x.activo == true).ToList();
                 ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(p => p.activo == true), "id", "ConcatNumEmpleadoNombre"), selected: empleados.empleados2 != null ? empleados.empleados2.id.ToString() : String.Empty);
@@ -1032,9 +1040,16 @@ namespace Portal_2_0.Controllers
 
             matriz.empleados = empleados;
 
+            //coloca el manualmente el correo de tyssen la primera psosicion 
+            List<IT_inventory_software> listSoftware = new List<IT_inventory_software>();
+            if (db.IT_inventory_software.Any(x => x.id == 30))
+                listSoftware.Add(db.IT_inventory_software.Find(30));
+            //agrega todos excepto el 30 = correo
+            listSoftware.AddRange(db.IT_inventory_software.Where(x => x.id != 30));
+
 
             ViewBag.listHardware = db.IT_inventory_hardware_type.Where(x => x.activo == true && x.disponible_en_matriz_rh).ToList();
-            ViewBag.listSoftware = db.IT_inventory_software.Where(x => x.activo == true && x.disponible_en_matriz_rh).ToList();
+            ViewBag.listSoftware = listSoftware;
             ViewBag.id_internet_tipo = AddFirstItem(new SelectList(db.IT_internet_tipo.Where(p => p.activo == true), "id", "descripcion"));
             ViewBag.listComunicaciones = db.IT_comunicaciones_tipo.Where(x => x.activo == true).ToList();
             ViewBag.listCarpetas = db.IT_carpetas_red.Where(x => x.activo == true).ToList();
@@ -1291,9 +1306,17 @@ namespace Portal_2_0.Controllers
                 if (!String.IsNullOrEmpty(tipo) && (tipo == Bitacoras.Util.IT_MR_tipo.CREACION || tipo == Bitacoras.Util.IT_MR_tipo.MODIFICACION))
                     matriz.tipo = tipo;
 
+                //coloca el manualmente el correo de tyssen la primera psosicion 
+                List<IT_inventory_software> listSoftware = new List<IT_inventory_software>();
+                if (db.IT_inventory_software.Any(x => x.id == 30))
+                    listSoftware.Add(db.IT_inventory_software.Find(30));
+                //agrega todos excepto el 30 = correo
+                listSoftware.AddRange(db.IT_inventory_software.Where(x => x.id != 30));
+
+
                 //obtiene la lista de hardware
                 ViewBag.listHardware = db.IT_inventory_hardware_type.Where(x => x.activo == true && x.disponible_en_matriz_rh).ToList();
-                ViewBag.listSoftware = db.IT_inventory_software.Where(x => x.activo == true && x.disponible_en_matriz_rh).ToList();
+                ViewBag.listSoftware = listSoftware;
                 ViewBag.id_internet_tipo = AddFirstItem(new SelectList(db.IT_internet_tipo.Where(p => p.activo == true), "id", "descripcion"), selected: matriz.id_internet_tipo.ToString());
                 ViewBag.listCarpetas = db.IT_carpetas_red.Where(x => x.activo == true).ToList();
                 ViewBag.id_jefe_directo = AddFirstItem(new SelectList(db.empleados.Where(p => p.activo == true), "id", "ConcatNumEmpleadoNombre"), selected: matriz.id_jefe_directo.ToString());
@@ -1715,7 +1738,7 @@ namespace Portal_2_0.Controllers
                 //actualiza el estado de la solicitud según el tipo de formulario enviado
                 switch (tipoSolicitud.ToUpper())
                 {
-                    case "CIERRE_CLOSE":
+                    case "CIERRE_CLOSE": 
                         matriz.estatus = IT_MR_Status.FINALIZADO;
                         matriz.fecha_cierre = DateTime.Now;
                         //deshabilida la asignación actual
@@ -1771,13 +1794,13 @@ namespace Portal_2_0.Controllers
                     //envía notificacion de solicitud de usuario
                     if (matriz.estatus == IT_MR_Status.EN_PROCESO)
                     {
-                        //envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de Usuarios #" + matriz.id + " ha sido actualizada.", envioCorreo.getBody_IT_MR_Notificacion_En_Proceso(matriz));
+                        envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de Usuarios #" + matriz.id + " ha sido actualizada.", envioCorreo.getBody_IT_MR_Notificacion_En_Proceso(matriz));
                         TempData["Mensaje"] = new MensajesSweetAlert("Se ha actualizado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
                     }
-                    else if (matriz.estatus == IT_MR_Status.FINALIZADO && tipoSolicitud.ToUpper() == "CIERRE")
+                    else if (matriz.estatus == IT_MR_Status.FINALIZADO && tipoSolicitud.ToUpper().Contains("CIERRE"))
                     {
                         matriz.empleados2 = db.empleados.Find(matriz.id_sistemas);
-                        envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de usuarios #" + matriz.id + " ha sido cerrada.", envioCorreo.getBody_IT_MR_Notificacion_Cierre(matriz));
+                        envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de usuarios #" + matriz.id + " ha sido cerrada o ha sido actualizada.", envioCorreo.getBody_IT_MR_Notificacion_Cierre(matriz));
                         TempData["Mensaje"] = new MensajesSweetAlert("Se ha cerrado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
 
                     }

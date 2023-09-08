@@ -158,7 +158,12 @@ namespace Portal_2_0.Controllers
 
                 ViewBag.SubordinadosSeleccionados = new List<int>();
                 ViewBag.TotalEmpleados = db.empleados.Where(x => x.activo == true).ToList();
-                return View();
+                empleados empleado = new empleados
+                {
+                    tipo_empleado = Bitacoras.Util.Empleados_tipo.EMPLEADO
+                };
+
+                return View(empleado);
             }
             else
             {
@@ -300,8 +305,8 @@ namespace Portal_2_0.Controllers
             }
 
             //valida el numero de empleado
-            if (!Int32.TryParse(empleados.numeroEmpleado, out int num) && empleados.numeroEmpleado.ToUpper() != "N/A")
-                ModelState.AddModelError("", "El número de empleado no es válido. Ingrese sólo números o el valor \"N/A\"");
+            if (!Int32.TryParse(empleados.numeroEmpleado, out int num) && empleados.numeroEmpleado.ToUpper() != "N/A" && empleados.numeroEmpleado.ToUpper() != "P99999")
+                ModelState.AddModelError("", "El número de empleado no es válido. Ingrese sólo números o los valores \"N/A\" ó P99999 ");
 
             //busca si ya existe un empleado con ese numero de empleado
 
@@ -319,6 +324,8 @@ namespace Portal_2_0.Controllers
                 empleados.apellido1 = empleados.apellido1.ToUpper();
                 if (!String.IsNullOrEmpty(empleados.apellido2))
                     empleados.apellido2 = empleados.apellido2.ToUpper();
+                else
+                    empleados.apellido2 = null;
                 empleados.numeroEmpleado = empleados.numeroEmpleado.ToUpper(); //para n/a
 
                 //agrega el id_area
@@ -526,8 +533,8 @@ namespace Portal_2_0.Controllers
             }
 
             //valida el numero de empleado
-            if (!Int32.TryParse(empleados.numeroEmpleado, out int num) && empleados.numeroEmpleado.ToUpper() != "N/A")
-                ModelState.AddModelError("", "El número de empleado no es válido. Ingrese sólo números o el valor \"N/A\"");
+            if (!Int32.TryParse(empleados.numeroEmpleado, out int num) && empleados.numeroEmpleado.ToUpper() != "N/A" && empleados.numeroEmpleado.ToUpper() != "P99999")
+                ModelState.AddModelError("", "El número de empleado no es válido. Ingrese sólo números o los valores \"N/A\" ó P99999 ");
 
             //busca si ya existe un empleado con ese numero de empleado
 
@@ -606,7 +613,10 @@ namespace Portal_2_0.Controllers
 
                 empleados.nombre = empleados.nombre.ToUpper();
                 empleados.apellido1 = empleados.apellido1.ToUpper();
-                empleados.apellido2 = empleados.apellido2.ToUpper();
+                if (string.IsNullOrEmpty(empleados.apellido2))
+                    empleados.apellido2 = null;
+                else
+                    empleados.apellido2 = empleados.apellido2.ToUpper();
                 empleados.numeroEmpleado = empleados.numeroEmpleado.ToUpper(); //para n/a
 
                 //agrega el id_area
@@ -618,12 +628,14 @@ namespace Portal_2_0.Controllers
                 try
                 {
                     db.SaveChanges();
+                    TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
                 }
                 catch (Exception ex)
                 {
+                    TempData["Mensaje"] = new MensajesSweetAlert("Error: " + ex.Message, TipoMensajesSweetAlerts.ERROR);
                     ModelState.AddModelError("", "Error al guardar en BD_ " + ex.Message);
                 }
-                TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
+
                 return RedirectToAction("Index");
 
             }
@@ -812,7 +824,7 @@ namespace Portal_2_0.Controllers
                         //OBTIENE EL CORREO DE NOTIFICACION
                         var itTicketEmail = db.notificaciones_correo.Where(x => x.descripcion == "IT_TICKET").FirstOrDefault();
                         var itEmail = db.notificaciones_correo.Where(x => x.descripcion == "IT_TKMM").FirstOrDefault();
-                       if (itEmail != null && itTicketEmail !=null)
+                        if (itEmail != null && itTicketEmail != null)
                         {
                             //envia correo electronico
                             EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();

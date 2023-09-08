@@ -21,7 +21,7 @@ namespace Portal_2_0.Models
         public System.DateTime nueva_fecha { get; set; }
         public string motivo { get; set; }
     
-        public virtual empleados empleados { get; set; }
         public virtual IT_mantenimientos IT_mantenimientos { get; set; }
+        public virtual empleados empleados { get; set; }
     }
 }

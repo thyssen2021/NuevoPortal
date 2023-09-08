@@ -111,7 +111,8 @@
                                         <dd class="col-sm-2">@Html.DisplayFor(model => model.matriz.empleados.ingresoFecha)</dd>
                                         <dt class="col-sm-2">@Html.DisplayNameFor(model => model.matriz.empleados.nueva_fecha_nacimiento)</dt>
                                         <dd class="col-sm-2">@Html.DisplayFor(model => model.matriz.empleados.nueva_fecha_nacimiento)</dd>
-
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.matriz.empleados.tipo_empleado)</dt>
+                                        <dd class="col-sm-2">@Bitacoras.Util.Empleados_tipo.Descripcion(Model.matriz.empleados.tipo_empleado)</dd>
                                     </dl>
                                 </div>
                             </div>
@@ -856,7 +857,7 @@
                     if (result.value) {
 
                         $('#tipo_form').val("update");
-                        $('#correo').prop("required", true);
+                        //$('#correo').prop("required", true);
                         $('#C8ID').prop("required", true);
                         $('#comentario_cierre').prop("required", true);
 
@@ -899,7 +900,7 @@
                     if (result.value) {
 
                         $('#tipo_form').val("finalizar_actividad");
-                        $('#correo').prop("required", true);
+                       // $('#correo').prop("required", true);
                         $('#C8ID').prop("required", true);
                         $('#comentario_cierre').prop("required", true);
 
@@ -1131,13 +1132,13 @@
 
         function AgregaRequired() {
             $('#tipo_form').val("cierre");
-            $('#correo').prop("required", true);
+            //$('#correo').prop("required", true);
             $('#C8ID').prop("required", true);
             $('#comentario_cierre').prop("required", true);
         }
         function QuitaRequired() {
             $('#tipo_form').val("progreso");
-            $('#correo').removeAttr("required");
+           //$('#correo').removeAttr("required");
             $('#C8ID').removeAttr("required");
             $('#comentario_cierre').removeAttr("required");
         }

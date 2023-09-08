@@ -128,11 +128,23 @@
     });
 
     $('input').on('ifChecked', function (event) {
-        verificaChecks();
+        let target = event.target.value;
+
+        if (target == 'PROVEEDOR' || target == 'PRACTICANTE' || target == 'EMPLEADO') {
+            verificaTipoEmpleado(target)
+        }
+        else {
+            verificaChecks();
+        }
+
     });
 
     $('input').on('ifUnchecked', function (event) {
-        verificaChecks();
+        let target = event.target.value;
+
+        if (target != 'PROVEEDOR' && target != 'PRACTICANTE' && target != 'EMPLEADO') {
+            verificaChecks();
+        }
     });
 
     //seleccionaValoresDefault();
@@ -140,7 +152,25 @@
 
 });
 
+function verificaTipoEmpleado(tipo) {
+    let valor =''
+    switch (tipo) {
+        case 'PROVEEDOR':
+            valor='P99999'
+            break;
+        case 'PRACTICANTE':
+            valor = 'N/A'
+            break;
+        case 'EMPLEADO':
+            valor = '';
+            break;
+    }
+    $("#numeroEmpleado").val(valor);
+}
+
 function verificaChecks(event) {
+
+
 
     var checkedValue = $('#shared_services:checked').val();
 

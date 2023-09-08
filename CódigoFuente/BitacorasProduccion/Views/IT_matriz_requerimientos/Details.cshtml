@@ -123,7 +123,8 @@
                                         <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.ingresoFecha)</dd>
                                         <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.nueva_fecha_nacimiento)</dt>
                                         <dd class="col-sm-2">@Html.DisplayFor(model => model.empleados.nueva_fecha_nacimiento)</dd>
-
+                                        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.empleados.tipo_empleado)</dt>
+                                        <dd class="col-sm-2">@Bitacoras.Util.Empleados_tipo.Descripcion(Model.empleados.tipo_empleado)</dd>
                                     </dl>
                                 </div>
                             </div>

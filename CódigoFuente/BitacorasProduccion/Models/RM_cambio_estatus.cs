@@ -22,8 +22,8 @@ namespace Portal_2_0.Models
         public string nombre_usuario_old { get; set; }
         public string texto { get; set; }
     
-        public virtual empleados empleados { get; set; }
         public virtual RM_estatus RM_estatus { get; set; }
         public virtual RM_cabecera RM_cabecera { get; set; }
+        public virtual empleados empleados { get; set; }
     }
 }

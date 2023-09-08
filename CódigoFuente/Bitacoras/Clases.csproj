@@ -64,6 +64,7 @@
     <Compile Include="Util\BgPlantillaUtil.cs" />
     <Compile Include="Util\BG_Status.cs" />
     <Compile Include="Util\DocumentosProcesos.cs" />
+    <Compile Include="Util\Empleados_tipo.cs" />
     <Compile Include="Util\GV_solicitud_estatus.cs" />
     <Compile Include="Util\GV_tipo_departamento.cs" />
     <Compile Include="Util\ImageUtil.cs" />

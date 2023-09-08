@@ -85,14 +85,41 @@
                                 </div>
                                 @Html.LabelFor(model => model.correo, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                                 <div class="col-md-3 col-sm-3">
-                                    @Html.EditorFor(model => model.correo, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+                                    @Html.EditorFor(model => model.correo, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
                                     @Html.ValidationMessageFor(model => model.correo, "", new { @class = "text-danger" })
                                 </div>
                                 @Html.LabelFor(model => model.C8ID, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                                 <div class="col-md-1 col-sm-1">
-                                    @Html.EditorFor(model => model.C8ID, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+                                    @Html.EditorFor(model => model.C8ID, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
                                     @Html.ValidationMessageFor(model => model.C8ID, "", new { @class = "text-danger" })
                                 </div>
+                            </div>
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.tipo_empleado, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-6 col-sm-6">
+                                    <div class="col-md-4 col-sm-4">
+                                        <input type="radio" id="tipo_empleado" name="tipo_empleado" value="@Bitacoras.Util.Empleados_tipo.EMPLEADO" @(Model != null && Model.tipo_empleado == Bitacoras.Util.Empleados_tipo.EMPLEADO ? "checked" : String.Empty) required>
+                                        <nolabel>
+                                            <label for="tipo_empleado">@Bitacoras.Util.Empleados_tipo.Descripcion(Bitacoras.Util.Empleados_tipo.EMPLEADO)</label>
+                                        </nolabel>
+                                    </div>
+                                    <div class="col-md-4 col-sm-4">
+                                        <input type="radio" id="tipo_proveedor" name="tipo_empleado" value="@Bitacoras.Util.Empleados_tipo.PROVEEDOR" @(Model != null && Model.tipo_empleado == Bitacoras.Util.Empleados_tipo.PROVEEDOR ? "checked" : String.Empty)>
+                                        <nolabel>
+                                            <label for="tipo_proveedor">@Bitacoras.Util.Empleados_tipo.Descripcion(Bitacoras.Util.Empleados_tipo.PROVEEDOR)</label>
+                                        </nolabel>
+                                    </div>
+                                    <div class="col-md-4 col-sm-4">
+                                        <input type="radio" id="tipo_practicante" name="tipo_empleado" value="@Bitacoras.Util.Empleados_tipo.PRACTICANTE" @(Model != null && Model.tipo_empleado == Bitacoras.Util.Empleados_tipo.PRACTICANTE ? "checked" : String.Empty)>
+                                        <nolabel>
+                                            <label for="tipo_practicante">@Bitacoras.Util.Empleados_tipo.Descripcion(Bitacoras.Util.Empleados_tipo.PRACTICANTE)</label>
+                                        </nolabel>
+                                    </div>
+
+                                    @Html.ValidationMessageFor(model => model.tipo_empleado, "", new { @class = "text-danger" })
+                                </div>
+
                             </div>
 
                             <div class="item form-group">

@@ -101,6 +101,9 @@ namespace Portal_2_0.Models
         [StringLength(1)]
         [Display(Name = "Sexo")]
         public string sexo { get; set; }
+
+        [Display(Name = "Tipo Empleado")]
+        public string tipo_empleado { get; set; }
     }
 
     [MetadataType(typeof(empleadosMetadata))]
@@ -188,14 +191,20 @@ namespace Portal_2_0.Models
 
             if (this.biblioteca_digital!=null) {
                 //convirte los datos a un tipo Image
-                Image imagen = Image.FromStream(new MemoryStream(this.biblioteca_digital.Datos));
+                try
+                {
+                    Image imagen = Image.FromStream(new MemoryStream(this.biblioteca_digital.Datos));
 
-                byte[] newData =Bitacoras.Util.ImageUtil.ResizeImage(imagen, newWidth, newHeight);
-                
-                string imageBase64 = Convert.ToBase64String(newData);
+                    byte[] newData = Bitacoras.Util.ImageUtil.ResizeImage(imagen, newWidth, newHeight);
+
+                    string imageBase64 = Convert.ToBase64String(newData);
 
 
-                result = string.Format("data:image/"+ (Path.GetExtension(biblioteca_digital.Nombre).Replace(".","")) + ";base64,{0}", imageBase64);
+                    result = string.Format("data:image/" + (Path.GetExtension(biblioteca_digital.Nombre).Replace(".", "")) + ";base64,{0}", imageBase64);
+                }
+                catch { 
+                //do nothing
+                }
             }
 
             return result;

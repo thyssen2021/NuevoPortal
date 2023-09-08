@@ -21,7 +21,7 @@ namespace Portal_2_0.Models
         public string comentario { get; set; }
         public bool activo { get; set; }
     
-        public virtual empleados empleados { get; set; }
         public virtual IT_matriz_requerimientos IT_matriz_requerimientos { get; set; }
+        public virtual empleados empleados { get; set; }
     }
 }
