@@ -487,6 +487,7 @@ namespace IdentitySample.Controllers
         public async Task<ActionResult> EditEmail(EditMailUserViewModel editUser)
         {
             var user = await _userManager.FindByIdAsync(editUser.IdUsuario);
+            string correoAnterior = string.Empty;
 
             if (ModelState.IsValid)
             {
@@ -506,7 +507,8 @@ namespace IdentitySample.Controllers
                     //actualiza el correo en la tabla de empleados
                     var empleado = db.empleados.Find(editUser.IdEmpleado);
 
-                    if (empleado != null) { 
+                    if (empleado != null) {
+                        correoAnterior = empleado.correo;
                         empleado.correo = editUser.nuevoCorreo;
                         db.SaveChanges();
                     }
@@ -518,7 +520,7 @@ namespace IdentitySample.Controllers
                         {
                             editUser.nuevoCorreo
                         };
-                        envioCorreo.SendEmailAsync(correos, "¡Tus datos de acceso al Portal tkMM han cambiado!", envioCorreo.getBodyAccountChangeEmail(empleado));
+                        envioCorreo.SendEmailAsync(correos, "¡Tus datos de acceso al Portal tkMM han cambiado!", envioCorreo.getBodyAccountChangeEmail(empleado, correoAnterior));
                     }
                 }
 

@@ -940,7 +940,7 @@ namespace Portal_2_0.Models
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
-        public string getBodyAccountChangeEmail(empleados emp)
+        public string getBodyAccountChangeEmail(empleados emp, string correoAnterior)
         {
          
 
@@ -959,6 +959,7 @@ namespace Portal_2_0.Models
 
             body = body.Replace("#NOMBRE", nombre); //usuario creado
             body = body.Replace("#CORREO", emp.correo);
+            body = body.Replace("#CANTERIOR", correoAnterior);
             body = body.Replace("#ENLACE", domainName + "/Home/");
             body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
 
