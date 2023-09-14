@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Portal_2_0.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
@@ -38,5 +39,25 @@ namespace IdentitySample.Models
         public string Email { get; set; }
 
         public IEnumerable<SelectListItem> RolesList { get; set; }
+    }
+
+    public class EditMailUserViewModel
+    {
+
+        [Display(Name = "ID usuario")]
+        public string IdUsuario { get; set; }
+
+        [Display(Name = "Empleado")]
+        public int IdEmpleado { get; set; }
+
+        [DataType(DataType.EmailAddress)]
+        [EmailAddress]
+        [Display (Name = "Nuevo correo")]
+        public string nuevoCorreo { get; set; }
+
+        [Display(Name = "¿Envia notificación?")]
+        public bool enviaNotificacion { get; set; }
+
+        public empleados empleado { get; set; }
     }
 }

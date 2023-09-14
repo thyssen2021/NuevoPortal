@@ -107,7 +107,7 @@ namespace Portal_2_0.Models
                     DeliveryMethod = SmtpDeliveryMethod.Network,
                     UseDefaultCredentials = false,
                     Host = smtpServer,
-                    EnableSsl = true,
+                    EnableSsl = false,
                     Credentials = credentials
                 };
 
@@ -929,6 +929,36 @@ namespace Portal_2_0.Models
             body = body.Replace("#NOMBRE", nombre); //usuario creado
             body = body.Replace("#USER", model.Email);
             body = body.Replace("#PASS", model.Password); //elaborador         
+            body = body.Replace("#ENLACE", domainName + "/Home/");
+            body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
+
+            return body;
+        }
+
+        /// <summary>
+        /// metodo para obtener el body de email de notificación para la creación de un usuario
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public string getBodyAccountChangeEmail(empleados emp)
+        {
+         
+
+            //obtiene la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+
+            string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/Account_change_email.html"));
+
+         
+            string nombre = "NO DISPONIBLE";
+
+            if (emp != null)
+                nombre = emp.ConcatNombre;
+         
+
+
+            body = body.Replace("#NOMBRE", nombre); //usuario creado
+            body = body.Replace("#CORREO", emp.correo);
             body = body.Replace("#ENLACE", domainName + "/Home/");
             body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
 

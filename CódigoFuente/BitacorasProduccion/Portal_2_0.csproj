@@ -967,6 +967,7 @@
     <Content Include="Content\build\images\loading.gif" />
     <Content Include="Content\build\js\custom.min.js" />
     <Content Include="Content\css\index.css" />
+    <Content Include="Content\emails_plantillas\Account_change_email.html" />
     <Content Include="Content\emails_plantillas\Account_welcome.html" />
     <Content Include="Content\emails_plantillas\IT_MR_notificacion_autorizacion_sistemas.html" />
     <Content Include="Content\emails_plantillas\IT_MR_notificacion_en_proceso.html" />
@@ -997,6 +998,7 @@
     <Content Include="Content\font-awesome.css" />
     <Content Include="Content\font-awesome.min.css" />
     <Content Include="Content\images\245px-Thyssenkrupp_AG_Logo_2015.png" />
+    <Content Include="Content\images\login.png" />
     <Content Include="Content\images\logo_174.png" />
     <Content Include="Content\images\logo_4.png" />
     <Content Include="Content\images\logo_1.png" />
@@ -5279,6 +5281,7 @@
     <Content Include="Views\Home\Menu.cshtml" />
     <Content Include="Views\IT_matriz_requerimientos\Asignar.cshtml" />
     <Content Include="Views\IT_mantenimientos\PosponerMantenimiento.cshtml" />
+    <Content Include="Views\UsersAdmin\EditEmail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

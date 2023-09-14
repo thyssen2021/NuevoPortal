@@ -1,0 +1,107 @@
+﻿@model IdentitySample.Models.EditMailUserViewModel
+
+@{
+    ViewBag.Title = "Editar email usuario";
+    ViewBag.PrimerNivel = "usuarios";
+    ViewBag.SegundoNivel = "usuarios";
+    ViewBag.ControllerName = "UsersAdmin";
+    ViewBag.nav_style = "nav-sm";
+}
+
+@section estilos
+{
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/flat/green.css")" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+}
+
+
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+                <h3>Usuarios</h3>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <br />
+                        @using (Html.BeginForm("EditEmail", "UsersAdmin", FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.ValidationSummary("", new { @class = "text-danger" })
+                            @Html.HiddenFor(model => model.IdUsuario)
+                            @Html.HiddenFor(model => model.IdEmpleado)
+
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.IdEmpleado, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    <input class="form-control" value="@Html.DisplayFor(model => model.empleado.ConcatNumEmpleadoNombre)" readonly />
+                                </div>
+                            </div>
+
+                            <div class="item form-group">
+                                <label class="col-form-label col-md-3 col-sm-3 label-align">Correo anterior</label>
+                                <div class="col-md-6 col-sm-6 ">
+                                    <input class="form-control" value="@(Model.empleado!=null? Model.empleado.correo : string.Empty)" readonly />
+                                </div>
+                            </div>
+
+                            //CHECK PARA MANDAR CORREO
+
+                            <div class="item form-group">
+                                @Html.LabelFor(model => model.nuevoCorreo, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                <div class="col-md-6 col-sm-6 ">
+                                    @Html.EditorFor(model => model.nuevoCorreo, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off"} })
+                                    @Html.ValidationMessageFor(model => model.nuevoCorreo, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                             <div class="item form-group">
+                                @Html.LabelFor(model => model.enviaNotificacion, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                 <div class="col-md-1 col-sm-1 ">
+                                     @Html.EditorFor(model => model.enviaNotificacion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                                     @Html.ValidationMessageFor(model => model.enviaNotificacion, "", new { @class = "text-danger" })
+                                 </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="item form-group">
+                                <div class="col-md-6 col-sm-6 offset-md-3">
+                                    <button type="submit" class="btn btn-success">Guardar</button>
+                                </div>
+                            </div>
+
+                        }
+                    </div>
+                </div>
+                <div>
+                    <br />
+                    <a href="@Url.Action("Index", ViewBag.ControllerName)" class="btn btn-round btn-info btm-sm" title="Volver">
+                        <i class="fa fa-arrow-circle-left"></i> Volver al listado
+                    </a>               
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+}

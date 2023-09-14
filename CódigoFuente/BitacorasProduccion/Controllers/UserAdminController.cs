@@ -422,7 +422,119 @@ namespace IdentitySample.Controllers
             return View();
         }
 
-        //
+
+        // GET: /Users/EditEmail/1
+        [HttpGet]
+        public async Task<ActionResult> EditEmail(string id)
+        {
+          
+
+            if (TieneRol(TipoRoles.USERS))
+            {
+                if (id == null)
+                {
+                    return RedirectToAction("NotFound", "Error");
+                }
+
+                var user = await _userManager.FindByIdAsync(id);
+                if (user == null)
+                {
+                    return RedirectToAction("NotFound", "Error");
+                }
+            
+                empleados emp = null;
+                //obtien el tipo de usuario
+                if (user.IdEmpleado > 0)
+                {
+                  
+                    try
+                    {
+                        emp = db.empleados.Find(user.IdEmpleado);
+                    }
+                    catch (Exception e)
+                    {
+                        System.Diagnostics.Debug.Print(e.Message);
+                    }
+
+                    if (emp.activo.HasValue && !emp.activo.Value)
+                    {
+                        ViewBag.Titulo = "¡Lo sentimos!¡No se puede editar el usuario de un empleado que ha sido dado de baja!";
+                        ViewBag.Descripcion = "No se puede editar un usuario perteneciente a un usuario que ha sido dado de baja.";
+
+                        return View("../Home/ErrorGenerico");
+                    }
+                }
+
+
+                return View(new EditMailUserViewModel()
+                {
+                    IdEmpleado = emp.id,
+                    IdUsuario = id,
+                    nuevoCorreo = string.Empty,
+                    enviaNotificacion = true,
+                    empleado = user.obtieneEmpleado()
+                }) ;
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+        }
+
+        // POST: /Users/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> EditEmail(EditMailUserViewModel editUser)
+        {
+            var user = await _userManager.FindByIdAsync(editUser.IdUsuario);
+
+            if (ModelState.IsValid)
+            {
+              
+                if (user == null)
+                {
+                    return RedirectToAction("NotFound", "Error");
+                }
+
+                if (user != null)
+                {
+                    //actualiza el usuario  
+                    user.Email = editUser.nuevoCorreo;
+                    //guarda el usuario en BD
+                    var result = await _userManager.UpdateAsync(user);
+
+                    //actualiza el correo en la tabla de empleados
+                    var empleado = db.empleados.Find(editUser.IdEmpleado);
+
+                    if (empleado != null) { 
+                        empleado.correo = editUser.nuevoCorreo;
+                        db.SaveChanges();
+                    }
+
+                    if (result.Succeeded && editUser.enviaNotificacion) {
+                        //envia correo electronico
+                        EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+                        List<string> correos = new List<string>
+                        {
+                            editUser.nuevoCorreo
+                        };
+                        envioCorreo.SendEmailAsync(correos, "¡Tus datos de acceso al Portal tkMM han cambiado!", envioCorreo.getBodyAccountChangeEmail(empleado));
+                    }
+                }
+
+                //agrega el mensaje para sweetalert
+                TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
+                return RedirectToAction("Index");
+            }
+            ViewBag.EmpleadosList = ComboSelect.obtieneEmpleadosSelectList();
+
+            ModelState.AddModelError("", "Algo falló.");
+
+            editUser.empleado = user.obtieneEmpleado();
+            return View(editUser);
+        }
+
+
         // GET: /Users/Block/5
         [HttpGet]
         public async Task<ActionResult> Block(string id)
