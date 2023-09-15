@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using Clases.Util;
+using DocumentFormat.OpenXml.EMMA;
 using Portal_2_0.Models;
 
 namespace Portal_2_0.Controllers
@@ -59,10 +60,63 @@ namespace Portal_2_0.Controllers
             return View();
         }
 
-        [AllowAnonymous]
-         public ActionResult DetailsMenu(string fecha = "")
+        public ActionResult ListaDistribucion()
         {
-             //mensaje en caso de crear, editar, etc
+            if (!TieneRol(TipoRoles.RH_MENU_COMEDOR_PUEBLA))
+                return View("../Home/ErrorPermisos");
+
+            //mensaje en caso de crear, editar, etc
+            if (TempData["Mensaje"] != null)
+                ViewBag.MensajeAlert = TempData["Mensaje"];
+
+            ViewBag.empleados = db.empleados.Where(x => x.activo.HasValue && x.activo.Value).OrderBy(x => x.planta_clave).ThenBy(x=>x.numeroEmpleado).ToList();
+            ViewBag.activos = db.notificaciones_correo.Where(x => x.descripcion == "MENU_COMEDOR_DISTRIBUCION_PUEBLA" && x.id_empleado.HasValue).Select(x => x.id_empleado.Value).ToList();
+
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ListaDistribucion(int[] empleados)
+        {
+
+            if (empleados == null || empleados.Length == 0)
+                ModelState.AddModelError("", "No se seleccionaron empleados.");
+
+            //listado de notificaciones de correo
+            var notificacionesList = db.notificaciones_correo.Where(x=> x.descripcion == "MENU_COMEDOR_DISTRIBUCION_PUEBLA" && x.activo).ToList();
+
+            //realiza cambios en la BD        
+            foreach (var id_empleado in empleados)
+            {
+                //crea los roles en caso de no existir
+                if (!notificacionesList.Any(x => x.id_empleado == id_empleado)) {
+                    var newNotificacion = new notificaciones_correo
+                    {
+                        id_empleado = id_empleado,
+                        descripcion = "MENU_COMEDOR_DISTRIBUCION_PUEBLA",
+                        activo =  true,
+                    };
+
+                    db.notificaciones_correo.Add(newNotificacion);
+                }
+            }
+
+
+            //elimina los roles que no se enviaron
+            db.notificaciones_correo.RemoveRange(notificacionesList.Where(x=> !empleados.Any(y=> y == x.id_empleado)));
+
+            db.SaveChanges();
+            TempData["Mensaje"] = new MensajesSweetAlert("Se actualizó la lista de distribución correctamente", TipoMensajesSweetAlerts.SUCCESS);
+            return RedirectToAction("ListaDistribucion");
+
+
+        }
+
+        [AllowAnonymous]
+        public ActionResult DetailsMenu(string fecha = "")
+        {
+            //mensaje en caso de crear, editar, etc
             if (TempData["Mensaje"] != null)
                 ViewBag.MensajeAlert = TempData["Mensaje"];
 

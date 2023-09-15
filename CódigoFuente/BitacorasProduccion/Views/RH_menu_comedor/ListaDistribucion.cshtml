@@ -1,0 +1,118 @@
+﻿
+@{
+    ViewBag.Title = "Lista Distribucion Puebla";
+    ViewBag.PrimerNivel = "recursos_humanos";
+    ViewBag.SegundoNivel = "RH_menu_comedor_dl";
+    ViewBag.nav_style = "nav-sm";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+
+    List<Portal_2_0.Models.empleados> empleados = (List<Portal_2_0.Models.empleados>)ViewBag.empleados;
+    List<int> activos = (List<int>)ViewBag.activos;
+    Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
+}
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css?date?=")" rel="stylesheet">
+    <link href="~/Content/vendors/multiselect/jquery.lwMultiSelect.css" rel="stylesheet" />
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+}
+
+
+@*Para SweetAlert*@
+@if (mensajeAlerta != null)
+{
+    <input type="hidden" value="@mensajeAlerta.Mensaje" id="mensajeAlert" />
+    <input type="hidden" value="@mensajeAlerta.getTipoMensaje()" id="mensajeAlertTipo" />
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+
+                    <div class="form-group row">
+                        <span style="color:black"><b>LISTA DE DISTRIBUCI&Oacute;N - COMEDOR PUEBLA</b></span>
+                    </div>
+                    <!-- /.col -->
+
+                    @using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal form-label-left" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        // @Html.HiddenFor(model => model.id_jefe_actual)
+
+                        if (!Html.ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                @Html.ValidationSummary("", new { @class = "text-white" })
+                            </div>
+                        }
+
+                        <div class="ln_solid"></div>
+
+                        <div class="item form-group">
+                            <div class="col-md-12 col-sm-12" style="text-align:center">
+                                <select class="form-control" name="empleados" id="empleados" multiple="multiple">
+                                    @foreach (var empleado in empleados)
+                                    {
+                                        <option value="@empleado.id" @(activos.Contains(empleado.id) ? "selected" : string.Empty) )>
+                                            @(" <i>Planta:</i> " + (empleado.plantas!=null? empleado.plantas.descripcion:String.Empty)
+                                            + " <i>&nbsp;&nbsp;&nbsp;Departamento:</i> " + (empleado.Area != null ? empleado.Area.descripcion : String.Empty)
+                                            + " <br/><i>Nombre:</i><b>" + empleado.ConcatNumEmpleadoNombre+"</b>")
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="ln_solid"></div>
+                        <div class="item form-group">
+                            <div class="col-md-12 col-sm-12 ">
+                                <button type="submit" id="btn-ok" class="btn btn-success btn-lg float-right"><i class="fa-regular fa-floppy-disk"></i> Guardar</button>
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                        </div>
+                    }
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    <script src="~/Content/vendors/multiselect/jquery.lwMultiSelect.js?date=@DateTime.Now"></script>
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @Scripts.Render(Url.Content("~/Scripts/AlertasSweetAlert.js"))
+    <script>
+
+        $(document).ready(function () {
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+
+            jQuery('#empleados').lwMultiSelect();
+
+            //maneja el envió el del formulario
+            $('#btn-ok').click(function (e) {
+                BloqueaPantalla();
+             
+            });
+
+        });
+
+
+    </script>
+}

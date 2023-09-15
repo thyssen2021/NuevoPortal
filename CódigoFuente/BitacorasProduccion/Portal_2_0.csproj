@@ -5282,6 +5282,7 @@
     <Content Include="Views\IT_matriz_requerimientos\Asignar.cshtml" />
     <Content Include="Views\IT_mantenimientos\PosponerMantenimiento.cshtml" />
     <Content Include="Views\UsersAdmin\EditEmail.cshtml" />
+    <Content Include="Views\RH_menu_comedor\ListaDistribucion.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
