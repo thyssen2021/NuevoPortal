@@ -1089,7 +1089,7 @@ namespace Portal_2_0.Controllers
             list[0] = new { Message = "Error: Se recibe mensaje, pero no hubo macth" };
             string patron = @"(?:- *)?\d+(?:\.\d+)?";
 
-            
+
             ServiceReferenceBasculas.WebServiceBasculasSoapClient cliente = new ServiceReferenceBasculas.WebServiceBasculasSoapClient();
 
             //primero trata de obtener el peso desde webservice
@@ -1221,6 +1221,11 @@ namespace Portal_2_0.Controllers
         public JsonResult VerificaTiempoPermitido()
         {
             var list = new object[1];
+            //deshabilita solicitud de contraseña
+            {
+                list[0] = new { Status = "OK", Message = "Está autorizado" };
+                return Json(list, JsonRequestBehavior.AllowGet);
+            }
 
             empleados e = obtieneEmpleadoLogeado();
 
@@ -1232,7 +1237,7 @@ namespace Portal_2_0.Controllers
 
             //si el tiempo de autorizacion es mayor al tiempo actual
             if (estado >= 1
-                ||(e.planta_clave ==2) //si es Silao no se necesita autorizacion
+                || (e.planta_clave == 2) //si es Silao no se necesita autorizacion
                 )
             {
                 list[0] = new { Status = "OK", Message = "Está autorizado" };
