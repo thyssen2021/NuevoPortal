@@ -24,9 +24,9 @@ namespace Portal_2_0.Controllers
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
         // GET: ProduccionRegistros
-        public ActionResult Index(string planta, string linea, int pagina = 1)
+        public ActionResult Index(int? planta, string linea, int pagina = 1)
         {
-            if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REGISTRO) || TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE))
+            if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REGISTRO) || TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE) || TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE_ALL_ACCESS))
             {
                 //mensaje en caso de crear, editar, etc
                 if (TempData["Mensaje"] != null)
@@ -37,8 +37,13 @@ namespace Portal_2_0.Controllers
                 //obtiene el empleado que inicio sesión
                 empleados emp = obtieneEmpleadoLogeado();
 
+                //asigna la planta por defecto, si no viene definida
+                if (!planta.HasValue)
+                    planta = emp.planta_clave;
+
                 //obtiene los id lineas a las que esta asignado
                 List<int> idLineas = db.produccion_operadores.Where(x => x.id_empleado == emp.id).Select(x => x.id_linea).ToList();
+
                 //obtiene el lsitado de ids de operadores
                 //List<int> idOperador = db.produccion_operadores.Where(x => x.id_empleado == emp.id ).Select(x => x.id).ToList();
 
@@ -51,7 +56,7 @@ namespace Portal_2_0.Controllers
                 var produccion_registros = db.produccion_registros.Include(p => p.plantas).Include(p => p.produccion_lineas).Include(p => p.produccion_lotes).Include(p => p.produccion_operadores).Include(p => p.produccion_supervisores).Include(p => p.produccion_turnos).Where(x =>
                           //x.activo == true && 
                           (!String.IsNullOrEmpty(linea) && x.id_linea.ToString().Contains(linea))
-                        && (!String.IsNullOrEmpty(planta) && x.clave_planta.ToString().Contains(planta))
+                        && (x.clave_planta == planta)
                         //     && (idOperador.Contains(x.id_operador.Value) || esOperador)
                         )
                     .OrderByDescending(x => x.fecha)
@@ -61,7 +66,7 @@ namespace Portal_2_0.Controllers
                 var totalDeRegistros = db.produccion_registros.Include(p => p.plantas).Include(p => p.produccion_lineas).Include(p => p.produccion_lotes).Include(p => p.produccion_operadores).Include(p => p.produccion_supervisores).Include(p => p.produccion_turnos).Where(x =>
                          // x.activo==true &&
                          (!String.IsNullOrEmpty(linea) && x.id_linea.ToString().Contains(linea))
-                        && (!String.IsNullOrEmpty(planta) && x.clave_planta.ToString().Contains(planta))
+                        && (x.clave_planta == planta)
                        //       && (idOperador.Contains(x.id_operador.Value) || esOperador)
                        ).Count();
 
@@ -77,19 +82,21 @@ namespace Portal_2_0.Controllers
                     ValoresQueryString = routeValues
                 };
 
-
-
                 //si no tiene el rol de produccion muestra todas las lineas
-                if (!TieneRol(TipoRoles.BITACORAS_PRODUCCION_REGISTRO))
-                    ViewBag.linea = new SelectList(db.produccion_lineas.Where(p => p.activo == true && p.clave_planta == emp.planta_clave), "id", "linea");
+                if (!TieneRol(TipoRoles.BITACORAS_PRODUCCION_REGISTRO) || TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE_ALL_ACCESS))
+                    ViewBag.linea = new SelectList(db.produccion_lineas.Where(p => p.activo == true && p.clave_planta == planta), "id", "linea");
                 else
                     //obtiene unicamente las lineas a las que está asignado y a la planta correspondiente
                     ViewBag.linea = new SelectList(db.produccion_lineas.Where(p => p.activo == true && idLineas.Contains(p.id) && p.clave_planta == emp.planta_clave), "id", "linea");
 
 
-
-                ViewBag.planta = new SelectList(db.plantas.Where(p => p.activo == true && emp.planta_clave == p.clave), "clave", "descripcion");
+                if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE_ALL_ACCESS))
+                    ViewBag.planta = new SelectList(db.plantas.Where(p => p.activo == true && (p.clave == 1 || p.clave == 2)), "clave", "descripcion");
+                else
+                    ViewBag.planta = new SelectList(db.plantas.Where(p => p.activo == true && emp.planta_clave == p.clave), "clave", "descripcion");
+                
                 ViewBag.Paginacion = paginacion;
+                ViewBag.Lineas = idLineas;
 
                 return View(produccion_registros);
             }

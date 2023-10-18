@@ -24,6 +24,8 @@
         filtroLinea = paginacionFiltros.ValoresQueryString["linea"].ToString();
     }
 
+    List<int> idLineas =  (List<int>)ViewBag.Lineas;
+
 }
 
 @section estilos
@@ -203,7 +205,7 @@
                                                             </td>
 
                                                             <td>
-                                                                @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REGISTRO))
+                                                                @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REGISTRO) && idLineas.Contains(int.Parse(filtroLinea)))
                                                                 {
                                                                     <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = item.id})" class="btn btn-secondary btm-sm" title="Configuración">
                                                                         <i class="fa fa-gears"></i>
@@ -216,7 +218,7 @@
                                                                 <a href="@Url.Action("DatosEntradasDetails", ViewBag.ControllerName, new { id = item.id})" class="btn btn-info btm-sm" title="Detalles">
                                                                     <i class="fa-regular fa-eye"></i>
                                                                 </a>
-                                                                @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REGISTRO))
+                                                                @if (User.IsInRole(TipoRoles.BITACORAS_PRODUCCION_REGISTRO) && idLineas.Contains(int.Parse(filtroLinea)))
                                                                 {
                                                                     if (item.activo.HasValue && !item.activo.Value)
                                                                     {
@@ -269,7 +271,7 @@
 
     @Scripts.Render("~/bundles/dataTables_js")
 
-    @Scripts.Render(Url.Content("~/Scripts/Forms/ProduccionRegistrosIndex.js"))
+    @Scripts.Render(Url.Content("~/Scripts/Forms/ProduccionRegistrosIndex.js?date"+DateTime.Now))
 
 }
 

@@ -50,30 +50,9 @@
 //activa y desactiva los combos
 function verificaEstadoCombos() {
 
-    var planta = $("#planta option:selected").val();
+    $("#buscarForm").submit();
 
-    //si planta esta vacia
-    if (planta == "") {
-        $("#linea").prop("disabled", true);
-      //  $("#crearFormButton").prop("disabled", true);
-    }
-    else {
-        $("#linea").prop("disabled", false);
-    }
-
-    var linea = $("#linea option:selected").val();
-
-    //si linea esta vacia
-    if (linea == "") {
-       // $("#crearFormButton").prop("disabled", true);
-        $("#crearFormButton").fadeOut(1000);
-        $('#body_tabla').hide();
-        $('#nav_paginacion').hide();
-    }
-    else {
-        //$("#crearFormButton").prop("disabled", false);           
-        $("#buscarForm").submit();
-        $.blockUI({
+         $.blockUI({
             css: {
                 border: 'none',
                 padding: '15px',
@@ -86,7 +65,44 @@ function verificaEstadoCombos() {
             message: '<h3>Cargando...</h3>'
 
         });
-    }
+
+    //var planta = $("#planta option:selected").val();
+
+    ////si planta esta vacia
+    //if (planta == "") {
+    //    $("#linea").prop("disabled", true);
+    //  //  $("#crearFormButton").prop("disabled", true);
+    //}
+    //else {
+    //    $("#linea").prop("disabled", false);
+    //}
+
+    //var linea = $("#linea option:selected").val();
+
+    ////si linea esta vacia
+    //if (linea == "") {
+    //   // $("#crearFormButton").prop("disabled", true);
+    //    $("#crearFormButton").fadeOut(1000);
+    //    $('#body_tabla').hide();
+    //    $('#nav_paginacion').hide();
+    //}
+    //else {
+    //    //$("#crearFormButton").prop("disabled", false);           
+    //    $("#buscarForm").submit();
+    //    $.blockUI({
+    //        css: {
+    //            border: 'none',
+    //            padding: '15px',
+    //            backgroundColor: '#000',
+    //            '-webkit-border-radius': '10px',
+    //            '-moz-border-radius': '10px',
+    //            opacity: .3,
+    //            color: '#fff'
+    //        },
+    //        message: '<h3>Cargando...</h3>'
+
+    //    });
+    //}
 }
 
 
