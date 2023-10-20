@@ -1779,7 +1779,7 @@ namespace Portal_2_0.Controllers
 
                 try
                 {
-                    db.SaveChanges();
+                    ////db.SaveChanges();
 
                     EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
 
@@ -1794,12 +1794,16 @@ namespace Portal_2_0.Controllers
                     //envía notificacion de solicitud de usuario
                     if (matriz.estatus == IT_MR_Status.EN_PROCESO)
                     {
-                        envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de Usuarios #" + matriz.id + " ha sido actualizada.", envioCorreo.getBody_IT_MR_Notificacion_En_Proceso(matriz));
+                       // envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de Usuarios #" + matriz.id + " ha sido actualizada.", envioCorreo.getBody_IT_MR_Notificacion_En_Proceso(matriz));
                         TempData["Mensaje"] = new MensajesSweetAlert("Se ha actualizado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
                     }
                     else if (matriz.estatus == IT_MR_Status.FINALIZADO && tipoSolicitud.ToUpper().Contains("CIERRE"))
                     {
                         matriz.empleados2 = db.empleados.Find(matriz.id_sistemas);
+
+                        if (!String.IsNullOrEmpty(matriz.empleados2.correo)) //Sistemas
+                            correos.Add(matriz.empleados2.correo); //agrega correo de sistemas, quien cierra
+
                         envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de usuarios #" + matriz.id + " ha sido cerrada o ha sido actualizada.", envioCorreo.getBody_IT_MR_Notificacion_Cierre(matriz));
                         TempData["Mensaje"] = new MensajesSweetAlert("Se ha cerrado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
 
