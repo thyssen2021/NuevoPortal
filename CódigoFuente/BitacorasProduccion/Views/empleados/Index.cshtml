@@ -139,7 +139,7 @@
                                         <tbody>
                                             @foreach (var item in Model)
                                             {
-                                                <tr style="@(item.activo == false ? "background-color:#FF5050; color:#990000; font-weight:600" : item.bajaFecha != null? "background-color:#FCB34A; color:#DE5005; font-weight:600" : string.Empty  )">
+                                                <tr style="@(item.activo == false ? "background-color:#FF5050; color:#990000; font-weight:600" : item.bajaFecha != null? "background-color:#F7C9A4; color:#DE3305; font-weight:600" : string.Empty  )">
                                                     <td nowrap>
                                                         <a href="@Url.Action("Edit", ViewBag.ControllerName, new { id = item.id})" class="btn btn-success btn-sm" data-toggle="tooltip" data-placement="top" title="Editar">
                                                             <i class="fa-regular fa-pen-to-square"></i>
@@ -158,7 +158,7 @@
                                                             }
                                                             else
                                                             {
-                                                                <a href="@Url.Action("Disable", ViewBag.ControllerName, new { id = item.id })" class="btn btn-danger btn-sm @(item.bajaFecha.HasValue?"disabled":string.Empty )" data-toggle="tooltip" data-placement="top" title=" @(item.bajaFecha.HasValue?"Solicitud de baja en progreso":"Inicia solicitud de baja." )">
+                                                                <a href="@Url.Action("Disable", ViewBag.ControllerName, new { id = item.id })" class="btn btn-danger btn-sm @(item.bajaFecha.HasValue?"disabled":string.Empty )" data-toggle="tooltip" data-placement="top" title="@(item.bajaFecha.HasValue?"Solicitud de baja en progreso":"Inicia solicitud de baja" )">
                                                                     <svg width="22px" height="22px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M11 14C7.13401 14 4 17.134 4 21H11M14.8086 19.7053L19.127 16.3467M15 7C15 9.20914 13.2091 11 11 11C8.79086 11 7 9.20914 7 7C7 4.79086 8.79086 3 11 3C13.2091 3 15 4.79086 15 7ZM20 18C20 19.6569 18.6569 21 17 21C15.3431 21 14 19.6569 14 18C14 16.3431 15.3431 15 17 15C18.6569 15 20 16.3431 20 18Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
                                                                 </a>
                                                             }
@@ -326,7 +326,7 @@
                 buttons: [
                     'copy', 'excel', 'pdf'
                 ],
-                order: [[1, 'desc']],
+                order: [[1, 'asc']],
                 initComplete: function () {
                     //coloca los filtros al inicio de la tabla
                     var r = $('#datatable_individual_searching tfoot tr');

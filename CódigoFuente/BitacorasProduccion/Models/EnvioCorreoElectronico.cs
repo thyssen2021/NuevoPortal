@@ -680,7 +680,6 @@ namespace Portal_2_0.Models
             string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/IT_MR_notificacion_jefe.html"));
 
 
-
             //body = body.Replace("#VALIDADOR", poliza.PM_validadores.empleados.ConcatNombre);
             body = body.Replace("#SOLICITANTE", item.empleados3.ConcatNombre); //elaborador
             body = body.Replace("#ID", item.id.ToString()); //elaborador

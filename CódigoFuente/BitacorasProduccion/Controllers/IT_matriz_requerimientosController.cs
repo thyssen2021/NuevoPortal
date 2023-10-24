@@ -763,7 +763,7 @@ namespace Portal_2_0.Controllers
                 matriz.comentario_rechazo = null;
                 matriz.fecha_aprobacion_jefe = null;
                 matriz.id_solicitante = solicitante.id;
-            }          
+            }
 
             //lista de key del collection
             List<string> keysCollection = collection.AllKeys.ToList();
@@ -858,8 +858,7 @@ namespace Portal_2_0.Controllers
                 ModelState.AddModelError("", "Ingrese un comentario adicional para justificar porque no se seleccionó ningún software ni hardware.");
 
             if (ModelState.IsValid)
-            {                            
- 
+            {
 
                 #region ValidaUsuarioJefeDirecto
 
@@ -934,7 +933,7 @@ namespace Portal_2_0.Controllers
                     IT_matriz_requerimientos matrizOld = db.IT_matriz_requerimientos.Find(id_matriz);
                     //borra valores en caso de que sea una solicitud de cambio (solicitud ya finalizada)
                     //matriz.fecha_aprobacion_jefe = null;
-                    matriz.fecha_cierre = null;                  
+                    matriz.fecha_cierre = null;
 
 
                     //borra los conceltos anteriornes
@@ -1718,7 +1717,7 @@ namespace Portal_2_0.Controllers
                 ModelState.AddModelError("", "Ya existe un registro con el mismo 8ID.");
 
 
-            if (ModelState.IsValid)
+            if (ModelState.IsValid || matrizModel.matriz.tipo == Bitacoras.Util.IT_MR_tipo.BAJA)
             {
                 string mensaje = "Se ha enviado la solicitud correctamente.";
                 TipoMensajesSweetAlerts tipoMensaje = TipoMensajesSweetAlerts.SUCCESS;
@@ -1730,13 +1729,16 @@ namespace Portal_2_0.Controllers
                 matriz.id_sistemas = sistemas.id;
                 matriz.comentario_cierre = matrizModel.comentario_cierre;
 
-                matriz.empleados.correo = matrizModel.correo;
-                matriz.empleados.C8ID = matrizModel.C8ID;
+                if (matriz.estatus == IT_MR_Status.FINALIZADO)
+                {
+                    matriz.empleados.correo = matrizModel.correo;
+                    matriz.empleados.C8ID = matrizModel.C8ID;
+                }
 
                 //actualiza el estado de la solicitud según el tipo de formulario enviado
                 switch (tipoSolicitud.ToUpper())
                 {
-                    case "CIERRE_CLOSE": 
+                    case "CIERRE_CLOSE":
                         matriz.estatus = IT_MR_Status.FINALIZADO;
                         matriz.fecha_cierre = DateTime.Now;
                         //deshabilida la asignación actual
@@ -1777,6 +1779,14 @@ namespace Portal_2_0.Controllers
 
                 try
                 {
+
+                    if (matriz.estatus == IT_MR_Status.FINALIZADO)
+                    {
+                        //cambia el estatus del empleado de la solicitud
+                        var empleado = db.empleados.Find(matriz.id_empleado);
+                        empleado.activo = false;
+                    }
+
                     db.SaveChanges();
 
                     EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
@@ -1792,11 +1802,12 @@ namespace Portal_2_0.Controllers
                     //envía notificacion de solicitud de usuario
                     if (matriz.estatus == IT_MR_Status.EN_PROCESO)
                     {
-                       // envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de Usuarios #" + matriz.id + " ha sido actualizada.", envioCorreo.getBody_IT_MR_Notificacion_En_Proceso(matriz));
+                        // envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de Usuarios #" + matriz.id + " ha sido actualizada.", envioCorreo.getBody_IT_MR_Notificacion_En_Proceso(matriz));
                         TempData["Mensaje"] = new MensajesSweetAlert("Se ha actualizado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
                     }
                     else if (matriz.estatus == IT_MR_Status.FINALIZADO && tipoSolicitud.ToUpper().Contains("CIERRE"))
                     {
+
                         matriz.empleados2 = db.empleados.Find(matriz.id_sistemas);
 
                         if (!String.IsNullOrEmpty(matriz.empleados2.correo)) //Sistemas

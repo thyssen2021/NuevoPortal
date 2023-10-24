@@ -226,7 +226,7 @@
                                                                 <i class="fa-solid fa-list-check"></i>
                                                             </a>
                                                         }
-                                                        @if (ViewBag.Sistemas != null && ViewBag.Sistemas && (item.estatus == Bitacoras.Util.IT_MR_Status.ENVIADO_A_IT || item.estatus == Bitacoras.Util.IT_MR_Status.EN_PROCESO || item.estatus == Bitacoras.Util.IT_MR_Status.FINALIZADO))
+                                                        @if (ViewBag.Sistemas != null && ViewBag.Sistemas && (item.estatus == Bitacoras.Util.IT_MR_Status.ENVIADO_A_IT || item.estatus == Bitacoras.Util.IT_MR_Status.EN_PROCESO || item.estatus == Bitacoras.Util.IT_MR_Status.FINALIZADO) && ( item.tipo != Bitacoras.Util.IT_MR_tipo.BAJA))
                                                         {
                                                             <a href="@Url.Action("Asignar", ViewBag.ControllerName, new { id = item.id })" class="btn btn-primary" rel="tooltip" data-title="Asignar Solicitud" data-placement="right">
                                                                 <i class="fa-solid fa-user-tag"></i>
@@ -238,7 +238,7 @@
                                                                 <i class="fa fa-info-circle"></i>
                                                             </a>
                                                         }
-                                                        @if (item.estatus == Bitacoras.Util.IT_MR_Status.FINALIZADO)
+                                                        @if (item.estatus == Bitacoras.Util.IT_MR_Status.FINALIZADO && item.tipo != Bitacoras.Util.IT_MR_tipo.BAJA)
                                                         {
                                                             <a href="@Url.Action("GenerarPDF", ViewBag.ControllerName, new { id = item.id })" target="_blank" class="btn btn-danger" rel="tooltip" data-title="Generar PDF" data-placement="right">
                                                                 <i class="fa-solid fa-file-pdf"></i>

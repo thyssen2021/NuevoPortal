@@ -158,255 +158,276 @@
                         </div>
 
                         <div class="ln_solid"></div>
+                        @if (Model.tipo != Bitacoras.Util.IT_MR_tipo.BAJA)
+                        {
 
-                        <div class="form-group row">
-                            <span style="color:black"><b>3.- SISTEMAS A SOLICITAR</b></span>
-                        </div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>3.- SISTEMAS A SOLICITAR</b></span>
+                            </div>
 
-                        <div class="ln_solid"></div>
+                            <div class="ln_solid"></div>
 
-                        <div class="form-group row">
+                            <div class="form-group row">
 
-                            <span style="color:dimgrey"><b>&emsp; 3.1- HARDWARE</b></span>
-                        </div>
-                        @*HARDWARE*@
-                        <div class="form-group row">
+                                <span style="color:dimgrey"><b>&emsp; 3.1- HARDWARE</b></span>
+                            </div>
+                            @*HARDWARE*@
+                            <div class="form-group row">
 
-                            <table id="datatable_1" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
-                                <thead>
-                                    <tr>
-                                        <th width="2%">#</th>
-                                        <th>
-                                            Tipo Hardware
-                                        </th>
-                                        <th>
-                                            Detalles
-                                        </th>
-                                        <th width="10%">
-                                            Finalizado
-                                        </th>
-                                        <th width="35%">
-                                            Comentarios
-                                        </th>
-                                        @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR))
-                                        {
-                                            <th width="5%">
-                                                Asignaci&oacute;n
-                                            </th>
-                                        }
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var item in Model.IT_matriz_hardware)
-                                    {
+                                <table id="datatable_1" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                    <thead>
                                         <tr>
-                                            <td>@(Model.IT_matriz_hardware.ToList().IndexOf(item)+1)</td>
-                                            <td>
-                                                @item.IT_inventory_hardware_type.descripcion
-                                            </td>
-                                            <td>
-                                                @item.descripcion
-                                            </td>
-                                            <td>
-                                                <span>@(!item.completado.HasValue?"PENDIENTE":item.completado.Value?"SÍ":"NO")</span>
-                                            </td>
-                                            <td>
-                                                <span>@item.comentario</span>
-                                            </td>
+                                            <th width="2%">#</th>
+                                            <th>
+                                                Tipo Hardware
+                                            </th>
+                                            <th>
+                                                Detalles
+                                            </th>
+                                            <th width="10%">
+                                                Finalizado
+                                            </th>
+                                            <th width="35%">
+                                                Comentarios
+                                            </th>
                                             @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR))
                                             {
-                                                <td id="hardware_view_asignacion_@(item.id)">
-                                                    @if (item.id_it_asignacion_hardware.HasValue)
-                                                    {
-                                                        <button type="button" onclick="detallesAsignacion(@item.id_it_asignacion_hardware); return false;" class="btn btn-info btn-sm" title="Ver Asignación"> <i class="fa-solid fa-eye"></i></button>
-                                                    }
-                                                    else
-                                                    {
-                                                        @("NO DISPONIBLE")
-                                                    }
-                                                </td>
+                                                <th width="5%">
+                                                    Asignaci&oacute;n
+                                                </th>
                                             }
                                         </tr>
-                                    }
-                                </tbody>
-                            </table>
-
-                        </div>
-                        <div class="ln_solid"></div>
-                        <div class="form-group row">
-                            <span style="color:dimgrey"><b>&emsp; 3.2- SOFTWARE</b></span>
-                        </div>
-                        @*SOFTWARE*@
-                        <div class="form-group row">
-
-                            <table id="datatable_2" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
-                                <thead>
-                                    <tr>
-                                        <th width="2%">#</th>
-                                        <th>
-                                            Tipo Hardware
-                                        </th>
-                                        <th>
-                                            Detalles
-                                        </th>
-                                        <th width="10%">
-                                            Finalizado
-                                        </th>
-                                        <th width="35%">
-                                            Comentarios
-                                        </th>
-                                        @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR))
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.IT_matriz_hardware)
                                         {
-                                            <th width="5%">
-                                                Asignaci&oacute;n
-                                            </th>
-                                        }
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var item in Model.IT_matriz_software)
-                                    {
-                                        <tr>
-                                            <td>@(Model.IT_matriz_software.ToList().IndexOf(item)+1)</td>
-                                            <td>
-                                                @item.IT_inventory_software.descripcion
-                                            </td>
-                                            <td>
-                                                @item.descripcion
-                                            </td>
-                                            <td>
-                                                <span>@(!item.completado.HasValue?"PENDIENTE":item.completado.Value?"SÍ":"NO")</span>
-                                            </td>
-                                            <td>
-                                                <span>@item.comentario</span>
-                                            </td>
-                                            @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR))
-                                            {
+                                            <tr>
+                                                <td>@(Model.IT_matriz_hardware.ToList().IndexOf(item) + 1)</td>
                                                 <td>
-                                                    <button type="button" onclick="detallesAsignacionSoftware(@Model.id_empleado); return false;" class="btn btn-info btn-sm" title="Ver Asignación"> <i class="fa-solid fa-eye"></i></button>
+                                                    @item.IT_inventory_hardware_type.descripcion
                                                 </td>
+                                                <td>
+                                                    @item.descripcion
+                                                </td>
+                                                <td>
+                                                    <span>@(!item.completado.HasValue ? "PENDIENTE" : item.completado.Value ? "SÍ" : "NO")</span>
+                                                </td>
+                                                <td>
+                                                    <span>@item.comentario</span>
+                                                </td>
+                                                @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR))
+                                                {
+                                                    <td id="hardware_view_asignacion_@(item.id)">
+                                                        @if (item.id_it_asignacion_hardware.HasValue)
+                                                        {
+                                                            <button type="button" onclick="detallesAsignacion(@item.id_it_asignacion_hardware); return false;" class="btn btn-info btn-sm" title="Ver Asignación"> <i class="fa-solid fa-eye"></i></button>
+                                                        }
+                                                        else
+                                                        {
+                                                            @("NO DISPONIBLE")
+                                                        }
+                                                    </td>
+                                                }
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+
+                            </div>
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:dimgrey"><b>&emsp; 3.2- SOFTWARE</b></span>
+                            </div>
+                            @*SOFTWARE*@
+                            <div class="form-group row">
+
+                                <table id="datatable_2" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th width="2%">#</th>
+                                            <th>
+                                                Tipo Hardware
+                                            </th>
+                                            <th>
+                                                Detalles
+                                            </th>
+                                            <th width="10%">
+                                                Finalizado
+                                            </th>
+                                            <th width="35%">
+                                                Comentarios
+                                            </th>
+                                            @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR))
+                                            {
+                                                <th width="5%">
+                                                    Asignaci&oacute;n
+                                                </th>
                                             }
                                         </tr>
-                                    }
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.IT_matriz_software)
+                                        {
+                                            <tr>
+                                                <td>@(Model.IT_matriz_software.ToList().IndexOf(item) + 1)</td>
+                                                <td>
+                                                    @item.IT_inventory_software.descripcion
+                                                </td>
+                                                <td>
+                                                    @item.descripcion
+                                                </td>
+                                                <td>
+                                                    <span>@(!item.completado.HasValue ? "PENDIENTE" : item.completado.Value ? "SÍ" : "NO")</span>
+                                                </td>
+                                                <td>
+                                                    <span>@item.comentario</span>
+                                                </td>
+                                                @if (User.IsInRole(TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR))
+                                                {
+                                                    <td>
+                                                        <button type="button" onclick="detallesAsignacionSoftware(@Model.id_empleado); return false;" class="btn btn-info btn-sm" title="Ver Asignación"> <i class="fa-solid fa-eye"></i></button>
+                                                    </td>
+                                                }
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
 
-                        </div>
+                            </div>
 
-                        @*<div class="ln_solid"></div>
-        <div class="form-group row">
-            <span style="color:dimgrey"><b>&emsp; 3.3- INTERNET</b></span>
+                            @*<div class="ln_solid"></div>
+                                <div class="form-group row">
+                                    <span style="color:dimgrey"><b>&emsp; 3.3- INTERNET</b></span>
 
-        </div>
+                                </div>
 
-        <div class="form-group row">
-            @Html.LabelFor(model => model.id_internet_tipo, new { @class = "control-label col-md-2" })
-            <div class="col-md-4 col-sm-4 ">
-                <input type="text" id="id_internet_tipo" class="form-control" value="@(Model.IT_internet_tipo!=null ? Model.IT_internet_tipo.descripcion : "NO DISPONIBLE" )" readonly="readonly" />
-            </div>
-        </div>*@
+                                <div class="form-group row">
+                                    @Html.LabelFor(model => model.id_internet_tipo, new { @class = "control-label col-md-2" })
+                                    <div class="col-md-4 col-sm-4 ">
+                                        <input type="text" id="id_internet_tipo" class="form-control" value="@(Model.IT_internet_tipo!=null ? Model.IT_internet_tipo.descripcion : "NO DISPONIBLE" )" readonly="readonly" />
+                                    </div>
+                                </div>*@
 
-                        <div class="ln_solid"></div>
-                        <div class="form-group row">
-                            <span style="color:dimgrey"><b>&emsp; 3.3- COMUNICACIONES</b></span>
-                        </div>
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:dimgrey"><b>&emsp; 3.3- COMUNICACIONES</b></span>
+                            </div>
 
-                        @*COMUNICACIONES*@
-                        <div class="form-group row">
+                            @*COMUNICACIONES*@
+                            <div class="form-group row">
 
-                            <table id="datatable_3" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
-                                <thead>
-                                    <tr>
-                                        <th width="2%">#</th>
-                                        <th>
-                                            Tipo Hardware
-                                        </th>
-                                        <th>
-                                            Detalles
-                                        </th>
-                                        <th width="10%">
-                                            Finalizado
-                                        </th>
-                                        <th width="35%">
-                                            Comentarios
-                                        </th>
-
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var item in Model.IT_matriz_comunicaciones)
-                                    {
+                                <table id="datatable_3" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                    <thead>
                                         <tr>
-                                            <td>@(Model.IT_matriz_comunicaciones.ToList().IndexOf(item)+1)</td>
-                                            <td>
-                                                @item.IT_comunicaciones_tipo.descripcion
-                                            </td>
-                                            <td>
-                                                @item.descripcion
-                                            </td>
-                                            <td>
-                                                <span>@(!item.completado.HasValue?"PENDIENTE":item.completado.Value?"SÍ":"NO")</span>
-                                            </td>
-                                            <td>
-                                                <span>@item.comentario</span>
-                                            </td>
+                                            <th width="2%">#</th>
+                                            <th>
+                                                Tipo Hardware
+                                            </th>
+                                            <th>
+                                                Detalles
+                                            </th>
+                                            <th width="10%">
+                                                Finalizado
+                                            </th>
+                                            <th width="35%">
+                                                Comentarios
+                                            </th>
+
                                         </tr>
-                                    }
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.IT_matriz_comunicaciones)
+                                        {
+                                            <tr>
+                                                <td>@(Model.IT_matriz_comunicaciones.ToList().IndexOf(item) + 1)</td>
+                                                <td>
+                                                    @item.IT_comunicaciones_tipo.descripcion
+                                                </td>
+                                                <td>
+                                                    @item.descripcion
+                                                </td>
+                                                <td>
+                                                    <span>@(!item.completado.HasValue ? "PENDIENTE" : item.completado.Value ? "SÍ" : "NO")</span>
+                                                </td>
+                                                <td>
+                                                    <span>@item.comentario</span>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
 
-                        </div>
+                            </div>
 
-                        <div class="ln_solid"></div>
-                        <div class="form-group row">
-                            <span style="color:dimgrey"><b>&emsp; 3.4- CARPETAS EN RED</b></span>
-                        </div>
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <span style="color:dimgrey"><b>&emsp; 3.4- CARPETAS EN RED</b></span>
+                            </div>
 
-                        @*CARPETAS EN RED*@
-                        <div class="form-group row">
-                            <table id="datatable_4" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
-                                <thead>
-                                    <tr>
-                                        <th width="2%">#</th>
-                                        <th>
-                                            Tipo Hardware
-                                        </th>
-                                        <th>
-                                            Detalles
-                                        </th>
-                                        <th width="10%">
-                                            Finalizado
-                                        </th>
-                                        <th width="35%">
-                                            Comentarios
-                                        </th>
-
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var item in Model.IT_matriz_carpetas)
-                                    {
+                            @*CARPETAS EN RED*@
+                            <div class="form-group row">
+                                <table id="datatable_4" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
+                                    <thead>
                                         <tr>
-                                            <td>@(Model.IT_matriz_carpetas.ToList().IndexOf(item)+1)</td>
-                                            <td>
-                                                @item.IT_carpetas_red.descripcion
-                                            </td>
-                                            <td>
-                                                @item.descripcion
-                                            </td>
-                                            <td>
-                                                <span>@(!item.completado.HasValue?"PENDIENTE":item.completado.Value?"SÍ":"NO")</span>
-                                            </td>
-                                            <td>
-                                                <span>@item.comentario</span>
-                                            </td>
+                                            <th width="2%">#</th>
+                                            <th>
+                                                Tipo Hardware
+                                            </th>
+                                            <th>
+                                                Detalles
+                                            </th>
+                                            <th width="10%">
+                                                Finalizado
+                                            </th>
+                                            <th width="35%">
+                                                Comentarios
+                                            </th>
+
                                         </tr>
-                                    }
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.IT_matriz_carpetas)
+                                        {
+                                            <tr>
+                                                <td>@(Model.IT_matriz_carpetas.ToList().IndexOf(item) + 1)</td>
+                                                <td>
+                                                    @item.IT_carpetas_red.descripcion
+                                                </td>
+                                                <td>
+                                                    @item.descripcion
+                                                </td>
+                                                <td>
+                                                    <span>@(!item.completado.HasValue ? "PENDIENTE" : item.completado.Value ? "SÍ" : "NO")</span>
+                                                </td>
+                                                <td>
+                                                    <span>@item.comentario</span>
+                                                </td>
+                                            </tr>
+                                        }
 
-                        </div>
 
+
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="form-group row">
+                                <span style="color:black"><b>3.- INFORMACI&Oacute;N DE BAJA</b></span>
+                            </div>
+
+                            <div class="item form-group">
+                                <div class="col-md-12">
+                                    @Html.LabelFor(model => model.empleados.bajaFecha, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                                    <div class="col-md-4 col-sm-4 ">
+                                        @Html.EditorFor(model => model.empleados.bajaFecha, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                        @Html.ValidationMessageFor(model => model.empleados.bajaFecha, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
+                        }
                         <div class="ln_solid"></div>
 
                         <div class="form-group row">
@@ -418,33 +439,36 @@
                             </div>
                         </div>
                         <div class="ln_solid"></div>
-                        <div class="form-group row">
-                            <span style="color:black"><b>DATOS DE CIERRE</b></span>
-                        </div>
+                        @if (Model.tipo != Bitacoras.Util.IT_MR_tipo.BAJA)
+                        {
 
-                        <div class="form-group row">
-                            <!--Correo-->
-                            @Html.LabelFor(model => model.empleados.correo, new { @class = "control-label col-md-1 " })
-                            <div class="col-md-5">
-                                @Html.EditorFor(m => m.empleados.correo, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                            <div class="form-group row">
+                                <span style="color:black"><b>DATOS DE CIERRE</b></span>
                             </div>
-                            <!--8ID-->
-                            @Html.LabelFor(model => model.empleados.C8ID, new { @class = "control-label col-md-1 text_derecha" })
-                            <div class="col-md-2">
-                                @Html.EditorFor(m => m.empleados.C8ID, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <span style="color:black"><b>COMENTARIOS DE CIERRE</b></span>
-                        </div>
-                        <div class="item form-group">
-                            <div class="col-md-12">
-                                @Html.TextAreaFor(model => model.comentario_cierre, new { @class = "form-control", @rows = "5", @readonly = "readonly" })
-                            </div>
-                        </div>
 
-                        <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                <!--Correo-->
+                                @Html.LabelFor(model => model.empleados.correo, new { @class = "control-label col-md-1 " })
+                                <div class="col-md-5">
+                                    @Html.EditorFor(m => m.empleados.correo, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                </div>
+                                <!--8ID-->
+                                @Html.LabelFor(model => model.empleados.C8ID, new { @class = "control-label col-md-1 text_derecha" })
+                                <div class="col-md-2">
+                                    @Html.EditorFor(m => m.empleados.C8ID, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <span style="color:black"><b>COMENTARIOS DE CIERRE</b></span>
+                            </div>
+                            <div class="item form-group">
+                                <div class="col-md-12">
+                                    @Html.TextAreaFor(model => model.comentario_cierre, new { @class = "form-control", @rows = "5", @readonly = "readonly" })
+                                </div>
+                            </div>
 
+                            <div class="ln_solid"></div>
+                        }
                         <div class="form-group row">
                             <span style="color:black"><b>¡MOVIMIENTOS!</b></span>
                         </div>
