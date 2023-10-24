@@ -188,12 +188,12 @@
                                 <div class="item form-group">
                                     <label for="notificacion_it" class="col-form-label col-md-2 col-sm-2 label-align"> Enviar notificaci&oacute;n a IT</label>
                                     <div class="col-md-1 col-sm-1 ">
-                                        <input type="checkbox" id="notificacion_it" name="notificacion_it" checked>
+                                        <input type="checkbox" id="notificacion_it" name="notificacion_it" checked disabled>
                                     </div>
                                     <div class="col-md-1 col-sm-1 " style="color:white">
-                                        <a class="btn btn-info btn-sm" id="info-it" title="Info">
+                                        @*<a class="btn btn-info btn-sm" id="info-it" title="Info">
                                             <i class="fa-solid fa-circle-info"></i>
-                                        </a>
+                                        </a>*@
                                     </div>
                                 </div>
                             </div>
@@ -248,7 +248,7 @@
                                 </p>
                                 <p class="float-md-right">
                                     <div class="form-actions no-color float-md-right">
-                                        <input type="button" value="Dar de Baja" id="btn-ok" class="btn btn-danger btm-sm" />
+                                        <input type="button" value="Iniciar Solicitud de Baja" id="btn-ok" class="btn btn-danger btm-sm" />
                                     </div>
                                 </p>
                             </div>
@@ -340,7 +340,7 @@
                     $('#msj-val-subordinados').hide();
                     swalWithBootstrapButtons.fire({
                         title: '¿Desea Continuar?',
-                        html: "Advertencia: Se dará de baja al empleado en el sistema.",
+                        html: "Aviso: Se iniciará una solicitud de baja. Se enviará notificación al Jefe Directo y a Sistemas para su procesamiento.",
                         showCancelButton: true,
                         confirmButtonText: 'Aceptar',
                         cancelButtonText: 'Cancelar'

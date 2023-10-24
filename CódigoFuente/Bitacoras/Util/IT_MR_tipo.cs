@@ -10,6 +10,7 @@ namespace Bitacoras.Util
     {
         public const string CREACION = "CREACION";
         public const string MODIFICACION = "MODIFICACION";
+        public const string BAJA = "BAJA";
 
         public static string DescripcionStatus(String status)
         {
@@ -20,6 +21,8 @@ namespace Bitacoras.Util
                     return "Creación";
                 case IT_MR_tipo.MODIFICACION:
                     return "Modificación";
+                case IT_MR_tipo.BAJA:
+                    return "Baja";
                 default:
                     return "No Disponible";
             }

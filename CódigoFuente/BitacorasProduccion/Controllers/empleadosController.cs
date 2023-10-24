@@ -773,14 +773,15 @@ namespace Portal_2_0.Controllers
         public ActionResult DisableConfirmed(int id, FormCollection collection, int[] subordinados, int id_nuevo_jefe = 0)
         {
             empleados empleado = db.empleados.Find(id);
-            empleado.activo = false;
+            //empleado.activo = false;
+            var solicitante = obtieneEmpleadoLogeado(); 
 
             DateTime bajaFecha = DateTime.Now;
             string stringFecha = collection["bajaFecha"];
 
-            bool notificacionIT = false;
-            if (collection.AllKeys.Any(x => x == "notificacion_it"))
-                notificacionIT = true;
+            //bool notificacionIT = true;
+            //if (collection.AllKeys.Any(x => x == "notificacion_it"))
+            //    notificacionIT = true;
 
             try
             {
@@ -815,36 +816,44 @@ namespace Portal_2_0.Controllers
                             item.id_jefe_directo = id_nuevo_jefe;
                         }
                     }
+
+                    //crea la solicitud en el sistema
+                    IT_matriz_requerimientos matriz = new IT_matriz_requerimientos()
+                    {
+                        id_empleado = empleado.id,
+                        id_solicitante = solicitante.id,
+                        id_jefe_directo = empleado.empleados2.id,
+                        estatus = Bitacoras.Util.IT_MR_Status.ENVIADO_A_JEFE,
+                        fecha_solicitud = DateTime.Now,
+                        comentario_rechazo = null,
+                        fecha_aprobacion_jefe = null,   
+                        id_internet_tipo = 1,
+                        tipo = IT_MR_tipo.BAJA
+                    };
+
+                    db.IT_matriz_requerimientos.Add(matriz);
+
                     db.SaveChanges();
 
-                    //se envia notificación a IT en caso de haber seleccionado la opción
-                    if (notificacionIT)
+                    //OBTIENE EL CORREO DE NOTIFICACION
+                    //var itTicketEmail = db.notificaciones_correo.Where(x => x.descripcion == "IT_TICKET").FirstOrDefault();
+                    //var itEmail = db.notificaciones_correo.Where(x => x.descripcion == "IT_TKMM").FirstOrDefault();
+                    if (!string.IsNullOrEmpty(empleado.correo))
                     {
+                        //envia correo electronico
+                        EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
 
-                        //OBTIENE EL CORREO DE NOTIFICACION
-                        var itTicketEmail = db.notificaciones_correo.Where(x => x.descripcion == "IT_TICKET").FirstOrDefault();
-                        var itEmail = db.notificaciones_correo.Where(x => x.descripcion == "IT_TKMM").FirstOrDefault();
-                        if (itEmail != null && itTicketEmail != null)
+                        List<String> correos = new List<string>
                         {
-                            //envia correo electronico
-                            EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+                            empleado.correo //agrega correo de jefe
+                        }; //correos TO
 
-                            List<String> correos = new List<string>(); //correos TO
+                        //manda copia al usuario actual
+                        //empleados empleadoActualRH = obtieneEmpleadoLogeado();
+                        //if (!String.IsNullOrEmpty(empleadoActualRH.correo))
+                        //    correos.Add(empleadoActualRH.correo);
 
-                            if (!String.IsNullOrEmpty(itEmail.correo))
-                                correos.Add(itEmail.correo); //agrega correo de validador
-
-                            if (!String.IsNullOrEmpty(itTicketEmail.correo))
-                                correos.Add(itTicketEmail.correo); //agrega correo de validador
-
-                            //manda copia al usuario actual
-                            empleados empleadoActualRH = obtieneEmpleadoLogeado();
-                            if (!String.IsNullOrEmpty(empleadoActualRH.correo))
-                                correos.Add(empleadoActualRH.correo);
-
-                            envioCorreo.SendEmailAsync(correos, "TKMM-LOCAL - Notificación de Baja de Empleado", envioCorreo.getBodyITBajaEmpleado(empleado));
-                        }
-
+                        envioCorreo.SendEmailAsync(correos, "TKMM-LOCAL - Notificación de Baja de Empleado", envioCorreo.getBodyITBajaEmpleado(empleado));
                     }
                 }
                 catch (System.Data.Entity.Validation.DbEntityValidationException ex)

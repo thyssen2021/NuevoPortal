@@ -858,10 +858,8 @@ namespace Portal_2_0.Controllers
                 ModelState.AddModelError("", "Ingrese un comentario adicional para justificar porque no se seleccionó ningún software ni hardware.");
 
             if (ModelState.IsValid)
-            {
-
-                
-               
+            {                            
+ 
 
                 #region ValidaUsuarioJefeDirecto
 
@@ -1779,7 +1777,7 @@ namespace Portal_2_0.Controllers
 
                 try
                 {
-                    ////db.SaveChanges();
+                    db.SaveChanges();
 
                     EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
 
