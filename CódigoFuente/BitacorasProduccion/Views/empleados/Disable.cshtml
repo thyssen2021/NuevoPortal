@@ -185,6 +185,24 @@
                                         @Html.ValidationMessageFor(model => model.bajaFecha, "", new { @class = "text-danger" })
                                     </div>
                                 </div>
+
+                              
+                                <div class="form-group row">
+                                    <span style="color:black"><b>COMENTARIOS ADICIONALES</b></span>
+                                </div>
+                                <div class="item form-group">
+                                    <div class="col-md-12">
+                                        @if (Model.id > 0)
+                                        {
+                                            @Html.TextAreaFor(model => model.comentario, new { @class = "form-control", @rows = "5", @autocomplete = "off", @required = "required" })
+                                        }
+                                        else
+                                        {
+                                            @Html.TextAreaFor(model => model.comentario, new { @class = "form-control", @rows = "5", @autocomplete = "off" })
+                                        }
+                                        @Html.ValidationMessageFor(model => model.comentario, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
                                 <div class="item form-group">
                                     <label for="notificacion_it" class="col-form-label col-md-2 col-sm-2 label-align"> Enviar notificaci&oacute;n a IT</label>
                                     <div class="col-md-1 col-sm-1 ">
@@ -192,8 +210,8 @@
                                     </div>
                                     <div class="col-md-1 col-sm-1 " style="color:white">
                                         @*<a class="btn btn-info btn-sm" id="info-it" title="Info">
-                                            <i class="fa-solid fa-circle-info"></i>
-                                        </a>*@
+                    <i class="fa-solid fa-circle-info"></i>
+                </a>*@
                                     </div>
                                 </div>
                             </div>

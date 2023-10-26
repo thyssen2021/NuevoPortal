@@ -210,6 +210,11 @@ namespace Portal_2_0.Models
             return result;
         }
 
+        //para baja
+        [StringLength(350, MinimumLength = 5)]
+        [Display(Name = "Comentarios Adicionales")]
+        public string comentario { get; set; }
+
         [NotMapped]
         public HttpPostedFileBase ArchivoImagen { get; set; }
     }

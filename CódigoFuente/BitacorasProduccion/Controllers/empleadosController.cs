@@ -770,11 +770,11 @@ namespace Portal_2_0.Controllers
         // POST: Empleados/Disable/5
         [HttpPost, ActionName("Disable")]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> DisableConfirmedAsync(int id, FormCollection collection, int[] subordinados, int id_nuevo_jefe = 0)
+        public async Task<ActionResult> DisableConfirmedAsync(int id, FormCollection collection, string comentario, int [] subordinados, int id_nuevo_jefe = 0)
         {
             empleados empleado = db.empleados.Find(id);
             //empleado.activo = false;
-            var solicitante = obtieneEmpleadoLogeado(); 
+            var solicitante = obtieneEmpleadoLogeado();
 
             DateTime bajaFecha = DateTime.Now;
             string stringFecha = collection["bajaFecha"];
@@ -809,7 +809,7 @@ namespace Portal_2_0.Controllers
                 #region ValidaUsuarioJefeDirecto
 
                 var user = db.AspNetUsers.Where(x => x.IdEmpleado == empleado.empleados2.id).FirstOrDefault();
-
+                /*
                 //verifica si jefe directo tiene usuario
                 if (user != null)
                 {
@@ -855,7 +855,7 @@ namespace Portal_2_0.Controllers
                     envioCorreo.SendEmailAsync(correos, "Se ha creado una solicitud de usuario para el Portal.", envioCorreo.getBodySolicitudUsuarioPortal(solicitud));
 
                 }
-
+                */
                 #endregion
 
                 try
@@ -876,12 +876,13 @@ namespace Portal_2_0.Controllers
                         id_empleado = empleado.id,
                         id_solicitante = solicitante.id,
                         id_jefe_directo = empleado.empleados2.id,
-                        estatus = Bitacoras.Util.IT_MR_Status.ENVIADO_A_JEFE,
+                        estatus = Bitacoras.Util.IT_MR_Status.ENVIADO_A_IT,
                         fecha_solicitud = DateTime.Now,
                         comentario_rechazo = null,
-                        fecha_aprobacion_jefe = null,   
+                        fecha_aprobacion_jefe = null,
                         id_internet_tipo = 1,
-                        tipo = IT_MR_tipo.BAJA
+                        tipo = IT_MR_tipo.BAJA,          
+                        comentario = comentario,
                     };
 
                     db.IT_matriz_requerimientos.Add(matriz);
@@ -890,7 +891,7 @@ namespace Portal_2_0.Controllers
 
                     //OBTIENE EL CORREO DE NOTIFICACION
                     //var itTicketEmail = db.notificaciones_correo.Where(x => x.descripcion == "IT_TICKET").FirstOrDefault();
-                    //var itEmail = db.notificaciones_correo.Where(x => x.descripcion == "IT_TKMM").FirstOrDefault();
+                    var itEmail = db.notificaciones_correo.Where(x => x.descripcion == "IT_TKMM").FirstOrDefault();
                     if (!string.IsNullOrEmpty(empleado.correo))
                     {
                         //envia correo electronico
@@ -898,13 +899,13 @@ namespace Portal_2_0.Controllers
 
                         List<String> correos = new List<string>
                         {
-                            empleado.correo //agrega correo de jefe
+                            itEmail.correo //agrega correo de jefe
                         }; //correos TO
 
                         //manda copia al usuario actual
-                        //empleados empleadoActualRH = obtieneEmpleadoLogeado();
-                        //if (!String.IsNullOrEmpty(empleadoActualRH.correo))
-                        //    correos.Add(empleadoActualRH.correo);
+                        empleados empleadoActualRH = obtieneEmpleadoLogeado();
+                        if (!String.IsNullOrEmpty(empleadoActualRH.correo))
+                           correos.Add(empleadoActualRH.correo);
 
                         envioCorreo.SendEmailAsync(correos, "TKMM-LOCAL - Notificación de Baja de Empleado", envioCorreo.getBodyITBajaEmpleado(empleado));
                     }
