@@ -314,6 +314,120 @@
                         </div>
 
                         <div class="ln_solid"></div>
+                        @if (Model.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.DESKTOP || Model.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.LAPTOP)
+                        {
+                            <div class="form-group row">
+                                <span style="color:black"><b>MODERN WORKPLACE</b></span>
+                            </div>
+                            <div class="item form-group row">
+                                @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.last_check_int)))
+                                {
+                                    <div class="form-group col-md-4">
+                                        @Html.LabelFor(model => model.last_check_int, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                        <div class="col-md-9 col-sm-9 ">
+                                            @Html.EditorFor(model => model.last_check_int, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                            @Html.ValidationMessageFor(model => model.last_check_int, "", new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+                                }
+                                @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.os_version)))
+                                {
+                                    <div class="form-group col-md-4">
+                                        @Html.LabelFor(model => model.os_version, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                        <div class="col-md-9 col-sm-9 ">
+                                            @Html.EditorFor(model => model.os_version, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                            @Html.ValidationMessageFor(model => model.os_version, "", new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+                                }
+                                @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.primary_user)))
+                                {
+                                    <div class="form-group col-md-4">
+                                        @Html.LabelFor(model => model.primary_user, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                        <div class="col-md-9 col-sm-9 ">
+                                            @Html.EditorFor(model => model.primary_user, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                            @Html.ValidationMessageFor(model => model.primary_user, "", new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+                                }
+                                @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.primary_user_email)))
+                                {
+                                    <div class="form-group col-md-4">
+                                        @Html.LabelFor(model => model.primary_user_email, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                        <div class="col-md-9 col-sm-9 ">
+                                            @Html.EditorFor(model => model.primary_user_email, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                            @Html.ValidationMessageFor(model => model.primary_user_email, "", new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+                                }
+                                @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.primary_user_display)))
+                                {
+                                    <div class="form-group col-md-4">
+                                        @Html.LabelFor(model => model.primary_user_display, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                        <div class="col-md-9 col-sm-9 ">
+                                            @Html.EditorFor(model => model.primary_user_display, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                            @Html.ValidationMessageFor(model => model.primary_user_display, "", new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+                                }
+                                @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.compliance)))
+                                {
+                                    <div class="form-group col-md-4">
+                                        @Html.LabelFor(model => model.compliance, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                        <div class="col-md-9 col-sm-9 ">
+                                            @Html.EditorFor(model => model.compliance, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                            @Html.ValidationMessageFor(model => model.compliance, "", new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+                                }
+                                @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.managed_by)))
+                                {
+                                    <div class="form-group col-md-4">
+                                        @Html.LabelFor(model => model.managed_by, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                        <div class="col-md-9 col-sm-9 ">
+                                            @Html.EditorFor(model => model.managed_by, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                            @Html.ValidationMessageFor(model => model.managed_by, "", new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+                                }
+                                @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.encrypted)))
+                                {
+                                    <div class="form-group col-md-4">
+                                        @Html.LabelFor(model => model.encrypted, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                        <div class="col-md-9 col-sm-9 ">
+                                            @Html.EditorFor(model => model.encrypted, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                            @Html.ValidationMessageFor(model => model.encrypted, "", new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+                                }
+                                @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.joinType)))
+                                {
+                                    <div class="form-group col-md-4">
+                                        @Html.LabelFor(model => model.joinType, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                        <div class="col-md-9 col-sm-9 ">
+                                            @Html.EditorFor(model => model.joinType, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                            @Html.ValidationMessageFor(model => model.joinType, "", new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+                                }
+                                @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.EDICION, Model.IT_inventory_hardware_type.id.ToString(), nameof(IT_inventory_items.management_certificate_expiration_date)))
+                                {
+                                    <div class="form-group col-md-4">
+                                        @Html.LabelFor(model => model.management_certificate_expiration_date, new { @class = "col-form-label col-md-3 col-sm-3 label-align" })
+                                        <div class="col-md-9 col-sm-9 ">
+                                            @Html.EditorFor(model => model.management_certificate_expiration_date, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                            @Html.ValidationMessageFor(model => model.management_certificate_expiration_date, "", new { @class = "text-danger" })
+                                        </div>
+                                    </div>
+                                }
+
+                                <div class="form-group row">
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                        }
+
                         @if (Model.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.DESKTOP || Model.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.LAPTOP || Model.IT_inventory_hardware_type.descripcion == IT_Tipos_Hardware.SERVER)
                         {
 
@@ -869,10 +983,10 @@
 
         });
 
-        function mostrarDetallesMantenimiento(id) {              
+        function mostrarDetallesMantenimiento(id) {
                 window.open('/it_mantenimientos/Details/' + id + '', 'popup', "width=" + screen.width * .80 + ",height=" + screen.height * .80 + "");
         }
-        function mostrarDetallesChecklist(id) {              
+        function mostrarDetallesChecklist(id) {
             window.open('/IT_equipos_checklist/Details/' + id + '', 'popup', "width=" + screen.width * .80 + ",height=" + screen.height * .80 + "");
         }
 

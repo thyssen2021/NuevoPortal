@@ -2006,12 +2006,26 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Inactive Date", typeof(DateTime)); //25
             dt.Columns.Add("¿Baja?", typeof(bool));         //26         
             dt.Columns.Add("Fecha baja", typeof(DateTime)); //27
+
+            dt.Columns.Add("Last Check-in", typeof(DateTime)); //28
+            dt.Columns.Add("OS version", typeof(string));
+            dt.Columns.Add("Primary User UPN", typeof(string));
+            dt.Columns.Add("Primary User email", typeof(string));
+            dt.Columns.Add("Primary User display name", typeof(string));
+            dt.Columns.Add("Compliance", typeof(bool));
+            dt.Columns.Add("Manage By", typeof(string));
+            dt.Columns.Add("Encrypted", typeof(bool));
+            dt.Columns.Add("Join Type", typeof(string));
+            dt.Columns.Add("Management Certificate Expiration Date", typeof(DateTime)); //37
+
             dt.Columns.Add("Comments", typeof(string));         //28
             dt.Columns.Add("Asignación Actual", typeof(string));         //27
             dt.Columns.Add("Planta", typeof(string));         //27
             dt.Columns.Add("Departamento", typeof(string));         //27
             dt.Columns.Add("Puesto", typeof(string));         //27
             dt.Columns.Add("Jefe Inmediato", typeof(string));         //27
+                                                                      //modern workplace
+         
 
             ////registros , rows
             foreach (IT_inventory_items item in listado)
@@ -2041,7 +2055,9 @@ namespace Portal_2_0.Models
                     item.operation_system, item.bits_operation_system, item.cpu_speed_mhz, item.number_of_cpus, item.processor, item.mac_lan, item.mac_wlan,
                     item.total_physical_memory_gb, null, null, null, item.NumberOfHardDrives, item.TotalDiskSpace, item.maintenance_period_months,
                      item.purchase_date, item.end_warranty,
-                     item.active, item.inactive_date, item.baja, item.fecha_baja, item.comments, asignacionActual, planta, departamento, puesto, jefeInmediato
+                     item.active, item.inactive_date, item.baja, item.fecha_baja, 
+                     item.last_check_int, item.os_version, item.primary_user, item.primary_user_email, item.primary_user_display, item.compliance, item.managed_by, item.encrypted, item.joinType, item.management_certificate_expiration_date,
+                     item.comments, asignacionActual, planta, departamento, puesto, jefeInmediato
                     );
                 else
                 { //se agrega phyical server{
@@ -2053,7 +2069,9 @@ namespace Portal_2_0.Models
                       item.operation_system, item.bits_operation_system, item.cpu_speed_mhz, item.number_of_cpus, item.processor, item.mac_lan, item.mac_wlan,
                       item.total_physical_memory_gb, null, null, null, item.NumberOfHardDrives, item.TotalDiskSpace, item.maintenance_period_months,
                        item.purchase_date, item.end_warranty,
-                       item.active, item.inactive_date, item.baja, item.fecha_baja, item.comments, string.Empty
+                       item.active, item.inactive_date, item.baja, item.fecha_baja,
+                        item.last_check_int, item.os_version, item.primary_user, item.primary_user_email, item.primary_user_display, item.compliance, item.managed_by, item.encrypted, item.joinType, item.management_certificate_expiration_date,
+                       item.comments, string.Empty
                       );
                 }
 
@@ -2086,7 +2104,10 @@ namespace Portal_2_0.Models
                     dt.Rows.Add(vs.id, vs.IT_inventory_hardware_type.descripcion, vs.plantas.descripcion, vs.hostname, vs.IT_inventory_items2.hostname, vs.brand, vs.model
                      , vs.serial_number, vs.operation_system, vs.bits_operation_system, vs.cpu_speed_mhz, vs.number_of_cpus, vs.processor, vs.mac_lan, vs.mac_wlan,
                     vs.total_physical_memory_gb, null, null, null, vs.NumberOfHardDrives, vs.TotalDiskSpace, vs.maintenance_period_months,
-                    vs.purchase_date, vs.end_warranty, vs.active, vs.inactive_date, vs.baja, vs.fecha_baja, vs.comments);
+                    vs.purchase_date, vs.end_warranty, vs.active, vs.inactive_date, vs.baja,
+                    vs.fecha_baja,
+                      item.last_check_int, item.os_version, item.primary_user, item.primary_user_email, item.primary_user_display, item.compliance, item.managed_by, item.encrypted, item.joinType, item.management_certificate_expiration_date,
+                    vs.comments);
 
                     filasEncabezados.Add(false);
                     filasServidoresVirtuales.Add(filasEncabezados.Count);
@@ -2170,6 +2191,8 @@ namespace Portal_2_0.Models
             oSLDocument.SetColumnStyle(23 + physical + (esServer ? 1 : 0), styleShortDate);
             oSLDocument.SetColumnStyle(25 + physical + (esServer ? 1 : 0), styleShortDate);
             oSLDocument.SetColumnStyle(27 + physical + (esServer ? 1 : 0), styleShortDate); //fecha de baja
+            oSLDocument.SetColumnStyle(28 + physical + (esServer ? 1 : 0), styleShortDate); //fecha Last check-in
+            oSLDocument.SetColumnStyle(37 + physical + (esServer ? 1 : 0), styleShortDate); //Management Certificate
 
 
             SLStyle styleHeaderFont = oSLDocument.CreateStyle();

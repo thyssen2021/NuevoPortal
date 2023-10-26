@@ -161,6 +161,47 @@ namespace Portal_2_0.Models
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public Nullable<System.DateTime> fecha_baja { get; set; }
 
+        [DataType(DataType.Date)]
+        [Display(Name = "Last Check-in")]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        public Nullable<System.DateTime> last_check_int { get; set; }
+
+
+        [Display(Name = "OS version")]
+        [MaxLength(30, ErrorMessage = "The max length for {0} is {1} characters")]
+        public string os_version { get; set; }
+
+        [Display(Name = "Primary User UPN")]
+        [MaxLength(100, ErrorMessage = "The max length for {0} is {1} characters")]
+        public string primary_user { get; set; }
+
+        [Display(Name = "Primary User email")]
+        [MaxLength(100, ErrorMessage = "The max length for {0} is {1} characters")]
+        public string primary_user_email { get; set; }
+
+        [Display(Name = "Primary User display name")]
+        [MaxLength(100, ErrorMessage = "The max length for {0} is {1} characters")]
+        public string primary_user_display { get; set; }
+
+        [Display(Name = "Compliance")]
+        public Nullable<bool> compliance { get; set; }
+
+        [Display(Name = "Manage By")]
+        [MaxLength(20, ErrorMessage = "The max length for {0} is {1} characters")]
+        public string managed_by { get; set; }
+
+        [Display(Name = "Encrypted")]
+        public Nullable<bool> encrypted { get; set; }
+
+        [Display(Name = "Join Type")]
+        [MaxLength(30, ErrorMessage = "The max length for {0} is {1} characters")]
+        public string joinType { get; set; }
+
+        [DataType(DataType.Date)]
+        [Display(Name = "Management Certificate Expiration Date")]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        public Nullable<System.DateTime> management_certificate_expiration_date { get; set; }
+
     }
 
     [MetadataType(typeof(IT_inventory_itemsMetadata))]
@@ -659,6 +700,18 @@ namespace Portal_2_0.Models
             ,new FiltersInventoryUtil {tipoHardware = desktop(),nombreCampo =  nameof(IT_inventory_items.mac_lan), tipoFormulario = FiltersInventoryTypes.EDICION}
             ,new FiltersInventoryUtil {tipoHardware = desktop(),nombreCampo =  nameof(IT_inventory_items.mac_wlan), tipoFormulario = FiltersInventoryTypes.EDICION}
             ,new FiltersInventoryUtil {tipoHardware = desktop(),nombreCampo =  nameof(IT_inventory_items.total_physical_memory_mb), tipoFormulario = FiltersInventoryTypes.EDICION}
+            //MODERN WORKPLACE
+            ,new FiltersInventoryUtil {tipoHardware = desktop(),nombreCampo =  nameof(IT_inventory_items.last_check_int), tipoFormulario = FiltersInventoryTypes.EDICION}
+            ,new FiltersInventoryUtil {tipoHardware = desktop(),nombreCampo =  nameof(IT_inventory_items.os_version), tipoFormulario = FiltersInventoryTypes.EDICION}
+            ,new FiltersInventoryUtil {tipoHardware = desktop(),nombreCampo =  nameof(IT_inventory_items.primary_user), tipoFormulario = FiltersInventoryTypes.EDICION}
+            ,new FiltersInventoryUtil {tipoHardware = desktop(),nombreCampo =  nameof(IT_inventory_items.primary_user_email), tipoFormulario = FiltersInventoryTypes.EDICION}
+            ,new FiltersInventoryUtil {tipoHardware = desktop(),nombreCampo =  nameof(IT_inventory_items.primary_user_display), tipoFormulario = FiltersInventoryTypes.EDICION}
+            ,new FiltersInventoryUtil {tipoHardware = desktop(),nombreCampo =  nameof(IT_inventory_items.compliance), tipoFormulario = FiltersInventoryTypes.EDICION}
+            ,new FiltersInventoryUtil {tipoHardware = desktop(),nombreCampo =  nameof(IT_inventory_items.managed_by), tipoFormulario = FiltersInventoryTypes.EDICION}
+            ,new FiltersInventoryUtil {tipoHardware = desktop(),nombreCampo =  nameof(IT_inventory_items.encrypted), tipoFormulario = FiltersInventoryTypes.EDICION}
+            ,new FiltersInventoryUtil {tipoHardware = desktop(),nombreCampo =  nameof(IT_inventory_items.joinType), tipoFormulario = FiltersInventoryTypes.EDICION}
+            ,new FiltersInventoryUtil {tipoHardware = desktop(),nombreCampo =  nameof(IT_inventory_items.management_certificate_expiration_date), tipoFormulario = FiltersInventoryTypes.EDICION}
+
             //--FORMULARIOS Server
             ,new FiltersInventoryUtil {tipoHardware = server(),nombreCampo =  nameof(IT_inventory_items.id_inventory_type), tipoFormulario = FiltersInventoryTypes.EDICION}
             ,new FiltersInventoryUtil {tipoHardware = server(),nombreCampo =  nameof(IT_inventory_items.id_planta), tipoFormulario = FiltersInventoryTypes.EDICION}
@@ -706,6 +759,18 @@ namespace Portal_2_0.Models
             ,new FiltersInventoryUtil {tipoHardware = laptop(),nombreCampo =  nameof(IT_inventory_items.mac_lan), tipoFormulario = FiltersInventoryTypes.EDICION}
             ,new FiltersInventoryUtil {tipoHardware = laptop(),nombreCampo =  nameof(IT_inventory_items.mac_wlan), tipoFormulario = FiltersInventoryTypes.EDICION}
             ,new FiltersInventoryUtil {tipoHardware = laptop(),nombreCampo =  nameof(IT_inventory_items.total_physical_memory_mb), tipoFormulario = FiltersInventoryTypes.EDICION}
+                //MODERN WORKPLACE
+            ,new FiltersInventoryUtil {tipoHardware = laptop(),nombreCampo =  nameof(IT_inventory_items.last_check_int), tipoFormulario = FiltersInventoryTypes.EDICION}
+            ,new FiltersInventoryUtil {tipoHardware = laptop(),nombreCampo =  nameof(IT_inventory_items.os_version), tipoFormulario = FiltersInventoryTypes.EDICION}
+            ,new FiltersInventoryUtil {tipoHardware = laptop(),nombreCampo =  nameof(IT_inventory_items.primary_user), tipoFormulario = FiltersInventoryTypes.EDICION}
+            ,new FiltersInventoryUtil {tipoHardware = laptop(),nombreCampo =  nameof(IT_inventory_items.primary_user_email), tipoFormulario = FiltersInventoryTypes.EDICION}
+            ,new FiltersInventoryUtil {tipoHardware = laptop(),nombreCampo =  nameof(IT_inventory_items.primary_user_display), tipoFormulario = FiltersInventoryTypes.EDICION}
+            ,new FiltersInventoryUtil {tipoHardware = laptop(),nombreCampo =  nameof(IT_inventory_items.compliance), tipoFormulario = FiltersInventoryTypes.EDICION}
+            ,new FiltersInventoryUtil {tipoHardware = laptop(),nombreCampo =  nameof(IT_inventory_items.managed_by), tipoFormulario = FiltersInventoryTypes.EDICION}
+            ,new FiltersInventoryUtil {tipoHardware = laptop(),nombreCampo =  nameof(IT_inventory_items.encrypted), tipoFormulario = FiltersInventoryTypes.EDICION}
+            ,new FiltersInventoryUtil {tipoHardware = laptop(),nombreCampo =  nameof(IT_inventory_items.joinType), tipoFormulario = FiltersInventoryTypes.EDICION}
+            ,new FiltersInventoryUtil {tipoHardware = laptop(),nombreCampo =  nameof(IT_inventory_items.management_certificate_expiration_date), tipoFormulario = FiltersInventoryTypes.EDICION}
+
             //--FORMULARIOS Monitor
             ,new FiltersInventoryUtil {tipoHardware = monitor(),nombreCampo =  nameof(IT_inventory_items.id_inventory_type), tipoFormulario = FiltersInventoryTypes.EDICION}
             ,new FiltersInventoryUtil {tipoHardware = monitor(),nombreCampo =  nameof(IT_inventory_items.id_planta), tipoFormulario = FiltersInventoryTypes.EDICION}

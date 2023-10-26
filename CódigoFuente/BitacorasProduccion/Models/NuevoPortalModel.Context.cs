@@ -126,7 +126,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_matriz_software> IT_matriz_software { get; set; }
         public virtual DbSet<IT_matriz_requerimientos> IT_matriz_requerimientos { get; set; }
         public virtual DbSet<IT_equipos_checklist> IT_equipos_checklist { get; set; }
-        public virtual DbSet<IT_inventory_items> IT_inventory_items { get; set; }
         public virtual DbSet<IT_mantenimientos> IT_mantenimientos { get; set; }
         public virtual DbSet<budget_cantidad> budget_cantidad { get; set; }
         public virtual DbSet<view_valores_fiscal_year_budget_historico> view_valores_fiscal_year_budget_historico { get; set; }
@@ -161,5 +160,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<RD_hits> RD_hits { get; set; }
         public virtual DbSet<view_historico_resultado> view_historico_resultado { get; set; }
         public virtual DbSet<empleados> empleados { get; set; }
+        public virtual DbSet<IT_inventory_items> IT_inventory_items { get; set; }
     }
 }

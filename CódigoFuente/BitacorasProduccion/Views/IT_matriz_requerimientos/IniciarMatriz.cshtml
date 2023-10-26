@@ -147,13 +147,7 @@
                             @Html.HiddenFor(model => model.comentario_rechazo)
                             @Html.HiddenFor(model => model.tipo)
                             <!-- Datos matriz -->
-                            @Html.HiddenFor(model => model.empleados.nueva_fecha_nacimiento)
-                            @Html.HiddenFor(model => model.empleados.planta_clave)
-                            @Html.HiddenFor(model => model.empleados.nombre)
-                            @Html.HiddenFor(model => model.empleados.apellido1)
-                            @Html.HiddenFor(model => model.empleados.puesto)
-                            @Html.HiddenFor(model => model.empleados.id_area)
-                            @Html.HiddenFor(model => model.empleados.id_jefe_directo)
+                       
 
                             <input type="hidden" id="id_internet_tipo" name="id_internet_tipo" value="1" /> //por defecto SÍ
                             <input type="hidden" id="id_matriz" name="id_matriz" value="@Model.id" />
@@ -443,7 +437,7 @@
                                     <div class="col-md-12">
                                         @Html.LabelFor(model => model.empleados.bajaFecha, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
                                         <div class="col-md-4 col-sm-4 ">
-                                            @Html.EditorFor(model => model.empleados.bajaFecha, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                            @Html.EditorFor(model => model.empleados.bajaFecha, new { htmlAttributes = new { @class = "form-control", @disabled = "disabled" } })
                                             @Html.ValidationMessageFor(model => model.empleados.bajaFecha, "", new { @class = "text-danger" })
                                         </div>
                                     </div>

@@ -58,6 +58,16 @@ namespace Portal_2_0.Models
         public Nullable<int> id_tipo_accesorio { get; set; }
         public bool baja { get; set; }
         public Nullable<System.DateTime> fecha_baja { get; set; }
+        public Nullable<System.DateTime> last_check_int { get; set; }
+        public string os_version { get; set; }
+        public string primary_user { get; set; }
+        public string primary_user_email { get; set; }
+        public string primary_user_display { get; set; }
+        public Nullable<bool> compliance { get; set; }
+        public string managed_by { get; set; }
+        public Nullable<bool> encrypted { get; set; }
+        public string joinType { get; set; }
+        public Nullable<System.DateTime> management_certificate_expiration_date { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_asignacion_hardware_rel_items> IT_asignacion_hardware_rel_items { get; set; }
@@ -66,12 +76,12 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_inventory_hard_drives> IT_inventory_hard_drives { get; set; }
         public virtual IT_inventory_hardware_type IT_inventory_hardware_type { get; set; }
+        public virtual plantas plantas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_mantenimientos> IT_mantenimientos { get; set; }
         public virtual IT_inventory_tipos_accesorios IT_inventory_tipos_accesorios { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_inventory_items> IT_inventory_items1 { get; set; }
         public virtual IT_inventory_items IT_inventory_items2 { get; set; }
-        public virtual plantas plantas { get; set; }
     }
 }

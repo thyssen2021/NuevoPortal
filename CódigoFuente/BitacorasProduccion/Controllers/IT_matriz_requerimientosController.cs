@@ -531,6 +531,11 @@ namespace Portal_2_0.Controllers
                         Text = IT_MR_tipo.DescripcionStatus(IT_MR_tipo.MODIFICACION),
                         Value = IT_MR_tipo.MODIFICACION
                     },
+                     new SelectListItem()
+                    {
+                        Text = IT_MR_tipo.DescripcionStatus(IT_MR_tipo.BAJA),
+                        Value = IT_MR_tipo.BAJA
+                    },
                 };
 
                 //recorre los usuarios con el permiso de IT_notificaciones
@@ -749,6 +754,8 @@ namespace Portal_2_0.Controllers
             //matriz.fecha_solicitud = DateTime.Now;
 
             empleados solicitante = obtieneEmpleadoLogeado();
+
+            //matriz.empleados = db.empleados.Find(matriz.empleados);
 
             //se trata del Jefe directo
             if (action.Contains("Autorizar"))
