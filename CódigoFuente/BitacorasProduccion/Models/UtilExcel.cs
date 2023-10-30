@@ -1219,7 +1219,7 @@ namespace Portal_2_0.Models
                     {
                         for (int j = 0; j < table.Columns.Count; j++)
                         {
-                            if (table.Rows[i][j].ToString().ToUpper() == "PLATILLO")
+                            if (table.Rows[i][j].ToString().ToUpper().Trim() == "PLATILLO")
                                 columnaPlatillo = j;
                         }
                         //si encontró la columna rompe el for
