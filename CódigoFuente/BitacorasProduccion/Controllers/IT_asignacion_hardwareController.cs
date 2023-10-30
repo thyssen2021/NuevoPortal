@@ -270,12 +270,13 @@ namespace Portal_2_0.Controllers
         // GET: IT_asignacion_hardware/DetailsEmpleado/5
         public ActionResult DetailsEmpleado(int? id)
         {
-            if (!TieneRol(TipoRoles.IT_ASIGNACION_HARDWARE)) {
+            if (!TieneRol(TipoRoles.IT_ASIGNACION_HARDWARE))
+            {
                 if (!TieneRol(TipoRoles.RH) && !TieneRol(TipoRoles.RH_DETALLES_EMPLEADOS))
                     return View("../Home/ErrorPermisos");
                 else
                     return RedirectToAction("Details", "empleados");
-            }                
+            }
 
             if (id == null)
             {
@@ -300,7 +301,7 @@ namespace Portal_2_0.Controllers
         }
 
         // GET: IT_asignacion_hardware/Asignar
-        public ActionResult Asignar(int? id_empleado, int? id_tipo_hardware)
+        public ActionResult Asignar(int? id_empleado, int? id_tipo_hardware, bool? acceso_site)
         {
 
             if (!TieneRol(TipoRoles.IT_ASIGNACION_HARDWARE))
@@ -332,7 +333,7 @@ namespace Portal_2_0.Controllers
             model.fecha_asignacion = DateTime.Now;
             model.es_asignacion_actual = true;
             model.tipo_hardware = id_tipo_hardware.Value;
-
+            model.acceso_site = acceso_site.HasValue ? acceso_site.Value : false;
 
             string campoSelect = String.Empty;
 
@@ -362,7 +363,9 @@ namespace Portal_2_0.Controllers
 
             ViewBag.ListadoHardwareInventario = db.IT_inventory_items.Where(x => x.id_inventory_type == id_tipo_hardware && x.active == true && !x.baja).ToList();
             ViewBag.ListadoHardwareGenerico = db.IT_inventory_items_genericos.Where(x => x.id_inventory_type == id_tipo_hardware && x.active == true).ToList();
-            ViewBag.ListadoTiposAccesorios = db.IT_inventory_tipos_accesorios.ToList();
+            // ViewBag.ListadoTiposAccesorios = db.IT_inventory_tipos_accesorios.ToList();
+
+            ViewBag.ListadoTiposAccesorios = db.IT_inventory_tipos_accesorios.Where(x => !acceso_site.HasValue || (x.id == 13)).ToList();
 
             //obtiene la primera linea asignada
             int numcel = 0;
@@ -977,6 +980,17 @@ namespace Portal_2_0.Controllers
             }
             var firstItem = item.IT_asignacion_hardware_rel_items.FirstOrDefault();
 
+
+            //si se trata de una asignacion al site
+            bool esAccesoSite = false;
+            if ((firstItem.IT_inventory_items_genericos != null && firstItem.IT_inventory_items_genericos.id_inventory_type == 13 && firstItem.IT_inventory_items_genericos.id_tipo_accesorio == 13)
+                || (firstItem.IT_inventory_items != null && firstItem.IT_inventory_items.id_inventory_type == 13 && firstItem.IT_inventory_items.id_tipo_accesorio == 13)
+                )
+            {
+                esAccesoSite = true;
+                item.IATF_revisiones = db.IATF_revisiones.Find(22); //cambiar a 22 en productivo
+            }
+
             IT_inventory_hardware_type tipoHardware = firstItem.GetHardwareType();
 
             byte[] pdfBytes;
@@ -1013,8 +1027,9 @@ namespace Portal_2_0.Controllers
                 //lineaEn blanco
                 Paragraph newline = new Paragraph(new Text("\n"));
 
-                //nombre documento                
-                doc.Add(new Paragraph(item.IATF_revisiones.IATF_documentos.nombre_documento + ": " + tipoHardware.descripcion).AddStyle(fuenteThyssen));
+                //nombre documento
+
+                doc.Add(new Paragraph(item.IATF_revisiones.IATF_documentos.nombre_documento + (!esAccesoSite ? ": " + tipoHardware.descripcion : string.Empty)).AddStyle(fuenteThyssen));
 
 
                 fuenteThyssen.SetFontSize(10).SetTextAlignment(TextAlignment.RIGHT);
@@ -1029,7 +1044,7 @@ namespace Portal_2_0.Controllers
                 fuenteThyssen.SetTextAlignment(TextAlignment.LEFT);
 
                 //crea tabla pra datos del personal
-                float[] cellWidth = { 30f, 70f };
+                float[] cellWidth = { 30f, 70f, 30f, 70f };
                 Table table = new Table(UnitValue.CreatePercentArray(cellWidth)).UseAllAvailableWidth();
 
                 string planta = "--", departamento = "--", puesto = "--";
@@ -1048,8 +1063,11 @@ namespace Portal_2_0.Controllers
                 table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.empleados.C8ID) ? item.empleados.C8ID : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
                 table.AddCell(new Cell().Add(new Paragraph("Núm. Empleado:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
                 table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.empleados.numeroEmpleado) ? item.empleados.numeroEmpleado : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
-                table.AddCell(new Cell().Add(new Paragraph("Correo:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
-                table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.empleados.correo) ? item.empleados.correo : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
+                if (!esAccesoSite)
+                {
+                    table.AddCell(new Cell().Add(new Paragraph("Correo:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
+                    table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(item.empleados.correo) ? item.empleados.correo : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
+                }
                 table.AddCell(new Cell().Add(new Paragraph("Planta:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
                 table.AddCell(new Cell().Add(new Paragraph(planta)).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
                 table.AddCell(new Cell().Add(new Paragraph("Departamento:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
@@ -1059,13 +1077,14 @@ namespace Portal_2_0.Controllers
 
                 doc.Add(table);
 
+                cellWidth = new[] { 30f, 70f };
                 int c = 1;
 
                 //agrega los datos de cada item en la responsiva 
                 foreach (var relItem in item.IT_asignacion_hardware_rel_items)
                 {
 
-                    string encabezadoEquipo = "Datos del Equipo";
+                    string encabezadoEquipo = !esAccesoSite ? "Datos del Equipo" : "Datos de la asignación";
 
                     if (item.IT_asignacion_hardware_rel_items.Count > 1)
                         encabezadoEquipo = "Datos del Equipo " + (c++) + ":";
@@ -1088,8 +1107,8 @@ namespace Portal_2_0.Controllers
                     }
 
                     if (_item.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.LAPTOP
-                        || _item.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.DESKTOP 
-                        || _item.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.TABLET 
+                        || _item.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.DESKTOP
+                        || _item.IT_inventory_hardware_type.descripcion == Bitacoras.Util.IT_Tipos_Hardware.TABLET
                         )
                     {
                         table.AddCell(new Cell().Add(new Paragraph("Hostname:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
@@ -1103,9 +1122,9 @@ namespace Portal_2_0.Controllers
                     }
 
 
-                    table.AddCell(new Cell().Add(new Paragraph("Marca:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
+                    table.AddCell(new Cell().Add(new Paragraph(!esAccesoSite ? "Marca:" : "Planta:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
                     table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(_item.brand) ? _item.brand : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
-                    table.AddCell(new Cell().Add(new Paragraph("Modelo:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
+                    table.AddCell(new Cell().Add(new Paragraph(!esAccesoSite ? "Modelo:" : "Tipo de Acceso:")).AddStyle(fuenteThyssenBold).SetBorder(Border.NO_BORDER));
                     table.AddCell(new Cell().Add(new Paragraph(!String.IsNullOrEmpty(_item.model) ? _item.model : "--")).AddStyle(fuenteThyssen).SetBorder(Border.NO_BORDER));
 
                     if (!String.IsNullOrEmpty(_item.serial_number))
@@ -1138,21 +1157,44 @@ namespace Portal_2_0.Controllers
                 }
 
                 //crea parrafo de detalles
-                fuenteThyssen.SetTextAlignment(TextAlignment.JUSTIFIED);
-                pTitle = new Paragraph("\n\n").Add(new Tab());
-                pTitle.AddTabStops(new TabStop(1550, TabAlignment.RIGHT));
-                pTitle.Add("Se hace entrega del equipo de cómputo, así como accesorios propiedad de thyssenkrupp Materials de México S.A. de C.V. al empleado inscrito en este documento" +
-                    " para utilizarse como herramienta de trabajo en el desempeño de sus funciones, el cual deberá regirse bajo el Reglamento del Grupo de seguridad de la " +
-                    "información (RE-CO-GPI-0216-V01-ES) y la Política interna de IT-tkMM (ITE001) vigentes.")
-                    .AddStyle(fuenteThyssen);
+                if (!esAccesoSite)
+                {
+                    fuenteThyssen.SetTextAlignment(TextAlignment.JUSTIFIED);
+                    pTitle = new Paragraph("\n\n").Add(new Tab());
+                    pTitle.AddTabStops(new TabStop(1550, TabAlignment.RIGHT));
+                    pTitle.Add("Se hace entrega del equipo de cómputo, así como accesorios propiedad de thyssenkrupp Materials de México S.A. de C.V. al empleado inscrito en este documento" +
+                        " para utilizarse como herramienta de trabajo en el desempeño de sus funciones, el cual deberá regirse bajo el Reglamento del Grupo de seguridad de la " +
+                        "información (RE-CO-GPI-0216-V01-ES) y la Política interna de IT-tkMM (ITE001) vigentes.")
+                        .AddStyle(fuenteThyssen);
+                }
+                else
+                { // crea la lista para asignacion de acceso a site
+
+                    fuenteThyssen.SetTextAlignment(TextAlignment.JUSTIFIED);
+                    pTitle = new Paragraph(
+                        "\nMe comprometo a cumplir con las siguientes políticas:\n\n" +
+                        "•\tDarle uso adecuado para el cual fue entregado, siendo únicamente para actividades de la empresa. \n" +
+                        "•\tNo prestar tarjeta o compartir clave. \n" +
+                        "•\tInformar a mi jefe inmediato en caso de pérdida o daño de la tarjeta. \n" +
+                        "•\tSolicitar cambio de clave en caso de verse comprometida. \n" +
+                        "•\tEn caso de daño por mal uso, me comprometo a cubrir el costo de la reparación o sustitución. \n" +
+                        "•\tSerá responsable de las instalaciones del SITE de la empresa al ingresar a ellas en horario no laboral. \n" +
+                        "•\tInformar a su jefe inmediato (IT) o al jefe de sistemas de cualquier anomalía dentro de las instalaciones. \n" +
+                        "•\tCerciorarse que las chapas queden bien cerradas al retirarse de la empresa. \n" +
+                        "•\tRenovar cada año responsiva firmada. \n" +
+                        "•\tEntregar la tarjeta a la empresa cuando me lo requieran o en el momento de la separación de la relación laboral."
+                        ).AddStyle(fuenteThyssen);
+
+                }
                 doc.Add(pTitle);
 
-                //si es celular no agrega los espacios en blanco, para que no se corte la hoja
+                //si es celular no agrega los espacios en blanco o es acceso al site, para que no se corte la hoja
                 if (item.IT_asignacion_hardware_rel_items.FirstOrDefault().GetHardwareType().descripcion != Bitacoras.Util.IT_Tipos_Hardware.SMARTPHONE)
                 {
                     //agrega tres lineas en blanco
                     doc.Add(newline);
-                    doc.Add(newline);
+                    if (!esAccesoSite)
+                        doc.Add(newline);
                 }
 
 

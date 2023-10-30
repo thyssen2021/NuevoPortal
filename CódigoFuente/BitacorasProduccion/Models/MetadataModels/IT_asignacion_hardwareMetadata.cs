@@ -76,6 +76,10 @@ namespace Portal_2_0.Models
         [Display(Name = "¿Desasociar Línea Celular?")]
         public bool desasociar_linea { get; set; }
 
+        [NotMapped]
+        [Display(Name = "¿Acceso Site?")]
+        public bool acceso_site { get; set; }
+
 
     }
 }

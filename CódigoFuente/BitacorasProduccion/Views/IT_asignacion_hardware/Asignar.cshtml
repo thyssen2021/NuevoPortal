@@ -119,6 +119,7 @@
                             @Html.HiddenFor(model => model.id_sistemas)
                             @Html.HiddenFor(model => model.id_responsable_principal)
                             @Html.HiddenFor(model => model.tipo_hardware)
+                            @Html.HiddenFor(model => model.acceso_site)
 
                             if (!Html.ViewData.ModelState.IsValid)
                             {
@@ -185,7 +186,15 @@
                                 </div>
                             }
 
+
+
                             <div class="ln_solid"></div>
+                            if (Model.acceso_site)
+                            {
+                                <div class="alert alert-info">
+                                    <i class="fa-solid fa-circle-info"></i> Para asignacción de Acceso al Site seleccionar el tipo "Genérico" y seleccionar la opción que corresponda de acuerdo a la planta.
+                                </div>
+                            }
                             <div class="form-group row">
                                 <span style="color:black"><b>SELECCI&Oacute;N DE HARDWARE</b></span>
                             </div>
@@ -305,15 +314,15 @@
 
                             @*<div class="item form-group">
 
-                                    @Html.LabelFor(model => model.id_it_inventory_item, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
-                                    <div class="col-md-6 col-sm-6 ">
-                                        @Html.DropDownList("id_it_inventory_item", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
-                                        @Html.ValidationMessageFor(model => model.id_it_inventory_item, "", new { @class = "text-danger" })
-                                    </div>
-                                    <div class="col-md-1 col-sm-1">
-                                        <button type="button" id="btn-info-cell" class="btn btn-primary btn-sm" style="@(Model.id_it_inventory_item>0?"display:block":"display:none")"> <i class="fa-solid fa-eye"></i></button>
-                                    </div>
-                                </div>*@
+                @Html.LabelFor(model => model.id_it_inventory_item, new { @class = "col-form-label col-md-2 col-sm-2 label-align" })
+                <div class="col-md-6 col-sm-6 ">
+                    @Html.DropDownList("id_it_inventory_item", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%", @required = "required" })
+                    @Html.ValidationMessageFor(model => model.id_it_inventory_item, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-md-1 col-sm-1">
+                    <button type="button" id="btn-info-cell" class="btn btn-primary btn-sm" style="@(Model.id_it_inventory_item>0?"display:block":"display:none")"> <i class="fa-solid fa-eye"></i></button>
+                </div>
+            </div>*@
 
                             <div class="ln_solid"></div>
                             <div class="item form-group">
@@ -352,7 +361,7 @@
     <script>
         //variable global para el id
         var num = 0;
-        var asignacionesLinea = []; 
+        var asignacionesLinea = [];
 
         $(document).ready(function () {
             // Initialize Select2 Elements (debe ir después de asignar el valor)
@@ -465,7 +474,7 @@
                             }
 
                             //desaparece button
-                            if (cantidad == 0) {                                
+                            if (cantidad == 0) {
                                 $("#btn-warning-line").prop("disabled", true);
                                 $("#btn-warning-line").hide('explode', 400);
                             }

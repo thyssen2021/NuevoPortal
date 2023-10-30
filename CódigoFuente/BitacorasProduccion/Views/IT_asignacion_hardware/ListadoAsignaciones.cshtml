@@ -164,11 +164,17 @@
                                         <i class="fa-solid fa-code"></i> Asignar Software
                                     </a>
                                 </div>
+                                <div class="col-md-2 col-sm-2">
+                                    <a href="@Url.Action( "Asignar", "it_asignacion_hardware", new { id_empleado = Model.id, id_tipo_hardware = 13, acceso_site=true})" class="btn btn-warning">
+                                        <i class="fa-solid fa-key"></i> Acceso al SITE
+                                    </a>
+                                </div>
+
                                 @*<div class="col-md-2 col-sm-2">
-                                        <a href="@Url.Action( "Asignar", "IT_asignacion_cellular_line", new { id_empleado = Model.id})" class="btn btn-primary">
-                                            <i class="fa-solid fa-phone-flip"></i> Asignar L&iacute;nea Celular
-                                        </a>
-                                    </div>*@
+            <a href="@Url.Action( "Asignar", "IT_asignacion_cellular_line", new { id_empleado = Model.id})" class="btn btn-primary">
+                <i class="fa-solid fa-phone-flip"></i> Asignar L&iacute;nea Celular
+            </a>
+        </div>*@
                             </div>
                         }
 
