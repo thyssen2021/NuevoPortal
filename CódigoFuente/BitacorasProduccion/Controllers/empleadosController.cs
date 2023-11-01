@@ -311,7 +311,7 @@ namespace Portal_2_0.Controllers
             //busca si ya existe un empleado con ese numero de empleado
 
             // existe el num empleado
-            if (db.empleados.Any(s => !string.IsNullOrEmpty(empleados.numeroEmpleado) && empleados.numeroEmpleado.ToUpper() != "N/A" && s.numeroEmpleado == empleados.numeroEmpleado))
+            if (db.empleados.Any(s => !string.IsNullOrEmpty(empleados.numeroEmpleado) && empleados.numeroEmpleado.ToUpper() != "N/A" && empleados.numeroEmpleado.ToUpper() != "P99999" && s.numeroEmpleado == empleados.numeroEmpleado))
                 ModelState.AddModelError("", "Ya existe un registro con el mismo número de empleado. ");
 
             if (ModelState.IsValid)
@@ -539,7 +539,7 @@ namespace Portal_2_0.Controllers
             //busca si ya existe un empleado con ese numero de empleado
 
             // existe el num empleado
-            if (db.empleados.Any(s => !string.IsNullOrEmpty(empleados.numeroEmpleado) && empleados.numeroEmpleado.ToUpper() != "N/A" && s.numeroEmpleado == empleados.numeroEmpleado && s.id != empleados.id))
+            if (db.empleados.Any(s => !string.IsNullOrEmpty(empleados.numeroEmpleado) && empleados.numeroEmpleado.ToUpper() != "N/A" && empleados.numeroEmpleado.ToUpper() != "P99999" &&  s.numeroEmpleado == empleados.numeroEmpleado && s.id != empleados.id))
                 ModelState.AddModelError("", "Ya existe un registro con el mismo número de empleado. ");
 
 
