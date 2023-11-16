@@ -4,7 +4,8 @@
     ViewBag.Title = "Listado de Centros de Costo";
     ViewBag.PrimerNivel = "plantilla_budget";
     ViewBag.SegundoNivel = "centros";
-    ViewBag.ControllerName = "ResponsableBudget";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    ViewBag.nav_style = "nav-sm";
 
     Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
     int fila = 1;
@@ -171,7 +172,7 @@
 
         //agranda el tamaño de la barra
         window.onload = function () {
-            document.getElementById('menu_toggle').click();
+          //  document.getElementById('menu_toggle').click();
         }
     </script>
 

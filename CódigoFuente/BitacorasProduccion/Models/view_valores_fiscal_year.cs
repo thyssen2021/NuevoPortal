@@ -43,6 +43,42 @@ namespace Portal_2_0.Models
         public Nullable<decimal> Octubre { get; set; }
         public Nullable<decimal> Noviembre { get; set; }
         public Nullable<decimal> Diciembre { get; set; }
+        public Nullable<decimal> Enero_MXN { get; set; }
+        public Nullable<decimal> Febrero_MXN { get; set; }
+        public Nullable<decimal> Marzo_MXN { get; set; }
+        public Nullable<decimal> Abril_MXN { get; set; }
+        public Nullable<decimal> Mayo_MXN { get; set; }
+        public Nullable<decimal> Junio_MXN { get; set; }
+        public Nullable<decimal> Julio_MXN { get; set; }
+        public Nullable<decimal> Agosto_MXN { get; set; }
+        public Nullable<decimal> Septiembre_MXN { get; set; }
+        public Nullable<decimal> Octubre_MXN { get; set; }
+        public Nullable<decimal> Noviembre_MXN { get; set; }
+        public Nullable<decimal> Diciembre_MXN { get; set; }
+        public Nullable<decimal> Enero_EUR { get; set; }
+        public Nullable<decimal> Febrero_EUR { get; set; }
+        public Nullable<decimal> Marzo_EUR { get; set; }
+        public Nullable<decimal> Abril_EUR { get; set; }
+        public Nullable<decimal> Mayo_EUR { get; set; }
+        public Nullable<decimal> Junio_EUR { get; set; }
+        public Nullable<decimal> Julio_EUR { get; set; }
+        public Nullable<decimal> Agosto_EUR { get; set; }
+        public Nullable<decimal> Septiembre_EUR { get; set; }
+        public Nullable<decimal> Octubre_EUR { get; set; }
+        public Nullable<decimal> Noviembre_EUR { get; set; }
+        public Nullable<decimal> Diciembre_EUR { get; set; }
+        public Nullable<decimal> Enero_USD_LOCAL { get; set; }
+        public Nullable<decimal> Febrero_USD_LOCAL { get; set; }
+        public Nullable<decimal> Marzo_USD_LOCAL { get; set; }
+        public Nullable<decimal> Abril_USD_LOCAL { get; set; }
+        public Nullable<decimal> Mayo_USD_LOCAL { get; set; }
+        public Nullable<decimal> Junio_USD_LOCAL { get; set; }
+        public Nullable<decimal> Julio_USD_LOCAL { get; set; }
+        public Nullable<decimal> Agosto_USD_LOCAL { get; set; }
+        public Nullable<decimal> Septiembre_USD_LOCAL { get; set; }
+        public Nullable<decimal> Octubre_USD_LOCAL { get; set; }
+        public Nullable<decimal> Noviembre_USD_LOCAL { get; set; }
+        public Nullable<decimal> Diciembre_USD_LOCAL { get; set; }
         public string Comentario { get; set; }
     }
 }

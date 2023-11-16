@@ -738,7 +738,7 @@
                                     @if (User.IsInRole(TipoRoles.BG_RESPONSABLE) || User.IsInRole(TipoRoles.BG_CONTROLLING) || User.IsInRole(TipoRoles.BG_REPORTES))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "plantilla_budget" ? "active" : null )">
-                                            <a><i class="fa fa-calculator"></i>Budget<span class="fa fa-chevron-down"></span></a>
+                                            <a><i class="fa fa-cash-register"></i>Budget<span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu">
                                                 @{ DateTime fechaActual = DateTime.Now;}
 

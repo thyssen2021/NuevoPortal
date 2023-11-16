@@ -438,10 +438,22 @@
     <Compile Include="Models\budget_rel_comentarios.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\budget_rel_conceptos_cantidades.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\budget_rel_conceptos_formulas.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\budget_rel_fy_centro.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\budget_rel_tipo_cambio_fy.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\budget_responsables.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\budget_tipo_cambio.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\class_v3.cs">
@@ -5283,6 +5295,7 @@
     <Content Include="Views\IT_mantenimientos\PosponerMantenimiento.cshtml" />
     <Content Include="Views\UsersAdmin\EditEmail.cshtml" />
     <Content Include="Views\RH_menu_comedor\ListaDistribucion.cshtml" />
+    <Content Include="Views\ResponsableBudget\EditCentroPresenteHT.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

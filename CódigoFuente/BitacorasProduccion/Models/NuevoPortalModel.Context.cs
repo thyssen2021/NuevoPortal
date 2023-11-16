@@ -35,7 +35,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<budget_mapping> budget_mapping { get; set; }
         public virtual DbSet<budget_mapping_bridge> budget_mapping_bridge { get; set; }
         public virtual DbSet<budget_plantas> budget_plantas { get; set; }
-        public virtual DbSet<budget_rel_comentarios> budget_rel_comentarios { get; set; }
         public virtual DbSet<budget_rel_fy_centro> budget_rel_fy_centro { get; set; }
         public virtual DbSet<budget_responsables> budget_responsables { get; set; }
         public virtual DbSet<class_v3> class_v3 { get; set; }
@@ -109,7 +108,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<upgrade_usuarios> upgrade_usuarios { get; set; }
         public virtual DbSet<upgrade_values_checklist> upgrade_values_checklist { get; set; }
         public virtual DbSet<upgrade_values_transaccion> upgrade_values_transaccion { get; set; }
-        public virtual DbSet<view_valores_fiscal_year> view_valores_fiscal_year { get; set; }
         public virtual DbSet<GV_usuarios> GV_usuarios { get; set; }
         public virtual DbSet<GV_solicitud> GV_solicitud { get; set; }
         public virtual DbSet<IT_site> IT_site { get; set; }
@@ -161,5 +159,11 @@ namespace Portal_2_0.Models
         public virtual DbSet<view_historico_resultado> view_historico_resultado { get; set; }
         public virtual DbSet<empleados> empleados { get; set; }
         public virtual DbSet<IT_inventory_items> IT_inventory_items { get; set; }
+        public virtual DbSet<view_valores_fiscal_year> view_valores_fiscal_year { get; set; }
+        public virtual DbSet<budget_rel_tipo_cambio_fy> budget_rel_tipo_cambio_fy { get; set; }
+        public virtual DbSet<budget_tipo_cambio> budget_tipo_cambio { get; set; }
+        public virtual DbSet<budget_rel_comentarios> budget_rel_comentarios { get; set; }
+        public virtual DbSet<budget_rel_conceptos_formulas> budget_rel_conceptos_formulas { get; set; }
+        public virtual DbSet<budget_rel_conceptos_cantidades> budget_rel_conceptos_cantidades { get; set; }
     }
 }

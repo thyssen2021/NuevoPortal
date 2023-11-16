@@ -9,6 +9,7 @@ using System.Web;
 using System.Web.Mvc;
 using Bitacoras.Util;
 using Clases.Util;
+using Newtonsoft.Json;
 using Portal_2_0.Models;
 
 namespace Portal_2_0.Controllers
@@ -302,6 +303,160 @@ namespace Portal_2_0.Controllers
 
         }
 
+        // GET: ResponsableBudget/EditCentroPresente
+        public ActionResult EditCentroPresenteHT(int? id)
+        {
+
+            if (TieneRol(TipoRoles.BG_RESPONSABLE))
+            {
+                if (id == null)
+                {
+                    return View("../Error/BadRequest");
+                }
+
+                //mensaje en caso de crear, editar, etc
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.MensajeAlert = TempData["Mensaje"];
+                }
+                //obtiene centro de costo
+                budget_centro_costo centroCosto = db.budget_centro_costo.Find(id);
+                if (centroCosto == null)
+                    return View("../Error/NotFound");
+
+                //obtiene el usuario logeado
+                empleados empleado = obtieneEmpleadoLogeado();
+                //verifica que el usuario este registrado como capturista
+                if (!db.budget_responsables.Any(x => x.id_responsable == empleado.id && centroCosto.id == x.id_budget_centro_costo))
+                {
+                    ViewBag.Titulo = "¡Lo sentimos!¡No se puede acceder a esta Sección!";
+                    ViewBag.Descripcion = "Este usuario no se encuentra asociado a este centro de costo.";
+
+                    return View("../Home/ErrorGenerico");
+                }
+
+                //obtiene el año fiscal anterior (actual)
+                budget_anio_fiscal anio_Fiscal_anterior = GetAnioFiscal(DateTime.Now.AddYears(-1));
+                if (anio_Fiscal_anterior == null)
+                    return View("../Error/NotFound");
+
+                //obtiene el año fiscal actual (forecast)
+                budget_anio_fiscal anio_Fiscal_actual = GetAnioFiscal(DateTime.Now);
+                if (anio_Fiscal_actual == null)
+                    return View("../Error/NotFound");
+
+                //obtiene el año fiscal proximo (budget)
+                budget_anio_fiscal anio_Fiscal_proximo = GetAnioFiscal(DateTime.Now.AddYears(1));
+                if (anio_Fiscal_proximo == null)
+                    return View("../Error/NotFound");
+
+                //obtiene el id_rel_centro_costo anterior
+                budget_rel_fy_centro rel_fy_centro_anterior = db.budget_rel_fy_centro.Where(x => x.id_centro_costo == centroCosto.id && x.id_anio_fiscal == anio_Fiscal_anterior.id).FirstOrDefault();
+                if (rel_fy_centro_anterior == null)
+                {
+                    //si no existe crea el rel anio forecast
+                    rel_fy_centro_anterior = new budget_rel_fy_centro
+                    {
+                        id_anio_fiscal = anio_Fiscal_anterior.id,
+                        id_centro_costo = centroCosto.id,
+                        estatus = true //activado por defecto
+                    };
+
+                    db.budget_rel_fy_centro.Add(rel_fy_centro_anterior);
+                    //guarda en base de datos el centro creado
+                    db.SaveChanges();
+                }
+
+                //obtiene el id_rel_centro_costo del forecast
+                budget_rel_fy_centro rel_fy_centro_presente = db.budget_rel_fy_centro.Where(x => x.id_centro_costo == centroCosto.id && x.id_anio_fiscal == anio_Fiscal_actual.id).FirstOrDefault();
+                if (rel_fy_centro_presente == null)
+                {
+                    //si no existe crea el rel anio forecast
+                    rel_fy_centro_presente = new budget_rel_fy_centro
+                    {
+                        id_anio_fiscal = anio_Fiscal_actual.id,
+                        id_centro_costo = centroCosto.id,
+                        estatus = true //activado por defecto
+                    };
+
+                    db.budget_rel_fy_centro.Add(rel_fy_centro_presente);
+                    //guarda en base de datos el centro creado
+                    db.SaveChanges();
+                }
+
+                //obtiene el id_rel_centro_costo del proximo
+                budget_rel_fy_centro rel_fy_centro_proximo = db.budget_rel_fy_centro.Where(x => x.id_centro_costo == centroCosto.id && x.id_anio_fiscal == anio_Fiscal_proximo.id).FirstOrDefault();
+                if (rel_fy_centro_proximo == null)
+                {
+                    //si no existe crea el rel anio forecast
+                    rel_fy_centro_proximo = new budget_rel_fy_centro
+                    {
+                        id_anio_fiscal = anio_Fiscal_proximo.id,
+                        id_centro_costo = centroCosto.id,
+                        estatus = true //activado por defecto
+                    };
+
+                    db.budget_rel_fy_centro.Add(rel_fy_centro_proximo);
+                    //guarda en base de datos el centro creado
+                    db.SaveChanges();
+                }
+
+                //agrega el objeto de fiscal year
+                rel_fy_centro_proximo.budget_anio_fiscal = anio_Fiscal_proximo;
+                rel_fy_centro_presente.budget_anio_fiscal = anio_Fiscal_actual;
+                rel_fy_centro_anterior.budget_anio_fiscal = anio_Fiscal_anterior;
+
+
+
+                #region cabeceras HT
+                //cabeceras HT FORECAST
+                List<string> headersForecast = new List<string> { "SAP Account", "Name", "Mapping" };
+                var cabeceraObject = new object[13];
+                cabeceraObject[0] = new
+                {
+                    label = "SAP ACCOUNT",
+                    colspan = 3
+                };
+                DateTime fecha = new DateTime(rel_fy_centro_presente.budget_anio_fiscal.anio_inicio, rel_fy_centro_presente.budget_anio_fiscal.mes_inicio, 1);
+                for (int i = 0; i < 12; i++)
+                {
+                    //agrega cabecera para tipo moneda
+                    headersForecast.Add("MXN");
+                    headersForecast.Add("USD");
+                    headersForecast.Add("EUR");
+                    headersForecast.Add("Local (USD)");
+                    //agrega cabecera para meses
+                    cabeceraObject[i + 1] = new
+                    {
+                        label = string.Format("{0} {1}", rel_fy_centro_presente.budget_anio_fiscal.isActual(fecha.Month), fecha.ToString("MMM yy").ToUpper()),
+                        colspan = 4
+                    };
+                    fecha = fecha.AddMonths(1);
+                }
+                headersForecast.Add("Totals");
+                headersForecast.Add("Comments");
+                headersForecast.Add("AplicaFormula");
+
+                ViewBag.HeadersForecast1 = JsonConvert.SerializeObject(cabeceraObject);
+                ViewBag.HeadersForecast2 = headersForecast.ToArray();
+
+                #endregion
+
+                ViewBag.centroCosto = centroCosto;
+                ViewBag.rel_anterior = rel_fy_centro_anterior;
+                ViewBag.rel_presente = rel_fy_centro_presente;
+                ViewBag.rel_proximo = rel_fy_centro_proximo;
+                ViewBag.numCuentasSAP = db.budget_cuenta_sap.Where(x => x.activo).Count();
+                return View(centroCosto);
+
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+
+        }
+
         // GET: ResponsableBudget/EditCentroProximo
         public ActionResult EditCentroProximo(int? id)
         {
@@ -441,7 +596,7 @@ namespace Portal_2_0.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditCentro(FormCollection form )
+        public ActionResult EditCentro(FormCollection form)
         {
             //crea objetos apartir del form collection
 
@@ -713,13 +868,404 @@ namespace Portal_2_0.Controllers
             #endregion
 
             TempData["Mensaje"] = new MensajesSweetAlert("Se ha modificado correctamente. ", TipoMensajesSweetAlerts.SUCCESS);
-          
+
 
             if (!continuar)
                 return RedirectToAction("Centros");
             else
                 return RedirectToAction(form["action"].ToString(), new { id = form["id_cc"].ToString() });
         }
+
+        /// <summary>
+        /// Carga los datos iniciales del año indicado
+        /// </summary>
+        /// <param name="id_fy"></param>
+        /// <returns></returns>
+        public JsonResult CargaFY(int? id_fy, int? id_centro_costo)
+        {
+
+            var valoresListAnioActual = db.view_valores_fiscal_year.Where(x => x.id_anio_fiscal == id_fy && x.id_centro_costo == id_centro_costo).ToList();
+            valoresListAnioActual = AgregaCuentasSAPFaltantes(valoresListAnioActual, id_fy.Value, id_centro_costo.Value).OrderBy(x => x.sap_account).ToList();
+            var fy = db.budget_anio_fiscal.Find(id_fy);
+
+            var jsonData = new List<object>();
+
+            var sapAccountsList = db.budget_cuenta_sap.ToList();
+
+            for (int i = 0; i < valoresListAnioActual.Count(); i++)
+            {
+
+                //obtine las tres monedas de la cantidad
+                var tipo_cambio_usd_mxn = fy.budget_rel_tipo_cambio_fy.FirstOrDefault(x => x.id_tipo_cambio == 1).cantidad.ToString();
+                var tipo_cambio_eur_usd = fy.budget_rel_tipo_cambio_fy.FirstOrDefault(x => x.id_tipo_cambio == 2).cantidad.ToString();
+
+                jsonData.Add(new[] {
+                    valoresListAnioActual[i].sap_account,
+                    valoresListAnioActual[i].name,
+                    valoresListAnioActual[i].mapping_bridge,
+                    valoresListAnioActual[i].Octubre_MXN.ToString(),
+                    valoresListAnioActual[i].Octubre.ToString(),
+                    valoresListAnioActual[i].Octubre_EUR.ToString(),
+                    string.Format("=(D{0}/{1}) + E{0} + (F{0}*{2})", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
+                    valoresListAnioActual[i].Noviembre_MXN.ToString(),
+                    valoresListAnioActual[i].Noviembre.ToString(),
+                    valoresListAnioActual[i].Noviembre_EUR.ToString(),
+                     string.Format("=(H{0}/{1}) + I{0} + (J{0}*{2})", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
+                    valoresListAnioActual[i].Diciembre_MXN.ToString(),
+                    valoresListAnioActual[i].Diciembre.ToString(),
+                    valoresListAnioActual[i].Diciembre_EUR.ToString(),
+                    valoresListAnioActual[i].Diciembre_USD_LOCAL.ToString(),
+                    valoresListAnioActual[i].Enero_MXN.ToString(),
+                    valoresListAnioActual[i].Enero.ToString(),
+                    valoresListAnioActual[i].Enero_EUR.ToString(),
+                    valoresListAnioActual[i].Enero_USD_LOCAL.ToString(),
+                    valoresListAnioActual[i].Febrero_MXN.ToString(),
+                    valoresListAnioActual[i].Febrero.ToString(),
+                    valoresListAnioActual[i].Febrero_EUR.ToString(),
+                    valoresListAnioActual[i].Febrero_USD_LOCAL.ToString(),
+                    valoresListAnioActual[i].Marzo_MXN.ToString(),
+                    valoresListAnioActual[i].Marzo.ToString(),
+                    valoresListAnioActual[i].Marzo_EUR.ToString(),
+                    valoresListAnioActual[i].Marzo_USD_LOCAL.ToString(),
+                    valoresListAnioActual[i].Abril_MXN.ToString(),
+                    valoresListAnioActual[i].Abril.ToString(),
+                    valoresListAnioActual[i].Abril_EUR.ToString(),
+                    valoresListAnioActual[i].Abril_USD_LOCAL.ToString(),
+                    valoresListAnioActual[i].Mayo_MXN.ToString(),
+                    valoresListAnioActual[i].Mayo.ToString(),
+                    valoresListAnioActual[i].Mayo_EUR.ToString(),
+                    valoresListAnioActual[i].Mayo_USD_LOCAL.ToString(),
+                    valoresListAnioActual[i].Junio_MXN.ToString(),
+                    valoresListAnioActual[i].Junio.ToString(),
+                    valoresListAnioActual[i].Junio_EUR.ToString(),
+                    valoresListAnioActual[i].Junio_USD_LOCAL.ToString(),
+                    valoresListAnioActual[i].Julio_MXN.ToString(),
+                    valoresListAnioActual[i].Julio.ToString(),
+                    valoresListAnioActual[i].Julio_EUR.ToString(),
+                    valoresListAnioActual[i].Julio_USD_LOCAL.ToString(),
+                    valoresListAnioActual[i].Agosto_MXN.ToString(),
+                    valoresListAnioActual[i].Agosto.ToString(),
+                    valoresListAnioActual[i].Agosto_EUR.ToString(),
+                    valoresListAnioActual[i].Agosto_USD_LOCAL.ToString(),
+                    valoresListAnioActual[i].Septiembre_MXN.ToString(),
+                    valoresListAnioActual[i].Septiembre.ToString(),
+                    valoresListAnioActual[i].Septiembre_EUR.ToString(),
+                    valoresListAnioActual[i].Septiembre_USD_LOCAL.ToString(),
+                    string.Format("= G{0} + K{0} + O{0} + S{0} + W{0} + AA{0} + AE{0} + AI{0} + AM{0} + AQ{0} + AU{0} + AY{0}", i+1),
+                    valoresListAnioActual[i].Comentario,
+                    sapAccountsList.Any(x=> x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_formula == true).ToString()
+                    });
+
+
+
+            }
+            //fila  para sumatorias
+            jsonData.Add(new[] {
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Format("=SUM({0}{1}:{0}{2})","D", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","E", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","F", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","G", 1, valoresListAnioActual.Count()),//
+                string.Format("=SUM({0}{1}:{0}{2})","H", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","I", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","J", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","K", 1, valoresListAnioActual.Count()),//  
+                string.Format("=SUM({0}{1}:{0}{2})","L", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","M", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","N", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","O", 1, valoresListAnioActual.Count()),// 
+                string.Format("=SUM({0}{1}:{0}{2})","P", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","Q", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","R", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","S", 1, valoresListAnioActual.Count()),//    
+                string.Format("=SUM({0}{1}:{0}{2})","T", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","U", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","V", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","W", 1, valoresListAnioActual.Count()),//    
+                string.Format("=SUM({0}{1}:{0}{2})","X", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","Y", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","Z", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","AA", 1, valoresListAnioActual.Count()),//    
+                string.Format("=SUM({0}{1}:{0}{2})","AB", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","AC", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","AD", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","AE", 1, valoresListAnioActual.Count()),//
+                string.Format("=SUM({0}{1}:{0}{2})","AF", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","AG", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","AH", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","AI", 1, valoresListAnioActual.Count()),//
+                string.Format("=SUM({0}{1}:{0}{2})","AJ", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","AK", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","AL", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","AM", 1, valoresListAnioActual.Count()),//
+                string.Format("=SUM({0}{1}:{0}{2})","AN", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","AO", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","AP", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","AQ", 1, valoresListAnioActual.Count()),//
+                string.Format("=SUM({0}{1}:{0}{2})","AR", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","AS", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","AT", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","AU", 1, valoresListAnioActual.Count()),//
+                string.Format("=SUM({0}{1}:{0}{2})","AV", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","AW", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","AX", 1, valoresListAnioActual.Count()),
+                string.Format("=SUM({0}{1}:{0}{2})","AY", 1, valoresListAnioActual.Count()),//
+                string.Format("=SUM({0}{1}:{0}{2})","AZ", 1, valoresListAnioActual.Count()),
+
+            });
+
+            return Json(jsonData.ToArray(), JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Carga los datos iniciales del año indicado
+        /// </summary>
+        /// <param name="id_fy"></param>
+        /// <returns></returns>
+        public JsonResult CargaFYComentarios(int? id_fy, int? id_centro_costo, int? id_fy_cc)
+        {
+            //obtiene los valores 
+            var valoresListAnioActual = db.view_valores_fiscal_year.Where(x => x.id_anio_fiscal == id_fy && x.id_centro_costo == id_centro_costo).ToList();
+            valoresListAnioActual = AgregaCuentasSAPFaltantes(valoresListAnioActual, id_fy.Value, id_centro_costo.Value).OrderBy(x => x.sap_account).ToList();
+
+            //obtiene el rel fy cc
+            var fy_cc = db.budget_rel_fy_centro.Find(id_fy_cc);
+
+            var jsonData = new List<object>();
+
+            //calcula si debe ser readonly
+            bool isActualOctubre = fy_cc.budget_anio_fiscal.isActual(10) == "ACT";
+            bool isActualNoviembre = fy_cc.budget_anio_fiscal.isActual(11) == "ACT";
+            bool isActualDiciembre = fy_cc.budget_anio_fiscal.isActual(12) == "ACT";
+            bool isActualEnero = fy_cc.budget_anio_fiscal.isActual(1) == "ACT";
+            bool isActualFebrero = fy_cc.budget_anio_fiscal.isActual(2) == "ACT";
+            bool isActualMarzo = fy_cc.budget_anio_fiscal.isActual(3) == "ACT";
+            bool isActualAbril = fy_cc.budget_anio_fiscal.isActual(4) == "ACT";
+            bool isActualMayo = fy_cc.budget_anio_fiscal.isActual(5) == "ACT";
+            bool isActualJunio = fy_cc.budget_anio_fiscal.isActual(6) == "ACT";
+            bool isActualJulio = fy_cc.budget_anio_fiscal.isActual(7) == "ACT";
+            bool isActualAgosto = fy_cc.budget_anio_fiscal.isActual(8) == "ACT";
+            bool isActualSeptiembre = fy_cc.budget_anio_fiscal.isActual(9) == "ACT";
+
+            //recorre todos los comentarios
+            foreach (var cantidad in fy_cc.budget_cantidad.Where(x => !string.IsNullOrEmpty(x.comentario)))
+            {
+                var col = 0;
+                bool readOnly = false;
+
+                //determina la columna inicial (default para pesos)
+                switch (cantidad.mes)
+                {
+                    case 10:
+                        col = 3;
+                        if (isActualOctubre)
+                            readOnly = true;
+                        break;
+                    case 11:
+                        col = 7;
+                        if (isActualNoviembre)
+                            readOnly = true;
+                        break;
+                    case 12:
+                        col = 11;
+                        if (isActualDiciembre)
+                            readOnly = true;
+                        break;
+                    case 1:
+                        col = 15;
+                        if (isActualEnero)
+                            readOnly = true;
+                        break;
+                    case 2:
+                        col = 19;
+                        if (isActualFebrero)
+                            readOnly = true;
+                        break;
+                    case 3:
+                        col = 23;
+                        if (isActualMarzo)
+                            readOnly = true;
+                        break;
+                    case 4:
+                        col = 27;
+                        if (isActualAbril)
+                            readOnly = true;
+                        break;
+                    case 5:
+                        col = 31;
+                        if (isActualMayo)
+                            readOnly = true;
+                        break;
+                    case 6:
+                        col = 35;
+                        if (isActualJunio)
+                            readOnly = true;
+                        break;
+                    case 7:
+                        col = 39;
+                        if (isActualJulio)
+                            readOnly = true;
+                        break;
+                    case 8:
+                        col = 43;
+                        if (isActualAgosto)
+                            readOnly = true;
+                        break;
+                    case 9:
+                        col = 47;
+                        if (isActualSeptiembre)
+                            readOnly = true;
+                        break;
+                }
+
+                //dolares USD
+                if (cantidad.currency_iso == "USD" && !cantidad.moneda_local_usd)
+                    col++;
+                //euros
+                else if (cantidad.currency_iso == "EUR" && !cantidad.moneda_local_usd)
+                    col += 2;
+                //dolares moneda local
+                else if (cantidad.currency_iso == "USD" && cantidad.moneda_local_usd)
+                    col += 3;
+
+                jsonData.Add(new
+                {
+                    row = valoresListAnioActual.IndexOf(valoresListAnioActual.FirstOrDefault(x => x.sap_account == cantidad.budget_cuenta_sap.sap_account)),
+                    col,
+                    comment = new { value = cantidad.comentario, readOnly = readOnly }
+                });
+            }
+
+
+
+            return Json(jsonData.ToArray(), JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Carga los datos iniciales del año indicado
+        /// </summary>
+        /// <param name="id_fy"></param>
+        /// <returns></returns>
+        public JsonResult CargaFormFormula(int? row, int? column, string cuenta_sap, int? id_bd_fy_centro, int? mes, string currency,
+            bool datosPrevios, string a, string b, string c, string d, string e, string f, string g, string h, string i, string j, string k, string m, string l)
+        {
+
+            var formulario = new object[1];
+
+            var sapAccount = db.budget_cuenta_sap.Where(x => x.sap_account == cuenta_sap).FirstOrDefault();
+            var bgCantidad = db.budget_cantidad.Where(x => x.id_budget_rel_fy_centro == id_bd_fy_centro
+                                    && x.budget_cuenta_sap.sap_account == cuenta_sap
+                                    && x.mes == mes
+                                    && x.currency_iso == currency
+                                    && !x.moneda_local_usd
+                                    ).FirstOrDefault();
+
+            string id_cantidad = bgCantidad == null ? "0" : bgCantidad.id.ToString();
+
+            string html = @" 
+                <input type=""hidden"" name=""_cuenta_sap"" id=""_cuenta_sap"" value=""" + cuenta_sap + @""">
+                <input type=""hidden"" name=""_id_bd_fy_centro"" id=""_id_bd_fy_centro"" value=""" + id_bd_fy_centro + @""">
+                <input type=""hidden"" name=""_mes"" id=""_mes"" value=""" + mes + @""">
+                <input type=""hidden"" name=""_currency"" id=""_currency"" value=""" + currency + @""">
+                <input type=""hidden"" name=""id_budget_cantidad"" id=""id_budget_cantidad"" value=""" + id_cantidad + @""">
+                <input type=""hidden"" name=""formula"" id=""formula"" value=""" + sapAccount.formula + @""">
+                <input type=""hidden"" name=""row_formula"" id=""row_formula"" value=""" + row + @""">
+                <input type=""hidden"" name=""column_formula"" id=""column_formula"" value=""" + column + @""">";
+
+            if (sapAccount.budget_rel_conceptos_formulas.Count == 0)
+            {
+                formulario[0] = new { estatus = "ERROR" };
+                return Json(formulario, JsonRequestBehavior.AllowGet);
+            }
+
+            foreach (var concepto in sapAccount.budget_rel_conceptos_formulas)
+            {
+                //valor por defecto
+                string valor = currency == "MXN" ? concepto.valor_defecto_mxn.ToString() : currency == "USD" ? concepto.valor_defecto_usd.ToString() : currency == "EUR" ? concepto.valor_defecto_eur.ToString() : "0.0";
+
+                //valor formulario
+                if (datosPrevios && (!concepto.valor_fijo.HasValue || !concepto.valor_fijo.Value))
+                    switch (concepto.clave)
+                    {
+                        case "a":
+                            valor = a;
+                            break;
+                        case "b":
+                            valor = b;
+                            break;
+                        case "c":
+                            valor = c;
+                            break;
+                        case "d":
+                            valor = d;
+                            break;
+                        case "e":
+                            valor = e;
+                            break;
+                        case "f":
+                            valor = f;
+                            break;
+                        case "g":
+                            valor = g;
+                            break;
+                        case "h":
+                            valor = h;
+                            break;
+                        case "i":
+                            valor = i;
+                            break;
+                        case "j":
+                            valor = j;
+                            break;
+                        case "k":
+                            valor = k;
+                            break;
+                        case "l":
+                            valor = m;
+                            break;
+                        case "m":
+                            valor = m;
+                            break;
+
+                    }
+                //si no toma el valor desde bd
+                else if (bgCantidad != null && bgCantidad.budget_rel_conceptos_cantidades.Count > 0)
+                {
+                    valor = bgCantidad.budget_rel_conceptos_cantidades.FirstOrDefault(x => x.budget_rel_conceptos_formulas.clave == concepto.clave) != null ?
+                        bgCantidad.budget_rel_conceptos_cantidades.FirstOrDefault(x => x.budget_rel_conceptos_formulas.clave == concepto.clave).cantidad.ToString() : "0";
+                }
+
+                html += String.Format(@"
+                <input type=""hidden"" name=""id_rel_concepto_{0}"" id=""id_rel_concepto_{0}"" value=""" + concepto.id + @""">
+                <input type=""hidden"" name=""concepto_clave_{0}"" id=""concepto_clave_{0}"" value=""" + concepto.clave + @""">
+                <div class=""form-group row"">
+                    <label class=""control-label col-md-3 col-sm-3"" for=""val_{0}"" style=""text-align:right"">{1}:</label>
+                    <div class=""col-md-9"">
+                        <input type=""text"" class=""form-control concepto-formula"" name=""val_{0}"" id=""val_{0}"" {2} value=""{3}""/>
+                        <span class=""field-validation-valid text-danger"" data-valmsg-for=""val_{0}"" data-valmsg-replace=""true""></span>
+                    </div>
+                </div>", concepto.clave, concepto.descripcion, concepto.valor_fijo.HasValue && concepto.valor_fijo.Value ? "readonly" : string.Empty
+                , valor);
+            }
+
+            html += String.Format(@" <div class=""form-group row"">
+                    <label class=""control-label col-md-3 col-sm-3"" for=""val_{0}"" style=""text-align:right"">{1}:</label>
+                    <div class=""col-md-9"">
+                        <input type=""text"" class=""form-control concepto-formula"" name=""val_{0}"" id=""val_{0}"" readonly />
+                        <span class=""field-validation-valid text-danger"" data-valmsg-for=""val_{0}"" data-valmsg-replace=""true""></span>
+                    </div>
+                </div>", "result", "Total");
+
+            formulario[0] = new
+            {
+                estatus = "OK",
+                html = html
+            };
+
+            return Json(formulario, JsonRequestBehavior.AllowGet);
+        }
+
 
         [NonAction]
         public static budget_anio_fiscal GetAnioFiscal(DateTime fechaBusqueda)
