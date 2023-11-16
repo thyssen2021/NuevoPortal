@@ -1184,7 +1184,7 @@
                 hot2.render();
             });
 
-
+            setTimeout(Recordatorio, 600000); //diez minutos
 
             $.unblockUI();
         });
@@ -1419,9 +1419,16 @@
             }
         }
 
+
+
         function EnviaFormulario(salir) {
 
-            //console.log(hot2.getData());
+            //borra los filtros
+            hot2.getPlugin('Filters').clearConditions();
+            hot2.getPlugin('Filters').filter();
+            hot2.render();
+
+            console.log(hot2.getData());
             //console.log(JSON.stringify(hot2.getData()));
 
             @*hot.validateCells((valid) => {
@@ -1804,8 +1811,13 @@
             return -1; //return -1 if nothing can be found
         }
 
+        function Recordatorio() {
+            Swal.fire('Recordatorio', 'Recuerde guardar sus cambios constantemente, para evitar la pérdida de información.', 'info')
+            setTimeout(Recordatorio, 600000); //diez minutos
+        }
+
         $(window).resize(function () {
-            hot.render();
+           // hot.render();
         });
 
 
