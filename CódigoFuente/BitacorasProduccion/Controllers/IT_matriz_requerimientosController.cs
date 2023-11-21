@@ -1787,14 +1787,14 @@ namespace Portal_2_0.Controllers
                 try
                 {
 
-                    if (matriz.estatus == IT_MR_Status.FINALIZADO)
-                    {
-                        //cambia el estatus del empleado de la solicitud
-                        var empleado = db.empleados.Find(matriz.id_empleado);
-                        empleado.activo = false;
-                    }
+                    //if (matriz.estatus == IT_MR_Status.FINALIZADO)
+                    //{
+                    //    //cambia el estatus del empleado de la solicitud
+                    //    var empleado = db.empleados.Find(matriz.id_empleado);
+                    //    empleado.activo = false;
+                    //}
 
-                    db.SaveChanges();
+                    //db.SaveChanges();
 
                     EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
 
