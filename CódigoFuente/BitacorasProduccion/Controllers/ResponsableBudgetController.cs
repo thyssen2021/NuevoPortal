@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -9,6 +10,7 @@ using System.Web;
 using System.Web.Mvc;
 using Bitacoras.Util;
 using Clases.Util;
+using DocumentFormat.OpenXml;
 using Newtonsoft.Json;
 using Portal_2_0.Models;
 
@@ -874,6 +876,147 @@ namespace Portal_2_0.Controllers
                 return RedirectToAction("Centros");
             else
                 return RedirectToAction(form["action"].ToString(), new { id = form["id_cc"].ToString() });
+        }
+
+
+        // POST: ResponsableBudget/EditCentro
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
+        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+
+        public ActionResult EditCentroHT(int? id, List<object[]> dataListFromTable)
+        {
+            if (dataListFromTable == null)
+                return Json(new { result = "WARNING", icon = "warning", message = "No se detectaron elementos que procesar." }, JsonRequestBehavior.AllowGet);
+
+            //inicializa la lista de objetos
+            var list = new object[1];
+
+            //convierte el list de arrays en objetos SCDM_solicitud_rel_item_material
+            List<budget_cantidad> lista_item = ConvierteArrayACantidades(dataListFromTable, id);
+
+            //if (lista_item.Count == 0)
+            //    list[0] = new { result = "WARNING", icon = "warning", message = "No se detectaron elementos que procesar." };
+
+            //crea, modifica o elimina cinta
+            try
+            {
+                list[0] = new { result = "OK", icon = "success", message = "Se guardaron los cambios correctamente." };
+
+                //for (int i = 0; i < lista_item.Count; i++)
+                //{
+                //    if (lista_item[i].id == 0) //si no existe el rollo
+                //    {
+                //        db.SCDM_solicitud_rel_lista_tecnica.Add(lista_item[i]);
+                //        //debe guardarlo para obtener el id
+                //        try
+                //        {
+                //            db.SaveChanges();
+                //            list[i] = new { result = "OK", icon = "success", fila = lista_item[i].num_fila, id = lista_item[i].id, operacion = "CREATE", message = "Se guardaron los cambios correctamente" };
+                //        }
+                //        catch (Exception e)
+                //        {
+                //            list[0] = new { result = "ERROR", icon = "error", fila = lista_item[i].num_fila, operacion = "CREATE", message = e.Message };
+                //        }
+                //    }
+                //    else //si ya existe es una modificacion
+                //    {
+                //        db.Entry(lista_item[i]).State = EntityState.Modified;
+                //        db.SaveChanges();
+                //        list[i] = new { result = "OK", icon = "success", fila = lista_item[i].num_fila, id = lista_item[i].id, operacion = "UPDATE", message = "Se guardaron los cambios correctamente" };
+                //    }
+
+                //}
+                ////elimina aquellos que no aparezcan en los enviados 
+                //var toDeleteList = db.SCDM_solicitud_rel_lista_tecnica.ToList().Where(x => !lista_item.Any(y => y.id == x.id) && x.id_solicitud == id.Value).ToList();
+                //db.SCDM_solicitud_rel_lista_tecnica.RemoveRange(toDeleteList);
+                //db.SaveChanges();
+
+            }
+            catch (Exception e)
+            {
+                list[0] = new { result = "ERROR", icon = "error", message = e.Message };
+            }
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+
+        private List<budget_cantidad> ConvierteArrayACantidades(List<object[]> data, int? id_rel_fy_cc)
+        {
+            var rel_fy_cc = db.budget_rel_fy_centro.Find(id_rel_fy_cc);
+
+            var cuestasSAPBD = db.budget_cuenta_sap.ToList();
+
+            List<budget_cantidad> resultado = new List<budget_cantidad> { };
+
+            #region cabeceras HT
+            //cabeceras HT FORECAST
+            List<string> headersForecast = new List<string> { "SAP_ACCOUNT", "Name", "Mapping" };
+
+
+            DateTime fecha = new DateTime(rel_fy_cc.budget_anio_fiscal.anio_inicio, rel_fy_cc.budget_anio_fiscal.mes_inicio, 1);
+            for (int i = 0; i < 12; i++)
+            {
+                //agrega cabecera para tipo moneda
+                headersForecast.Add("MXN");
+                headersForecast.Add("USD");
+                headersForecast.Add("EUR");
+                headersForecast.Add("USD");
+
+                fecha = fecha.AddMonths(1);
+            }
+            headersForecast.Add("Totals");
+            headersForecast.Add("Comments");
+            headersForecast.Add("AplicaFormula");
+
+            #endregion
+
+            //listado de encabezados
+            string[] encabezados = headersForecast.ToArray();
+
+            //recorre todos los arrays recibidos
+            foreach (var array in data)
+            {
+
+                //variables generales
+                string sap_account = array[Array.IndexOf(encabezados, "SAP_ACCOUNT")].ToString();
+                DateTime fechaArray = new DateTime(rel_fy_cc.budget_anio_fiscal.anio_inicio, rel_fy_cc.budget_anio_fiscal.mes_inicio, 1);
+                int col = 3;
+
+                //recorre cada uno de los meses
+                if (!string.IsNullOrEmpty(sap_account))
+                    for (int i = 0; i < 12; i++)
+                    {
+                        int id_sap_account = cuestasSAPBD.FirstOrDefault(x => x.sap_account == sap_account).id;
+                        decimal cantidadTemporal = 0;
+
+                       
+                        for (int j = 0; j < 4; j++)
+                        {
+                            bool puedeConvertir = decimal.TryParse(array[col+j].ToString(), out cantidadTemporal);
+
+                            //!!!!!!!Si tiene comentario o tiene cantidad
+                            resultado.Add(new budget_cantidad
+                            {
+                                id_budget_rel_fy_centro = rel_fy_cc.id,
+                                id_cuenta_sap = id_sap_account,
+                                mes = fecha.Month,
+                                currency_iso = encabezados[col+j],
+                                cantidad = decimal.Round(cantidadTemporal, 2),
+                                //comentario
+                                moneda_local_usd = j == 3 ? true : false
+                            });
+                        }
+
+                        //aumenta variables
+                        col += 4;
+                        fecha = fecha.AddMonths(1);
+                    }
+
+
+            }
+
+
+
+            return resultado;
         }
 
         /// <summary>

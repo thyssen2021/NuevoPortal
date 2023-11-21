@@ -1176,8 +1176,8 @@
             $("#btn_aceptar_modal").on("click", function () { ActualizaCalculo() });
 
             $("#btn-submit").on("click", function () { EnviaFormulario(false) });
+            $("#btn-submit-salir").on("click", function () { EnviaFormulario(true) });
 
-            //$("#btn-submit-salir").on("click", function () { EnviaFormulario(true) });
             $("#btn-clear_filters").on("click", function () {
                 hot2.getPlugin('Filters').clearConditions();
                 hot2.getPlugin('Filters').filter();
@@ -1428,18 +1428,26 @@
             hot2.getPlugin('Filters').filter();
             hot2.render();
 
-            console.log(hot2.getData());
-            //console.log(JSON.stringify(hot2.getData()));
+            //convierte los elementos del array en string
+            let arrayToString = [];
+            let dataTable = hot2.getData();
 
-            @*hot.validateCells((valid) => {
+            for (var i = 0; i < dataTable.length; i++) {        
+                //if(i>0 && i<25)
+                arrayToString.push(dataTable[i]);
+            }
+
+            console.log(JSON.stringify(arrayToString));
+
+            hot2.validateCells((valid) => {
                 if (valid) {
                     // ... code for validated cells
                     $.ajax({
                         type: "POST",
                         dataType: "json",
                         contentType: 'application/json; charset=utf-8',
-                        url: '/SCDM_solicitud/EnviaCintasForm?id='+@Model.id,
-                        data: JSON.stringify(hot.getData()),
+                        url: '/ResponsableBudget/EditCentroHT?id='+@rel_presente.id,
+                        data: JSON.stringify(arrayToString),
                         success: function (data) {
 
                             try {
@@ -1452,19 +1460,10 @@
                                 });
 
                                 if (salir && result == "OK") {
-                                    window.location.href = "../EditarSolicitud/@Model.id";
+                                    window.location.href = "../Centros/";
                                 }
 
-                                //asigna los ids guardados y modificados
-                                for (i = 0; i < data.length; i++) {
-                                    if (data[i] != null && data[i].result == "OK") {
-                                        hot.setDataAtCell(data[i].fila, 0, data[i].id);
-                                    }
-                                    else {
-                                        //console.log(data[i]);
-                                    }
-                                }
-
+                               
 
                             }
                             catch (error) {
@@ -1478,6 +1477,8 @@
                         },
                         error: function (textStatus, errorThrown) {
                             //en caso de error en la llamada ajax
+                            console.log(textStatus);
+                            console.log(errorThrown);
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Ocurrió un error',
@@ -1493,8 +1494,9 @@
                         text: 'Para continuar, verifica que no haya celdas marcadas en color rojo.',
                     })
                    // console.log(hot.getData());
+                        
                 }
-            })*@
+            })
 
         }
 
