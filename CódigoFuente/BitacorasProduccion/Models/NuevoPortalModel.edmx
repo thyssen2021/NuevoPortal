@@ -106,7 +106,7 @@
           <Property Name="comentario" Type="varchar" MaxLength="150" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.budget_cantidad_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="budget_cantidad_budget_historico">
           <Key>
             <PropertyRef Name="id" />
@@ -207,6 +207,27 @@ advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.budget_cantidad_budge
           <Property Name="id_budget_centro_costo" Type="int" Nullable="false" />
           <Property Name="id_responsable" Type="int" Nullable="false" />
           <Property Name="estatus" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="CI_conteo_inventario">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="centro" Type="varchar" MaxLength="4" Nullable="false" />
+          <Property Name="almacen" Type="varchar" MaxLength="4" Nullable="false" />
+          <Property Name="ubicacion" Type="varchar" MaxLength="20" />
+          <Property Name="articulo" Type="varchar" MaxLength="5" />
+          <Property Name="material" Type="varchar" MaxLength="15" />
+          <Property Name="lote" Type="varchar" MaxLength="10" />
+          <Property Name="no_bobina" Type="varchar" MaxLength="20" />
+          <Property Name="sap_cantidad" Type="float" />
+          <Property Name="libre_utilizacion" Type="float" />
+          <Property Name="bloqueado" Type="float" />
+          <Property Name="control_calidad" Type="float" />
+          <Property Name="unidad_base_medida" Type="varchar" MaxLength="10" />
+          <Property Name="altura" Type="float" />
+          <Property Name="espesor" Type="float" />
+          <Property Name="peso" Type="float" />
         </EntityType>
         <EntityType Name="class_v3">
           <Key>
@@ -1685,7 +1706,7 @@ advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.budget_cantidad_budge
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_historico_resultado">
           <Key>
             <PropertyRef Name="id" />
@@ -1779,7 +1800,7 @@ advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.view_historico_result
           <Property Name="comentario" Type="varchar" MaxLength="600" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_fiscal_year">
           <Key>
             <PropertyRef Name="id" />
@@ -1827,7 +1848,7 @@ advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.view_valores_fiscal_y
           <Property Name="Comentario" Type="varchar" MaxLength="100" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.view_valores_fiscal_year_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_fiscal_year_budget_historico">
           <Key>
             <PropertyRef Name="id" />
@@ -4212,6 +4233,7 @@ advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.view_valores_fiscal_y
           <EntitySet Name="budget_rel_comentarios" EntityType="Self.budget_rel_comentarios" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="budget_rel_fy_centro" EntityType="Self.budget_rel_fy_centro" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="budget_responsables" EntityType="Self.budget_responsables" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CI_conteo_inventario" EntityType="Self.CI_conteo_inventario" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="class_v3" EntityType="Self.class_v3" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="clientes" EntityType="Self.clientes" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="currency" EntityType="Self.currency" Schema="dbo" store:Type="Tables" />
@@ -8155,6 +8177,7 @@ advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.view_valores_fiscal_y
             <End Role="IT_inventory_items" EntitySet="IT_inventory_items" />
             <End Role="IT_inventory_items1" EntitySet="IT_inventory_items" />
           </AssociationSet>
+          <EntitySet Name="CI_conteo_inventario" EntityType="Portal_2_0Model.CI_conteo_inventario" />
           </EntityContainer>
         <EntityType Name="GV_usuarios">
           <Key>
@@ -10714,6 +10737,27 @@ advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="CI_conteo_inventario">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="centro" Type="String" Nullable="false" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="almacen" Type="String" Nullable="false" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="ubicacion" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="articulo" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="material" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="lote" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="no_bobina" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="sap_cantidad" Type="Double" />
+          <Property Name="libre_utilizacion" Type="Double" />
+          <Property Name="bloqueado" Type="Double" />
+          <Property Name="control_calidad" Type="Double" />
+          <Property Name="unidad_base_medida" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="altura" Type="Double" />
+          <Property Name="espesor" Type="Double" />
+          <Property Name="peso" Type="Double" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -12680,6 +12724,28 @@ advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.view_valores_fiscal_y
                 <ScalarProperty Name="active" ColumnName="active" />
                 <ScalarProperty Name="id_inventory_type" ColumnName="id_inventory_type" />
                 <ScalarProperty Name="id_planta" ColumnName="id_planta" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CI_conteo_inventario">
+            <EntityTypeMapping TypeName="Portal_2_0Model.CI_conteo_inventario">
+              <MappingFragment StoreEntitySet="CI_conteo_inventario">
+                <ScalarProperty Name="peso" ColumnName="peso" />
+                <ScalarProperty Name="espesor" ColumnName="espesor" />
+                <ScalarProperty Name="altura" ColumnName="altura" />
+                <ScalarProperty Name="unidad_base_medida" ColumnName="unidad_base_medida" />
+                <ScalarProperty Name="control_calidad" ColumnName="control_calidad" />
+                <ScalarProperty Name="bloqueado" ColumnName="bloqueado" />
+                <ScalarProperty Name="libre_utilizacion" ColumnName="libre_utilizacion" />
+                <ScalarProperty Name="sap_cantidad" ColumnName="sap_cantidad" />
+                <ScalarProperty Name="no_bobina" ColumnName="no_bobina" />
+                <ScalarProperty Name="lote" ColumnName="lote" />
+                <ScalarProperty Name="material" ColumnName="material" />
+                <ScalarProperty Name="articulo" ColumnName="articulo" />
+                <ScalarProperty Name="ubicacion" ColumnName="ubicacion" />
+                <ScalarProperty Name="almacen" ColumnName="almacen" />
+                <ScalarProperty Name="centro" ColumnName="centro" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

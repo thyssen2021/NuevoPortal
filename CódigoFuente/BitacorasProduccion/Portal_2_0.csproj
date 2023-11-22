@@ -288,6 +288,7 @@
     <Compile Include="Controllers\BomController.cs" />
     <Compile Include="Controllers\BudgetControllingController.cs" />
     <Compile Include="Controllers\budget_departamentosController.cs" />
+    <Compile Include="Controllers\CI_conteo_inventarioController.cs" />
     <Compile Include="Controllers\class_v3Controller.cs" />
     <Compile Include="Controllers\CombosController.cs" />
     <Compile Include="Controllers\ContactsController.cs" />
@@ -442,6 +443,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\budget_responsables.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CI_conteo_inventario.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\class_v3.cs">
@@ -639,6 +643,7 @@
     <Compile Include="Models\MetadataModels\budget_mappingMetadata.cs" />
     <Compile Include="Models\MetadataModels\budget_mapping_bridge_Metadata.cs" />
     <Compile Include="Models\MetadataModels\budget_plantasMetadata.cs" />
+    <Compile Include="Models\MetadataModels\CI_conteo_inventarioMetadata.cs" />
     <Compile Include="Models\MetadataModels\clientesMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_medios_transporteMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_rel_gastos_solicitudMetadata.cs" />
@@ -5283,6 +5288,9 @@
     <Content Include="Views\IT_mantenimientos\PosponerMantenimiento.cshtml" />
     <Content Include="Views\UsersAdmin\EditEmail.cshtml" />
     <Content Include="Views\RH_menu_comedor\ListaDistribucion.cshtml" />
+    <Content Include="Views\CI_conteo_inventario\Edit.cshtml" />
+    <Content Include="Views\CI_conteo_inventario\Index.cshtml" />
+    <Content Include="Views\CI_conteo_inventario\Message.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

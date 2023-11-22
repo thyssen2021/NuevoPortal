@@ -1,0 +1,216 @@
+﻿@model Portal_2_0.Models.CI_conteo_inventario
+
+@{
+
+    ViewBag.Title = "Inventario - Editar Registro";
+    ViewBag.PrimerNivel = "ci_conteo_inventario";
+    ViewBag.SegundoNivel = "ci_conteo";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    ViewBag.nav_style = "nav-sm";
+
+}
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/blue.css")" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <style>
+        /* Oculta el menu del sistema */
+        footer {
+            display: none !important;
+        }
+
+        .nav_menu {
+            display: none !important;
+        }
+
+        .left_col {
+            display: none !important;
+        }
+
+        .nav-md .container.body .right_col {
+            margin-left: 0px !important;
+        }
+    </style>
+
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2><i class="fa fa-boxes-stacked"></i> @ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+
+                        @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "form-horizontal form-label-left" }))
+                        {
+                            @Html.AntiForgeryToken()
+
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", new { @class = "text-white" })
+                                </div>
+                            }
+                            @Html.HiddenFor(model => model.id)
+
+                            <div class="form-group row">
+                                <span style="color:black"><b>Datos: </b></span>
+                            </div>
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.centro, new { @class = "col-form-label col-md-1 col-sm-1 " })
+                                <div class="col-md-2 col-sm-2">
+                                    @Html.EditorFor(model => model.centro, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+                                </div>
+                                @Html.LabelFor(model => model.almacen, new { @class = "col-form-label col-md-1 col-sm-1 " })
+                                <div class="col-md-2 col-sm-2">
+                                    @Html.EditorFor(model => model.almacen, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+                                </div>
+                                @Html.LabelFor(model => model.ubicacion, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-2 col-sm-2">
+                                    @Html.EditorFor(model => model.ubicacion, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+                                </div>
+                                @Html.LabelFor(model => model.articulo, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-2 col-sm-2">
+                                    @Html.EditorFor(model => model.articulo, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
+                                </div>
+                            </div>
+                            <br />
+                            <div class="form-group row">
+
+
+                            </div>
+                            <div class="form-group row">
+
+                                @Html.LabelFor(model => model.material, new { @class = "col-form-label col-md-1 col-sm-1" })
+                                <div class="col-md-2 col-sm-2">
+                                    @Html.EditorFor(model => model.material, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                </div>
+                                @Html.LabelFor(model => model.lote, new { @class = "col-form-label col-md-1 col-sm-1" })
+                                <div class="col-md-2 col-sm-2">
+                                    @Html.EditorFor(model => model.lote, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                </div>
+                                @Html.LabelFor(model => model.no_bobina, new { @class = "col-form-label col-md-1 col-sm-1" })
+                                <div class="col-md-2 col-sm-2">
+                                    @Html.EditorFor(model => model.no_bobina, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                </div>
+                                @Html.LabelFor(model => model.sap_cantidad, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-2 col-sm-2">
+                                    @Html.EditorFor(model => model.sap_cantidad, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                </div>
+                            </div>
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.libre_utilizacion, new { @class = "col-form-label col-md-1 col-sm-1" })
+                                <div class="col-md-2 col-sm-2">
+                                    @Html.EditorFor(model => model.libre_utilizacion, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                </div>
+                                @Html.LabelFor(model => model.bloqueado, new { @class = "col-form-label col-md-1 col-sm-1" })
+                                <div class="col-md-2 col-sm-2">
+                                    @Html.EditorFor(model => model.bloqueado, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                </div>
+                                @Html.LabelFor(model => model.control_calidad, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-2 col-sm-2">
+                                    @Html.EditorFor(model => model.control_calidad, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                </div>
+                                @Html.LabelFor(model => model.unidad_base_medida, new { @class = "col-form-label col-md-2 col-sm-2" })
+                                <div class="col-md-1 col-sm-1">
+                                    @Html.EditorFor(model => model.unidad_base_medida, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                </div>
+                            </div>
+                            <div class="form-group row">
+
+                            </div>
+                            <div class="ln_solid"></div>
+                            <div class="form-group row">
+
+                            </div>
+                            <div class="form-group row">
+
+                                @Html.LabelFor(model => model.altura, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-2 col-sm-2">
+                                    @Html.EditorFor(model => model.altura, new { htmlAttributes = new { @class = "form-control cantidad" } })
+                                    @Html.ValidationMessageFor(model => model.altura, "", new { @class = "text-danger" })
+                                </div>
+
+                                @Html.LabelFor(model => model.espesor, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-2 col-sm-2">
+                                    @Html.EditorFor(model => model.espesor, new { htmlAttributes = new { @class = "form-control cantidad" } })
+                                    @Html.ValidationMessageFor(model => model.espesor, "", new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(model => model.peso, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
+                                <div class="col-md-2 col-sm-2">
+                                    @Html.EditorFor(model => model.peso, new { htmlAttributes = new { @class = "form-control cantidad" } })
+                                    @Html.ValidationMessageFor(model => model.peso, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+
+                            </div>
+                            <div class="ln_solid"></div>
+                            <div class="item form-group">
+                                <div class="col-md-12 col-sm-12">
+                                    <button type="submit" id="btn-ok" class="btn btn-success btn-lg float-right"><i class="fa-regular fa-floppy-disk"></i> Guardar</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render("~/bundles/jqueryval")
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    @*<script src="~/Scripts/Forms/ModalConfirm.js"></script>*@
+    <!-- input mask -->
+    @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+
+   
+
+    <script>
+        $("html,body").scrollTop(2000);
+        $(document).ready(function () {
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-blue',
+                radioClass: 'iradio_square-blue',
+                increaseArea: '20%' // optional
+            });
+
+
+            $('.cantidad').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 3, 'digitsOptional': true, 'allowMinus': false, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
+
+        });
+
+
+        window.onload = function () {
+            clicMenu(0);
+        }
+    </script>
+}

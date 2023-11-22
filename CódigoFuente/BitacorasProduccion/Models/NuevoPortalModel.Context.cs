@@ -161,5 +161,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<view_historico_resultado> view_historico_resultado { get; set; }
         public virtual DbSet<empleados> empleados { get; set; }
         public virtual DbSet<IT_inventory_items> IT_inventory_items { get; set; }
+        public virtual DbSet<CI_conteo_inventario> CI_conteo_inventario { get; set; }
     }
 }

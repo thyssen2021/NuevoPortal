@@ -746,8 +746,8 @@
                                                 {
                                                     <h3>Centros de Costo</h3>
                                                     @*<li class="@(ViewBag.SegundoNivel == "actual" ? "current-page" : null )"><a href="@Url.Action("Actual", "ResponsableBudget")">ACT FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)))</a></li>
-                                                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
-                                                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
+                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
+                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
                                                     <li class="@(ViewBag.SegundoNivel == "centros" ? "current-page" : null )"><a href="@Url.Action("Centros", "ResponsableBudget")">Mis Centros</a></li>
                                                 }
 
@@ -820,8 +820,19 @@
                                             </ul>
                                         </li>
                                     }
-                                    @*DIRECTORIO*@
 
+                                    @*CONTEO INVENTARIO*@
+                                    @if (Request.IsAuthenticated && User.IsInRole(TipoRoles.CI_CONTEO_INVENTARIO))
+                                    {
+                                        <li class="@(ViewBag.PrimerNivel == "ci_conteo_inventario" ? "active" : null )">
+                                            <a><i class="fa fa-boxes-stacked"></i> Inventario <span class="fa fa-chevron-down"></span></a>
+                                            <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "ci_conteo_inventario" ? "display:block" : null )">
+                                                <li class="@(ViewBag.SegundoNivel == "ci_conteo" ? "current-page" : null )"><a href="@Url.Action( "Index", "CI_conteo_inventario")">Listado</a></li>
+                                            </ul>
+                                        </li>
+                                    }
+
+                                    @*DIRECTORIO*@
                                     @if (Request.IsAuthenticated)
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "directorio" ? "active" : null )">
