@@ -30,7 +30,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<bom_en_sap> bom_en_sap { get; set; }
         public virtual DbSet<budget_anio_fiscal> budget_anio_fiscal { get; set; }
         public virtual DbSet<budget_centro_costo> budget_centro_costo { get; set; }
-        public virtual DbSet<budget_cuenta_sap> budget_cuenta_sap { get; set; }
         public virtual DbSet<budget_departamentos> budget_departamentos { get; set; }
         public virtual DbSet<budget_mapping> budget_mapping { get; set; }
         public virtual DbSet<budget_mapping_bridge> budget_mapping_bridge { get; set; }
@@ -165,5 +164,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<budget_rel_comentarios> budget_rel_comentarios { get; set; }
         public virtual DbSet<budget_rel_conceptos_formulas> budget_rel_conceptos_formulas { get; set; }
         public virtual DbSet<budget_rel_conceptos_cantidades> budget_rel_conceptos_cantidades { get; set; }
+        public virtual DbSet<budget_cuenta_sap> budget_cuenta_sap { get; set; }
     }
 }

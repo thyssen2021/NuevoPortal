@@ -5,6 +5,7 @@ using System.Data.Entity;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
@@ -408,17 +409,19 @@ namespace Portal_2_0.Controllers
                 rel_fy_centro_presente.budget_anio_fiscal = anio_Fiscal_actual;
                 rel_fy_centro_anterior.budget_anio_fiscal = anio_Fiscal_anterior;
 
-
-
                 #region cabeceras HT
                 //cabeceras HT FORECAST
                 List<string> headersForecast = new List<string> { "SAP Account", "Name", "Mapping" };
                 var cabeceraObject = new object[13];
+                var cabeceraObjectActual = new object[13];
+                var cabeceraObjectBudget = new object[13];
                 cabeceraObject[0] = new
                 {
                     label = "SAP ACCOUNT",
                     colspan = 3
                 };
+                cabeceraObjectActual[0] = cabeceraObject[0];
+                cabeceraObjectBudget[0] = cabeceraObject[0];
                 DateTime fecha = new DateTime(rel_fy_centro_presente.budget_anio_fiscal.anio_inicio, rel_fy_centro_presente.budget_anio_fiscal.mes_inicio, 1);
                 for (int i = 0; i < 12; i++)
                 {
@@ -432,13 +435,31 @@ namespace Portal_2_0.Controllers
                     {
                         label = string.Format("{0} {1}", rel_fy_centro_presente.budget_anio_fiscal.isActual(fecha.Month), fecha.ToString("MMM yy").ToUpper()),
                         colspan = 4
+                    }; 
+                    cabeceraObjectActual[i + 1] = new
+                    {
+                        label = string.Format("ACT {0}", fecha.AddYears(-1).ToString("MMM yy").ToUpper()),
+                        colspan = 4
+                    }; 
+                    cabeceraObjectBudget[i + 1] = new
+                    {
+                        label = string.Format("BG {0}", fecha.AddYears(1).ToString("MMM yy").ToUpper()),
+                        colspan = 4
                     };
                     fecha = fecha.AddMonths(1);
                 }
-                headersForecast.Add("Totals");
-                headersForecast.Add("Comments");
+                headersForecast.Add("Total (MXN)");
+                headersForecast.Add("Total (USD)");
+                headersForecast.Add("Total (EUR)");
+                headersForecast.Add("Total (Local - USD)");
+                headersForecast.Add("Comentarios");
                 headersForecast.Add("AplicaFormula");
+                headersForecast.Add("aplicaMXN");
+                headersForecast.Add("AplicaUSD");
+                headersForecast.Add("AplicaEUR");
 
+                ViewBag.HeadersForecast1_actual = JsonConvert.SerializeObject(cabeceraObjectActual);
+                ViewBag.HeadersForecast1_budget = JsonConvert.SerializeObject(cabeceraObjectBudget);
                 ViewBag.HeadersForecast1 = JsonConvert.SerializeObject(cabeceraObject);
                 ViewBag.HeadersForecast2 = headersForecast.ToArray();
 
@@ -889,278 +910,240 @@ namespace Portal_2_0.Controllers
                 return Json(new { result = "WARNING", icon = "warning", message = "No se detectaron elementos que procesar." }, JsonRequestBehavior.AllowGet);
 
             //inicializa la lista de objetos
-            var list = new object[1];
+            var response = new object[1];
 
-            //convierte el list de arrays en objetos SCDM_solicitud_rel_item_material
-            List<budget_cantidad> lista_item = ConvierteArrayACantidades(dataListFromTable, id);
+            List<budget_rel_comentarios> lista_comentarios_form = new List<budget_rel_comentarios>();
 
-            //if (lista_item.Count == 0)
-            //    list[0] = new { result = "WARNING", icon = "warning", message = "No se detectaron elementos que procesar." };
+            //convierte el list de arrays en objetos budget_cantidad
+            List<budget_cantidad> lista_cantidad_form = ConvierteArrayACantidades(dataListFromTable, id, lista_comentarios_form);
 
-            //crea, modifica o elimina cinta
+            //obtiene el listado actual de la BD
+            List<budget_cantidad> lista_cantidad_BD = db.budget_cantidad.Where(x => x.id_budget_rel_fy_centro == id).ToList();
+
+            //obtiene el listado actual de la BD
+            List<budget_rel_comentarios> lista_comentarios_BD = db.budget_rel_comentarios.Where(x => x.id_budget_rel_fy_centro == id).ToList();
+
+            //borra todos los comentarios, (se agregan en la segunda llamada ajax)
+            lista_cantidad_BD = lista_cantidad_BD
+                    .Select(x =>
+                    {
+                        x.comentario = null;
+                        return x;
+                    }).ToList();
+
+            //crea, modifica o elimina cantidad
             try
             {
-                list[0] = new { result = "OK", icon = "success", message = "Se guardaron los cambios correctamente." };
+                response[0] = new { result = "OK", icon = "success", message = "Se guardaron los cambios correctamente." };
 
-                //for (int i = 0; i < lista_item.Count; i++)
-                //{
-                //    if (lista_item[i].id == 0) //si no existe el rollo
-                //    {
-                //        db.SCDM_solicitud_rel_lista_tecnica.Add(lista_item[i]);
-                //        //debe guardarlo para obtener el id
-                //        try
-                //        {
-                //            db.SaveChanges();
-                //            list[i] = new { result = "OK", icon = "success", fila = lista_item[i].num_fila, id = lista_item[i].id, operacion = "CREATE", message = "Se guardaron los cambios correctamente" };
-                //        }
-                //        catch (Exception e)
-                //        {
-                //            list[0] = new { result = "ERROR", icon = "error", fila = lista_item[i].num_fila, operacion = "CREATE", message = e.Message };
-                //        }
-                //    }
-                //    else //si ya existe es una modificacion
-                //    {
-                //        db.Entry(lista_item[i]).State = EntityState.Modified;
-                //        db.SaveChanges();
-                //        list[i] = new { result = "OK", icon = "success", fila = lista_item[i].num_fila, id = lista_item[i].id, operacion = "UPDATE", message = "Se guardaron los cambios correctamente" };
-                //    }
+                //Recorre todas las cantidades de la tabla
+                for (int i = 0; i < lista_cantidad_form.Count; i++)
+                {
+                    budget_cantidad itemBD = lista_cantidad_BD.FirstOrDefault(x =>
+                                                x.id_cuenta_sap == lista_cantidad_form[i].id_cuenta_sap
+                                                && x.mes == lista_cantidad_form[i].mes
+                                                && x.currency_iso == lista_cantidad_form[i].currency_iso
+                                                && x.moneda_local_usd == lista_cantidad_form[i].moneda_local_usd
+                                            );
+                    //EXISTE
+                    if (itemBD != null)
+                    {
+                        //UPDATE
+                        if (itemBD.cantidad != lista_cantidad_form[i].cantidad)
+                            itemBD.cantidad = lista_cantidad_form[i].cantidad;
+                    }
+                    else  //CREATE
+                    {
+                        db.budget_cantidad.Add(lista_cantidad_form[i]);
+                    }
+                }
 
-                //}
-                ////elimina aquellos que no aparezcan en los enviados 
-                //var toDeleteList = db.SCDM_solicitud_rel_lista_tecnica.ToList().Where(x => !lista_item.Any(y => y.id == x.id) && x.id_solicitud == id.Value).ToList();
-                //db.SCDM_solicitud_rel_lista_tecnica.RemoveRange(toDeleteList);
-                //db.SaveChanges();
+                //DELETE
+                //elimina aquellos que no aparezcan en los enviados
+                List<budget_cantidad> toDeleteList = lista_cantidad_BD.Where(x => !lista_cantidad_form.Any(y => y.id_cuenta_sap == x.id_cuenta_sap
+                                && y.mes == x.mes
+                                && y.currency_iso == x.currency_iso
+                                && y.moneda_local_usd == x.moneda_local_usd
+                                )).ToList();
+
+                //borra los conceptos que inpiden el borrado
+                foreach (var item in toDeleteList)
+                    db.budget_rel_conceptos_cantidades.RemoveRange(item.budget_rel_conceptos_cantidades);
+
+                db.budget_cantidad.RemoveRange(toDeleteList);
+
+
+
+                //crea, modifica o elimina COMENTARIOS generales
+                for (int i = 0; i < lista_comentarios_form.Count; i++)
+                {
+                    var itemBD = lista_comentarios_BD.FirstOrDefault(x => x.id_cuenta_sap == lista_comentarios_form[i].id_cuenta_sap);
+                    //EXISTE
+                    if (itemBD != null)
+                    {
+                        //UPDATE
+                        if (itemBD.comentarios != lista_comentarios_form[i].comentarios)
+                            itemBD.comentarios = lista_comentarios_form[i].comentarios;
+                    }
+                    else  //CREATE
+                    {
+                        db.budget_rel_comentarios.Add(lista_comentarios_form[i]);
+                    }
+                }
+
+                //DELETE
+                //elimina aquellos que no aparezcan en los enviados
+                List<budget_rel_comentarios> toDeleteListComentarios = lista_comentarios_BD.Where(x => !lista_comentarios_form.Any(y => y.id_cuenta_sap == x.id_cuenta_sap)).ToList();
+                db.budget_rel_comentarios.RemoveRange(toDeleteListComentarios);
+
+
+                try
+                {
+                    db.SaveChanges();
+                    response[0] = new { result = "OK", icon = "success", message = "Se guardaron los cambios correctamente" };
+                }
+                catch (Exception e)
+                {
+                    response[0] = new { result = "ERROR", icon = "error", message = e.Message };
+                }
+
 
             }
             catch (Exception e)
             {
-                list[0] = new { result = "ERROR", icon = "error", message = e.Message };
+                response[0] = new { result = "ERROR", icon = "error", message = e.Message };
             }
-            return Json(list, JsonRequestBehavior.AllowGet);
+            return Json(response, JsonRequestBehavior.AllowGet);
         }
 
-        private List<budget_cantidad> ConvierteArrayACantidades(List<object[]> data, int? id_rel_fy_cc)
+        [HttpPost]
+        public JsonResult SaveComments(List<budget_cantidad> comments, int? id_rel)
         {
-            var rel_fy_cc = db.budget_rel_fy_centro.Find(id_rel_fy_cc);
+            if (comments == null)
+                comments = new List<budget_cantidad>();
 
-            var cuestasSAPBD = db.budget_cuenta_sap.ToList();
+            var response = new object[1];
+            response[0] = new { result = "OK", icon = "success", message = "Se guardaron los cambios correctamente." };
 
-            List<budget_cantidad> resultado = new List<budget_cantidad> { };
+            //obtiene el listado actual de la BD
+            List<budget_cantidad> lista_cantidad_BD = db.budget_cantidad.Where(x => x.id_budget_rel_fy_centro == id_rel).ToList();
 
-            #region cabeceras HT
-            //cabeceras HT FORECAST
-            List<string> headersForecast = new List<string> { "SAP_ACCOUNT", "Name", "Mapping" };
+            //obtiene el listado de cantidades
+            List<budget_cuenta_sap> lista_cuenta_sap_BD = db.budget_cuenta_sap.ToList();
 
-
-            DateTime fecha = new DateTime(rel_fy_cc.budget_anio_fiscal.anio_inicio, rel_fy_cc.budget_anio_fiscal.mes_inicio, 1);
-            for (int i = 0; i < 12; i++)
+            //UPDATE comentarios
+            foreach (var item in comments)
             {
-                //agrega cabecera para tipo moneda
-                headersForecast.Add("MXN");
-                headersForecast.Add("USD");
-                headersForecast.Add("EUR");
-                headersForecast.Add("USD");
 
-                fecha = fecha.AddMonths(1);
+                var itemBD = lista_cantidad_BD.FirstOrDefault(x =>
+                                            x.budget_cuenta_sap.sap_account == item.numero_cuenta_sap
+                                            && x.mes == item.mes
+                                            && x.currency_iso == item.currency_iso
+                                            && x.moneda_local_usd == item.moneda_local_usd
+                                        );
+                //EXISTE
+                if (itemBD != null)
+                {
+                    //UPDATE
+                    if (itemBD.comentario != item.comentario)
+                        itemBD.comentario = Clases.Util.UsoStrings.RecortaString(item.comentario, 150);
+                }
+                else  //CREATE
+                {
+                    item.cantidad = 0;
+                    item.comentario = Clases.Util.UsoStrings.RecortaString(item.comentario, 150);
+                    item.id_cuenta_sap = lista_cuenta_sap_BD.FirstOrDefault(x => x.sap_account == item.numero_cuenta_sap).id;
+
+                    db.budget_cantidad.Add(item);
+                }
             }
-            headersForecast.Add("Totals");
-            headersForecast.Add("Comments");
-            headersForecast.Add("AplicaFormula");
 
-            #endregion
+            //DELETE comentarios
+            //elimina aquellos que no aparezcan en los enviados
+            //List<budget_cantidad> toDeleteList = lista_cantidad_BD.Where(x => !lista_cantidad_form.Any(y => y.id_cuenta_sap == x.id_cuenta_sap
+            //                && y.mes == x.mes
+            //                && y.currency_iso == x.currency_iso
+            //                && y.moneda_local_usd == x.moneda_local_usd
+            //                )).ToList();
+            //db.budget_cantidad.RemoveRange(toDeleteList);
 
-            //listado de encabezados
-            string[] encabezados = headersForecast.ToArray();
+            try
+            {
+                db.SaveChanges();
+                response[0] = new { result = "OK", icon = "success", message = "Se guardaron los cambios correctamente" };
+            }
+            catch (Exception e)
+            {
+                response[0] = new { result = "ERROR", icon = "error", message = e.Message };
+            }
 
-            //recorre todos los arrays recibidos
-            foreach (var array in data)
+            return Json(response, JsonRequestBehavior.AllowGet);
+
+        }
+
+        [HttpPost]
+        public JsonResult SaveConceptosCapturados(List<budget_rel_conceptos_cantidades> conceptos_form, int? id_rel)
+        {
+
+            if (conceptos_form == null)
+                conceptos_form = new List<budget_rel_conceptos_cantidades>();
+
+            var response = new object[1];
+            response[0] = new { result = "OK", icon = "success", message = "Se guardaron los cambios correctamente." };
+
+            //obtiene el listado actual de la BD
+            List<budget_rel_conceptos_cantidades> lista_conceptos_BD = db.budget_rel_conceptos_cantidades.Where(x => x.budget_cantidad.id_budget_rel_fy_centro == id_rel).ToList();
+            //obtiene listado de cantidades
+            List<budget_cantidad> lista_cantidades_bd = db.budget_cantidad.Where(x => x.id_budget_rel_fy_centro == id_rel).ToList();
+
+
+            foreach (var item in conceptos_form)
             {
 
-                //variables generales
-                string sap_account = array[Array.IndexOf(encabezados, "SAP_ACCOUNT")].ToString();
-                DateTime fechaArray = new DateTime(rel_fy_cc.budget_anio_fiscal.anio_inicio, rel_fy_cc.budget_anio_fiscal.mes_inicio, 1);
-                int col = 3;
-
-                //recorre cada uno de los meses
-                if (!string.IsNullOrEmpty(sap_account))
-                    for (int i = 0; i < 12; i++)
-                    {
-                        int id_sap_account = cuestasSAPBD.FirstOrDefault(x => x.sap_account == sap_account).id;
-                        decimal cantidadTemporal = 0;
-
-                       
-                        for (int j = 0; j < 4; j++)
+                var itemBD = lista_conceptos_BD.FirstOrDefault(x => x.id_budget_cantidad == item.id_budget_cantidad && x.id_rel_conceptos == item.id_rel_conceptos);
+                //EXISTE
+                if (itemBD != null)
+                {
+                    //UPDATE
+                    if (itemBD.cantidad != item.cantidad)
+                        itemBD.cantidad = item.cantidad;
+                }
+                else  //CREATE
+                {
+                    var cantidad = lista_cantidades_bd.FirstOrDefault(x =>
+                                                x.budget_cuenta_sap.sap_account == item.cuenta_sap
+                                                && x.mes == item.mes
+                                                && x.currency_iso == item.currency
+                                                && !x.moneda_local_usd
+                                                );
+                    if (cantidad != null)
+                        db.budget_rel_conceptos_cantidades.Add(new budget_rel_conceptos_cantidades
                         {
-                            bool puedeConvertir = decimal.TryParse(array[col+j].ToString(), out cantidadTemporal);
-
-                            //!!!!!!!Si tiene comentario o tiene cantidad
-                            resultado.Add(new budget_cantidad
-                            {
-                                id_budget_rel_fy_centro = rel_fy_cc.id,
-                                id_cuenta_sap = id_sap_account,
-                                mes = fecha.Month,
-                                currency_iso = encabezados[col+j],
-                                cantidad = decimal.Round(cantidadTemporal, 2),
-                                //comentario
-                                moneda_local_usd = j == 3 ? true : false
-                            });
-                        }
-
-                        //aumenta variables
-                        col += 4;
-                        fecha = fecha.AddMonths(1);
-                    }
-
-
+                            id_budget_cantidad = cantidad.id,
+                            id_rel_conceptos = item.id_rel_conceptos,
+                            cantidad = item.cantidad,
+                        });
+                }
             }
 
+            /* DELETE */
 
-
-            return resultado;
-        }
-
-        /// <summary>
-        /// Carga los datos iniciales del año indicado
-        /// </summary>
-        /// <param name="id_fy"></param>
-        /// <returns></returns>
-        public JsonResult CargaFY(int? id_fy, int? id_centro_costo)
-        {
-
-            var valoresListAnioActual = db.view_valores_fiscal_year.Where(x => x.id_anio_fiscal == id_fy && x.id_centro_costo == id_centro_costo).ToList();
-            valoresListAnioActual = AgregaCuentasSAPFaltantes(valoresListAnioActual, id_fy.Value, id_centro_costo.Value).OrderBy(x => x.sap_account).ToList();
-            var fy = db.budget_anio_fiscal.Find(id_fy);
-
-            var jsonData = new List<object>();
-
-            var sapAccountsList = db.budget_cuenta_sap.ToList();
-
-            for (int i = 0; i < valoresListAnioActual.Count(); i++)
+            try
             {
-
-                //obtine las tres monedas de la cantidad
-                var tipo_cambio_usd_mxn = fy.budget_rel_tipo_cambio_fy.FirstOrDefault(x => x.id_tipo_cambio == 1).cantidad.ToString();
-                var tipo_cambio_eur_usd = fy.budget_rel_tipo_cambio_fy.FirstOrDefault(x => x.id_tipo_cambio == 2).cantidad.ToString();
-
-                jsonData.Add(new[] {
-                    valoresListAnioActual[i].sap_account,
-                    valoresListAnioActual[i].name,
-                    valoresListAnioActual[i].mapping_bridge,
-                    valoresListAnioActual[i].Octubre_MXN.ToString(),
-                    valoresListAnioActual[i].Octubre.ToString(),
-                    valoresListAnioActual[i].Octubre_EUR.ToString(),
-                    string.Format("=(D{0}/{1}) + E{0} + (F{0}*{2})", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
-                    valoresListAnioActual[i].Noviembre_MXN.ToString(),
-                    valoresListAnioActual[i].Noviembre.ToString(),
-                    valoresListAnioActual[i].Noviembre_EUR.ToString(),
-                     string.Format("=(H{0}/{1}) + I{0} + (J{0}*{2})", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
-                    valoresListAnioActual[i].Diciembre_MXN.ToString(),
-                    valoresListAnioActual[i].Diciembre.ToString(),
-                    valoresListAnioActual[i].Diciembre_EUR.ToString(),
-                    valoresListAnioActual[i].Diciembre_USD_LOCAL.ToString(),
-                    valoresListAnioActual[i].Enero_MXN.ToString(),
-                    valoresListAnioActual[i].Enero.ToString(),
-                    valoresListAnioActual[i].Enero_EUR.ToString(),
-                    valoresListAnioActual[i].Enero_USD_LOCAL.ToString(),
-                    valoresListAnioActual[i].Febrero_MXN.ToString(),
-                    valoresListAnioActual[i].Febrero.ToString(),
-                    valoresListAnioActual[i].Febrero_EUR.ToString(),
-                    valoresListAnioActual[i].Febrero_USD_LOCAL.ToString(),
-                    valoresListAnioActual[i].Marzo_MXN.ToString(),
-                    valoresListAnioActual[i].Marzo.ToString(),
-                    valoresListAnioActual[i].Marzo_EUR.ToString(),
-                    valoresListAnioActual[i].Marzo_USD_LOCAL.ToString(),
-                    valoresListAnioActual[i].Abril_MXN.ToString(),
-                    valoresListAnioActual[i].Abril.ToString(),
-                    valoresListAnioActual[i].Abril_EUR.ToString(),
-                    valoresListAnioActual[i].Abril_USD_LOCAL.ToString(),
-                    valoresListAnioActual[i].Mayo_MXN.ToString(),
-                    valoresListAnioActual[i].Mayo.ToString(),
-                    valoresListAnioActual[i].Mayo_EUR.ToString(),
-                    valoresListAnioActual[i].Mayo_USD_LOCAL.ToString(),
-                    valoresListAnioActual[i].Junio_MXN.ToString(),
-                    valoresListAnioActual[i].Junio.ToString(),
-                    valoresListAnioActual[i].Junio_EUR.ToString(),
-                    valoresListAnioActual[i].Junio_USD_LOCAL.ToString(),
-                    valoresListAnioActual[i].Julio_MXN.ToString(),
-                    valoresListAnioActual[i].Julio.ToString(),
-                    valoresListAnioActual[i].Julio_EUR.ToString(),
-                    valoresListAnioActual[i].Julio_USD_LOCAL.ToString(),
-                    valoresListAnioActual[i].Agosto_MXN.ToString(),
-                    valoresListAnioActual[i].Agosto.ToString(),
-                    valoresListAnioActual[i].Agosto_EUR.ToString(),
-                    valoresListAnioActual[i].Agosto_USD_LOCAL.ToString(),
-                    valoresListAnioActual[i].Septiembre_MXN.ToString(),
-                    valoresListAnioActual[i].Septiembre.ToString(),
-                    valoresListAnioActual[i].Septiembre_EUR.ToString(),
-                    valoresListAnioActual[i].Septiembre_USD_LOCAL.ToString(),
-                    string.Format("= G{0} + K{0} + O{0} + S{0} + W{0} + AA{0} + AE{0} + AI{0} + AM{0} + AQ{0} + AU{0} + AY{0}", i+1),
-                    valoresListAnioActual[i].Comentario,
-                    sapAccountsList.Any(x=> x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_formula == true).ToString()
-                    });
-
-
-
+                db.SaveChanges();
+                response[0] = new { result = "OK", icon = "success", message = "Se guardaron los cambios correctamente" };
             }
-            //fila  para sumatorias
-            jsonData.Add(new[] {
-                string.Empty,
-                string.Empty,
-                string.Empty,
-                string.Format("=SUM({0}{1}:{0}{2})","D", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","E", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","F", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","G", 1, valoresListAnioActual.Count()),//
-                string.Format("=SUM({0}{1}:{0}{2})","H", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","I", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","J", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","K", 1, valoresListAnioActual.Count()),//  
-                string.Format("=SUM({0}{1}:{0}{2})","L", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","M", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","N", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","O", 1, valoresListAnioActual.Count()),// 
-                string.Format("=SUM({0}{1}:{0}{2})","P", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","Q", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","R", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","S", 1, valoresListAnioActual.Count()),//    
-                string.Format("=SUM({0}{1}:{0}{2})","T", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","U", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","V", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","W", 1, valoresListAnioActual.Count()),//    
-                string.Format("=SUM({0}{1}:{0}{2})","X", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","Y", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","Z", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","AA", 1, valoresListAnioActual.Count()),//    
-                string.Format("=SUM({0}{1}:{0}{2})","AB", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","AC", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","AD", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","AE", 1, valoresListAnioActual.Count()),//
-                string.Format("=SUM({0}{1}:{0}{2})","AF", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","AG", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","AH", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","AI", 1, valoresListAnioActual.Count()),//
-                string.Format("=SUM({0}{1}:{0}{2})","AJ", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","AK", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","AL", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","AM", 1, valoresListAnioActual.Count()),//
-                string.Format("=SUM({0}{1}:{0}{2})","AN", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","AO", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","AP", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","AQ", 1, valoresListAnioActual.Count()),//
-                string.Format("=SUM({0}{1}:{0}{2})","AR", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","AS", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","AT", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","AU", 1, valoresListAnioActual.Count()),//
-                string.Format("=SUM({0}{1}:{0}{2})","AV", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","AW", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","AX", 1, valoresListAnioActual.Count()),
-                string.Format("=SUM({0}{1}:{0}{2})","AY", 1, valoresListAnioActual.Count()),//
-                string.Format("=SUM({0}{1}:{0}{2})","AZ", 1, valoresListAnioActual.Count()),
+            catch (Exception e)
+            {
+                response[0] = new { result = "ERROR", icon = "error", message = e.Message };
+            }
 
-            });
+            return Json(response, JsonRequestBehavior.AllowGet);
 
-            return Json(jsonData.ToArray(), JsonRequestBehavior.AllowGet);
         }
+
+
+
         /// <summary>
         /// Carga los datos iniciales del año indicado
         /// </summary>
@@ -1285,14 +1268,265 @@ namespace Portal_2_0.Controllers
             return Json(jsonData.ToArray(), JsonRequestBehavior.AllowGet);
         }
 
+
+        private List<budget_cantidad> ConvierteArrayACantidades(List<object[]> data, int? id_rel_fy_cc, List<budget_rel_comentarios> comentarios_general)
+        {
+            var rel_fy_cc = db.budget_rel_fy_centro.Find(id_rel_fy_cc);
+
+            var cuestasSAPBD = db.budget_cuenta_sap.ToList();
+
+            List<budget_cantidad> resultado = new List<budget_cantidad> { };
+
+            #region cabeceras HT
+            //cabeceras HT FORECAST
+            List<string> headersForecast = new List<string> { "SAP_ACCOUNT", "Name", "Mapping" };
+
+
+            DateTime fecha = new DateTime(rel_fy_cc.budget_anio_fiscal.anio_inicio, rel_fy_cc.budget_anio_fiscal.mes_inicio, 1);
+            for (int i = 0; i < 12; i++)
+            {
+                //agrega cabecera para tipo moneda
+                headersForecast.Add("MXN");
+                headersForecast.Add("USD");
+                headersForecast.Add("EUR");
+                headersForecast.Add("USD");
+
+                fecha = fecha.AddMonths(1);
+            }
+            headersForecast.Add("Total (MXN)");
+            headersForecast.Add("Total (USD)");
+            headersForecast.Add("Total (EUR)");
+            headersForecast.Add("Total (Local USD)"); headersForecast.Add("Totals");
+            headersForecast.Add("Comments");
+            headersForecast.Add("AplicaFormula");
+
+            #endregion
+
+            //listado de encabezados
+            string[] encabezados = headersForecast.ToArray();
+
+            //recorre todos los arrays recibidos
+            foreach (var array in data)
+            {
+
+                //variables generales
+                string sap_account = array[Array.IndexOf(encabezados, "SAP_ACCOUNT")].ToString();
+                int id_sap_account = !string.IsNullOrEmpty(sap_account) ? cuestasSAPBD.FirstOrDefault(x => x.sap_account == sap_account).id : 0;
+                DateTime fechaArray = new DateTime(rel_fy_cc.budget_anio_fiscal.anio_inicio, rel_fy_cc.budget_anio_fiscal.mes_inicio, 1);
+                int col = 3;
+
+                //recorre cada uno de los meses
+                if (!string.IsNullOrEmpty(sap_account))
+                    for (int i = 0; i < 12; i++)
+                    {
+
+                        decimal cantidadTemporal = 0;
+
+
+                        for (int j = 0; j < 4; j++)
+                        {
+                            bool puedeConvertir = decimal.TryParse(array[col + j] != null ? array[col + j].ToString() : string.Empty, out cantidadTemporal);
+
+                            if (array[col + j] != null && !string.IsNullOrEmpty(array[col + j].ToString()) && cantidadTemporal != 0)
+                                resultado.Add(new budget_cantidad
+                                {
+                                    id_budget_rel_fy_centro = rel_fy_cc.id,
+                                    id_cuenta_sap = id_sap_account,
+                                    mes = fecha.Month,
+                                    currency_iso = encabezados[col + j],
+                                    cantidad = decimal.Round(cantidadTemporal, 2),
+                                    //comentario
+                                    moneda_local_usd = j == 3 ? true : false
+                                });
+                        }
+
+                        //aumenta variables
+                        col += 4;
+                        fecha = fecha.AddMonths(1);
+                    }
+
+                int comentarioIndex = headersForecast.IndexOf("Comments") -1;
+
+                //agrega el comentario general en caso de existir
+                if ( array[comentarioIndex] != null && !string.IsNullOrEmpty(array[comentarioIndex].ToString()))
+                    comentarios_general.Add(new budget_rel_comentarios
+                    {
+                        id_budget_rel_fy_centro = id_rel_fy_cc.Value,
+                        id_cuenta_sap = id_sap_account,
+                        comentarios = array[comentarioIndex].ToString()
+                    });
+
+            }
+
+
+            return resultado;
+        }
+
+        /// <summary>
+        /// Carga los datos iniciales del año indicado
+        /// </summary>
+        /// <param name="id_fy"></param>
+        /// <returns></returns>
+        public JsonResult CargaFY(int? id_fy, int? id_centro_costo)
+        {
+           
+            var valoresListAnioActual = db.view_valores_fiscal_year.Where(x => x.id_anio_fiscal == id_fy && x.id_centro_costo == id_centro_costo).ToList();
+            valoresListAnioActual = AgregaCuentasSAPFaltantes(valoresListAnioActual, id_fy.Value, id_centro_costo.Value).OrderBy(x => x.sap_account).ToList();
+            var fy = db.budget_anio_fiscal.Find(id_fy);
+
+            var jsonData = new List<object>();
+
+            var sapAccountsList = db.budget_cuenta_sap.ToList();
+
+            for (int i = 0; i < valoresListAnioActual.Count(); i++)
+            {
+
+                //obtine las tres monedas de la cantidad
+                var tipo_cambio_usd_mxn = fy.budget_rel_tipo_cambio_fy.FirstOrDefault(x => x.id_tipo_cambio == 1).cantidad.ToString();
+                var tipo_cambio_eur_usd = fy.budget_rel_tipo_cambio_fy.FirstOrDefault(x => x.id_tipo_cambio == 2).cantidad.ToString();
+
+                jsonData.Add(new[] {
+                    valoresListAnioActual[i].sap_account,
+                    valoresListAnioActual[i].name,
+                    valoresListAnioActual[i].mapping_bridge,
+                    valoresListAnioActual[i].Octubre_MXN.ToString(),
+                    valoresListAnioActual[i].Octubre.ToString(),
+                    valoresListAnioActual[i].Octubre_EUR.ToString(),
+                    string.Format("=(D{0}/{1}) + E{0} + (F{0}*{2})", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
+                    valoresListAnioActual[i].Noviembre_MXN.ToString(),
+                    valoresListAnioActual[i].Noviembre.ToString(),
+                    valoresListAnioActual[i].Noviembre_EUR.ToString(),
+                    string.Format("=(H{0}/{1}) + I{0} + (J{0}*{2})", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
+                    valoresListAnioActual[i].Diciembre_MXN.ToString(),
+                    valoresListAnioActual[i].Diciembre.ToString(),
+                    valoresListAnioActual[i].Diciembre_EUR.ToString(),
+                    string.Format("=(L{0}/{1}) + M{0} + (N{0}*{2})", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
+                    valoresListAnioActual[i].Enero_MXN.ToString(),
+                    valoresListAnioActual[i].Enero.ToString(),
+                    valoresListAnioActual[i].Enero_EUR.ToString(),
+                    string.Format("=(P{0}/{1}) + Q{0} + (R{0}*{2})", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
+                    valoresListAnioActual[i].Febrero_MXN.ToString(),
+                    valoresListAnioActual[i].Febrero.ToString(),
+                    valoresListAnioActual[i].Febrero_EUR.ToString(),
+                    string.Format("=(T{0}/{1}) + U{0} + (V{0}*{2})", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
+                    valoresListAnioActual[i].Marzo_MXN.ToString(),
+                    valoresListAnioActual[i].Marzo.ToString(),
+                    valoresListAnioActual[i].Marzo_EUR.ToString(),
+                    string.Format("=(X{0}/{1}) + Y{0} + (Z{0}*{2})", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
+                    valoresListAnioActual[i].Abril_MXN.ToString(),
+                    valoresListAnioActual[i].Abril.ToString(),
+                    valoresListAnioActual[i].Abril_EUR.ToString(),
+                    string.Format("=(AB{0}/{1}) + AC{0} + (AD{0}*{2})", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
+                    valoresListAnioActual[i].Mayo_MXN.ToString(),
+                    valoresListAnioActual[i].Mayo.ToString(),
+                    valoresListAnioActual[i].Mayo_EUR.ToString(),
+                    string.Format("=(AF{0}/{1}) + AG{0} + (AH{0}*{2})", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
+                    valoresListAnioActual[i].Junio_MXN.ToString(),
+                    valoresListAnioActual[i].Junio.ToString(),
+                    valoresListAnioActual[i].Junio_EUR.ToString(),
+                    string.Format("=(AJ{0}/{1}) + AK{0} + (AL{0}*{2})", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
+                    valoresListAnioActual[i].Julio_MXN.ToString(),
+                    valoresListAnioActual[i].Julio.ToString(),
+                    valoresListAnioActual[i].Julio_EUR.ToString(),
+                    string.Format("=(AN{0}/{1}) + AO{0} + (AP{0}*{2})", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
+                    valoresListAnioActual[i].Agosto_MXN.ToString(),
+                    valoresListAnioActual[i].Agosto.ToString(),
+                    valoresListAnioActual[i].Agosto_EUR.ToString(),
+                    string.Format("=(AR{0}/{1}) + AS{0} + (AT{0}*{2})", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
+                    valoresListAnioActual[i].Septiembre_MXN.ToString(),
+                    valoresListAnioActual[i].Septiembre.ToString(),
+                    valoresListAnioActual[i].Septiembre_EUR.ToString(),
+                    string.Format("=(AV{0}/{1}) + AW{0} + (AX{0}*{2})", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
+                    string.Format("= D{0} + H{0} + L{0} + P{0} + T{0} + X{0} + AB{0} + AF{0} + AJ{0} + AN{0} + AR{0} + AV{0}", i+1),
+                    string.Format("= E{0} + I{0} + M{0} + Q{0} + U{0} + Y{0} + AC{0} + AG{0} + AK{0} + AO{0} + AS{0} + AW{0}", i+1),
+                    string.Format("= F{0} + J{0} + N{0} + R{0} + V{0} + Z{0} + AD{0} + AH{0} + AL{0} + AP{0} + AT{0} + AX{0}", i+1),
+                    string.Format("= G{0} + K{0} + O{0} + S{0} + W{0} + AA{0} + AE{0} + AI{0} + AM{0} + AQ{0} + AU{0} + AY{0}", i+1),
+                    valoresListAnioActual[i].Comentario,
+                    sapAccountsList.Any(x=> x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_formula == true).ToString(),
+                    sapAccountsList.Any(x=> x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_mxn == true).ToString(),
+                    sapAccountsList.Any(x=> x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_usd == true).ToString(),
+                    sapAccountsList.Any(x=> x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_eur == true).ToString()
+                    });
+
+
+
+            }
+            int filas = valoresListAnioActual.Count();
+            //fila  para sumatorias
+            jsonData.Add(new[] {
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Format("=SUM({0}{1}:{0}{2})","D", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","E", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","F", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","G", 1, filas),//
+                string.Format("=SUM({0}{1}:{0}{2})","H", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","I", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","J", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","K", 1, filas),//  
+                string.Format("=SUM({0}{1}:{0}{2})","L", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","M", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","N", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","O", 1, filas),// 
+                string.Format("=SUM({0}{1}:{0}{2})","P", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","Q", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","R", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","S", 1, filas),//    
+                string.Format("=SUM({0}{1}:{0}{2})","T", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","U", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","V", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","W", 1, filas),//    
+                string.Format("=SUM({0}{1}:{0}{2})","X", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","Y", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","Z", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","AA", 1, filas),//    
+                string.Format("=SUM({0}{1}:{0}{2})","AB", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","AC", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","AD", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","AE", 1, filas),//
+                string.Format("=SUM({0}{1}:{0}{2})","AF", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","AG", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","AH", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","AI", 1, filas),//
+                string.Format("=SUM({0}{1}:{0}{2})","AJ", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","AK", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","AL", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","AM", 1, filas),//
+                string.Format("=SUM({0}{1}:{0}{2})","AN", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","AO", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","AP", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","AQ", 1, filas),//
+                string.Format("=SUM({0}{1}:{0}{2})","AR", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","AS", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","AT", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","AU", 1, filas),//
+                string.Format("=SUM({0}{1}:{0}{2})","AV", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","AW", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","AX", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","AY", 1, filas),//
+                string.Format("=SUM({0}{1}:{0}{2})","AZ", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","BA", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","BB", 1, filas),
+                string.Format("=SUM({0}{1}:{0}{2})","BC", 1, filas),
+
+            });
+
+            return Json(jsonData.ToArray(), JsonRequestBehavior.AllowGet);
+        }
+
+
         /// <summary>
         /// Carga los datos iniciales del año indicado
         /// </summary>
         /// <param name="id_fy"></param>
         /// <returns></returns>
         public JsonResult CargaFormFormula(int? row, int? column, string cuenta_sap, int? id_bd_fy_centro, int? mes, string currency,
-            bool datosPrevios, string a, string b, string c, string d, string e, string f, string g, string h, string i, string j, string k, string m, string l)
+            bool datosPrevios, bool readOnly, string a, string b, string c, string d, string e, string f, string g, string h, string i, string j, string k, string m, string l)
         {
+            //en caso de readonly, deshabilita los datos previos
+            if(readOnly)
+                datosPrevios = false;
 
             var formulario = new object[1];
 
@@ -1307,6 +1541,7 @@ namespace Portal_2_0.Controllers
             string id_cantidad = bgCantidad == null ? "0" : bgCantidad.id.ToString();
 
             string html = @" 
+                <input type=""hidden"" name=""_readonly"" id=""_readonly"" value=""" + readOnly + @""">
                 <input type=""hidden"" name=""_cuenta_sap"" id=""_cuenta_sap"" value=""" + cuenta_sap + @""">
                 <input type=""hidden"" name=""_id_bd_fy_centro"" id=""_id_bd_fy_centro"" value=""" + id_bd_fy_centro + @""">
                 <input type=""hidden"" name=""_mes"" id=""_mes"" value=""" + mes + @""">
@@ -1324,7 +1559,7 @@ namespace Portal_2_0.Controllers
 
             foreach (var concepto in sapAccount.budget_rel_conceptos_formulas)
             {
-                //valor por defecto
+                //valor por defecto,  al cargar el formulario por primera vez
                 string valor = currency == "MXN" ? concepto.valor_defecto_mxn.ToString() : currency == "USD" ? concepto.valor_defecto_usd.ToString() : currency == "EUR" ? concepto.valor_defecto_eur.ToString() : "0.0";
 
                 //valor formulario
@@ -1365,7 +1600,7 @@ namespace Portal_2_0.Controllers
                             valor = k;
                             break;
                         case "l":
-                            valor = m;
+                            valor = l;
                             break;
                         case "m":
                             valor = m;
@@ -1377,6 +1612,10 @@ namespace Portal_2_0.Controllers
                 {
                     valor = bgCantidad.budget_rel_conceptos_cantidades.FirstOrDefault(x => x.budget_rel_conceptos_formulas.clave == concepto.clave) != null ?
                         bgCantidad.budget_rel_conceptos_cantidades.FirstOrDefault(x => x.budget_rel_conceptos_formulas.clave == concepto.clave).cantidad.ToString() : "0";
+
+                    //si no es read only toma el valor por defecto y no el de la BD
+                    if(!readOnly && concepto.valor_fijo.HasValue && concepto.valor_fijo.Value)
+                        valor = currency == "MXN" ? concepto.valor_defecto_mxn.ToString() : currency == "USD" ? concepto.valor_defecto_usd.ToString() : currency == "EUR" ? concepto.valor_defecto_eur.ToString() : "0.0";
                 }
 
                 html += String.Format(@"
@@ -1385,11 +1624,11 @@ namespace Portal_2_0.Controllers
                 <div class=""form-group row"">
                     <label class=""control-label col-md-3 col-sm-3"" for=""val_{0}"" style=""text-align:right"">{1}:</label>
                     <div class=""col-md-9"">
-                        <input type=""text"" class=""form-control concepto-formula"" name=""val_{0}"" id=""val_{0}"" {2} value=""{3}""/>
+                        <input type=""text"" class=""form-control concepto-formula"" name=""val_{0}"" id=""val_{0}"" {2} value=""{3}"" {4}/>
                         <span class=""field-validation-valid text-danger"" data-valmsg-for=""val_{0}"" data-valmsg-replace=""true""></span>
                     </div>
                 </div>", concepto.clave, concepto.descripcion, concepto.valor_fijo.HasValue && concepto.valor_fijo.Value ? "readonly" : string.Empty
-                , valor);
+                , valor, readOnly ? "readonly": string.Empty);
             }
 
             html += String.Format(@" <div class=""form-group row"">
@@ -1490,4 +1729,6 @@ namespace Portal_2_0.Controllers
             base.Dispose(disposing);
         }
     }
+
+
 }

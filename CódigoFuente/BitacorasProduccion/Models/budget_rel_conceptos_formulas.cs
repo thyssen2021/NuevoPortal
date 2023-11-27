@@ -29,8 +29,8 @@ namespace Portal_2_0.Models
         public Nullable<double> valor_defecto_eur { get; set; }
         public Nullable<bool> valor_fijo { get; set; }
     
-        public virtual budget_cuenta_sap budget_cuenta_sap { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_rel_conceptos_cantidades> budget_rel_conceptos_cantidades { get; set; }
+        public virtual budget_cuenta_sap budget_cuenta_sap { get; set; }
     }
 }

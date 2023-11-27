@@ -30,9 +30,9 @@ namespace Portal_2_0.Models
         public bool moneda_local_usd { get; set; }
     
         public virtual currency currency { get; set; }
-        public virtual budget_cuenta_sap budget_cuenta_sap { get; set; }
         public virtual budget_rel_fy_centro budget_rel_fy_centro { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_rel_conceptos_cantidades> budget_rel_conceptos_cantidades { get; set; }
+        public virtual budget_cuenta_sap budget_cuenta_sap { get; set; }
     }
 }

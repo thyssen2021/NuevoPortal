@@ -29,10 +29,13 @@ namespace Portal_2_0.Models
         public bool activo { get; set; }
         public Nullable<bool> aplica_formula { get; set; }
         public string formula { get; set; }
+        public bool aplica_mxn { get; set; }
+        public bool aplica_usd { get; set; }
+        public bool aplica_eur { get; set; }
     
-        public virtual budget_mapping budget_mapping { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_cantidad> budget_cantidad { get; set; }
+        public virtual budget_mapping budget_mapping { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_rel_comentarios> budget_rel_comentarios { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

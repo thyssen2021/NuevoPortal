@@ -10,7 +10,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.bom_en_sap" Width="1.5" PointX="0.75" PointY="6.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_anio_fiscal" Width="1.5" PointX="7.5" PointY="98.375" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_centro_costo" Width="1.5" PointX="7.5" PointY="102.125" IsExpanded="true" />
-        <EntityTypeShape EntityType="Portal_2_0Model.budget_cuenta_sap" Width="1.5" PointX="21.5" PointY="58.625" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_departamentos" Width="1.5" PointX="5.25" PointY="102.5" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_mapping" Width="1.5" PointX="19.25" PointY="58.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_mapping_bridge" Width="1.5" PointX="17" PointY="59" IsExpanded="true" />
@@ -98,7 +97,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_budget_centro_costo_id_departamento" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_fy_centro_id_centro_costo" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_responsables_id_budget_centro_costo" ManuallyRouted="false" />
-        <AssociationConnector Association="Portal_2_0Model.FK_budget_cuenta_sap_id_mapping" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_departamentos_id_planta" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_mapping_id_mapping_bridge" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_GV_rel_gastos_solicitud_currency_iso" ManuallyRouted="false" />
@@ -193,7 +191,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_IT_mantenimientos_rel_checklist_id_mantenimiento" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_cantidad" Width="1.5" PointX="23.75" PointY="77.25" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_currency_iso" />
-        <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_id_cuenta_sap" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_id_rel_fy_centro" />
         <EntityTypeShape EntityType="Portal_2_0Model.view_valores_fiscal_year_budget_historico" Width="1.5" PointX="11.375" PointY="4.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_epo" Width="1.5" PointX="11.375" PointY="12.75" />
@@ -335,13 +332,16 @@
         <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_tipo_cambio_fy_id_budget_anio_fiscal" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_tipo_cambio_fy_id_tipo_cambio" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_rel_comentarios" Width="1.5" PointX="28.75" PointY="70.625" />
-        <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_comentarios_id_cuenta_sap" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_comentarios_id_rel_fy_centro" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_rel_conceptos_formulas" Width="1.5" PointX="23.75" PointY="58.875" />
-        <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_conceptos_formulas_id_budget_cuenta_sap" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_rel_conceptos_cantidades" Width="1.5" PointX="26" PointY="68.625" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_conceptos_cantidades_id_budget_cantidad" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_conceptos_cantidades_id_rel_conceptos" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_cuenta_sap" Width="1.5" PointX="21.5" PointY="58" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_id_cuenta_sap" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_cuenta_sap_id_mapping" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_comentarios_id_cuenta_sap" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_conceptos_formulas_id_budget_cuenta_sap" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
