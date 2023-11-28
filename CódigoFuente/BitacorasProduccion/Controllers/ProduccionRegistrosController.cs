@@ -91,7 +91,7 @@ namespace Portal_2_0.Controllers
 
 
                 if (TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE_ALL_ACCESS))
-                    ViewBag.planta = new SelectList(db.plantas.Where(p => p.activo == true && (p.clave == 1 || p.clave == 2)), "clave", "descripcion");
+                    ViewBag.planta = new SelectList(db.plantas.Where(p => p.activo == true && (p.clave == 1 || p.clave == 2 || p.clave == 5)), "clave", "descripcion");
                 else
                     ViewBag.planta = new SelectList(db.plantas.Where(p => p.activo == true && emp.planta_clave == p.clave), "clave", "descripcion");
                 
