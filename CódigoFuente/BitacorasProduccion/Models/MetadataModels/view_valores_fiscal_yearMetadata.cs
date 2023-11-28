@@ -79,7 +79,7 @@ namespace Portal_2_0.Models
 
         }
 
-        public Nullable<decimal> TotalMeses()
+        public Nullable<decimal> TotalMesesUSD()
         {
 
             return (Enero.HasValue ? Enero.Value : 0)
@@ -94,6 +94,57 @@ namespace Portal_2_0.Models
                 + (Octubre.HasValue ? Octubre.Value : 0)
                 + (Noviembre.HasValue ? Noviembre.Value : 0)
                 + (Diciembre.HasValue ? Diciembre.Value : 0);
+
+        }
+        public Nullable<decimal> TotalMesesMXN()
+        {
+
+            return (Enero_MXN.HasValue ? Enero_MXN.Value : 0)
+                + (Febrero_MXN.HasValue ? Febrero_MXN.Value : 0)
+                + (Marzo_MXN.HasValue ? Marzo_MXN.Value : 0)
+                + (Abril_MXN.HasValue ? Abril_MXN.Value : 0)
+                + (Mayo_MXN.HasValue ? Mayo_MXN.Value : 0)
+                + (Junio_MXN.HasValue ? Junio_MXN.Value : 0)
+                + (Julio_MXN.HasValue ? Julio_MXN.Value : 0)
+                + (Agosto_MXN.HasValue ? Agosto_MXN.Value : 0)
+                + (Septiembre_MXN.HasValue ? Septiembre_MXN.Value : 0)
+                + (Octubre_MXN.HasValue ? Octubre_MXN.Value : 0)
+                + (Noviembre_MXN.HasValue ? Noviembre_MXN.Value : 0)
+                + (Diciembre_MXN.HasValue ? Diciembre_MXN.Value : 0);
+
+        }
+        public Nullable<decimal> TotalMesesEUR()
+        {
+
+            return (Enero_EUR.HasValue ? Enero_EUR.Value : 0)
+                + (Febrero_EUR.HasValue ? Febrero_EUR.Value : 0)
+                + (Marzo_EUR.HasValue ? Marzo_EUR.Value : 0)
+                + (Abril_EUR.HasValue ? Abril_EUR.Value : 0)
+                + (Mayo_EUR.HasValue ? Mayo_EUR.Value : 0)
+                + (Junio_EUR.HasValue ? Junio_EUR.Value : 0)
+                + (Julio_EUR.HasValue ? Julio_EUR.Value : 0)
+                + (Agosto_EUR.HasValue ? Agosto_EUR.Value : 0)
+                + (Septiembre_EUR.HasValue ? Septiembre_EUR.Value : 0)
+                + (Octubre_EUR.HasValue ? Octubre_EUR.Value : 0)
+                + (Noviembre_EUR.HasValue ? Noviembre_EUR.Value : 0)
+                + (Diciembre_EUR.HasValue ? Diciembre_EUR.Value : 0);
+
+        }
+        public Nullable<decimal> TotalMesesUSD_Local()
+        {
+
+            return (Enero_USD_LOCAL.HasValue ? Enero_USD_LOCAL.Value : 0)
+                + (Febrero_USD_LOCAL.HasValue ? Febrero_USD_LOCAL.Value : 0)
+                + (Marzo_USD_LOCAL.HasValue ? Marzo_USD_LOCAL.Value : 0)
+                + (Abril_USD_LOCAL.HasValue ? Abril_USD_LOCAL.Value : 0)
+                + (Mayo_USD_LOCAL.HasValue ? Mayo_USD_LOCAL.Value : 0)
+                + (Junio_USD_LOCAL.HasValue ? Junio_USD_LOCAL.Value : 0)
+                + (Julio_USD_LOCAL.HasValue ? Julio_USD_LOCAL.Value : 0)
+                + (Agosto_USD_LOCAL.HasValue ? Agosto_USD_LOCAL.Value : 0)
+                + (Septiembre_USD_LOCAL.HasValue ? Septiembre_USD_LOCAL.Value : 0)
+                + (Octubre_USD_LOCAL.HasValue ? Octubre_USD_LOCAL.Value : 0)
+                + (Noviembre_USD_LOCAL.HasValue ? Noviembre_USD_LOCAL.Value : 0)
+                + (Diciembre_USD_LOCAL.HasValue ? Diciembre_USD_LOCAL.Value : 0);
 
         }
 

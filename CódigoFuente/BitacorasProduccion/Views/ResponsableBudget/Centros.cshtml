@@ -116,13 +116,13 @@
                                                     </td>
                                                     <td>
                                                         @{ DateTime fechaActual = DateTime.Now;}
-                                                        <a href="@Url.Action("DetailsCentro", ViewBag.ControllerName, new { id = item.id})" class="btn btn-info" title="Details">
+                                                        <a href="@Url.Action("EditCentroPresenteHT", ViewBag.ControllerName, new { id = item.id, info = true})" class="btn btn-info" title="Details">
                                                             <i class="fa fa-info-circle"></i> INFO
                                                         </a>
-                                                        <a href="@Url.Action("EditCentroPresente", ViewBag.ControllerName, new { id = item.id})" class="btn btn-success " title="Edit">
+                                                        <a href="@Url.Action("EditCentroPresenteHT", ViewBag.ControllerName, new { id = item.id})" class="btn btn-success " title="Edit">
                                                             <i class="fa-regular fa-pen-to-square"></i> FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))
                                                         </a>
-                                                        <a href="@Url.Action("EditCentroProximo", ViewBag.ControllerName, new { id = item.id})" class="btn btn-success " style="background-color: #4d2bcc" title="Edit">
+                                                        <a href="@Url.Action("EditCentroPresenteHT", ViewBag.ControllerName, new { id = item.id, proximo = true})" class="btn btn-success " style="background-color: #4d2bcc" title="Edit">
                                                             <i class="fa-regular fa-pen-to-square"></i> FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))
                                                         </a>
                                                         <a href="@Url.Action("Exportar", "BudgetControlling", new
@@ -172,7 +172,7 @@
 
         //agranda el tamaño de la barra
         window.onload = function () {
-          //  document.getElementById('menu_toggle').click();
+            //  document.getElementById('menu_toggle').click();
         }
     </script>
 

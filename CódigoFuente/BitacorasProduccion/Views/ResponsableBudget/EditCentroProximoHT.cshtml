@@ -7,7 +7,7 @@
     Portal_2_0.Models.budget_rel_fy_centro rel_presente = (Portal_2_0.Models.budget_rel_fy_centro)ViewBag.rel_presente;
     Portal_2_0.Models.budget_rel_fy_centro rel_proximo = (Portal_2_0.Models.budget_rel_fy_centro)ViewBag.rel_proximo;
 
-    ViewBag.Title = "FC FY " + rel_presente.budget_anio_fiscal.descripcion;
+    ViewBag.Title = "BG FY " + rel_presente.budget_anio_fiscal.descripcion;
     ViewBag.PrimerNivel = "plantilla_budget";
     ViewBag.SegundoNivel = "centros";
     ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
@@ -29,18 +29,18 @@
     }
 
     //determina si los meses son actual o no
-    bool isActualOctubre = rel_presente.budget_anio_fiscal.isActual(10) == "ACT";
-    bool isActualNoviembre = rel_presente.budget_anio_fiscal.isActual(11) == "ACT";
-    bool isActualDiciembre = rel_presente.budget_anio_fiscal.isActual(12) == "ACT";
-    bool isActualEnero = rel_presente.budget_anio_fiscal.isActual(1) == "ACT";
-    bool isActualFebrero = rel_presente.budget_anio_fiscal.isActual(2) == "ACT";
-    bool isActualMarzo = rel_presente.budget_anio_fiscal.isActual(3) == "ACT";
-    bool isActualAbril = rel_presente.budget_anio_fiscal.isActual(4) == "ACT";
-    bool isActualMayo = rel_presente.budget_anio_fiscal.isActual(5) == "ACT";
-    bool isActualJunio = rel_presente.budget_anio_fiscal.isActual(6) == "ACT";
-    bool isActualJulio = rel_presente.budget_anio_fiscal.isActual(7) == "ACT";
-    bool isActualAgosto = rel_presente.budget_anio_fiscal.isActual(8) == "ACT";
-    bool isActualSeptiembre = rel_presente.budget_anio_fiscal.isActual(9) == "ACT";
+    bool isActualOctubre = false;
+    bool isActualNoviembre = false;
+    bool isActualDiciembre = false;
+    bool isActualEnero = false;
+    bool isActualFebrero = false;
+    bool isActualMarzo = false;
+    bool isActualAbril = false;
+    bool isActualMayo = false;
+    bool isActualJunio = false;
+    bool isActualJulio = false;
+    bool isActualAgosto = false;
+    bool isActualSeptiembre = false;
 
 
 
@@ -204,7 +204,7 @@
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
-                        @if (!rel_presente.estatus)
+                        @if (!rel_proximo.estatus)
                         {
                             <div class="form-group row">
 
@@ -236,7 +236,7 @@
                         <div class="col-sm-12">
                             <div class="ln_solid"></div>
                             <div class="form-group row">
-                                <h4 style="color:#7c7c7c"><b>Tipo de Cambio FC FY @rel_presente.budget_anio_fiscal.descripcion</b></h4>
+                                <h4 style="color:#7c7c7c"><b>Tipo de Cambio @ViewBag.title</b></h4>
                             </div>
                         </div>
                         <div class="col-sm-12" id="ht-tipo-cambio">
@@ -252,24 +252,25 @@
                                     <a class="nav-link" id="ht-actual-tab" data-toggle="tab" href="#ht-actual" role="tab" aria-controls="ht-actual" onclick="ResetScroll()" aria-selected="true">ACT FY  @rel_anterior.budget_anio_fiscal.descripcion</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link active" id="ht-forecast-tab" data-toggle="tab" href="#ht-forecast" role="tab" aria-controls="ht-forecast" onclick="ResetScroll()" aria-selected="false">FC FY @rel_presente.budget_anio_fiscal.descripcion</a>
+                                    <a class="nav-link" id="ht-forecast-tab" data-toggle="tab" href="#ht-forecast" role="tab" aria-controls="ht-forecast" onclick="ResetScroll()" aria-selected="false">FC FY @rel_presente.budget_anio_fiscal.descripcion</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" id="ht-budget-tab" data-toggle="tab" href="#ht-budget" role="tab" aria-controls="ht-budget" onclick="ResetScroll()" aria-selected="false">BG FY @rel_proximo.budget_anio_fiscal.descripcion</a>
+                                    <a class="nav-link active" id="ht-budget-tab" data-toggle="tab" href="#ht-budget" role="tab" aria-controls="ht-budget" onclick="ResetScroll()" aria-selected="false">BG FY @rel_proximo.budget_anio_fiscal.descripcion</a>
                                 </li>
                             </ul>
+
 
                             <div class="tab-content" id="myTabContent">
                                 <div class="tab-pane fade" id="ht-actual" role="tabpanel" aria-labelledby="ht-actual-tab">
                                     <div class="form-group row">
                                     </div>
                                 </div>
-                                <div class="tab-pane fade show active" id="ht-forecast" role="tabpanel" aria-labelledby="ht-forecast-tab">
+                                <div class="tab-pane fade" id="ht-forecast" role="tabpanel" aria-labelledby="ht-forecast-tab">
                                     <div class="form-group row">
 
                                     </div>
                                 </div>
-                                <div class="tab-pane fade" id="ht-budget" role="tabpanel" aria-labelledby="ht-budget-tab">
+                                <div class="tab-pane fade show active" id="ht-budget" role="tabpanel" aria-labelledby="ht-budget-tab">
                                     <div class="form-group row">
                                     </div>
                                 </div>
@@ -1070,10 +1071,12 @@
        licenseKey: 'non-commercial-and-evaluation'
    });
 
-   hot2 = new Handsontable(container2, {
+
+    //año presente
+   hot3 = new Handsontable(container3, {
        data: [],
        nestedHeaders: [
-           headers1,
+           headers1_budget,
            headers2
        ],
        afterGetColHeader: function(col, TH) {
@@ -1095,73 +1098,73 @@
                        if ('@isActualOctubre' === '@true')
                            applyClass(TH, 'HTdarkgray');
                        else
-                           applyClass(TH, 'HTgreen');
+                           applyClass(TH, 'HTPurple');
                        break;
                    case 7: //noviembre
                        if ('@isActualNoviembre' === '@true')
                            applyClass(TH, 'HTdarkgray');
                        else
-                           applyClass(TH, 'HTgreen');
+                           applyClass(TH, 'HTPurple');
                        break;
                    case 11: //diciembre
                        if ('@isActualDiciembre' === '@true')
                            applyClass(TH, 'HTdarkgray');
                        else
-                           applyClass(TH, 'HTgreen');
+                           applyClass(TH, 'HTPurple');
                        break;
                    case 15: //enero
                        if ('@isActualEnero' === '@true')
                            applyClass(TH, 'HTdarkgray');
                        else
-                           applyClass(TH, 'HTgreen');
+                           applyClass(TH, 'HTPurple');
                        break;
                    case 19: //febrero
                        if ('@isActualFebrero' === '@true')
                            applyClass(TH, 'HTdarkgray');
                        else
-                           applyClass(TH, 'HTgreen');
+                           applyClass(TH, 'HTPurple');
                        break;
                    case 23: //marzo
                        if ('@isActualMarzo' === '@true')
                            applyClass(TH, 'HTdarkgray');
                        else
-                           applyClass(TH, 'HTgreen');
+                           applyClass(TH, 'HTPurple');
                        break;
                    case 27: //abril
                        if ('@isActualAbril' === '@true')
                            applyClass(TH, 'HTdarkgray');
                        else
-                           applyClass(TH, 'HTgreen');
+                           applyClass(TH, 'HTPurple');
                        break;
                    case 31: //MAYO
                        if ('@isActualMayo' === '@true')
                            applyClass(TH, 'HTdarkgray');
                        else
-                           applyClass(TH, 'HTgreen');
+                           applyClass(TH, 'HTPurple');
                        break;
                    case 35: //junio
                        if ('@isActualJunio' === '@true')
                            applyClass(TH, 'HTdarkgray');
                        else
-                           applyClass(TH, 'HTgreen');
+                           applyClass(TH, 'HTPurple');
                        break;
                    case 39: //julio
                        if ('@isActualJulio' === '@true')
                            applyClass(TH, 'HTdarkgray');
                        else
-                           applyClass(TH, 'HTgreen');
+                           applyClass(TH, 'HTPurple');
                        break;
                    case 43: //agosto
                        if ('@isActualAgosto' === '@true')
                            applyClass(TH, 'HTdarkgray');
                        else
-                           applyClass(TH, 'HTgreen');
+                           applyClass(TH, 'HTPurple');
                        break;
                    case 47: //septiembre
                        if ('@isActualSeptiembre' === '@true')
                            applyClass(TH, 'HTdarkgray');
                        else
-                           applyClass(TH, 'HTgreen');
+                           applyClass(TH, 'HTPurple');
                        break;
                    default:
                        applyClass(TH, 'HTblue');
@@ -1773,10 +1776,11 @@
        licenseKey: 'non-commercial-and-evaluation'
    });
 
-   hot3 = new Handsontable(container3, {
+    //año´próximo
+   hot2 = new Handsontable(container2, {
        data: [],
        nestedHeaders: [
-           headers1_budget,
+           headers1,
            headers2
        ],
        afterGetColHeader: function (col, TH) {
@@ -1792,7 +1796,7 @@
            if (col == -1) {
                applyClass(TH, 'HTgray');
            } else if (col >= 3) {
-               applyClass(TH, 'HTPurple');
+               applyClass(TH, 'HTgreen');
            } else {
                applyClass(TH, 'HTblue');
            }
@@ -2448,7 +2452,7 @@
        //si es readonly guarda el valor en la tabla
        if (_readOnly == '@(false)') {
 
-           hot2.setDataAtCell(Number(rowFormula), Number(columnFormula), $('#val_result').val());
+           hot3.setDataAtCell(Number(rowFormula), Number(columnFormula), $('#val_result').val());
 
            conceptos_calculados = conceptos_calculados.filter((element) => element[0] !== rowFormula.toString() || element[1] !== columnFormula.toString());
 
@@ -2590,7 +2594,7 @@
                    if (data[0].estatus == "OK") {
                        $('#id_modal_body').html(data[0].html);
                        //cambia el titulo del modal
-                       $('#exampleModalLongTitle').html(hot2.getDataAtCell(row, 1));
+                       $('#exampleModalLongTitle').html(hot3.getDataAtCell(row, 1));
                        $('#modalCalculo').modal('show')
                        AsignaEventos();
                        ActualizaCantidadInput();
@@ -2729,25 +2733,22 @@
    function EnviaFormulario(salir) {
 
        //borra los filtros
-       hot2.getPlugin('Filters').clearConditions();
-       hot2.getPlugin('Filters').filter();
-       hot2.render();
+       hot3.getPlugin('Filters').clearConditions();
+       hot3.getPlugin('Filters').filter();
+       hot3.render();
 
        //convierte los elementos del array en string
        let arrayToString = [];
-       let dataTable = hot2.getData();
+       let dataTable = hot3.getData();
 
        //deja fuera la sumatorioa
        for (var i = 0; i < dataTable.length; i++) {
            arrayToString.push(dataTable[i]);
        }
-       //console.log(JSON.stringify(arrayToString));
-
-       // console.log(JSON.stringify(arrayToString));
 
        let exito = false;
 
-       hot2.validateCells((valid) => {
+       hot3.validateCells((valid) => {
            if (valid) {
 
                // ... code for validated cells
@@ -2755,7 +2756,7 @@
                    type: "POST",
                    dataType: "json",
                    contentType: 'application/json; charset=utf-8',
-                   url: '/ResponsableBudget/EditCentroHT?id=' + @rel_presente.id,
+                   url: '/ResponsableBudget/EditCentroHT?id=' + @rel_proximo.id,
                    data: JSON.stringify(arrayToString),
                    success: function(data) {
                        try {
@@ -2800,7 +2801,7 @@
                    type: "POST",
                    dataType: "json",
                    contentType: 'application/json; charset=utf-8',
-                   url: '/ResponsableBudget/SaveComments?id_rel=' + @rel_presente.id,
+                   url: '/ResponsableBudget/SaveComments?id_rel=' + @rel_proximo.id,
                    data: JSON.stringify(comentarios),
                    success: function(data) {
                        try {
@@ -2840,7 +2841,7 @@
                    type: "POST",
                    dataType: "json",
                    contentType: 'application/json; charset=utf-8',
-                   url: '/ResponsableBudget/SaveConceptosCapturados?id_rel=' + @rel_presente.id,
+                   url: '/ResponsableBudget/SaveConceptosCapturados?id_rel=' + @rel_proximo.id,
                    data: JSON.stringify(options),
                    success: function(data) {
 
@@ -3019,13 +3020,13 @@
 
    //obtiene los comentarios
    function GetComments() {
-       var comments = hot2.getCellsMeta().filter(function(meta) {
+       var comments = hot3.getCellsMeta().filter(function(meta) {
            return meta.comment !== void 0;
        }).map(function(meta) {
 
-           let cuenta_sap = hot2.getDataAtCell(meta.row, 0);
+           let cuenta_sap = hot3.getDataAtCell(meta.row, 0);
            return {
-               id_budget_rel_fy_centro: @rel_presente.id,
+               id_budget_rel_fy_centro: @rel_proximo.id,
                numero_cuenta_sap: cuenta_sap,
                mes: getMonthByColumn(meta.col),
                currency_iso: columnasMonedaLocal.includes(meta.col) ? "USD" : headers2[meta.col],
@@ -3046,17 +3047,17 @@
            url: '/ResponsableBudget/CargaFY',
            data: {
                id_centro_costo: @Model.id,
-               id_fy: @rel_presente.id_anio_fiscal
+               id_fy: @rel_proximo.id_anio_fiscal
            },
            success: function(data) {
                try {
                    //console.log(data);
-                   hot2.loadData(data);
+                   hot3.loadData(data);
 
-                   let cm = CargaComentarios(2);
+                   let cm = CargaComentarios(3);
 
                    //actualiza la confuguracion de la tabla
-                   hot2.updateSettings({
+                   hot3.updateSettings({
                        cells: function(row, col) {
                            var cellProperties = {};
 
@@ -3111,21 +3112,21 @@
                            if (columnasEditables.includes(col)) {
 
 
-                               if (hot2.getDataAtCell(row, GetColFromName(headers2, "Aplica" + suffix)) == '@(false)') {
+                               if (hot3.getDataAtCell(row, GetColFromName(headers2, "Aplica" + suffix)) == '@(false)') {
                                    cellProperties.readOnly = true;
                                    cellProperties.className = 'no-comments';
-                               } else if (hot2.getDataAtCell(row, GetColFromName(headers2, "AplicaFormula")) === '@(true)') {
+                               } else if (hot3.getDataAtCell(row, GetColFromName(headers2, "AplicaFormula")) === '@(true)') {
                                    cellProperties.readOnly = true;
                                    cellProperties.className = 'aplica-formula';
                                }
                            }
                            //aplica formato para formula readonly
-                           if (columnasNoEditables.includes(col) && hot2.getDataAtCell(row, GetColFromName(headers2, "AplicaFormula")) === '@(true)' && hot2.getDataAtCell(row, GetColFromName(headers2, "Aplica" + suffix)) == '@(true)') {
+                           if (columnasNoEditables.includes(col) && hot3.getDataAtCell(row, GetColFromName(headers2, "AplicaFormula")) === '@(true)' && hot3.getDataAtCell(row, GetColFromName(headers2, "Aplica" + suffix)) == '@(true)') {
                                cellProperties.className = 'aplica-form-readonly';
                            }
 
                            //vuelve readonly la última fila (totales)
-                           if (row == hot2.countRows() - 1) {
+                           if (row == hot3.countRows() - 1) {
                                cellProperties.readOnly = true;
                            }
                            return cellProperties;
@@ -3154,7 +3155,7 @@
                                        if (rowSelected < 0 || columnSelected < 0)
                                            return true;
 
-                                       let _class = hot2.getCell(rowSelected, columnSelected, false).getAttribute("class");
+                                       let _class = hot3.getCell(rowSelected, columnSelected, false).getAttribute("class");
                                        let noComments = _class.includes("no-comments");
 
                                        return (!columnasEditables.includes(columnSelected) && !columnasSumatoriasComentarioEditable.includes(columnSelected)) || noComments; // `this` === hot
@@ -3192,7 +3193,7 @@
                                        if (rowSelected < 0 || columnSelected < 0)
                                            return true;
 
-                                       let _class = hot2.getCell(rowSelected, columnSelected, false).getAttribute("class");
+                                       let _class = hot3.getCell(rowSelected, columnSelected, false).getAttribute("class");
                                        let result = !_class.includes("aplica-formula");
 
                                        return result; // `this` === hot
@@ -3200,13 +3201,13 @@
                                    callback(key, selection, clickEvent) { // Callback for specific option
                                        let rowSelected = this.getSelectedLast()[0];
                                        let columnSelected = this.getSelectedLast()[1];
-                                       let cuenta_sap = hot2.getDataAtCell(rowSelected, 0);
+                                       let cuenta_sap = hot3.getDataAtCell(rowSelected, 0);
                                        let mes = getMonthByColumn(columnSelected);
                                        let currency = headers2[columnSelected];
 
                                        setTimeout(() => {
                                            // console.log('Row: ' + rowSelected + ' Column: ' + columnSelected + ' Cuenta: ' + cuenta_sap + ' mes: ' + mes + ' currency:' + currency)
-                                           ObtieneForm(rowSelected, columnSelected, cuenta_sap, @rel_presente.id, mes, currency, false);
+                                           ObtieneForm(rowSelected, columnSelected, cuenta_sap, @rel_proximo.id, mes, currency, false);
 
                                        }, 0);
                                    }
@@ -3340,16 +3341,16 @@
            url: '/ResponsableBudget/CargaFY',
            data: {
                id_centro_costo: @Model.id,
-               id_fy: @rel_proximo.id_anio_fiscal
+               id_fy: @rel_presente.id_anio_fiscal
            },
            success: function(data) {
                try {
-                   hot3.loadData(data);
+                   hot2.loadData(data);
 
-                   let cm = CargaComentarios(3);
+                   let cm = CargaComentarios(2);
 
                      //actualiza la confuguracion de la tabla
-                   hot3.updateSettings({
+                   hot2.updateSettings({
 
                        cells: function(row, col) {
                            var cellProperties = {};
@@ -3401,8 +3402,8 @@
 
                            //toma en cuenta todas las columnas
                            if ((columnasEditables.includes(col) || columnasNoEditables.includes(col))
-                               && hot3.getDataAtCell(row, GetColFromName(headers2, "AplicaFormula")) === '@(true)'
-                               && hot3.getDataAtCell(row, GetColFromName(headers2, "Aplica" + suffix)) == '@(true)'
+                               && hot2.getDataAtCell(row, GetColFromName(headers2, "AplicaFormula")) === '@(true)'
+                               && hot2.getDataAtCell(row, GetColFromName(headers2, "Aplica" + suffix)) == '@(true)'
                            ) {
                                cellProperties.className = 'aplica-form-readonly';
                            }

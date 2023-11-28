@@ -5298,6 +5298,8 @@
     <Content Include="Views\UsersAdmin\EditEmail.cshtml" />
     <Content Include="Views\RH_menu_comedor\ListaDistribucion.cshtml" />
     <Content Include="Views\ResponsableBudget\EditCentroPresenteHT.cshtml" />
+    <Content Include="Views\ResponsableBudget\EditCentroProximoHT.cshtml" />
+    <Content Include="Views\ResponsableBudget\DetailsCentroHT.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -307,7 +307,7 @@ namespace Portal_2_0.Controllers
         }
 
         // GET: ResponsableBudget/EditCentroPresente
-        public ActionResult EditCentroPresenteHT(int? id)
+        public ActionResult EditCentroPresenteHT(int? id, bool proximo = false, bool info = false)
         {
 
             if (TieneRol(TipoRoles.BG_RESPONSABLE))
@@ -352,6 +352,9 @@ namespace Portal_2_0.Controllers
                 budget_anio_fiscal anio_Fiscal_proximo = GetAnioFiscal(DateTime.Now.AddYears(1));
                 if (anio_Fiscal_proximo == null)
                     return View("../Error/NotFound");
+
+
+
 
                 //obtiene el id_rel_centro_costo anterior
                 budget_rel_fy_centro rel_fy_centro_anterior = db.budget_rel_fy_centro.Where(x => x.id_centro_costo == centroCosto.id && x.id_anio_fiscal == anio_Fiscal_anterior.id).FirstOrDefault();
@@ -409,9 +412,10 @@ namespace Portal_2_0.Controllers
                 rel_fy_centro_presente.budget_anio_fiscal = anio_Fiscal_actual;
                 rel_fy_centro_anterior.budget_anio_fiscal = anio_Fiscal_anterior;
 
-                #region cabeceras HT
-                //cabeceras HT FORECAST
-                List<string> headersForecast = new List<string> { "SAP Account", "Name", "Mapping" };
+
+                    #region cabeceras HT
+                    //cabeceras HT FORECAST
+                    List<string> headersForecast = new List<string> { "SAP Account", "Name", "Mapping" };
                 var cabeceraObject = new object[13];
                 var cabeceraObjectActual = new object[13];
                 var cabeceraObjectBudget = new object[13];
@@ -435,12 +439,12 @@ namespace Portal_2_0.Controllers
                     {
                         label = string.Format("{0} {1}", rel_fy_centro_presente.budget_anio_fiscal.isActual(fecha.Month), fecha.ToString("MMM yy").ToUpper()),
                         colspan = 4
-                    }; 
+                    };
                     cabeceraObjectActual[i + 1] = new
                     {
                         label = string.Format("ACT {0}", fecha.AddYears(-1).ToString("MMM yy").ToUpper()),
                         colspan = 4
-                    }; 
+                    };
                     cabeceraObjectBudget[i + 1] = new
                     {
                         label = string.Format("BG {0}", fecha.AddYears(1).ToString("MMM yy").ToUpper()),
@@ -470,7 +474,25 @@ namespace Portal_2_0.Controllers
                 ViewBag.rel_presente = rel_fy_centro_presente;
                 ViewBag.rel_proximo = rel_fy_centro_proximo;
                 ViewBag.numCuentasSAP = db.budget_cuenta_sap.Where(x => x.activo).Count();
-                return View(centroCosto);
+
+                //en caso de que sea próximo cambia la vista
+                if (proximo && rel_fy_centro_proximo.estatus) //proximo editable
+                    return View("EditCentroProximoHT", centroCosto);
+                else if (proximo && !rel_fy_centro_proximo.estatus) //proximo no editable
+                {
+                    ViewBag.proximo = proximo;
+                    return View("DetailsCentroHT", centroCosto);
+                }
+                else if (info) //muestra la vista de Info //info
+                {
+                    ViewBag.proximo = proximo;
+                    return View("DetailsCentroHT", centroCosto);
+                }
+                else if (!proximo && !rel_fy_centro_presente.estatus) {   //presente no editable
+                    ViewBag.proximo = proximo;
+                    return View("DetailsCentroHT", centroCosto);
+                }                    
+                return View(centroCosto); //presente  editable
 
             }
             else
@@ -479,6 +501,7 @@ namespace Portal_2_0.Controllers
             }
 
         }
+
 
         // GET: ResponsableBudget/EditCentroProximo
         public ActionResult EditCentroProximo(int? id)
@@ -1345,10 +1368,10 @@ namespace Portal_2_0.Controllers
                         fecha = fecha.AddMonths(1);
                     }
 
-                int comentarioIndex = headersForecast.IndexOf("Comments") -1;
+                int comentarioIndex = headersForecast.IndexOf("Comments") - 1;
 
                 //agrega el comentario general en caso de existir
-                if ( array[comentarioIndex] != null && !string.IsNullOrEmpty(array[comentarioIndex].ToString()))
+                if (array[comentarioIndex] != null && !string.IsNullOrEmpty(array[comentarioIndex].ToString()))
                     comentarios_general.Add(new budget_rel_comentarios
                     {
                         id_budget_rel_fy_centro = id_rel_fy_cc.Value,
@@ -1369,7 +1392,7 @@ namespace Portal_2_0.Controllers
         /// <returns></returns>
         public JsonResult CargaFY(int? id_fy, int? id_centro_costo)
         {
-           
+
             var valoresListAnioActual = db.view_valores_fiscal_year.Where(x => x.id_anio_fiscal == id_fy && x.id_centro_costo == id_centro_costo).ToList();
             valoresListAnioActual = AgregaCuentasSAPFaltantes(valoresListAnioActual, id_fy.Value, id_centro_costo.Value).OrderBy(x => x.sap_account).ToList();
             var fy = db.budget_anio_fiscal.Find(id_fy);
@@ -1525,7 +1548,7 @@ namespace Portal_2_0.Controllers
             bool datosPrevios, bool readOnly, string a, string b, string c, string d, string e, string f, string g, string h, string i, string j, string k, string m, string l)
         {
             //en caso de readonly, deshabilita los datos previos
-            if(readOnly)
+            if (readOnly)
                 datosPrevios = false;
 
             var formulario = new object[1];
@@ -1614,7 +1637,7 @@ namespace Portal_2_0.Controllers
                         bgCantidad.budget_rel_conceptos_cantidades.FirstOrDefault(x => x.budget_rel_conceptos_formulas.clave == concepto.clave).cantidad.ToString() : "0";
 
                     //si no es read only toma el valor por defecto y no el de la BD
-                    if(!readOnly && concepto.valor_fijo.HasValue && concepto.valor_fijo.Value)
+                    if (!readOnly && concepto.valor_fijo.HasValue && concepto.valor_fijo.Value)
                         valor = currency == "MXN" ? concepto.valor_defecto_mxn.ToString() : currency == "USD" ? concepto.valor_defecto_usd.ToString() : currency == "EUR" ? concepto.valor_defecto_eur.ToString() : "0.0";
                 }
 
@@ -1628,7 +1651,7 @@ namespace Portal_2_0.Controllers
                         <span class=""field-validation-valid text-danger"" data-valmsg-for=""val_{0}"" data-valmsg-replace=""true""></span>
                     </div>
                 </div>", concepto.clave, concepto.descripcion, concepto.valor_fijo.HasValue && concepto.valor_fijo.Value ? "readonly" : string.Empty
-                , valor, readOnly ? "readonly": string.Empty);
+                , valor, readOnly ? "readonly" : string.Empty);
             }
 
             html += String.Format(@" <div class=""form-group row"">

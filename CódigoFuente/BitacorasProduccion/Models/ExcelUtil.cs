@@ -63,7 +63,7 @@ namespace Portal_2_0.Models
             dt.Columns.Add(nameof(view_historico_resultado.Orden_SAP), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.SAP_Platina), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Tipo_de_Material), typeof(string));
-            dt.Columns.Add(nameof(view_historico_resultado.Número_de_Parte__de_cliente), typeof(string));            
+            dt.Columns.Add(nameof(view_historico_resultado.Número_de_Parte__de_cliente), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Material), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Orden_en_SAP_2), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.SAP_Platina_2), typeof(string));
@@ -895,6 +895,7 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Sap Account", typeof(string));
             dt.Columns.Add("Name", typeof(string));
             dt.Columns.Add("Mapping Bridge", typeof(string));
+
             //Meses para Actual
             string titulo_anterior_octubre = "ACT " + MesesUtil.OCTUBRE.Abreviation + "-" + anio_Fiscal_anterior.anio_inicio.ToString().Substring(2, 2);
             string titulo_anterior_noviembre = "ACT " + MesesUtil.NOVIEMBRE.Abreviation + "-" + anio_Fiscal_anterior.anio_inicio.ToString().Substring(2, 2);
@@ -908,22 +909,41 @@ namespace Portal_2_0.Models
             string titulo_anterior_julio = "ACT " + MesesUtil.JULIO.Abreviation + "-" + anio_Fiscal_anterior.anio_fin.ToString().Substring(2, 2);
             string titulo_anterior_agosto = "ACT " + MesesUtil.AGOSTO.Abreviation + "-" + anio_Fiscal_anterior.anio_fin.ToString().Substring(2, 2);
             string titulo_anterior_septiembre = "ACT " + MesesUtil.SEPTIEMBRE.Abreviation + "-" + anio_Fiscal_anterior.anio_fin.ToString().Substring(2, 2);
-            string titulo_anterior_total = "Totals FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)));
+            string titulo_anterior_total_mxn = "Total MXN FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)));
+            string titulo_anterior_total_usd = "Total USD FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)));
+            string titulo_anterior_total_eur = "Total EUR FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)));
+            string titulo_anterior_total_local = "Total USD Local FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)));
             string comentarios_anterior = "Comentarios " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)));
 
-            dt.Columns.Add(titulo_anterior_octubre, typeof(decimal));
-            dt.Columns.Add(titulo_anterior_noviembre, typeof(decimal));
-            dt.Columns.Add(titulo_anterior_diciembre, typeof(decimal));
-            dt.Columns.Add(titulo_anterior_enero, typeof(decimal));
-            dt.Columns.Add(titulo_anterior_febrero, typeof(decimal));
-            dt.Columns.Add(titulo_anterior_marzo, typeof(decimal));
-            dt.Columns.Add(titulo_anterior_abril, typeof(decimal));
-            dt.Columns.Add(titulo_anterior_mayo, typeof(decimal));
-            dt.Columns.Add(titulo_anterior_junio, typeof(decimal));
-            dt.Columns.Add(titulo_anterior_julio, typeof(decimal));
-            dt.Columns.Add(titulo_anterior_agosto, typeof(decimal));
-            dt.Columns.Add(titulo_anterior_septiembre, typeof(decimal));
-            dt.Columns.Add(titulo_anterior_total, typeof(decimal));
+            //list con los los meses del año anterior
+            List<string> meses_anterior = new List<string> {
+                    titulo_anterior_octubre,
+                    titulo_anterior_noviembre,
+                    titulo_anterior_diciembre,
+                    titulo_anterior_enero,
+                    titulo_anterior_febrero,
+                    titulo_anterior_marzo,
+                    titulo_anterior_abril,
+                    titulo_anterior_mayo,
+                    titulo_anterior_junio,
+                    titulo_anterior_julio,
+                    titulo_anterior_agosto,
+                    titulo_anterior_septiembre
+            };
+
+            //agrega las columnas a las tablas
+            foreach (var item in meses_anterior)
+            {
+                dt.Columns.Add("MXN_" + item, typeof(decimal));
+                dt.Columns.Add("USD_" + item, typeof(decimal));
+                dt.Columns.Add("EUR_" + item, typeof(decimal));
+                dt.Columns.Add("USD Local_" + item, typeof(decimal));
+            }
+
+            dt.Columns.Add(titulo_anterior_total_mxn, typeof(decimal));
+            dt.Columns.Add(titulo_anterior_total_usd, typeof(decimal));
+            dt.Columns.Add(titulo_anterior_total_eur, typeof(decimal));
+            dt.Columns.Add(titulo_anterior_total_local, typeof(decimal));
             dt.Columns.Add(comentarios_anterior);
 
             //meses para actual/forecast
@@ -939,22 +959,42 @@ namespace Portal_2_0.Models
             string titulo_actual_julio = (isActualJulio ? "ACT" : "FC") + " " + MesesUtil.JULIO.Abreviation + "-" + anio_Fiscal_actual.anio_fin.ToString().Substring(2, 2);
             string titulo_actual_agosto = (isActualAgosto ? "ACT" : "FC") + " " + MesesUtil.AGOSTO.Abreviation + "-" + anio_Fiscal_actual.anio_fin.ToString().Substring(2, 2);
             string titulo_actual_septiembre = (isActualSeptiembre ? "ACT" : "FC") + " " + MesesUtil.SEPTIEMBRE.Abreviation + "-" + anio_Fiscal_actual.anio_fin.ToString().Substring(2, 2);
-            string titulo_actual_total = "Totals FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual));
+            string titulo_actual_total_mxn = "Total MXN FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual));
+            string titulo_actual_total_usd = "Total USD FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual));
+            string titulo_actual_total_eur = "Total EUR FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual));
+            string titulo_actual_total_local = "Total USD Local FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual));
             string comentarios_presente = "Comentarios " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual));
 
-            dt.Columns.Add(titulo_actual_octubre, typeof(decimal));
-            dt.Columns.Add(titulo_actual_noviembre, typeof(decimal));
-            dt.Columns.Add(titulo_actual_diciembre, typeof(decimal));
-            dt.Columns.Add(titulo_actual_enero, typeof(decimal));
-            dt.Columns.Add(titulo_actual_febrero, typeof(decimal));
-            dt.Columns.Add(titulo_actual_marzo, typeof(decimal));
-            dt.Columns.Add(titulo_actual_abril, typeof(decimal));
-            dt.Columns.Add(titulo_actual_mayo, typeof(decimal));
-            dt.Columns.Add(titulo_actual_junio, typeof(decimal));
-            dt.Columns.Add(titulo_actual_julio, typeof(decimal));
-            dt.Columns.Add(titulo_actual_agosto, typeof(decimal));
-            dt.Columns.Add(titulo_actual_septiembre, typeof(decimal));
-            dt.Columns.Add(titulo_actual_total, typeof(decimal));
+            //list con los los meses del año anterior
+            List<string> meses_presente = new List<string> {
+                    titulo_actual_octubre,
+                    titulo_actual_noviembre,
+                    titulo_actual_diciembre,
+                    titulo_actual_enero,
+                    titulo_actual_febrero,
+                    titulo_actual_marzo,
+                    titulo_actual_abril,
+                    titulo_actual_mayo,
+                    titulo_actual_junio,
+                    titulo_actual_julio,
+                    titulo_actual_agosto,
+                    titulo_actual_septiembre
+            };
+
+
+            //agrega las columnas a las tablas
+            foreach (var item in meses_presente)
+            {
+                dt.Columns.Add("MXN_" + item, typeof(decimal));
+                dt.Columns.Add("USD_" + item, typeof(decimal));
+                dt.Columns.Add("EUR_" + item, typeof(decimal));
+                dt.Columns.Add("USD Local_" + item, typeof(decimal));
+            }
+
+            dt.Columns.Add(titulo_actual_total_mxn, typeof(decimal));
+            dt.Columns.Add(titulo_actual_total_usd, typeof(decimal));
+            dt.Columns.Add(titulo_actual_total_eur, typeof(decimal));
+            dt.Columns.Add(titulo_actual_total_local, typeof(decimal));
             dt.Columns.Add(comentarios_presente);
 
             //meses para budget
@@ -970,24 +1010,43 @@ namespace Portal_2_0.Models
             string titulo_proximo_julio = "BG " + MesesUtil.JULIO.Abreviation + "-" + anio_Fiscal_proximo.anio_fin.ToString().Substring(2, 2);
             string titulo_proximo_agosto = "BG " + MesesUtil.AGOSTO.Abreviation + "-" + anio_Fiscal_proximo.anio_fin.ToString().Substring(2, 2);
             string titulo_proximo_septiembre = "BG " + MesesUtil.SEPTIEMBRE.Abreviation + "-" + anio_Fiscal_proximo.anio_fin.ToString().Substring(2, 2);
-            string titulo_proximo_total = "Totals FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)));
+            string titulo_proximo_total_mxn = "Total MXN FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)));
+            string titulo_proximo_total_usd = "Total USD FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)));
+            string titulo_proximo_total_eur = "Total EUR FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)));
+            string titulo_proximo_total_local = "Total USD Local FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)));
             string comentarios_proximo = "Comentarios " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)));
 
-            dt.Columns.Add(titulo_proximo_octubre, typeof(decimal));
-            dt.Columns.Add(titulo_proximo_noviembre, typeof(decimal));
-            dt.Columns.Add(titulo_proximo_diciembre, typeof(decimal));
-            dt.Columns.Add(titulo_proximo_enero, typeof(decimal));
-            dt.Columns.Add(titulo_proximo_febrero, typeof(decimal));
-            dt.Columns.Add(titulo_proximo_marzo, typeof(decimal));
-            dt.Columns.Add(titulo_proximo_abril, typeof(decimal));
-            dt.Columns.Add(titulo_proximo_mayo, typeof(decimal));
-            dt.Columns.Add(titulo_proximo_junio, typeof(decimal));
-            dt.Columns.Add(titulo_proximo_julio, typeof(decimal));
-            dt.Columns.Add(titulo_proximo_agosto, typeof(decimal));
-            dt.Columns.Add(titulo_proximo_septiembre, typeof(decimal));
-            dt.Columns.Add(titulo_proximo_total, typeof(decimal));
-            dt.Columns.Add(comentarios_proximo);
+            //list con los los meses del año anterior
+            List<string> meses_proximo = new List<string> {
+                    titulo_proximo_octubre,
+                    titulo_proximo_noviembre,
+                    titulo_proximo_diciembre,
+                    titulo_proximo_enero,
+                    titulo_proximo_febrero,
+                    titulo_proximo_marzo,
+                    titulo_proximo_abril,
+                    titulo_proximo_mayo,
+                    titulo_proximo_junio,
+                    titulo_proximo_julio,
+                    titulo_proximo_agosto,
+                    titulo_proximo_septiembre
+            };
 
+
+            //agrega las columnas a las tablas
+            foreach (var item in meses_proximo)
+            {
+                dt.Columns.Add("MXN_" + item, typeof(decimal));
+                dt.Columns.Add("USD_" + item, typeof(decimal));
+                dt.Columns.Add("EUR_" + item, typeof(decimal));
+                dt.Columns.Add("USD Local_" + item, typeof(decimal));
+            }
+
+            dt.Columns.Add(titulo_proximo_total_mxn, typeof(decimal));
+            dt.Columns.Add(titulo_proximo_total_usd, typeof(decimal));
+            dt.Columns.Add(titulo_proximo_total_eur, typeof(decimal));
+            dt.Columns.Add(titulo_proximo_total_local, typeof(decimal));
+            dt.Columns.Add(comentarios_proximo);
 
             for (int i = 0; i < valoresListAnioAnterior.Count; i++)
             {
@@ -1002,271 +1061,957 @@ namespace Portal_2_0.Models
 
                 //completa valores para el año anterior
                 #region valores anio pasado
-                if (valoresListAnioAnterior[i].Octubre.HasValue)
-                    row[titulo_anterior_octubre] = valoresListAnioAnterior[i].Octubre;
+                //agrega las columnas a las tablas
+
+                //octubre
+                if (valoresListAnioAnterior[i].Octubre_MXN.HasValue)
+                    row["MXN_" + titulo_anterior_octubre] = valoresListAnioAnterior[i].Octubre_MXN;
                 else
-                    row[titulo_anterior_octubre] = DBNull.Value;
+                    row["MXN_" + titulo_anterior_octubre] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Octubre.HasValue)
+                    row["USD_" + titulo_anterior_octubre] = valoresListAnioAnterior[i].Octubre;
+                else
+                    row["USD_" + titulo_anterior_octubre] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Octubre_EUR.HasValue)
+                    row["EUR_" + titulo_anterior_octubre] = valoresListAnioAnterior[i].Octubre_EUR;
+                else
+                    row["EUR_" + titulo_anterior_octubre] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Octubre_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_anterior_octubre] = valoresListAnioAnterior[i].Octubre_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_anterior_octubre] = DBNull.Value;
+                //noviembre
+                if (valoresListAnioAnterior[i].Noviembre_MXN.HasValue)
+                    row["MXN_" + titulo_anterior_noviembre] = valoresListAnioAnterior[i].Noviembre_MXN;
+                else
+                    row["MXN_" + titulo_anterior_noviembre] = DBNull.Value;
 
                 if (valoresListAnioAnterior[i].Noviembre.HasValue)
-                    row[titulo_anterior_noviembre] = valoresListAnioAnterior[i].Noviembre;
+                    row["USD_" + titulo_anterior_noviembre] = valoresListAnioAnterior[i].Noviembre;
                 else
-                    row[titulo_anterior_noviembre] = DBNull.Value;
+                    row["USD_" + titulo_anterior_noviembre] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Noviembre_EUR.HasValue)
+                    row["EUR_" + titulo_anterior_noviembre] = valoresListAnioAnterior[i].Noviembre_EUR;
+                else
+                    row["EUR_" + titulo_anterior_noviembre] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Noviembre_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_anterior_noviembre] = valoresListAnioAnterior[i].Noviembre_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_anterior_noviembre] = DBNull.Value;
+                //diciembre
+                if (valoresListAnioAnterior[i].Diciembre_MXN.HasValue)
+                    row["MXN_" + titulo_anterior_diciembre] = valoresListAnioAnterior[i].Diciembre_MXN;
+                else
+                    row["MXN_" + titulo_anterior_diciembre] = DBNull.Value;
 
                 if (valoresListAnioAnterior[i].Diciembre.HasValue)
-                    row[titulo_anterior_diciembre] = valoresListAnioAnterior[i].Diciembre;
+                    row["USD_" + titulo_anterior_diciembre] = valoresListAnioAnterior[i].Diciembre;
                 else
-                    row[titulo_anterior_diciembre] = DBNull.Value;
+                    row["USD_" + titulo_anterior_diciembre] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Diciembre_EUR.HasValue)
+                    row["EUR_" + titulo_anterior_diciembre] = valoresListAnioAnterior[i].Diciembre_EUR;
+                else
+                    row["EUR_" + titulo_anterior_diciembre] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Diciembre_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_anterior_diciembre] = valoresListAnioAnterior[i].Diciembre_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_anterior_diciembre] = DBNull.Value;
+                //enero
+                if (valoresListAnioAnterior[i].Enero_MXN.HasValue)
+                    row["MXN_" + titulo_anterior_enero] = valoresListAnioAnterior[i].Enero_MXN;
+                else
+                    row["MXN_" + titulo_anterior_enero] = DBNull.Value;
 
                 if (valoresListAnioAnterior[i].Enero.HasValue)
-                    row[titulo_anterior_enero] = valoresListAnioAnterior[i].Enero;
+                    row["USD_" + titulo_anterior_enero] = valoresListAnioAnterior[i].Enero;
                 else
-                    row[titulo_anterior_enero] = DBNull.Value;
+                    row["USD_" + titulo_anterior_enero] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Enero_EUR.HasValue)
+                    row["EUR_" + titulo_anterior_enero] = valoresListAnioAnterior[i].Enero_EUR;
+                else
+                    row["EUR_" + titulo_anterior_enero] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Enero_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_anterior_enero] = valoresListAnioAnterior[i].Enero_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_anterior_enero] = DBNull.Value;
+                //febrero
+                if (valoresListAnioAnterior[i].Febrero_MXN.HasValue)
+                    row["MXN_" + titulo_anterior_febrero] = valoresListAnioAnterior[i].Febrero_MXN;
+                else
+                    row["MXN_" + titulo_anterior_febrero] = DBNull.Value;
 
                 if (valoresListAnioAnterior[i].Febrero.HasValue)
-                    row[titulo_anterior_febrero] = valoresListAnioAnterior[i].Febrero;
+                    row["USD_" + titulo_anterior_febrero] = valoresListAnioAnterior[i].Febrero;
                 else
-                    row[titulo_anterior_febrero] = DBNull.Value;
+                    row["USD_" + titulo_anterior_febrero] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Febrero_EUR.HasValue)
+                    row["EUR_" + titulo_anterior_febrero] = valoresListAnioAnterior[i].Febrero_EUR;
+                else
+                    row["EUR_" + titulo_anterior_febrero] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Febrero_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_anterior_febrero] = valoresListAnioAnterior[i].Febrero_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_anterior_febrero] = DBNull.Value;
+                //marzo
+                if (valoresListAnioAnterior[i].Marzo_MXN.HasValue)
+                    row["MXN_" + titulo_anterior_marzo] = valoresListAnioAnterior[i].Marzo_MXN;
+                else
+                    row["MXN_" + titulo_anterior_marzo] = DBNull.Value;
 
                 if (valoresListAnioAnterior[i].Marzo.HasValue)
-                    row[titulo_anterior_marzo] = valoresListAnioAnterior[i].Marzo;
+                    row["USD_" + titulo_anterior_marzo] = valoresListAnioAnterior[i].Marzo;
                 else
-                    row[titulo_anterior_marzo] = DBNull.Value;
+                    row["USD_" + titulo_anterior_marzo] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Marzo_EUR.HasValue)
+                    row["EUR_" + titulo_anterior_marzo] = valoresListAnioAnterior[i].Marzo_EUR;
+                else
+                    row["EUR_" + titulo_anterior_marzo] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Marzo_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_anterior_marzo] = valoresListAnioAnterior[i].Marzo_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_anterior_marzo] = DBNull.Value;
+                //abril
+                if (valoresListAnioAnterior[i].Abril_MXN.HasValue)
+                    row["MXN_" + titulo_anterior_abril] = valoresListAnioAnterior[i].Abril_MXN;
+                else
+                    row["MXN_" + titulo_anterior_abril] = DBNull.Value;
 
                 if (valoresListAnioAnterior[i].Abril.HasValue)
-                    row[titulo_anterior_abril] = valoresListAnioAnterior[i].Abril;
+                    row["USD_" + titulo_anterior_abril] = valoresListAnioAnterior[i].Abril;
                 else
-                    row[titulo_anterior_abril] = DBNull.Value;
+                    row["USD_" + titulo_anterior_abril] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Abril_EUR.HasValue)
+                    row["EUR_" + titulo_anterior_abril] = valoresListAnioAnterior[i].Abril_EUR;
+                else
+                    row["EUR_" + titulo_anterior_abril] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Abril_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_anterior_abril] = valoresListAnioAnterior[i].Abril_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_anterior_abril] = DBNull.Value;
+                //mayo
+                if (valoresListAnioAnterior[i].Mayo_MXN.HasValue)
+                    row["MXN_" + titulo_anterior_mayo] = valoresListAnioAnterior[i].Mayo_MXN;
+                else
+                    row["MXN_" + titulo_anterior_mayo] = DBNull.Value;
 
                 if (valoresListAnioAnterior[i].Mayo.HasValue)
-                    row[titulo_anterior_mayo] = valoresListAnioAnterior[i].Mayo;
+                    row["USD_" + titulo_anterior_mayo] = valoresListAnioAnterior[i].Mayo;
                 else
-                    row[titulo_anterior_mayo] = DBNull.Value;
+                    row["USD_" + titulo_anterior_mayo] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Mayo_EUR.HasValue)
+                    row["EUR_" + titulo_anterior_mayo] = valoresListAnioAnterior[i].Mayo_EUR;
+                else
+                    row["EUR_" + titulo_anterior_mayo] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Mayo_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_anterior_mayo] = valoresListAnioAnterior[i].Mayo_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_anterior_mayo] = DBNull.Value;
+                //junio
+                if (valoresListAnioAnterior[i].Junio_MXN.HasValue)
+                    row["MXN_" + titulo_anterior_junio] = valoresListAnioAnterior[i].Junio_MXN;
+                else
+                    row["MXN_" + titulo_anterior_junio] = DBNull.Value;
 
                 if (valoresListAnioAnterior[i].Junio.HasValue)
-                    row[titulo_anterior_junio] = valoresListAnioAnterior[i].Junio;
+                    row["USD_" + titulo_anterior_junio] = valoresListAnioAnterior[i].Junio;
                 else
-                    row[titulo_anterior_junio] = DBNull.Value;
+                    row["USD_" + titulo_anterior_junio] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Junio_EUR.HasValue)
+                    row["EUR_" + titulo_anterior_junio] = valoresListAnioAnterior[i].Junio_EUR;
+                else
+                    row["EUR_" + titulo_anterior_junio] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Junio_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_anterior_junio] = valoresListAnioAnterior[i].Junio_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_anterior_junio] = DBNull.Value;
+                //julio
+                if (valoresListAnioAnterior[i].Julio_MXN.HasValue)
+                    row["MXN_" + titulo_anterior_julio] = valoresListAnioAnterior[i].Julio_MXN;
+                else
+                    row["MXN_" + titulo_anterior_julio] = DBNull.Value;
 
                 if (valoresListAnioAnterior[i].Julio.HasValue)
-                    row[titulo_anterior_julio] = valoresListAnioAnterior[i].Julio;
+                    row["USD_" + titulo_anterior_julio] = valoresListAnioAnterior[i].Julio;
                 else
-                    row[titulo_anterior_julio] = DBNull.Value;
+                    row["USD_" + titulo_anterior_julio] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Julio_EUR.HasValue)
+                    row["EUR_" + titulo_anterior_julio] = valoresListAnioAnterior[i].Julio_EUR;
+                else
+                    row["EUR_" + titulo_anterior_julio] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Julio_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_anterior_julio] = valoresListAnioAnterior[i].Julio_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_anterior_julio] = DBNull.Value;
+                //agosto
+                if (valoresListAnioAnterior[i].Agosto_MXN.HasValue)
+                    row["MXN_" + titulo_anterior_agosto] = valoresListAnioAnterior[i].Agosto_MXN;
+                else
+                    row["MXN_" + titulo_anterior_agosto] = DBNull.Value;
 
                 if (valoresListAnioAnterior[i].Agosto.HasValue)
-                    row[titulo_anterior_agosto] = valoresListAnioAnterior[i].Agosto;
+                    row["USD_" + titulo_anterior_agosto] = valoresListAnioAnterior[i].Agosto;
                 else
-                    row[titulo_anterior_agosto] = DBNull.Value;
+                    row["USD_" + titulo_anterior_agosto] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Agosto_EUR.HasValue)
+                    row["EUR_" + titulo_anterior_agosto] = valoresListAnioAnterior[i].Agosto_EUR;
+                else
+                    row["EUR_" + titulo_anterior_agosto] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Agosto_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_anterior_agosto] = valoresListAnioAnterior[i].Agosto_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_anterior_agosto] = DBNull.Value;
+
+                //septiembre
+                if (valoresListAnioAnterior[i].Septiembre_MXN.HasValue)
+                    row["MXN_" + titulo_anterior_septiembre] = valoresListAnioAnterior[i].Septiembre_MXN;
+                else
+                    row["MXN_" + titulo_anterior_septiembre] = DBNull.Value;
 
                 if (valoresListAnioAnterior[i].Septiembre.HasValue)
-                    row[titulo_anterior_septiembre] = valoresListAnioAnterior[i].Septiembre;
+                    row["USD_" + titulo_anterior_septiembre] = valoresListAnioAnterior[i].Septiembre;
                 else
-                    row[titulo_anterior_septiembre] = DBNull.Value;
+                    row["USD_" + titulo_anterior_septiembre] = DBNull.Value;
 
-                row[titulo_anterior_total] = valoresListAnioAnterior[i].TotalMeses();
+                if (valoresListAnioAnterior[i].Septiembre_EUR.HasValue)
+                    row["EUR_" + titulo_anterior_septiembre] = valoresListAnioAnterior[i].Septiembre_EUR;
+                else
+                    row["EUR_" + titulo_anterior_septiembre] = DBNull.Value;
+
+                if (valoresListAnioAnterior[i].Septiembre_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_anterior_septiembre] = valoresListAnioAnterior[i].Septiembre_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_anterior_septiembre] = DBNull.Value;
+
+                row[titulo_anterior_total_mxn] = valoresListAnioAnterior[i].TotalMesesMXN();
+                row[titulo_anterior_total_usd] = valoresListAnioAnterior[i].TotalMesesUSD();
+                row[titulo_anterior_total_eur] = valoresListAnioAnterior[i].TotalMesesEUR();
+                row[titulo_anterior_total_local] = valoresListAnioAnterior[i].TotalMesesUSD_Local();
 
                 row[comentarios_anterior] = valoresListAnioAnterior[i].Comentario;
                 #endregion
 
                 //completa valores para el año actual
                 #region valores anio actual
-                if (valoresListAnioActual[i].Octubre.HasValue)
-                    row[titulo_actual_octubre] = valoresListAnioActual[i].Octubre;
+
+                //octubre
+                if (valoresListAnioActual[i].Octubre_MXN.HasValue)
+                    row["MXN_" + titulo_actual_octubre] = valoresListAnioActual[i].Octubre_MXN;
                 else
-                    row[titulo_actual_octubre] = DBNull.Value;
+                    row["MXN_" + titulo_actual_octubre] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Octubre.HasValue)
+                    row["USD_" + titulo_actual_octubre] = valoresListAnioActual[i].Octubre;
+                else
+                    row["USD_" + titulo_actual_octubre] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Octubre_EUR.HasValue)
+                    row["EUR_" + titulo_actual_octubre] = valoresListAnioActual[i].Octubre_EUR;
+                else
+                    row["EUR_" + titulo_actual_octubre] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Octubre_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_actual_octubre] = valoresListAnioActual[i].Octubre_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_actual_octubre] = DBNull.Value;
+                //noviembre
+                if (valoresListAnioActual[i].Noviembre_MXN.HasValue)
+                    row["MXN_" + titulo_actual_noviembre] = valoresListAnioActual[i].Noviembre_MXN;
+                else
+                    row["MXN_" + titulo_actual_noviembre] = DBNull.Value;
 
                 if (valoresListAnioActual[i].Noviembre.HasValue)
-                    row[titulo_actual_noviembre] = valoresListAnioActual[i].Noviembre;
+                    row["USD_" + titulo_actual_noviembre] = valoresListAnioActual[i].Noviembre;
                 else
-                    row[titulo_actual_noviembre] = DBNull.Value;
+                    row["USD_" + titulo_actual_noviembre] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Noviembre_EUR.HasValue)
+                    row["EUR_" + titulo_actual_noviembre] = valoresListAnioActual[i].Noviembre_EUR;
+                else
+                    row["EUR_" + titulo_actual_noviembre] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Noviembre_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_actual_noviembre] = valoresListAnioActual[i].Noviembre_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_actual_noviembre] = DBNull.Value;
+                //diciembre
+                if (valoresListAnioActual[i].Diciembre_MXN.HasValue)
+                    row["MXN_" + titulo_actual_diciembre] = valoresListAnioActual[i].Diciembre_MXN;
+                else
+                    row["MXN_" + titulo_actual_diciembre] = DBNull.Value;
 
                 if (valoresListAnioActual[i].Diciembre.HasValue)
-                    row[titulo_actual_diciembre] = valoresListAnioActual[i].Diciembre;
+                    row["USD_" + titulo_actual_diciembre] = valoresListAnioActual[i].Diciembre;
                 else
-                    row[titulo_actual_diciembre] = DBNull.Value;
+                    row["USD_" + titulo_actual_diciembre] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Diciembre_EUR.HasValue)
+                    row["EUR_" + titulo_actual_diciembre] = valoresListAnioActual[i].Diciembre_EUR;
+                else
+                    row["EUR_" + titulo_actual_diciembre] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Diciembre_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_actual_diciembre] = valoresListAnioActual[i].Diciembre_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_actual_diciembre] = DBNull.Value;
+                //enero
+                if (valoresListAnioActual[i].Enero_MXN.HasValue)
+                    row["MXN_" + titulo_actual_enero] = valoresListAnioActual[i].Enero_MXN;
+                else
+                    row["MXN_" + titulo_actual_enero] = DBNull.Value;
 
                 if (valoresListAnioActual[i].Enero.HasValue)
-                    row[titulo_actual_enero] = valoresListAnioActual[i].Enero;
+                    row["USD_" + titulo_actual_enero] = valoresListAnioActual[i].Enero;
                 else
-                    row[titulo_actual_enero] = DBNull.Value;
+                    row["USD_" + titulo_actual_enero] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Enero_EUR.HasValue)
+                    row["EUR_" + titulo_actual_enero] = valoresListAnioActual[i].Enero_EUR;
+                else
+                    row["EUR_" + titulo_actual_enero] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Enero_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_actual_enero] = valoresListAnioActual[i].Enero_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_actual_enero] = DBNull.Value;
+                //febrero
+                if (valoresListAnioActual[i].Febrero_MXN.HasValue)
+                    row["MXN_" + titulo_actual_febrero] = valoresListAnioActual[i].Febrero_MXN;
+                else
+                    row["MXN_" + titulo_actual_febrero] = DBNull.Value;
 
                 if (valoresListAnioActual[i].Febrero.HasValue)
-                    row[titulo_actual_febrero] = valoresListAnioActual[i].Febrero;
+                    row["USD_" + titulo_actual_febrero] = valoresListAnioActual[i].Febrero;
                 else
-                    row[titulo_actual_febrero] = DBNull.Value;
+                    row["USD_" + titulo_actual_febrero] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Febrero_EUR.HasValue)
+                    row["EUR_" + titulo_actual_febrero] = valoresListAnioActual[i].Febrero_EUR;
+                else
+                    row["EUR_" + titulo_actual_febrero] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Febrero_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_actual_febrero] = valoresListAnioActual[i].Febrero_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_actual_febrero] = DBNull.Value;
+                //marzo
+                if (valoresListAnioActual[i].Marzo_MXN.HasValue)
+                    row["MXN_" + titulo_actual_marzo] = valoresListAnioActual[i].Marzo_MXN;
+                else
+                    row["MXN_" + titulo_actual_marzo] = DBNull.Value;
 
                 if (valoresListAnioActual[i].Marzo.HasValue)
-                    row[titulo_actual_marzo] = valoresListAnioActual[i].Marzo;
+                    row["USD_" + titulo_actual_marzo] = valoresListAnioActual[i].Marzo;
                 else
-                    row[titulo_actual_marzo] = DBNull.Value;
+                    row["USD_" + titulo_actual_marzo] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Marzo_EUR.HasValue)
+                    row["EUR_" + titulo_actual_marzo] = valoresListAnioActual[i].Marzo_EUR;
+                else
+                    row["EUR_" + titulo_actual_marzo] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Marzo_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_actual_marzo] = valoresListAnioActual[i].Marzo_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_actual_marzo] = DBNull.Value;
+                //abril
+                if (valoresListAnioActual[i].Abril_MXN.HasValue)
+                    row["MXN_" + titulo_actual_abril] = valoresListAnioActual[i].Abril_MXN;
+                else
+                    row["MXN_" + titulo_actual_abril] = DBNull.Value;
 
                 if (valoresListAnioActual[i].Abril.HasValue)
-                    row[titulo_actual_abril] = valoresListAnioActual[i].Abril;
+                    row["USD_" + titulo_actual_abril] = valoresListAnioActual[i].Abril;
                 else
-                    row[titulo_actual_abril] = DBNull.Value;
+                    row["USD_" + titulo_actual_abril] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Abril_EUR.HasValue)
+                    row["EUR_" + titulo_actual_abril] = valoresListAnioActual[i].Abril_EUR;
+                else
+                    row["EUR_" + titulo_actual_abril] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Abril_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_actual_abril] = valoresListAnioActual[i].Abril_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_actual_abril] = DBNull.Value;
+                //mayo
+                if (valoresListAnioActual[i].Mayo_MXN.HasValue)
+                    row["MXN_" + titulo_actual_mayo] = valoresListAnioActual[i].Mayo_MXN;
+                else
+                    row["MXN_" + titulo_actual_mayo] = DBNull.Value;
 
                 if (valoresListAnioActual[i].Mayo.HasValue)
-                    row[titulo_actual_mayo] = valoresListAnioActual[i].Mayo;
+                    row["USD_" + titulo_actual_mayo] = valoresListAnioActual[i].Mayo;
                 else
-                    row[titulo_actual_mayo] = DBNull.Value;
+                    row["USD_" + titulo_actual_mayo] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Mayo_EUR.HasValue)
+                    row["EUR_" + titulo_actual_mayo] = valoresListAnioActual[i].Mayo_EUR;
+                else
+                    row["EUR_" + titulo_actual_mayo] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Mayo_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_actual_mayo] = valoresListAnioActual[i].Mayo_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_actual_mayo] = DBNull.Value;
+                //junio
+                if (valoresListAnioActual[i].Junio_MXN.HasValue)
+                    row["MXN_" + titulo_actual_junio] = valoresListAnioActual[i].Junio_MXN;
+                else
+                    row["MXN_" + titulo_actual_junio] = DBNull.Value;
 
                 if (valoresListAnioActual[i].Junio.HasValue)
-                    row[titulo_actual_junio] = valoresListAnioActual[i].Junio;
+                    row["USD_" + titulo_actual_junio] = valoresListAnioActual[i].Junio;
                 else
-                    row[titulo_actual_junio] = DBNull.Value;
+                    row["USD_" + titulo_actual_junio] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Junio_EUR.HasValue)
+                    row["EUR_" + titulo_actual_junio] = valoresListAnioActual[i].Junio_EUR;
+                else
+                    row["EUR_" + titulo_actual_junio] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Junio_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_actual_junio] = valoresListAnioActual[i].Junio_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_actual_junio] = DBNull.Value;
+                //julio
+                if (valoresListAnioActual[i].Julio_MXN.HasValue)
+                    row["MXN_" + titulo_actual_julio] = valoresListAnioActual[i].Julio_MXN;
+                else
+                    row["MXN_" + titulo_actual_julio] = DBNull.Value;
 
                 if (valoresListAnioActual[i].Julio.HasValue)
-                    row[titulo_actual_julio] = valoresListAnioActual[i].Julio;
+                    row["USD_" + titulo_actual_julio] = valoresListAnioActual[i].Julio;
                 else
-                    row[titulo_actual_julio] = DBNull.Value;
+                    row["USD_" + titulo_actual_julio] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Julio_EUR.HasValue)
+                    row["EUR_" + titulo_actual_julio] = valoresListAnioActual[i].Julio_EUR;
+                else
+                    row["EUR_" + titulo_actual_julio] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Julio_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_actual_julio] = valoresListAnioActual[i].Julio_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_actual_julio] = DBNull.Value;
+                //agosto
+                if (valoresListAnioActual[i].Agosto_MXN.HasValue)
+                    row["MXN_" + titulo_actual_agosto] = valoresListAnioActual[i].Agosto_MXN;
+                else
+                    row["MXN_" + titulo_actual_agosto] = DBNull.Value;
 
                 if (valoresListAnioActual[i].Agosto.HasValue)
-                    row[titulo_actual_agosto] = valoresListAnioActual[i].Agosto;
+                    row["USD_" + titulo_actual_agosto] = valoresListAnioActual[i].Agosto;
                 else
-                    row[titulo_actual_agosto] = DBNull.Value;
+                    row["USD_" + titulo_actual_agosto] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Agosto_EUR.HasValue)
+                    row["EUR_" + titulo_actual_agosto] = valoresListAnioActual[i].Agosto_EUR;
+                else
+                    row["EUR_" + titulo_actual_agosto] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Agosto_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_actual_agosto] = valoresListAnioActual[i].Agosto_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_actual_agosto] = DBNull.Value;
+
+                //septiembre
+                if (valoresListAnioActual[i].Septiembre_MXN.HasValue)
+                    row["MXN_" + titulo_actual_septiembre] = valoresListAnioActual[i].Septiembre_MXN;
+                else
+                    row["MXN_" + titulo_actual_septiembre] = DBNull.Value;
 
                 if (valoresListAnioActual[i].Septiembre.HasValue)
-                    row[titulo_actual_septiembre] = valoresListAnioActual[i].Septiembre;
+                    row["USD_" + titulo_actual_septiembre] = valoresListAnioActual[i].Septiembre;
                 else
-                    row[titulo_actual_septiembre] = DBNull.Value;
+                    row["USD_" + titulo_actual_septiembre] = DBNull.Value;
 
-                row[titulo_actual_total] = valoresListAnioActual[i].TotalMeses();
+                if (valoresListAnioActual[i].Septiembre_EUR.HasValue)
+                    row["EUR_" + titulo_actual_septiembre] = valoresListAnioActual[i].Septiembre_EUR;
+                else
+                    row["EUR_" + titulo_actual_septiembre] = DBNull.Value;
+
+                if (valoresListAnioActual[i].Septiembre_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_actual_septiembre] = valoresListAnioActual[i].Septiembre_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_actual_septiembre] = DBNull.Value;
+
+                row[titulo_actual_total_mxn] = valoresListAnioActual[i].TotalMesesMXN();
+                row[titulo_actual_total_usd] = valoresListAnioActual[i].TotalMesesUSD();
+                row[titulo_actual_total_eur] = valoresListAnioActual[i].TotalMesesEUR();
+                row[titulo_actual_total_local] = valoresListAnioActual[i].TotalMesesUSD_Local();
 
                 row[comentarios_presente] = valoresListAnioActual[i].Comentario;
+
+
                 #endregion
 
                 //completa valores para el año 
                 #region valores anio poximo
-                if (valoresListAnioProximo[i].Octubre.HasValue)
-                    row[titulo_proximo_octubre] = valoresListAnioProximo[i].Octubre;
+                //octubre
+                if (valoresListAnioProximo[i].Octubre_MXN.HasValue)
+                    row["MXN_" + titulo_proximo_octubre] = valoresListAnioProximo[i].Octubre_MXN;
                 else
-                    row[titulo_proximo_octubre] = DBNull.Value;
+                    row["MXN_" + titulo_proximo_octubre] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Octubre.HasValue)
+                    row["USD_" + titulo_proximo_octubre] = valoresListAnioProximo[i].Octubre;
+                else
+                    row["USD_" + titulo_proximo_octubre] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Octubre_EUR.HasValue)
+                    row["EUR_" + titulo_proximo_octubre] = valoresListAnioProximo[i].Octubre_EUR;
+                else
+                    row["EUR_" + titulo_proximo_octubre] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Octubre_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_proximo_octubre] = valoresListAnioProximo[i].Octubre_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_proximo_octubre] = DBNull.Value;
+                //noviembre
+                if (valoresListAnioProximo[i].Noviembre_MXN.HasValue)
+                    row["MXN_" + titulo_proximo_noviembre] = valoresListAnioProximo[i].Noviembre_MXN;
+                else
+                    row["MXN_" + titulo_proximo_noviembre] = DBNull.Value;
 
                 if (valoresListAnioProximo[i].Noviembre.HasValue)
-                    row[titulo_proximo_noviembre] = valoresListAnioProximo[i].Noviembre;
+                    row["USD_" + titulo_proximo_noviembre] = valoresListAnioProximo[i].Noviembre;
                 else
-                    row[titulo_proximo_noviembre] = DBNull.Value;
+                    row["USD_" + titulo_proximo_noviembre] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Noviembre_EUR.HasValue)
+                    row["EUR_" + titulo_proximo_noviembre] = valoresListAnioProximo[i].Noviembre_EUR;
+                else
+                    row["EUR_" + titulo_proximo_noviembre] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Noviembre_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_proximo_noviembre] = valoresListAnioProximo[i].Noviembre_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_proximo_noviembre] = DBNull.Value;
+                //diciembre
+                if (valoresListAnioProximo[i].Diciembre_MXN.HasValue)
+                    row["MXN_" + titulo_proximo_diciembre] = valoresListAnioProximo[i].Diciembre_MXN;
+                else
+                    row["MXN_" + titulo_proximo_diciembre] = DBNull.Value;
 
                 if (valoresListAnioProximo[i].Diciembre.HasValue)
-                    row[titulo_proximo_diciembre] = valoresListAnioProximo[i].Diciembre;
+                    row["USD_" + titulo_proximo_diciembre] = valoresListAnioProximo[i].Diciembre;
                 else
-                    row[titulo_proximo_diciembre] = DBNull.Value;
+                    row["USD_" + titulo_proximo_diciembre] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Diciembre_EUR.HasValue)
+                    row["EUR_" + titulo_proximo_diciembre] = valoresListAnioProximo[i].Diciembre_EUR;
+                else
+                    row["EUR_" + titulo_proximo_diciembre] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Diciembre_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_proximo_diciembre] = valoresListAnioProximo[i].Diciembre_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_proximo_diciembre] = DBNull.Value;
+                //enero
+                if (valoresListAnioProximo[i].Enero_MXN.HasValue)
+                    row["MXN_" + titulo_proximo_enero] = valoresListAnioProximo[i].Enero_MXN;
+                else
+                    row["MXN_" + titulo_proximo_enero] = DBNull.Value;
 
                 if (valoresListAnioProximo[i].Enero.HasValue)
-                    row[titulo_proximo_enero] = valoresListAnioProximo[i].Enero;
+                    row["USD_" + titulo_proximo_enero] = valoresListAnioProximo[i].Enero;
                 else
-                    row[titulo_proximo_enero] = DBNull.Value;
+                    row["USD_" + titulo_proximo_enero] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Enero_EUR.HasValue)
+                    row["EUR_" + titulo_proximo_enero] = valoresListAnioProximo[i].Enero_EUR;
+                else
+                    row["EUR_" + titulo_proximo_enero] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Enero_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_proximo_enero] = valoresListAnioProximo[i].Enero_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_proximo_enero] = DBNull.Value;
+                //febrero
+                if (valoresListAnioProximo[i].Febrero_MXN.HasValue)
+                    row["MXN_" + titulo_proximo_febrero] = valoresListAnioProximo[i].Febrero_MXN;
+                else
+                    row["MXN_" + titulo_proximo_febrero] = DBNull.Value;
 
                 if (valoresListAnioProximo[i].Febrero.HasValue)
-                    row[titulo_proximo_febrero] = valoresListAnioProximo[i].Febrero;
+                    row["USD_" + titulo_proximo_febrero] = valoresListAnioProximo[i].Febrero;
                 else
-                    row[titulo_proximo_febrero] = DBNull.Value;
+                    row["USD_" + titulo_proximo_febrero] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Febrero_EUR.HasValue)
+                    row["EUR_" + titulo_proximo_febrero] = valoresListAnioProximo[i].Febrero_EUR;
+                else
+                    row["EUR_" + titulo_proximo_febrero] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Febrero_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_proximo_febrero] = valoresListAnioProximo[i].Febrero_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_proximo_febrero] = DBNull.Value;
+                //marzo
+                if (valoresListAnioProximo[i].Marzo_MXN.HasValue)
+                    row["MXN_" + titulo_proximo_marzo] = valoresListAnioProximo[i].Marzo_MXN;
+                else
+                    row["MXN_" + titulo_proximo_marzo] = DBNull.Value;
 
                 if (valoresListAnioProximo[i].Marzo.HasValue)
-                    row[titulo_proximo_marzo] = valoresListAnioProximo[i].Marzo;
+                    row["USD_" + titulo_proximo_marzo] = valoresListAnioProximo[i].Marzo;
                 else
-                    row[titulo_proximo_marzo] = DBNull.Value;
+                    row["USD_" + titulo_proximo_marzo] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Marzo_EUR.HasValue)
+                    row["EUR_" + titulo_proximo_marzo] = valoresListAnioProximo[i].Marzo_EUR;
+                else
+                    row["EUR_" + titulo_proximo_marzo] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Marzo_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_proximo_marzo] = valoresListAnioProximo[i].Marzo_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_proximo_marzo] = DBNull.Value;
+                //abril
+                if (valoresListAnioProximo[i].Abril_MXN.HasValue)
+                    row["MXN_" + titulo_proximo_abril] = valoresListAnioProximo[i].Abril_MXN;
+                else
+                    row["MXN_" + titulo_proximo_abril] = DBNull.Value;
 
                 if (valoresListAnioProximo[i].Abril.HasValue)
-                    row[titulo_proximo_abril] = valoresListAnioProximo[i].Abril;
+                    row["USD_" + titulo_proximo_abril] = valoresListAnioProximo[i].Abril;
                 else
-                    row[titulo_proximo_abril] = DBNull.Value;
+                    row["USD_" + titulo_proximo_abril] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Abril_EUR.HasValue)
+                    row["EUR_" + titulo_proximo_abril] = valoresListAnioProximo[i].Abril_EUR;
+                else
+                    row["EUR_" + titulo_proximo_abril] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Abril_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_proximo_abril] = valoresListAnioProximo[i].Abril_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_proximo_abril] = DBNull.Value;
+                //mayo
+                if (valoresListAnioProximo[i].Mayo_MXN.HasValue)
+                    row["MXN_" + titulo_proximo_mayo] = valoresListAnioProximo[i].Mayo_MXN;
+                else
+                    row["MXN_" + titulo_proximo_mayo] = DBNull.Value;
 
                 if (valoresListAnioProximo[i].Mayo.HasValue)
-                    row[titulo_proximo_mayo] = valoresListAnioProximo[i].Mayo;
+                    row["USD_" + titulo_proximo_mayo] = valoresListAnioProximo[i].Mayo;
                 else
-                    row[titulo_proximo_mayo] = DBNull.Value;
+                    row["USD_" + titulo_proximo_mayo] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Mayo_EUR.HasValue)
+                    row["EUR_" + titulo_proximo_mayo] = valoresListAnioProximo[i].Mayo_EUR;
+                else
+                    row["EUR_" + titulo_proximo_mayo] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Mayo_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_proximo_mayo] = valoresListAnioProximo[i].Mayo_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_proximo_mayo] = DBNull.Value;
+                //junio
+                if (valoresListAnioProximo[i].Junio_MXN.HasValue)
+                    row["MXN_" + titulo_proximo_junio] = valoresListAnioProximo[i].Junio_MXN;
+                else
+                    row["MXN_" + titulo_proximo_junio] = DBNull.Value;
 
                 if (valoresListAnioProximo[i].Junio.HasValue)
-                    row[titulo_proximo_junio] = valoresListAnioProximo[i].Junio;
+                    row["USD_" + titulo_proximo_junio] = valoresListAnioProximo[i].Junio;
                 else
-                    row[titulo_proximo_junio] = DBNull.Value;
+                    row["USD_" + titulo_proximo_junio] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Junio_EUR.HasValue)
+                    row["EUR_" + titulo_proximo_junio] = valoresListAnioProximo[i].Junio_EUR;
+                else
+                    row["EUR_" + titulo_proximo_junio] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Junio_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_proximo_junio] = valoresListAnioProximo[i].Junio_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_proximo_junio] = DBNull.Value;
+                //julio
+                if (valoresListAnioProximo[i].Julio_MXN.HasValue)
+                    row["MXN_" + titulo_proximo_julio] = valoresListAnioProximo[i].Julio_MXN;
+                else
+                    row["MXN_" + titulo_proximo_julio] = DBNull.Value;
 
                 if (valoresListAnioProximo[i].Julio.HasValue)
-                    row[titulo_proximo_julio] = valoresListAnioProximo[i].Julio;
+                    row["USD_" + titulo_proximo_julio] = valoresListAnioProximo[i].Julio;
                 else
-                    row[titulo_proximo_julio] = DBNull.Value;
+                    row["USD_" + titulo_proximo_julio] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Julio_EUR.HasValue)
+                    row["EUR_" + titulo_proximo_julio] = valoresListAnioProximo[i].Julio_EUR;
+                else
+                    row["EUR_" + titulo_proximo_julio] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Julio_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_proximo_julio] = valoresListAnioProximo[i].Julio_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_proximo_julio] = DBNull.Value;
+                //agosto
+                if (valoresListAnioProximo[i].Agosto_MXN.HasValue)
+                    row["MXN_" + titulo_proximo_agosto] = valoresListAnioProximo[i].Agosto_MXN;
+                else
+                    row["MXN_" + titulo_proximo_agosto] = DBNull.Value;
 
                 if (valoresListAnioProximo[i].Agosto.HasValue)
-                    row[titulo_proximo_agosto] = valoresListAnioProximo[i].Agosto;
+                    row["USD_" + titulo_proximo_agosto] = valoresListAnioProximo[i].Agosto;
                 else
-                    row[titulo_proximo_agosto] = DBNull.Value;
+                    row["USD_" + titulo_proximo_agosto] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Agosto_EUR.HasValue)
+                    row["EUR_" + titulo_proximo_agosto] = valoresListAnioProximo[i].Agosto_EUR;
+                else
+                    row["EUR_" + titulo_proximo_agosto] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Agosto_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_proximo_agosto] = valoresListAnioProximo[i].Agosto_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_proximo_agosto] = DBNull.Value;
+
+                //septiembre
+                if (valoresListAnioProximo[i].Septiembre_MXN.HasValue)
+                    row["MXN_" + titulo_proximo_septiembre] = valoresListAnioProximo[i].Septiembre_MXN;
+                else
+                    row["MXN_" + titulo_proximo_septiembre] = DBNull.Value;
 
                 if (valoresListAnioProximo[i].Septiembre.HasValue)
-                    row[titulo_proximo_septiembre] = valoresListAnioProximo[i].Septiembre;
+                    row["USD_" + titulo_proximo_septiembre] = valoresListAnioProximo[i].Septiembre;
                 else
-                    row[titulo_proximo_septiembre] = DBNull.Value;
+                    row["USD_" + titulo_proximo_septiembre] = DBNull.Value;
 
-                row[titulo_proximo_total] = valoresListAnioProximo[i].TotalMeses();
-                row[comentarios_proximo] = valoresListAnioProximo[i].Comentario;
+                if (valoresListAnioProximo[i].Septiembre_EUR.HasValue)
+                    row["EUR_" + titulo_proximo_septiembre] = valoresListAnioProximo[i].Septiembre_EUR;
+                else
+                    row["EUR_" + titulo_proximo_septiembre] = DBNull.Value;
+
+                if (valoresListAnioProximo[i].Septiembre_USD_LOCAL.HasValue)
+                    row["USD Local_" + titulo_proximo_septiembre] = valoresListAnioProximo[i].Septiembre_USD_LOCAL;
+                else
+                    row["USD Local_" + titulo_proximo_septiembre] = DBNull.Value;
+
+                row[titulo_proximo_total_mxn] = valoresListAnioProximo[i].TotalMesesMXN();
+                row[titulo_proximo_total_usd] = valoresListAnioProximo[i].TotalMesesUSD();
+                row[titulo_proximo_total_eur] = valoresListAnioProximo[i].TotalMesesEUR();
+                row[titulo_proximo_total_local] = valoresListAnioProximo[i].TotalMesesUSD_Local();
+
+                row[comentarios_anterior] = valoresListAnioProximo[i].Comentario;
 
                 #endregion
 
                 dt.Rows.Add(row);
             }
 
+            #region Sumatorias
             //agregar los totales
             System.Data.DataRow rowTotales = dt.NewRow();
+
             rowTotales["Mapping Bridge"] = "Totales";
-            rowTotales[titulo_anterior_octubre] = valoresListAnioAnterior.Sum(item => item.Octubre);
-            rowTotales[titulo_anterior_noviembre] = valoresListAnioAnterior.Sum(item => item.Noviembre);
-            rowTotales[titulo_anterior_diciembre] = valoresListAnioAnterior.Sum(item => item.Diciembre);
-            rowTotales[titulo_anterior_enero] = valoresListAnioAnterior.Sum(item => item.Enero);
-            rowTotales[titulo_anterior_febrero] = valoresListAnioAnterior.Sum(item => item.Febrero);
-            rowTotales[titulo_anterior_marzo] = valoresListAnioAnterior.Sum(item => item.Marzo);
-            rowTotales[titulo_anterior_abril] = valoresListAnioAnterior.Sum(item => item.Abril);
-            rowTotales[titulo_anterior_mayo] = valoresListAnioAnterior.Sum(item => item.Mayo);
-            rowTotales[titulo_anterior_junio] = valoresListAnioAnterior.Sum(item => item.Junio);
-            rowTotales[titulo_anterior_julio] = valoresListAnioAnterior.Sum(item => item.Julio);
-            rowTotales[titulo_anterior_agosto] = valoresListAnioAnterior.Sum(item => item.Agosto);
-            rowTotales[titulo_anterior_septiembre] = valoresListAnioAnterior.Sum(item => item.Septiembre);
-            rowTotales[titulo_anterior_total] = valoresListAnioAnterior.Sum(item => item.TotalMeses());
+            rowTotales["MXN_" + titulo_anterior_octubre] = valoresListAnioAnterior.Sum(item => item.Octubre_MXN);
+            rowTotales["USD_" + titulo_anterior_octubre] = valoresListAnioAnterior.Sum(item => item.Octubre);
+            rowTotales["EUR_" + titulo_anterior_octubre] = valoresListAnioAnterior.Sum(item => item.Octubre_EUR);
+            rowTotales["USD Local_" + titulo_anterior_octubre] = valoresListAnioAnterior.Sum(item => item.Octubre_USD_LOCAL);
+            rowTotales["MXN_" + titulo_anterior_noviembre] = valoresListAnioAnterior.Sum(item => item.Noviembre_MXN);
+            rowTotales["USD_" + titulo_anterior_noviembre] = valoresListAnioAnterior.Sum(item => item.Noviembre);
+            rowTotales["EUR_" + titulo_anterior_noviembre] = valoresListAnioAnterior.Sum(item => item.Noviembre_EUR);
+            rowTotales["USD Local_" + titulo_anterior_noviembre] = valoresListAnioAnterior.Sum(item => item.Noviembre_USD_LOCAL);
+            rowTotales["MXN_" + titulo_anterior_diciembre] = valoresListAnioAnterior.Sum(item => item.Diciembre_MXN);
+            rowTotales["USD_" + titulo_anterior_diciembre] = valoresListAnioAnterior.Sum(item => item.Diciembre);
+            rowTotales["EUR_" + titulo_anterior_diciembre] = valoresListAnioAnterior.Sum(item => item.Diciembre_EUR);
+            rowTotales["USD Local_" + titulo_anterior_diciembre] = valoresListAnioAnterior.Sum(item => item.Diciembre_USD_LOCAL);
+            rowTotales["MXN_" + titulo_anterior_enero] = valoresListAnioAnterior.Sum(item => item.Enero_MXN);
+            rowTotales["USD_" + titulo_anterior_enero] = valoresListAnioAnterior.Sum(item => item.Enero);
+            rowTotales["EUR_" + titulo_anterior_enero] = valoresListAnioAnterior.Sum(item => item.Enero_EUR);
+            rowTotales["USD Local_" + titulo_anterior_enero] = valoresListAnioAnterior.Sum(item => item.Enero_USD_LOCAL);
+            rowTotales["MXN_" + titulo_anterior_febrero] = valoresListAnioAnterior.Sum(item => item.Febrero_MXN);
+            rowTotales["USD_" + titulo_anterior_febrero] = valoresListAnioAnterior.Sum(item => item.Febrero);
+            rowTotales["EUR_" + titulo_anterior_febrero] = valoresListAnioAnterior.Sum(item => item.Febrero_EUR);
+            rowTotales["USD Local_" + titulo_anterior_febrero] = valoresListAnioAnterior.Sum(item => item.Febrero_USD_LOCAL);
+            rowTotales["MXN_" + titulo_anterior_marzo] = valoresListAnioAnterior.Sum(item => item.Marzo_MXN);
+            rowTotales["USD_" + titulo_anterior_marzo] = valoresListAnioAnterior.Sum(item => item.Marzo);
+            rowTotales["EUR_" + titulo_anterior_marzo] = valoresListAnioAnterior.Sum(item => item.Marzo_EUR);
+            rowTotales["USD Local_" + titulo_anterior_marzo] = valoresListAnioAnterior.Sum(item => item.Marzo_USD_LOCAL);
+            rowTotales["MXN_" + titulo_anterior_abril] = valoresListAnioAnterior.Sum(item => item.Abril_MXN);
+            rowTotales["USD_" + titulo_anterior_abril] = valoresListAnioAnterior.Sum(item => item.Abril);
+            rowTotales["EUR_" + titulo_anterior_abril] = valoresListAnioAnterior.Sum(item => item.Abril_EUR);
+            rowTotales["USD Local_" + titulo_anterior_abril] = valoresListAnioAnterior.Sum(item => item.Abril_USD_LOCAL);
+            rowTotales["MXN_" + titulo_anterior_mayo] = valoresListAnioAnterior.Sum(item => item.Mayo_MXN);
+            rowTotales["USD_" + titulo_anterior_mayo] = valoresListAnioAnterior.Sum(item => item.Mayo);
+            rowTotales["EUR_" + titulo_anterior_mayo] = valoresListAnioAnterior.Sum(item => item.Mayo_EUR);
+            rowTotales["USD Local_" + titulo_anterior_mayo] = valoresListAnioAnterior.Sum(item => item.Mayo_USD_LOCAL);
+            rowTotales["MXN_" + titulo_anterior_junio] = valoresListAnioAnterior.Sum(item => item.Junio_MXN);
+            rowTotales["USD_" + titulo_anterior_junio] = valoresListAnioAnterior.Sum(item => item.Junio);
+            rowTotales["EUR_" + titulo_anterior_junio] = valoresListAnioAnterior.Sum(item => item.Junio_EUR);
+            rowTotales["USD Local_" + titulo_anterior_junio] = valoresListAnioAnterior.Sum(item => item.Junio_USD_LOCAL);
+            rowTotales["MXN_" + titulo_anterior_julio] = valoresListAnioAnterior.Sum(item => item.Julio_MXN);
+            rowTotales["USD_" + titulo_anterior_julio] = valoresListAnioAnterior.Sum(item => item.Julio);
+            rowTotales["EUR_" + titulo_anterior_julio] = valoresListAnioAnterior.Sum(item => item.Julio_EUR);
+            rowTotales["USD Local_" + titulo_anterior_julio] = valoresListAnioAnterior.Sum(item => item.Julio_USD_LOCAL);
+            rowTotales["MXN_" + titulo_anterior_agosto] = valoresListAnioAnterior.Sum(item => item.Agosto_MXN);
+            rowTotales["USD_" + titulo_anterior_agosto] = valoresListAnioAnterior.Sum(item => item.Agosto);
+            rowTotales["EUR_" + titulo_anterior_agosto] = valoresListAnioAnterior.Sum(item => item.Agosto_EUR);
+            rowTotales["USD Local_" + titulo_anterior_agosto] = valoresListAnioAnterior.Sum(item => item.Agosto_USD_LOCAL);
+            rowTotales["MXN_" + titulo_anterior_septiembre] = valoresListAnioAnterior.Sum(item => item.Septiembre_MXN);
+            rowTotales["USD_" + titulo_anterior_septiembre] = valoresListAnioAnterior.Sum(item => item.Septiembre);
+            rowTotales["EUR_" + titulo_anterior_septiembre] = valoresListAnioAnterior.Sum(item => item.Septiembre_EUR);
+            rowTotales["USD Local_" + titulo_anterior_septiembre] = valoresListAnioAnterior.Sum(item => item.Septiembre_USD_LOCAL);
 
-            rowTotales[titulo_proximo_octubre] = valoresListAnioProximo.Sum(item => item.Octubre);
-            rowTotales[titulo_proximo_noviembre] = valoresListAnioProximo.Sum(item => item.Noviembre);
-            rowTotales[titulo_proximo_diciembre] = valoresListAnioProximo.Sum(item => item.Diciembre);
-            rowTotales[titulo_proximo_enero] = valoresListAnioProximo.Sum(item => item.Enero);
-            rowTotales[titulo_proximo_febrero] = valoresListAnioProximo.Sum(item => item.Febrero);
-            rowTotales[titulo_proximo_marzo] = valoresListAnioProximo.Sum(item => item.Marzo);
-            rowTotales[titulo_proximo_abril] = valoresListAnioProximo.Sum(item => item.Abril);
-            rowTotales[titulo_proximo_mayo] = valoresListAnioProximo.Sum(item => item.Mayo);
-            rowTotales[titulo_proximo_junio] = valoresListAnioProximo.Sum(item => item.Junio);
-            rowTotales[titulo_proximo_julio] = valoresListAnioProximo.Sum(item => item.Julio);
-            rowTotales[titulo_proximo_agosto] = valoresListAnioProximo.Sum(item => item.Agosto);
-            rowTotales[titulo_proximo_septiembre] = valoresListAnioProximo.Sum(item => item.Septiembre);
-            rowTotales[titulo_proximo_total] = valoresListAnioProximo.Sum(item => item.TotalMeses());
+            rowTotales[titulo_anterior_total_mxn] = valoresListAnioAnterior.Sum(item => item.TotalMesesMXN());
+            rowTotales[titulo_anterior_total_usd] = valoresListAnioAnterior.Sum(item => item.TotalMesesUSD());
+            rowTotales[titulo_anterior_total_eur] = valoresListAnioAnterior.Sum(item => item.TotalMesesEUR());
+            rowTotales[titulo_anterior_total_local] = valoresListAnioAnterior.Sum(item => item.TotalMesesUSD_Local());
+            //ACTUAL/FORECAST
+            rowTotales["MXN_" + titulo_actual_octubre] = valoresListAnioActual.Sum(item => item.Octubre_MXN);
+            rowTotales["USD_" + titulo_actual_octubre] = valoresListAnioActual.Sum(item => item.Octubre);
+            rowTotales["EUR_" + titulo_actual_octubre] = valoresListAnioActual.Sum(item => item.Octubre_EUR);
+            rowTotales["USD Local_" + titulo_actual_octubre] = valoresListAnioActual.Sum(item => item.Octubre_USD_LOCAL);
+            rowTotales["MXN_" + titulo_actual_noviembre] = valoresListAnioActual.Sum(item => item.Noviembre_MXN);
+            rowTotales["USD_" + titulo_actual_noviembre] = valoresListAnioActual.Sum(item => item.Noviembre);
+            rowTotales["EUR_" + titulo_actual_noviembre] = valoresListAnioActual.Sum(item => item.Noviembre_EUR);
+            rowTotales["USD Local_" + titulo_actual_noviembre] = valoresListAnioActual.Sum(item => item.Noviembre_USD_LOCAL);
+            rowTotales["MXN_" + titulo_actual_diciembre] = valoresListAnioActual.Sum(item => item.Diciembre_MXN);
+            rowTotales["USD_" + titulo_actual_diciembre] = valoresListAnioActual.Sum(item => item.Diciembre);
+            rowTotales["EUR_" + titulo_actual_diciembre] = valoresListAnioActual.Sum(item => item.Diciembre_EUR);
+            rowTotales["USD Local_" + titulo_actual_diciembre] = valoresListAnioActual.Sum(item => item.Diciembre_USD_LOCAL);
+            rowTotales["MXN_" + titulo_actual_enero] = valoresListAnioActual.Sum(item => item.Enero_MXN);
+            rowTotales["USD_" + titulo_actual_enero] = valoresListAnioActual.Sum(item => item.Enero);
+            rowTotales["EUR_" + titulo_actual_enero] = valoresListAnioActual.Sum(item => item.Enero_EUR);
+            rowTotales["USD Local_" + titulo_actual_enero] = valoresListAnioActual.Sum(item => item.Enero_USD_LOCAL);
+            rowTotales["MXN_" + titulo_actual_febrero] = valoresListAnioActual.Sum(item => item.Febrero_MXN);
+            rowTotales["USD_" + titulo_actual_febrero] = valoresListAnioActual.Sum(item => item.Febrero);
+            rowTotales["EUR_" + titulo_actual_febrero] = valoresListAnioActual.Sum(item => item.Febrero_EUR);
+            rowTotales["USD Local_" + titulo_actual_febrero] = valoresListAnioActual.Sum(item => item.Febrero_USD_LOCAL);
+            rowTotales["MXN_" + titulo_actual_marzo] = valoresListAnioActual.Sum(item => item.Marzo_MXN);
+            rowTotales["USD_" + titulo_actual_marzo] = valoresListAnioActual.Sum(item => item.Marzo);
+            rowTotales["EUR_" + titulo_actual_marzo] = valoresListAnioActual.Sum(item => item.Marzo_EUR);
+            rowTotales["USD Local_" + titulo_actual_marzo] = valoresListAnioActual.Sum(item => item.Marzo_USD_LOCAL);
+            rowTotales["MXN_" + titulo_actual_abril] = valoresListAnioActual.Sum(item => item.Abril_MXN);
+            rowTotales["USD_" + titulo_actual_abril] = valoresListAnioActual.Sum(item => item.Abril);
+            rowTotales["EUR_" + titulo_actual_abril] = valoresListAnioActual.Sum(item => item.Abril_EUR);
+            rowTotales["USD Local_" + titulo_actual_abril] = valoresListAnioActual.Sum(item => item.Abril_USD_LOCAL);
+            rowTotales["MXN_" + titulo_actual_mayo] = valoresListAnioActual.Sum(item => item.Mayo_MXN);
+            rowTotales["USD_" + titulo_actual_mayo] = valoresListAnioActual.Sum(item => item.Mayo);
+            rowTotales["EUR_" + titulo_actual_mayo] = valoresListAnioActual.Sum(item => item.Mayo_EUR);
+            rowTotales["USD Local_" + titulo_actual_mayo] = valoresListAnioActual.Sum(item => item.Mayo_USD_LOCAL);
+            rowTotales["MXN_" + titulo_actual_junio] = valoresListAnioActual.Sum(item => item.Junio_MXN);
+            rowTotales["USD_" + titulo_actual_junio] = valoresListAnioActual.Sum(item => item.Junio);
+            rowTotales["EUR_" + titulo_actual_junio] = valoresListAnioActual.Sum(item => item.Junio_EUR);
+            rowTotales["USD Local_" + titulo_actual_junio] = valoresListAnioActual.Sum(item => item.Junio_USD_LOCAL);
+            rowTotales["MXN_" + titulo_actual_julio] = valoresListAnioActual.Sum(item => item.Julio_MXN);
+            rowTotales["USD_" + titulo_actual_julio] = valoresListAnioActual.Sum(item => item.Julio);
+            rowTotales["EUR_" + titulo_actual_julio] = valoresListAnioActual.Sum(item => item.Julio_EUR);
+            rowTotales["USD Local_" + titulo_actual_julio] = valoresListAnioActual.Sum(item => item.Julio_USD_LOCAL);
+            rowTotales["MXN_" + titulo_actual_agosto] = valoresListAnioActual.Sum(item => item.Agosto_MXN);
+            rowTotales["USD_" + titulo_actual_agosto] = valoresListAnioActual.Sum(item => item.Agosto);
+            rowTotales["EUR_" + titulo_actual_agosto] = valoresListAnioActual.Sum(item => item.Agosto_EUR);
+            rowTotales["USD Local_" + titulo_actual_agosto] = valoresListAnioActual.Sum(item => item.Agosto_USD_LOCAL);
+            rowTotales["MXN_" + titulo_actual_septiembre] = valoresListAnioActual.Sum(item => item.Septiembre_MXN);
+            rowTotales["USD_" + titulo_actual_septiembre] = valoresListAnioActual.Sum(item => item.Septiembre);
+            rowTotales["EUR_" + titulo_actual_septiembre] = valoresListAnioActual.Sum(item => item.Septiembre_EUR);
+            rowTotales["USD Local_" + titulo_actual_septiembre] = valoresListAnioActual.Sum(item => item.Septiembre_USD_LOCAL);
 
-            rowTotales[titulo_actual_octubre] = valoresListAnioActual.Sum(item => item.Octubre);
-            rowTotales[titulo_actual_noviembre] = valoresListAnioActual.Sum(item => item.Noviembre);
-            rowTotales[titulo_actual_diciembre] = valoresListAnioActual.Sum(item => item.Diciembre);
-            rowTotales[titulo_actual_enero] = valoresListAnioActual.Sum(item => item.Enero);
-            rowTotales[titulo_actual_febrero] = valoresListAnioActual.Sum(item => item.Febrero);
-            rowTotales[titulo_actual_marzo] = valoresListAnioActual.Sum(item => item.Marzo);
-            rowTotales[titulo_actual_abril] = valoresListAnioActual.Sum(item => item.Abril);
-            rowTotales[titulo_actual_mayo] = valoresListAnioActual.Sum(item => item.Mayo);
-            rowTotales[titulo_actual_junio] = valoresListAnioActual.Sum(item => item.Junio);
-            rowTotales[titulo_actual_julio] = valoresListAnioActual.Sum(item => item.Julio);
-            rowTotales[titulo_actual_agosto] = valoresListAnioActual.Sum(item => item.Agosto);
-            rowTotales[titulo_actual_septiembre] = valoresListAnioActual.Sum(item => item.Septiembre);
-            rowTotales[titulo_actual_total] = valoresListAnioActual.Sum(item => item.TotalMeses());
+            rowTotales[titulo_actual_total_mxn] = valoresListAnioActual.Sum(item => item.TotalMesesMXN());
+            rowTotales[titulo_actual_total_usd] = valoresListAnioActual.Sum(item => item.TotalMesesUSD());
+            rowTotales[titulo_actual_total_eur] = valoresListAnioActual.Sum(item => item.TotalMesesEUR());
+            rowTotales[titulo_actual_total_local] = valoresListAnioActual.Sum(item => item.TotalMesesUSD_Local());
+
+            //PROXIMO
+            rowTotales["MXN_" + titulo_proximo_octubre] = valoresListAnioProximo.Sum(item => item.Octubre_MXN);
+            rowTotales["USD_" + titulo_proximo_octubre] = valoresListAnioProximo.Sum(item => item.Octubre);
+            rowTotales["EUR_" + titulo_proximo_octubre] = valoresListAnioProximo.Sum(item => item.Octubre_EUR);
+            rowTotales["USD Local_" + titulo_proximo_octubre] = valoresListAnioProximo.Sum(item => item.Octubre_USD_LOCAL);
+            rowTotales["MXN_" + titulo_proximo_noviembre] = valoresListAnioProximo.Sum(item => item.Noviembre_MXN);
+            rowTotales["USD_" + titulo_proximo_noviembre] = valoresListAnioProximo.Sum(item => item.Noviembre);
+            rowTotales["EUR_" + titulo_proximo_noviembre] = valoresListAnioProximo.Sum(item => item.Noviembre_EUR);
+            rowTotales["USD Local_" + titulo_proximo_noviembre] = valoresListAnioProximo.Sum(item => item.Noviembre_USD_LOCAL);
+            rowTotales["MXN_" + titulo_proximo_diciembre] = valoresListAnioProximo.Sum(item => item.Diciembre_MXN);
+            rowTotales["USD_" + titulo_proximo_diciembre] = valoresListAnioProximo.Sum(item => item.Diciembre);
+            rowTotales["EUR_" + titulo_proximo_diciembre] = valoresListAnioProximo.Sum(item => item.Diciembre_EUR);
+            rowTotales["USD Local_" + titulo_proximo_diciembre] = valoresListAnioProximo.Sum(item => item.Diciembre_USD_LOCAL);
+            rowTotales["MXN_" + titulo_proximo_enero] = valoresListAnioProximo.Sum(item => item.Enero_MXN);
+            rowTotales["USD_" + titulo_proximo_enero] = valoresListAnioProximo.Sum(item => item.Enero);
+            rowTotales["EUR_" + titulo_proximo_enero] = valoresListAnioProximo.Sum(item => item.Enero_EUR);
+            rowTotales["USD Local_" + titulo_proximo_enero] = valoresListAnioProximo.Sum(item => item.Enero_USD_LOCAL);
+            rowTotales["MXN_" + titulo_proximo_febrero] = valoresListAnioProximo.Sum(item => item.Febrero_MXN);
+            rowTotales["USD_" + titulo_proximo_febrero] = valoresListAnioProximo.Sum(item => item.Febrero);
+            rowTotales["EUR_" + titulo_proximo_febrero] = valoresListAnioProximo.Sum(item => item.Febrero_EUR);
+            rowTotales["USD Local_" + titulo_proximo_febrero] = valoresListAnioProximo.Sum(item => item.Febrero_USD_LOCAL);
+            rowTotales["MXN_" + titulo_proximo_marzo] = valoresListAnioProximo.Sum(item => item.Marzo_MXN);
+            rowTotales["USD_" + titulo_proximo_marzo] = valoresListAnioProximo.Sum(item => item.Marzo);
+            rowTotales["EUR_" + titulo_proximo_marzo] = valoresListAnioProximo.Sum(item => item.Marzo_EUR);
+            rowTotales["USD Local_" + titulo_proximo_marzo] = valoresListAnioProximo.Sum(item => item.Marzo_USD_LOCAL);
+            rowTotales["MXN_" + titulo_proximo_abril] = valoresListAnioProximo.Sum(item => item.Abril_MXN);
+            rowTotales["USD_" + titulo_proximo_abril] = valoresListAnioProximo.Sum(item => item.Abril);
+            rowTotales["EUR_" + titulo_proximo_abril] = valoresListAnioProximo.Sum(item => item.Abril_EUR);
+            rowTotales["USD Local_" + titulo_proximo_abril] = valoresListAnioProximo.Sum(item => item.Abril_USD_LOCAL);
+            rowTotales["MXN_" + titulo_proximo_mayo] = valoresListAnioProximo.Sum(item => item.Mayo_MXN);
+            rowTotales["USD_" + titulo_proximo_mayo] = valoresListAnioProximo.Sum(item => item.Mayo);
+            rowTotales["EUR_" + titulo_proximo_mayo] = valoresListAnioProximo.Sum(item => item.Mayo_EUR);
+            rowTotales["USD Local_" + titulo_proximo_mayo] = valoresListAnioProximo.Sum(item => item.Mayo_USD_LOCAL);
+            rowTotales["MXN_" + titulo_proximo_junio] = valoresListAnioProximo.Sum(item => item.Junio_MXN);
+            rowTotales["USD_" + titulo_proximo_junio] = valoresListAnioProximo.Sum(item => item.Junio);
+            rowTotales["EUR_" + titulo_proximo_junio] = valoresListAnioProximo.Sum(item => item.Junio_EUR);
+            rowTotales["USD Local_" + titulo_proximo_junio] = valoresListAnioProximo.Sum(item => item.Junio_USD_LOCAL);
+            rowTotales["MXN_" + titulo_proximo_julio] = valoresListAnioProximo.Sum(item => item.Julio_MXN);
+            rowTotales["USD_" + titulo_proximo_julio] = valoresListAnioProximo.Sum(item => item.Julio);
+            rowTotales["EUR_" + titulo_proximo_julio] = valoresListAnioProximo.Sum(item => item.Julio_EUR);
+            rowTotales["USD Local_" + titulo_proximo_julio] = valoresListAnioProximo.Sum(item => item.Julio_USD_LOCAL);
+            rowTotales["MXN_" + titulo_proximo_agosto] = valoresListAnioProximo.Sum(item => item.Agosto_MXN);
+            rowTotales["USD_" + titulo_proximo_agosto] = valoresListAnioProximo.Sum(item => item.Agosto);
+            rowTotales["EUR_" + titulo_proximo_agosto] = valoresListAnioProximo.Sum(item => item.Agosto_EUR);
+            rowTotales["USD Local_" + titulo_proximo_agosto] = valoresListAnioProximo.Sum(item => item.Agosto_USD_LOCAL);
+            rowTotales["MXN_" + titulo_proximo_septiembre] = valoresListAnioProximo.Sum(item => item.Septiembre_MXN);
+            rowTotales["USD_" + titulo_proximo_septiembre] = valoresListAnioProximo.Sum(item => item.Septiembre);
+            rowTotales["EUR_" + titulo_proximo_septiembre] = valoresListAnioProximo.Sum(item => item.Septiembre_EUR);
+            rowTotales["USD Local_" + titulo_proximo_septiembre] = valoresListAnioProximo.Sum(item => item.Septiembre_USD_LOCAL);
+
+            rowTotales[titulo_proximo_total_mxn] = valoresListAnioProximo.Sum(item => item.TotalMesesMXN());
+            rowTotales[titulo_proximo_total_usd] = valoresListAnioProximo.Sum(item => item.TotalMesesUSD());
+            rowTotales[titulo_proximo_total_eur] = valoresListAnioProximo.Sum(item => item.TotalMesesEUR());
+            rowTotales[titulo_proximo_total_local] = valoresListAnioProximo.Sum(item => item.TotalMesesUSD_Local());
+
+
 
             dt.Rows.Add(rowTotales);
-
+            #endregion
 
             //define y combina las celdas de los encabezados 
-            oSLDocument.SetCellValue(4, 5, "FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1))));
-            oSLDocument.SetCellValue(5, 5, "ACTUAL");
-            oSLDocument.MergeWorksheetCells(5, 5, 5, 16);
-            oSLDocument.MergeWorksheetCells(4, 5, 4, 16);
+            oSLDocument.SetCellValue(3, 5, "FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1))));
+            oSLDocument.SetCellValue(4, 5, "ACTUAL");
+            oSLDocument.MergeWorksheetCells(4, 5, 4, 5 + (12 * 4) - 1);
+            oSLDocument.MergeWorksheetCells(3, 5, 3, 5 + (12 * 4) - 1);
 
-            oSLDocument.SetCellValue(4, 19, "FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual)));
-            oSLDocument.SetCellValue(5, 19, "ACTUAL/FORECAST");
-            oSLDocument.MergeWorksheetCells(5, 19, 5, 30);
-            oSLDocument.MergeWorksheetCells(4, 19, 4, 30);
+            oSLDocument.SetCellValue(3, 58, "FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual)));
+            oSLDocument.SetCellValue(4, 58, "ACTUAL/FORECAST");
+            oSLDocument.MergeWorksheetCells(4, 58, 4, 58 + (12 * 4) - 1);
+            oSLDocument.MergeWorksheetCells(3, 58, 3, 58 + (12 * 4) - 1);
 
-            oSLDocument.SetCellValue(4, 33, "FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1))));
-            oSLDocument.SetCellValue(5, 33, "BUDGET");
-            oSLDocument.MergeWorksheetCells(5, 33, 5, 44);
-            oSLDocument.MergeWorksheetCells(4, 33, 4, 44);
+            oSLDocument.SetCellValue(3, 111, "FY " + (Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1))));
+            oSLDocument.SetCellValue(4, 111, "BUDGET");
+            oSLDocument.MergeWorksheetCells(4, 111, 4, 111 + (12 * 4) - 1);
+            oSLDocument.MergeWorksheetCells(3, 111, 3, 111 + (12 * 4) - 1);
 
             int filaInicial = 6;
 
@@ -1328,6 +2073,22 @@ namespace Portal_2_0.Models
             styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
             styleHeaderFont.Font.Bold = true;
 
+            //estilo para meses 
+            SLStyle styleMeses = oSLDocument.CreateStyle();
+            styleMeses.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#FFCC99"), System.Drawing.ColorTranslator.FromHtml("#FFCC99"));
+            styleMeses.Font.FontName = "Calibri";
+            styleMeses.Font.FontSize = 11;
+            styleMeses.Font.FontColor = System.Drawing.Color.DarkBlue;
+            styleMeses.Font.Bold = true;
+            styleMeses.Border.BottomBorder.BorderStyle = BorderStyleValues.Thin;
+            styleMeses.Border.BottomBorder.Color = System.Drawing.Color.DarkBlue;
+            styleMeses.Border.TopBorder.BorderStyle = BorderStyleValues.Thin;
+            styleMeses.Border.TopBorder.Color = System.Drawing.Color.DarkBlue;
+            styleMeses.Border.LeftBorder.BorderStyle = BorderStyleValues.Thin;
+            styleMeses.Border.LeftBorder.Color = System.Drawing.Color.DarkBlue;
+            styleMeses.Border.RightBorder.BorderStyle = BorderStyleValues.Thin;
+            styleMeses.Border.RightBorder.Color = System.Drawing.Color.DarkBlue;
+
             //estilo para numeros
             SLStyle styleNumber = oSLDocument.CreateStyle();
             styleNumber.FormatCode = "$  #,##0.00";
@@ -1359,27 +2120,49 @@ namespace Portal_2_0.Models
             oSLDocument.SetCellStyle(filaInicial, 45, styleTotalsColor);
 
             //aplica estilo a las cabeceras de tipo año
-            oSLDocument.SetCellStyle(4, 5, styleHeader);
-            oSLDocument.SetCellStyle(4, 5, styleHeaderFont);
+            oSLDocument.SetCellStyle(3, 5, styleHeader);
+            oSLDocument.SetCellStyle(3, 5, styleHeaderFont);
+            oSLDocument.SetCellStyle(3, 5, styleCentrarTexto);
+            oSLDocument.SetCellStyle(4, 5, styleTotalsColor);
             oSLDocument.SetCellStyle(4, 5, styleCentrarTexto);
-            oSLDocument.SetCellStyle(5, 5, styleTotalsColor);
-            oSLDocument.SetCellStyle(5, 5, styleCentrarTexto);
 
-            oSLDocument.SetCellStyle(4, 19, styleHeader);
-            oSLDocument.SetCellStyle(4, 19, styleHeaderFont);
-            oSLDocument.SetCellStyle(4, 19, styleCentrarTexto);
-            oSLDocument.SetCellStyle(5, 19, styleTotalsColor);
-            oSLDocument.SetCellStyle(5, 19, styleCentrarTexto);
+            oSLDocument.SetCellStyle(3, 58, styleHeader);
+            oSLDocument.SetCellStyle(3, 58, styleHeaderFont);
+            oSLDocument.SetCellStyle(3, 58, styleCentrarTexto);
+            oSLDocument.SetCellStyle(4, 58, styleTotalsColor);
+            oSLDocument.SetCellStyle(4, 58, styleCentrarTexto);
 
-            oSLDocument.SetCellStyle(4, 33, styleHeader);
-            oSLDocument.SetCellStyle(4, 33, styleHeaderFont);
-            oSLDocument.SetCellStyle(4, 33, styleCentrarTexto);
-            oSLDocument.SetCellStyle(5, 33, styleTotalsColor);
-            oSLDocument.SetCellStyle(5, 33, styleCentrarTexto);
+            oSLDocument.SetCellStyle(3, 111, styleHeader);
+            oSLDocument.SetCellStyle(3, 111, styleHeaderFont);
+            oSLDocument.SetCellStyle(3, 111, styleCentrarTexto);
+            oSLDocument.SetCellStyle(4, 111, styleTotalsColor);
+            oSLDocument.SetCellStyle(4, 111, styleCentrarTexto);
 
             //estilo para titulo thyssen
             oSLDocument.SetRowHeight(1, 40.0);
             oSLDocument.SetCellStyle("B1", styleThyssen);
+
+            //meses para Actual
+            for (int i = 0; i < meses_anterior.Count; i++)
+            {
+                //pasado
+                oSLDocument.SetCellValue(5, 5 + (i * 4), meses_anterior[i]);
+                oSLDocument.SetCellStyle(5, 5 + (i * 4), styleCentrarTexto);
+                oSLDocument.MergeWorksheetCells(5, 5 + (i * 4), 5, 5 + (i * 4) + 3);
+                oSLDocument.SetCellStyle(5, 5 + (i * 4), 5, 5 + (i * 4) + 3, styleMeses);
+                //presente
+                oSLDocument.SetCellValue(5, 58 + (i * 4), meses_presente[i]);
+                oSLDocument.SetCellStyle(5, 58 + (i * 4), styleCentrarTexto);
+                oSLDocument.MergeWorksheetCells(5, 58 + (i * 4), 5, 58 + (i * 4) + 3);
+                oSLDocument.SetCellStyle(5, 58 + (i * 4), 5, 58 + (i * 4) + 3, styleMeses);
+                ////proximo
+                oSLDocument.SetCellValue(5, 111 + (i * 4), meses_proximo[i]);
+                oSLDocument.SetCellStyle(5, 111 + (i * 4), styleCentrarTexto);
+                oSLDocument.MergeWorksheetCells(5, 111 + (i * 4), 5, 111 + (i * 4) + 3);
+                oSLDocument.SetCellStyle(5, 111 + (i * 4), 5, 111 + (i * 4) + 3, styleMeses);
+            }
+
+
 
             //estilo para totales
             oSLDocument.SetCellStyle(valoresListAnioAnterior.Count + filaInicial + 1, 4, valoresListAnioAnterior.Count + filaInicial + 1, 45, styleTotales);
@@ -1480,17 +2263,17 @@ namespace Portal_2_0.Models
             for (int i = 0; i < valoresListAnioActual.Count; i++)
             {
                 dt.Rows.Add(valoresListAnioAnterior[i].id_cuenta_sap, valoresListAnioAnterior[i].sap_account, valoresListAnioAnterior[i].name, valoresListAnioAnterior[i].cost_center, valoresListAnioAnterior[i].department, valoresListAnioAnterior[i].responsable, valoresListAnioAnterior[i].codigo_sap, valoresListAnioAnterior[i].class_1, valoresListAnioAnterior[i].class_2, valoresListAnioAnterior[i].mapping, valoresListAnioAnterior[i].mapping_bridge,
-                   valoresListAnioAnterior[i].Octubre, valoresListAnioAnterior[i].Noviembre, valoresListAnioAnterior[i].Diciembre, valoresListAnioAnterior[i].Enero, valoresListAnioAnterior[i].Febrero, valoresListAnioAnterior[i].Marzo, valoresListAnioAnterior[i].Abril, valoresListAnioAnterior[i].Mayo, valoresListAnioAnterior[i].Junio, valoresListAnioAnterior[i].Julio, valoresListAnioAnterior[i].Agosto, valoresListAnioAnterior[i].Septiembre, valoresListAnioAnterior[i].TotalMeses(), valoresListAnioAnterior[i].Comentario,
-                   valoresListAnioActual[i].Octubre, valoresListAnioActual[i].Noviembre, valoresListAnioActual[i].Diciembre, valoresListAnioActual[i].Enero, valoresListAnioActual[i].Febrero, valoresListAnioActual[i].Marzo, valoresListAnioActual[i].Abril, valoresListAnioActual[i].Mayo, valoresListAnioActual[i].Junio, valoresListAnioActual[i].Julio, valoresListAnioActual[i].Agosto, valoresListAnioActual[i].Septiembre, valoresListAnioActual[i].TotalMeses(), valoresListAnioActual[i].Comentario,
-                   valoresListAnioProximo[i].Octubre, valoresListAnioProximo[i].Noviembre, valoresListAnioProximo[i].Diciembre, valoresListAnioProximo[i].Enero, valoresListAnioProximo[i].Febrero, valoresListAnioProximo[i].Marzo, valoresListAnioProximo[i].Abril, valoresListAnioProximo[i].Mayo, valoresListAnioProximo[i].Junio, valoresListAnioProximo[i].Julio, valoresListAnioProximo[i].Agosto, valoresListAnioProximo[i].Septiembre, valoresListAnioProximo[i].TotalMeses(), valoresListAnioProximo[i].Comentario
+                   valoresListAnioAnterior[i].Octubre, valoresListAnioAnterior[i].Noviembre, valoresListAnioAnterior[i].Diciembre, valoresListAnioAnterior[i].Enero, valoresListAnioAnterior[i].Febrero, valoresListAnioAnterior[i].Marzo, valoresListAnioAnterior[i].Abril, valoresListAnioAnterior[i].Mayo, valoresListAnioAnterior[i].Junio, valoresListAnioAnterior[i].Julio, valoresListAnioAnterior[i].Agosto, valoresListAnioAnterior[i].Septiembre, valoresListAnioAnterior[i].TotalMesesUSD(), valoresListAnioAnterior[i].Comentario,
+                   valoresListAnioActual[i].Octubre, valoresListAnioActual[i].Noviembre, valoresListAnioActual[i].Diciembre, valoresListAnioActual[i].Enero, valoresListAnioActual[i].Febrero, valoresListAnioActual[i].Marzo, valoresListAnioActual[i].Abril, valoresListAnioActual[i].Mayo, valoresListAnioActual[i].Junio, valoresListAnioActual[i].Julio, valoresListAnioActual[i].Agosto, valoresListAnioActual[i].Septiembre, valoresListAnioActual[i].TotalMesesUSD(), valoresListAnioActual[i].Comentario,
+                   valoresListAnioProximo[i].Octubre, valoresListAnioProximo[i].Noviembre, valoresListAnioProximo[i].Diciembre, valoresListAnioProximo[i].Enero, valoresListAnioProximo[i].Febrero, valoresListAnioProximo[i].Marzo, valoresListAnioProximo[i].Abril, valoresListAnioProximo[i].Mayo, valoresListAnioProximo[i].Junio, valoresListAnioProximo[i].Julio, valoresListAnioProximo[i].Agosto, valoresListAnioProximo[i].Septiembre, valoresListAnioProximo[i].TotalMesesUSD(), valoresListAnioProximo[i].Comentario
                    );
             }
 
             //agrega los totales
             dt.Rows.Add(null, null, null, null, null, null, null, null, null, null, "Totals",
-                 valoresListAnioAnterior.Sum(item => item.Octubre), valoresListAnioAnterior.Sum(item => item.Noviembre), valoresListAnioAnterior.Sum(item => item.Diciembre), valoresListAnioAnterior.Sum(item => item.Enero), valoresListAnioAnterior.Sum(item => item.Febrero), valoresListAnioAnterior.Sum(item => item.Marzo), valoresListAnioAnterior.Sum(item => item.Abril), valoresListAnioAnterior.Sum(item => item.Mayo), valoresListAnioAnterior.Sum(item => item.Junio), valoresListAnioAnterior.Sum(item => item.Julio), valoresListAnioAnterior.Sum(item => item.Agosto), valoresListAnioAnterior.Sum(item => item.Septiembre), valoresListAnioAnterior.Sum(item => item.TotalMeses()), null,
-                  valoresListAnioActual.Sum(item => item.Octubre), valoresListAnioActual.Sum(item => item.Noviembre), valoresListAnioActual.Sum(item => item.Diciembre), valoresListAnioActual.Sum(item => item.Enero), valoresListAnioActual.Sum(item => item.Febrero), valoresListAnioActual.Sum(item => item.Marzo), valoresListAnioActual.Sum(item => item.Abril), valoresListAnioActual.Sum(item => item.Mayo), valoresListAnioActual.Sum(item => item.Junio), valoresListAnioActual.Sum(item => item.Julio), valoresListAnioActual.Sum(item => item.Agosto), valoresListAnioActual.Sum(item => item.Septiembre), valoresListAnioActual.Sum(item => item.TotalMeses()), null,
-                  valoresListAnioProximo.Sum(item => item.Octubre), valoresListAnioProximo.Sum(item => item.Noviembre), valoresListAnioProximo.Sum(item => item.Diciembre), valoresListAnioProximo.Sum(item => item.Enero), valoresListAnioProximo.Sum(item => item.Febrero), valoresListAnioProximo.Sum(item => item.Marzo), valoresListAnioProximo.Sum(item => item.Abril), valoresListAnioProximo.Sum(item => item.Mayo), valoresListAnioProximo.Sum(item => item.Junio), valoresListAnioProximo.Sum(item => item.Julio), valoresListAnioProximo.Sum(item => item.Agosto), valoresListAnioProximo.Sum(item => item.Septiembre), valoresListAnioProximo.Sum(item => item.TotalMeses()), null
+                 valoresListAnioAnterior.Sum(item => item.Octubre), valoresListAnioAnterior.Sum(item => item.Noviembre), valoresListAnioAnterior.Sum(item => item.Diciembre), valoresListAnioAnterior.Sum(item => item.Enero), valoresListAnioAnterior.Sum(item => item.Febrero), valoresListAnioAnterior.Sum(item => item.Marzo), valoresListAnioAnterior.Sum(item => item.Abril), valoresListAnioAnterior.Sum(item => item.Mayo), valoresListAnioAnterior.Sum(item => item.Junio), valoresListAnioAnterior.Sum(item => item.Julio), valoresListAnioAnterior.Sum(item => item.Agosto), valoresListAnioAnterior.Sum(item => item.Septiembre), valoresListAnioAnterior.Sum(item => item.TotalMesesUSD()), null,
+                  valoresListAnioActual.Sum(item => item.Octubre), valoresListAnioActual.Sum(item => item.Noviembre), valoresListAnioActual.Sum(item => item.Diciembre), valoresListAnioActual.Sum(item => item.Enero), valoresListAnioActual.Sum(item => item.Febrero), valoresListAnioActual.Sum(item => item.Marzo), valoresListAnioActual.Sum(item => item.Abril), valoresListAnioActual.Sum(item => item.Mayo), valoresListAnioActual.Sum(item => item.Junio), valoresListAnioActual.Sum(item => item.Julio), valoresListAnioActual.Sum(item => item.Agosto), valoresListAnioActual.Sum(item => item.Septiembre), valoresListAnioActual.Sum(item => item.TotalMesesUSD()), null,
+                  valoresListAnioProximo.Sum(item => item.Octubre), valoresListAnioProximo.Sum(item => item.Noviembre), valoresListAnioProximo.Sum(item => item.Diciembre), valoresListAnioProximo.Sum(item => item.Enero), valoresListAnioProximo.Sum(item => item.Febrero), valoresListAnioProximo.Sum(item => item.Marzo), valoresListAnioProximo.Sum(item => item.Abril), valoresListAnioProximo.Sum(item => item.Mayo), valoresListAnioProximo.Sum(item => item.Junio), valoresListAnioProximo.Sum(item => item.Julio), valoresListAnioProximo.Sum(item => item.Agosto), valoresListAnioProximo.Sum(item => item.Septiembre), valoresListAnioProximo.Sum(item => item.TotalMesesUSD()), null
                   );
 
 
@@ -2025,7 +2808,7 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Puesto", typeof(string));         //27
             dt.Columns.Add("Jefe Inmediato", typeof(string));         //27
                                                                       //modern workplace
-         
+
 
             ////registros , rows
             foreach (IT_inventory_items item in listado)
@@ -2055,7 +2838,7 @@ namespace Portal_2_0.Models
                     item.operation_system, item.bits_operation_system, item.cpu_speed_mhz, item.number_of_cpus, item.processor, item.mac_lan, item.mac_wlan,
                     item.total_physical_memory_gb, null, null, null, item.NumberOfHardDrives, item.TotalDiskSpace, item.maintenance_period_months,
                      item.purchase_date, item.end_warranty,
-                     item.active, item.inactive_date, item.baja, item.fecha_baja, 
+                     item.active, item.inactive_date, item.baja, item.fecha_baja,
                      item.last_check_int, item.os_version, item.primary_user, item.primary_user_email, item.primary_user_display, item.compliance, item.managed_by, item.encrypted, item.joinType, item.management_certificate_expiration_date,
                      item.comments, asignacionActual, planta, departamento, puesto, jefeInmediato
                     );
