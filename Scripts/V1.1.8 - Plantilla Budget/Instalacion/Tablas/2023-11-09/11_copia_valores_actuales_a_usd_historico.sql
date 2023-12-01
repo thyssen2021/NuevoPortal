@@ -12,7 +12,7 @@ CREATE TABLE #stats_ddl(
 );
 
 INSERT INTO #stats_ddl 
-SELECT id_budget_rel_fy_centro, id_cuenta_sap, mes, currency_iso, cantidad, comentario, moneda_local_usd FROM budget_cantidad
+SELECT id_budget_rel_fy_centro, id_cuenta_sap, mes, currency_iso, cantidad, comentario, moneda_local_usd FROM budget_cantidad_budget_historico
 
 SELECT @count = COUNT(*) FROM #stats_ddl;
 
@@ -22,7 +22,7 @@ BEGIN
 	DECLARE @cantidad decimal(14,2) = (select top (1) cantidad from #stats_ddl) 
 
 	--INSERT nuevo valor
-INSERT INTO [dbo].[budget_cantidad]
+INSERT INTO [dbo].[budget_cantidad_budget_historico]
            ([id_budget_rel_fy_centro]
            ,[id_cuenta_sap]
            ,[mes]
@@ -48,4 +48,4 @@ END
 
 DROP TABLE #stats_ddl;
 
---select * from budget_cantidad
+--select * from budget_cantidad_budget_historico

@@ -5038,8 +5038,6 @@
     <Content Include="Views\BG_CuentasSAP\Enable.cshtml" />
     <Content Include="Views\BG_CuentasSAP\Index.cshtml" />
     <Content Include="Views\ResponsableBudget\Centros.cshtml" />
-    <Content Include="Views\ResponsableBudget\DetailsCentro.cshtml" />
-    <Content Include="Views\ResponsableBudget\EditCentroPresente.cshtml" />
     <Content Include="Views\ResponsableBudget\EditCentroProximo.cshtml" />
     <Content Include="Views\BudgetControlling\Reportes.cshtml" />
     <Content Include="Views\BG_Plants\Create.cshtml" />
@@ -5298,7 +5296,6 @@
     <Content Include="Views\UsersAdmin\EditEmail.cshtml" />
     <Content Include="Views\RH_menu_comedor\ListaDistribucion.cshtml" />
     <Content Include="Views\ResponsableBudget\EditCentroPresenteHT.cshtml" />
-    <Content Include="Views\ResponsableBudget\EditCentroProximoHT.cshtml" />
     <Content Include="Views\ResponsableBudget\DetailsCentroHT.cshtml" />
     <Content Include="Views\BudgetControlling\CargaConcentrado.cshtml" />
   </ItemGroup>

@@ -3037,12 +3037,28 @@
        });
 
        return comments;
-   }
+    }
+
+    function avoidNotrespondingMessage() {
+
+        setTimeout(function () {
+            $.ajax({
+                type: 'POST',
+                url: '/Combos/obtieneAreas',
+                data: { clavePlanta: 1 },
+                success: function (data) {
+                 /*   console.log('llamada realizada: ')*/
+                },
+                async: true
+            });
+        }, 13000 );     
+    }
 
    function cargaDatosIniciales() {
 
        //llamada ajax para obtener el detalle del fy presente
-
+       avoidNotrespondingMessage();      
+       
        $.ajax({
            type: 'POST',
            url: '/ResponsableBudget/CargaFY',
