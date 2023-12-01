@@ -5300,6 +5300,7 @@
     <Content Include="Views\ResponsableBudget\EditCentroPresenteHT.cshtml" />
     <Content Include="Views\ResponsableBudget\EditCentroProximoHT.cshtml" />
     <Content Include="Views\ResponsableBudget\DetailsCentroHT.cshtml" />
+    <Content Include="Views\BudgetControlling\CargaConcentrado.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -1,5 +1,6 @@
 ﻿@model Portal_2_0.Models.budget_centro_costo
 @using Bitacoras.Util
+@using Clases.Util;
 
 @{
 
@@ -15,7 +16,7 @@
 
 
     Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
-
+    bool import = ViewBag.import != null ? (bool)ViewBag.import : false;
 
     //lee los valores necesarios para los headers
     string[] headersForecast = (string[])ViewBag.HeadersForecast2;
@@ -28,7 +29,7 @@
         responsables = responsables.Substring(0, 90) + "...";
     }
 
-    //obtiene el valor de si es proximo o no 
+    //obtiene el valor de si es proximo o no
     bool esProximo = (bool)ViewBag.proximo;
 
     //determina si los meses son actual o no
@@ -234,6 +235,58 @@
                                 </dl>
                             </div>
                         </div>
+                        <div class="col-sm-12">
+
+                            @if (import)
+                            {
+
+                                <div class="ln_solid"></div>
+                                <div class="form-group row">
+                                    <span style="color:black"><b>UPLOAD DATA</b></span>
+                                </div>
+
+                                using (Html.BeginForm("ImportActual", "BudgetControlling", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", @id = "myForm" }))
+                                {
+                                    @Html.AntiForgeryToken()
+
+                                    @Html.HiddenFor(model => model.id)
+                                    @Html.HiddenFor(model => model.num_centro_costo)
+                                    @Html.HiddenFor(model => model.descripcion)
+
+                                    @* input para saber si está o no activo el campo de soporte *@
+                                    <input type="hidden" name="cambio_documento" id="cambio_documento" value="0" />
+
+                                    if (!Html.ViewData.ModelState.IsValid)
+                                    {
+                                        <div class="alert alert-danger" role="alert">
+                                            @Html.ValidationSummary("", "Advertencia:")
+                                        </div>
+                                    }
+
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.PostedFile, new { @class = "control-label col-md-1 text_derecha" })
+                                        <div class="col-md-5">
+
+                                            <div class="input-group">
+                                                <div class="custom-file">
+                                                    @Html.TextBoxFor(m => m.PostedFile, new { @class = "custom-file-input", type = "file", @accept = ".xlsx", @required = "required" })
+                                                    <label class="custom-file-label" for="PostedFileSoporte" style="text-align:left">Seleccione un archivo...</label>
+                                                </div>
+                                            </div>
+                                            @Html.ValidationMessageFor(m => m.PostedFile, "", new { @class = "text-danger" })
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <div>
+                                                <input type="button" value="Load File" class="btn btn-success float-right" onclick="showDialog()" />
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+
 
                         <div class="col-sm-12">
                             <div class="ln_solid"></div>
@@ -285,11 +338,73 @@
                         @*<button type="button" id="btn-submit-salir" class="btn btn-info float-lg-right"><i class="fa-solid fa-save"></i>  Guardar y salir</button>
                             <button type="button" id="btn-submit" class="btn btn-success float-lg-right"><i class="fa-solid fa-save"></i>  Guardar y continuar</button>*@
                     </div>
+                    @if (User.IsInRole(TipoRoles.BG_CONTROLLING))
+
+                    {
+                        <div class="col-md-12">
+                            <div class="ln_solid"></div>
+                            <a href="@Url.Action("Exportar", "BudgetControlling", new
+                                                {
+                                                      id_centro_costo = Model.id
+
+                                                })" class="btn btn-success" target="_blank" title="Reporte">
+                                <i class="fa fa-cloud-download"></i> Export to Excel
+                            </a>
+
+                            @*<a href="@Url.Action("ImportActual", "BudgetControlling", new
+                                                {
+                                                    id = Model.id
+
+                                                })" class="btn btn-info btm-sm" title="Import Actual">
+                                <i class="fa fa-cloud-upload"></i> Import
+                            </a>*@
+
+
+                            @if (rel_proximo != null && rel_proximo.estatus)
+                            {
+                                <a class="btn btn-danger float-right" title="Lock" style="color:white" onclick="showLockDialog(@rel_proximo.id)">
+                                    <i class="fa fa-lock"></i> Lock Budget
+                                </a>
+                            }
+                            else if (rel_proximo == null)
+                            {
+                                <a class="btn btn-warning float-right disabled" title="Unlock" style="color:white">
+                                    <i class="fa fa-unlock"></i> Unlock Budget
+                                </a>
+                            }
+                            else
+                            {
+                                <a class="btn btn-warning float-right" title="Unlock" style="color:white" onclick="showUnlockDialog(@rel_proximo.id)">
+                                    <i class="fa fa-unlock"></i> Unlock Budget
+                                </a>
+                            }
+                            @if (rel_presente != null && rel_presente.estatus)
+                            {
+                                <a class="btn btn-danger float-right" title="Lock" style="color:white" onclick="showLockDialog(@rel_presente.id)">
+                                    <i class="fa fa-lock"></i> Lock Forecast
+                                </a>
+                            }
+                            else if (rel_presente == null)
+                            {
+                                <a class="btn btn-warning float-right disabled" title="Unlock" style="color:white">
+                                    <i class="fa fa-unlock"></i> Unlock Forecast
+                                </a>
+                            }
+                            else
+                            {
+                                <a class="btn btn-warning float-right" title="Unlock" style="color:white" onclick="showUnlockDialog(@rel_presente.id)">
+                                    <i class="fa fa-unlock"></i> Unlock Forecast
+                                </a>
+                            }
+                        </div>
+
+                    }
+
                 </div>
             </div>
             <div>
                 <br />
-                <a onclick="volverAtras()" class="btn btn-round btn-info" title="Volver" style="color:white">
+                <a href="@Url.Action("Centros", ViewBag.ControllerName)" class="btn btn-round btn-info" title="Volver" style="color:white">
                     <i class="fa fa-arrow-circle-left"></i> Volver al listado
                 </a>
             </div>
@@ -331,6 +446,7 @@
     <script src="https://handsontable.com/docs/8.3.1/components/numbro/dist/languages.min.js"></script>
     <!-- input mask -->
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
 
     <script>
 
@@ -2403,8 +2519,8 @@
 
    $(document).ready(function() {
 
-       //inicializa hansontable
-       //inicializaHandsontable();
+       //inicializa en input file
+       bsCustomFileInput.init()
        //DefineValidadores();
        cargaDatosIniciales();
 
@@ -2432,6 +2548,11 @@
        });
 
        setTimeout(Recordatorio, 600000); //diez minutos
+
+       //aumenta en uso cada vez que se hace un cambio en el archivo de soporte
+       $("#PostedFile").on("change", function () {
+           document.getElementById('cambio_documento').value = ++documento_soporte_cambios;
+       });
 
        $.unblockUI();
    });
@@ -3562,7 +3683,157 @@
        return m;
    }
 
+        //muestra el modal para bloquear
+        function showLockDialog(idRelFYCentro) {
+            Swal.fire({
+                title: 'Confirmation',
+                text: "Are you sure you want to lock this cost center?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes!'
+            }).then((result) => {
+                if (result.isConfirmed) {
 
+                    //bloquea el centro de costo
+                    $.ajax({
+                        type: 'POST',
+                        url: '/BudgetControlling/CambiaEstatusRelFYCentro',
+                        data: { idRelFYCentro: idRelFYCentro, activo: false },
+                        success: function (data) {
+                            try {
+                                console.log(data);
+                                if (data[0].Status == "OK") {
+                                    //en caso de exito
+                                    Swal.fire({
+                                        title: 'Confirmation',
+                                        text: "The cost center has been locked!",
+                                        confirmButtonText: 'OK',
+                                        allowOutsideClick: false
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            // Vuelve a cargar la página actual sin la caché del navegador
+                                            location.reload();
+                                        }
+                                    })
+
+                                } else { //en caso de que el mensaje no sea exitoso muestra mensaje
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Ocurrió un error',
+                                        text: 'Ha ocurrido un error, intente nuevamente.'
+                                    })
+                                }
+                            } catch (error) {
+                                //en caso de que no ser muestre info de ningun tipo muestra error
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Ocurrió un error',
+                                    text: 'Ha ocurrido un error, intente nuevamente.'
+                                })
+                            }
+                        },
+                        error: function (textStatus, errorThrown) {
+                            //en caso de error en la llamada ajax
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Ocurrió un error',
+                                text: 'Ha ocurrido un error, intente nuevamente.'
+                            })
+                        },
+                        async: true
+                    });
+
+                }
+            })
+
+        }
+
+        //muestra el modal para desbloquear
+        function showUnlockDialog(idRelFYCentro) {
+            Swal.fire({
+                title: 'Confirmation',
+                text: "Are you sure you want to unlock this cost center?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    //bloquea el centro de costo
+                    $.ajax({
+                        type: 'POST',
+                        url: '/BudgetControlling/CambiaEstatusRelFYCentro',
+                        data: { idRelFYCentro: idRelFYCentro, activo: true },
+                        success: function (data) {
+                            try {
+                                console.log(data);
+                                if (data[0].Status == "OK") {
+                                    //en caso de exito
+                                    Swal.fire({
+                                        title: 'Confirmation',
+                                        text: "The cost center has been unlocked!",
+                                        confirmButtonText: 'OK',
+                                        allowOutsideClick: false
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            // Vuelve a cargar la página actual sin la caché del navegador
+                                            location.reload();
+                                        }
+                                    })
+
+                                } else { //en caso de que el mensaje no sea exitoso muestra mensaje
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Ocurrió un error',
+                                        text: 'Ha ocurrido un error, intente nuevamente.'
+                                    })
+                                }
+                            } catch (error) {
+                                //en caso de que no ser muestre info de ningun tipo muestra error
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Ocurrió un error',
+                                    text: 'Ha ocurrido un error, intente nuevamente.'
+                                })
+                            }
+                        },
+                        error: function (textStatus, errorThrown) {
+                            //en caso de error en la llamada ajax
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Ocurrió un error',
+                                text: 'Ha ocurrido un error, intente nuevamente.'
+                            })
+                        },
+                        async: true
+                    });
+
+                }
+            })
+
+        }
+
+        //muestra el modal para bloquear
+    function showDialog() {
+        Swal.fire({
+            title: 'Mensaje',
+            text: "Advertencia: los datos capturados se sobreescribirán, ¿Desea Continuar? ",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Continuar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $('#myForm').submit();
+            }
+        })
+
+    }
 
    function GetColFromName(data, name) {
        var n_cols = data.length;

@@ -125,7 +125,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_equipos_checklist> IT_equipos_checklist { get; set; }
         public virtual DbSet<IT_mantenimientos> IT_mantenimientos { get; set; }
         public virtual DbSet<budget_cantidad> budget_cantidad { get; set; }
-        public virtual DbSet<view_valores_fiscal_year_budget_historico> view_valores_fiscal_year_budget_historico { get; set; }
         public virtual DbSet<IT_epo> IT_epo { get; set; }
         public virtual DbSet<IT_wsus> IT_wsus { get; set; }
         public virtual DbSet<Area> Area { get; set; }
@@ -143,7 +142,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<RM_cambio_estatus> RM_cambio_estatus { get; set; }
         public virtual DbSet<RU_usuarios_vigilancia> RU_usuarios_vigilancia { get; set; }
         public virtual DbSet<RU_usuarios_embarques> RU_usuarios_embarques { get; set; }
-        public virtual DbSet<budget_cantidad_budget_historico> budget_cantidad_budget_historico { get; set; }
         public virtual DbSet<menu_item> menu_item { get; set; }
         public virtual DbSet<menu_link> menu_link { get; set; }
         public virtual DbSet<IT_matriz_asignaciones> IT_matriz_asignaciones { get; set; }
@@ -165,5 +163,7 @@ namespace Portal_2_0.Models
         public virtual DbSet<budget_rel_conceptos_formulas> budget_rel_conceptos_formulas { get; set; }
         public virtual DbSet<budget_rel_conceptos_cantidades> budget_rel_conceptos_cantidades { get; set; }
         public virtual DbSet<budget_cuenta_sap> budget_cuenta_sap { get; set; }
+        public virtual DbSet<budget_cantidad_budget_historico> budget_cantidad_budget_historico { get; set; }
+        public virtual DbSet<view_valores_fiscal_year_budget_historico> view_valores_fiscal_year_budget_historico { get; set; }
     }
 }

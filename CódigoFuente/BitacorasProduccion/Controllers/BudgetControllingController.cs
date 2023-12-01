@@ -10,6 +10,8 @@ using System.Web;
 using System.Web.Mvc;
 using Bitacoras.Util;
 using Clases.Util;
+using DocumentFormat.OpenXml.EMMA;
+using DocumentFormat.OpenXml.Presentation;
 using Portal_2_0.Models;
 
 namespace Portal_2_0.Controllers
@@ -306,29 +308,32 @@ namespace Portal_2_0.Controllers
                     db.SaveChanges();
                 }
 
-                //agrega el objeto de fiscal year
-                rel_fy_centro_proximo.budget_anio_fiscal = anio_Fiscal_proximo;
-                rel_fy_centro_presente.budget_anio_fiscal = anio_Fiscal_actual;
-                rel_fy_centro_anterior.budget_anio_fiscal = anio_Fiscal_anterior;
+                ////agrega el objeto de fiscal year
+                //rel_fy_centro_proximo.budget_anio_fiscal = anio_Fiscal_proximo;
+                //rel_fy_centro_presente.budget_anio_fiscal = anio_Fiscal_actual;
+                //rel_fy_centro_anterior.budget_anio_fiscal = anio_Fiscal_anterior;
 
-                //obtiene los valores para cada cuenta sap
-                var valoresListAnioAnterior = db.view_valores_fiscal_year.Where(x => x.id_anio_fiscal == anio_Fiscal_anterior.id && x.id_centro_costo == centroCosto.id).ToList();
-                var valoresListAnioActual = db.view_valores_fiscal_year.Where(x => x.id_anio_fiscal == anio_Fiscal_actual.id && x.id_centro_costo == centroCosto.id).ToList();
-                var valoresListAnioProximo = db.view_valores_fiscal_year.Where(x => x.id_anio_fiscal == anio_Fiscal_proximo.id && x.id_centro_costo == centroCosto.id).ToList();
+                ////obtiene los valores para cada cuenta sap
+                //var valoresListAnioAnterior = db.view_valores_fiscal_year.Where(x => x.id_anio_fiscal == anio_Fiscal_anterior.id && x.id_centro_costo == centroCosto.id).ToList();
+                //var valoresListAnioActual = db.view_valores_fiscal_year.Where(x => x.id_anio_fiscal == anio_Fiscal_actual.id && x.id_centro_costo == centroCosto.id).ToList();
+                //var valoresListAnioProximo = db.view_valores_fiscal_year.Where(x => x.id_anio_fiscal == anio_Fiscal_proximo.id && x.id_centro_costo == centroCosto.id).ToList();
 
-                valoresListAnioAnterior = ResponsableBudgetController.AgregaCuentasSAPFaltantes(valoresListAnioAnterior, anio_Fiscal_anterior.id, centroCosto.id).OrderBy(x => x.sap_account).ToList();
-                valoresListAnioActual = ResponsableBudgetController.AgregaCuentasSAPFaltantes(valoresListAnioActual, anio_Fiscal_actual.id, centroCosto.id).OrderBy(x => x.sap_account).ToList();
-                valoresListAnioProximo = ResponsableBudgetController.AgregaCuentasSAPFaltantes(valoresListAnioProximo, anio_Fiscal_proximo.id, centroCosto.id).OrderBy(x => x.sap_account).ToList();
+                //valoresListAnioAnterior = ResponsableBudgetController.AgregaCuentasSAPFaltantes(valoresListAnioAnterior, anio_Fiscal_anterior.id, centroCosto.id).OrderBy(x => x.sap_account).ToList();
+                //valoresListAnioActual = ResponsableBudgetController.AgregaCuentasSAPFaltantes(valoresListAnioActual, anio_Fiscal_actual.id, centroCosto.id).OrderBy(x => x.sap_account).ToList();
+                //valoresListAnioProximo = ResponsableBudgetController.AgregaCuentasSAPFaltantes(valoresListAnioProximo, anio_Fiscal_proximo.id, centroCosto.id).OrderBy(x => x.sap_account).ToList();
 
-                ViewBag.centroCosto = centroCosto;
-                ViewBag.rel_anterior = rel_fy_centro_anterior;
-                ViewBag.rel_presente = rel_fy_centro_presente;
-                ViewBag.rel_proximo = rel_fy_centro_proximo;
-                ViewBag.ValoresActual = valoresListAnioAnterior;
-                ViewBag.ValoresActualForecast = valoresListAnioActual;
-                ViewBag.ValoresBudget = valoresListAnioProximo;
+                //ViewBag.centroCosto = centroCosto;
+                //ViewBag.rel_anterior = rel_fy_centro_anterior;
+                //ViewBag.rel_presente = rel_fy_centro_presente;
+                //ViewBag.rel_proximo = rel_fy_centro_proximo;
+                //ViewBag.ValoresActual = valoresListAnioAnterior;
+                //ViewBag.ValoresActualForecast = valoresListAnioActual;
+                //ViewBag.ValoresBudget = valoresListAnioProximo;
 
-                return View(centroCosto);
+                //return View(centroCosto);
+
+                //redirige a metodo de budget Responsable
+                return RedirectToAction("EditCentroPresenteHT", "ResponsableBudget", new { id = id_centro_costo, proximo = false, info = false, controlling = true, id_fiscal_year = id_fiscal_year });
 
             }
             else
@@ -773,208 +778,122 @@ namespace Portal_2_0.Controllers
                     bool estructuraValida = false;
                     int noEncontrados = 0;
 
-                    List<budget_rel_comentarios> listComentarios = new List<budget_rel_comentarios>();
+                    List<budget_rel_comentarios> lista_comentarios_form = new List<budget_rel_comentarios>();
+                    List<int> idRels = new List<int>();
 
                     //el archivo es válido
-                    List<budget_cantidad> lista = UtilExcel.LeeActual(centro, ref estructuraValida, ref msjError, ref noEncontrados, ref listComentarios);
+                    List<budget_cantidad> lista_cantidad_form = UtilExcel.LeeActual(stream, 10, ref estructuraValida, ref msjError, ref noEncontrados, ref lista_comentarios_form, ref idRels);
+                    
 
+                    //obtiene el listado actual de la BD
+                    List<budget_cantidad> lista_cantidad_BD = db.budget_cantidad.Where(x => idRels.Contains(x.id_budget_rel_fy_centro)).ToList();
+
+                    //obtiene el listado actual de la BD
+                    List<budget_rel_comentarios> lista_comentarios_BD = db.budget_rel_comentarios.Where(x => idRels.Contains(x.id_budget_rel_fy_centro)).ToList();
+
+                    /*crea una copia de cada cantidad en moneda local
+                        !!! Eliminar cuando la plantilla incluya los tres tipos de moneda
+                     */
+                    ////////////////////////////////////////////////////////////////
+                    List<budget_cantidad> tempLocalUSD = new List<budget_cantidad>();
+                    foreach (var item in lista_cantidad_form)
+                    {
+                        tempLocalUSD.Add(new budget_cantidad
+                        {
+                            id_budget_rel_fy_centro = item.id_budget_rel_fy_centro,
+                            id_cuenta_sap = item.id_cuenta_sap,
+                            mes = item.mes,
+                            currency_iso = "USD",
+                            cantidad = item.cantidad,
+                            comentario = item.comentario,
+                            moneda_local_usd = true
+                        });
+                    }
+                    lista_cantidad_form.AddRange(tempLocalUSD);
+                    /////////////////////////////////////////////////////////////////
 
                     if (!estructuraValida)
                     {
                         msjError = "No cumple con la estructura válida. " + msjError;
                         throw new Exception(msjError);
                     }
-                    else if (lista.Count > 0)//cumple con la estructura válida
+                    else if (lista_cantidad_form.Count > 0)//cumple con la estructura válida
                     {
-                        //obtiene los ids de rel_fy_centro
-                        var idRels = lista.Select(x => x.id_budget_rel_fy_centro).Distinct();
 
-                        #region cantidades
-
-                        //1.- identificar cuales son update, create, delete y sin cambios
-                        //obtiene los valores actuales en BD
-                        List<budget_cantidad> valoresEnBD = db.budget_cantidad.Where(x => idRels.Contains(x.id_budget_rel_fy_centro)).ToList();
-
-                        //valores Create
-                        List<budget_cantidad> valoresCreate = lista.Where(a => !valoresEnBD.Any(a1 => a1.id_budget_rel_fy_centro == a.id_budget_rel_fy_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a1.mes == a.mes) && a.cantidad != 0).ToList();
-
-                        //DE valores Diferentes identificar cuales son create, update y delete
-                        List<budget_cantidad> valoresUpdate = lista.Where(a => valoresEnBD.Any(a1 => a1.id_budget_rel_fy_centro == a.id_budget_rel_fy_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a1.mes == a.mes && a.cantidad != a1.cantidad && a.cantidad != 0)).ToList();
-                        //agrega el id correspondiente
-                        valoresUpdate = valoresUpdate.Select(x =>
+                        //Recorre todas las cantidades de la tabla
+                        for (int i = 0; i < lista_cantidad_form.Count; i++)
                         {
-                            x.id = (from v in valoresEnBD
-                                    where v.id_budget_rel_fy_centro == x.id_budget_rel_fy_centro && v.id_cuenta_sap == x.id_cuenta_sap && v.mes == x.mes
-                                    select v.id).FirstOrDefault(); return x;
-                        }).ToList();
-
-                        //DE valores Diferentes identificar cuales son create, update y delete
-                        List<budget_cantidad> valoresDelete = valoresEnBD.Where(a => !lista.Any(a1 => a1.id_budget_rel_fy_centro == a.id_budget_rel_fy_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a1.mes == a.mes)).ToList();
-                        valoresDelete.AddRange(lista.Where(a => valoresEnBD.Any(a1 => a1.id_budget_rel_fy_centro == a.id_budget_rel_fy_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a1.mes == a.mes && a.cantidad == 0)).ToList());
-
-                        //agrega el id  correspondiente
-                        valoresDelete = valoresDelete.Select(x =>
-                        {
-                            x.id = (from v in valoresEnBD
-                                    where v.id_budget_rel_fy_centro == x.id_budget_rel_fy_centro && v.id_cuenta_sap == x.id_cuenta_sap && v.mes == x.mes
-                                    select v.id).FirstOrDefault(); return x;
-                        }).ToList();
-
-                        //crea los nuevos registros
-                        try
-                        {
-                            db.budget_cantidad.AddRange(valoresCreate);
-                            db.SaveChanges();
-                        }
-                        catch (Exception e)
-                        {
-                            msjError = "Error: " + msjError;
-                            throw new Exception(msjError);
-                        }
-
-                        //modifica los registros actuales
-                        try
-                        {
-                            foreach (budget_cantidad item in valoresUpdate)
+                            budget_cantidad itemBD = lista_cantidad_BD.FirstOrDefault(x =>
+                                                        x.id_cuenta_sap == lista_cantidad_form[i].id_cuenta_sap
+                                                        && x.id_budget_rel_fy_centro == lista_cantidad_form[i].id_budget_rel_fy_centro
+                                                        && x.mes == lista_cantidad_form[i].mes
+                                                        && x.currency_iso == lista_cantidad_form[i].currency_iso
+                                                        && x.moneda_local_usd == lista_cantidad_form[i].moneda_local_usd
+                                                    );
+                            //EXISTE
+                            if (itemBD != null)
                             {
-                                //obtiene el elemento de BD
-                                budget_cantidad objeto = valoresEnBD.FirstOrDefault(x => x.id == item.id);
-
-                                if (objeto != null)
-                                {
-                                    db.Entry(objeto).CurrentValues.SetValues(item);
-
-                                }
-
+                                //UPDATE
+                                if (itemBD.cantidad != lista_cantidad_form[i].cantidad)
+                                    itemBD.cantidad = lista_cantidad_form[i].cantidad;
                             }
-                            db.SaveChanges();
-                        }
-                        catch (Exception e)
-                        {
-                            msjError = "Error: " + msjError;
-                            throw new Exception(msjError);
-                        }
-
-                        //Elimina los elemntos necesarios 
-                        try
-                        {
-                            foreach (budget_cantidad item in valoresDelete)
+                            else  //CREATE
                             {
-                                //obtiene el elemento de BD
-                                budget_cantidad objeto = valoresEnBD.FirstOrDefault(x => x.id == item.id);
-
-                                if (objeto != null)
-                                {
-                                    db.budget_cantidad.Remove(objeto);
-                                }
-
+                                db.budget_cantidad.Add(lista_cantidad_form[i]);
                             }
-                            db.SaveChanges();
-                        }
-                        catch (Exception e)
-                        {
-                            msjError = "Error: " + msjError;
-                            throw new Exception(msjError);
-                        }
-                        #endregion
-
-                        //guarda los comentarios
-                        #region comentarios
-                        //1.- Identifica cuales son create delete y sin cambios
-                        //obtiene los valores actuales en BD
-                        List<budget_rel_comentarios> comentariosEnBD = db.budget_rel_comentarios.Where(x => idRels.Contains(x.id_budget_rel_fy_centro)).ToList();
-
-                        //valores create
-                        List<budget_rel_comentarios> valoresCreateComentarios = listComentarios.Where(a => !comentariosEnBD.Any(a1 => a1.id_budget_rel_fy_centro == a.id_budget_rel_fy_centro && a1.id_cuenta_sap == a.id_cuenta_sap) && !String.IsNullOrEmpty(a.comentarios)).ToList();
-
-                        //valores updated
-                        List<budget_rel_comentarios> valoresUpdateComentarios = listComentarios.Where(a => comentariosEnBD.Any(a1 => a1.id_budget_rel_fy_centro == a.id_budget_rel_fy_centro && a1.id_cuenta_sap == a.id_cuenta_sap && a.comentarios != a1.comentarios && !String.IsNullOrEmpty(a.comentarios))).ToList();
-
-                        //agrega id a update
-                        valoresUpdateComentarios = valoresUpdateComentarios.Select(x =>
-                        {
-                            x.id = (from v in comentariosEnBD
-                                    where v.id_budget_rel_fy_centro == x.id_budget_rel_fy_centro && v.id_cuenta_sap == x.id_cuenta_sap
-                                    select v.id).FirstOrDefault(); return x;
-                        }).ToList();
-
-                        //valores delete
-                        List<budget_rel_comentarios> valoresDeleteComentarios = comentariosEnBD.Where(a => !listComentarios.Any(a1 => a1.id_budget_rel_fy_centro == a.id_budget_rel_fy_centro && a1.id_cuenta_sap == a.id_cuenta_sap)).ToList();
-                        valoresDeleteComentarios.AddRange(listComentarios.Where(a => comentariosEnBD.Any(a1 => a1.id_budget_rel_fy_centro == a.id_budget_rel_fy_centro && a1.id_cuenta_sap == a.id_cuenta_sap && String.IsNullOrEmpty(a.comentarios))).ToList());
-
-                        //agrega el id a delete
-                        valoresDeleteComentarios = valoresDeleteComentarios.Select(x =>
-                        {
-                            x.id = (from v in comentariosEnBD
-                                    where v.id_budget_rel_fy_centro == x.id_budget_rel_fy_centro && v.id_cuenta_sap == x.id_cuenta_sap
-                                    select v.id).FirstOrDefault(); return x;
-                        }).ToList();
-
-                        //crea los nuevos registros
-                        try
-                        {
-                            db.budget_rel_comentarios.AddRange(valoresCreateComentarios);
-                            db.SaveChanges();
-                        }
-                        catch (Exception e)
-                        {
-                            msjError = "Error: " + msjError;
-                            throw new Exception(msjError);
                         }
 
-                        //modifica los registros actuales
-                        try
+                        //DELETE
+                        //elimina aquellos que no aparezcan en los enviados
+                        List<budget_cantidad> toDeleteList = lista_cantidad_BD.Where(x => !lista_cantidad_form.Any(y => y.id_cuenta_sap == x.id_cuenta_sap
+                                        && y.mes == x.mes
+                                        && y.currency_iso == x.currency_iso
+                                        && y.moneda_local_usd == x.moneda_local_usd
+                                        && y.id_budget_rel_fy_centro == x.id_budget_rel_fy_centro
+                                        )).ToList();
+
+                        //borra los conceptos que inpiden el borrado
+                        foreach (var item in toDeleteList.Where(x=>x.budget_rel_conceptos_cantidades.Count>0))
+                            db.budget_rel_conceptos_cantidades.RemoveRange(item.budget_rel_conceptos_cantidades);
+
+                        db.budget_cantidad.RemoveRange(toDeleteList);
+
+                        //crea, modifica o elimina COMENTARIOS generales
+                        for (int i = 0; i < lista_comentarios_form.Count; i++)
                         {
-                            foreach (budget_rel_comentarios item in valoresUpdateComentarios)
+                            var itemBD = lista_comentarios_BD.FirstOrDefault(x => x.id_cuenta_sap == lista_comentarios_form[i].id_cuenta_sap && x.id_budget_rel_fy_centro == lista_comentarios_form[i].id_budget_rel_fy_centro);
+                            //EXISTE
+                            if (itemBD != null)
                             {
-                                //obtiene el elemento de BD
-                                budget_rel_comentarios objeto = comentariosEnBD.FirstOrDefault(x => x.id == item.id);
-
-                                if (objeto != null)
-                                {
-                                    db.Entry(objeto).CurrentValues.SetValues(item);
-
-                                }
-
+                                //UPDATE
+                                if (itemBD.comentarios != lista_comentarios_form[i].comentarios)
+                                    itemBD.comentarios = lista_comentarios_form[i].comentarios;
                             }
-                            db.SaveChanges();
-                        }
-                        catch (Exception e)
-                        {
-                            msjError = "Error: " + msjError;
-                            throw new Exception(msjError);
+                            else  //CREATE
+                            {
+                                db.budget_rel_comentarios.Add(lista_comentarios_form[i]);
+                            }
                         }
 
-                        //Elimina los elemntos necesarios 
+                        //DELETE
+                        //elimina aquellos que no aparezcan en los enviados
+                        List<budget_rel_comentarios> toDeleteListComentarios = lista_comentarios_BD.Where(x => !lista_comentarios_form.Any(y => y.id_cuenta_sap == x.id_cuenta_sap)).ToList();
+                        db.budget_rel_comentarios.RemoveRange(toDeleteListComentarios);
+
                         try
                         {
-                            foreach (budget_rel_comentarios item in valoresDeleteComentarios)
-                            {
-                                //obtiene el elemento de BD
-                                budget_rel_comentarios objeto = comentariosEnBD.FirstOrDefault(x => x.id == item.id);
-
-                                if (objeto != null)
-                                {
-                                    db.budget_rel_comentarios.Remove(objeto);
-                                }
-
-                            }
                             db.SaveChanges();
+                            if (noEncontrados == 0)
+                                TempData["Mensaje"] = new MensajesSweetAlert("Se ha actualizado correctamente.", TipoMensajesSweetAlerts.INFO);
+                            else
+                                TempData["Mensaje"] = new MensajesSweetAlert("Algunas cuentas SAP no se encontraron: " + noEncontrados, TipoMensajesSweetAlerts.WARNING);
                         }
                         catch (Exception e)
                         {
-                            msjError = "Error: " + msjError;
-                            throw new Exception(msjError);
+                            ModelState.AddModelError("", "Error: " + e.Message);
                         }
 
-                        #endregion
-
-                        if (noEncontrados == 0)
-                            TempData["Mensaje"] = new MensajesSweetAlert("Se ha actualizado correctamente.", TipoMensajesSweetAlerts.INFO);
-                        else
-                            TempData["Mensaje"] = new MensajesSweetAlert("Algunas cuentas SAP no se encontraron: " + noEncontrados, TipoMensajesSweetAlerts.WARNING);
-
-                        return RedirectToAction("DetailsCentro", new { id = centro.id });
+                        return RedirectToAction("EditCentroPresenteHT", "ResponsableBudget", new { id = centro.id, import = true });
                     }
 
                 }
@@ -1034,6 +953,181 @@ namespace Portal_2_0.Controllers
             return View(centroCosto);
         }
 
+
+        // GET: Bom/CargaBom/5
+        public ActionResult CargaConcentrado()
+        {
+            if (TieneRol(TipoRoles.BG_CONTROLLING))
+            {
+                return View();
+            }
+            else
+            {
+                return View("../Home/ErrorPermisos");
+            }
+        }
+
+        // POST: Dante/CargaConcentrado/5
+        [HttpPost]
+        public ActionResult CargaConcentrado(ExcelViewModel excelViewModel, FormCollection collection)
+        {
+            if (ModelState.IsValid)
+            {
+
+
+                string msjError = "No se ha podido leer el archivo seleccionado.";
+
+                //lee el archivo seleccionado
+                try
+                {
+                    HttpPostedFileBase stream = Request.Files["PostedFile"];
+
+
+                    if (stream.InputStream.Length > 8388608)
+                    {
+                        msjError = "Sólo se permiten archivos con peso menor a 8 MB.";
+                        throw new Exception(msjError);
+                    }
+                    else
+                    {
+                        string extension = Path.GetExtension(excelViewModel.PostedFile.FileName);
+                        if (extension.ToUpper() != ".XLS" && extension.ToUpper() != ".XLSX")
+                        {
+                            msjError = "Sólo se permiten archivos Excel";
+                            throw new Exception(msjError);
+                        }
+                    }
+
+                    bool estructuraValida = false;
+                    int noEncontrados = 0;
+                    List<budget_rel_comentarios> lista_comentarios_form = new List<budget_rel_comentarios>();
+                    List<int> idRels = new List<int>();
+
+                    //el archivo es válido
+                    List<budget_cantidad> lista_cantidad_form = UtilExcel.LeeActual(stream, 1, ref estructuraValida, ref msjError, ref noEncontrados, ref lista_comentarios_form, ref idRels);
+
+
+                    //obtiene el listado actual de la BD
+                    List<budget_cantidad> lista_cantidad_BD = db.budget_cantidad.Where(x => idRels.Contains(x.id_budget_rel_fy_centro)).ToList();
+
+                    //obtiene el listado actual de la BD
+                    List<budget_rel_comentarios> lista_comentarios_BD = db.budget_rel_comentarios.Where(x => idRels.Contains(x.id_budget_rel_fy_centro)).ToList();
+
+                    /*crea una copia de cada cantidad en moneda local
+                        !!! Eliminar cuando la plantilla incluya los tres tipos de moneda
+                     */
+                    ////////////////////////////////////////////////////////////////
+                    List<budget_cantidad> tempLocalUSD = new List<budget_cantidad>();
+                    foreach (var item in lista_cantidad_form)
+                    {
+                        tempLocalUSD.Add(new budget_cantidad
+                        {
+                            id_budget_rel_fy_centro = item.id_budget_rel_fy_centro,
+                            id_cuenta_sap = item.id_cuenta_sap,
+                            mes = item.mes,
+                            currency_iso = "USD",
+                            cantidad = item.cantidad,
+                            comentario = item.comentario,
+                            moneda_local_usd = true
+                        });
+                    }
+                    lista_cantidad_form.AddRange(tempLocalUSD);
+                    /////////////////////////////////////////////////////////////////
+
+                    if (!estructuraValida)
+                    {
+                        msjError = "No cumple con la estructura válida. " + msjError;
+                        throw new Exception(msjError);
+                    }
+                    else if (lista_cantidad_form.Count > 0)//cumple con la estructura válida
+                    {
+
+                        //Recorre todas las cantidades de la tabla
+                        for (int i = 0; i < lista_cantidad_form.Count; i++)
+                        {
+                            budget_cantidad itemBD = lista_cantidad_BD.FirstOrDefault(x =>
+                                                        x.id_cuenta_sap == lista_cantidad_form[i].id_cuenta_sap
+                                                        && x.id_budget_rel_fy_centro == lista_cantidad_form[i].id_budget_rel_fy_centro
+                                                        && x.mes == lista_cantidad_form[i].mes
+                                                        && x.currency_iso == lista_cantidad_form[i].currency_iso
+                                                        && x.moneda_local_usd == lista_cantidad_form[i].moneda_local_usd
+                                                    );
+                            //EXISTE
+                            if (itemBD != null)
+                            {
+                                //UPDATE
+                                if (itemBD.cantidad != lista_cantidad_form[i].cantidad)
+                                    itemBD.cantidad = lista_cantidad_form[i].cantidad;
+                            }
+                            else  //CREATE
+                            {
+                                db.budget_cantidad.Add(lista_cantidad_form[i]);
+                            }
+                        }
+
+                        //DELETE
+                        //elimina aquellos que no aparezcan en los enviados
+                        List<budget_cantidad> toDeleteList = lista_cantidad_BD.Where(x => !lista_cantidad_form.Any(y => y.id_cuenta_sap == x.id_cuenta_sap
+                                        && y.mes == x.mes
+                                        && y.currency_iso == x.currency_iso
+                                        && y.moneda_local_usd == x.moneda_local_usd
+                                        && y.id_budget_rel_fy_centro == x.id_budget_rel_fy_centro
+                                        )).ToList();
+
+                        //borra los conceptos que inpiden el borrado
+                        foreach (var item in toDeleteList.Where(x => x.budget_rel_conceptos_cantidades.Count > 0))
+                            db.budget_rel_conceptos_cantidades.RemoveRange(item.budget_rel_conceptos_cantidades);
+
+                        db.budget_cantidad.RemoveRange(toDeleteList);
+
+                        //crea, modifica o elimina COMENTARIOS generales
+                        for (int i = 0; i < lista_comentarios_form.Count; i++)
+                        {
+                            var itemBD = lista_comentarios_BD.FirstOrDefault(x => x.id_cuenta_sap == lista_comentarios_form[i].id_cuenta_sap && x.id_budget_rel_fy_centro == lista_comentarios_form[i].id_budget_rel_fy_centro);
+                            //EXISTE
+                            if (itemBD != null)
+                            {
+                                //UPDATE
+                                if (itemBD.comentarios != lista_comentarios_form[i].comentarios)
+                                    itemBD.comentarios = lista_comentarios_form[i].comentarios;
+                            }
+                            else  //CREATE
+                            {
+                                db.budget_rel_comentarios.Add(lista_comentarios_form[i]);
+                            }
+                        }
+
+                        //DELETE
+                        //elimina aquellos que no aparezcan en los enviados
+                        List<budget_rel_comentarios> toDeleteListComentarios = lista_comentarios_BD.Where(x => !lista_comentarios_form.Any(y => y.id_cuenta_sap == x.id_cuenta_sap && y.id_budget_rel_fy_centro == x.id_budget_rel_fy_centro)).ToList();
+                        db.budget_rel_comentarios.RemoveRange(toDeleteListComentarios);
+
+                        try
+                        {
+                            db.SaveChanges();
+                            if (noEncontrados == 0)
+                                TempData["Mensaje"] = new MensajesSweetAlert("Se ha actualizado correctamente.", TipoMensajesSweetAlerts.INFO);
+                            else
+                                TempData["Mensaje"] = new MensajesSweetAlert("Algunas cuentas SAP no se encontraron: " + noEncontrados, TipoMensajesSweetAlerts.WARNING);
+                        }
+                        catch (Exception e)
+                        {
+                            ModelState.AddModelError("", "Error: " + e.Message);
+                        }
+
+                        return RedirectToAction("centros");
+                    }
+                }
+                catch (Exception e)
+                {
+                    ModelState.AddModelError("", msjError);
+                    return View(excelViewModel);
+                }
+
+            }
+            return View(excelViewModel);
+        }
+
         public ActionResult Reportes(int? planta, string responsable, string centro_costo, int pagina = 1)
         {
 
@@ -1087,6 +1181,7 @@ namespace Portal_2_0.Controllers
 
                 ViewBag.planta = AddFirstItem(new SelectList(db.budget_plantas.Where(x => x.activo == true), "id", "descripcion"), textoPorDefecto: "-- Todos --");
                 ViewBag.responsable = AddFirstItem(new SelectList(listadoResponsables, "ConcatNombre", "ConcatNombre"), textoPorDefecto: "-- Todos --");
+                ViewBag.id_fiscal_year = AddFirstItem(new SelectList(db.budget_anio_fiscal.Where(x => x.id != 1), "id", "ConcatAnio"), textoPorDefecto: "-- Seleccionar --");
                 ViewBag.Paginacion = paginacion;
 
 
@@ -1100,7 +1195,7 @@ namespace Portal_2_0.Controllers
             }
         }
 
-        public ActionResult ExportarConcentrado(int? planta, string responsable, string centro_costo, string tipo_reporte)
+        public ActionResult ExportarConcentrado(int? planta, int? id_fiscal_year, string responsable, string centro_costo, string tipo_reporte)
         {
 
             if (TieneRol(TipoRoles.BG_REPORTES))
@@ -1111,18 +1206,22 @@ namespace Portal_2_0.Controllers
                     ViewBag.MensajeAlert = TempData["Mensaje"];
                 }
 
-                //obtiene el año fiscal anterior (actual)
-                budget_anio_fiscal anio_Fiscal_anterior = ResponsableBudgetController.GetAnioFiscal(DateTime.Now.AddYears(-1));
-                if (anio_Fiscal_anterior == null)
-                    return View("../Error/NotFound");
+                //
 
                 //obtiene el año fiscal actual (forecast)
-                budget_anio_fiscal anio_Fiscal_actual = ResponsableBudgetController.GetAnioFiscal(DateTime.Now);
+                budget_anio_fiscal anio_Fiscal_actual = db.budget_anio_fiscal.Find(id_fiscal_year);
                 if (anio_Fiscal_actual == null)
                     return View("../Error/NotFound");
 
+                //obtiene el año fiscal anterior (actual)
+                budget_anio_fiscal anio_Fiscal_anterior = db.budget_anio_fiscal.FirstOrDefault(x=> x.anio_inicio == anio_Fiscal_actual.anio_inicio-1);
+                if (anio_Fiscal_anterior == null)
+                    return View("../Error/NotFound");
+
+               
+
                 //obtiene el año fiscal proximo (budget)
-                budget_anio_fiscal anio_Fiscal_proximo = ResponsableBudgetController.GetAnioFiscal(DateTime.Now.AddYears(1));
+                budget_anio_fiscal anio_Fiscal_proximo = db.budget_anio_fiscal.FirstOrDefault(x => x.anio_inicio == anio_Fiscal_actual.anio_inicio + 1);
                 if (anio_Fiscal_proximo == null)
                     return View("../Error/NotFound");
 
@@ -1163,14 +1262,14 @@ namespace Portal_2_0.Controllers
                 }
                 else if (tipo_reporte == "budget")
                 {
-                   var listAnterior = db.view_valores_fiscal_year_budget_historico
-                        .Where(x =>
-                                (x.id_budget_plant == planta || planta == null)
-                            && (x.responsable.Contains(responsable) || String.IsNullOrEmpty(responsable))
-                            && (x.cost_center.Contains(centro_costo) || String.IsNullOrEmpty(centro_costo))
-                            && (x.id_anio_fiscal == anio_Fiscal_anterior.id)
-                        )
-                        .ToList();
+                    var listAnterior = db.view_valores_fiscal_year_budget_historico
+                         .Where(x =>
+                                 (x.id_budget_plant == planta || planta == null)
+                             && (x.responsable.Contains(responsable) || String.IsNullOrEmpty(responsable))
+                             && (x.cost_center.Contains(centro_costo) || String.IsNullOrEmpty(centro_costo))
+                             && (x.id_anio_fiscal == anio_Fiscal_anterior.id)
+                         )
+                         .ToList();
 
                     var listPresente = db.view_valores_fiscal_year_budget_historico
                          .Where(x =>
@@ -1203,7 +1302,7 @@ namespace Portal_2_0.Controllers
                 listadoProximo = AgregaCuentasSAPConcentrado(listadoProximo, anio_Fiscal_proximo.id, centro_costo, responsable, planta, soloCuentasActivas: false);
 
 
-                byte[] stream = ExcelUtil.GeneraReporteBudgetPorPlanta(listadoAnterior, listadoPresente, listadoProximo, anio_Fiscal_anterior, anio_Fiscal_actual, anio_Fiscal_proximo);
+                byte[] stream = ExcelUtil.GeneraReporteBudgetPorPlanta(listadoAnterior, listadoPresente, listadoProximo, anio_Fiscal_anterior, anio_Fiscal_actual, anio_Fiscal_proximo, tipo_reporte);
 
                 //encuentra la planta
                 string fileName = "Concentrado";
@@ -1236,7 +1335,7 @@ namespace Portal_2_0.Controllers
 
         public ActionResult Exportar(int? id_centro_costo)
         {
-            if (TieneRol(TipoRoles.BG_CONTROLLING)|| TieneRol(TipoRoles.BG_RESPONSABLE))
+            if (TieneRol(TipoRoles.BG_CONTROLLING) || TieneRol(TipoRoles.BG_RESPONSABLE))
             {
                 if (id_centro_costo == null)
                 {
@@ -1398,10 +1497,12 @@ namespace Portal_2_0.Controllers
             base.Dispose(disposing);
         }
 
-        protected List<view_valores_fiscal_year> ConvertToViewValoresFY(List<view_valores_fiscal_year_budget_historico> listado) {
+        protected List<view_valores_fiscal_year> ConvertToViewValoresFY(List<view_valores_fiscal_year_budget_historico> listado)
+        {
             List<view_valores_fiscal_year> result = new List<view_valores_fiscal_year>();
 
-            foreach (view_valores_fiscal_year_budget_historico item in listado) {
+            foreach (view_valores_fiscal_year_budget_historico item in listado)
+            {
                 result.Add(new view_valores_fiscal_year
                 {
                     id = item.id,
@@ -1421,6 +1522,7 @@ namespace Portal_2_0.Controllers
                     mapping = item.mapping,
                     mapping_bridge = item.mapping_bridge,
                     currency_iso = item.currency_iso,
+                    //USD
                     Enero = item.Enero,
                     Febrero = item.Febrero,
                     Marzo = item.Marzo,
@@ -1432,8 +1534,47 @@ namespace Portal_2_0.Controllers
                     Septiembre = item.Septiembre,
                     Octubre = item.Octubre,
                     Noviembre = item.Noviembre,
-                    Diciembre = item.Diciembre,
-                    Comentario = item.Comentario,
+                    Diciembre = item.Diciembre,   
+                    //MXN
+                    Enero_MXN = item.Enero_MXN,
+                    Febrero_MXN = item.Febrero_MXN,
+                    Marzo_MXN = item.Marzo_MXN,
+                    Abril_MXN = item.Abril_MXN,
+                    Mayo_MXN = item.Mayo_MXN,
+                    Junio_MXN = item.Junio_MXN,
+                    Julio_MXN = item.Julio_MXN,
+                    Agosto_MXN = item.Agosto_MXN,
+                    Septiembre_MXN = item.Septiembre_MXN,
+                    Octubre_MXN = item.Octubre_MXN,
+                    Noviembre_MXN = item.Noviembre_MXN,
+                    Diciembre_MXN = item.Diciembre_MXN,
+                    //EUR
+                    Enero_EUR = item.Enero_EUR,
+                    Febrero_EUR = item.Febrero_EUR,
+                    Marzo_EUR = item.Marzo_EUR,
+                    Abril_EUR = item.Abril_EUR,
+                    Mayo_EUR = item.Mayo_EUR,
+                    Junio_EUR = item.Junio_EUR,
+                    Julio_EUR = item.Julio_EUR,
+                    Agosto_EUR = item.Agosto_EUR,
+                    Septiembre_EUR = item.Septiembre_EUR,
+                    Octubre_EUR = item.Octubre_EUR,
+                    Noviembre_EUR = item.Noviembre_EUR,
+                    Diciembre_EUR = item.Diciembre_EUR,
+                    //LOCAL
+                    Enero_USD_LOCAL = item.Enero_USD_LOCAL,
+                    Febrero_USD_LOCAL = item.Febrero_USD_LOCAL,
+                    Marzo_USD_LOCAL = item.Marzo_USD_LOCAL,
+                    Abril_USD_LOCAL = item.Abril_USD_LOCAL,
+                    Mayo_USD_LOCAL = item.Mayo_USD_LOCAL,
+                    Junio_USD_LOCAL = item.Junio_USD_LOCAL,
+                    Julio_USD_LOCAL = item.Julio_USD_LOCAL,
+                    Agosto_USD_LOCAL = item.Agosto_USD_LOCAL,
+                    Septiembre_USD_LOCAL = item.Septiembre_USD_LOCAL,
+                    Octubre_USD_LOCAL = item.Octubre_USD_LOCAL,
+                    Noviembre_USD_LOCAL = item.Noviembre_USD_LOCAL,
+                    Diciembre_USD_LOCAL = item.Diciembre_USD_LOCAL,
+
                 });
             }
 

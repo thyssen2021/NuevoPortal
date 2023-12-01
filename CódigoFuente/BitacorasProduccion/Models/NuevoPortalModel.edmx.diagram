@@ -192,7 +192,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.budget_cantidad" Width="1.5" PointX="23.75" PointY="77.25" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_currency_iso" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_cantidad_id_rel_fy_centro" />
-        <EntityTypeShape EntityType="Portal_2_0Model.view_valores_fiscal_year_budget_historico" Width="1.5" PointX="11.375" PointY="4.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_epo" Width="1.5" PointX="11.375" PointY="12.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.IT_wsus" Width="1.5" PointX="12.375" PointY="0.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.Area" Width="1.5" PointX="2.875" PointY="72.125" />
@@ -219,7 +218,6 @@
         <AssociationConnector Association="Portal_2_0Model.FK_RM_cambio_catalogoEstatusClave" />
         <EntityTypeShape EntityType="Portal_2_0Model.RU_usuarios_vigilancia" Width="1.5" PointX="34.75" PointY="91" />
         <EntityTypeShape EntityType="Portal_2_0Model.RU_usuarios_embarques" Width="1.5" PointX="32" PointY="90.125" />
-        <EntityTypeShape EntityType="Portal_2_0Model.budget_cantidad_budget_historico" Width="1.5" PointX="13.375" PointY="3.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.menu_item" Width="1.5" PointX="13.375" PointY="8" />
         <EntityTypeShape EntityType="Portal_2_0Model.menu_link" Width="1.5" PointX="15.625" PointY="7.875" />
         <AssociationConnector Association="Portal_2_0Model.FK_menu_link_id_menu_item" />
@@ -342,6 +340,8 @@
         <AssociationConnector Association="Portal_2_0Model.FK_budget_cuenta_sap_id_mapping" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_comentarios_id_cuenta_sap" />
         <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_conceptos_formulas_id_budget_cuenta_sap" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_cantidad_budget_historico" Width="1.5" PointX="10.375" PointY="4.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.view_valores_fiscal_year_budget_historico" Width="1.5" PointX="0.75" PointY="17.75" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

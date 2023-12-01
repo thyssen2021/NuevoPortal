@@ -277,7 +277,7 @@ namespace Portal_2_0.Controllers
                 if (item_busca == null && item_busca_num == null)
                 {
 
-                    db.Entry(item).State = EntityState.Modified;
+                    //db.Entry(item).State = EntityState.Modified;
                     db.SaveChanges();
 
                     //borra los ids responsables anteriores

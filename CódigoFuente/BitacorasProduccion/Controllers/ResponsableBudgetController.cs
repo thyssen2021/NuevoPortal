@@ -22,8 +22,6 @@ namespace Portal_2_0.Controllers
     {
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
-
-
         // GET: ResponsableBudget/Actual
         public ActionResult Centros()
         {
@@ -307,10 +305,10 @@ namespace Portal_2_0.Controllers
         }
 
         // GET: ResponsableBudget/EditCentroPresente
-        public ActionResult EditCentroPresenteHT(int? id, bool proximo = false, bool info = false)
+        public ActionResult EditCentroPresenteHT(int? id, int? id_fiscal_year, bool proximo = false, bool info = false, bool controlling = false, bool import = false)
         {
 
-            if (TieneRol(TipoRoles.BG_RESPONSABLE))
+            if (TieneRol(TipoRoles.BG_RESPONSABLE) || TieneRol(TipoRoles.BG_CONTROLLING))
             {
                 if (id == null)
                 {
@@ -330,7 +328,7 @@ namespace Portal_2_0.Controllers
                 //obtiene el usuario logeado
                 empleados empleado = obtieneEmpleadoLogeado();
                 //verifica que el usuario este registrado como capturista
-                if (!db.budget_responsables.Any(x => x.id_responsable == empleado.id && centroCosto.id == x.id_budget_centro_costo))
+                if (!db.budget_responsables.Any(x => x.id_responsable == empleado.id && centroCosto.id == x.id_budget_centro_costo) && !TieneRol(TipoRoles.BG_CONTROLLING))
                 {
                     ViewBag.Titulo = "¡Lo sentimos!¡No se puede acceder a esta Sección!";
                     ViewBag.Descripcion = "Este usuario no se encuentra asociado a este centro de costo.";
@@ -353,7 +351,16 @@ namespace Portal_2_0.Controllers
                 if (anio_Fiscal_proximo == null)
                     return View("../Error/NotFound");
 
-
+                //cambia los años ficales si la vista es controlling
+                if (controlling && id_fiscal_year.HasValue)
+                {
+                    //presente
+                    anio_Fiscal_actual = db.budget_anio_fiscal.Find(id_fiscal_year);
+                    //anterior
+                    anio_Fiscal_anterior = db.budget_anio_fiscal.FirstOrDefault(x => x.anio_inicio == anio_Fiscal_actual.anio_inicio - 1);
+                    //proximo
+                    anio_Fiscal_proximo = db.budget_anio_fiscal.FirstOrDefault(x => x.anio_inicio == anio_Fiscal_actual.anio_inicio + 1);
+                }
 
 
                 //obtiene el id_rel_centro_costo anterior
@@ -413,9 +420,9 @@ namespace Portal_2_0.Controllers
                 rel_fy_centro_anterior.budget_anio_fiscal = anio_Fiscal_anterior;
 
 
-                    #region cabeceras HT
-                    //cabeceras HT FORECAST
-                    List<string> headersForecast = new List<string> { "SAP Account", "Name", "Mapping" };
+                #region cabeceras HT
+                //cabeceras HT FORECAST
+                List<string> headersForecast = new List<string> { "SAP Account", "Name", "Mapping" };
                 var cabeceraObject = new object[13];
                 var cabeceraObjectActual = new object[13];
                 var cabeceraObjectBudget = new object[13];
@@ -483,15 +490,19 @@ namespace Portal_2_0.Controllers
                     ViewBag.proximo = proximo;
                     return View("DetailsCentroHT", centroCosto);
                 }
-                else if (info) //muestra la vista de Info //info
+                else if (info || import) //muestra la vista de Info //info
                 {
+                    ViewBag.proximo = proximo;
+                    ViewBag.import = import;
+                    return View("DetailsCentroHT", centroCosto);
+                }
+                else if (!proximo && !rel_fy_centro_presente.estatus)
+                {   //presente no editable
                     ViewBag.proximo = proximo;
                     return View("DetailsCentroHT", centroCosto);
                 }
-                else if (!proximo && !rel_fy_centro_presente.estatus) {   //presente no editable
-                    ViewBag.proximo = proximo;
-                    return View("DetailsCentroHT", centroCosto);
-                }                    
+
+                ViewBag.controlling = controlling;
                 return View(centroCosto); //presente  editable
 
             }

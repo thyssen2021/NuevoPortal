@@ -21,5 +21,6 @@ namespace Portal_2_0.Models
         public string currency_iso { get; set; }
         public decimal cantidad { get; set; }
         public string comentario { get; set; }
+        public bool moneda_local_usd { get; set; }
     }
 }

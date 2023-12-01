@@ -748,7 +748,7 @@
                                                     @*<li class="@(ViewBag.SegundoNivel == "actual" ? "current-page" : null )"><a href="@Url.Action("Actual", "ResponsableBudget")">ACT FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)))</a></li>
                                                         <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
                                                         <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
-                                                    <li class="@(ViewBag.SegundoNivel == "centros" ? "current-page" : null )"><a href="@Url.Action("Centros", "ResponsableBudget")">Mis Centros</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "centros" ? "current-page" : null )"><a href="@Url.Action("Centros", "ResponsableBudget")">Mis Centros de Costo</a></li>
                                                 }
 
                                                 @if (User.IsInRole(TipoRoles.BG_CONTROLLING))

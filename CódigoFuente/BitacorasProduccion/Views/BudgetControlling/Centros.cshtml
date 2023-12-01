@@ -3,7 +3,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewBag.PrimerNivel = "plantilla_budget";
     ViewBag.SegundoNivel = "centro_costos";
-    ViewBag.ControllerName = "BudgetControlling";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
 
     Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
 
@@ -107,20 +107,17 @@
 
                                         }
                                         <div class="form-group">
-
-                                            <a onclick="mostrarModalDemo()" class="btn btn-success" style="color:white">
+                                            <a onclick="mostrarModalDemo()" class="btn btn-primary" style="color:white">
                                                 <i class="fa-regular fa-pen-to-square"></i>
                                                 Editar Centro de Costo
+                                            </a> 
+                                            <a href="@Url.Action("CargaConcentrado", ViewBag.ControllerName)" class="btn btn-success" style="color: white; background-color: #1d6f42">
+                                                <i class="fa-solid fa-upload"></i>
+                                                Importar Concentrado
                                             </a>
                                         </div>
                                         <hr />
-                                        @*@if (ViewBag.Create != null && ViewBag.Create)
-                                            {
-                                                <a href="@Url.Action( "Create", ViewBag.ControllerName)" class="btn btn-success">
-                                                    <i class="fa fa-plus-square"></i>
-                                                    Crear nuevo
-                                                </a>
-                                            }*@
+                                      
 
                                     </div>
                                     <table id="datatable_1" class="table table-striped table-bordered nowrap" cellspacing="0" width="100%">
@@ -164,15 +161,16 @@
 
                                             <tr>
                                                 <td>
-                                                    <a href="@Url.Action("DetailsCentro", ViewBag.ControllerName, new { id = item.id})" class="btn btn-info btm-sm" title="Detalles">
+                                                    <a href="@Url.Action("EditCentroPresenteHT", "ResponsableBudget", new { id = item.id, info = true})" class="btn btn-info btm-sm" title="Detalles">
                                                         <i class="fa fa-info-circle"></i>
                                                     </a>
-                                                    <a href="@Url.Action("ImportActual", ViewBag.ControllerName, new
+                                                    <a href="@Url.Action("EditCentroPresenteHT", "ResponsableBudget", new
                                                 {
-                                                    id = item.id
+                                                    id = item.id,
+                                                    import = true
 
                                                 })" class="btn btn-success btm-sm" title="Import Actual">
-                                                        <i class="fa fa-cloud-upload"></i> Import
+                                                        <i class="fa-solid fa-upload"></i> Import
                                                     </a>
                                                 </td>
                                                 <td>
@@ -192,7 +190,7 @@
                                                     @Html.DisplayFor(modelItem => item.budget_departamentos.budget_plantas.descripcion)
                                                 </td>
                                                 <td>
-                                                    <span>@responsables</span>
+                                                    <span>@(responsables.Length>80? responsables.Substring(0,80)+" ...": responsables)</span>
                                                 </td>
                                                 <td>
                                                     @if (item.RelAnioCentroActual_Forecast() == null)
