@@ -84,6 +84,8 @@ namespace Portal_2_0.Models
         [Range(0, 1000, ErrorMessage = "Ingrese un valor positivo entre 0 y 1000")]
         public Nullable<int> total_piezas_ajuste_platina_2 { get; set; }
 
+        [Display(Name = "¿Posteado?")]
+        public bool posteado { get; set; }
     }
 
     [MetadataType(typeof(produccion_datos_entradaMetadata))]

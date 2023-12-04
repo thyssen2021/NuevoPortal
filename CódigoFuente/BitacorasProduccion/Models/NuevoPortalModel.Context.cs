@@ -93,7 +93,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<PM_tipo_poliza> PM_tipo_poliza { get; set; }
         public virtual DbSet<PM_usuarios_capturistas> PM_usuarios_capturistas { get; set; }
         public virtual DbSet<poliza_manual> poliza_manual { get; set; }
-        public virtual DbSet<produccion_datos_entrada> produccion_datos_entrada { get; set; }
         public virtual DbSet<produccion_lineas> produccion_lineas { get; set; }
         public virtual DbSet<produccion_lotes> produccion_lotes { get; set; }
         public virtual DbSet<produccion_operadores> produccion_operadores { get; set; }
@@ -162,5 +161,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<empleados> empleados { get; set; }
         public virtual DbSet<IT_inventory_items> IT_inventory_items { get; set; }
         public virtual DbSet<CI_conteo_inventario> CI_conteo_inventario { get; set; }
+        public virtual DbSet<produccion_datos_entrada> produccion_datos_entrada { get; set; }
     }
 }

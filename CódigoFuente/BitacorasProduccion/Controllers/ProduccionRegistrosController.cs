@@ -82,6 +82,17 @@ namespace Portal_2_0.Controllers
                     ValoresQueryString = routeValues
                 };
 
+                //creamos una lista tipo SelectListItem
+                List<SelectListItem> listaPosteo = new List<SelectListItem>{
+                     new SelectListItem() { Text = "SÍ/NO", Value = "ALL" },
+                     new SelectListItem() { Text = "NO", Value = "SÍ" },
+                     new SelectListItem() { Text = "SÍ", Value = "NO" },
+                };
+
+
+                //Agregamos la lista a nuestro SelectList               
+                ViewBag.posteado = new SelectList(listaPosteo, "Value", "Text");
+
                 //si no tiene el rol de produccion muestra todas las lineas
                 if (!TieneRol(TipoRoles.BITACORAS_PRODUCCION_REGISTRO) || TieneRol(TipoRoles.BITACORAS_PRODUCCION_REPORTE_ALL_ACCESS))
                     ViewBag.linea = new SelectList(db.produccion_lineas.Where(p => p.activo == true && p.clave_planta == planta), "id", "linea");
