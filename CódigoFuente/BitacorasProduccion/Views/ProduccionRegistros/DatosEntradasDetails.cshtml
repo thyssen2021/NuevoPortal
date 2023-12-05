@@ -290,6 +290,13 @@
                                 @Html.ValidationMessageFor(model => model.produccion_datos_entrada.peso_bascula_kgs, "", new { @class = "text-danger" })
                             </div>
                         </div>
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.produccion_datos_entrada.posteado, new { @class = "control-label col-md-1" })
+                            <div class="col-md-1">
+                                @Html.EditorFor(model => model.produccion_datos_entrada.posteado, new { htmlAttributes = new { @class = "form-control col-md-12", @disabled = "disabled" } })
+                                @Html.ValidationMessageFor(model => model.produccion_datos_entrada.posteado, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
                         <div class="ln_solid"></div>
 
                         <div class="form-group row">
@@ -320,9 +327,9 @@
                                         <span class="field-validation-valid text-danger" data-valmsg-for="select_@contador" data-valmsg-replace="true"></span>
                                     </div>
                                     @*<div class="col-md-2">
-                                            <input style="text-align:right" type="text" maxlenght=30 name="produccion_lotes[@contador].sap_platina" id="produccion_lotes[@contador].sap_platina" class="form-control col-md-12 material-lote" value="@lote.sap_platina" readonly required>
-                                            <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[@contador].sap_platina" data-valmsg-replace="true"></span>
-                                        </div>*@
+                        <input style="text-align:right" type="text" maxlenght=30 name="produccion_lotes[@contador].sap_platina" id="produccion_lotes[@contador].sap_platina" class="form-control col-md-12 material-lote" value="@lote.sap_platina" readonly required>
+                        <span class="field-validation-valid text-danger" data-valmsg-for="produccion_lotes[@contador].sap_platina" data-valmsg-replace="true"></span>
+                    </div>*@
 
                                     <label class="control-label col-md-1" for="produccion_lotes[@contador].numero_lote_izquierdo">
                                         <span class="float-right">Lote Izquierdo</span>
@@ -443,11 +450,11 @@
                             </div>
                             <!--Peso Bruto Kgs-->
                             @*<label class="control-label col-md-1" for="peso_bruto_kgs">
-                                    Peso Bruto Kgs
-                                </label>
-                                <div class="col-md-3">
-                                    <input type="text" id="peso_bruto_kgs" class="form-control col-md-12" value="" readonly>
-                                </div>*@
+                Peso Bruto Kgs
+            </label>
+            <div class="col-md-3">
+                <input type="text" id="peso_bruto_kgs" class="form-control col-md-12" value="" readonly>
+            </div>*@
                         </div>
 
                         <div class="ln_solid"></div>
@@ -455,16 +462,16 @@
                             <ol class="breadcrumb" style="background-color: #e7f5fb; justify-content: center;">
                                 <li class="breadcrumb-item active" aria-current="page" style="color:#2a2a2a">
                                     @*<i class="fa-solid fa-left-long"></i>
-                                        @for (int i = 0; i <= 5; i++)
-                                        {
-                                            <i class="fa-solid fa-minus"></i>
-                                        }*@
+                    @for (int i = 0; i <= 5; i++)
+                    {
+                        <i class="fa-solid fa-minus"></i>
+                    }*@
                                     <b> PESOS PLATINA 1 (@Model.sap_platina)</b>
                                     @*@for (int i = 0; i <= 5; i++)
-                                        {
-                                            <i class="fa-solid fa-minus"></i>
-                                        }
-                                        <i class="fa-solid fa-right-long"></i>*@
+                    {
+                        <i class="fa-solid fa-minus"></i>
+                    }
+                    <i class="fa-solid fa-right-long"></i>*@
                                 </li>
                             </ol>
                         </nav>

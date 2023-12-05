@@ -140,6 +140,7 @@ namespace Portal_2_0.Models
             dt.Columns.Add(nameof(view_historico_resultado.Peso_Neto_total_piezas_de_ajuste_Kgs_general), typeof(double));
             dt.Columns.Add(nameof(view_historico_resultado.Peso_puntas_y_colas_reales_Kg_general), typeof(double));
             dt.Columns.Add(nameof(view_historico_resultado.Balance_de_Scrap_Real_general), typeof(double));
+            dt.Columns.Add("¿Posteado?", typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.comentario), typeof(string));
 
 
@@ -165,6 +166,8 @@ namespace Portal_2_0.Models
                     item.Balance_de_Scrap_Real_platina2 = null;
                 }
 
+                string posteado = db.produccion_datos_entrada.Any(x => x.posteado && item.IdRegistro.HasValue && x.id_produccion_registro == item.IdRegistro ) ? "SÍ" : "NO";
+
                 dt.Rows.Add(item.Planta, item.Linea, item.Operador, item.Supervisor, item.Fecha, String.Format("{0:T}", item.Hora), item.Turno, item.Orden_SAP, item.SAP_Platina,
                     item.Tipo_de_Material, item.Número_de_Parte__de_cliente, item.Material, item.Orden_en_SAP_2, item.SAP_Platina_2, item.Tipo_de_Material_platina2, item.Número_de_Parte_de_Cliente_platina2,
                     item.Material_platina2, item.ConcatCliente, item.SAP_Rollo, item.N__de_Rollo, item.Lote_de_rollo, item.Peso_Etiqueta__Kg_, item.Peso_de_regreso_de_rollo_Real,
@@ -180,6 +183,7 @@ namespace Portal_2_0.Models
                     item.Peso_Bruto_Kgs_general, item.Peso_Real_Pieza_Bruto_general, item.Peso_Real_Pieza_Neto_general, item.Scrap_Natural_general, item.Peso_neto_SAP_general, item.Peso_Bruto_SAP_general, item.Balance_de_Scrap_general,
                     item.Peso_de_rollo_usado_real__Kg_general, item.Peso_bruto_Total_piezas_Kg_general, item.Peso_NetoTotal_piezas_Kg_general, item.Scrap_de_ingeniería__buenas___Ajuste__Total_Piezas_Kg_general,
                     item.Peso_Neto_total_piezas_de_ajuste_Kgs_general, item.Peso_puntas_y_colas_reales_Kg_general, item.Balance_de_Scrap_Real_general,
+                    posteado,
                     item.comentario
                  );
 

@@ -35,6 +35,9 @@
     $("#linea").change(function () {
         verificaEstadoCombos();
     });
+    $("#posteado").change(function () {
+        verificaEstadoCombos();
+    });
 
    seleccionaValoresDefault();
     //verificaEstadoCombos();
