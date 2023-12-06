@@ -19,6 +19,13 @@ namespace Portal_2_0.Controllers
         // GET: CI_conteo_inventario
         public ActionResult Index()
         {
+
+            //mensaje en caso de crear, editar, etc
+            if (TempData["Mensaje"] != null)
+            {
+                ViewBag.MensajeAlert = TempData["Mensaje"];
+            }
+
             List<CI_conteo_inventario> lista = new List<CI_conteo_inventario>();
             return View(lista);
         }
@@ -131,7 +138,8 @@ namespace Portal_2_0.Controllers
                     bool estructuraValida = false;
                     //el archivo es válido
                     List<CI_conteo_inventario> lista = UtilExcel.LeeInventarioSAP(excelViewModel.PostedFile, ref estructuraValida);
-
+                    //obtiene el listado actual de la BD
+                    List<CI_conteo_inventario> lista_cantidad_BD = db.CI_conteo_inventario.ToList();
 
 
                     //quita los repetidos
@@ -148,14 +156,48 @@ namespace Portal_2_0.Controllers
 
                         try
                         {
-                            //trunca la tabla
-                            ////string cmd = $"TRUNCATE TABLE CI_conteo_inventario";
-                            ////db.Database.ExecuteSqlCommand(cmd);
+                        
+                            //Recorre todas las cantidades de la tabla
+                            for (int i = 0; i < lista.Count; i++)
+                            {
+                                CI_conteo_inventario itemBD = lista_cantidad_BD.FirstOrDefault(x =>
+                                                            x.plant == lista[i].plant
+                                                            && x.material == lista[i].material
+                                                            && x.batch == lista[i].batch
+                                                        );
+                                //EXISTE
+                                if (itemBD != null)
+                                {
+                                    //UPDATE
+                                    if (itemBD.pieces != lista[i].pieces
+                                        || itemBD.unrestricted != lista[i].unrestricted
+                                        || itemBD.blocked != lista[i].blocked
+                                        || itemBD.in_quality != lista[i].in_quality
+                                        || itemBD.value_stock != lista[i].value_stock
+                                        ) {
+                                        itemBD.pieces = lista[i].pieces;
+                                        itemBD.unrestricted = lista[i].unrestricted;
+                                        itemBD.blocked = lista[i].blocked;
+                                        itemBD.in_quality = lista[i].in_quality;
+                                        itemBD.value_stock = lista[i].value_stock;
+                                    }
+                                        
+                                }
+                                else  //CREATE
+                                {
+                                    db.CI_conteo_inventario.Add(lista[i]);
+                                }
+                            }
 
-                            //agrega los nuevos registos
-                            db.CI_conteo_inventario.AddRange(lista);
-                            //obtiene el elemento de BD                         
-                            db.SaveChanges();
+                            //DELETE
+                            //elimina aquellos que no aparezcan en los enviados
+                            List<CI_conteo_inventario> toDeleteList = lista_cantidad_BD.Where(x => !lista.Any(y => y.plant == x.plant
+                                            && y.material == x.material
+                                            && y.batch == x.batch
+                                            )).ToList();
+
+                            db.CI_conteo_inventario.RemoveRange(toDeleteList);
+
                         }
                         catch (Exception e)
                         {
@@ -163,71 +205,6 @@ namespace Portal_2_0.Controllers
                             return RedirectToAction("index");
                         }
 
-                        //List<bom_en_sap> listAnterior = db.bom_en_sap.ToList();
-
-                        ////determina que elementos de la lista no se encuentran en la lista anterior
-                        //List<bom_en_sap> listDiferencias = lista.Except(listAnterior).ToList();
-
-                        //foreach (bom_en_sap bom in listDiferencias)
-                        //{
-                        //    try
-                        //    {
-                        //        //obtiene el elemento de BD
-                        //        bom_en_sap item = listAnterior.FirstOrDefault(x => x.Material == bom.Material && x.Plnt == bom.Plnt && x.BOM == bom.BOM && x.AltBOM == bom.AltBOM && x.Item == bom.Item
-                        //         && x.Component == bom.Component
-                        //        );
-
-                        //        //si existe actualiza
-                        //        if (item != null)
-                        //        {
-                        //            db.Entry(item).CurrentValues.SetValues(bom);
-
-                        //            actualizados++;
-                        //        }
-                        //        else
-                        //        {
-                        //            //crea un nuevo registro
-                        //            db.bom_en_sap.Add(bom);
-
-                        //            creados++;
-                        //        }
-                        //        db.SaveChanges();
-                        //    }
-                        //    catch (Exception e)
-                        //    {
-                        //        error++;
-                        //    }
-
-                        //}
-                        ////obtiene nuevamente la lista de BD
-                        //listAnterior = db.bom_en_sap.ToList();
-                        ////determina que elementos de la listAnterior no se encuentran en la lista Excel
-                        //listDiferencias = listAnterior.Except(lista).ToList();
-
-                        ////elima de BD aquellos que no se encuentren en el excel
-                        //foreach (bom_en_sap bom in listDiferencias)
-                        //{
-                        //    try
-                        //    {
-                        //        //obtiene el elemento de BD
-                        //        bom_en_sap item = listAnterior.FirstOrDefault(x => x.Material == bom.Material && x.Plnt == bom.Plnt && x.BOM == bom.BOM && x.AltBOM == bom.AltBOM && x.Item == bom.Item
-                        //        && x.Component == bom.Component
-                        //        );
-
-                        //        //si existe elimina
-                        //        if (item != null)
-                        //        {
-                        //            db.Entry(item).State = EntityState.Deleted;
-                        //            eliminados++;
-                        //        }
-                        //        db.SaveChanges();
-                        //    }
-                        //    catch (Exception e)
-                        //    {
-                        //        error++;
-                        //    }
-
-                        //}
 
 
                         //llamada a metodo que calcula y actualiza los valores de neto y bruto sap                     
