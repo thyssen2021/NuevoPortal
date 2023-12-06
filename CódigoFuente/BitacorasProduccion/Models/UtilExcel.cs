@@ -1816,7 +1816,7 @@ namespace Portal_2_0.Models
                                             batch = table.Rows[i][j].ToString();
                                             break;
                                         case "MATERIAL DESCRIPTION":
-                                            batch = table.Rows[i][j].ToString();
+                                            material_description = table.Rows[i][j].ToString();
                                             break;
                                         case "IHS NUMBER 1":
                                             IHS_number = table.Rows[i][j].ToString();

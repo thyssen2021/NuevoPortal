@@ -132,6 +132,8 @@ namespace Portal_2_0.Controllers
                     //el archivo es válido
                     List<CI_conteo_inventario> lista = UtilExcel.LeeInventarioSAP(excelViewModel.PostedFile, ref estructuraValida);
 
+
+
                     //quita los repetidos
                     lista = lista.Distinct().ToList();
 
@@ -147,8 +149,8 @@ namespace Portal_2_0.Controllers
                         try
                         {
                             //trunca la tabla
-                            string cmd = $"TRUNCATE TABLE CI_conteo_inventario";
-                            db.Database.ExecuteSqlCommand(cmd);
+                            ////string cmd = $"TRUNCATE TABLE CI_conteo_inventario";
+                            ////db.Database.ExecuteSqlCommand(cmd);
 
                             //agrega los nuevos registos
                             db.CI_conteo_inventario.AddRange(lista);
