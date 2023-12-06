@@ -15,20 +15,25 @@ namespace Portal_2_0.Models
     public partial class CI_conteo_inventario
     {
         public int id { get; set; }
-        public string centro { get; set; }
-        public string almacen { get; set; }
-        public string ubicacion { get; set; }
-        public string articulo { get; set; }
+        public string plant { get; set; }
+        public string storage_location { get; set; }
+        public string storage_bin { get; set; }
+        public string batch { get; set; }
+        public string ship_to_number { get; set; }
         public string material { get; set; }
-        public string lote { get; set; }
-        public string no_bobina { get; set; }
-        public Nullable<double> sap_cantidad { get; set; }
-        public Nullable<double> libre_utilizacion { get; set; }
-        public Nullable<double> bloqueado { get; set; }
-        public Nullable<double> control_calidad { get; set; }
-        public string unidad_base_medida { get; set; }
+        public string material_description { get; set; }
+        public string ihs_number { get; set; }
+        public Nullable<int> pieces { get; set; }
+        public Nullable<int> unrestricted { get; set; }
+        public Nullable<int> blocked { get; set; }
+        public Nullable<int> in_quality { get; set; }
+        public Nullable<double> value_stock { get; set; }
+        public string base_unit_measure { get; set; }
+        public Nullable<double> gauge { get; set; }
+        public Nullable<double> gauge_min { get; set; }
+        public Nullable<double> gauge_max { get; set; }
         public Nullable<double> altura { get; set; }
         public Nullable<double> espesor { get; set; }
-        public Nullable<double> peso { get; set; }
+        public Nullable<int> num_tarima { get; set; }
     }
 }

@@ -828,6 +828,8 @@
                                             <a><i class="fa fa-boxes-stacked"></i> Inventario <span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "ci_conteo_inventario" ? "display:block" : null )">
                                                 <li class="@(ViewBag.SegundoNivel == "ci_conteo" ? "current-page" : null )"><a href="@Url.Action( "Index", "CI_conteo_inventario")">Listado</a></li>
+                                                <h3>Carga Archivos</h3>
+                                                <li class="@(ViewBag.SegundoNivel == "ci_conteo_inventario_sap" ? "current-page" : null )"><a href="@Url.Action( "carga_inventario_sap", "CI_conteo_inventario")">1.- Carga de Inventario SAP</a></li>
                                             </ul>
                                         </li>
                                     }

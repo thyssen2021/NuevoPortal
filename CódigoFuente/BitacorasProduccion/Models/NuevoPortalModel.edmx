@@ -213,21 +213,26 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
             <PropertyRef Name="id" />
           </Key>
           <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="centro" Type="varchar" MaxLength="4" Nullable="false" />
-          <Property Name="almacen" Type="varchar" MaxLength="4" Nullable="false" />
-          <Property Name="ubicacion" Type="varchar" MaxLength="20" />
-          <Property Name="articulo" Type="varchar" MaxLength="5" />
-          <Property Name="material" Type="varchar" MaxLength="15" />
-          <Property Name="lote" Type="varchar" MaxLength="10" />
-          <Property Name="no_bobina" Type="varchar" MaxLength="20" />
-          <Property Name="sap_cantidad" Type="float" />
-          <Property Name="libre_utilizacion" Type="float" />
-          <Property Name="bloqueado" Type="float" />
-          <Property Name="control_calidad" Type="float" />
-          <Property Name="unidad_base_medida" Type="varchar" MaxLength="10" />
+          <Property Name="plant" Type="varchar" MaxLength="4" Nullable="false" />
+          <Property Name="storage_location" Type="varchar" MaxLength="4" Nullable="false" />
+          <Property Name="storage_bin" Type="varchar" MaxLength="20" />
+          <Property Name="batch" Type="varchar" MaxLength="4" />
+          <Property Name="ship_to_number" Type="varchar" MaxLength="12" />
+          <Property Name="material" Type="varchar" MaxLength="12" />
+          <Property Name="material_description" Type="varchar" MaxLength="40" />
+          <Property Name="ihs_number" Type="varchar" MaxLength="120" />
+          <Property Name="pieces" Type="int" />
+          <Property Name="unrestricted" Type="int" />
+          <Property Name="blocked" Type="int" />
+          <Property Name="in_quality" Type="int" />
+          <Property Name="value_stock" Type="float" />
+          <Property Name="base_unit_measure" Type="varchar" MaxLength="10" />
+          <Property Name="gauge" Type="float" />
+          <Property Name="gauge_min" Type="float" />
+          <Property Name="gauge_max" Type="float" />
           <Property Name="altura" Type="float" />
           <Property Name="espesor" Type="float" />
-          <Property Name="peso" Type="float" />
+          <Property Name="num_tarima" Type="int" />
         </EntityType>
         <EntityType Name="class_v3">
           <Key>
@@ -1334,6 +1339,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="comentarios" Type="varchar" MaxLength="600" />
           <Property Name="peso_real_pieza_neto_platina_2" Type="float" />
           <Property Name="total_piezas_ajuste_platina_2" Type="int" />
+          <Property Name="posteado" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="produccion_lineas">
           <Key>
@@ -6237,6 +6243,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="peso_real_pieza_neto_platina_2" Type="Double" />
           <Property Name="total_piezas_ajuste_platina_2" Type="Int32" />
           <NavigationProperty Name="produccion_registros" Relationship="Self.FK_produccion_datos_entrada_id_produccion_registro" FromRole="produccion_datos_entrada" ToRole="produccion_registros" />
+          <Property Name="posteado" Type="Boolean" Nullable="false" />
         </EntityType>
         <EntityType Name="produccion_lineas">
           <Key>
@@ -10742,21 +10749,26 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <PropertyRef Name="id" />
           </Key>
           <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="centro" Type="String" Nullable="false" MaxLength="4" FixedLength="false" Unicode="false" />
-          <Property Name="almacen" Type="String" Nullable="false" MaxLength="4" FixedLength="false" Unicode="false" />
-          <Property Name="ubicacion" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="articulo" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
-          <Property Name="material" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="lote" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="no_bobina" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="sap_cantidad" Type="Double" />
-          <Property Name="libre_utilizacion" Type="Double" />
-          <Property Name="bloqueado" Type="Double" />
-          <Property Name="control_calidad" Type="Double" />
-          <Property Name="unidad_base_medida" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="plant" Type="String" Nullable="false" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="storage_location" Type="String" Nullable="false" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="storage_bin" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="batch" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="ship_to_number" Type="String" MaxLength="12" FixedLength="false" Unicode="false" />
+          <Property Name="material" Type="String" MaxLength="12" FixedLength="false" Unicode="false" />
+          <Property Name="material_description" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="ihs_number" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
+          <Property Name="pieces" Type="Int32" />
+          <Property Name="unrestricted" Type="Int32" />
+          <Property Name="blocked" Type="Int32" />
+          <Property Name="in_quality" Type="Int32" />
+          <Property Name="value_stock" Type="Double" />
+          <Property Name="base_unit_measure" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="gauge" Type="Double" />
+          <Property Name="gauge_min" Type="Double" />
+          <Property Name="gauge_max" Type="Double" />
           <Property Name="altura" Type="Double" />
           <Property Name="espesor" Type="Double" />
-          <Property Name="peso" Type="Double" />
+          <Property Name="num_tarima" Type="Int32" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -11598,6 +11610,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <EntitySetMapping Name="produccion_datos_entrada">
             <EntityTypeMapping TypeName="Portal_2_0Model.produccion_datos_entrada">
               <MappingFragment StoreEntitySet="produccion_datos_entrada">
+                <ScalarProperty Name="posteado" ColumnName="posteado" />
                 <ScalarProperty Name="id_produccion_registro" ColumnName="id_produccion_registro" />
                 <ScalarProperty Name="peso_real_pieza_neto" ColumnName="peso_real_pieza_neto" />
                 <ScalarProperty Name="orden_sap" ColumnName="orden_sap" />
@@ -12731,21 +12744,26 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <EntitySetMapping Name="CI_conteo_inventario">
             <EntityTypeMapping TypeName="Portal_2_0Model.CI_conteo_inventario">
               <MappingFragment StoreEntitySet="CI_conteo_inventario">
-                <ScalarProperty Name="peso" ColumnName="peso" />
+                <ScalarProperty Name="num_tarima" ColumnName="num_tarima" />
                 <ScalarProperty Name="espesor" ColumnName="espesor" />
                 <ScalarProperty Name="altura" ColumnName="altura" />
-                <ScalarProperty Name="unidad_base_medida" ColumnName="unidad_base_medida" />
-                <ScalarProperty Name="control_calidad" ColumnName="control_calidad" />
-                <ScalarProperty Name="bloqueado" ColumnName="bloqueado" />
-                <ScalarProperty Name="libre_utilizacion" ColumnName="libre_utilizacion" />
-                <ScalarProperty Name="sap_cantidad" ColumnName="sap_cantidad" />
-                <ScalarProperty Name="no_bobina" ColumnName="no_bobina" />
-                <ScalarProperty Name="lote" ColumnName="lote" />
+                <ScalarProperty Name="gauge_max" ColumnName="gauge_max" />
+                <ScalarProperty Name="gauge_min" ColumnName="gauge_min" />
+                <ScalarProperty Name="gauge" ColumnName="gauge" />
+                <ScalarProperty Name="base_unit_measure" ColumnName="base_unit_measure" />
+                <ScalarProperty Name="value_stock" ColumnName="value_stock" />
+                <ScalarProperty Name="in_quality" ColumnName="in_quality" />
+                <ScalarProperty Name="blocked" ColumnName="blocked" />
+                <ScalarProperty Name="unrestricted" ColumnName="unrestricted" />
+                <ScalarProperty Name="pieces" ColumnName="pieces" />
+                <ScalarProperty Name="ihs_number" ColumnName="ihs_number" />
+                <ScalarProperty Name="material_description" ColumnName="material_description" />
                 <ScalarProperty Name="material" ColumnName="material" />
-                <ScalarProperty Name="articulo" ColumnName="articulo" />
-                <ScalarProperty Name="ubicacion" ColumnName="ubicacion" />
-                <ScalarProperty Name="almacen" ColumnName="almacen" />
-                <ScalarProperty Name="centro" ColumnName="centro" />
+                <ScalarProperty Name="ship_to_number" ColumnName="ship_to_number" />
+                <ScalarProperty Name="batch" ColumnName="batch" />
+                <ScalarProperty Name="storage_bin" ColumnName="storage_bin" />
+                <ScalarProperty Name="storage_location" ColumnName="storage_location" />
+                <ScalarProperty Name="plant" ColumnName="plant" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>

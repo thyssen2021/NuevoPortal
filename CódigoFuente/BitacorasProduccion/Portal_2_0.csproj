@@ -5291,6 +5291,7 @@
     <Content Include="Views\CI_conteo_inventario\Edit.cshtml" />
     <Content Include="Views\CI_conteo_inventario\Index.cshtml" />
     <Content Include="Views\CI_conteo_inventario\Message.cshtml" />
+    <Content Include="Views\CI_conteo_inventario\carga_inventario_sap.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
