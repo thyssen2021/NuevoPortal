@@ -399,7 +399,8 @@ namespace Portal_2_0.Controllers
                     produccion_datos_entrada = new produccion_datos_entrada
                     {
                         id_produccion_registro = id.Value,
-                        produccion_registros = produccion
+                        produccion_registros = produccion,
+                        posteado = true,
                     };
                 }
 
