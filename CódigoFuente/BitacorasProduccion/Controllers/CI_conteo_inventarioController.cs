@@ -19,6 +19,8 @@ namespace Portal_2_0.Controllers
         // GET: CI_conteo_inventario
         public ActionResult Index()
         {
+            if (!TieneRol(TipoRoles.CI_CONTEO_INVENTARIO) && !!TieneRol(TipoRoles.ADMIN))
+                return View("../Home/ErrorPermisos");
 
             //mensaje en caso de crear, editar, etc
             if (TempData["Mensaje"] != null)
@@ -132,6 +134,9 @@ namespace Portal_2_0.Controllers
         // GET: CI_conteo_inventario/Edit/5
         public ActionResult Edit(int? id)
         {
+            if (!TieneRol(TipoRoles.CI_CONTEO_INVENTARIO) && !!TieneRol(TipoRoles.ADMIN))
+                return View("../Home/ErrorPermisos");
+
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
