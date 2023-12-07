@@ -69,6 +69,7 @@ namespace Portal_2_0.Models
             this.RU_usuarios_embarques = new HashSet<RU_usuarios_embarques>();
             this.IT_site_checklist = new HashSet<IT_site_checklist>();
             this.upgrade_usuarios = new HashSet<upgrade_usuarios>();
+            this.CI_conteo_inventario = new HashSet<CI_conteo_inventario>();
         }
     
         public int id { get; set; }
@@ -207,5 +208,7 @@ namespace Portal_2_0.Models
         public virtual ICollection<IT_site_checklist> IT_site_checklist { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<upgrade_usuarios> upgrade_usuarios { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CI_conteo_inventario> CI_conteo_inventario { get; set; }
     }
 }

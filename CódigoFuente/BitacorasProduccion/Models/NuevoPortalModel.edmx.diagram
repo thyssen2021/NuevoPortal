@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="e491ff9c3c62497ba77b67c445b21bb2" Name="Diagram1" ZoomLevel="68">
+      <Diagram DiagramId="e491ff9c3c62497ba77b67c445b21bb2" Name="Diagram1" ZoomLevel="74">
         <EntityTypeShape EntityType="Portal_2_0Model.AspNetUsers" Width="1.5" PointX="3" PointY="1" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.biblioteca_digital" Width="1.5" PointX="16.5" PointY="67.25" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.bom_en_sap" Width="1.5" PointX="0.75" PointY="6.75" IsExpanded="true" />
@@ -73,6 +73,7 @@
         <EntityTypeShape EntityType="Portal_2_0Model.PM_tipo_poliza" Width="1.5" PointX="16.5" PointY="94.625" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.PM_usuarios_capturistas" Width="1.5" PointX="12" PointY="110.375" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.poliza_manual" Width="1.5" PointX="18.75" PointY="74.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="Portal_2_0Model.produccion_datos_entrada" Width="1.5" PointX="26.25" PointY="94.875" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.produccion_lineas" Width="1.5" PointX="3" PointY="91.5" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.produccion_lotes" Width="1.5" PointX="26.25" PointY="100.125" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.produccion_operadores" Width="1.5" PointX="12.75" PointY="91.875" IsExpanded="true" />
@@ -139,6 +140,7 @@
         <AssociationConnector Association="Portal_2_0Model.FK_PM_departamentos_depto_validacion" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_PM_usuarios_capturistas_departamento" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_poliza_manual_tipo_poliza" ManuallyRouted="false" />
+        <AssociationConnector Association="Portal_2_0Model.FK_produccion_datos_entrada_id_produccion_registro" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_operadores_id_linea" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_registros_linea" ManuallyRouted="false" />
         <AssociationConnector Association="Portal_2_0Model.FK_produccion_lotes_id_produccion_registro" ManuallyRouted="false" />
@@ -331,9 +333,8 @@
         <AssociationConnector Association="Portal_2_0Model.FK_IT_mantenimientos_id_it_inventory_item" />
         <AssociationConnector Association="Portal_2_0Model.FK_notificaciones_id_tipo_accesorio" />
         <AssociationConnector Association="Portal_2_0Model.FK_notificaciones_virtual_server" />
-        <EntityTypeShape EntityType="Portal_2_0Model.CI_conteo_inventario" Width="1.5" PointX="15.375" PointY="0.75" />
-        <EntityTypeShape EntityType="Portal_2_0Model.produccion_datos_entrada" Width="1.5" PointX="26.25" PointY="103.5" />
-        <AssociationConnector Association="Portal_2_0Model.FK_produccion_datos_entrada_id_produccion_registro" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CI_conteo_inventario" Width="1.5" PointX="32" PointY="94" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CI_conteo_inventario_empleado" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

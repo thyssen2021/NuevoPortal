@@ -213,21 +213,27 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
             <PropertyRef Name="id" />
           </Key>
           <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="centro" Type="varchar" MaxLength="4" Nullable="false" />
-          <Property Name="almacen" Type="varchar" MaxLength="4" Nullable="false" />
-          <Property Name="ubicacion" Type="varchar" MaxLength="20" />
-          <Property Name="articulo" Type="varchar" MaxLength="5" />
-          <Property Name="material" Type="varchar" MaxLength="15" />
-          <Property Name="lote" Type="varchar" MaxLength="10" />
-          <Property Name="no_bobina" Type="varchar" MaxLength="20" />
-          <Property Name="sap_cantidad" Type="float" />
-          <Property Name="libre_utilizacion" Type="float" />
-          <Property Name="bloqueado" Type="float" />
-          <Property Name="control_calidad" Type="float" />
-          <Property Name="unidad_base_medida" Type="varchar" MaxLength="10" />
+          <Property Name="plant" Type="varchar" MaxLength="4" Nullable="false" />
+          <Property Name="storage_location" Type="varchar" MaxLength="4" Nullable="false" />
+          <Property Name="storage_bin" Type="varchar" MaxLength="20" />
+          <Property Name="batch" Type="varchar" MaxLength="4" />
+          <Property Name="ship_to_number" Type="varchar" MaxLength="12" />
+          <Property Name="material" Type="varchar" MaxLength="12" />
+          <Property Name="material_description" Type="varchar" MaxLength="40" />
+          <Property Name="ihs_number" Type="varchar" MaxLength="120" />
+          <Property Name="pieces" Type="int" />
+          <Property Name="unrestricted" Type="int" />
+          <Property Name="blocked" Type="int" />
+          <Property Name="in_quality" Type="int" />
+          <Property Name="value_stock" Type="float" />
+          <Property Name="base_unit_measure" Type="varchar" MaxLength="10" />
+          <Property Name="gauge" Type="float" />
+          <Property Name="gauge_min" Type="float" />
+          <Property Name="gauge_max" Type="float" />
           <Property Name="altura" Type="float" />
           <Property Name="espesor" Type="float" />
-          <Property Name="peso" Type="float" />
+          <Property Name="num_tarima" Type="int" />
+          <Property Name="id_empleado" Type="int" />
         </EntityType>
         <EntityType Name="class_v3">
           <Key>
@@ -2061,6 +2067,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Principal>
             <Dependent Role="budget_responsables">
               <PropertyRef Name="id_responsable" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CI_conteo_inventario_empleado">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="0..1" />
+          <End Role="CI_conteo_inventario" Type="Self.CI_conteo_inventario" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="CI_conteo_inventario">
+              <PropertyRef Name="id_empleado" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -4577,6 +4595,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="empleados" EntitySet="empleados" />
             <End Role="budget_responsables" EntitySet="budget_responsables" />
           </AssociationSet>
+          <AssociationSet Name="FK_CI_conteo_inventario_empleado" Association="Self.FK_CI_conteo_inventario_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="CI_conteo_inventario" EntitySet="CI_conteo_inventario" />
+          </AssociationSet>
           <AssociationSet Name="FK_dbo_AspNetUserRoles_dbo_AspNetRoles_RoleId" Association="Self.FK_dbo_AspNetUserRoles_dbo_AspNetRoles_RoleId">
             <End Role="AspNetRoles" EntitySet="AspNetRoles" />
             <End Role="AspNetUserRoles" EntitySet="AspNetUserRoles" />
@@ -6216,6 +6238,30 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="empleados3" Relationship="Portal_2_0Model.FK_poliza_manual_elaborador" FromRole="poliza_manual" ToRole="empleados" />
           <NavigationProperty Name="empleados4" Relationship="Portal_2_0Model.FK_poliza_manual_validador" FromRole="poliza_manual" ToRole="empleados" />
           </EntityType>
+        <EntityType Name="produccion_datos_entrada">
+          <Key>
+            <PropertyRef Name="id_produccion_registro" />
+          </Key>
+          <Property Name="id_produccion_registro" Type="Int32" Nullable="false" />
+          <Property Name="peso_real_pieza_neto" Type="Double" />
+          <Property Name="orden_sap" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="orden_sap_2" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="piezas_por_golpe" Type="Int32" />
+          <Property Name="numero_rollo" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="lote_rollo" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="peso_etiqueta" Type="Double" />
+          <Property Name="peso_regreso_rollo_real" Type="Double" />
+          <Property Name="peso_bascula_kgs" Type="Double" />
+          <Property Name="peso_despunte_kgs" Type="Double" />
+          <Property Name="peso_cola_kgs" Type="Double" />
+          <Property Name="total_piezas_ajuste" Type="Int32" />
+          <Property Name="ordenes_por_pieza" Type="Int32" />
+          <Property Name="comentarios" Type="String" MaxLength="600" FixedLength="false" Unicode="false" />
+          <Property Name="peso_real_pieza_neto_platina_2" Type="Double" />
+          <Property Name="total_piezas_ajuste_platina_2" Type="Int32" />
+          <NavigationProperty Name="produccion_registros" Relationship="Self.FK_produccion_datos_entrada_id_produccion_registro" FromRole="produccion_datos_entrada" ToRole="produccion_registros" />
+          <Property Name="posteado" Type="Boolean" Nullable="false" />
+        </EntityType>
         <EntityType Name="produccion_lineas">
           <Key>
             <PropertyRef Name="id" />
@@ -6272,13 +6318,13 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="sap_platina_2" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="inspeccion_datos_generales" Relationship="Self.FK_inspeccion_datos_generales_id_produccion_registro" FromRole="produccion_registros" ToRole="inspeccion_datos_generales" />
           <NavigationProperty Name="inspeccion_pieza_descarte_produccion" Relationship="Self.FK_inspeccion_pieza_descarte_produccion_id_produccion_registro" FromRole="produccion_registros" ToRole="inspeccion_pieza_descarte_produccion" />
+          <NavigationProperty Name="produccion_datos_entrada" Relationship="Self.FK_produccion_datos_entrada_id_produccion_registro" FromRole="produccion_registros" ToRole="produccion_datos_entrada" />
           <NavigationProperty Name="produccion_lineas" Relationship="Self.FK_produccion_registros_linea" FromRole="produccion_registros" ToRole="produccion_lineas" />
           <NavigationProperty Name="produccion_lotes" Relationship="Self.FK_produccion_lotes_id_produccion_registro" FromRole="produccion_registros" ToRole="produccion_lotes" />
           <NavigationProperty Name="produccion_operadores" Relationship="Self.FK_produccion_registros_operador" FromRole="produccion_registros" ToRole="produccion_operadores" />
           <NavigationProperty Name="produccion_supervisores" Relationship="Self.FK_produccion_registros_supervisor" FromRole="produccion_registros" ToRole="produccion_supervisores" />
           <NavigationProperty Name="produccion_turnos" Relationship="Self.FK_produccion_registros_turnos" FromRole="produccion_registros" ToRole="produccion_turnos" />
           <NavigationProperty Name="plantas" Relationship="Portal_2_0Model.FK_produccion_registros_planta_clave" FromRole="produccion_registros" ToRole="plantas" />
-          <NavigationProperty Name="produccion_datos_entrada" Relationship="Portal_2_0Model.FK_produccion_datos_entrada_id_produccion_registro" FromRole="produccion_registros" ToRole="produccion_datos_entrada" />
         </EntityType>
         <EntityType Name="produccion_respaldo">
           <Key>
@@ -7094,6 +7140,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_produccion_datos_entrada_id_produccion_registro">
+          <End Role="produccion_registros" Type="Self.produccion_registros" Multiplicity="1" />
+          <End Role="produccion_datos_entrada" Type="Self.produccion_datos_entrada" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="produccion_registros">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="produccion_datos_entrada">
+              <PropertyRef Name="id_produccion_registro" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_produccion_operadores_id_linea">
           <End Role="produccion_lineas" Type="Self.produccion_lineas" Multiplicity="1" />
           <End Role="produccion_operadores" Type="Self.produccion_operadores" Multiplicity="*" />
@@ -7307,6 +7365,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <EntitySet Name="PM_tipo_poliza" EntityType="Self.PM_tipo_poliza" />
           <EntitySet Name="PM_usuarios_capturistas" EntityType="Self.PM_usuarios_capturistas" />
           <EntitySet Name="poliza_manual" EntityType="Self.poliza_manual" />
+          <EntitySet Name="produccion_datos_entrada" EntityType="Self.produccion_datos_entrada" />
           <EntitySet Name="produccion_lineas" EntityType="Self.produccion_lineas" />
           <EntitySet Name="produccion_lotes" EntityType="Self.produccion_lotes" />
           <EntitySet Name="produccion_operadores" EntityType="Self.produccion_operadores" />
@@ -7522,6 +7581,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <AssociationSet Name="FK_poliza_manual_tipo_poliza" Association="Self.FK_poliza_manual_tipo_poliza">
             <End Role="PM_tipo_poliza" EntitySet="PM_tipo_poliza" />
             <End Role="poliza_manual" EntitySet="poliza_manual" />
+          </AssociationSet>
+          <AssociationSet Name="FK_produccion_datos_entrada_id_produccion_registro" Association="Self.FK_produccion_datos_entrada_id_produccion_registro">
+            <End Role="produccion_registros" EntitySet="produccion_registros" />
+            <End Role="produccion_datos_entrada" EntitySet="produccion_datos_entrada" />
           </AssociationSet>
           <AssociationSet Name="FK_produccion_operadores_id_linea" Association="Self.FK_produccion_operadores_id_linea">
             <End Role="produccion_lineas" EntitySet="produccion_lineas" />
@@ -8139,10 +8202,9 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="IT_inventory_items1" EntitySet="IT_inventory_items" />
           </AssociationSet>
           <EntitySet Name="CI_conteo_inventario" EntityType="Portal_2_0Model.CI_conteo_inventario" />
-          <EntitySet Name="produccion_datos_entrada" EntityType="Portal_2_0Model.produccion_datos_entrada" />
-          <AssociationSet Name="FK_produccion_datos_entrada_id_produccion_registro" Association="Portal_2_0Model.FK_produccion_datos_entrada_id_produccion_registro">
-            <End Role="produccion_registros" EntitySet="produccion_registros" />
-            <End Role="produccion_datos_entrada" EntitySet="produccion_datos_entrada" />
+          <AssociationSet Name="FK_CI_conteo_inventario_empleado" Association="Portal_2_0Model.FK_CI_conteo_inventario_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="CI_conteo_inventario" EntitySet="CI_conteo_inventario" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="GV_usuarios">
@@ -9876,6 +9938,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="RU_usuarios_embarques" Relationship="Portal_2_0Model.FK_RU_usuarios_embarquess_id_empleado" FromRole="empleados" ToRole="RU_usuarios_embarques" />
           <NavigationProperty Name="IT_site_checklist" Relationship="Portal_2_0Model.FK_site_checklist_id_sistemas" FromRole="empleados" ToRole="IT_site_checklist" />
           <NavigationProperty Name="upgrade_usuarios" Relationship="Portal_2_0Model.FK_upgrade_usuarios_empleado" FromRole="empleados" ToRole="upgrade_usuarios" />
+          <NavigationProperty Name="CI_conteo_inventario" Relationship="Portal_2_0Model.FK_CI_conteo_inventario_empleado" FromRole="empleados" ToRole="CI_conteo_inventario" />
         </EntityType>
         <Association Name="FK_empleados_area">
           <End Type="Portal_2_0Model.Area" Role="Area" Multiplicity="0..1" />
@@ -10708,55 +10771,38 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <PropertyRef Name="id" />
           </Key>
           <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="centro" Type="String" Nullable="false" MaxLength="4" FixedLength="false" Unicode="false" />
-          <Property Name="almacen" Type="String" Nullable="false" MaxLength="4" FixedLength="false" Unicode="false" />
-          <Property Name="ubicacion" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="articulo" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
-          <Property Name="material" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="lote" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="no_bobina" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="sap_cantidad" Type="Double" />
-          <Property Name="libre_utilizacion" Type="Double" />
-          <Property Name="bloqueado" Type="Double" />
-          <Property Name="control_calidad" Type="Double" />
-          <Property Name="unidad_base_medida" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="plant" Type="String" Nullable="false" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="storage_location" Type="String" Nullable="false" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="storage_bin" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="batch" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="ship_to_number" Type="String" MaxLength="12" FixedLength="false" Unicode="false" />
+          <Property Name="material" Type="String" MaxLength="12" FixedLength="false" Unicode="false" />
+          <Property Name="material_description" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="ihs_number" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
+          <Property Name="pieces" Type="Int32" />
+          <Property Name="unrestricted" Type="Int32" />
+          <Property Name="blocked" Type="Int32" />
+          <Property Name="in_quality" Type="Int32" />
+          <Property Name="value_stock" Type="Double" />
+          <Property Name="base_unit_measure" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="gauge" Type="Double" />
+          <Property Name="gauge_min" Type="Double" />
+          <Property Name="gauge_max" Type="Double" />
           <Property Name="altura" Type="Double" />
           <Property Name="espesor" Type="Double" />
-          <Property Name="peso" Type="Double" />
+          <Property Name="num_tarima" Type="Int32" />
+          <Property Name="id_empleado" Type="Int32" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_CI_conteo_inventario_empleado" FromRole="CI_conteo_inventario" ToRole="empleados" />
         </EntityType>
-        <EntityType Name="produccion_datos_entrada">
-          <Key>
-            <PropertyRef Name="id_produccion_registro" />
-          </Key>
-          <Property Name="id_produccion_registro" Type="Int32" Nullable="false" />
-          <Property Name="peso_real_pieza_neto" Type="Double" />
-          <Property Name="orden_sap" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="orden_sap_2" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="piezas_por_golpe" Type="Int32" />
-          <Property Name="numero_rollo" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="lote_rollo" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
-          <Property Name="peso_etiqueta" Type="Double" />
-          <Property Name="peso_regreso_rollo_real" Type="Double" />
-          <Property Name="peso_bascula_kgs" Type="Double" />
-          <Property Name="peso_despunte_kgs" Type="Double" />
-          <Property Name="peso_cola_kgs" Type="Double" />
-          <Property Name="total_piezas_ajuste" Type="Int32" />
-          <Property Name="ordenes_por_pieza" Type="Int32" />
-          <Property Name="comentarios" Type="String" MaxLength="600" FixedLength="false" Unicode="false" />
-          <Property Name="peso_real_pieza_neto_platina_2" Type="Double" />
-          <Property Name="total_piezas_ajuste_platina_2" Type="Int32" />
-          <Property Name="posteado" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="produccion_registros" Relationship="Portal_2_0Model.FK_produccion_datos_entrada_id_produccion_registro" FromRole="produccion_datos_entrada" ToRole="produccion_registros" />
-        </EntityType>
-        <Association Name="FK_produccion_datos_entrada_id_produccion_registro">
-          <End Type="Portal_2_0Model.produccion_registros" Role="produccion_registros" Multiplicity="1" />
-          <End Type="Portal_2_0Model.produccion_datos_entrada" Role="produccion_datos_entrada" Multiplicity="0..1" />
+        <Association Name="FK_CI_conteo_inventario_empleado">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.CI_conteo_inventario" Role="CI_conteo_inventario" Multiplicity="*" />
           <ReferentialConstraint>
-            <Principal Role="produccion_registros">
+            <Principal Role="empleados">
               <PropertyRef Name="id" />
             </Principal>
-            <Dependent Role="produccion_datos_entrada">
-              <PropertyRef Name="id_produccion_registro" />
+            <Dependent Role="CI_conteo_inventario">
+              <PropertyRef Name="id_empleado" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -11594,6 +11640,30 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
                 <ScalarProperty Name="comentario_rechazo" ColumnName="comentario_rechazo" />
                 <ScalarProperty Name="descripcion_poliza" ColumnName="descripcion_poliza" />
                 <ScalarProperty Name="estatus" ColumnName="estatus" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="produccion_datos_entrada">
+            <EntityTypeMapping TypeName="Portal_2_0Model.produccion_datos_entrada">
+              <MappingFragment StoreEntitySet="produccion_datos_entrada">
+                <ScalarProperty Name="posteado" ColumnName="posteado" />
+                <ScalarProperty Name="id_produccion_registro" ColumnName="id_produccion_registro" />
+                <ScalarProperty Name="peso_real_pieza_neto" ColumnName="peso_real_pieza_neto" />
+                <ScalarProperty Name="orden_sap" ColumnName="orden_sap" />
+                <ScalarProperty Name="orden_sap_2" ColumnName="orden_sap_2" />
+                <ScalarProperty Name="piezas_por_golpe" ColumnName="piezas_por_golpe" />
+                <ScalarProperty Name="numero_rollo" ColumnName="numero_rollo" />
+                <ScalarProperty Name="lote_rollo" ColumnName="lote_rollo" />
+                <ScalarProperty Name="peso_etiqueta" ColumnName="peso_etiqueta" />
+                <ScalarProperty Name="peso_regreso_rollo_real" ColumnName="peso_regreso_rollo_real" />
+                <ScalarProperty Name="peso_bascula_kgs" ColumnName="peso_bascula_kgs" />
+                <ScalarProperty Name="peso_despunte_kgs" ColumnName="peso_despunte_kgs" />
+                <ScalarProperty Name="peso_cola_kgs" ColumnName="peso_cola_kgs" />
+                <ScalarProperty Name="total_piezas_ajuste" ColumnName="total_piezas_ajuste" />
+                <ScalarProperty Name="ordenes_por_pieza" ColumnName="ordenes_por_pieza" />
+                <ScalarProperty Name="comentarios" ColumnName="comentarios" />
+                <ScalarProperty Name="peso_real_pieza_neto_platina_2" ColumnName="peso_real_pieza_neto_platina_2" />
+                <ScalarProperty Name="total_piezas_ajuste_platina_2" ColumnName="total_piezas_ajuste_platina_2" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -12710,46 +12780,28 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <EntitySetMapping Name="CI_conteo_inventario">
             <EntityTypeMapping TypeName="Portal_2_0Model.CI_conteo_inventario">
               <MappingFragment StoreEntitySet="CI_conteo_inventario">
-                <ScalarProperty Name="peso" ColumnName="peso" />
+                <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
+                <ScalarProperty Name="num_tarima" ColumnName="num_tarima" />
                 <ScalarProperty Name="espesor" ColumnName="espesor" />
                 <ScalarProperty Name="altura" ColumnName="altura" />
-                <ScalarProperty Name="unidad_base_medida" ColumnName="unidad_base_medida" />
-                <ScalarProperty Name="control_calidad" ColumnName="control_calidad" />
-                <ScalarProperty Name="bloqueado" ColumnName="bloqueado" />
-                <ScalarProperty Name="libre_utilizacion" ColumnName="libre_utilizacion" />
-                <ScalarProperty Name="sap_cantidad" ColumnName="sap_cantidad" />
-                <ScalarProperty Name="no_bobina" ColumnName="no_bobina" />
-                <ScalarProperty Name="lote" ColumnName="lote" />
+                <ScalarProperty Name="gauge_max" ColumnName="gauge_max" />
+                <ScalarProperty Name="gauge_min" ColumnName="gauge_min" />
+                <ScalarProperty Name="gauge" ColumnName="gauge" />
+                <ScalarProperty Name="base_unit_measure" ColumnName="base_unit_measure" />
+                <ScalarProperty Name="value_stock" ColumnName="value_stock" />
+                <ScalarProperty Name="in_quality" ColumnName="in_quality" />
+                <ScalarProperty Name="blocked" ColumnName="blocked" />
+                <ScalarProperty Name="unrestricted" ColumnName="unrestricted" />
+                <ScalarProperty Name="pieces" ColumnName="pieces" />
+                <ScalarProperty Name="ihs_number" ColumnName="ihs_number" />
+                <ScalarProperty Name="material_description" ColumnName="material_description" />
                 <ScalarProperty Name="material" ColumnName="material" />
-                <ScalarProperty Name="articulo" ColumnName="articulo" />
-                <ScalarProperty Name="ubicacion" ColumnName="ubicacion" />
-                <ScalarProperty Name="almacen" ColumnName="almacen" />
-                <ScalarProperty Name="centro" ColumnName="centro" />
+                <ScalarProperty Name="ship_to_number" ColumnName="ship_to_number" />
+                <ScalarProperty Name="batch" ColumnName="batch" />
+                <ScalarProperty Name="storage_bin" ColumnName="storage_bin" />
+                <ScalarProperty Name="storage_location" ColumnName="storage_location" />
+                <ScalarProperty Name="plant" ColumnName="plant" />
                 <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="produccion_datos_entrada">
-            <EntityTypeMapping TypeName="Portal_2_0Model.produccion_datos_entrada">
-              <MappingFragment StoreEntitySet="produccion_datos_entrada">
-                <ScalarProperty Name="posteado" ColumnName="posteado" />
-                <ScalarProperty Name="total_piezas_ajuste_platina_2" ColumnName="total_piezas_ajuste_platina_2" />
-                <ScalarProperty Name="peso_real_pieza_neto_platina_2" ColumnName="peso_real_pieza_neto_platina_2" />
-                <ScalarProperty Name="comentarios" ColumnName="comentarios" />
-                <ScalarProperty Name="ordenes_por_pieza" ColumnName="ordenes_por_pieza" />
-                <ScalarProperty Name="total_piezas_ajuste" ColumnName="total_piezas_ajuste" />
-                <ScalarProperty Name="peso_cola_kgs" ColumnName="peso_cola_kgs" />
-                <ScalarProperty Name="peso_despunte_kgs" ColumnName="peso_despunte_kgs" />
-                <ScalarProperty Name="peso_bascula_kgs" ColumnName="peso_bascula_kgs" />
-                <ScalarProperty Name="peso_regreso_rollo_real" ColumnName="peso_regreso_rollo_real" />
-                <ScalarProperty Name="peso_etiqueta" ColumnName="peso_etiqueta" />
-                <ScalarProperty Name="lote_rollo" ColumnName="lote_rollo" />
-                <ScalarProperty Name="numero_rollo" ColumnName="numero_rollo" />
-                <ScalarProperty Name="piezas_por_golpe" ColumnName="piezas_por_golpe" />
-                <ScalarProperty Name="orden_sap_2" ColumnName="orden_sap_2" />
-                <ScalarProperty Name="orden_sap" ColumnName="orden_sap" />
-                <ScalarProperty Name="peso_real_pieza_neto" ColumnName="peso_real_pieza_neto" />
-                <ScalarProperty Name="id_produccion_registro" ColumnName="id_produccion_registro" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

@@ -1,4 +1,5 @@
 ﻿@model Portal_2_0.Models.CI_conteo_inventario
+@using Portal_2_0.Models;
 
 @{
 
@@ -8,6 +9,8 @@
     ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
     ViewBag.nav_style = "nav-sm";
 
+    int contador = 100;
+    List<CI_conteo_inventario> listadoEtiquetas = (List<CI_conteo_inventario>)ViewBag.ListadoEtiquetas;
 }
 
 @section estilos
@@ -65,72 +68,48 @@
                                 </div>
                             }
                             @Html.HiddenFor(model => model.id)
-                            @Html.HiddenFor(model => model.value_stock)
+                            @Html.HiddenFor(model => model.material)
 
                             <div class="form-group row">
-                                <span style="color:black"><b>Datos: </b></span>
+                                <span style="color:black"><b>Etiquetas: </b></span>
                             </div>
 
-                            <div class="form-group row">
-                                <label class="col-form-label col-md-2 col-sm-2">Capturista:</label>
-                                <div class="col-md-10 col-sm-10">
-                                    <input type="text" class="form-control" value="@(Model.empleados!=null?Model.empleados.ConcatNombre:String.Empty)" readonly />
-                                </div>
-
-                            </div>
-                            <div class="ln_solid"></div>
-                            <div class="form-group row">
-                                @Html.LabelFor(model => model.plant, new { @class = "col-form-label col-md-1 col-sm-1 " })
-                                <div class="col-md-2 col-sm-2">
-                                    @Html.EditorFor(model => model.plant, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
-                                </div>
-                                @Html.LabelFor(model => model.storage_location, new { @class = "col-form-label col-md-1 col-sm-1 " })
-                                <div class="col-md-2 col-sm-2">
-                                    @Html.EditorFor(model => model.storage_location, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
-                                </div>
-                                @Html.LabelFor(model => model.storage_bin, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-2 col-sm-2">
-                                    @Html.EditorFor(model => model.storage_bin, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
-                                </div>
-                                @Html.LabelFor(model => model.batch, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
-                                <div class="col-md-2 col-sm-2">
-                                    @Html.EditorFor(model => model.batch, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off", @readonly = "readonly" } })
-                                </div>
-                            </div>
-                            <br />
-                            <div class="form-group row">
+                            <div id="div_fallas">
 
 
-                            </div>
-                            <div class="form-group row">
+                                @foreach (var etiqueta in Model.etiquetas)
+                                {
 
-                                @Html.LabelFor(model => model.material, new { @class = "col-form-label col-md-1 col-sm-1" })
-                                <div class="col-md-2 col-sm-2">
-                                    @Html.EditorFor(model => model.material, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
-                                </div>
-                                @Html.LabelFor(model => model.base_unit_measure, new { @class = "col-form-label col-md-1 col-sm-1" })
-                                <div class="col-md-2 col-sm-2">
-                                    @Html.EditorFor(model => model.base_unit_measure, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
-                                </div>
 
+                                    <div class="form-group row" id="div_fallas_@contador">
+
+                                        @* Necesario para auto binding *@
+                                        <input type="hidden" name="etiquetas.Index" id="etiquetas.Index" value="@contador" />
+                                        <label class="control-label col-md-1" for="etiquetas[@contador].id">
+                                            <span class="float-right">Etiqueta</span>
+                                        </label>
+                                        <div class="col-md-10">
+                                            <select name="etiquetas[@contador].id" id="etiquetas[@contador].id" class="categoria form-control select2bs4" style="width:100%" required>
+                                                <option value=''>-- Seleccione un valor --</option>
+                                                @foreach (var item in listadoEtiquetas)
+                                                {
+                                                    <option value='@item.id' @(etiqueta.id == item.id ? "selected" : null )>@item.ConcatEtiqueta</option>
+                                                }
+                                            </select>
+                                            <span class="field-validation-valid text-danger" data-valmsg-for="etiquetas[@contador].id" data-valmsg-replace="true"></span>
+                                        </div>
+
+                                        <div class="col-md-1">
+                                            <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarPieza(@contador); return false;">
+                                        </div>
+                                    </div>
+
+                                    contador++;
+                                }
                             </div>
                             <div class="form-group row">
-
-                                @Html.LabelFor(model => model.ship_to_number, new { @class = "col-form-label col-md-1 col-sm-1" })
-                                <div class="col-md-2 col-sm-2">
-                                    @Html.EditorFor(model => model.ship_to_number, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
-                                </div>
-                                @Html.LabelFor(model => model.material_description, new { @class = "col-form-label col-md-1 col-sm-1" })
-                                <div class="col-md8 col-sm-8">
-                                    @Html.EditorFor(model => model.material_description, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
-                                </div>
-
-                            </div>
-                            <div class="form-group row">
-
-                                @Html.LabelFor(model => model.ihs_number, new { @class = "col-form-label col-md-1 col-sm-1" })
-                                <div class="col-md-10 col-sm-10">
-                                    @Html.EditorFor(model => model.ihs_number, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                <div class="col-md-11">
+                                    <input type="button" value="Agregar" class="btn btn-round btn-warning float-right" onclick="AgregarConcepto(); return false;">
                                 </div>
                             </div>
                             <div class="ln_solid"></div>
@@ -139,7 +118,7 @@
                                 <div class="col-md-2 col-sm-2">
                                     @Html.EditorFor(model => model.pieces, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                                 </div>
-                                @Html.LabelFor(model => model.unrestricted, new { @class = "col-form-label col-md-1 col-sm-1" })
+                                @Html.LabelFor(model => model.unrestricted, new { @class = "col-form-label col-md-1 col-sm-1 " })
                                 <div class="col-md-2 col-sm-2">
                                     @Html.EditorFor(model => model.unrestricted, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                                 </div>
@@ -168,11 +147,6 @@
                                     @Html.EditorFor(model => model.gauge_max, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                                 </div>
                             </div>
-
-
-                            <div class="form-group row">
-
-                            </div>
                             <div class="ln_solid"></div>
                             <div class="form-group row">
 
@@ -181,7 +155,7 @@
 
                                 @Html.LabelFor(model => model.altura, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                                 <div class="col-md-2 col-sm-2">
-                                    @Html.EditorFor(model => model.altura, new { htmlAttributes = new { @class = "form-control cantidad" } })
+                                    @Html.EditorFor(model => model.altura, new { htmlAttributes = new { @class = "form-control cantidad", @required ="required" } })
                                     @Html.ValidationMessageFor(model => model.altura, "", new { @class = "text-danger" })
                                 </div>
 
@@ -191,10 +165,8 @@
                                     @Html.ValidationMessageFor(model => model.espesor, "", new { @class = "text-danger" })
                                 </div>
                             </div>
-                            <div class="ln_solid"></div>
-                            <div class="form-group row">
 
-                            </div>
+                            <div class="ln_solid"></div>
                             <div class="form-group row">
                                 @Html.LabelFor(model => model.total_piezas_min, new { @class = "col-form-label col-md-1 col-sm-1 label-align" })
                                 <div class="col-md-2 col-sm-2">
@@ -226,11 +198,7 @@
                             </div>
                             <div class="ln_solid"></div>
                             <div class="item form-group">
-                                <div class="col-md-6 col-sm-6">
-                                    <button type="button" id="btn-multi" class="btn btn-success btn-lg float-left"><i class="fa-solid fa-layer-group"></i> Múltiple</button>
-                                </div>
-                                <div class="col-md-6 col-sm-6">
-
+                                <div class="col-md-12 col-sm-12">
                                     <button type="submit" id="btn-ok" class="btn btn-success btn-lg float-right"><i class="fa-regular fa-floppy-disk"></i> Guardar</button>
                                 </div>
                             </div>
@@ -241,6 +209,15 @@
             </div>
         </div>
     </div>
+</div>
+
+<div id="selects" style="display:none">
+    <option value=''>-- Seleccione un valor --</option>
+    @foreach (var item in listadoEtiquetas)
+    {
+        <option value='@item.id'>@item.ConcatEtiqueta</option>
+    }
+
 </div>
 
 
@@ -258,33 +235,23 @@
 
 
     <script>
-        $("html,body").scrollTop(2000);
+        //$("html,body").scrollTop(2000);
         $(document).ready(function () {
             // Initialize Select2 Elements (debe ir después de asignar el valor)
             $('.select2bs4').select2({
                 theme: 'bootstrap4'
             })
-            $('input').iCheck({
-                checkboxClass: 'icheckbox_square-blue',
-                radioClass: 'iradio_square-blue',
-                increaseArea: '20%' // optional
-            });
-
-            $("#btn-multi").on("click", function () {
-                window.location.replace("../multiple/"+@Model.id);
-            });
 
             $('.cantidad').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': true, 'allowMinus': false, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
             $('.cantidad_negativa').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': true, 'allowMinus': true, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
 
             //aumenta en uso cada vez que se hace un cambio en el archivo de soporte
             $("#altura").on("on change keyup clear", function () {
-
                 calculaCantidaesTeoricas();
+
             });
 
-            calculaCantidaesTeoricas();
-
+            calculaValores();
         });
 
         function calculaCantidaesTeoricas() {
@@ -306,6 +273,126 @@
             $("#diferencia_sap").val(diferencia);
             $("#validacion").val(validacion);
         }
+
+        function calculaValores() {
+            calculaPiezas();
+            
+        }
+
+        //funcion para agregar los eventos de cantidades a los input
+        function asignaEventosInput() {
+            //Agrega el evento a todos los input
+            $(".select2bs4").each(function () {
+                $(this).on('input', function (e) {
+                    calculaPiezas()
+                    calculaCantidaesTeoricas();
+                });
+            });
+
+        }
+
+        function calculaPiezas() {
+            let sumaPiezas = 0;
+            let sumaUnrestricted = 0;
+            let sumaBlocked = 0;
+            let sumaQuality = 0;
+            let sumaMin = 0;
+            let sumaMax = 0;
+
+            console.log('entra')
+
+            $('.select2bs4').each(function () {
+
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/Combos/obtieneEtiquetaDetalles',
+                    data: { id: $(this).val() },
+                    success: function (data) {
+                        try {
+                            sumaPiezas += data[0].pieces;
+                            sumaUnrestricted += data[0].unrestricted;
+                            sumaBlocked += data[0].blocked;
+                            sumaQuality += data[0].in_quality;
+                            sumaMin += data[0].total_piezas_min;
+                            sumaMax += data[0].total_piezas_max;
+                        }
+                        catch (error) {
+                            console.log(error)
+                        }
+                    },
+                    error: function (textStatus, errorThrown) {
+                        console.log(errorThrown)
+                    },
+                    async: false
+                });
+
+            });
+
+
+            $('#pieces').val(sumaPiezas);
+            $('#unrestricted').val(sumaUnrestricted);
+            $('#blocked').val(sumaBlocked);
+            $('#in_quality').val(sumaQuality);
+            $('#total_piezas_min').val(sumaMin);
+            $('#total_piezas_max').val(sumaMax);
+        }
+
+
+
+        //variable global para el id
+        var num = 0;
+        //variable global de los select
+        var textoSelect = $("#selects").html();
+
+        //agreaga una fila para lotes
+        function AgregarConcepto() {
+            //obtine los valores de lotes
+
+
+            $("#div_fallas").append(
+
+                `
+                                    <div class="form-group row" id="div_fallas_`+ num + `">
+                                                    <label class="control-label col-md-1" for="etiquetas[`+ num + `].id">
+                                                        <span class="float-right">Etiqueta</span>
+                                                    </label>
+                                                    <div class="col-md-10">
+                                                            <select name="etiquetas[`+ num + `].id" id="etiquetas[` + num + `].id" class="categoria form-control select2bs4" style = "width:100%" required>
+                                                            `+ textoSelect + `
+                                                        </select >
+                                                        <span class="field-validation-valid text-danger" data-valmsg-for="etiquetas[` + num + `].id" data-valmsg-replace="true"></span>
+                                                    </div>
+
+                                                    <div class="col-md-1">
+                                                        <input type="button" value="Borrar" class="btn btn-danger" onclick="borrarPieza(` + num + `); return false;">
+                                                    </div>
+                                        </div>
+                                                                                                                        `
+            );
+            $("#div_fallas_" + num).hide().fadeIn(500);
+
+
+
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+            asignaEventosInput();
+            $("#altura").change();
+            num++;
+        }
+
+        //borra un lote
+        function borrarPieza(id) {
+
+            $("#div_fallas_" + id).fadeOut(0, function () {
+                $(this).remove();
+            });
+            calculaValores();
+        }
+
+
 
         window.onload = function () {
             clicMenu(0);

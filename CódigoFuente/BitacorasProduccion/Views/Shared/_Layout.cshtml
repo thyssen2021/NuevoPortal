@@ -746,8 +746,8 @@
                                                 {
                                                     <h3>Centros de Costo</h3>
                                                     @*<li class="@(ViewBag.SegundoNivel == "actual" ? "current-page" : null )"><a href="@Url.Action("Actual", "ResponsableBudget")">ACT FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)))</a></li>
-                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
-                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
+                                                        <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
+                                                        <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
                                                     <li class="@(ViewBag.SegundoNivel == "centros" ? "current-page" : null )"><a href="@Url.Action("Centros", "ResponsableBudget")">Mis Centros</a></li>
                                                 }
 
@@ -822,12 +822,19 @@
                                     }
 
                                     @*CONTEO INVENTARIO*@
-                                    @if (Request.IsAuthenticated && User.IsInRole(TipoRoles.CI_CONTEO_INVENTARIO))
+                                    @if (User.IsInRole(TipoRoles.CI_CONTEO_INVENTARIO) || User.IsInRole(TipoRoles.CI_CONTEO_INVENTARIO_ADMIN))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "ci_conteo_inventario" ? "active" : null )">
                                             <a><i class="fa fa-boxes-stacked"></i> Inventario <span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "ci_conteo_inventario" ? "display:block" : null )">
                                                 <li class="@(ViewBag.SegundoNivel == "ci_conteo" ? "current-page" : null )"><a href="@Url.Action( "Index", "CI_conteo_inventario")">Listado</a></li>
+                                                @if (User.IsInRole(TipoRoles.CI_CONTEO_INVENTARIO_ADMIN))
+                                                {
+                                                    <h3>Carga Archivos</h3>
+                                                    <li class="@(ViewBag.SegundoNivel == "ci_conteo_inventario_sap" ? "current-page" : null )"><a href="@Url.Action("carga_inventario_sap", "CI_conteo_inventario")">1.- Carga de Inventario SAP</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "ci_conteo_inventario_sap" ? "current-page" : null )"><a href="@Url.Action("carga_tolerancias", "CI_conteo_inventario")">2.- Carga de Tolerancias </a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "ci_conteo_inventario_sap" ? "current-page" : null )"><a href="@Url.Action("restablecer", "CI_conteo_inventario")">Restablecer Datos Capturados </a></li>
+                                                }
                                             </ul>
                                         </li>
                                     }
@@ -892,7 +899,7 @@
 
             for (i = 0; i < menus.length; i++) {
                 menus[i].style.display = 'none'
-            }          
+            }
         </script>
     }
 

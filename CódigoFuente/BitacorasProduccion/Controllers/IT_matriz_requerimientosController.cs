@@ -1794,7 +1794,7 @@ namespace Portal_2_0.Controllers
                     //    empleado.activo = false;
                     //}
 
-                    //db.SaveChanges();
+                    db.SaveChanges();
 
                     EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
 

@@ -1,0 +1,86 @@
+﻿
+@model Portal_2_0.Models.ExcelViewModel
+
+@{
+    ViewBag.Title = "Restablecer";
+    ViewBag.PrimerNivel = "ci_conteo_inventario";
+    ViewBag.SegundoNivel = "ci_conteo_inventario_sap";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+    ViewBag.nav_style = "nav-sm";
+}
+
+
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+                <h3>@ViewBag.Title</h3>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>@ViewBag.Title</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            @*Utilizado para mover a la derecha los iconos del card*@
+                            <span style="visibility:hidden">_______</span>
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box ">
+                                    <div class="form-group">
+                                        @using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+
+                                            <div class="alert alert-danger" role="alert">
+                                                ADVERTENCIA: Se borrarán todos los datos capturados por el usuario.
+                                            </div>
+
+
+                                            <div class="form-group row">
+
+
+                                            </div>
+                                            <div class="ln_solid"></div>
+                                            <div class="item form-group">
+                                                <div class="col-md-12 col-sm-12">
+                                                    <button type="button" id="btn-ok" class="btn btn-danger btn-lg float-left"><i class="fa-solid fa-triangle-exclamation"></i> Restablecer</button>
+                                                </div>
+                                            </div>
+                                        }
+
+                                    </div>
+
+
+                                </div>
+
+                            </div>
+
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src="~/Scripts/Forms/ModalConfirm.js"></script>
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+}

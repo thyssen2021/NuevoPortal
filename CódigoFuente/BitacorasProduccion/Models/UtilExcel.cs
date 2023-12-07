@@ -1299,8 +1299,8 @@ namespace Portal_2_0.Models
                                     lista.Add(new RH_menu_comedor_platillos()
                                     {
                                         orden_display = i - filaCabera - 1,
-                                        tipo_platillo = UsoStrings.RecortaString(platillo_tipo.Trim(),50), //quita espacios en blanco al inicio y al final del string
-                                        nombre_platillo = UsoStrings.RecortaString (platillo_nombre.Trim(),100),
+                                        tipo_platillo = UsoStrings.RecortaString(platillo_tipo.Trim(), 50), //quita espacios en blanco al inicio y al final del string
+                                        nombre_platillo = UsoStrings.RecortaString(platillo_nombre.Trim(), 100),
                                         fecha = fecha,
                                         kcal = kcal,
 
@@ -1660,7 +1660,7 @@ namespace Portal_2_0.Models
                         string NoParteCliente = String.Empty, material = String.Empty, lote = string.Empty, numRollo = string.Empty;
 
                         double piezas = 0.0, peso = 0.0;
-                        
+
                         //recorre todas los encabezados
                         for (int j = 0; j < encabezados.Count; j++)
                         {
@@ -1684,11 +1684,11 @@ namespace Portal_2_0.Models
                                     if (Double.TryParse(table.Rows[i][j].ToString(), out double q))
                                         piezas = q;
                                     break;
-                               case "PESO NETO":
+                                case "PESO NETO":
                                     if (Double.TryParse(table.Rows[i][j].ToString(), out double p))
                                         peso = p;
                                     break;
-                               
+
                             }
                         }
 
@@ -1696,12 +1696,12 @@ namespace Portal_2_0.Models
                         //agrega a la lista con los datos leidos
                         lista.Add(new RM_elemento()
                         {
-                           numeroParteCliente = NoParteCliente,
-                           numeroMaterial = material,
-                           numeroLote = lote,
-                           numeroRollo = numRollo,
-                           cantidad = piezas,
-                           peso = peso,
+                            numeroParteCliente = NoParteCliente,
+                            numeroMaterial = material,
+                            numeroLote = lote,
+                            numeroRollo = numRollo,
+                            cantidad = piezas,
+                            peso = peso,
                         });
                     }
                     catch (Exception e)
@@ -1714,15 +1714,294 @@ namespace Portal_2_0.Models
             }
 
             status = "SUCCESS";
-            msj = "Se leyeron "+lista.Count()+" elementos.";
+            msj = "Se leyeron " + lista.Count() + " elementos.";
+
+            return lista;
+        }
+
+        ///<summary>
+        ///Lee un archivo de excel y carga el listado de bom
+        ///</summary>
+        ///<return>
+        ///Devuelve un List<CI_conteo_inventario> con los datos leidos
+        ///</return>
+        ///<param name="streamPostedFile">
+        ///Stream del archivo recibido en el formulario
+        ///</param>
+        public static List<CI_conteo_inventario> LeeInventarioSAP(HttpPostedFileBase streamPostedFile, ref bool valido)
+        {
+            List<CI_conteo_inventario> lista = new List<CI_conteo_inventario>();
+
+            //crea el reader del archivo
+            using (var reader = ExcelReaderFactory.CreateReader(streamPostedFile.InputStream))
+            {
+                //obtiene el dataset del archivo de excel
+                var result = reader.AsDataSet();
+
+                //estable la variable a false por defecto
+                valido = false;
+
+                //recorre todas las hojas del archivo
+                foreach (DataTable table in result.Tables)
+                {
+                    //busca la primera hoja del documento
+                    if (result.Tables.IndexOf(table) == 0)
+                    {
+                        valido = true;
+
+                        //se obtienen las cabeceras
+                        List<string> encabezados = new List<string>();
+
+                        for (int i = 0; i < table.Columns.Count; i++)
+                        {
+                            string title = table.Rows[0][i].ToString();
+
+                            if (!string.IsNullOrEmpty(title))
+                                encabezados.Add(title.ToUpper());
+                        }
+
+                        //verifica que la estrura del archivo sea válida
+                        if (!encabezados.Contains("PLANT") || !encabezados.Contains("STORAGE LOCATION") || !encabezados.Contains("STORAGE BIN")
+                            || !encabezados.Contains("MATERIAL") || !encabezados.Contains("BATCH"))
+                        {
+                            valido = false;
+                            return lista;
+                        }
+
+                        //la fila cero se omite (encabezado)
+                        for (int i = 1; i < table.Rows.Count; i++)
+                        {
+                            try
+                            {
+                                //variables
+                                string plant = String.Empty;
+                                string storage_location = String.Empty;
+                                string storage_bin = String.Empty;
+                                string material = String.Empty;
+                                string batch = String.Empty;
+                                string shipto_number = String.Empty;
+                                string material_description = String.Empty;
+                                string IHS_number = String.Empty;
+                                int? pieces = null;
+                                int? unrestricted = null;
+                                int? blocked = null;
+                                int? in_quality = null;
+                                double? value_stock = null;
+                                string base_unit_measure = string.Empty;
+                                //double? gauge = null;
+                                //double? gauge_min = null;
+                                //double? gauge_max = null;
+                                //double? altura = null;
+
+                                //recorre todas los encabezados
+                                for (int j = 0; j < encabezados.Count; j++)
+                                {
+                                    //obtiene la cabezara de i
+                                    switch (encabezados[j])
+                                    {
+                                        //obligatorios
+                                        case "PLANT":
+                                            plant = table.Rows[i][j].ToString();
+                                            break;
+                                        case "STORAGE LOCATION":
+                                            storage_location = table.Rows[i][j].ToString();
+                                            break;
+                                        case "STORAGE BIN":
+                                            storage_bin = table.Rows[i][j].ToString();
+                                            break;
+                                        case "MATERIAL":
+                                            material = table.Rows[i][j].ToString();
+                                            break;
+                                        case "BATCH":
+                                            batch = table.Rows[i][j].ToString();
+                                            break;
+                                        case "SHIPTO NUMBER":
+                                            shipto_number = table.Rows[i][j].ToString();
+                                            break;
+                                        case "MATERIAL DESCRIPTION":
+                                            material_description = table.Rows[i][j].ToString();
+                                            break;
+                                        case "IHS NUMBER 1":
+                                            IHS_number = table.Rows[i][j].ToString();
+                                            break;
+                                        case "PIECES":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double pieces_result))
+                                                pieces = (int)pieces_result;
+                                            break;
+                                        case "UNRESTRICTED":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double unrestricted_result))
+                                                unrestricted = (int)unrestricted_result;
+                                            break;
+                                        case "BLOCKED":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double blocked_result))
+                                                blocked = (int)blocked_result;
+                                            break;
+                                        case "IN QUALITY INSP.":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double in_quality_result))
+                                                in_quality = (int)in_quality_result;
+                                            break;
+                                        case "VALUE OF STOCK":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double value_stock_result))
+                                                value_stock = value_stock_result;
+                                            break;
+                                        case "BASE UNIT OF MEASURE":
+                                            base_unit_measure = table.Rows[i][j].ToString();
+                                            break;
+                                    }
+                                }
+
+
+                                //agrega a la lista con los datos leidos
+                                if (!string.IsNullOrEmpty(plant))
+                                    lista.Add(new CI_conteo_inventario()
+                                    {
+                                        plant = plant,
+                                        storage_location = storage_location,
+                                        storage_bin = storage_bin,
+                                        material = material,
+                                        batch = batch,
+                                        ship_to_number = shipto_number,
+                                        material_description = material_description,
+                                        ihs_number = IHS_number,
+                                        pieces = pieces,
+                                        unrestricted = unrestricted,
+                                        blocked = blocked,
+                                        in_quality = in_quality,
+                                        value_stock = value_stock,
+                                        base_unit_measure = base_unit_measure,
+
+                                    });
+                            }
+                            catch (Exception e)
+                            {
+                                System.Diagnostics.Debug.Print("Error: " + e.Message);
+                            }
+                        }
+
+                    }
+                }
+
+            }
+
+            return lista;
+        }
+        ///<summary>
+        ///Lee un archivo de excel y carga el listado de bom
+        ///</summary>
+        ///<return>
+        ///Devuelve un List<CI_Tolerancias> con los datos leidos
+        ///</return>
+        ///<param name="streamPostedFile">
+        ///Stream del archivo recibido en el formulario
+        ///</param>
+        public static List<CI_Tolerancias> LeeToleranciasSAP(HttpPostedFileBase streamPostedFile, ref bool valido)
+        {
+            List<CI_Tolerancias> lista = new List<CI_Tolerancias>();
+
+            //crea el reader del archivo
+            using (var reader = ExcelReaderFactory.CreateReader(streamPostedFile.InputStream))
+            {
+                //obtiene el dataset del archivo de excel
+                var result = reader.AsDataSet();
+
+                //estable la variable a false por defecto
+                valido = false;
+
+                //recorre todas las hojas del archivo
+                foreach (DataTable table in result.Tables)
+                {
+                    //busca la primera hoja del documento
+                    if (result.Tables.IndexOf(table) == 0)
+                    {
+                        valido = true;
+
+                        //se obtienen las cabeceras
+                        List<string> encabezados = new List<string>();
+
+                        for (int i = 0; i < table.Columns.Count; i++)
+                        {
+                            string title = table.Rows[0][i].ToString();
+
+                            if (!string.IsNullOrEmpty(title))
+                                encabezados.Add(title.ToUpper());
+                        }
+
+                        //verifica que la estrura del archivo sea válida
+                        if (!encabezados.Contains("MATL.") || !encabezados.Contains("GAUGE") || !encabezados.Contains("GAUGE MIN")
+                            || !encabezados.Contains("GAUGE MAX"))
+                        {
+                            valido = false;
+                            return lista;
+                        }
+
+                        //la fila cero se omite (encabezado)
+                        for (int i = 1; i < table.Rows.Count; i++)
+                        {
+                            try
+                            {
+                                //variables                              
+                                string material = String.Empty;
+
+                                double? gauge = null;
+                                double? gauge_min = null;
+                                double? gauge_max = null;
+
+                                //recorre todas los encabezados
+                                for (int j = 0; j < encabezados.Count; j++)
+                                {
+                                    //obtiene la cabezara de i
+                                    switch (encabezados[j])
+                                    {
+                                        //obligatorios
+                                        case "MATL.":
+                                            material = table.Rows[i][j].ToString();
+                                            break;                                     
+                                        case "GAUGE":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double gauge_result))
+                                                gauge = gauge_result;
+                                            break;
+                                         case "GAUGE MIN":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double gauge_min_result))
+                                                gauge_min = gauge_min_result;
+                                            break;
+                                         case "GAUGE MAX":
+                                            if (Double.TryParse(table.Rows[i][j].ToString(), out double gauge_max_result))
+                                                gauge_max = gauge_max_result;
+                                            break;
+                                      
+                                    }
+                                }
+
+
+                                //agrega a la lista con los datos leidos
+                                if (!string.IsNullOrEmpty(material))
+                                    lista.Add(new CI_Tolerancias()
+                                    {
+                                        material = material,
+                                        gauge = gauge,
+                                        gauge_min = gauge_min,
+                                        gauge_max = gauge_max,
+                                    });
+                            }
+                            catch (Exception e)
+                            {
+                                System.Diagnostics.Debug.Print("Error: " + e.Message);
+                            }
+                        }
+
+                    }
+                }
+
+            }
 
             return lista;
         }
     }
 
-    public class EncabezadoTableMenu
-    {
-        public string fecha { get; set; }
-        public int columna { get; set; }
-    }
+}
+
+public class EncabezadoTableMenu
+{
+    public string fecha { get; set; }
+    public int columna { get; set; }
 }

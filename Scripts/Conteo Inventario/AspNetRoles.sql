@@ -22,7 +22,12 @@ BEGIN
 	BEGIN
 		INSERT INTO [dbo].[AspNetRoles]([Id],[Name],[descripcion])VALUES(LOWER(NEWID()) ,'CI_CONTEO_INVENTARIO',N'Permite el registro de los inventarios de planta.')
 	END
+	IF NOT EXISTS (SELECT * FROM [dbo].[AspNetRoles] where Name='CI_CONTEO_INVENTARIO_ADMIN' )
+	BEGIN
+		INSERT INTO [dbo].[AspNetRoles]([Id],[Name],[descripcion])VALUES(LOWER(NEWID()) ,'CI_CONTEO_INVENTARIO_ADMIN',N'Permite cargar catálogos de Inventarios')
+	END
 	
+
 PRINT '<<<CORRECTO: La TABLA dbo.AspNetRoles ha sido INICIALIZADA en la Base de Datos: ' + db_name() + ' en el Servidor: ' + @@servername + '  >>>'     	
 
 END

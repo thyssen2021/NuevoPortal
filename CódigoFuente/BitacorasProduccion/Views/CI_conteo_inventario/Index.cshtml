@@ -37,8 +37,17 @@
             opacity: .3;
             color: red;
         }
-        .completo {          
+
+        .completo {
             background-color: #d5fcd6;
+            color: black;
+        }
+         .ajustar {
+            background-color: #ffbb8a;
+            color: black;
+        }
+           .multiple-dentro {
+            background-color: #b7e1ff;
             color: black;
         }
 
@@ -46,12 +55,12 @@
             /*width: 300px*/
         }
 
-        .search_1, .search_9, .search_10, .search_11, .search_12, .search_13, .search_14, .search_15, .search_16 {
+
+        .search_1,  .search_8, .search_9, .search_10, .search_11, .search_12 {
             display: none;
-            min-width: 50px;
         }
 
-        .search_2, .search_3, .search_5, .search_7, .search_11, .search_14, .search_15, .search_16 {
+        .search_2, .search_3, .search_5,  .search_7,  .search_11, .search_14, .search_15, .search_16 {
             max-width: 65px;
         }
 
@@ -62,6 +71,16 @@
         .search_8, .search_10, .search_12 {
             max-width: 85px;
         }
+
+        table button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
     </style>
 }
 
@@ -117,41 +136,50 @@
                                             <tr>
                                                 <th>Acciones</th>
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.centro)
+                                                    @Html.DisplayNameFor(model => model.plant)
                                                 </th>
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.almacen)
+                                                    @Html.DisplayNameFor(model => model.storage_location)
                                                 </th>
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.ubicacion)
+                                                    @Html.DisplayNameFor(model => model.storage_bin)
                                                 </th>
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.articulo)
+                                                    @Html.DisplayNameFor(model => model.batch)
                                                 </th>
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.material)
                                                 </th>
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.lote)
+                                                    @Html.DisplayNameFor(model => model.num_tarima)
                                                 </th>
+                                                @*<th>
+                                    @Html.DisplayNameFor(model => model.base_unit_measure)
+                                </th>*@
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.no_bobina)
+                                                    @Html.DisplayNameFor(model => model.pieces)
                                                 </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.sap_cantidad)
-                                                </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.libre_utilizacion)
-                                                </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.bloqueado)
-                                                </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.control_calidad)
-                                                </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.unidad_base_medida)
-                                                </th>
+                                                @*<th>
+                                    @Html.DisplayNameFor(model => model.unrestricted)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.blocked)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.in_quality)
+                                </th>*@
+                                                @*<th>
+                                    @Html.DisplayNameFor(model => model.value_stock)
+                                </th>*@
+                                                @*<th>
+                                    @Html.DisplayNameFor(model => model.gauge)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.gauge_min)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.gauge_max)
+                                </th>*@
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.altura)
                                                 </th>
@@ -159,9 +187,20 @@
                                                     @Html.DisplayNameFor(model => model.espesor)
                                                 </th>
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.peso)
+                                                    @Html.DisplayNameFor(model => model.cantidad_teorica)
                                                 </th>
-
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.diferencia_sap)
+                                                </th>
+                                                @*<th>
+                                    @Html.DisplayNameFor(model => model.total_piezas_min)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.total_piezas_max)
+                                </th>*@
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.validacion)
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -174,51 +213,68 @@
                                                         </button>
                                                     </td>
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.centro)
+                                                        @Html.DisplayFor(modelItem => item.plant)
                                                     </td>
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.almacen)
+                                                        @Html.DisplayFor(modelItem => item.storage_location)
                                                     </td>
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.ubicacion)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.articulo)
+                                                        @Html.DisplayFor(modelItem => item.storage_bin)
                                                     </td>
                                                     <td>
                                                         @Html.DisplayFor(modelItem => item.material)
                                                     </td>
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.lote)
+                                                        @Html.DisplayFor(modelItem => item.num_tarima)
+                                                    </td>
+                                                    @*<td>
+                                        @Html.DisplayFor(modelItem => item.base_unit_measure)
+                                    </td>*@
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.pieces)
+                                                    </td>
+                                                    @*<td>
+                                        @Html.DisplayFor(modelItem => item.unrestricted)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.blocked)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.in_quality)
+                                    </td>*@
+                                                    @*<td>
+                                        @Html.DisplayFor(modelItem => item.value_stock)
+                                    </td>*@
+                                                    @*<td>
+                                        @Html.DisplayNameFor(model => model.gauge)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayNameFor(model => model.gauge_min)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayNameFor(model => model.gauge_max)
+                                    </td>*@
+                                                    <td>
+                                                        @Html.DisplayNameFor(model => model.altura)
                                                     </td>
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.no_bobina)
+                                                        @Html.DisplayNameFor(model => model.espesor)
                                                     </td>
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.sap_cantidad)
+                                                         @Html.DisplayNameFor(model => model.cantidad_teorica)
                                                     </td>
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.libre_utilizacion)
+                                                        @Html.DisplayNameFor(model => model.diferencia_sap)
                                                     </td>
+                                                    @*<td>
+                                        @Html.DisplayNameFor(model => model.total_piezas_min)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayNameFor(model => model.total_piezas_max)
+                                    </td>*@
                                                     <td>
-                                                        @Html.DisplayFor(modelItem => item.bloqueado)
+                                                        @Html.DisplayNameFor(model => model.validacion)
                                                     </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.control_calidad)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.unidad_base_medida)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.altura)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.espesor)
-                                                    </td>
-                                                    <td>
-                                                        @Html.DisplayFor(modelItem => item.peso)
-                                                    </td>
-
                                                 </tr>
                                             }
                                         </tbody>
@@ -226,41 +282,50 @@
                                             <tr>
                                                 <th>Acciones</th>
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.centro)
+                                                    @Html.DisplayNameFor(model => model.plant)
                                                 </th>
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.almacen)
+                                                    @Html.DisplayNameFor(model => model.storage_location)
                                                 </th>
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.ubicacion)
+                                                    @Html.DisplayNameFor(model => model.storage_bin)
                                                 </th>
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.articulo)
+                                                    @Html.DisplayNameFor(model => model.batch)
                                                 </th>
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.material)
                                                 </th>
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.lote)
+                                                    @Html.DisplayNameFor(model => model.num_tarima)
                                                 </th>
+                                                @*<th>
+                                    @Html.DisplayNameFor(model => model.base_unit_measure)
+                                </th>*@
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.no_bobina)
+                                                    @Html.DisplayNameFor(model => model.pieces)
                                                 </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.sap_cantidad)
-                                                </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.libre_utilizacion)
-                                                </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.bloqueado)
-                                                </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.control_calidad)
-                                                </th>
-                                                <th>
-                                                    @Html.DisplayNameFor(model => model.unidad_base_medida)
-                                                </th>
+                                                @* <th>
+                                    @Html.DisplayNameFor(model => model.unrestricted)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.blocked)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.in_quality)
+                                </th>*@
+                                                @*<th>
+                                    @Html.DisplayNameFor(model => model.value_stock)
+                                </th>*@
+                                                @*<th>
+                                    @Html.DisplayNameFor(model => model.gauge)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.gauge_min)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.gauge_max)
+                                </th>*@
                                                 <th>
                                                     @Html.DisplayNameFor(model => model.altura)
                                                 </th>
@@ -268,18 +333,35 @@
                                                     @Html.DisplayNameFor(model => model.espesor)
                                                 </th>
                                                 <th>
-                                                    @Html.DisplayNameFor(model => model.peso)
+                                                    @Html.DisplayNameFor(model => model.cantidad_teorica)
                                                 </th>
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.diferencia_sap)
+                                                </th>
+                                                @*<th>
+                                    @Html.DisplayNameFor(model => model.total_piezas_min)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.total_piezas_max)
+                                </th>*@
+                                                <th>
+                                                    @Html.DisplayNameFor(model => model.validacion)
+                                                </th>
+
                                             </tr>
                                         </tfoot>
                                     </table>
                                 </div>
                                 <br />
                                 @*<div class="form-group">
-                                    <button type="button" id="export-btn" class="btn btn-success"><i class="fa-regular fa-file-excel"></i> Exportar Excel</button>
-                                </div>*@
+                    <button type="button" id="export-btn" class="btn btn-success"><i class="fa-regular fa-file-excel"></i> Exportar Excel</button>
+                </div>*@
                             </div>
                         </div>
+                        <div class="form-group">
+                            <button type="button" id="export-btn" class="btn btn-success"><i class="fa-regular fa-file-excel"></i> Exportar Excel</button>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -304,7 +386,7 @@
     <script src="https://cdn.datatables.net/buttons/1.6.5/js/buttons.html5.min.js"></script>
     <!-- Para los estilos en Excel     -->
     <script src="https://cdn.jsdelivr.net/npm/datatables-buttons-excel-styles@1.1.2/js/buttons.html5.styles.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/datatables-buttons-excel-styles@1.1.2/js/buttons.html5.styles.templates.min.js"></script> 
+    <script src="https://cdn.jsdelivr.net/npm/datatables-buttons-excel-styles@1.1.2/js/buttons.html5.styles.templates.min.js"></script>
 
 
     <script>
@@ -345,19 +427,17 @@
                 window.clearInterval(interval)
 
                 let page = table.page();
-                console.log(page)
 
                 //actualiza la página
+
                 cargaTabla();
 
-                for (var i = 1; i < 9; i++) {
+                for (var i = 1; i < 12; i++) {
                     setTimeout(function () {
+                        console.log('entra: ' + page)
                         table.page(page).draw(false)
-                    }, 30*i);
+                    }, 1000*i);
                 }
-
-
-
 
                 //window.location.reload();
                 //Deshabilita el contador
@@ -398,70 +478,77 @@
                 columnDefs: [{ width: '10px' }],
                 "columns": [
                     { "data": "acciones" },
-                    { "data": "centro" },
-                    { "data": "almacen" },
-                    { "data": "ubicacion" },
-                    { "data": "articulo" },
+                    { "data": "plant" },
+                    { "data": "storage_location" },
+                    { "data": "storage_bin" },
+                    { "data": "batch" },
                     { "data": "material" },
-                    { "data": "lote" },
-                    { "data": "no_bobina" },
-                    { "data": "sap_cantidad" },
-                    { "data": "libre_utilizacion" } ,
-                    { "data": "bloqueado" },
-                    { "data": "control_calidad" },
-                    { "data": "unidad_base_medida" },
+                    { "data": "numTarimaString" },
+                    //{ "data": "base_unit_measure" },
+                    { "data": "pieces" },
+                    //{ "data": "unrestricted" },
+                    //{ "data": "blocked" },
+                    //{ "data": "in_quality" },
+                    //{ "data": "value_stock" },
+                    //{ "data": "gauge" },
+                    //{ "data": "gauge_min" },
+                    //{ "data": "gauge_max" },
                     { "data": "altura" },
                     { "data": "espesor" },
-                    { "data": "peso" }
+                    { "data": "cantidad_teorica" },
+                    { "data": "diferencia_sap" },
+                    //{ "data": "total_piezas_min" },
+                    //{ "data": "total_piezas_max" },
+                    { "data": "validacion" },
                 ],
-                dom: "Bfrtip", //necesario para los botoners
-                buttons: [
+                //dom: "Bfrtip", //necesario para los botoners
+                //buttons: [
 
-                    {
-                        extend: "excel",
-                        text: "Exportar a Excel",
-                        className: "btn btn-success",
-                        excelStyles: [                     // Add an excelStyles definition
+                //    {
+                //        extend: "excel",
+                //        text: "Exportar a Excel",
+                //        className: "btn btn-success",
+                //        excelStyles: [                     // Add an excelStyles definition
 
-                            {
-                                cells: "sC",  // Smart select Columns A and B
-                                style: {
-                                    //fill: {
-                                    //    pattern: {
-                                    //        color: 'BCD6EE', // Light red color
-                                    //    }
-                                    //},
-                                    font: {                     // Style the font
-                                        b: true,               // Remove bolding from header row
-                                    },
-                                }
-                            },
-                            {
-                                cells: "1:2",  // Smart select Columns A and B
-                                style: {                        // The style block
-                                    font: {                     // Style the font
-                                        name: "Calibri",          // Font name
-                                        size: "11",             // Font size
-                                        color: "FFFFFF",        // Font Color
-                                        b: true,               // Remove bolding from header row
-                                    },
-                                    fill: {                     // Style the cell fill (background)
-                                        pattern: {              // Type of fill (pattern or gradient)
-                                            color: "0094ff",    // Fill color
-                                        }
-                                    }
-                                }
-                            },
-                            {
-                                template: [
-                                    "outline_blue_gray",
-                                    "title_medium"]
-                                ,   // Apply the "green_medium" template
-                            },
-                        ],
-                    },
+                //            {
+                //                cells: "sC",  // Smart select Columns A and B
+                //                style: {
+                //                    //fill: {
+                //                    //    pattern: {
+                //                    //        color: 'BCD6EE', // Light red color
+                //                    //    }
+                //                    //},
+                //                    font: {                     // Style the font
+                //                        b: true,               // Remove bolding from header row
+                //                    },
+                //                }
+                //            },
+                //            {
+                //                cells: "1:2",  // Smart select Columns A and B
+                //                style: {                        // The style block
+                //                    font: {                     // Style the font
+                //                        name: "Calibri",          // Font name
+                //                        size: "11",             // Font size
+                //                        color: "FFFFFF",        // Font Color
+                //                        b: true,               // Remove bolding from header row
+                //                    },
+                //                    fill: {                     // Style the cell fill (background)
+                //                        pattern: {              // Type of fill (pattern or gradient)
+                //                            color: "0094ff",    // Fill color
+                //                        }
+                //                    }
+                //                }
+                //            },
+                //            {
+                //                template: [
+                //                    "outline_blue_gray",
+                //                    "title_medium"]
+                //                ,   // Apply the "green_medium" template
+                //            },
+                //        ],
+                //    },
 
-                ],
+                //],
                 initComplete: function () {
                     //coloca los filtros al inicio de la tabla
 
@@ -488,12 +575,15 @@
                         });
                 },
                 "fnRowCallback": function (nRow, aData, iDisplayIndex) {
-                    console.log(aData.centro);
 
-                    if (aData.altura != null && aData.espesor != null && aData.peso != null) {
-                        $(nRow).addClass('completo');
+                    if (aData.validacion.includes("(Múltiple) Dentro")) {
+                        $(nRow).addClass('multiple-dentro');
+                    }else if (aData.validacion.includes("Ajustar")) {
+                        $(nRow).addClass('ajustar');
                     }
-                    else {
+                    else if (aData.validacion.includes("Dentro")) {
+                        $(nRow).addClass('completo');
+                    } else {
                         $(nRow).addClass('incompleto');
                     }
                 },
@@ -527,8 +617,27 @@
                 });
                 table.draw();
             }
+            BloqueaPantalla();
+              $.ajax({
+                type: 'POST',
+                url: '/@ViewBag.ControllerName/CargaTabla',
+                data: { },
+                        success: function (data) {
+                            console.log(data)
 
-            cargaTabla();
+                    table.clear();
+                    for (var i = 0; i < data.data.length; i++) {
+                        table.row.add(data.data[i]);
+                    }
+
+                    table.draw(true);
+
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            console.log(errorThrown)
+                        },
+                async: false
+                    });
 
             //evento para exportar a excel
             $("#export-btn").click(function () {
@@ -553,12 +662,14 @@
         stop = true;
     }
 
-    function cargaTabla() {
+        function cargaTabla() {
+
                     $.ajax({
                 type: 'POST',
                 url: '/@ViewBag.ControllerName/CargaTabla',
                 data: { },
-                success: function (data) {
+                        success: function (data) {
+                            console.log(data)
 
                     table.clear();
                     for (var i = 0; i < data.data.length; i++) {
@@ -567,7 +678,10 @@
 
                     table.draw(true);
 
-                },
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            console.log(errorThrown)
+                        },
                 async: true
                     });
 
@@ -576,71 +690,10 @@
 
 
         function exportar(ruta) {
-            let index = 0;
-            //variables de búsqueda
-            let numeroEmpleado = '';
-            let nombre = '';
-            let planta = '';
-            let departamento = '';
-            let puesto = '';
-            let jefe_directo = '';
-            let C8ID = '';
-            let correo = '';
-            let activo = '';
-
-            $('th > :input').each(function () {
-                switch (index) {
-                    case 1:
-                        numeroEmpleado = $(this).val();
-                        break;
-                    case 2:
-                        nombre = $(this).val();
-                        break;
-                    case 3:
-                        planta = $(this).val();
-                        break;
-                    case 4:
-                        departamento = $(this).val();
-                        break;
-                    case 5:
-                        puesto = $(this).val();
-                        break;
-                    case 6:
-                        jefe_directo = $(this).val();
-                        break;
-                    case 7:
-                        C8ID = $(this).val();
-                        break;
-                    case 8:
-                        correo = $(this).val();
-                        break;
-                    case 9:
-                        activo = $(this).val();
-                        break;
-                }
-                index++;
-            });
-
+            let index = 0;        
+         
             //carga ventana con parámetros url
-            let url = new URL(location.href + "/" + ruta);
-            if (numeroEmpleado != '')
-                url.searchParams.set('numeroEmpleado', numeroEmpleado)
-            if (nombre != '')
-                url.searchParams.set('nombre', nombre)
-            if (planta != '')
-                url.searchParams.set('planta', planta)
-            if (departamento != '')
-                url.searchParams.set('departamento', departamento)
-            if (puesto != '')
-                url.searchParams.set('puesto', puesto)
-            if (jefe_directo != '')
-                url.searchParams.set('jefe_directo', jefe_directo)
-            if (C8ID != '')
-                url.searchParams.set('C8ID', C8ID)
-            if (correo != '')
-                url.searchParams.set('correo', correo)
-            if (activo != '')
-                url.searchParams.set('activo', activo)
+            let url = new URL(location.href +'/'+ ruta);         
 
             window.open(url);
         }

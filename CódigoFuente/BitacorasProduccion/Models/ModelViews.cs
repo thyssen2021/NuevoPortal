@@ -111,4 +111,11 @@ namespace Portal_2_0.Models
 
     }
 
+    public class CI_Tolerancias {
+        public string material { get; set; }
+        public double? gauge { get; set; }
+        public double? gauge_min { get; set; }
+        public double? gauge_max { get; set; }
+    }
+
 }
