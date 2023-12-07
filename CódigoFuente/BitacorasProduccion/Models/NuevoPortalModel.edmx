@@ -233,6 +233,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="altura" Type="float" />
           <Property Name="espesor" Type="float" />
           <Property Name="num_tarima" Type="int" />
+          <Property Name="id_empleado" Type="int" />
         </EntityType>
         <EntityType Name="class_v3">
           <Key>
@@ -2066,6 +2067,18 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Principal>
             <Dependent Role="budget_responsables">
               <PropertyRef Name="id_responsable" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CI_conteo_inventario_empleado">
+          <End Role="empleados" Type="Self.empleados" Multiplicity="0..1" />
+          <End Role="CI_conteo_inventario" Type="Self.CI_conteo_inventario" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="CI_conteo_inventario">
+              <PropertyRef Name="id_empleado" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -4581,6 +4594,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <AssociationSet Name="FK_budget_responsables_id_centro_costo" Association="Self.FK_budget_responsables_id_centro_costo">
             <End Role="empleados" EntitySet="empleados" />
             <End Role="budget_responsables" EntitySet="budget_responsables" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CI_conteo_inventario_empleado" Association="Self.FK_CI_conteo_inventario_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="CI_conteo_inventario" EntitySet="CI_conteo_inventario" />
           </AssociationSet>
           <AssociationSet Name="FK_dbo_AspNetUserRoles_dbo_AspNetRoles_RoleId" Association="Self.FK_dbo_AspNetUserRoles_dbo_AspNetRoles_RoleId">
             <End Role="AspNetRoles" EntitySet="AspNetRoles" />
@@ -8185,6 +8202,10 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="IT_inventory_items1" EntitySet="IT_inventory_items" />
           </AssociationSet>
           <EntitySet Name="CI_conteo_inventario" EntityType="Portal_2_0Model.CI_conteo_inventario" />
+          <AssociationSet Name="FK_CI_conteo_inventario_empleado" Association="Portal_2_0Model.FK_CI_conteo_inventario_empleado">
+            <End Role="empleados" EntitySet="empleados" />
+            <End Role="CI_conteo_inventario" EntitySet="CI_conteo_inventario" />
+          </AssociationSet>
           </EntityContainer>
         <EntityType Name="GV_usuarios">
           <Key>
@@ -9917,6 +9938,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <NavigationProperty Name="RU_usuarios_embarques" Relationship="Portal_2_0Model.FK_RU_usuarios_embarquess_id_empleado" FromRole="empleados" ToRole="RU_usuarios_embarques" />
           <NavigationProperty Name="IT_site_checklist" Relationship="Portal_2_0Model.FK_site_checklist_id_sistemas" FromRole="empleados" ToRole="IT_site_checklist" />
           <NavigationProperty Name="upgrade_usuarios" Relationship="Portal_2_0Model.FK_upgrade_usuarios_empleado" FromRole="empleados" ToRole="upgrade_usuarios" />
+          <NavigationProperty Name="CI_conteo_inventario" Relationship="Portal_2_0Model.FK_CI_conteo_inventario_empleado" FromRole="empleados" ToRole="CI_conteo_inventario" />
         </EntityType>
         <Association Name="FK_empleados_area">
           <End Type="Portal_2_0Model.Area" Role="Area" Multiplicity="0..1" />
@@ -10769,7 +10791,21 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="altura" Type="Double" />
           <Property Name="espesor" Type="Double" />
           <Property Name="num_tarima" Type="Int32" />
+          <Property Name="id_empleado" Type="Int32" />
+          <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_CI_conteo_inventario_empleado" FromRole="CI_conteo_inventario" ToRole="empleados" />
         </EntityType>
+        <Association Name="FK_CI_conteo_inventario_empleado">
+          <End Type="Portal_2_0Model.empleados" Role="empleados" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.CI_conteo_inventario" Role="CI_conteo_inventario" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="empleados">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="CI_conteo_inventario">
+              <PropertyRef Name="id_empleado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -12744,6 +12780,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <EntitySetMapping Name="CI_conteo_inventario">
             <EntityTypeMapping TypeName="Portal_2_0Model.CI_conteo_inventario">
               <MappingFragment StoreEntitySet="CI_conteo_inventario">
+                <ScalarProperty Name="id_empleado" ColumnName="id_empleado" />
                 <ScalarProperty Name="num_tarima" ColumnName="num_tarima" />
                 <ScalarProperty Name="espesor" ColumnName="espesor" />
                 <ScalarProperty Name="altura" ColumnName="altura" />

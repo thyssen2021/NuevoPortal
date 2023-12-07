@@ -40,6 +40,7 @@ CREATE TABLE [CI_conteo_inventario](
 	[altura][float] NULL,
 	[espesor][float] NULL,
 	[num_tarima][int] NULL,
+	[id_empleado][int] NULL,
 	
  CONSTRAINT [PK_CI_conteo_inventario] PRIMARY KEY CLUSTERED 
 (
@@ -47,6 +48,13 @@ CREATE TABLE [CI_conteo_inventario](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+
+--agregar FK
+-- restriccion de clave foranea
+alter table [CI_conteo_inventario]
+ add constraint FK_CI_conteo_inventario_empleado
+  foreign key (id_empleado)
+  references empleados(id);
 
 -- restricción default
 --ALTER TABLE [CI_conteo_inventario] ADD  CONSTRAINT [DF_CI_conteo_inventario_activo]  DEFAULT (1) FOR [activo]

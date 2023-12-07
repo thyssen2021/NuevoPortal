@@ -63,7 +63,7 @@ namespace Portal_2_0.Models
             dt.Columns.Add(nameof(view_historico_resultado.Orden_SAP), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.SAP_Platina), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Tipo_de_Material), typeof(string));
-            dt.Columns.Add(nameof(view_historico_resultado.Número_de_Parte__de_cliente), typeof(string));            
+            dt.Columns.Add(nameof(view_historico_resultado.Número_de_Parte__de_cliente), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Material), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.Orden_en_SAP_2), typeof(string));
             dt.Columns.Add(nameof(view_historico_resultado.SAP_Platina_2), typeof(string));
@@ -2025,7 +2025,7 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Puesto", typeof(string));         //27
             dt.Columns.Add("Jefe Inmediato", typeof(string));         //27
                                                                       //modern workplace
-         
+
 
             ////registros , rows
             foreach (IT_inventory_items item in listado)
@@ -2055,7 +2055,7 @@ namespace Portal_2_0.Models
                     item.operation_system, item.bits_operation_system, item.cpu_speed_mhz, item.number_of_cpus, item.processor, item.mac_lan, item.mac_wlan,
                     item.total_physical_memory_gb, null, null, null, item.NumberOfHardDrives, item.TotalDiskSpace, item.maintenance_period_months,
                      item.purchase_date, item.end_warranty,
-                     item.active, item.inactive_date, item.baja, item.fecha_baja, 
+                     item.active, item.inactive_date, item.baja, item.fecha_baja,
                      item.last_check_int, item.os_version, item.primary_user, item.primary_user_email, item.primary_user_display, item.compliance, item.managed_by, item.encrypted, item.joinType, item.management_certificate_expiration_date,
                      item.comments, asignacionActual, planta, departamento, puesto, jefeInmediato
                     );
@@ -4282,6 +4282,109 @@ namespace Portal_2_0.Models
 
             foreach (var baja in disabledItems)
                 oSLDocument.SetCellStyle(baja, 1, baja, dt.Columns.Count, styleHeaderRowBaja);
+
+            //da estilo a la hoja de excel
+            //inmoviliza el encabezado
+            oSLDocument.FreezePanes(1, 0);
+
+            oSLDocument.Filter(1, 1, 1, dt.Columns.Count);
+            oSLDocument.AutoFitColumn(1, dt.Columns.Count);
+
+            oSLDocument.SetColumnStyle(1, dt.Columns.Count, styleWrap);
+            oSLDocument.SetRowStyle(1, styleHeader);
+            oSLDocument.SetRowStyle(1, styleHeaderFont);
+            oSLDocument.SetRowHeight(1, dt.Rows.Count + 1, 15.0);
+
+            System.IO.Stream stream = new System.IO.MemoryStream();
+
+            oSLDocument.SaveAs(stream);
+
+            byte[] array = Bitacoras.Util.StreamUtil.ToByteArray(stream);
+
+            return (array);
+        }
+
+        public static byte[] GeneraReporteConteoInventario(List<CI_conteo_inventario> listado)
+        {
+
+            SLDocument oSLDocument = new SLDocument(HttpContext.Current.Server.MapPath("~/Content/plantillas_excel/plantilla_reporte_produccion.xlsx"), "Sheet1");
+            System.Data.DataTable dt = new System.Data.DataTable();
+
+
+            //columnas          
+            //columnas          
+            dt.Columns.Add("Plant", typeof(string));                   //1
+            dt.Columns.Add("Storage Loc.", typeof(string));                 //2
+            dt.Columns.Add("Storage Bin.", typeof(string));                //3
+            dt.Columns.Add("Batch", typeof(string));                //4
+            dt.Columns.Add("Material", typeof(string));                //5
+            dt.Columns.Add("Base Unit", typeof(string));        //6
+            dt.Columns.Add("Ship to", typeof(string));             //7
+            dt.Columns.Add("Material description", typeof(string));      //8           
+            dt.Columns.Add("Tarima", typeof(string));      //8           
+            dt.Columns.Add("Multiple", typeof(string));      //8           
+            dt.Columns.Add("pieces", typeof(int));       //9
+            dt.Columns.Add("Unrestricted", typeof(int));             //10
+            dt.Columns.Add("Blocked", typeof(int));     //11         
+            dt.Columns.Add("In Quality", typeof(int));                 //12         
+            dt.Columns.Add("Gauge", typeof(double));         //13
+            dt.Columns.Add("Gauge MIN", typeof(double));          //14
+            dt.Columns.Add("Gauge MAX", typeof(double));             //15
+            dt.Columns.Add("Altura", typeof(double));             //15
+            dt.Columns.Add("Espesor", typeof(double));             //15
+            dt.Columns.Add("Cantidad Teórica", typeof(double));             //15
+            dt.Columns.Add("Diferencia SAP", typeof(double));             //15
+            dt.Columns.Add("Validación", typeof(string));             //15
+            dt.Columns.Add("Capturista", typeof(string));
+
+            ////registros , rows
+            foreach (CI_conteo_inventario item in listado)
+            {
+                bool multiple = listado.Count(x => item.num_tarima != null && x.num_tarima == item.num_tarima) > 1;
+
+                dt.Rows.Add(item.plant, item.storage_location, item.storage_bin, item.batch, item.material, item.base_unit_measure, item.ship_to_number, item.material_description, item.num_tarima == null ? string.Empty : "T" + item.num_tarima.Value.ToString("D04"),
+                    multiple ? "Sí" : "No", item.pieces,
+                    item.unrestricted, item.blocked, item.in_quality, item.gauge, item.gauge_min, item.gauge_max, item.altura, item.espesor, item.cantidad_teorica, item.diferencia_sap, item.validacion,
+                    item.empleados!=null? item.empleados.ConcatNombre: string.Empty 
+                    );
+            }
+
+
+            //crea la hoja de FACTURAS y la selecciona
+            oSLDocument.RenameWorksheet(SLDocument.DefaultFirstSheetName, "Reporte Empleados");
+            oSLDocument.ImportDataTable(1, 1, dt, true);
+
+            //estilo para ajustar al texto
+            SLStyle styleWrap = oSLDocument.CreateStyle();
+            styleWrap.SetWrapText(true);
+
+            //estilo para el encabezado
+            SLStyle styleHeader = oSLDocument.CreateStyle();
+            styleHeader.Font.Bold = true;
+            styleHeader.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#0094ff"), System.Drawing.ColorTranslator.FromHtml("#0094ff"));
+
+            //estilo para bajas
+            SLStyle styleHeaderRowBaja = oSLDocument.CreateStyle();
+            styleHeaderRowBaja.Fill.SetPattern(PatternValues.Solid, System.Drawing.ColorTranslator.FromHtml("#ffa0a2"), System.Drawing.ColorTranslator.FromHtml("#ffa0a2"));
+
+            //estilo para numeros
+            SLStyle styleNumber = oSLDocument.CreateStyle();
+            styleNumber.FormatCode = "#,##0.00";
+
+            //da estilo a los numero
+            //oSLDocument.SetColumnStyle(18, styleNumber);
+
+            ////estilo para fecha
+            SLStyle styleShortDate = oSLDocument.CreateStyle();
+            styleShortDate.FormatCode = "yyyy/MM/dd";
+
+
+
+            SLStyle styleHeaderFont = oSLDocument.CreateStyle();
+            styleHeaderFont.Font.FontName = "Calibri";
+            styleHeaderFont.Font.FontSize = 11;
+            styleHeaderFont.Font.FontColor = System.Drawing.Color.White;
+            styleHeaderFont.Font.Bold = true;
 
             //da estilo a la hoja de excel
             //inmoviliza el encabezado

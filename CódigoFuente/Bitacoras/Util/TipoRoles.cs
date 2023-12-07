@@ -87,5 +87,6 @@ namespace Clases.Util
         public const string RU_ALMACEN_LIBERACION = "RU_ALMACEN_LIBERACION";
         //conteo inventario
         public const string CI_CONTEO_INVENTARIO = "CI_CONTEO_INVENTARIO";
+        public const string CI_CONTEO_INVENTARIO_ADMIN = "CI_CONTEO_INVENTARIO_ADMIN";
     }
 }

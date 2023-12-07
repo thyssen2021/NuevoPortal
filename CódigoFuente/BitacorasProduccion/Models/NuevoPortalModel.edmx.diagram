@@ -333,7 +333,8 @@
         <AssociationConnector Association="Portal_2_0Model.FK_IT_mantenimientos_id_it_inventory_item" />
         <AssociationConnector Association="Portal_2_0Model.FK_notificaciones_id_tipo_accesorio" />
         <AssociationConnector Association="Portal_2_0Model.FK_notificaciones_virtual_server" />
-        <EntityTypeShape EntityType="Portal_2_0Model.CI_conteo_inventario" Width="1.5" PointX="15.375" PointY="0.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.CI_conteo_inventario" Width="1.5" PointX="32" PointY="94" />
+        <AssociationConnector Association="Portal_2_0Model.FK_CI_conteo_inventario_empleado" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

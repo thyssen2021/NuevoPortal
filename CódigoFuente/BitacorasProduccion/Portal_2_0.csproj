@@ -5292,6 +5292,9 @@
     <Content Include="Views\CI_conteo_inventario\Index.cshtml" />
     <Content Include="Views\CI_conteo_inventario\Message.cshtml" />
     <Content Include="Views\CI_conteo_inventario\carga_inventario_sap.cshtml" />
+    <Content Include="Views\CI_conteo_inventario\carga_tolerancias.cshtml" />
+    <Content Include="Views\CI_conteo_inventario\Multiple.cshtml" />
+    <Content Include="Views\CI_conteo_inventario\restablecer.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

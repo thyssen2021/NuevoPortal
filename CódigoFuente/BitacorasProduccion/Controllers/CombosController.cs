@@ -554,7 +554,7 @@ namespace Portal_2_0.Controllers
 
             return Json(list, JsonRequestBehavior.AllowGet);
         }
-
+       
         ///<summary>
         ///Obtiene todas los software activos
         ///</summary>
@@ -859,6 +859,48 @@ namespace Portal_2_0.Controllers
             }
 
             return new JsonpResult(resultado);
+        }
+
+        ///<summary>
+        ///Obtiene los detalles del proveedor
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult obtieneEtiquetaDetalles(int id = 0)
+        {
+            var detalles = new object[1];
+
+            //obtiene todos los posibles valores
+            CI_conteo_inventario item = db.CI_conteo_inventario.Find(id);
+
+            if (item == null)
+            {
+                detalles[0] = new
+                {
+                    id = 0,
+                    pieces = 0,
+                    unrestricted = 0,
+                    blocked = 0,
+                    in_quality = 0,
+                    total_piezas_min = 0,
+                    total_piezas_max = 0,
+
+                };
+                return Json(detalles, JsonRequestBehavior.AllowGet);
+            }
+
+            detalles[0] = new
+            {
+                id = item.id,
+                pieces = item.pieces != null ? item.pieces:0,
+                unrestricted = item.unrestricted != null ? item.unrestricted:0,
+                blocked = item.blocked != null ? item.blocked : 0,
+                in_quality = item.in_quality != null ? item.in_quality : 0,
+                total_piezas_min = item.total_piezas_min != null ? item.total_piezas_min : 0,
+                total_piezas_max = item.total_piezas_max != null ? item.total_piezas_max : 0,
+            };
+
+            return Json(detalles, JsonRequestBehavior.AllowGet);
         }
 
         [AllowAnonymous]
