@@ -539,7 +539,7 @@ namespace Portal_2_0.Controllers
             //busca si ya existe un empleado con ese numero de empleado
 
             // existe el num empleado
-            if (db.empleados.Any(s => !string.IsNullOrEmpty(empleados.numeroEmpleado) && empleados.numeroEmpleado.ToUpper() != "N/A" && empleados.numeroEmpleado.ToUpper() != "P99999" &&  s.numeroEmpleado == empleados.numeroEmpleado && s.id != empleados.id))
+            if (db.empleados.Any(s => !string.IsNullOrEmpty(empleados.numeroEmpleado) && empleados.numeroEmpleado.ToUpper() != "N/A" && empleados.numeroEmpleado.ToUpper() != "P99999" && s.numeroEmpleado == empleados.numeroEmpleado && s.id != empleados.id))
                 ModelState.AddModelError("", "Ya existe un registro con el mismo número de empleado. ");
 
 
@@ -770,7 +770,7 @@ namespace Portal_2_0.Controllers
         // POST: Empleados/Disable/5
         [HttpPost, ActionName("Disable")]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> DisableConfirmedAsync(int id, FormCollection collection, string comentario, int [] subordinados, int id_nuevo_jefe = 0)
+        public async Task<ActionResult> DisableConfirmedAsync(int id, FormCollection collection, string comentario, int[] subordinados, int id_nuevo_jefe = 0)
         {
             empleados empleado = db.empleados.Find(id);
             //empleado.activo = false;
@@ -881,7 +881,7 @@ namespace Portal_2_0.Controllers
                         comentario_rechazo = null,
                         fecha_aprobacion_jefe = null,
                         id_internet_tipo = 1,
-                        tipo = IT_MR_tipo.BAJA,          
+                        tipo = IT_MR_tipo.BAJA,
                         comentario = comentario,
                     };
 
@@ -891,24 +891,38 @@ namespace Portal_2_0.Controllers
 
                     //OBTIENE EL CORREO DE NOTIFICACION
                     //var itTicketEmail = db.notificaciones_correo.Where(x => x.descripcion == "IT_TICKET").FirstOrDefault();
-                    var itEmail = db.notificaciones_correo.Where(x => x.descripcion == "IT_TKMM").FirstOrDefault();
-                    if (!string.IsNullOrEmpty(empleado.correo))
-                    {
-                        //envia correo electronico
-                        EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
 
-                        List<String> correos = new List<string>
-                        {
-                            itEmail.correo //agrega correo de jefe
-                        }; //correos TO
 
-                        //manda copia al usuario actual
-                        empleados empleadoActualRH = obtieneEmpleadoLogeado();
-                        if (!String.IsNullOrEmpty(empleadoActualRH.correo))
-                           correos.Add(empleadoActualRH.correo);
+                    //envia correo electronico
+                    EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
 
-                        envioCorreo.SendEmailAsync(correos, "TKMM-LOCAL - Notificación de Baja de Empleado", envioCorreo.getBodyITBajaEmpleado(empleado));
-                    }
+                    List<String> correos = new List<string>{};
+                    //---INICIO POR ROL                    
+                    //recorre los usuarios con el permiso de cerrar
+                    AspNetRoles rol = db.AspNetRoles.Where(x => x.Name == TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR).FirstOrDefault();
+                    List<AspNetUsers> usuariosInRole = new List<AspNetUsers>();
+                    if (rol != null)
+                        usuariosInRole = rol.AspNetUsers.ToList();
+
+                    List<int> idsCerrar = usuariosInRole.Select(x => x.IdEmpleado).Distinct().ToList();
+
+                    List<empleados> listEmpleadosIT = db.empleados.Where(x => x.activo == true && idsCerrar.Contains(x.id) == true).ToList();
+
+                    foreach (var e in listEmpleadosIT)
+                        if (!String.IsNullOrEmpty(e.correo))
+                            correos.Add(e.correo);
+
+
+                    //---FIN POR ROL
+
+
+                    //manda copia al usuario actual
+                    empleados empleadoActualRH = obtieneEmpleadoLogeado();
+                    if (!String.IsNullOrEmpty(empleadoActualRH.correo))
+                        correos.Add(empleadoActualRH.correo);
+
+                    envioCorreo.SendEmailAsync(correos, "TKMM-LOCAL - Notificación de Baja de Empleado", envioCorreo.getBodyITBajaEmpleado(empleado));
+
                 }
                 catch (System.Data.Entity.Validation.DbEntityValidationException ex)
                 {
