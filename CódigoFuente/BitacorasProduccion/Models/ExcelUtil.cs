@@ -4337,6 +4337,8 @@ namespace Portal_2_0.Models
             dt.Columns.Add("Altura", typeof(double));             //15
             dt.Columns.Add("Espesor", typeof(double));             //15
             dt.Columns.Add("Cantidad Teórica", typeof(double));             //15
+            dt.Columns.Add("Total pzas MIN", typeof(double));             //15
+            dt.Columns.Add("Total pzas MAX", typeof(double));             //15
             dt.Columns.Add("Diferencia SAP", typeof(double));             //15
             dt.Columns.Add("Validación", typeof(string));             //15
             dt.Columns.Add("Capturista", typeof(string));
@@ -4345,10 +4347,27 @@ namespace Portal_2_0.Models
             foreach (CI_conteo_inventario item in listado)
             {
                 bool multiple = listado.Count(x => item.num_tarima != null && x.num_tarima == item.num_tarima) > 1;
+                double? total_pzas_min = null,  total_pzas_max = null;
+
+                if (multiple )
+                {
+                    if (item.cantidad_teorica.HasValue && item.cantidad_teorica > 0)
+                    {
+                        total_pzas_min = listado.Where(x => x.num_tarima == item.num_tarima).Sum(x => x.total_piezas_min);
+                        total_pzas_max = listado.Where(x => x.num_tarima == item.num_tarima).Sum(x => x.total_piezas_max);
+                    }
+                }
+                else {
+                    total_pzas_min = item.total_piezas_min;
+                    total_pzas_max = item.total_piezas_max;
+                }
+
 
                 dt.Rows.Add(item.plant, item.storage_location, item.storage_bin, item.batch, item.material, item.base_unit_measure, item.ship_to_number, item.material_description, item.num_tarima == null ? string.Empty : "T" + item.num_tarima.Value.ToString("D04"),
                     multiple ? "Sí" : "No", item.pieces,
-                    item.unrestricted, item.blocked, item.in_quality, item.gauge, item.gauge_min, item.gauge_max, item.altura, item.espesor, item.cantidad_teorica, item.diferencia_sap, item.validacion,
+                    item.unrestricted, item.blocked, item.in_quality, item.gauge, item.gauge_min, item.gauge_max, item.altura, item.espesor, item.cantidad_teorica,
+                    total_pzas_min, total_pzas_max,
+                    item.diferencia_sap, item.validacion,
                     item.empleados!=null? item.empleados.ConcatNombre: string.Empty 
                     );
             }

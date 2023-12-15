@@ -127,7 +127,7 @@ namespace Portal_2_0.Models
                 if (altura == null || gauge == null || gauge == 0)
                     return null;
 
-                return altura / gauge;
+                return Math.Round( altura.Value / gauge.Value, 2);
             }
         }
         [NotMapped]
@@ -167,10 +167,11 @@ namespace Portal_2_0.Models
         {
             get
             {
-                if (pieces == null || gauge_max == null || gauge_max == 0)
+                if (pieces == null || gauge_max == null || gauge == null || gauge_max == 0)
                     return null;
 
-                return (pieces * gauge) / gauge_max;
+
+                return  Math.Round ((pieces.Value * gauge.Value) / gauge_max.Value, 2);
             }
         }
 
@@ -180,10 +181,10 @@ namespace Portal_2_0.Models
         {
             get
             {
-                if (pieces == null || gauge_min == null || gauge_min == 0)
+                if (pieces == null || gauge_min == null || gauge == null || gauge_min == 0)
                     return null;
 
-                return (pieces * gauge) / gauge_min;
+                return Math.Round((pieces.Value * gauge.Value) / gauge_min.Value);
             }
         }
 
