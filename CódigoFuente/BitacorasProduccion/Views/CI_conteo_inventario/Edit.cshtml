@@ -274,8 +274,8 @@
                 window.location.replace("../multiple/"+@Model.id);
             });
 
-            $('.cantidad').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': true, 'allowMinus': false, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
-            $('.cantidad_negativa').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 2, 'digitsOptional': true, 'allowMinus': true, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
+            $('.cantidad').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 3, 'digitsOptional': true, 'allowMinus': false, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
+            $('.cantidad_negativa').inputmask({ 'alias': 'decimal', 'groupSeparator': ',', 'autoGroup': true, 'digits': 3, 'digitsOptional': true, 'allowMinus': true, 'placeholder': '0', 'autoUnmask': true, 'removeMaskOnSubmit': true });
 
             //aumenta en uso cada vez que se hace un cambio en el archivo de soporte
             $("#altura").on("on change keyup clear", function () {
