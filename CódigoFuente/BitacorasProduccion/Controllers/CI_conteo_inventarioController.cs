@@ -59,8 +59,16 @@ namespace Portal_2_0.Controllers
         // más detalles, vea https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Multiple(CI_conteo_inventario cI_conteo_inventario)
+        public ActionResult Multiple(CI_conteo_inventario cI_conteo_inventario, FormCollection form)
         {
+            cI_conteo_inventario.etiquetas = new List<CI_conteo_inventario>();
+            foreach (var item in form.AllKeys.Where(x => x.Contains("etiquetas[")))
+            {
+                cI_conteo_inventario.etiquetas.Add(new CI_conteo_inventario
+                {
+                    id = Int32.Parse(form[item])
+                });
+            } 
 
             if (cI_conteo_inventario.etiquetas == null || cI_conteo_inventario.etiquetas.Count == 0)
             {
