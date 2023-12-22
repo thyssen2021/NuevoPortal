@@ -49,7 +49,7 @@ namespace Portal_2_0.Controllers
 
             ViewBag.ListadoEtiquetas = listadoEtiquetas;
 
-            cI_conteo_inventario.etiquetas = db.CI_conteo_inventario.Where(x=> cI_conteo_inventario.num_tarima!=null && x.num_tarima == cI_conteo_inventario.num_tarima).ToList();
+            cI_conteo_inventario.etiquetas = db.CI_conteo_inventario.Where(x => cI_conteo_inventario.num_tarima != null && x.num_tarima == cI_conteo_inventario.num_tarima).ToList();
 
             return View(cI_conteo_inventario);
         }
@@ -68,14 +68,14 @@ namespace Portal_2_0.Controllers
                 {
                     id = Int32.Parse(form[item])
                 });
-            } 
+            }
 
             if (cI_conteo_inventario.etiquetas == null || cI_conteo_inventario.etiquetas.Count == 0)
             {
                 ModelState.AddModelError("", "No se agregaron eqtiquetas.");
             }
 
-            if(cI_conteo_inventario.altura == null || cI_conteo_inventario.altura == 0)
+            if (cI_conteo_inventario.altura == null || cI_conteo_inventario.altura == 0)
                 ModelState.AddModelError("altura", "Ingrese una altura válida.");
 
             bool repetido = false;
@@ -93,10 +93,10 @@ namespace Portal_2_0.Controllers
             var empleado = obtieneEmpleadoLogeado();
             if (ModelState.IsValid)
             {
-               
+
                 var tarimasFormIds = cI_conteo_inventario.etiquetas.Select(x => x.id).Distinct().ToList();
-                
-                var tarimas = db.CI_conteo_inventario.Where(x=> tarimasFormIds.Contains(x.id)).Select(x => x.num_tarima).Distinct().ToList();
+
+                var tarimas = db.CI_conteo_inventario.Where(x => tarimasFormIds.Contains(x.id)).Select(x => x.num_tarima).Distinct().ToList();
                 //todas las tarimas que tenga asociado el numero de tarima
                 var tarimasBD = db.CI_conteo_inventario.Where(x => tarimas.Contains(x.num_tarima));
                 //quita los valores de la BD
@@ -119,7 +119,8 @@ namespace Portal_2_0.Controllers
                         tarimasBDForm[i].altura = cI_conteo_inventario.altura;
                         tarimasBDForm[i].espesor = cI_conteo_inventario.espesor;
                     }
-                    else {
+                    else
+                    {
                         tarimasBDForm[i].altura = 0;
                         tarimasBDForm[i].espesor = 0;
                     }
@@ -171,7 +172,7 @@ namespace Portal_2_0.Controllers
                 var ciBD = db.CI_conteo_inventario.Find(cI_conteo_inventario.id);
 
                 //borra las tarimas relacionadas
-                var tarimasBD = db.CI_conteo_inventario.Where(x => ciBD.num_tarima!=null && x.num_tarima == ciBD.num_tarima && x.id!=ciBD.id);
+                var tarimasBD = db.CI_conteo_inventario.Where(x => ciBD.num_tarima != null && x.num_tarima == ciBD.num_tarima && x.id != ciBD.id);
                 //quita los valores de la BD
                 foreach (var item in tarimasBD)
                 {
@@ -204,13 +205,56 @@ namespace Portal_2_0.Controllers
         public JsonResult CargaTabla()
         {
 
-
             DataTable dataTable = new DataTable();
             List<CI_conteo_inventario> stud = db.CI_conteo_inventario.OrderBy(x => x.id).ToList();
             List<CI_conteo_table> newList = new List<CI_conteo_table>();
 
             foreach (var item in stud)
             {
+                //diferencia SAP
+                double? dS = null;
+                if (item.num_tarima != null && stud.Count(x => x.num_tarima == item.num_tarima) > 1)
+                {
+                    if (item.altura > 0)
+                    {
+                        var tarimas = stud.Where(x => x.num_tarima == item.num_tarima).ToList();
+                        dS =  tarimas.Sum(x => x.cantidad_teorica) - tarimas.Sum(x => x.pieces);
+                    }
+                    else
+                    {
+                        dS = 0;
+                    }
+
+                }
+                else
+                {
+                    if (item.cantidad_teorica == null)
+                        dS = null;
+                    else
+                    dS = item.cantidad_teorica - item.pieces;
+                }
+                //validacion
+                string validacion = "Ajustar";
+                //valida si es multiple
+
+                if (item.num_tarima != null && stud.Count(x => x.num_tarima == item.num_tarima) > 1)
+                {
+                    var tarimas = stud.Where(x => x.num_tarima == item.num_tarima).ToList();
+                    if (tarimas.Sum(x => x.cantidad_teorica) >= tarimas.Sum(x => x.total_piezas_min) && tarimas.Sum(x => x.cantidad_teorica) <= tarimas.Sum(x => x.total_piezas_max))
+                        validacion = "(Múltiple) Dentro de tolerancias";
+                    else
+                        validacion = "(Múltiple) Ajustar";
+                }
+                else
+                {
+                    if (item.altura == null)
+                        validacion = "Pendiente";
+                    else if (item.cantidad_teorica != null && item.cantidad_teorica >= item.total_piezas_min && item.cantidad_teorica <= item.total_piezas_max)
+                        validacion = "Dentro de tolerancias";
+                    else if (item.cantidad_teorica == null || item.total_piezas_min == null || item.total_piezas_max == null)
+                        validacion = "--";
+                }
+
                 newList.Add(new CI_conteo_table
                 {
                     acciones = string.Format("<button onclick=editar({0})>Editar</button>", item.id),
@@ -223,11 +267,10 @@ namespace Portal_2_0.Controllers
                     altura = item.altura,
                     espesor = item.espesor,
                     cantidad_teorica = item.cantidad_teorica,
-                    diferencia_sap = item.diferencia_sap,
-                    validacion = item.validacion,
+                    diferencia_sap = dS.HasValue? Math.Round(dS.Value, 2):dS,
+                    validacion = validacion,
                     numTarimaString = item.num_tarima == null ? string.Empty : "T" + item.num_tarima.Value.ToString("D04")
                 });
-
 
             }
 
@@ -255,12 +298,14 @@ namespace Portal_2_0.Controllers
         [HttpPost]
         public ActionResult restablecer(int? id)
         {
-            try {
+            try
+            {
                 db.Database.ExecuteSqlCommand("UPDATE ci_conteo_inventario set altura=null, espesor=null, num_tarima=null, id_empleado=null");
                 TempData["Mensaje"] = new MensajesSweetAlert("Se restablecieron los datos del inventario.", TipoMensajesSweetAlerts.SUCCESS);
             }
-            catch(Exception e) {
-                TempData["Mensaje"] = new MensajesSweetAlert("Error: "+e.Message, TipoMensajesSweetAlerts.ERROR);
+            catch (Exception e)
+            {
+                TempData["Mensaje"] = new MensajesSweetAlert("Error: " + e.Message, TipoMensajesSweetAlerts.ERROR);
             }
             return RedirectToAction("Index");
         }
@@ -534,7 +579,7 @@ namespace Portal_2_0.Controllers
 
         public ActionResult Exportar()
         {
-            if (!TieneRol(TipoRoles.CI_CONTEO_INVENTARIO) )
+            if (!TieneRol(TipoRoles.CI_CONTEO_INVENTARIO))
                 return View("../Home/ErrorPermisos");
 
             var listado = db.CI_conteo_inventario
