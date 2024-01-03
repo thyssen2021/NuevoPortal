@@ -43,6 +43,12 @@
         model_ = paginacionFiltros.ValoresQueryString["model"].ToString();
     }
 
+    string imei_ = string.Empty;
+    if (paginacionFiltros.ValoresQueryString["imei"] != null)
+    {
+        imei_ = paginacionFiltros.ValoresQueryString["imei"].ToString();
+    }
+
     string tipo_hardware = string.Empty;
     string tipo_hardware_export = string.Empty;
 
@@ -154,6 +160,16 @@
                                                     <input type="text" id="model" name="model" class="form-control" value="@model_" autocomplete="off" />
                                                 </div>
                                             }
+                                            
+                                            @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.BUSQUEDA, tipo_hardware, nameof(IT_inventory_items.imei_1)))
+                                            {
+                                                <label class="control-label col-md-1 col-sm-1" for="model" style="text-align:right">imei:</label>
+                                                <div class="col-md-2 col-sm-2">
+                                                    @Html.DropDownList("imei", null, htmlAttributes: new { @class = "form-control select2bs4", @style = "width:100%" })
+                                                </div>
+                                            }
+                                            
+
                                             @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.BUSQUEDA, tipo_hardware, nameof(IT_inventory_items.active)))
                                             {
                                                 <label class="control-label col-md-1 col-sm-1" for="active" style="text-align:right">Active:</label>
@@ -275,6 +291,12 @@
                                                         @Html.DisplayNameFor(model => model.printer_ubication)
                                                     </th>
                                                 }
+                                                @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.imei_1)))
+                                                {
+                                                    <th>
+                                                        @Html.DisplayNameFor(model => model.imei_1)
+                                                    </th>
+                                                }
                                                 @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.active)))
                                                 {
                                                     <th>
@@ -368,6 +390,12 @@
                                                     {
                                                         <td>
                                                             @Html.DisplayFor(modelItem => item.printer_ubication)
+                                                        </td>
+                                                    }
+                                                    @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.imei_1)))
+                                                    {
+                                                        <td>
+                                                            @Html.DisplayFor(modelItem => item.imei_1)
                                                         </td>
                                                     }
                                                     @if (FiltersInventoryUtil.AplicaCampo(FiltersInventoryTypes.INDEX, tipo_hardware, nameof(IT_inventory_items.active)))
@@ -659,6 +687,9 @@
                 verificaEstadoCombos();
             });
 
+            $("#imei").change(function () {
+                verificaEstadoCombos();
+            });
 
             $("#active").change(function () {
                 verificaEstadoCombos();

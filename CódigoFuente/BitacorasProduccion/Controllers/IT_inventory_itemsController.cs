@@ -19,7 +19,7 @@ namespace Portal_2_0.Controllers
         private Portal_2_0Entities db = new Portal_2_0Entities();
 
         // GET: IT_inventory_items
-        public ActionResult Index(int? id_planta, int? tipo_hardware, string hostname, int? id_tipo_accesorio, string model, bool? active, int pagina = 1)
+        public ActionResult Index(int? id_planta, int? tipo_hardware, string hostname, string imei, int? id_tipo_accesorio, string model, bool? active, int pagina = 1)
         {
             if (TieneRol(TipoRoles.IT_INVENTORY))
             {
@@ -37,6 +37,7 @@ namespace Portal_2_0.Controllers
                     && ((x.hostname.Contains(hostname) || String.IsNullOrEmpty(hostname))
                     || (x.IT_inventory_items1.Any(y => y.hostname.Contains(hostname))))
                     && (x.model.Contains(model) || String.IsNullOrEmpty(model))
+                    && (x.imei_1.Contains(imei) || String.IsNullOrEmpty(imei))
                     && (x.id_tipo_accesorio == id_tipo_accesorio || id_tipo_accesorio == null)
                     && (x.active == active || active == null)
                     && (x.id_inventory_type == tipo_hardware && tipo_hardware.HasValue || (tipo_hardware == 256 && (x.id_inventory_type == 1 || x.id_inventory_type == 2)))
@@ -51,6 +52,7 @@ namespace Portal_2_0.Controllers
                     && ((x.hostname.Contains(hostname) || String.IsNullOrEmpty(hostname))
                     || (x.IT_inventory_items1.Any(y => y.hostname.Contains(hostname))))
                     && (x.model.Contains(model) || String.IsNullOrEmpty(model))
+                    && (x.imei_1.Contains(imei) || String.IsNullOrEmpty(imei))
                     && (x.id_tipo_accesorio == id_tipo_accesorio || id_tipo_accesorio == null)
                     && (x.active == active || active == null)
                      && (x.id_inventory_type == tipo_hardware && tipo_hardware.HasValue || (tipo_hardware == 256 && (x.id_inventory_type == 1 || x.id_inventory_type == 2)))
@@ -62,6 +64,7 @@ namespace Portal_2_0.Controllers
                 routeValues["hostname"] = hostname;
                 routeValues["id_tipo_accesorio"] = id_tipo_accesorio;
                 routeValues["model"] = model;
+                routeValues["imei"] = imei;
                 routeValues["tipo_hardware"] = tipo_hardware;
                 routeValues["active"] = active;
                 routeValues["pagina"] = pagina;
@@ -86,6 +89,7 @@ namespace Portal_2_0.Controllers
 
                 ViewBag.tipo_hardware = AddFirstItem(new SelectList(listTipoHardware, "id", "descripcion"), textoPorDefecto: "-- Select --", selected: tipo_hardware.ToString());
                 ViewBag.id_planta = AddFirstItem(new SelectList(db.plantas.Where(x => x.activo), "clave", "descripcion"), textoPorDefecto: "-- All --", selected: id_planta.ToString());
+                ViewBag.imei = AddFirstItem(new SelectList(db.IT_inventory_items.Where(x => x.imei_1 != null), "imei_1", "imei_1"), textoPorDefecto: "-- All --", selected: id_planta.ToString());
                 ViewBag.id_tipo_accesorio = AddFirstItem(new SelectList(db.IT_inventory_tipos_accesorios, "id", "descripcion"), textoPorDefecto: "-- All --", selected: id_tipo_accesorio.ToString());
 
 
