@@ -49,7 +49,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<inspeccion_datos_generales> inspeccion_datos_generales { get; set; }
         public virtual DbSet<inspeccion_fallas> inspeccion_fallas { get; set; }
         public virtual DbSet<inspeccion_pieza_descarte_produccion> inspeccion_pieza_descarte_produccion { get; set; }
-        public virtual DbSet<IT_asignacion_hardware> IT_asignacion_hardware { get; set; }
         public virtual DbSet<IT_asignacion_hardware_rel_items> IT_asignacion_hardware_rel_items { get; set; }
         public virtual DbSet<IT_asignacion_software> IT_asignacion_software { get; set; }
         public virtual DbSet<IT_carpetas_red> IT_carpetas_red { get; set; }
@@ -122,7 +121,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_inventory_software> IT_inventory_software { get; set; }
         public virtual DbSet<IT_inventory_hardware_type> IT_inventory_hardware_type { get; set; }
         public virtual DbSet<IT_matriz_hardware> IT_matriz_hardware { get; set; }
-        public virtual DbSet<IT_matriz_software> IT_matriz_software { get; set; }
         public virtual DbSet<IT_matriz_requerimientos> IT_matriz_requerimientos { get; set; }
         public virtual DbSet<IT_equipos_checklist> IT_equipos_checklist { get; set; }
         public virtual DbSet<IT_mantenimientos> IT_mantenimientos { get; set; }
@@ -162,5 +160,7 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_inventory_items> IT_inventory_items { get; set; }
         public virtual DbSet<CI_conteo_inventario> CI_conteo_inventario { get; set; }
         public virtual DbSet<produccion_datos_entrada> produccion_datos_entrada { get; set; }
+        public virtual DbSet<IT_asignacion_hardware> IT_asignacion_hardware { get; set; }
+        public virtual DbSet<IT_matriz_software> IT_matriz_software { get; set; }
     }
 }

@@ -808,54 +808,8 @@ namespace Portal_2_0.Controllers
 
                 #region ValidaUsuarioJefeDirecto
 
-                var user = db.AspNetUsers.Where(x => x.IdEmpleado == empleado.empleados2.id).FirstOrDefault();
-                /*
-                //verifica si jefe directo tiene usuario
-                if (user != null)
-                {
-                    //asigna los permisos Matriz JEFE Directo
-                    var userRoles = await _userManager.GetRolesAsync(user.Id);
-                    string[] selectedRole = { TipoRoles.IT_MATRIZ_REQUERIMIENTOS_AUTORIZAR, TipoRoles.IT_MATRIZ_REQUERIMIENTOS_DETALLES };
-                    var result = await _userManager.AddToRolesAsync(user.Id, selectedRole.Except(userRoles).ToArray<string>());
-
-                }
-                else
-                { //si no tiene crea una solicitud de creacion
-                    var jefeD = db.empleados.Find(empleado.empleados2.id);
-                    //crea un nuevo objeto de la solicitud
-                    IT_solicitud_usuarios solicitud = new IT_solicitud_usuarios
-                    {
-                        id_empleado = empleado.empleados2.id,
-                        comentario = "SOLICITUD DE USUARIO PARA JEFE DIRECTO EN AUTORIZACION DE MATRIZ DE REQUERIMIENTOS (BAJA)",
-                        fecha_solicitud = DateTime.Now,
-                        estatus = IT_solicitud_usuario_Status.CREADO,
-                        empleados = jefeD
-                    };
-
-                    //guarda en BD
-                    db.IT_solicitud_usuarios.Add(solicitud);
-                    db.SaveChanges();
-
-                    //envia correo electronico
-                    EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
-                    List<String> correos = new List<string>(); //correos TO
-
-                    //-- INICIO POR TABLA NOTIFICACION
-                    List<notificaciones_correo> listadoNotificaciones = db.notificaciones_correo.Where(x => x.descripcion == NotificacionesCorreo.IT_SOLICITUD_PORTAL && x.activo).ToList();
-                    foreach (var n in listadoNotificaciones)
-                    {
-                        //si el campo correo no está vacio
-                        if (!String.IsNullOrEmpty(n.correo) && !n.id_empleado.HasValue)
-                            correos.Add(n.correo);
-                        //si tiene empleado asociado
-                        else if (n.empleados != null && !String.IsNullOrEmpty(n.empleados.correo))
-                            correos.Add(n.empleados.correo);
-                    }
-                    //-- FIN POR TABLA NOTIFICACION
-                    envioCorreo.SendEmailAsync(correos, "Se ha creado una solicitud de usuario para el Portal.", envioCorreo.getBodySolicitudUsuarioPortal(solicitud));
-
-                }
-                */
+                //var user = db.AspNetUsers.Where(x => x.IdEmpleado == empleado.empleados2.id).FirstOrDefault();
+               
                 #endregion
 
                 try

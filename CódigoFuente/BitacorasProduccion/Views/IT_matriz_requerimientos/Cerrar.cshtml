@@ -8,6 +8,8 @@
 
     ViewBag.nav_style = "nav-sm";
 
+    List<Portal_2_0.Models.empleados> listEmpleados = (List<Portal_2_0.Models.empleados>)ViewBag.ListEmpleado;
+
 }
 
 @section estilos
@@ -203,7 +205,9 @@
                                                     Asignaci&oacute;n
                                                 </th>
                                                 <th width="5%">
-
+                                                    Notificar
+                                                </th>
+                                                <th width="5%">
                                                 </th>
                                             </tr>
                                         </thead>
@@ -214,6 +218,7 @@
                                                     <td>
                                                         @(Model.matriz.IT_matriz_hardware.ToList().IndexOf(item) + 1)
                                                         <input type="hidden" name="hardware_@(item.id)_asignacion" id="hardware_@(item.id)_asignacion" value="@item.id_it_asignacion_hardware" />
+                                                        <input type="hidden" id="hardware_@(item.id)_hardware_type_id" value="@(item.IT_inventory_hardware_type.id)" />
                                                     </td>
                                                     <td>
                                                         @item.IT_inventory_hardware_type.descripcion
@@ -243,7 +248,18 @@
                                                             @("NO DISPONIBLE")
                                                         }
                                                     </td>
-                                                    <td>
+                                                    <td nowrap>
+                                                        <select name="hardware_@(item.id)_responsable" id="hardware_@(item.id)_responsable" class="form-control select2bs4" style="width:100%" required>
+                                                            <option value=''>-- Seleccione un valor --</option>
+                                                            @foreach (Portal_2_0.Models.empleados empleado in listEmpleados)
+                                                            {
+                                                                <option value="@empleado.id" @(item.asignado_a == empleado.id ? "selected" : null )>@empleado.ConcatNombre</option>
+
+                                                            }
+                                                        </select>
+                                                    </td>
+                                                    <td nowrap>
+                                                        <button type="button" id="" onclick="notificar(@item.id, 'Hardware', '@item.IT_inventory_hardware_type.descripcion'); return false;" class="btn btn-primary btn-sm" title="Asignar"><i class="fa-solid fa-envelope"></i></button>
                                                         <button type="button" id="" onclick="asignarHardware(@Model.matriz.id_empleado, @item.id_it_hardware); return false;" class="btn btn-success btn-sm" title="Asignar"> <i class="fa-solid fa-external-link"></i></button>
                                                     </td>
                                                 </tr>
@@ -285,6 +301,9 @@
                                                     Asignaci&oacute;n
                                                 </th>
                                                 <th width="5%">
+                                                    Notificar
+                                                </th>
+                                                <th width="5%">
                                                 </th>
 
                                             </tr>
@@ -297,6 +316,7 @@
                                                     <td>
                                                         @(Model.matriz.IT_matriz_software.ToList().IndexOf(item) + 1)
                                                         <input type="hidden" name="software_@(item.id)_asignacion" id="software_@(item.id)_asignacion" value="@item.id_it_asignacion_software" />
+                                                        <input type="hidden" id="software_@(item.id)_software_type_id" value="@(item.IT_inventory_software.id)" />
                                                     </td>
                                                     <td>
                                                         @item.IT_inventory_software.descripcion
@@ -327,7 +347,18 @@
                                                             @("NO DISPONIBLE")
                                                         }
                                                     </td>
+                                                    <td nowrap>
+                                                        <select name="software_@(item.id)_responsable" id="software_@(item.id)_responsable" class="form-control select2bs4" style="width:100%" required>
+                                                            <option value=''>-- Seleccione un valor --</option>
+                                                            @foreach (Portal_2_0.Models.empleados empleado in listEmpleados)
+                                                            {
+                                                                <option value="@empleado.id" @(item.asignado_a == empleado.id ? "selected" : null )>@empleado.ConcatNombre</option>
+
+                                                            }
+                                                        </select>
+                                                    </td>
                                                     <td>
+                                                        <button type="button" id="" onclick="notificar(@item.id, 'Software', '@item.IT_inventory_software.descripcion'); return false;" class="btn btn-primary btn-sm" title="Asignar"><i class="fa-solid fa-envelope"></i></button>
                                                         <button type="button" id="" onclick="asignarSoftware(@Model.matriz.id_empleado, @item.id_it_software); return false;" class="btn btn-success btn-sm" title="Ver Asignar"> <i class="fa-solid fa-external-link"></i></button>
                                                     </td>
                                                 </tr>
@@ -343,17 +374,17 @@
                                     </div>
                                 </div>
                                 @*<div class="ln_solid"></div>
-                <div class="form-group row">
-                    <span style="color:dimgrey"><b>&emsp; 3.3- INTERNET</b></span>
+                                    <div class="form-group row">
+                                        <span style="color:dimgrey"><b>&emsp; 3.3- INTERNET</b></span>
 
-                </div>
+                                    </div>
 
-                <div class="form-group row">
-                    @Html.LabelFor(model => model.matriz.id_internet_tipo, new { @class = "control-label col-md-2" })
-                    <div class="col-md-4 col-sm-4 ">
-                        <input type="text" id="id_internet_tipo" class="form-control" value="@(Model.matriz.IT_internet_tipo!=null ? Model.matriz.IT_internet_tipo.descripcion : "NO DISPONIBLE" )" readonly="readonly" />
-                    </div>
-                </div>*@
+                                    <div class="form-group row">
+                                        @Html.LabelFor(model => model.matriz.id_internet_tipo, new { @class = "control-label col-md-2" })
+                                        <div class="col-md-4 col-sm-4 ">
+                                            <input type="text" id="id_internet_tipo" class="form-control" value="@(Model.matriz.IT_internet_tipo!=null ? Model.matriz.IT_internet_tipo.descripcion : "NO DISPONIBLE" )" readonly="readonly" />
+                                        </div>
+                                    </div>*@
 
                                 <div class="ln_solid"></div>
                                 <div class="form-group row">
@@ -405,7 +436,6 @@
                                                     <td>
                                                         <textarea style="font-size: 12px;" type="text" name="comunicaciones_@(item.id)_comentarios" id="comunicaciones_@(item.id)_comentarios" class="form-control col-md-12" autocomplete="off" maxlength="250">@item.comentario</textarea>
                                                         <span class="field-validation-valid text-danger" data-valmsg-for="comunicaciones_@(item.id)_comentarios" data-valmsg-replace="true"></span>
-
                                                     </td>
                                                 </tr>
                                             }
@@ -691,10 +721,7 @@
                                             }
                                         </tbody>
                                     </table>
-
                                 </div>
-
-
                             }
 
                             <div class="ln_solid"></div>
@@ -786,6 +813,45 @@
     </div>
 </div>
 
+<!-- Modal Notificar -->
+<div class="modal fade" id="modalNotificar" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Envia correo de aviso</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <input type="hidden" id="notificar_id_empleado_modal" />
+                    <input type="hidden" id="notificar_id_hardware_type_id" />
+                    <input type="hidden" id="notificar_id_software_type_id" />
+                    <br />
+                    <div class="col-md-12">
+                        <h6> <span style="font-weight:bold">Notificar a: </span> <span id="notificar_nombre_modal">NOMBRE</span></h6>
+                    </div>
+                    <div class="col-md-12">
+                        <h6><span id="notificar_tipo" style="font-weight:bold"></span>: <span id="notificar_tipo_nombre"></span></h6>
+                    </div>
+                    <div class="col-md-12">
+                        <h6>Mensaje del Correo:</h6>
+                    </div>
+                    <div class="col-md-12">
+                        <textarea style="font-size: 12px;" type="text" name="notificar_mensaje_modal" id="notificar_mensaje_modal" class="form-control col-md-12" autocomplete="off" maxlength="120" rows="4"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="detallesAsignacionHardwareSoftware();"><i class="fa-solid fa-envelope"></i> Enviar Notificación</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 @section Scripts {
 
     @Scripts.Render("~/bundles/jqueryval")
@@ -816,12 +882,15 @@
                 "info": false
             });
 
-            $(document).ready(function () {
-                $('input').iCheck({
-                    checkboxClass: 'icheckbox_square-green',
-                    radioClass: 'iradio_square-green',
-                    increaseArea: '20%' // optional
-                });
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+                increaseArea: '20%' // optional
+            });
+
+            //Redibuja la tabla
+            $(".select2bs4").change(function () {
+                clicMenu(2);
             });
 
             $('form #btn-progreso').click(function (e) {
@@ -1153,10 +1222,84 @@
         function detallesAsignacion(id_asignacion) {
             window.open('/it_asignacion_hardware/Details/' + id_asignacion, 'popup', "width=" + screen.width * .70 + ",height=" + screen.height * .70 + "");
         }
-        function detallesAsignacionSoftware(id_empleado) {
-            window.open('/it_asignacion_hardware/DetailsEmpleado/' + id_empleado, 'popup', "width=" + screen.width * .70 + ",height=" + screen.height * .70 + "");
+        function detallesAsignacionHardwareSoftware() {
+
+            let valEmpleado = $('#notificar_id_empleado_modal').val();
+            let valTipo = $('#notificar_tipo').html();
+            let valTipoNombre = $('#notificar_tipo_nombre').html();
+            let valMensaje = $('#notificar_mensaje_modal').val();
+            let valHardwareTypeID = $('#notificar_id_hardware_type_id').val();
+            let valSoftwareTypeID = $('#notificar_id_software_type_id').val();
+
+
+            if (valMensaje == "") {
+                Toast.fire({
+                    icon: 'warning',
+                    text: 'No se agregó ningún mensaje.',
+                    title: 'Warning',
+                })
+            } else {
+                 //llamada ajax
+                 $.ajax({
+                     type: 'POST',
+                     url: '/IT_matriz_requerimientos/enviaCorreoIT',
+                     data: { id_solicitud: @Model.id, id_empleado: valEmpleado, id_hardware: valHardwareTypeID, id_software: valSoftwareTypeID, tipo: valTipo, tipo_descripcion: valTipoNombre, mensaje: valMensaje },
+                     success: function (data) {
+                         $('#modalNotificar').modal('hide')
+                         Swal.fire({
+                             title: "Mensaje",
+                             text: "La notificación se enviará en breve.",
+                             icon: "success"
+                         });
+                     },
+                     async: true
+                 });
+            }
+
+
         }
 
+        function notificar(id_hs, tipo, tipo_descripcion) {
+
+            //declaracion de variables
+            let valEmpleado;
+            let valHardwareTypeId;
+            let valSoftwareTypeId;
+            let textEmpleado;
+
+            if (tipo == 'Hardware') {
+                //obtener el valor del combo seleccionado
+                valEmpleado = $('#hardware_' + id_hs + '_responsable').val();
+                valHardwareTypeId = $('#hardware_' + id_hs + '_hardware_type_id').val();
+                textEmpleado = $('#hardware_' + id_hs + '_responsable option:selected').text();
+                $('#notificar_id_hardware_type_id').val(valHardwareTypeId);
+
+            } else if (tipo == 'Software') {
+                valEmpleado = $('#software_' + id_hs + '_responsable').val();
+                valSoftwareTypeId = $('#software_' + id_hs + '_software_type_id').val();
+                textEmpleado = $('#software_' + id_hs + '_responsable option:selected').text();
+                $('#notificar_id_software_type_id').val(valSoftwareTypeId);
+            }
+
+            
+            //cambia el nombre del modal
+            $('#notificar_nombre_modal').html(textEmpleado);
+            $('#notificar_id_empleado_modal').val(valEmpleado);
+            $('#notificar_tipo').html(tipo);
+            $('#notificar_tipo_nombre').html(tipo_descripcion);
+
+            if (valEmpleado == "") {
+                Swal.fire({
+                    title: "Aviso",
+                    text: "No se seleccionó ningún usuario.",
+                    icon: "warning"
+                });
+            } else {
+
+                $('#notificar_mensaje_modal').val('')
+                $('#modalNotificar').modal('show')
+            }
+        }
 
 
         function AgregaRequired() {
@@ -1179,6 +1322,7 @@
 
         //muestra el modal de rechazar
         function mostrarModalRechazar() {
+
             $('#modalRechazar').modal('show')
         }
 

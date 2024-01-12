@@ -1330,6 +1330,40 @@ namespace Portal_2_0.Models
             return body;
         }
 
+        public string getBodyActividadPendienteMatrizRequerimientos(IT_matriz_requerimientos solicitud, string tipo, string tipo_nombre, string nombre, string mensaje)
+        {
+            //obtiene la direccion del dominio
+            string domainName = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority);
+
+            string body = System.IO.File.ReadAllText(HttpContext.Current.Server.MapPath("~/Content/emails_plantillas/Notificacion_solicitud_generica.html"));
+            string tablaContenido = String.Empty;
+
+            //crea un diccionario para los valores de la tabla
+            Dictionary<string, string> tablaContentDictionary = new Dictionary<string, string>
+            {
+                //agrega los valores al diccionario
+                { "Folio", solicitud.id.ToString() },
+                { "Empleado", solicitud.empleados.ConcatNombre },
+                { "Puesto", solicitud.empleados.puesto1.descripcion },
+                { tipo, tipo_nombre },
+                { "Comentario", mensaje }
+            };
+                                 
+
+            //agrega los valores del diccionario al contenido de la tabla
+            foreach (KeyValuePair<string, string> kvp in tablaContentDictionary)
+                tablaContenido += FILA_GENERICA.Replace("#CONCEPTO", kvp.Key).Replace("#VALOR", kvp.Value);
+
+            //reemplaza los valores en la plantilla
+            body = body.Replace("#TITULO", "¡Hola, tienes una actividad de Matriz de Requerimientos asignada!");
+            body = body.Replace("#SUBTITULO", "El usuario " + nombre + " te ha asignado una actividad en la matriz de requerimientos."); //elaborador
+            body = body.Replace("#TABLA_CONTENIDO", tablaContenido);
+            body = body.Replace("#ANIO", DateTime.Now.Year.ToString());
+            body = body.Replace("#ENLACE", domainName + "/IT_matriz_requerimientos/Cerrar/" + solicitud.id);
+
+            return body;
+        }
+
 
         #endregion
     }

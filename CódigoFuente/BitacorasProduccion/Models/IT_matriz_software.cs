@@ -21,7 +21,9 @@ namespace Portal_2_0.Models
         public string descripcion { get; set; }
         public string comentario { get; set; }
         public Nullable<bool> completado { get; set; }
+        public Nullable<int> asignado_a { get; set; }
     
+        public virtual empleados empleados { get; set; }
         public virtual IT_asignacion_software IT_asignacion_software { get; set; }
         public virtual IT_inventory_software IT_inventory_software { get; set; }
         public virtual IT_matriz_requerimientos IT_matriz_requerimientos { get; set; }

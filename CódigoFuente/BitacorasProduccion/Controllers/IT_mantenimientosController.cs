@@ -308,6 +308,7 @@ namespace Portal_2_0.Controllers
 
                 db.SaveChanges();
 
+
                 TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
 
                 return RedirectToAction("Index", new { estatus_mantenimiento = estatus_mantenimiento });
@@ -698,8 +699,8 @@ namespace Portal_2_0.Controllers
                 var mantenimientoBD = db.IT_mantenimientos.Find(model.id);
 
                 //mueve la nueva fecha al último día del mes
-                DateTime finMes = new DateTime (model.nueva_fecha.Year, model.nueva_fecha.Month, 1,23,59,59).AddMonths(1).AddDays(-1);
-                
+                DateTime finMes = new DateTime(model.nueva_fecha.Year, model.nueva_fecha.Month, 1, 23, 59, 59).AddMonths(1).AddDays(-1);
+
 
                 mantenimientoBD.IT_mantenimientos_aplazamientos.Add(
                     new IT_mantenimientos_aplazamientos

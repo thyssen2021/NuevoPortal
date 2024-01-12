@@ -1559,7 +1559,18 @@ namespace Portal_2_0.Controllers
                     if (!item.completado.HasValue)
                         item.completado = true;
 
+                
+                //recorre los usuarios con el permiso de IT_notificaciones
+                AspNetRoles rol = db.AspNetRoles.Where(x => x.Name == TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR).FirstOrDefault();
+                List<AspNetUsers> usuariosInRole = new List<AspNetUsers>();
+                if (rol != null)
+                    usuariosInRole = rol.AspNetUsers.ToList();
 
+                List<int> idsRol = usuariosInRole.Select(x => x.IdEmpleado).Distinct().ToList();
+                List<empleados> listEmpleados = db.empleados.Where(x => x.activo == true && idsRol.Contains(x.id) == true).ToList();
+
+                //envia el select list por viewbag
+                ViewBag.ListEmpleado = listEmpleados;
 
                 return View(new IT_matriz_requerimientosCerrarModel { matriz = matriz, id = matriz.id, correo = matriz.empleados.correo, C8ID = matriz.empleados.C8ID, comentario_cierre = matriz.comentario_cierre });
             }
@@ -1601,10 +1612,15 @@ namespace Portal_2_0.Controllers
                 bool completado = Convert.ToBoolean(collection["hardware_" + id_hardware + "_estado"]);
                 string comentario = null;
                 int? asignacion = null;
+                int? asignado_a = null;
 
                 //comentario
                 if (keysCollection.Contains("hardware_" + id_hardware + "_comentarios") && !String.IsNullOrEmpty(collection["hardware_" + id_hardware + "_comentarios"]))
                     comentario = collection["hardware_" + id_hardware + "_comentarios"];
+
+                //obtiene el empleado hardware_@(item.id)_responsable
+                if (keysCollection.Contains("hardware_" + id_hardware + "_responsable") && !String.IsNullOrEmpty(collection["hardware_" + id_hardware + "_responsable"]))
+                    asignado_a = Int32.Parse(collection["hardware_" + id_hardware + "_responsable"]);
 
                 //obtiene el id_asignación en caso de existir
                 if (keysCollection.Contains("hardware_" + id_hardware + "_asignacion") && !String.IsNullOrEmpty(collection["hardware_" + id_hardware + "_asignacion"]))
@@ -1619,6 +1635,7 @@ namespace Portal_2_0.Controllers
                     item.completado = completado;
                     item.comentario = comentario;
                     item.id_it_asignacion_hardware = asignacion;
+                    item.asignado_a = asignado_a;
                 }
             }
 
@@ -1735,13 +1752,13 @@ namespace Portal_2_0.Controllers
                 //campos obligatorios                
                 matriz.id_sistemas = sistemas.id;
                 matriz.comentario_cierre = matrizModel.comentario_cierre;
-
-                if (matriz.estatus == IT_MR_Status.FINALIZADO)
-                {
+              
+                if (!string.IsNullOrEmpty(matrizModel.correo))
                     matriz.empleados.correo = matrizModel.correo;
-                    matriz.empleados.C8ID = matrizModel.C8ID;
-                }
 
+                if (!string.IsNullOrEmpty(matrizModel.C8ID))
+                    matriz.empleados.C8ID = matrizModel.C8ID;
+           
                 //actualiza el estado de la solicitud según el tipo de formulario enviado
                 switch (tipoSolicitud.ToUpper())
                 {
@@ -2391,6 +2408,62 @@ namespace Portal_2_0.Controllers
 
 
             return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        ///<summary>
+        ///Envia correo de notificacion a Sistemas
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult enviaCorreoIT(int? id_solicitud, int? id_empleado, int? id_hardware, int? id_software, string tipo, string tipo_descripcion, string mensaje)
+        {
+            var empleadoActual = this.obtieneEmpleadoLogeado();
+
+            //obtiene todos los posibles valores
+            var empleado = db.empleados.Find(id_empleado);
+            
+            //obtiene la solicitud
+            var solicitud = db.IT_matriz_requerimientos.Find(id_solicitud); 
+
+            //inicializa la lista de objetos
+            var list = new object[1];
+
+
+            //envia correo electronico
+            EnvioCorreoElectronico envioCorreo = new EnvioCorreoElectronico();
+            List<String> correos = new List<string>(); //correos TO
+
+            if (!String.IsNullOrEmpty(empleado.correo))
+                correos.Add(empleado.correo);
+
+            if (empleado != null && solicitud != null)
+            {
+                switch (tipo)
+                {
+                    case "Hardware":
+                        var asignacion_hardware = solicitud.IT_matriz_hardware.FirstOrDefault(x=> x.id_it_hardware == id_hardware);
+                        asignacion_hardware.asignado_a = id_empleado;                    
+
+                        break;
+
+                    case "Software":
+                        var asignacion_software = solicitud.IT_matriz_software.FirstOrDefault(x => x.id_it_software == id_software);
+                        asignacion_software.asignado_a = id_empleado;
+
+                        break;
+                }
+
+                db.SaveChanges();
+
+                envioCorreo.SendEmailAsync(correos, "Actividad pendiente en Matriz de Requerimientos.", 
+                    envioCorreo.getBodyActividadPendienteMatrizRequerimientos(solicitud,tipo, tipo_descripcion, empleadoActual.ConcatNombre, mensaje ));
+
+                list[0] = new { result = "OK", message = "El mensaje fue enviado." };                
+            }
+            else
+                list[0] = new { result = "ERROR", message = "No se pudo obtener el empleado o la solicitud." };
+
+            return Json(list, JsonRequestBehavior.AllowGet);
         }
 
     }
