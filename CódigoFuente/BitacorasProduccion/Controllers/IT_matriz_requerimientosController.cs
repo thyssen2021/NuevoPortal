@@ -1824,7 +1824,7 @@ namespace Portal_2_0.Controllers
 
 
                     //envía notificacion de solicitud de usuario
-                    if (matriz.estatus == IT_MR_Status.EN_PROCESO)
+                    if (matriz.estatus == IT_MR_Status.EN_PROCESO || tipoSolicitud.ToUpper().Contains("UPDATE"))
                     {
                         // envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de Usuarios #" + matriz.id + " ha sido actualizada.", envioCorreo.getBody_IT_MR_Notificacion_En_Proceso(matriz));
                         TempData["Mensaje"] = new MensajesSweetAlert("Se ha actualizado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
@@ -1840,7 +1840,7 @@ namespace Portal_2_0.Controllers
                         envioCorreo.SendEmailAsync(correos, "La Solicitud de Requerimientos de usuarios #" + matriz.id + " ha sido cerrada o ha sido actualizada.", envioCorreo.getBody_IT_MR_Notificacion_Cierre(matriz));
                         TempData["Mensaje"] = new MensajesSweetAlert("Se ha cerrado la solicitud correctamente.", TipoMensajesSweetAlerts.SUCCESS);
 
-                    }
+                    } 
                     return RedirectToAction("solicitudes_sistemas");
                 }
                 catch (Exception ex)
