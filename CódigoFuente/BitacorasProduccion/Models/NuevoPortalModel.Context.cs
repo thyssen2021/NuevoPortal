@@ -66,7 +66,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<IT_solicitud_usuarios> IT_solicitud_usuarios { get; set; }
         public virtual DbSet<log_acceso_email> log_acceso_email { get; set; }
         public virtual DbSet<log_inicio_sesion> log_inicio_sesion { get; set; }
-        public virtual DbSet<mm_v3> mm_v3 { get; set; }
         public virtual DbSet<notificaciones_correo> notificaciones_correo { get; set; }
         public virtual DbSet<orden_trabajo> orden_trabajo { get; set; }
         public virtual DbSet<OT_grupo_trabajo> OT_grupo_trabajo { get; set; }
@@ -162,5 +161,6 @@ namespace Portal_2_0.Models
         public virtual DbSet<produccion_datos_entrada> produccion_datos_entrada { get; set; }
         public virtual DbSet<IT_asignacion_hardware> IT_asignacion_hardware { get; set; }
         public virtual DbSet<IT_matriz_software> IT_matriz_software { get; set; }
+        public virtual DbSet<mm_v3> mm_v3 { get; set; }
     }
 }

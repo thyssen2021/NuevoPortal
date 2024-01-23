@@ -1162,7 +1162,7 @@ namespace Portal_2_0.Controllers
                     fuenteThyssen.SetTextAlignment(TextAlignment.JUSTIFIED);
                     pTitle = new Paragraph("\n\n").Add(new Tab());
                     pTitle.AddTabStops(new TabStop(1550, TabAlignment.RIGHT));
-                    pTitle.Add("Se hace entrega del equipo de cómputo, así como accesorios propiedad de thyssenkrupp Materials de México S.A. de C.V. al empleado inscrito en este documento" +
+                    pTitle.Add("Se hace entrega de "+ tipoHardware.descripcion.ToLower() + ", así como accesorios propiedad de thyssenkrupp Materials de México S.A. de C.V. al empleado inscrito en este documento" +
                         " para utilizarse como herramienta de trabajo en el desempeño de sus funciones, el cual deberá regirse bajo el Reglamento del Grupo de seguridad de la " +
                         "información (RE-CO-GPI-0216-V01-ES) y la Política interna de IT-tkMM (ITE001) vigentes.")
                         .AddStyle(fuenteThyssen);

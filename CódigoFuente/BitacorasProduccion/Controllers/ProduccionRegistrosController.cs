@@ -428,6 +428,11 @@ namespace Portal_2_0.Controllers
                 if (class_2 == null)
                     class_2 = new class_v3 { };
 
+                //agrega las piezas por golpe en caso de existir
+                if (produccion.produccion_datos_entrada.piezas_por_golpe == null && mm.num_piezas_golpe != null) {
+                    produccion.produccion_datos_entrada.piezas_por_golpe = mm.num_piezas_golpe;                
+                }
+
                 ViewBag.MM = mm;
                 ViewBag.Class = class_;
                 ViewBag.MM_2 = mm_2;

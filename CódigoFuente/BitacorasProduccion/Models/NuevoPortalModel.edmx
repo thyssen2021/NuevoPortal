@@ -1021,6 +1021,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_histor
           <Property Name="Min Weight" Type="float" />
           <Property Name="Maximum Weight" Type="float" />
           <Property Name="activo" Type="bit" Nullable="false" />
+          <Property Name="num_piezas_golpe" Type="int" />
         </EntityType>
         <EntityType Name="notificaciones_correo">
           <Key>
@@ -5867,43 +5868,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <Property Name="fecha" Type="DateTime" Nullable="false" Precision="3" />
           <NavigationProperty Name="AspNetUsers" Relationship="Self.FK_log_inicio_sesion_id_usuario" FromRole="log_inicio_sesion" ToRole="AspNetUsers" />
         </EntityType>
-        <EntityType Name="mm_v3">
-          <Key>
-            <PropertyRef Name="Material" />
-            <PropertyRef Name="Plnt" />
-          </Key>
-          <Property Name="Material" Type="String" MaxLength="30" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Plnt" Type="String" MaxLength="30" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="MS" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
-          <Property Name="Material_Description" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Type_of_Material" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="Type_of_Metal" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="Old_material_no_" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
-          <Property Name="Head_and_Tails_Scrap_Conciliation" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Engineering_Scrap_conciliation" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Business_Model" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="Re_application" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="IHS_number_1" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="IHS_number_2" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="IHS_number_3" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="IHS_number_4" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="IHS_number_5" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Type_of_Selling" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Package_Pieces" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Gross_weight" Type="Double" />
-          <Property Name="Un_" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Net_weight" Type="Double" />
-          <Property Name="Un_1" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="Thickness" Type="Double" />
-          <Property Name="Width" Type="Double" />
-          <Property Name="Advance" Type="Double" />
-          <Property Name="Head_and_Tail_allowed_scrap" Type="Double" />
-          <Property Name="Pieces_per_car" Type="Double" />
-          <Property Name="Initial_Weight" Type="Double" />
-          <Property Name="Min_Weight" Type="Double" />
-          <Property Name="Maximum_Weight" Type="Double" />
-          <Property Name="activo" Type="Boolean" Nullable="false" />
-        </EntityType>
         <EntityType Name="notificaciones_correo">
           <Key>
             <PropertyRef Name="id" />
@@ -7275,7 +7239,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
           <EntitySet Name="IT_solicitud_usuarios" EntityType="Self.IT_solicitud_usuarios" />
           <EntitySet Name="log_acceso_email" EntityType="Self.log_acceso_email" />
           <EntitySet Name="log_inicio_sesion" EntityType="Self.log_inicio_sesion" />
-          <EntitySet Name="mm_v3" EntityType="Self.mm_v3" />
           <EntitySet Name="notificaciones_correo" EntityType="Self.notificaciones_correo" />
           <EntitySet Name="orden_trabajo" EntityType="Self.orden_trabajo" />
           <EntitySet Name="OT_grupo_trabajo" EntityType="Self.OT_grupo_trabajo" />
@@ -8151,6 +8114,7 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             <End Role="IT_matriz_requerimientos" EntitySet="IT_matriz_requerimientos" />
             <End Role="IT_matriz_software" EntitySet="IT_matriz_software" />
           </AssociationSet>
+          <EntitySet Name="mm_v3" EntityType="Portal_2_0Model.mm_v3" />
           </EntityContainer>
         <EntityType Name="GV_usuarios">
           <Key>
@@ -10878,6 +10842,44 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="mm_v3">
+          <Key>
+            <PropertyRef Name="Material" />
+            <PropertyRef Name="Plnt" />
+          </Key>
+          <Property Name="Material" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="Plnt" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="MS" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="Material_Description" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Type_of_Material" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Type_of_Metal" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Old_material_no_" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="Head_and_Tails_Scrap_Conciliation" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Engineering_Scrap_conciliation" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Business_Model" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Re_application" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="IHS_number_1" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="IHS_number_2" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="IHS_number_3" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="IHS_number_4" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="IHS_number_5" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Type_of_Selling" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Package_Pieces" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Gross_weight" Type="Double" />
+          <Property Name="Un_" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Net_weight" Type="Double" />
+          <Property Name="Un_1" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Thickness" Type="Double" />
+          <Property Name="Width" Type="Double" />
+          <Property Name="Advance" Type="Double" />
+          <Property Name="Head_and_Tail_allowed_scrap" Type="Double" />
+          <Property Name="Pieces_per_car" Type="Double" />
+          <Property Name="Initial_Weight" Type="Double" />
+          <Property Name="Min_Weight" Type="Double" />
+          <Property Name="Maximum_Weight" Type="Double" />
+          <Property Name="activo" Type="Boolean" Nullable="false" />
+          <Property Name="num_piezas_golpe" Type="Int32" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -11350,43 +11352,6 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
                 <ScalarProperty Name="id" ColumnName="id" />
                 <ScalarProperty Name="id_usuario" ColumnName="id_usuario" />
                 <ScalarProperty Name="fecha" ColumnName="fecha" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="mm_v3">
-            <EntityTypeMapping TypeName="Portal_2_0Model.mm_v3">
-              <MappingFragment StoreEntitySet="mm_v3">
-                <ScalarProperty Name="Material" ColumnName="Material" />
-                <ScalarProperty Name="Plnt" ColumnName="Plnt" />
-                <ScalarProperty Name="MS" ColumnName="MS" />
-                <ScalarProperty Name="Material_Description" ColumnName="Material Description" />
-                <ScalarProperty Name="Type_of_Material" ColumnName="Type of Material" />
-                <ScalarProperty Name="Type_of_Metal" ColumnName="Type of Metal" />
-                <ScalarProperty Name="Old_material_no_" ColumnName="Old material no#" />
-                <ScalarProperty Name="Head_and_Tails_Scrap_Conciliation" ColumnName="Head and Tails Scrap Conciliation" />
-                <ScalarProperty Name="Engineering_Scrap_conciliation" ColumnName="Engineering Scrap conciliation" />
-                <ScalarProperty Name="Business_Model" ColumnName="Business Model" />
-                <ScalarProperty Name="Re_application" ColumnName="Re-application" />
-                <ScalarProperty Name="IHS_number_1" ColumnName="IHS number 1" />
-                <ScalarProperty Name="IHS_number_2" ColumnName="IHS number 2" />
-                <ScalarProperty Name="IHS_number_3" ColumnName="IHS number 3" />
-                <ScalarProperty Name="IHS_number_4" ColumnName="IHS number 4" />
-                <ScalarProperty Name="IHS_number_5" ColumnName="IHS number 5" />
-                <ScalarProperty Name="Type_of_Selling" ColumnName="Type of Selling" />
-                <ScalarProperty Name="Package_Pieces" ColumnName="Package Pieces" />
-                <ScalarProperty Name="Gross_weight" ColumnName="Gross weight" />
-                <ScalarProperty Name="Un_" ColumnName="Un#" />
-                <ScalarProperty Name="Net_weight" ColumnName="Net weight" />
-                <ScalarProperty Name="Un_1" ColumnName="Un#1" />
-                <ScalarProperty Name="Thickness" ColumnName="Thickness" />
-                <ScalarProperty Name="Width" ColumnName="Width" />
-                <ScalarProperty Name="Advance" ColumnName="Advance" />
-                <ScalarProperty Name="Head_and_Tail_allowed_scrap" ColumnName="Head and Tail allowed scrap" />
-                <ScalarProperty Name="Pieces_per_car" ColumnName="Pieces per car" />
-                <ScalarProperty Name="Initial_Weight" ColumnName="Initial Weight" />
-                <ScalarProperty Name="Min_Weight" ColumnName="Min Weight" />
-                <ScalarProperty Name="Maximum_Weight" ColumnName="Maximum Weight" />
-                <ScalarProperty Name="activo" ColumnName="activo" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -12876,6 +12841,44 @@ advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budg
                 <ScalarProperty Name="id_it_software" ColumnName="id_it_software" />
                 <ScalarProperty Name="id_matriz_requerimientos" ColumnName="id_matriz_requerimientos" />
                 <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="mm_v3">
+            <EntityTypeMapping TypeName="Portal_2_0Model.mm_v3">
+              <MappingFragment StoreEntitySet="mm_v3">
+                <ScalarProperty Name="num_piezas_golpe" ColumnName="num_piezas_golpe" />
+                <ScalarProperty Name="activo" ColumnName="activo" />
+                <ScalarProperty Name="Maximum_Weight" ColumnName="Maximum Weight" />
+                <ScalarProperty Name="Min_Weight" ColumnName="Min Weight" />
+                <ScalarProperty Name="Initial_Weight" ColumnName="Initial Weight" />
+                <ScalarProperty Name="Pieces_per_car" ColumnName="Pieces per car" />
+                <ScalarProperty Name="Head_and_Tail_allowed_scrap" ColumnName="Head and Tail allowed scrap" />
+                <ScalarProperty Name="Advance" ColumnName="Advance" />
+                <ScalarProperty Name="Width" ColumnName="Width" />
+                <ScalarProperty Name="Thickness" ColumnName="Thickness" />
+                <ScalarProperty Name="Un_1" ColumnName="Un#1" />
+                <ScalarProperty Name="Net_weight" ColumnName="Net weight" />
+                <ScalarProperty Name="Un_" ColumnName="Un#" />
+                <ScalarProperty Name="Gross_weight" ColumnName="Gross weight" />
+                <ScalarProperty Name="Package_Pieces" ColumnName="Package Pieces" />
+                <ScalarProperty Name="Type_of_Selling" ColumnName="Type of Selling" />
+                <ScalarProperty Name="IHS_number_5" ColumnName="IHS number 5" />
+                <ScalarProperty Name="IHS_number_4" ColumnName="IHS number 4" />
+                <ScalarProperty Name="IHS_number_3" ColumnName="IHS number 3" />
+                <ScalarProperty Name="IHS_number_2" ColumnName="IHS number 2" />
+                <ScalarProperty Name="IHS_number_1" ColumnName="IHS number 1" />
+                <ScalarProperty Name="Re_application" ColumnName="Re-application" />
+                <ScalarProperty Name="Business_Model" ColumnName="Business Model" />
+                <ScalarProperty Name="Engineering_Scrap_conciliation" ColumnName="Engineering Scrap conciliation" />
+                <ScalarProperty Name="Head_and_Tails_Scrap_Conciliation" ColumnName="Head and Tails Scrap Conciliation" />
+                <ScalarProperty Name="Old_material_no_" ColumnName="Old material no#" />
+                <ScalarProperty Name="Type_of_Metal" ColumnName="Type of Metal" />
+                <ScalarProperty Name="Type_of_Material" ColumnName="Type of Material" />
+                <ScalarProperty Name="Material_Description" ColumnName="Material Description" />
+                <ScalarProperty Name="MS" ColumnName="MS" />
+                <ScalarProperty Name="Plnt" ColumnName="Plnt" />
+                <ScalarProperty Name="Material" ColumnName="Material" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

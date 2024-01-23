@@ -45,5 +45,6 @@ namespace Portal_2_0.Models
         public Nullable<double> Min_Weight { get; set; }
         public Nullable<double> Maximum_Weight { get; set; }
         public bool activo { get; set; }
+        public Nullable<int> num_piezas_golpe { get; set; }
     }
 }

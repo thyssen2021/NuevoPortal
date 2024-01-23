@@ -46,7 +46,6 @@
         <EntityTypeShape EntityType="Portal_2_0Model.IT_solicitud_usuarios" Width="1.5" PointX="15.75" PointY="78.625" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.log_acceso_email" Width="1.5" PointX="7.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.log_inicio_sesion" Width="1.5" PointX="5.25" PointY="2.25" IsExpanded="true" />
-        <EntityTypeShape EntityType="Portal_2_0Model.mm_v3" Width="1.5" PointX="4.75" PointY="9.75" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.notificaciones_correo" Width="1.5" PointX="15.75" PointY="90.5" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.orden_trabajo" Width="1.5" PointX="18.75" PointY="82.625" IsExpanded="true" />
         <EntityTypeShape EntityType="Portal_2_0Model.OT_grupo_trabajo" Width="1.5" PointX="16.5" PointY="97.875" IsExpanded="true" />
@@ -337,6 +336,7 @@
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_hardware_id_it_asignacion_software" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_software_id_it_software" />
         <AssociationConnector Association="Portal_2_0Model.FK_IT_matriz_software_id_matriz_requerimientos" />
+        <EntityTypeShape EntityType="Portal_2_0Model.mm_v3" Width="1.5" PointX="5.375" PointY="9.75" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
