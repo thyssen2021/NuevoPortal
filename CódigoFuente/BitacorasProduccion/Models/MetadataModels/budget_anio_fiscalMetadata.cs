@@ -44,7 +44,10 @@ namespace Portal_2_0.Models
                 return String.Empty;
 
             DateTime fechaComparacion = new DateTime(anio, mes, 1, 0, 0, 0);
+            DateTime fechaFinAnoPresente = new DateTime(fechaActual.Year, 10, 1, 0, 0, 0);
 
+            if (fechaComparacion >= fechaFinAnoPresente)
+                return "BG";
             if (fechaActual <= fechaComparacion)
                 return "FC";
             else

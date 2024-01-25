@@ -28,11 +28,11 @@
         responsables = responsables.Substring(0, 90) + "...";
     }
 
-    bool controlling = ViewBag.controlling != null? (bool)ViewBag.controlling:false;
-    bool import = ViewBag.import != null? (bool)ViewBag.import:false;
+    bool controlling = ViewBag.controlling != null ? (bool)ViewBag.controlling : false;
+    bool import = ViewBag.import != null ? (bool)ViewBag.import : false;
 
     //determina si los meses son actual o no
-    bool isActualOctubre =  controlling ? false : rel_presente.budget_anio_fiscal.isActual(10) == "ACT";
+    bool isActualOctubre = controlling ? false : rel_presente.budget_anio_fiscal.isActual(10) == "ACT";
     bool isActualNoviembre = controlling ? false : rel_presente.budget_anio_fiscal.isActual(11) == "ACT";
     bool isActualDiciembre = controlling ? false : rel_presente.budget_anio_fiscal.isActual(12) == "ACT";
     bool isActualEnero = controlling ? false : rel_presente.budget_anio_fiscal.isActual(1) == "ACT";
@@ -59,7 +59,34 @@
     <link href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" rel="stylesheet">
 
     <style>
-
+        .btn-documento-pendiente {
+            display: inline-block;
+            color: #6d6d6d;
+            border: 1px solid #CCC;
+            background: #f8f3b7;
+            box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
+            cursor: pointer;
+            vertical-align: middle;
+            width: 99%;
+            height: 80%;
+            border-radius: 5px;
+            padding: 0px;
+            text-align: center;
+        }
+        .btn-documento-agregado {
+            display: inline-block;
+            color: #edecec;
+            border: 1px solid #CCC;
+            background: green;
+            box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
+            cursor: pointer;
+            vertical-align: middle;
+            width: 99%;
+            height: 80%;
+            border-radius: 5px;
+            padding: 0px;
+            text-align: center;
+        }
         dl {
             border: 3px double #ccc;
             padding: 0.5em;
@@ -169,6 +196,7 @@
         .handsontable .aplica-formula {
             background: repeating-linear-gradient( -50deg, #fff 10px, #fff 20px, #edecec 20px, #edecec 30px );
         }
+
         .handsontable .aplica-form-readonly {
             background: repeating-linear-gradient( -50deg, #dedede 10px, #dedede 20px, #edecec 20px, #edecec 30px );
         }
@@ -239,7 +267,7 @@
                             <div class="form-group row">
                                 <h4 style="color:#7c7c7c"><b>Tipo de Cambio FC FY @rel_presente.budget_anio_fiscal.descripcion</b></h4>
                             </div>
-                        </div>                     
+                        </div>
 
                         <div class="col-sm-12" id="ht-tipo-cambio">
 
@@ -1720,6 +1748,8 @@
            {
                type: 'text'
            },
+           { readOnly: true, className: 'htMiddle', renderer: "html" }
+
        ],
        cells: function(row, col) {
            let cellProperties = {}
@@ -2452,7 +2482,7 @@
 
            hot2.setDataAtCell(Number(rowFormula), Number(columnFormula), $('#val_result').val());
 
-           conceptos_calculados = conceptos_calculados.filter((element) => element[0] !== rowFormula.toString() || element[1] !== columnFormula.toString());
+           conceptos_calculados = conceptos_calculados.filter((element) => element[4] !== _cuenta_sap.toString() || element[1] !== columnFormula.toString());
 
            if (document.getElementById("val_a")) {
                conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_a').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_a').val(), $('#val_a').val()])
@@ -2503,7 +2533,7 @@
    function ObtieneForm(row, column, cuenta_sap, id_bd_fy_centro, mes, currency, isReadonly) {
 
        //ver si es posible obtener los valores del array conceptos_calculados
-       var datosPrevios = conceptos_calculados.filter((element) => element[0] === row.toString() && element[1] === column.toString());
+       var datosPrevios = conceptos_calculados.filter((element) => element[4] === cuenta_sap && element[1] === column.toString());
        let _a = "",
            _b = "",
            _c = "",
@@ -2643,7 +2673,7 @@
 
        //Agrega el evento a todos los input
        $(".concepto-formula").each(function() {
-           $(this).on('input', function(e) {
+           $(this).on('keyup change clear input', function(e) {
 
                ActualizaCantidadInput();
            });
@@ -2857,8 +2887,8 @@
 
                            exito = true;
 
-                           if (salir && result == "OK") {                              
-                                   window.location.href = "../Centros/";                              
+                           if (salir && result == "OK") {
+                                   window.location.href = "../Centros/";
                            }
 
                        } catch (error) {
@@ -3042,7 +3072,7 @@
    function cargaDatosIniciales() {
 
 
-       
+
        $.ajax({
            type: 'POST',
            url: '/ResponsableBudget/CargaFY',
@@ -3177,6 +3207,106 @@
                                    },
                                },
                                sp2: '---------',
+                               habilitaCelda: {
+                                   name() { // `name` can be a string or a function
+                                       return '<i>Habilitar Celda</i>'; // Name can contain HTML
+                                   },
+                                   hidden() {
+                                       console.log(columnasEditables)
+                                       let columnSelected = this.getSelectedLast()[1];
+                                       return "@controlling" === "@(false)" || !columnasEditables.includes(columnSelected)
+                                   },
+                                   callback(key, selection, clickEvent) { // Callback for specific option
+                                      let rowSelected = this.getSelectedLast()[0];
+                                       let columnSelected = this.getSelectedLast()[1];
+
+                                       //habilita la celda
+                                       hot2.updateSettings({
+                                           cells: function(row, col) {
+                                           var cellProperties = {};
+
+                                           //habilita la celda
+                                           if (row == rowSelected && col == columnSelected) {
+                                               cellProperties.readOnly = false;
+                                               return cellProperties;
+                                           }
+
+                                            //obtiene el sufijo para saber si es editable
+                                            let suffix = '';
+                                            switch (col) {
+                                                case 3:
+                                                case 7:
+                                                case 11:
+                                                case 15:
+                                                case 19:
+                                                case 23:
+                                                case 27:
+                                                case 31:
+                                                case 35:
+                                                case 39:
+                                                case 43:
+                                                case 47:
+                                                    suffix = 'MXN';
+                                                    break;
+                                                case 4:
+                                                case 8:
+                                                case 12:
+                                                case 16:
+                                                case 20:
+                                                case 24:
+                                                case 28:
+                                                case 32:
+                                                case 36:
+                                                case 40:
+                                                case 44:
+                                                case 48:
+                                                    suffix = 'USD';
+                                                    break;
+                                                case 5:
+                                                case 9:
+                                                case 13:
+                                                case 17:
+                                                case 21:
+                                                case 25:
+                                                case 29:
+                                                case 33:
+                                                case 37:
+                                                case 41:
+                                                case 45:
+                                                case 49:
+                                                    suffix = 'EUR';
+                                                    break;
+                                            }
+
+                                             //determina si el campo es readonly, segun el tipo de moneda
+                                            if (columnasEditables.includes(col)) {
+
+
+                                                if (hot2.getDataAtCell(row, GetColFromName(headers2, "Aplica" + suffix)) == '@(false)') {
+                                                    cellProperties.readOnly = true;
+                                                    cellProperties.className = 'no-comments';
+                                                } else if (hot2.getDataAtCell(row, GetColFromName(headers2, "AplicaFormula")) === '@(true)') {
+                                                    cellProperties.readOnly = true;
+                                                    cellProperties.className = 'aplica-formula';
+                                                }
+                                            }
+                                            //aplica formato para formula readonly
+                                            if (columnasNoEditables.includes(col) && hot2.getDataAtCell(row, GetColFromName(headers2, "AplicaFormula")) === '@(true)' && hot2.getDataAtCell(row, GetColFromName(headers2, "Aplica" + suffix)) == '@(true)') {
+                                                cellProperties.className = 'aplica-form-readonly';
+                                            }
+
+                                            //vuelve readonly la última fila (totales)
+                                            if (row == hot2.countRows() - 1) {
+                                                cellProperties.readOnly = true;
+                                            }
+                                            return cellProperties;
+                                        },
+                                       });
+
+                                      //console.log('HABILITANDO CELDA: ' + rowSelected + '-' + columnSelected)
+
+                                  }
+                               },
                                aplicaFormula: { // Own custom option
                                    name() { // `name` can be a string or a function
                                        return '<b>Calcular...</b>'; // Name can contain HTML
@@ -3218,6 +3348,8 @@
                        },
                        cell: cm
                    });
+
+
 
 
                } catch (error) {
@@ -3479,6 +3611,15 @@
         }
     })
 
+        //muestra formulario de documento soporte
+        function muestraSoporte(id_rel_fy_cc, id_cuenta_sap) {  
+            //obtiene fila y columna
+            let rowSelected = hot2.getSelectedLast()[0];
+            let columnSelected = hot2.getSelectedLast()[1];
+
+            popupCenterRU({ url: '/@ViewBag.ControllerName/EditarSoporte/?id_rel_fy_cc=' + id_rel_fy_cc + '&id_cuenta_sap=' + id_cuenta_sap, title: 'Documento Soporte', w: screen.width * .60, h: screen.height * .60, id_rel_fy_cc: id_rel_fy_cc, id_cuenta_sap: id_cuenta_sap, columnSelected: columnSelected, rowSelected: rowSelected });
+        }
+
    //determina el mes en base al número de columna
    function getMonthByColumn(columnSelected) {
        let m = 0;
@@ -3572,7 +3713,90 @@
            }
        }
        return -1; //return -1 if nothing can be found
-   }
+        }
+
+    const popupCenterRU = ({ url, title, w, h, id_rel_fy_cc, id_cuenta_sap, columnSelected, rowSelected }) => {
+            // Fixes dual-screen position                             Most browsers      Firefox
+            const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX;
+            const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY;
+
+            const width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+            const height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+            const systemZoom = width / window.screen.availWidth;
+            var left = (screen.width / 2) - (w / 2);
+            var top = (screen.height / 2) - (h / 2);
+
+            const newWindow = window.open(url, title,
+                `
+                   scrollbars=yes,
+                   width=${1000},
+                   height=${600},
+                   top=${top},
+                   left=${left}
+                 `
+            )
+
+            if (window.focus) newWindow.focus();
+
+            //DETERMINA SI LA VENTANA HA SIDO CERRADA
+            var tiempo = 0;
+            var interval = setInterval(function () {
+                //Comprobamos que la ventana no este cerrada
+                if (newWindow.closed !== false) {
+                    //Si la ventana ha sido cerrada, limpiamos el contador
+                    window.clearInterval(interval)
+
+                    //window.location.reload();
+                    ActualizaBoton(id_rel_fy_cc, id_cuenta_sap, rowSelected, columnSelected )
+
+                   // hot2.setDataAtCell(rowSelected, columnSelected, "<button>nuevo</button>");
+
+                    //Deshabilita el contador
+                    //stop = false;
+                } else {
+                    //Mientras no se cierra la ventana sumamos los segundos
+                    tiempo += 1;
+                }
+            }, 1000)
+
+        }
+
+    function ActualizaBoton(id_rel_fy_cc, id_cuenta_sap, rowSelected, columnSelected) {
+        //agrega evento OnChange para saber si el empleado tiene usuari
+            $.ajax({
+                type: 'POST',
+                url: '/ResponsableBudget/obtieneBotonDocumento',
+                data: { id_rel_fy_cc: id_rel_fy_cc, id_cuenta_sap: id_cuenta_sap },
+                success: function (data) {
+                    try {
+                        btnText = data[0].existe;
+                        if (data[0].correcto == true)
+                            hot2.setDataAtCell(rowSelected, columnSelected, data[0].html);
+
+                    }
+                    catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Ocurrió un error obteniendo la información: ' + error,
+                            confirmButtonText: 'Aceptar',
+                        })
+                    }
+                },
+                error: function (textStatus, errorThrown) {
+                    //en caso de error en la llamada ajax
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Ocurrió un error',
+                        text: 'Intente nuevamente.'
+                    })
+                },
+                async: false
+            });
+
+        
+    }
 
    function Recordatorio() {
        Swal.fire('Recordatorio', 'Recuerde guardar sus cambios constantemente, para evitar la pérdida de información.', 'info')

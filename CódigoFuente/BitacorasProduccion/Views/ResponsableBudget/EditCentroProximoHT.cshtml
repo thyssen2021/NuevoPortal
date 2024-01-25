@@ -1,6 +1,5 @@
 ﻿@model Portal_2_0.Models.budget_centro_costo
 @using Bitacoras.Util
-@using Clases.Util;
 
 @{
 
@@ -8,7 +7,7 @@
     Portal_2_0.Models.budget_rel_fy_centro rel_presente = (Portal_2_0.Models.budget_rel_fy_centro)ViewBag.rel_presente;
     Portal_2_0.Models.budget_rel_fy_centro rel_proximo = (Portal_2_0.Models.budget_rel_fy_centro)ViewBag.rel_proximo;
 
-    ViewBag.Title = "Detalles FY " + rel_presente.budget_anio_fiscal.descripcion;
+    ViewBag.Title = "BG FY " + rel_proximo.budget_anio_fiscal.descripcion;
     ViewBag.PrimerNivel = "plantilla_budget";
     ViewBag.SegundoNivel = "centros";
     ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
@@ -16,7 +15,7 @@
 
 
     Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
-    bool import = ViewBag.import != null ? (bool)ViewBag.import : false;
+
 
     //lee los valores necesarios para los headers
     string[] headersForecast = (string[])ViewBag.HeadersForecast2;
@@ -29,22 +28,21 @@
         responsables = responsables.Substring(0, 90) + "...";
     }
 
-    //obtiene el valor de si es proximo o no
-    bool esProximo = (bool)ViewBag.proximo;
-
     //determina si los meses son actual o no
-    bool isActualOctubre = true;
-    bool isActualNoviembre = true;
-    bool isActualDiciembre = true;
-    bool isActualEnero = true;
-    bool isActualFebrero = true;
-    bool isActualMarzo = true;
-    bool isActualAbril = true;
-    bool isActualMayo = true;
-    bool isActualJunio = true;
-    bool isActualJulio = true;
-    bool isActualAgosto = true;
-    bool isActualSeptiembre = true;
+    bool isActualOctubre = false;
+    bool isActualNoviembre = false;
+    bool isActualDiciembre = false;
+    bool isActualEnero = false;
+    bool isActualFebrero = false;
+    bool isActualMarzo = false;
+    bool isActualAbril = false;
+    bool isActualMayo = false;
+    bool isActualJunio = false;
+    bool isActualJulio = false;
+    bool isActualAgosto = false;
+    bool isActualSeptiembre = false;
+
+
 
 }
 
@@ -60,35 +58,7 @@
     <link href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" rel="stylesheet">
 
     <style>
-        .btn-documento-pendiente {
-            display: inline-block;
-            color: #6d6d6d;
-            border: 1px solid #CCC;
-            background: #f8f3b7;
-            box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
-            cursor: pointer;
-            vertical-align: middle;
-            width: 99%;
-            height: 80%;
-            border-radius: 5px;
-            padding: 0px;
-            text-align: center;
-        }
 
-        .btn-documento-agregado {
-            display: inline-block;
-            color: #edecec;
-            border: 1px solid #CCC;
-            background: green;
-            box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
-            cursor: pointer;
-            vertical-align: middle;
-            width: 99%;
-            height: 80%;
-            border-radius: 5px;
-            padding: 0px;
-            text-align: center;
-        }
         dl {
             border: 3px double #ccc;
             padding: 0.5em;
@@ -235,7 +205,7 @@
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
-                        @if (!rel_presente.estatus)
+                        @if (!rel_proximo.estatus)
                         {
                             <div class="form-group row">
 
@@ -263,63 +233,11 @@
                                 </dl>
                             </div>
                         </div>
-                        <div class="col-sm-12">
-
-                            @if (import)
-                            {
-
-                                <div class="ln_solid"></div>
-                                <div class="form-group row">
-                                    <span style="color:black"><b>UPLOAD DATA</b></span>
-                                </div>
-
-                                using (Html.BeginForm("ImportActual", "BudgetControlling", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", @id = "myForm" }))
-                                {
-                                    @Html.AntiForgeryToken()
-
-                                    @Html.HiddenFor(model => model.id)
-                                    @Html.HiddenFor(model => model.num_centro_costo)
-                                    @Html.HiddenFor(model => model.descripcion)
-
-                                    @* input para saber si está o no activo el campo de soporte *@
-                                    <input type="hidden" name="cambio_documento" id="cambio_documento" value="0" />
-
-                                    if (!Html.ViewData.ModelState.IsValid)
-                                    {
-                                        <div class="alert alert-danger" role="alert">
-                                            @Html.ValidationSummary("", "Advertencia:")
-                                        </div>
-                                    }
-
-                                    <div class="form-group row">
-                                        @Html.LabelFor(model => model.PostedFile, new { @class = "control-label col-md-1 text_derecha" })
-                                        <div class="col-md-5">
-
-                                            <div class="input-group">
-                                                <div class="custom-file">
-                                                    @Html.TextBoxFor(m => m.PostedFile, new { @class = "custom-file-input", type = "file", @accept = ".xlsx", @required = "required" })
-                                                    <label class="custom-file-label" for="PostedFileSoporte" style="text-align:left">Seleccione un archivo...</label>
-                                                </div>
-                                            </div>
-                                            @Html.ValidationMessageFor(m => m.PostedFile, "", new { @class = "text-danger" })
-                                        </div>
-
-                                        <div class="col-md-2">
-                                            <div>
-                                                <input type="button" value="Load File" class="btn btn-success float-right" onclick="showDialog()" />
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                }
-                            }
-                        </div>
-
 
                         <div class="col-sm-12">
                             <div class="ln_solid"></div>
                             <div class="form-group row">
-                                <h4 style="color:#7c7c7c"><b>Tipo de Cambio FC FY @rel_presente.budget_anio_fiscal.descripcion</b></h4>
+                                <h4 style="color:#7c7c7c"><b>Tipo de Cambio @ViewBag.title</b></h4>
                             </div>
                         </div>
                         <div class="col-sm-12" id="ht-tipo-cambio">
@@ -335,10 +253,10 @@
                                     <a class="nav-link" id="ht-actual-tab" data-toggle="tab" href="#ht-actual" role="tab" aria-controls="ht-actual" onclick="ResetScroll()" aria-selected="true">ACT FY  @rel_anterior.budget_anio_fiscal.descripcion</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link  @(!esProximo?"active":string.Empty)" id="ht-forecast-tab" data-toggle="tab" href="#ht-forecast" role="tab" aria-controls="ht-forecast" onclick="ResetScroll()" aria-selected="false">FC FY @rel_presente.budget_anio_fiscal.descripcion</a>
+                                    <a class="nav-link" id="ht-forecast-tab" data-toggle="tab" href="#ht-forecast" role="tab" aria-controls="ht-forecast" onclick="ResetScroll()" aria-selected="false">FC FY @rel_presente.budget_anio_fiscal.descripcion</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link  @(esProximo?"active":string.Empty)" id="ht-budget-tab" data-toggle="tab" href="#ht-budget" role="tab" aria-controls="ht-budget" onclick="ResetScroll()" aria-selected="false">BG FY @rel_proximo.budget_anio_fiscal.descripcion</a>
+                                    <a class="nav-link active" id="ht-budget-tab" data-toggle="tab" href="#ht-budget" role="tab" aria-controls="ht-budget" onclick="ResetScroll()" aria-selected="false">BG FY @rel_proximo.budget_anio_fiscal.descripcion</a>
                                 </li>
                             </ul>
 
@@ -348,12 +266,12 @@
                                     <div class="form-group row">
                                     </div>
                                 </div>
-                                <div class="tab-pane fade @(!esProximo?"show active":string.Empty)" id="ht-forecast" role="tabpanel" aria-labelledby="ht-forecast-tab">
+                                <div class="tab-pane fade" id="ht-forecast" role="tabpanel" aria-labelledby="ht-forecast-tab">
                                     <div class="form-group row">
 
                                     </div>
                                 </div>
-                                <div class="tab-pane fade  @(esProximo?"show active":string.Empty)" id="ht-budget" role="tabpanel" aria-labelledby="ht-budget-tab">
+                                <div class="tab-pane fade show active" id="ht-budget" role="tabpanel" aria-labelledby="ht-budget-tab">
                                     <div class="form-group row">
                                     </div>
                                 </div>
@@ -363,76 +281,14 @@
                     <div class="col-md-12">
                         <div class="ln_solid"></div>
                         <button type="button" id="btn-clear_filters" class="btn btn-danger  float-lg-left"><i class="fa-solid fa-filter-circle-xmark"></i>  Borrar Filtros</button>
-                        @*<button type="button" id="btn-submit-salir" class="btn btn-info float-lg-right"><i class="fa-solid fa-save"></i>  Guardar y salir</button>
-                            <button type="button" id="btn-submit" class="btn btn-success float-lg-right"><i class="fa-solid fa-save"></i>  Guardar y continuar</button>*@
+                        <button type="button" id="btn-submit-salir" class="btn btn-info float-lg-right"><i class="fa-solid fa-save"></i>  Guardar y salir</button>
+                        <button type="button" id="btn-submit" class="btn btn-success float-lg-right"><i class="fa-solid fa-save"></i>  Guardar y continuar</button>
                     </div>
-                    @if (User.IsInRole(TipoRoles.BG_CONTROLLING))
-
-                    {
-                        <div class="col-md-12">
-                            <div class="ln_solid"></div>
-                            <a href="@Url.Action("Exportar", "BudgetControlling", new
-                                                {
-                                                      id_centro_costo = Model.id
-
-                                                })" class="btn btn-success" target="_blank" title="Reporte">
-                                <i class="fa fa-cloud-download"></i> Export to Excel
-                            </a>
-
-                            @*<a href="@Url.Action("ImportActual", "BudgetControlling", new
-                                                {
-                                                    id = Model.id
-
-                                                })" class="btn btn-info btm-sm" title="Import Actual">
-                                <i class="fa fa-cloud-upload"></i> Import
-                            </a>*@
-
-
-                            @if (rel_proximo != null && rel_proximo.estatus)
-                            {
-                                <a class="btn btn-danger float-right" title="Lock" style="color:white" onclick="showLockDialog(@rel_proximo.id)">
-                                    <i class="fa fa-lock"></i> Lock Budget
-                                </a>
-                            }
-                            else if (rel_proximo == null)
-                            {
-                                <a class="btn btn-warning float-right disabled" title="Unlock" style="color:white">
-                                    <i class="fa fa-unlock"></i> Unlock Budget
-                                </a>
-                            }
-                            else
-                            {
-                                <a class="btn btn-warning float-right" title="Unlock" style="color:white" onclick="showUnlockDialog(@rel_proximo.id)">
-                                    <i class="fa fa-unlock"></i> Unlock Budget
-                                </a>
-                            }
-                            @if (rel_presente != null && rel_presente.estatus)
-                            {
-                                <a class="btn btn-danger float-right" title="Lock" style="color:white" onclick="showLockDialog(@rel_presente.id)">
-                                    <i class="fa fa-lock"></i> Lock Forecast
-                                </a>
-                            }
-                            else if (rel_presente == null)
-                            {
-                                <a class="btn btn-warning float-right disabled" title="Unlock" style="color:white">
-                                    <i class="fa fa-unlock"></i> Unlock Forecast
-                                </a>
-                            }
-                            else
-                            {
-                                <a class="btn btn-warning float-right" title="Unlock" style="color:white" onclick="showUnlockDialog(@rel_presente.id)">
-                                    <i class="fa fa-unlock"></i> Unlock Forecast
-                                </a>
-                            }
-                        </div>
-
-                    }
-
                 </div>
             </div>
             <div>
                 <br />
-                <a href="@Url.Action("Centros", ViewBag.ControllerName)" class="btn btn-round btn-info" title="Volver" style="color:white">
+                <a onclick="volverAtras()" class="btn btn-round btn-info" title="Volver" style="color:white">
                     <i class="fa fa-arrow-circle-left"></i> Volver al listado
                 </a>
             </div>
@@ -474,7 +330,6 @@
     <script src="https://handsontable.com/docs/8.3.1/components/numbro/dist/languages.min.js"></script>
     <!-- input mask -->
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
-    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
 
     <script>
 
@@ -625,7 +480,7 @@
        cells: function(row, col) {
            var cellProperties = {};
 
-           if (row == 1) {
+           if (row == 2) {
                cellProperties.className = 'tipoCambio';
            }
 
@@ -644,23 +499,23 @@
            headers1_actual,
            headers2
        ],
-        afterGetColHeader: function(col, TH) {
-        var TR = TH.parentNode;
-        var THEAD = TR.parentNode;
-        var headerLevel = (-1) * THEAD.childNodes.length + Array.prototype.indexOf.call(THEAD.childNodes, TR);
+         afterGetColHeader: function(col, TH) {
+           var TR = TH.parentNode;
+           var THEAD = TR.parentNode;
+           var headerLevel = (-1) * THEAD.childNodes.length + Array.prototype.indexOf.call(THEAD.childNodes, TR);
 
-        function applyClass(elem, className) {
-            if (!Handsontable.dom.hasClass(elem, className)) {
-                Handsontable.dom.addClass(elem, className);
-            }
-        }
-        if (col == -1) {
-            applyClass(TH, 'HTgray');
-        } else if (col >= 3) {
-                applyClass(TH, 'HTdarkgray');
-        } else {
-            applyClass(TH, 'HTblue');
-        }
+           function applyClass(elem, className) {
+               if (!Handsontable.dom.hasClass(elem, className)) {
+                   Handsontable.dom.addClass(elem, className);
+               }
+           }
+           if (col == -1) {
+               applyClass(TH, 'HTgray');
+           } else if (col >= 3) {
+                   applyClass(TH, 'HTdarkgray');
+           } else {
+               applyClass(TH, 'HTblue');
+           }
        },
        columns: [{
                readOnly: true
@@ -1169,16 +1024,6 @@
            {
                type: 'text'
            },
-           {
-               type: 'text'
-           },
-           {
-               type: 'text'
-           },
-           {
-               type: 'text'
-           },
-           { readOnly: true, className: 'htMiddle', renderer: "html" }
        ],
        cells: function(row, col) {
            let cellProperties = {}
@@ -1210,12 +1055,7 @@
        },
        hiddenColumns: {
            // specify columns hidden by default
-           columns: [GetColFromName(headers2, "AplicaFormula"),
-           GetColFromName(headers2, "AplicaMXN"),
-           GetColFromName(headers2, "AplicaUSD"),
-           GetColFromName(headers2, "AplicaEUR")
-           ],
-           //indicators: true,
+           columns: [GetColFromName(headers2, "AplicaFormula")], //contains ID
        },
        filters: true,
        dropdownMenu: ['filter_by_condition', 'filter_action_bar'],
@@ -1232,10 +1072,12 @@
        licenseKey: 'non-commercial-and-evaluation'
    });
 
-   hot2 = new Handsontable(container2, {
+
+    //año presente
+   hot3 = new Handsontable(container3, {
        data: [],
        nestedHeaders: [
-           headers1,
+           headers1_budget,
            headers2
        ],
        afterGetColHeader: function(col, TH) {
@@ -1257,73 +1099,73 @@
                        if ('@isActualOctubre' === '@true')
                            applyClass(TH, 'HTdarkgray');
                        else
-                           applyClass(TH, 'HTgreen');
+                           applyClass(TH, 'HTPurple');
                        break;
                    case 7: //noviembre
                        if ('@isActualNoviembre' === '@true')
                            applyClass(TH, 'HTdarkgray');
                        else
-                           applyClass(TH, 'HTgreen');
+                           applyClass(TH, 'HTPurple');
                        break;
                    case 11: //diciembre
                        if ('@isActualDiciembre' === '@true')
                            applyClass(TH, 'HTdarkgray');
                        else
-                           applyClass(TH, 'HTgreen');
+                           applyClass(TH, 'HTPurple');
                        break;
                    case 15: //enero
                        if ('@isActualEnero' === '@true')
                            applyClass(TH, 'HTdarkgray');
                        else
-                           applyClass(TH, 'HTgreen');
+                           applyClass(TH, 'HTPurple');
                        break;
                    case 19: //febrero
                        if ('@isActualFebrero' === '@true')
                            applyClass(TH, 'HTdarkgray');
                        else
-                           applyClass(TH, 'HTgreen');
+                           applyClass(TH, 'HTPurple');
                        break;
                    case 23: //marzo
                        if ('@isActualMarzo' === '@true')
                            applyClass(TH, 'HTdarkgray');
                        else
-                           applyClass(TH, 'HTgreen');
+                           applyClass(TH, 'HTPurple');
                        break;
                    case 27: //abril
                        if ('@isActualAbril' === '@true')
                            applyClass(TH, 'HTdarkgray');
                        else
-                           applyClass(TH, 'HTgreen');
+                           applyClass(TH, 'HTPurple');
                        break;
                    case 31: //MAYO
                        if ('@isActualMayo' === '@true')
                            applyClass(TH, 'HTdarkgray');
                        else
-                           applyClass(TH, 'HTgreen');
+                           applyClass(TH, 'HTPurple');
                        break;
                    case 35: //junio
                        if ('@isActualJunio' === '@true')
                            applyClass(TH, 'HTdarkgray');
                        else
-                           applyClass(TH, 'HTgreen');
+                           applyClass(TH, 'HTPurple');
                        break;
                    case 39: //julio
                        if ('@isActualJulio' === '@true')
                            applyClass(TH, 'HTdarkgray');
                        else
-                           applyClass(TH, 'HTgreen');
+                           applyClass(TH, 'HTPurple');
                        break;
                    case 43: //agosto
                        if ('@isActualAgosto' === '@true')
                            applyClass(TH, 'HTdarkgray');
                        else
-                           applyClass(TH, 'HTgreen');
+                           applyClass(TH, 'HTPurple');
                        break;
                    case 47: //septiembre
                        if ('@isActualSeptiembre' === '@true')
                            applyClass(TH, 'HTdarkgray');
                        else
-                           applyClass(TH, 'HTgreen');
+                           applyClass(TH, 'HTPurple');
                        break;
                    default:
                        applyClass(TH, 'HTblue');
@@ -1856,7 +1698,6 @@
            },
            //comentarios
            {
-               readOnly: true,
                validator: function(value, callback) {
                    let max = 200;
                    if (value != null && value.length > max) {
@@ -1881,7 +1722,6 @@
            {
                type: 'text'
            },
-           { readOnly: true, className: 'htMiddle', renderer: "html" }
        ],
        cells: function(row, col) {
            let cellProperties = {}
@@ -1937,10 +1777,11 @@
        licenseKey: 'non-commercial-and-evaluation'
    });
 
-   hot3 = new Handsontable(container3, {
+    //año´próximo
+   hot2 = new Handsontable(container2, {
        data: [],
        nestedHeaders: [
-           headers1_budget,
+           headers1,
            headers2
        ],
        afterGetColHeader: function (col, TH) {
@@ -1956,7 +1797,7 @@
            if (col == -1) {
                applyClass(TH, 'HTgray');
            } else if (col >= 3) {
-               applyClass(TH, 'HTPurple');
+               applyClass(TH, 'HTgreen');
            } else {
                applyClass(TH, 'HTblue');
            }
@@ -2465,19 +2306,9 @@
                callback(true);
            }
        },
-           {
-               type: 'text'
-           },
-           {
-               type: 'text'
-           },
-           {
-               type: 'text'
-           },
-           {
-               type: 'text'
-           },
-           { readOnly: true, className: 'htMiddle', renderer: "html" }
+       {
+           type: 'text'
+       },
        ],
        cells: function (row, col) {
            let cellProperties = {}
@@ -2509,12 +2340,7 @@
        },
        hiddenColumns: {
            // specify columns hidden by default
-           columns: [GetColFromName(headers2, "AplicaFormula"),
-           GetColFromName(headers2, "AplicaMXN"),
-           GetColFromName(headers2, "AplicaUSD"),
-           GetColFromName(headers2, "AplicaEUR")
-           ],
-           //indicators: true,
+           columns: [GetColFromName(headers2, "AplicaFormula")], //contains ID
        },
        filters: true,
        dropdownMenu: ['filter_by_condition', 'filter_action_bar'],
@@ -2578,8 +2404,8 @@
 
    $(document).ready(function() {
 
-       //inicializa en input file
-       bsCustomFileInput.init()
+       //inicializa hansontable
+       //inicializaHandsontable();
        //DefineValidadores();
        cargaDatosIniciales();
 
@@ -2608,11 +2434,6 @@
 
        setTimeout(Recordatorio, 600000); //diez minutos
 
-       //aumenta en uso cada vez que se hace un cambio en el archivo de soporte
-       $("#PostedFile").on("change", function () {
-           document.getElementById('cambio_documento').value = ++documento_soporte_cambios;
-       });
-
        $.unblockUI();
    });
 
@@ -2632,9 +2453,9 @@
        //si es readonly guarda el valor en la tabla
        if (_readOnly == '@(false)') {
 
-           hot2.setDataAtCell(Number(rowFormula), Number(columnFormula), $('#val_result').val());
+           hot3.setDataAtCell(Number(rowFormula), Number(columnFormula), $('#val_result').val());
 
-           conceptos_calculados = conceptos_calculados.filter((element) => element[0] !== rowFormula.toString() || element[1] !== columnFormula.toString());
+           conceptos_calculados = conceptos_calculados.filter((element) => element[4] !== _cuenta_sap.toString() || element[1] !== columnFormula.toString());
 
            if (document.getElementById("val_a")) {
                conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_a').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_a').val(), $('#val_a').val()])
@@ -2685,7 +2506,7 @@
    function ObtieneForm(row, column, cuenta_sap, id_bd_fy_centro, mes, currency, isReadonly) {
 
        //ver si es posible obtener los valores del array conceptos_calculados
-       var datosPrevios = conceptos_calculados.filter((element) => element[0] === row.toString() && element[1] === column.toString());
+       var datosPrevios = conceptos_calculados.filter((element) => element[4] === cuenta_sap && element[1] === column.toString());
        let _a = "",
            _b = "",
            _c = "",
@@ -2774,7 +2595,7 @@
                    if (data[0].estatus == "OK") {
                        $('#id_modal_body').html(data[0].html);
                        //cambia el titulo del modal
-                       $('#exampleModalLongTitle').html(hot2.getDataAtCell(row, 1));
+                       $('#exampleModalLongTitle').html(hot3.getDataAtCell(row, 1));
                        $('#modalCalculo').modal('show')
                        AsignaEventos();
                        ActualizaCantidadInput();
@@ -2825,7 +2646,7 @@
 
        //Agrega el evento a todos los input
        $(".concepto-formula").each(function() {
-           $(this).on('input', function(e) {
+           $(this).on('keyup change clear input', function(e) {
 
                ActualizaCantidadInput();
            });
@@ -2913,25 +2734,22 @@
    function EnviaFormulario(salir) {
 
        //borra los filtros
-       hot2.getPlugin('Filters').clearConditions();
-       hot2.getPlugin('Filters').filter();
-       hot2.render();
+       hot3.getPlugin('Filters').clearConditions();
+       hot3.getPlugin('Filters').filter();
+       hot3.render();
 
        //convierte los elementos del array en string
        let arrayToString = [];
-       let dataTable = hot2.getData();
+       let dataTable = hot3.getData();
 
        //deja fuera la sumatorioa
        for (var i = 0; i < dataTable.length; i++) {
            arrayToString.push(dataTable[i]);
        }
-       //console.log(JSON.stringify(arrayToString));
-
-       // console.log(JSON.stringify(arrayToString));
 
        let exito = false;
 
-       hot2.validateCells((valid) => {
+       hot3.validateCells((valid) => {
            if (valid) {
 
                // ... code for validated cells
@@ -2939,7 +2757,7 @@
                    type: "POST",
                    dataType: "json",
                    contentType: 'application/json; charset=utf-8',
-                   url: '/ResponsableBudget/EditCentroHT?id=' + @rel_presente.id,
+                   url: '/ResponsableBudget/EditCentroHT?id=' + @rel_proximo.id,
                    data: JSON.stringify(arrayToString),
                    success: function(data) {
                        try {
@@ -2984,7 +2802,7 @@
                    type: "POST",
                    dataType: "json",
                    contentType: 'application/json; charset=utf-8',
-                   url: '/ResponsableBudget/SaveComments?id_rel=' + @rel_presente.id,
+                   url: '/ResponsableBudget/SaveComments?id_rel=' + @rel_proximo.id,
                    data: JSON.stringify(comentarios),
                    success: function(data) {
                        try {
@@ -3024,7 +2842,7 @@
                    type: "POST",
                    dataType: "json",
                    contentType: 'application/json; charset=utf-8',
-                   url: '/ResponsableBudget/SaveConceptosCapturados?id_rel=' + @rel_presente.id,
+                   url: '/ResponsableBudget/SaveConceptosCapturados?id_rel=' + @rel_proximo.id,
                    data: JSON.stringify(options),
                    success: function(data) {
 
@@ -3203,13 +3021,13 @@
 
    //obtiene los comentarios
    function GetComments() {
-       var comments = hot2.getCellsMeta().filter(function(meta) {
+       var comments = hot3.getCellsMeta().filter(function(meta) {
            return meta.comment !== void 0;
        }).map(function(meta) {
 
-           let cuenta_sap = hot2.getDataAtCell(meta.row, 0);
+           let cuenta_sap = hot3.getDataAtCell(meta.row, 0);
            return {
-               id_budget_rel_fy_centro: @rel_presente.id,
+               id_budget_rel_fy_centro: @rel_proximo.id,
                numero_cuenta_sap: cuenta_sap,
                mes: getMonthByColumn(meta.col),
                currency_iso: columnasMonedaLocal.includes(meta.col) ? "USD" : headers2[meta.col],
@@ -3230,17 +3048,17 @@
            url: '/ResponsableBudget/CargaFY',
            data: {
                id_centro_costo: @Model.id,
-               id_fy: @rel_presente.id_anio_fiscal
+               id_fy: @rel_proximo.id_anio_fiscal
            },
            success: function(data) {
                try {
                    //console.log(data);
-                   hot2.loadData(data);
+                   hot3.loadData(data);
 
-                   let cm = CargaComentarios(2);
+                   let cm = CargaComentarios(3);
 
                    //actualiza la confuguracion de la tabla
-                   hot2.updateSettings({
+                   hot3.updateSettings({
                        cells: function(row, col) {
                            var cellProperties = {};
 
@@ -3295,21 +3113,21 @@
                            if (columnasEditables.includes(col)) {
 
 
-                               if (hot2.getDataAtCell(row, GetColFromName(headers2, "Aplica" + suffix)) == '@(false)') {
+                               if (hot3.getDataAtCell(row, GetColFromName(headers2, "Aplica" + suffix)) == '@(false)') {
                                    cellProperties.readOnly = true;
                                    cellProperties.className = 'no-comments';
-                               } else if (hot2.getDataAtCell(row, GetColFromName(headers2, "AplicaFormula")) === '@(true)') {
+                               } else if (hot3.getDataAtCell(row, GetColFromName(headers2, "AplicaFormula")) === '@(true)') {
                                    cellProperties.readOnly = true;
                                    cellProperties.className = 'aplica-formula';
                                }
                            }
                            //aplica formato para formula readonly
-                           if (columnasNoEditables.includes(col) && hot2.getDataAtCell(row, GetColFromName(headers2, "AplicaFormula")) === '@(true)' && hot2.getDataAtCell(row, GetColFromName(headers2, "Aplica" + suffix)) == '@(true)') {
+                           if (columnasNoEditables.includes(col) && hot3.getDataAtCell(row, GetColFromName(headers2, "AplicaFormula")) === '@(true)' && hot3.getDataAtCell(row, GetColFromName(headers2, "Aplica" + suffix)) == '@(true)') {
                                cellProperties.className = 'aplica-form-readonly';
                            }
 
                            //vuelve readonly la última fila (totales)
-                           if (row == hot2.countRows() - 1) {
+                           if (row == hot3.countRows() - 1) {
                                cellProperties.readOnly = true;
                            }
                            return cellProperties;
@@ -3338,7 +3156,7 @@
                                        if (rowSelected < 0 || columnSelected < 0)
                                            return true;
 
-                                       let _class = hot2.getCell(rowSelected, columnSelected, false).getAttribute("class");
+                                       let _class = hot3.getCell(rowSelected, columnSelected, false).getAttribute("class");
                                        let noComments = _class.includes("no-comments");
 
                                        return (!columnasEditables.includes(columnSelected) && !columnasSumatoriasComentarioEditable.includes(columnSelected)) || noComments; // `this` === hot
@@ -3376,7 +3194,7 @@
                                        if (rowSelected < 0 || columnSelected < 0)
                                            return true;
 
-                                       let _class = hot2.getCell(rowSelected, columnSelected, false).getAttribute("class");
+                                       let _class = hot3.getCell(rowSelected, columnSelected, false).getAttribute("class");
                                        let result = !_class.includes("aplica-formula");
 
                                        return result; // `this` === hot
@@ -3384,13 +3202,13 @@
                                    callback(key, selection, clickEvent) { // Callback for specific option
                                        let rowSelected = this.getSelectedLast()[0];
                                        let columnSelected = this.getSelectedLast()[1];
-                                       let cuenta_sap = hot2.getDataAtCell(rowSelected, 0);
+                                       let cuenta_sap = hot3.getDataAtCell(rowSelected, 0);
                                        let mes = getMonthByColumn(columnSelected);
                                        let currency = headers2[columnSelected];
 
                                        setTimeout(() => {
                                            // console.log('Row: ' + rowSelected + ' Column: ' + columnSelected + ' Cuenta: ' + cuenta_sap + ' mes: ' + mes + ' currency:' + currency)
-                                           ObtieneForm(rowSelected, columnSelected, cuenta_sap, @rel_presente.id, mes, currency, false);
+                                           ObtieneForm(rowSelected, columnSelected, cuenta_sap, @rel_proximo.id, mes, currency, false);
 
                                        }, 0);
                                    }
@@ -3524,16 +3342,16 @@
            url: '/ResponsableBudget/CargaFY',
            data: {
                id_centro_costo: @Model.id,
-               id_fy: @rel_proximo.id_anio_fiscal
+               id_fy: @rel_presente.id_anio_fiscal
            },
            success: function(data) {
                try {
-                   hot3.loadData(data);
+                   hot2.loadData(data);
 
-                   let cm = CargaComentarios(3);
+                   let cm = CargaComentarios(2);
 
                      //actualiza la confuguracion de la tabla
-                   hot3.updateSettings({
+                   hot2.updateSettings({
 
                        cells: function(row, col) {
                            var cellProperties = {};
@@ -3585,8 +3403,8 @@
 
                            //toma en cuenta todas las columnas
                            if ((columnasEditables.includes(col) || columnasNoEditables.includes(col))
-                               && hot3.getDataAtCell(row, GetColFromName(headers2, "AplicaFormula")) === '@(true)'
-                               && hot3.getDataAtCell(row, GetColFromName(headers2, "Aplica" + suffix)) == '@(true)'
+                               && hot2.getDataAtCell(row, GetColFromName(headers2, "AplicaFormula")) === '@(true)'
+                               && hot2.getDataAtCell(row, GetColFromName(headers2, "Aplica" + suffix)) == '@(true)'
                            ) {
                                cellProperties.className = 'aplica-form-readonly';
                            }
@@ -3742,189 +3560,8 @@
        return m;
    }
 
-        //muestra el modal para bloquear
-        function showLockDialog(idRelFYCentro) {
-            Swal.fire({
-                title: 'Confirmation',
-                text: "Are you sure you want to lock this cost center?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes!'
-            }).then((result) => {
-                if (result.isConfirmed) {
 
-                    //bloquea el centro de costo
-                    $.ajax({
-                        type: 'POST',
-                        url: '/BudgetControlling/CambiaEstatusRelFYCentro',
-                        data: { idRelFYCentro: idRelFYCentro, activo: false },
-                        success: function (data) {
-                            try {
-                                console.log(data);
-                                if (data[0].Status == "OK") {
-                                    //en caso de exito
-                                    Swal.fire({
-                                        title: 'Confirmation',
-                                        text: "The cost center has been locked!",
-                                        confirmButtonText: 'OK',
-                                        allowOutsideClick: false
-                                    }).then((result) => {
-                                        if (result.isConfirmed) {
-                                            // Vuelve a cargar la página actual sin la caché del navegador
-                                            location.reload();
-                                        }
-                                    })
 
-                                } else { //en caso de que el mensaje no sea exitoso muestra mensaje
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Ocurrió un error',
-                                        text: 'Ha ocurrido un error, intente nuevamente.'
-                                    })
-                                }
-                            } catch (error) {
-                                //en caso de que no ser muestre info de ningun tipo muestra error
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Ocurrió un error',
-                                    text: 'Ha ocurrido un error, intente nuevamente.'
-                                })
-                            }
-                        },
-                        error: function (textStatus, errorThrown) {
-                            //en caso de error en la llamada ajax
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Ocurrió un error',
-                                text: 'Ha ocurrido un error, intente nuevamente.'
-                            })
-                        },
-                        async: true
-                    });
-
-                }
-            })
-
-        }
-
-        //muestra el modal para desbloquear
-        function showUnlockDialog(idRelFYCentro) {
-            Swal.fire({
-                title: 'Confirmation',
-                text: "Are you sure you want to unlock this cost center?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-
-                    //bloquea el centro de costo
-                    $.ajax({
-                        type: 'POST',
-                        url: '/BudgetControlling/CambiaEstatusRelFYCentro',
-                        data: { idRelFYCentro: idRelFYCentro, activo: true },
-                        success: function (data) {
-                            try {
-                                console.log(data);
-                                if (data[0].Status == "OK") {
-                                    //en caso de exito
-                                    Swal.fire({
-                                        title: 'Confirmation',
-                                        text: "The cost center has been unlocked!",
-                                        confirmButtonText: 'OK',
-                                        allowOutsideClick: false
-                                    }).then((result) => {
-                                        if (result.isConfirmed) {
-                                            // Vuelve a cargar la página actual sin la caché del navegador
-                                            location.reload();
-                                        }
-                                    })
-
-                                } else { //en caso de que el mensaje no sea exitoso muestra mensaje
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Ocurrió un error',
-                                        text: 'Ha ocurrido un error, intente nuevamente.'
-                                    })
-                                }
-                            } catch (error) {
-                                //en caso de que no ser muestre info de ningun tipo muestra error
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Ocurrió un error',
-                                    text: 'Ha ocurrido un error, intente nuevamente.'
-                                })
-                            }
-                        },
-                        error: function (textStatus, errorThrown) {
-                            //en caso de error en la llamada ajax
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Ocurrió un error',
-                                text: 'Ha ocurrido un error, intente nuevamente.'
-                            })
-                        },
-                        async: true
-                    });
-
-                }
-            })
-
-        }
-
-        //muestra el modal para bloquear
-    function showDialog() {
-        Swal.fire({
-            title: 'Mensaje',
-            text: "Advertencia: los datos capturados se sobreescribirán, ¿Desea Continuar? ",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Continuar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $('#myForm').submit();
-            }
-        })
-
-    }
-      //muestra formulario de documento soporte
-  function muestraSoporte(id_rel_fy_cc, id_cuenta_sap) {
-      //obtiene fila y columna
-      let rowSelected = hot2.getSelectedLast()[0];
-      let columnSelected = hot2.getSelectedLast()[1];
-
-      popupCenterRU({ url: '/@ViewBag.ControllerName/EditarSoporte/?id_rel_fy_cc=' + id_rel_fy_cc + '&id_cuenta_sap=' + id_cuenta_sap, title: 'Documento Soporte', w: screen.width * .60, h: screen.height * .60, id_rel_fy_cc: id_rel_fy_cc, id_cuenta_sap: id_cuenta_sap, columnSelected: columnSelected, rowSelected: rowSelected });
-        }
-
-        const popupCenterRU = ({ url, title, w, h, id_rel_fy_cc, id_cuenta_sap, columnSelected, rowSelected }) => {
-            // Fixes dual-screen position                             Most browsers      Firefox
-            const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX;
-            const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY;
-
-            const width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
-            const height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
-
-            const systemZoom = width / window.screen.availWidth;
-            var left = (screen.width / 2) - (w / 2);
-            var top = (screen.height / 2) - (h / 2);
-
-            const newWindow = window.open(url, title,
-                `
-               scrollbars=yes,
-               width=${1000},
-               height=${600},
-               top=${top},
-               left=${left}
-             `
-            )          
-
-        }
    function GetColFromName(data, name) {
        var n_cols = data.length;
        var i = 1;

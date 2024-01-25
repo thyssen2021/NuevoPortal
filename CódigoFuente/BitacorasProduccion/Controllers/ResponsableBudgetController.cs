@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.Serialization;
@@ -36,8 +37,19 @@ namespace Portal_2_0.Controllers
                     ViewBag.MensajeAlert = TempData["Mensaje"];
                 }
 
-
                 var centros = db.budget_centro_costo.Where(x => x.budget_responsables.Any(y => y.id_responsable == empleado.id));
+
+                //envia año fiscal actual y proximo
+
+                //obtiene el año fiscal actual (forecast)
+                budget_anio_fiscal anio_Fiscal_actual = GetAnioFiscal(DateTime.Now);
+
+                //obtiene el año fiscal proximo (budget)
+                budget_anio_fiscal anio_Fiscal_proximo = GetAnioFiscal(DateTime.Now.AddYears(1));
+
+                ViewBag.IdFYactual = anio_Fiscal_actual != null ? anio_Fiscal_actual.id : 0;
+                ViewBag.IdFYproximo = anio_Fiscal_proximo != null ? anio_Fiscal_proximo.id : 0;
+
                 return View(centros.ToList());
             }
             else
@@ -47,7 +59,7 @@ namespace Portal_2_0.Controllers
 
         }
 
-        
+
 
         // GET: ResponsableBudget/EditCentroPresente
         public ActionResult EditCentroPresenteHT(int? id, int? id_fiscal_year, bool proximo = false, bool info = false, bool controlling = false, bool import = false)
@@ -97,7 +109,7 @@ namespace Portal_2_0.Controllers
                     return View("../Error/NotFound");
 
                 //cambia los años ficales si la vista es controlling
-                if (controlling && id_fiscal_year.HasValue)
+                if (id_fiscal_year.HasValue)
                 {
                     //presente
                     anio_Fiscal_actual = db.budget_anio_fiscal.Find(id_fiscal_year);
@@ -213,6 +225,7 @@ namespace Portal_2_0.Controllers
                 headersForecast.Add("aplicaMXN");
                 headersForecast.Add("AplicaUSD");
                 headersForecast.Add("AplicaEUR");
+                headersForecast.Add("Soporte");
 
                 ViewBag.HeadersForecast1_actual = JsonConvert.SerializeObject(cabeceraObjectActual);
                 ViewBag.HeadersForecast1_budget = JsonConvert.SerializeObject(cabeceraObjectBudget);
@@ -1024,12 +1037,32 @@ namespace Portal_2_0.Controllers
 
             var sapAccountsList = db.budget_cuenta_sap.ToList();
 
+            //obtiene el id fy cc
+            var fy_cc = fy.budget_rel_fy_centro.FirstOrDefault(x => x.id_anio_fiscal == id_fy && x.id_centro_costo == id_centro_costo);
+
+            //obtiene los documento
+            var doctosList = fy_cc.budget_rel_documento;
+
             for (int i = 0; i < valoresListAnioActual.Count(); i++)
             {
 
                 //obtine las tres monedas de la cantidad
                 var tipo_cambio_usd_mxn = fy.budget_rel_tipo_cambio_fy.FirstOrDefault(x => x.id_tipo_cambio == 1).cantidad.ToString();
                 var tipo_cambio_eur_usd = fy.budget_rel_tipo_cambio_fy.FirstOrDefault(x => x.id_tipo_cambio == 2).cantidad.ToString();
+
+                //valor por defecto
+                string btnDoc = "<button class='btn-documento-pendiente' onclick=\"muestraSoporte(" + fy_cc.id + ", " +
+                    valoresListAnioActual[i].id_cuenta_sap
+                    + ")\">" + (fy_cc.estatus ? "Agregar" : "Ver") + "</button>";
+
+                //valida si ya existe un documento para esta cuenta sap y rel fy cc
+                if (doctosList.Any(x => x.id_cuenta_sap == valoresListAnioActual[i].id_cuenta_sap))
+                {
+                    btnDoc = "<button class='btn-documento-agregado' onclick=\"muestraSoporte(" + fy_cc.id + ", " +
+                        valoresListAnioActual[i].id_cuenta_sap
+                        + ")\">"+ (fy_cc.estatus ? "Modificar" : "Ver") + "</button>";
+                }
+
 
                 jsonData.Add(new[] {
                     valoresListAnioActual[i].sap_account,
@@ -1091,7 +1124,8 @@ namespace Portal_2_0.Controllers
                     sapAccountsList.Any(x=> x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_formula == true).ToString(),
                     sapAccountsList.Any(x=> x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_mxn == true).ToString(),
                     sapAccountsList.Any(x=> x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_usd == true).ToString(),
-                    sapAccountsList.Any(x=> x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_eur == true).ToString()
+                    sapAccountsList.Any(x=> x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_eur == true).ToString(),
+                    btnDoc
                     });
 
 
@@ -1264,22 +1298,29 @@ namespace Portal_2_0.Controllers
                         valor = currency == "MXN" ? concepto.valor_defecto_mxn.ToString() : currency == "USD" ? concepto.valor_defecto_usd.ToString() : currency == "EUR" ? concepto.valor_defecto_eur.ToString() : "0.0";
                 }
 
+                //habilita o deshabilita conceptos segun cuenta sap
+                bool readonlyConcepto = false;
+                if ((cuenta_sap == "610030" || cuenta_sap == "610040") && (concepto.clave == "d" || concepto.clave == "e" || concepto.clave == "f") && currency == "MXN")
+                    readonlyConcepto = true;
+                if ((cuenta_sap == "610030" || cuenta_sap == "610040") && (concepto.clave == "a" || concepto.clave == "b" || concepto.clave == "c") && currency == "USD")
+                    readonlyConcepto = true;
+
                 html += String.Format(@"
                 <input type=""hidden"" name=""id_rel_concepto_{0}"" id=""id_rel_concepto_{0}"" value=""" + concepto.id + @""">
                 <input type=""hidden"" name=""concepto_clave_{0}"" id=""concepto_clave_{0}"" value=""" + concepto.clave + @""">
-                <div class=""form-group row"">
-                    <label class=""control-label col-md-3 col-sm-3"" for=""val_{0}"" style=""text-align:right"">{1}:</label>
-                    <div class=""col-md-9"">
+                <div class=""form-group row"" style=""{5}"">
+                    <label class=""control-label col-md-6 col-sm-6"" for=""val_{0}"" style=""text-align:right"">{1}:</label>
+                    <div class=""col-md-6"">
                         <input type=""text"" class=""form-control concepto-formula"" name=""val_{0}"" id=""val_{0}"" {2} value=""{3}"" {4}/>
                         <span class=""field-validation-valid text-danger"" data-valmsg-for=""val_{0}"" data-valmsg-replace=""true""></span>
                     </div>
                 </div>", concepto.clave, concepto.descripcion, concepto.valor_fijo.HasValue && concepto.valor_fijo.Value ? "readonly" : string.Empty
-                , valor, readOnly ? "readonly" : string.Empty);
+                , valor, readOnly ? "readonly" : string.Empty, readonlyConcepto ? "display:none" : string.Empty);
             }
 
             html += String.Format(@" <div class=""form-group row"">
-                    <label class=""control-label col-md-3 col-sm-3"" for=""val_{0}"" style=""text-align:right"">{1}:</label>
-                    <div class=""col-md-9"">
+                    <label class=""control-label col-md-6 col-sm-6"" for=""val_{0}"" style=""text-align:right"">{1}:</label>
+                    <div class=""col-md-6"">
                         <input type=""text"" class=""form-control concepto-formula"" name=""val_{0}"" id=""val_{0}"" readonly />
                         <span class=""field-validation-valid text-danger"" data-valmsg-for=""val_{0}"" data-valmsg-replace=""true""></span>
                     </div>
@@ -1292,6 +1333,43 @@ namespace Portal_2_0.Controllers
             };
 
             return Json(formulario, JsonRequestBehavior.AllowGet);
+        }
+
+
+        ///<summary>
+        ///Obtiene el botonDeDocumento
+        ///</summary>
+        ///<return>
+        ///retorna un JsonResult con las opciones disponibles
+        public JsonResult obtieneBotonDocumento(int? id_rel_fy_cc, int? id_cuenta_sap)
+        {
+
+            //obtiene todos los posibles valores
+            budget_rel_documento doc = db.budget_rel_documento.FirstOrDefault(x => x.id_budget_rel_fy_centro == id_rel_fy_cc && x.id_cuenta_sap == id_cuenta_sap);
+
+            //inicializa la lista de objetos
+            var response = new object[1];
+
+            if (doc == null)
+            { //no hay correo
+                response[0] = new
+                {
+                    correcto = true,
+                    html = "<button class='btn-documento-pendiente' onclick=\"muestraSoporte(" + id_rel_fy_cc + ", " +
+                        id_cuenta_sap + ")\">Agregar</button>"
+                };
+            }
+            else //hay correo
+            {
+                response[0] = new
+                {
+                    correcto = true,
+                    html = "<button class='btn-documento-agregado' onclick=\"muestraSoporte(" + id_rel_fy_cc + ", " +
+                        id_cuenta_sap + ")\">Modificar</button>"
+                };
+            }
+
+            return Json(response, JsonRequestBehavior.AllowGet);
         }
 
 
@@ -1318,6 +1396,150 @@ namespace Portal_2_0.Controllers
             return null;
         }
 
+        public ActionResult EditarSoporte(int? id_rel_fy_cc, int? id_cuenta_sap)
+        {
+
+            if (!TieneRol(TipoRoles.BG_RESPONSABLE) && !TieneRol(TipoRoles.BG_CONTROLLING))
+                return View("../Home/ErrorPermisos");
+
+            if (id_rel_fy_cc == null || id_cuenta_sap == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            budget_rel_documento documento = db.budget_rel_documento.FirstOrDefault(x => x.id_budget_rel_fy_centro == id_rel_fy_cc && x.id_cuenta_sap == id_cuenta_sap);
+
+            //en caso de que no haya un documento en BD, genera uno vacio
+            if (documento == null)
+            {
+                documento = new budget_rel_documento
+                {
+                    id_budget_rel_fy_centro = id_rel_fy_cc.Value,
+                    id_cuenta_sap = id_cuenta_sap.Value,
+                    budget_rel_fy_centro = db.budget_rel_fy_centro.Find(id_rel_fy_cc),
+                    budget_cuenta_sap = db.budget_cuenta_sap.Find(id_cuenta_sap)
+                };
+            }
+            return View(documento);
+        }
+
+        // POST: PolizaManual/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
+        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditarSoporte(budget_rel_documento relDocumento, bool borrar)
+        {
+            //si es borrar
+            if (borrar)
+            {
+                //borra el rel
+                var relD = db.budget_rel_documento.Find(relDocumento.id);
+                db.budget_rel_documento.Remove(relD);
+                //borra el archivo de biblioteca digital
+                db.biblioteca_digital.Remove(db.biblioteca_digital.Find(relDocumento.id_documento));
+
+                db.SaveChanges();
+                //TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
+                return View("../RU_registros/Message");
+            }
+
+            biblioteca_digital archivo = new biblioteca_digital { };
+
+            //verifica si el tamaño del archivo es válido
+            if (relDocumento.ArchivoSoporte != null && relDocumento.ArchivoSoporte.InputStream.Length > 10485760)
+                ModelState.AddModelError("", "Sólo se permiten archivos menores a 10MB.");
+            else if (relDocumento.ArchivoSoporte != null)
+            { //verifica la extensión del archivo
+                string extension = Path.GetExtension(relDocumento.ArchivoSoporte.FileName);
+                if (extension.ToUpper() != ".XLS"   //si no contiene una extensión válida
+                               && extension.ToUpper() != ".XLSX"
+                               && extension.ToUpper() != ".DOC"
+                               && extension.ToUpper() != ".DOCX"
+                               && extension.ToUpper() != ".PDF"
+                               && extension.ToUpper() != ".PNG"
+                               && extension.ToUpper() != ".JPG"
+                               && extension.ToUpper() != ".JPEG"
+                               && extension.ToUpper() != ".RAR"
+                               && extension.ToUpper() != ".ZIP"
+                               && extension.ToUpper() != ".EML"
+                               )
+                    ModelState.AddModelError("", "Sólo se permiten archivos con extensión .xls, .xlsx, .doc, .docx, .pdf, .png, .jpg, .jpeg, .rar, .zip. y .eml");
+                else
+                { //si la extension y el tamaño son válidos
+                    String nombreArchivo = relDocumento.ArchivoSoporte.FileName;
+
+                    //recorta el nombre del archivo en caso de ser necesario
+                    if (nombreArchivo.Length > 80)
+                        nombreArchivo = nombreArchivo.Substring(0, 78 - extension.Length) + extension;
+
+                    //lee el archivo en un arreglo de bytes
+                    byte[] fileData = null;
+                    using (var binaryReader = new BinaryReader(relDocumento.ArchivoSoporte.InputStream))
+                    {
+                        fileData = binaryReader.ReadBytes(relDocumento.ArchivoSoporte.ContentLength);
+                    }
+
+                    //si tiene archivo hace un update sino hace un create
+                    if (relDocumento.id_documento.HasValue)//si tiene valor hace un update
+                    {
+                        archivo = db.biblioteca_digital.Find(relDocumento.id_documento.Value);
+                        archivo.Nombre = nombreArchivo;
+                        archivo.MimeType = UsoStrings.RecortaString(relDocumento.ArchivoSoporte.ContentType, 80);
+                        archivo.Datos = fileData;
+
+                        db.Entry(archivo).State = EntityState.Modified;
+                        db.SaveChanges();
+                    }
+                    else
+                    { //si no tiene hace un create 
+
+                        //genera el archivo de biblioteca digital
+                        archivo = new biblioteca_digital
+                        {
+                            Nombre = nombreArchivo,
+                            MimeType = UsoStrings.RecortaString(relDocumento.ArchivoSoporte.ContentType, 80),
+                            Datos = fileData
+                        };
+
+                        //update en BD
+                        db.biblioteca_digital.Add(archivo);
+                        db.SaveChanges();
+                    }
+
+                }
+            }
+
+            if (ModelState.IsValid)
+            {
+
+                //verifica si se creo un archivo
+                if (archivo.Id > 0) //si existe algún archivo en biblioteca digital
+                    relDocumento.id_documento = archivo.Id;
+
+
+                //si existe lo modifica
+                budget_rel_documento documento = db.budget_rel_documento.Find(relDocumento.id);
+
+                if (documento != null)
+                {
+                    documento.id_documento = relDocumento.id_documento;
+                    documento.comentario = relDocumento.comentario;
+                }
+                else
+                { //no existe, lo crea
+                    db.budget_rel_documento.Add(relDocumento);
+                }
+
+                db.SaveChanges();
+                //TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
+                return View("../RU_registros/Message");
+            }
+
+            relDocumento.budget_rel_fy_centro = db.budget_rel_fy_centro.Find(relDocumento.id_budget_rel_fy_centro);
+            relDocumento.budget_cuenta_sap = db.budget_cuenta_sap.Find(relDocumento.id_cuenta_sap);
+            return View(relDocumento);
+        }
 
 
         [NonAction]

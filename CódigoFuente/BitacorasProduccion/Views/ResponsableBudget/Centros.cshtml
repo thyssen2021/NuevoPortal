@@ -9,6 +9,9 @@
 
     Clases.Util.MensajesSweetAlert mensajeAlerta = (Clases.Util.MensajesSweetAlert)ViewBag.MensajeAlert;
     int fila = 1;
+
+    int id_fy_actual = (int)ViewBag.IdFYactual;
+    int id_fy_proximo = (int)ViewBag.IdFYproximo;
 }
 
 @section estilos
@@ -119,10 +122,10 @@
                                                         <a href="@Url.Action("EditCentroPresenteHT", ViewBag.ControllerName, new { id = item.id, info = true})" class="btn btn-info" title="Details">
                                                             <i class="fa fa-info-circle"></i> INFO
                                                         </a>
-                                                        <a href="@Url.Action("EditCentroPresenteHT", ViewBag.ControllerName, new { id = item.id})" class="btn btn-success " title="Edit">
+                                                        <a href="@Url.Action("EditCentroPresenteHT", ViewBag.ControllerName, new { id = item.id, id_fiscal_year = id_fy_actual})" class="btn btn-success " title="Edit">
                                                             <i class="fa-regular fa-pen-to-square"></i> FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))
                                                         </a>
-                                                        <a href="@Url.Action("EditCentroPresenteHT", ViewBag.ControllerName, new { id = item.id, proximo = true})" class="btn btn-success " style="background-color: #4d2bcc" title="Edit">
+                                                        <a href="@Url.Action("EditCentroPresenteHT", ViewBag.ControllerName, new { id = item.id, id_fiscal_year = id_fy_proximo})" class="btn btn-success " style="background-color: #4d2bcc" title="Edit">
                                                             <i class="fa-regular fa-pen-to-square"></i> FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))
                                                         </a>
                                                         <a href="@Url.Action("Exportar", "BudgetControlling", new

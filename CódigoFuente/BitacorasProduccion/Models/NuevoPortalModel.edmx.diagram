@@ -342,6 +342,10 @@
         <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_conceptos_formulas_id_budget_cuenta_sap" />
         <EntityTypeShape EntityType="Portal_2_0Model.budget_cantidad_budget_historico" Width="1.5" PointX="10.375" PointY="4.75" />
         <EntityTypeShape EntityType="Portal_2_0Model.view_valores_fiscal_year_budget_historico" Width="1.5" PointX="0.75" PointY="17.75" />
+        <EntityTypeShape EntityType="Portal_2_0Model.budget_rel_documento" Width="1.5" PointX="23.75" PointY="69.25" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_documento_id_documento" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_documento_id_cuenta_sap" />
+        <AssociationConnector Association="Portal_2_0Model.FK_budget_rel_documento_id_rel_fy_centro" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

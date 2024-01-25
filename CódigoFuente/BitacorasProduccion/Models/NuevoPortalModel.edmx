@@ -107,7 +107,7 @@
           <Property Name="moneda_local_usd" Type="bit" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.budget_cantidad_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.budget_cantidad_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="budget_cantidad_budget_historico">
           <Key>
             <PropertyRef Name="id" />
@@ -219,6 +219,16 @@ advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.budget_cantidad_budge
           <Property Name="valor_defecto_usd" Type="float" />
           <Property Name="valor_defecto_eur" Type="float" />
           <Property Name="valor_fijo" Type="bit" />
+        </EntityType>
+        <EntityType Name="budget_rel_documento">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_budget_rel_fy_centro" Type="int" Nullable="false" />
+          <Property Name="id_cuenta_sap" Type="int" Nullable="false" />
+          <Property Name="id_documento" Type="int" />
+          <Property Name="comentario" Type="varchar" MaxLength="180" />
         </EntityType>
         <EntityType Name="budget_rel_fy_centro">
           <Key>
@@ -1732,7 +1742,7 @@ advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.budget_cantidad_budge
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_historico_resultado">
           <Key>
             <PropertyRef Name="id" />
@@ -1826,7 +1836,7 @@ advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.view_historico_result
           <Property Name="comentario" Type="varchar" MaxLength="600" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_fiscal_year">
           <Key>
             <PropertyRef Name="id" />
@@ -1907,10 +1917,10 @@ advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.view_valores_fiscal_y
           <Property Name="Octubre_USD_LOCAL" Type="decimal" Precision="38" Scale="2" />
           <Property Name="Noviembre_USD_LOCAL" Type="decimal" Precision="38" Scale="2" />
           <Property Name="Diciembre_USD_LOCAL" Type="decimal" Precision="38" Scale="2" />
-          <Property Name="Comentario" Type="varchar" MaxLength="200" />
+          <Property Name="Comentario" Type="varchar" MaxLength="100" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.view_valores_fiscal_year_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_fiscal_year_budget_historico">
           <Key>
             <PropertyRef Name="id" />
@@ -2146,6 +2156,42 @@ advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.view_valores_fiscal_y
             </Principal>
             <Dependent Role="budget_rel_conceptos_formulas">
               <PropertyRef Name="id_budget_cuenta_sap" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_budget_rel_documento_id_cuenta_sap">
+          <End Role="budget_cuenta_sap" Type="Self.budget_cuenta_sap" Multiplicity="1" />
+          <End Role="budget_rel_documento" Type="Self.budget_rel_documento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="budget_cuenta_sap">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="budget_rel_documento">
+              <PropertyRef Name="id_cuenta_sap" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_budget_rel_documento_id_documento">
+          <End Role="biblioteca_digital" Type="Self.biblioteca_digital" Multiplicity="0..1" />
+          <End Role="budget_rel_documento" Type="Self.budget_rel_documento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="biblioteca_digital">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="budget_rel_documento">
+              <PropertyRef Name="id_documento" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_budget_rel_documento_id_rel_fy_centro">
+          <End Role="budget_rel_fy_centro" Type="Self.budget_rel_fy_centro" Multiplicity="1" />
+          <End Role="budget_rel_documento" Type="Self.budget_rel_documento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="budget_rel_fy_centro">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="budget_rel_documento">
+              <PropertyRef Name="id_budget_rel_fy_centro" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -4391,6 +4437,7 @@ advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.view_valores_fiscal_y
           <EntitySet Name="budget_rel_comentarios" EntityType="Self.budget_rel_comentarios" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="budget_rel_conceptos_cantidades" EntityType="Self.budget_rel_conceptos_cantidades" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="budget_rel_conceptos_formulas" EntityType="Self.budget_rel_conceptos_formulas" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="budget_rel_documento" EntityType="Self.budget_rel_documento" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="budget_rel_fy_centro" EntityType="Self.budget_rel_fy_centro" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="budget_rel_tipo_cambio_fy" EntityType="Self.budget_rel_tipo_cambio_fy" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="budget_responsables" EntityType="Self.budget_responsables" Schema="dbo" store:Type="Tables" />
@@ -4805,6 +4852,18 @@ advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.view_valores_fiscal_y
           <AssociationSet Name="FK_budget_rel_conceptos_formulas_id_budget_cuenta_sap" Association="Self.FK_budget_rel_conceptos_formulas_id_budget_cuenta_sap">
             <End Role="budget_cuenta_sap" EntitySet="budget_cuenta_sap" />
             <End Role="budget_rel_conceptos_formulas" EntitySet="budget_rel_conceptos_formulas" />
+          </AssociationSet>
+          <AssociationSet Name="FK_budget_rel_documento_id_cuenta_sap" Association="Self.FK_budget_rel_documento_id_cuenta_sap">
+            <End Role="budget_cuenta_sap" EntitySet="budget_cuenta_sap" />
+            <End Role="budget_rel_documento" EntitySet="budget_rel_documento" />
+          </AssociationSet>
+          <AssociationSet Name="FK_budget_rel_documento_id_documento" Association="Self.FK_budget_rel_documento_id_documento">
+            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
+            <End Role="budget_rel_documento" EntitySet="budget_rel_documento" />
+          </AssociationSet>
+          <AssociationSet Name="FK_budget_rel_documento_id_rel_fy_centro" Association="Self.FK_budget_rel_documento_id_rel_fy_centro">
+            <End Role="budget_rel_fy_centro" EntitySet="budget_rel_fy_centro" />
+            <End Role="budget_rel_documento" EntitySet="budget_rel_documento" />
           </AssociationSet>
           <AssociationSet Name="FK_budget_rel_fy_centro_id_anio_fiscal" Association="Self.FK_budget_rel_fy_centro_id_anio_fiscal">
             <End Role="budget_anio_fiscal" EntitySet="budget_anio_fiscal" />
@@ -5588,6 +5647,7 @@ advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.view_valores_fiscal_y
           <NavigationProperty Name="poliza_manual1" Relationship="Self.FK_poliza_manual_documento_soporte" FromRole="biblioteca_digital" ToRole="poliza_manual" />
           <NavigationProperty Name="IT_mantenimientos" Relationship="Portal_2_0Model.FK_IT_mantenimientos_id_biblioteca_digital" FromRole="biblioteca_digital" ToRole="IT_mantenimientos" />
           <NavigationProperty Name="empleados" Relationship="Portal_2_0Model.FK_empleados_id_fotografia" FromRole="biblioteca_digital" ToRole="empleados" />
+          <NavigationProperty Name="budget_rel_documento" Relationship="Portal_2_0Model.FK_budget_rel_documento_id_documento" FromRole="biblioteca_digital" ToRole="budget_rel_documento" />
         </EntityType>
         <EntityType Name="bom_en_sap">
           <Key>
@@ -5690,6 +5750,7 @@ advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.view_valores_fiscal_y
           <NavigationProperty Name="budget_centro_costo" Relationship="Self.FK_budget_rel_fy_centro_id_centro_costo" FromRole="budget_rel_fy_centro" ToRole="budget_centro_costo" />
           <NavigationProperty Name="budget_cantidad" Relationship="Portal_2_0Model.FK_budget_cantidad_id_rel_fy_centro" FromRole="budget_rel_fy_centro" ToRole="budget_cantidad" />
           <NavigationProperty Name="budget_rel_comentarios" Relationship="Portal_2_0Model.FK_budget_rel_comentarios_id_rel_fy_centro" FromRole="budget_rel_fy_centro" ToRole="budget_rel_comentarios" />
+          <NavigationProperty Name="budget_rel_documento" Relationship="Portal_2_0Model.FK_budget_rel_documento_id_rel_fy_centro" FromRole="budget_rel_fy_centro" ToRole="budget_rel_documento" />
         </EntityType>
         <EntityType Name="budget_responsables">
           <Key>
@@ -8350,6 +8411,19 @@ advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.view_valores_fiscal_y
           </AssociationSet>
           <EntitySet Name="budget_cantidad_budget_historico" EntityType="Portal_2_0Model.budget_cantidad_budget_historico" />
           <EntitySet Name="view_valores_fiscal_year_budget_historico" EntityType="Portal_2_0Model.view_valores_fiscal_year_budget_historico" />
+          <EntitySet Name="budget_rel_documento" EntityType="Portal_2_0Model.budget_rel_documento" />
+          <AssociationSet Name="FK_budget_rel_documento_id_documento" Association="Portal_2_0Model.FK_budget_rel_documento_id_documento">
+            <End Role="biblioteca_digital" EntitySet="biblioteca_digital" />
+            <End Role="budget_rel_documento" EntitySet="budget_rel_documento" />
+          </AssociationSet>
+          <AssociationSet Name="FK_budget_rel_documento_id_cuenta_sap" Association="Portal_2_0Model.FK_budget_rel_documento_id_cuenta_sap">
+            <End Role="budget_cuenta_sap" EntitySet="budget_cuenta_sap" />
+            <End Role="budget_rel_documento" EntitySet="budget_rel_documento" />
+          </AssociationSet>
+          <AssociationSet Name="FK_budget_rel_documento_id_rel_fy_centro" Association="Portal_2_0Model.FK_budget_rel_documento_id_rel_fy_centro">
+            <End Role="budget_rel_fy_centro" EntitySet="budget_rel_fy_centro" />
+            <End Role="budget_rel_documento" EntitySet="budget_rel_documento" />
+          </AssociationSet>
           </EntityContainer>
         <EntityType Name="GV_usuarios">
           <Key>
@@ -10916,7 +10990,7 @@ advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.view_valores_fiscal_y
           <Property Name="Octubre_USD_LOCAL" Type="Decimal" Precision="38" Scale="2" />
           <Property Name="Noviembre_USD_LOCAL" Type="Decimal" Precision="38" Scale="2" />
           <Property Name="Diciembre_USD_LOCAL" Type="Decimal" Precision="38" Scale="2" />
-          <Property Name="Comentario" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="Comentario" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="budget_rel_tipo_cambio_fy">
           <Key>
@@ -11053,6 +11127,7 @@ advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.view_valores_fiscal_y
           <NavigationProperty Name="budget_mapping" Relationship="Portal_2_0Model.FK_budget_cuenta_sap_id_mapping" FromRole="budget_cuenta_sap" ToRole="budget_mapping" />
           <NavigationProperty Name="budget_rel_comentarios" Relationship="Portal_2_0Model.FK_budget_rel_comentarios_id_cuenta_sap" FromRole="budget_cuenta_sap" ToRole="budget_rel_comentarios" />
           <NavigationProperty Name="budget_rel_conceptos_formulas" Relationship="Portal_2_0Model.FK_budget_rel_conceptos_formulas_id_budget_cuenta_sap" FromRole="budget_cuenta_sap" ToRole="budget_rel_conceptos_formulas" />
+          <NavigationProperty Name="budget_rel_documento" Relationship="Portal_2_0Model.FK_budget_rel_documento_id_cuenta_sap" FromRole="budget_cuenta_sap" ToRole="budget_rel_documento" />
         </EntityType>
         <Association Name="FK_budget_cantidad_id_cuenta_sap">
           <End Type="Portal_2_0Model.budget_cuenta_sap" Role="budget_cuenta_sap" Multiplicity="1" />
@@ -11203,6 +11278,55 @@ advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.view_valores_fiscal_y
           <Property Name="Diciembre_USD_LOCAL" Type="Decimal" Precision="38" Scale="2" />
           <Property Name="Comentario" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
         </EntityType>
+        <EntityType Name="budget_rel_documento">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_budget_rel_fy_centro" Type="Int32" Nullable="false" />
+          <Property Name="id_cuenta_sap" Type="Int32" Nullable="false" />
+          <Property Name="id_documento" Type="Int32" />
+          <Property Name="comentario" Type="String" MaxLength="180" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="biblioteca_digital" Relationship="Portal_2_0Model.FK_budget_rel_documento_id_documento" FromRole="budget_rel_documento" ToRole="biblioteca_digital" />
+          <NavigationProperty Name="budget_cuenta_sap" Relationship="Portal_2_0Model.FK_budget_rel_documento_id_cuenta_sap" FromRole="budget_rel_documento" ToRole="budget_cuenta_sap" />
+          <NavigationProperty Name="budget_rel_fy_centro" Relationship="Portal_2_0Model.FK_budget_rel_documento_id_rel_fy_centro" FromRole="budget_rel_documento" ToRole="budget_rel_fy_centro" />
+        </EntityType>
+        <Association Name="FK_budget_rel_documento_id_documento">
+          <End Type="Portal_2_0Model.biblioteca_digital" Role="biblioteca_digital" Multiplicity="0..1" />
+          <End Type="Portal_2_0Model.budget_rel_documento" Role="budget_rel_documento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="biblioteca_digital">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="budget_rel_documento">
+              <PropertyRef Name="id_documento" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_budget_rel_documento_id_cuenta_sap">
+          <End Type="Portal_2_0Model.budget_cuenta_sap" Role="budget_cuenta_sap" Multiplicity="1" />
+          <End Type="Portal_2_0Model.budget_rel_documento" Role="budget_rel_documento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="budget_cuenta_sap">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="budget_rel_documento">
+              <PropertyRef Name="id_cuenta_sap" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_budget_rel_documento_id_rel_fy_centro">
+          <End Type="Portal_2_0Model.budget_rel_fy_centro" Role="budget_rel_fy_centro" Multiplicity="1" />
+          <End Type="Portal_2_0Model.budget_rel_documento" Role="budget_rel_documento" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="budget_rel_fy_centro">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="budget_rel_documento">
+              <PropertyRef Name="id_budget_rel_fy_centro" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -13290,6 +13414,17 @@ advertencia 6002: La tabla o vista 'portal_2_0_calidad.dbo.view_valores_fiscal_y
                 <ScalarProperty Name="id_cuenta_sap" ColumnName="id_cuenta_sap" />
                 <ScalarProperty Name="id_centro_costo" ColumnName="id_centro_costo" />
                 <ScalarProperty Name="id_anio_fiscal" ColumnName="id_anio_fiscal" />
+                <ScalarProperty Name="id_budget_rel_fy_centro" ColumnName="id_budget_rel_fy_centro" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="budget_rel_documento">
+            <EntityTypeMapping TypeName="Portal_2_0Model.budget_rel_documento">
+              <MappingFragment StoreEntitySet="budget_rel_documento">
+                <ScalarProperty Name="comentario" ColumnName="comentario" />
+                <ScalarProperty Name="id_documento" ColumnName="id_documento" />
+                <ScalarProperty Name="id_cuenta_sap" ColumnName="id_cuenta_sap" />
                 <ScalarProperty Name="id_budget_rel_fy_centro" ColumnName="id_budget_rel_fy_centro" />
                 <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
