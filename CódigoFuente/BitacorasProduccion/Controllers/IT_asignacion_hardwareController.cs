@@ -140,7 +140,7 @@ namespace Portal_2_0.Controllers
         }
 
         // GET: IT_asignacion_hardware
-        public ActionResult responsivas(int? id_empleado, int? planta_clave, int? id_tipo_hardware, bool? estatus_responsiva, bool? asignacion_actual, int pagina = 1)
+        public ActionResult responsivas(int? id_empleado, int? planta_clave, int? id_tipo_hardware, bool? estatus_responsiva, bool? asignacion_actual, int? id_tipo_accesorio, int pagina = 1)
         {
             if (!TieneRol(TipoRoles.IT_ASIGNACION_HARDWARE))
                 return View("../Home/ErrorPermisos");
@@ -158,6 +158,7 @@ namespace Portal_2_0.Controllers
                    .Where(x =>
                        (x.IT_asignacion_hardware.id_empleado == id_empleado || id_empleado == null)
                        && (x.IT_asignacion_hardware.empleados.plantas.clave == planta_clave || planta_clave == null)
+                       && (id_tipo_accesorio == null || ((x.IT_inventory_items_genericos != null && x.IT_inventory_items_genericos.IT_inventory_tipos_accesorios.id== id_tipo_accesorio )  || (x.IT_inventory_items != null && x.IT_inventory_items.IT_inventory_tipos_accesorios.id == id_tipo_accesorio)))
                        && (estatus_responsiva == null || (x.IT_asignacion_hardware.id_biblioteca_digital.HasValue && estatus_responsiva.Value) || (!x.IT_asignacion_hardware.id_biblioteca_digital.HasValue && !estatus_responsiva.Value))
                        && (asignacion_actual == null || (x.IT_asignacion_hardware.es_asignacion_actual == asignacion_actual))
                         && ((x.IT_inventory_items != null && x.IT_inventory_items.IT_inventory_hardware_type.id == id_tipo_hardware)
@@ -172,6 +173,7 @@ namespace Portal_2_0.Controllers
                       .Where(x =>
                        (x.IT_asignacion_hardware.id_empleado == id_empleado || id_empleado == null)
                        && (x.IT_asignacion_hardware.empleados.plantas.clave == planta_clave || planta_clave == null)
+                       && (id_tipo_accesorio == null || ((x.IT_inventory_items_genericos != null && x.IT_inventory_items_genericos.IT_inventory_tipos_accesorios.id == id_tipo_accesorio) || (x.IT_inventory_items != null && x.IT_inventory_items.IT_inventory_tipos_accesorios.id == id_tipo_accesorio)))
                        && (estatus_responsiva == null || (x.IT_asignacion_hardware.id_biblioteca_digital.HasValue && estatus_responsiva.Value) || (!x.IT_asignacion_hardware.id_biblioteca_digital.HasValue && !estatus_responsiva.Value))
                        && (asignacion_actual == null || (x.IT_asignacion_hardware.es_asignacion_actual == asignacion_actual))
                         && ((x.IT_inventory_items != null && x.IT_inventory_items.IT_inventory_hardware_type.id == id_tipo_hardware)
@@ -213,6 +215,7 @@ namespace Portal_2_0.Controllers
             ViewBag.planta_clave = AddFirstItem(new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion", planta_clave.ToString()), textoPorDefecto: "-- Todas --");
             ViewBag.id_empleado = AddFirstItem(new SelectList(db.empleados.Where(x => x.planta_clave == planta_clave || planta_clave == null), "id", "ConcatNumEmpleadoNombre"), selected: id_empleado.ToString(), textoPorDefecto: "-- Todos --");
             ViewBag.id_tipo_hardware = AddFirstItem(new SelectList(db.IT_inventory_hardware_type, "id", nameof(IT_inventory_hardware_type.descripcion)), selected: id_tipo_hardware.ToString(), textoPorDefecto: "-- Todos --");
+            ViewBag.id_tipo_accesorio = AddFirstItem(new SelectList(db.IT_inventory_tipos_accesorios, "id", nameof(IT_inventory_tipos_accesorios.descripcion)), selected: id_tipo_accesorio.ToString(), textoPorDefecto: "-- Todos --");
 
             ViewBag.Paginacion = paginacion;
 
