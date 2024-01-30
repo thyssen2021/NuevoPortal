@@ -140,7 +140,7 @@ namespace Portal_2_0.Controllers
         }
 
         // GET: IT_asignacion_hardware
-        public ActionResult responsivas(int? id_empleado, int? planta_clave, int? id_tipo_hardware, bool? estatus_responsiva, bool? asignacion_actual, int? id_tipo_accesorio, int pagina = 1)
+        public ActionResult responsivas(int? id_empleado, int? planta_clave, int? id_tipo_hardware, bool? estatus_responsiva, bool? asignacion_actual, int? id_tipo_accesorio, string brand, int pagina = 1)
         {
             if (!TieneRol(TipoRoles.IT_ASIGNACION_HARDWARE))
                 return View("../Home/ErrorPermisos");
@@ -153,12 +153,46 @@ namespace Portal_2_0.Controllers
 
             var cantidadRegistrosPorPagina = 20; // parámetro
 
+            #region busca brand
+            //restablece brand
+            //busca brands
+            var totalRegistrosMenosBrand = db.IT_asignacion_hardware_rel_items
+                     .Where(x =>
+                      (x.IT_asignacion_hardware.id_empleado == id_empleado || id_empleado == null)
+                      && (x.IT_asignacion_hardware.empleados.plantas.clave == planta_clave || planta_clave == null)
+                     && (id_tipo_accesorio == null || ((x.IT_inventory_items_genericos != null && x.IT_inventory_items_genericos.IT_inventory_tipos_accesorios.id == id_tipo_accesorio) || (x.IT_inventory_items != null && x.IT_inventory_items.IT_inventory_tipos_accesorios.id == id_tipo_accesorio)))
+                      && (estatus_responsiva == null || (x.IT_asignacion_hardware.id_biblioteca_digital.HasValue && estatus_responsiva.Value) || (!x.IT_asignacion_hardware.id_biblioteca_digital.HasValue && !estatus_responsiva.Value))
+                      && (asignacion_actual == null || (x.IT_asignacion_hardware.es_asignacion_actual == asignacion_actual))
+                       && ((x.IT_inventory_items != null && x.IT_inventory_items.IT_inventory_hardware_type.id == id_tipo_hardware)
+                      || (x.IT_inventory_items_genericos != null && x.IT_inventory_items_genericos.IT_inventory_hardware_type.id == id_tipo_hardware) || id_tipo_hardware == null)
+                  // && x.activo == true
+                  );
+
+            //obtiene los brand disponibles
+            List<string> brandsList = new List<string>();
+            foreach (var item in totalRegistrosMenosBrand.Where(x => x.IT_inventory_items != null).Select(x => x.IT_inventory_items.brand).Distinct())
+            {
+                if (!string.IsNullOrEmpty(item))
+                    brandsList.Add(item);
+            }
+            foreach (var item in totalRegistrosMenosBrand.Where(x => x.IT_inventory_items_genericos != null).Select(x => x.IT_inventory_items_genericos.brand).Distinct())
+            {
+                if (!string.IsNullOrEmpty(item) && !brandsList.Any(x => string.Equals(x, item, StringComparison.OrdinalIgnoreCase)))
+                    brandsList.Add(item);
+            }
+
+            //si no existe brand, lo borra
+            if (!brandsList.Contains(brand))
+                brand = null;
+
+            #endregion
 
             var listado = db.IT_asignacion_hardware_rel_items
                    .Where(x =>
                        (x.IT_asignacion_hardware.id_empleado == id_empleado || id_empleado == null)
                        && (x.IT_asignacion_hardware.empleados.plantas.clave == planta_clave || planta_clave == null)
-                       && (id_tipo_accesorio == null || ((x.IT_inventory_items_genericos != null && x.IT_inventory_items_genericos.IT_inventory_tipos_accesorios.id== id_tipo_accesorio )  || (x.IT_inventory_items != null && x.IT_inventory_items.IT_inventory_tipos_accesorios.id == id_tipo_accesorio)))
+                       && (string.IsNullOrEmpty(brand) || ((x.IT_inventory_items_genericos != null && x.IT_inventory_items_genericos.brand == brand) || (x.IT_inventory_items != null && x.IT_inventory_items.brand == brand)))
+                       && (id_tipo_accesorio == null || ((x.IT_inventory_items_genericos != null && x.IT_inventory_items_genericos.IT_inventory_tipos_accesorios.id == id_tipo_accesorio) || (x.IT_inventory_items != null && x.IT_inventory_items.IT_inventory_tipos_accesorios.id == id_tipo_accesorio)))
                        && (estatus_responsiva == null || (x.IT_asignacion_hardware.id_biblioteca_digital.HasValue && estatus_responsiva.Value) || (!x.IT_asignacion_hardware.id_biblioteca_digital.HasValue && !estatus_responsiva.Value))
                        && (asignacion_actual == null || (x.IT_asignacion_hardware.es_asignacion_actual == asignacion_actual))
                         && ((x.IT_inventory_items != null && x.IT_inventory_items.IT_inventory_hardware_type.id == id_tipo_hardware)
@@ -169,18 +203,20 @@ namespace Portal_2_0.Controllers
                    .Skip((pagina - 1) * cantidadRegistrosPorPagina)
                   .Take(cantidadRegistrosPorPagina).ToList();
 
-            var totalDeRegistros = db.IT_asignacion_hardware_rel_items
+            var totalRegistrosBD = db.IT_asignacion_hardware_rel_items
                       .Where(x =>
                        (x.IT_asignacion_hardware.id_empleado == id_empleado || id_empleado == null)
                        && (x.IT_asignacion_hardware.empleados.plantas.clave == planta_clave || planta_clave == null)
+                       && (string.IsNullOrEmpty(brand) || ((x.IT_inventory_items_genericos != null && x.IT_inventory_items_genericos.brand == brand) || (x.IT_inventory_items != null && x.IT_inventory_items.brand == brand)))
                        && (id_tipo_accesorio == null || ((x.IT_inventory_items_genericos != null && x.IT_inventory_items_genericos.IT_inventory_tipos_accesorios.id == id_tipo_accesorio) || (x.IT_inventory_items != null && x.IT_inventory_items.IT_inventory_tipos_accesorios.id == id_tipo_accesorio)))
                        && (estatus_responsiva == null || (x.IT_asignacion_hardware.id_biblioteca_digital.HasValue && estatus_responsiva.Value) || (!x.IT_asignacion_hardware.id_biblioteca_digital.HasValue && !estatus_responsiva.Value))
                        && (asignacion_actual == null || (x.IT_asignacion_hardware.es_asignacion_actual == asignacion_actual))
                         && ((x.IT_inventory_items != null && x.IT_inventory_items.IT_inventory_hardware_type.id == id_tipo_hardware)
                        || (x.IT_inventory_items_genericos != null && x.IT_inventory_items_genericos.IT_inventory_hardware_type.id == id_tipo_hardware) || id_tipo_hardware == null)
                    // && x.activo == true
-                   )
-                .Count();
+                   );
+
+            var totalDeRegistros = totalRegistrosBD.Count();
 
             //para paginación
             System.Web.Routing.RouteValueDictionary routeValues = new System.Web.Routing.RouteValueDictionary();
@@ -210,8 +246,17 @@ namespace Portal_2_0.Controllers
             newListAsignacionActual.Add(new SelectListItem() { Text = "No", Value = "false" });
             SelectList selectListAsignacionActual = new SelectList(newListAsignacionActual, "Value", "Text");
 
+            //select list para brand
+            List<SelectListItem> newListBrand = new List<SelectListItem>();
+            foreach (var item in brandsList)
+            {
+                newListBrand.Add(new SelectListItem() { Text = item, Value = item });
+            }
+            SelectList selectListBrand = new SelectList(newListBrand, "Value", "Text");
+
             ViewBag.estatus_responsiva = AddFirstItem(selectListStatusResponsiva, selected: estatus_responsiva.ToString(), textoPorDefecto: "-- Todos --");
             ViewBag.asignacion_actual = AddFirstItem(selectListAsignacionActual, selected: asignacion_actual.ToString(), textoPorDefecto: "-- Todos --");
+            ViewBag.brand = AddFirstItem(selectListBrand, selected: brand, textoPorDefecto: "-- Todos --");
             ViewBag.planta_clave = AddFirstItem(new SelectList(db.plantas.Where(p => p.activo == true), "clave", "descripcion", planta_clave.ToString()), textoPorDefecto: "-- Todas --");
             ViewBag.id_empleado = AddFirstItem(new SelectList(db.empleados.Where(x => x.planta_clave == planta_clave || planta_clave == null), "id", "ConcatNumEmpleadoNombre"), selected: id_empleado.ToString(), textoPorDefecto: "-- Todos --");
             ViewBag.id_tipo_hardware = AddFirstItem(new SelectList(db.IT_inventory_hardware_type, "id", nameof(IT_inventory_hardware_type.descripcion)), selected: id_tipo_hardware.ToString(), textoPorDefecto: "-- Todos --");
@@ -1165,7 +1210,7 @@ namespace Portal_2_0.Controllers
                     fuenteThyssen.SetTextAlignment(TextAlignment.JUSTIFIED);
                     pTitle = new Paragraph("\n\n").Add(new Tab());
                     pTitle.AddTabStops(new TabStop(1550, TabAlignment.RIGHT));
-                    pTitle.Add("Se hace entrega de "+ tipoHardware.descripcion.ToLower() + ", así como accesorios propiedad de thyssenkrupp Materials de México S.A. de C.V. al empleado inscrito en este documento" +
+                    pTitle.Add("Se hace entrega de " + tipoHardware.descripcion.ToLower() + ", así como accesorios propiedad de thyssenkrupp Materials de México S.A. de C.V. al empleado inscrito en este documento" +
                         " para utilizarse como herramienta de trabajo en el desempeño de sus funciones, el cual deberá regirse bajo el Reglamento del Grupo de seguridad de la " +
                         "información (RE-CO-GPI-0216-V01-ES) y la Política interna de IT-tkMM (ITE001) vigentes.")
                         .AddStyle(fuenteThyssen);
