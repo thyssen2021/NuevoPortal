@@ -764,8 +764,11 @@ namespace Portal_2_0.Controllers
                 if (itemBD != null)
                 {
                     //UPDATE
-                    if (itemBD.cantidad != item.cantidad)
+                    if (itemBD.cantidad != item.cantidad || itemBD.comentario != item.comentario)
+                    {
                         itemBD.cantidad = item.cantidad;
+                        itemBD.comentario = item.comentario;
+                    }
                 }
                 else  //CREATE
                 {
@@ -781,6 +784,7 @@ namespace Portal_2_0.Controllers
                             id_budget_cantidad = cantidad.id,
                             id_rel_conceptos = item.id_rel_conceptos,
                             cantidad = item.cantidad,
+                            comentario = item.comentario
                         });
                 }
             }
@@ -808,7 +812,7 @@ namespace Portal_2_0.Controllers
         /// </summary>
         /// <param name="id_fy"></param>
         /// <returns></returns>
-        public JsonResult CargaFYComentarios(int? id_fy, int? id_centro_costo, int? id_fy_cc)
+        public JsonResult CargaFYComentarios(int? id_fy, int? id_centro_costo, int? id_fy_cc, bool controlling = false)
         {
             //obtiene los valores 
             var valoresListAnioActual = db.view_valores_fiscal_year.Where(x => x.id_anio_fiscal == id_fy && x.id_centro_costo == id_centro_costo).ToList();
@@ -844,62 +848,62 @@ namespace Portal_2_0.Controllers
                 {
                     case 10:
                         col = 3;
-                        if (isActualOctubre)
+                        if (isActualOctubre && controlling == false)
                             readOnly = true;
                         break;
                     case 11:
                         col = 7;
-                        if (isActualNoviembre)
+                        if (isActualNoviembre && controlling == false)
                             readOnly = true;
                         break;
                     case 12:
                         col = 11;
-                        if (isActualDiciembre)
+                        if (isActualDiciembre && controlling == false)
                             readOnly = true;
                         break;
                     case 1:
                         col = 15;
-                        if (isActualEnero)
+                        if (isActualEnero && controlling == false)
                             readOnly = true;
                         break;
                     case 2:
                         col = 19;
-                        if (isActualFebrero)
+                        if (isActualFebrero && controlling == false)
                             readOnly = true;
                         break;
                     case 3:
                         col = 23;
-                        if (isActualMarzo)
+                        if (isActualMarzo && controlling == false)
                             readOnly = true;
                         break;
                     case 4:
                         col = 27;
-                        if (isActualAbril)
+                        if (isActualAbril && controlling == false)
                             readOnly = true;
                         break;
                     case 5:
                         col = 31;
-                        if (isActualMayo)
+                        if (isActualMayo && controlling == false)
                             readOnly = true;
                         break;
                     case 6:
                         col = 35;
-                        if (isActualJunio)
+                        if (isActualJunio && controlling == false)
                             readOnly = true;
                         break;
                     case 7:
                         col = 39;
-                        if (isActualJulio)
+                        if (isActualJulio && controlling == false)
                             readOnly = true;
                         break;
                     case 8:
                         col = 43;
-                        if (isActualAgosto)
+                        if (isActualAgosto && controlling == false)
                             readOnly = true;
                         break;
                     case 9:
                         col = 47;
-                        if (isActualSeptiembre)
+                        if (isActualSeptiembre && controlling == false)
                             readOnly = true;
                         break;
                 }
@@ -1060,7 +1064,7 @@ namespace Portal_2_0.Controllers
                 {
                     btnDoc = "<button class='btn-documento-agregado' onclick=\"muestraSoporte(" + fy_cc.id + ", " +
                         valoresListAnioActual[i].id_cuenta_sap
-                        + ")\">"+ (fy_cc.estatus ? "Modificar" : "Ver") + "</button>";
+                        + ")\">" + (fy_cc.estatus ? "Modificar" : "Ver") + "</button>";
                 }
 
 
@@ -1202,7 +1206,9 @@ namespace Portal_2_0.Controllers
         /// <param name="id_fy"></param>
         /// <returns></returns>
         public JsonResult CargaFormFormula(int? row, int? column, string cuenta_sap, int? id_bd_fy_centro, int? mes, string currency,
-            bool datosPrevios, bool readOnly, string a, string b, string c, string d, string e, string f, string g, string h, string i, string j, string k, string m, string l)
+            bool datosPrevios, bool readOnly, string valor_actual, string a, string b, string c, string d, string e, string f, string g, string h, string i, string j, string k, string m, string l,
+             string c_a, string c_b, string c_c, string c_d, string c_e, string c_f, string c_g, string c_h, string c_i, string c_j, string c_k, string c_m, string c_l
+            )
         {
             //en caso de readonly, deshabilita los datos previos
             if (readOnly)
@@ -1210,7 +1216,9 @@ namespace Portal_2_0.Controllers
 
             var formulario = new object[1];
 
-            var sapAccount = db.budget_cuenta_sap.Where(x => x.sap_account == cuenta_sap).FirstOrDefault();
+            var sapAccountList = db.budget_cuenta_sap;
+            var sapAccount = sapAccountList.Where(x => x.sap_account == cuenta_sap).FirstOrDefault();
+            var rel_fy_cc = db.budget_rel_fy_centro.Find(id_bd_fy_centro);
             var bgCantidad = db.budget_cantidad.Where(x => x.id_budget_rel_fy_centro == id_bd_fy_centro
                                     && x.budget_cuenta_sap.sap_account == cuenta_sap
                                     && x.mes == mes
@@ -1231,16 +1239,72 @@ namespace Portal_2_0.Controllers
                 <input type=""hidden"" name=""row_formula"" id=""row_formula"" value=""" + row + @""">
                 <input type=""hidden"" name=""column_formula"" id=""column_formula"" value=""" + column + @""">";
 
+            #region form gastos mantenimientos
+            if (sapAccountList.Any(x => x.sap_account == cuenta_sap && x.aplica_gastos_mantenimiento))
+            {
+                double sugerido = 0;
+                decimal? real = null;
+
+                //obtiene el valor real
+                if (decimal.TryParse(valor_actual, out decimal decimalResult))
+                    real = decimalResult;
+
+                //obtiene el valor sugerido
+                //obtiene los ultimos tres gastos
+                var listGastos = sapAccount.budget_conceptos_mantenimiento.Where(x => x.budget_rel_fy_centro.id_centro_costo == rel_fy_cc.id_centro_costo && x.mes == mes
+                && x.budget_rel_fy_centro.budget_anio_fiscal.anio_inicio < rel_fy_cc.budget_anio_fiscal.anio_inicio && x.gasto != 0
+                && x.moneda == currency
+                ).OrderByDescending(x => x.budget_rel_fy_centro.budget_anio_fiscal.anio_inicio).Take(3).ToList();
+
+                //realiaza la suma o toma el valor de 0
+                sugerido = listGastos.Count == 0 ? 0 : listGastos.Sum(x => x.gasto - (x.one_time.HasValue ? x.one_time.Value : 0)) / listGastos.Count;
+
+                //*** agregar readonly ****
+                html += String.Format(@" 
+                <div class=""form-group row"">
+                    <label class=""control-label col-md-6 col-sm-6"" for=""val_sugerido_{0}"" style=""text-align:right"">Promedio normalizado sugerido:</label>
+                    <div class=""col-md-4"">
+                        <input type=""text"" class=""form-control concepto-formula"" name=""val_sugerido_{0}"" id=""val_sugerido_{0}"" value=""{1}""  readonly />
+                    </div>
+                </div>
+                <div class=""form-group row"">
+                    <label class=""control-label col-md-6 col-sm-6"" for=""val_{0}"" style=""text-align:right"">Mantto. mayor:</label>
+                    <div class=""col-md-4"">
+                        <input type=""text"" class=""form-control concepto-formula"" name=""val_{0}"" id=""val_{0}"" value=""{2}""  {3}/>
+                        <span class=""field-validation-valid text-danger"" data-valmsg-for=""val_{0}"" data-valmsg-replace=""true""></span>
+                    </div>
+                </div>", "result", String.Format("{0:0.##}", sugerido), String.Format("{0:0.##}", real), readOnly ? "readonly" : string.Empty);
+
+                //envia form de gastos
+                formulario[0] = new
+                {
+                    estatus = "OK",
+                    html = html,
+                    tieneComentarios = "false"
+                };
+
+                return Json(formulario, JsonRequestBehavior.AllowGet);
+            }
+            #endregion
+
+
+            #region form html conceptos
+
+
             if (sapAccount.budget_rel_conceptos_formulas.Count == 0)
             {
                 formulario[0] = new { estatus = "ERROR" };
                 return Json(formulario, JsonRequestBehavior.AllowGet);
             }
 
+            bool tieneComentarios = sapAccount.budget_rel_conceptos_formulas.Any(x => x.aplica_comentario);
+
             foreach (var concepto in sapAccount.budget_rel_conceptos_formulas)
             {
                 //valor por defecto,  al cargar el formulario por primera vez
                 string valor = currency == "MXN" ? concepto.valor_defecto_mxn.ToString() : currency == "USD" ? concepto.valor_defecto_usd.ToString() : currency == "EUR" ? concepto.valor_defecto_eur.ToString() : "0.0";
+
+                string comentario = string.Empty;
 
                 //valor formulario
                 if (datosPrevios && (!concepto.valor_fijo.HasValue || !concepto.valor_fijo.Value))
@@ -1248,42 +1312,55 @@ namespace Portal_2_0.Controllers
                     {
                         case "a":
                             valor = a;
+                            comentario = c_a;
                             break;
                         case "b":
                             valor = b;
+                            comentario = c_b;
                             break;
                         case "c":
                             valor = c;
+                            comentario = c_c;
                             break;
                         case "d":
                             valor = d;
+                            comentario = c_d;
                             break;
                         case "e":
                             valor = e;
+                            comentario = c_e;
                             break;
                         case "f":
                             valor = f;
+                            comentario = c_f;
                             break;
                         case "g":
                             valor = g;
+                            comentario = c_g;
                             break;
                         case "h":
                             valor = h;
+                            comentario = c_h;
                             break;
                         case "i":
                             valor = i;
+                            comentario = c_i;
                             break;
                         case "j":
                             valor = j;
+                            comentario = c_j;
                             break;
                         case "k":
                             valor = k;
+                            comentario = c_k;
                             break;
                         case "l":
                             valor = l;
+                            comentario = c_l;
                             break;
                         case "m":
                             valor = m;
+                            comentario = c_m;
                             break;
 
                     }
@@ -1292,6 +1369,9 @@ namespace Portal_2_0.Controllers
                 {
                     valor = bgCantidad.budget_rel_conceptos_cantidades.FirstOrDefault(x => x.budget_rel_conceptos_formulas.clave == concepto.clave) != null ?
                         bgCantidad.budget_rel_conceptos_cantidades.FirstOrDefault(x => x.budget_rel_conceptos_formulas.clave == concepto.clave).cantidad.ToString() : "0";
+
+                    comentario = bgCantidad.budget_rel_conceptos_cantidades.FirstOrDefault(x => x.budget_rel_conceptos_formulas.clave == concepto.clave) != null ?
+                        bgCantidad.budget_rel_conceptos_cantidades.FirstOrDefault(x => x.budget_rel_conceptos_formulas.clave == concepto.clave).comentario : string.Empty;
 
                     //si no es read only toma el valor por defecto y no el de la BD
                     if (!readOnly && concepto.valor_fijo.HasValue && concepto.valor_fijo.Value)
@@ -1305,31 +1385,155 @@ namespace Portal_2_0.Controllers
                 if ((cuenta_sap == "610030" || cuenta_sap == "610040") && (concepto.clave == "a" || concepto.clave == "b" || concepto.clave == "c") && currency == "USD")
                     readonlyConcepto = true;
 
-                html += String.Format(@"
-                <input type=""hidden"" name=""id_rel_concepto_{0}"" id=""id_rel_concepto_{0}"" value=""" + concepto.id + @""">
-                <input type=""hidden"" name=""concepto_clave_{0}"" id=""concepto_clave_{0}"" value=""" + concepto.clave + @""">
-                <div class=""form-group row"" style=""{5}"">
-                    <label class=""control-label col-md-6 col-sm-6"" for=""val_{0}"" style=""text-align:right"">{1}:</label>
-                    <div class=""col-md-6"">
-                        <input type=""text"" class=""form-control concepto-formula"" name=""val_{0}"" id=""val_{0}"" {2} value=""{3}"" {4}/>
-                        <span class=""field-validation-valid text-danger"" data-valmsg-for=""val_{0}"" data-valmsg-replace=""true""></span>
-                    </div>
-                </div>", concepto.clave, concepto.descripcion, concepto.valor_fijo.HasValue && concepto.valor_fijo.Value ? "readonly" : string.Empty
-                , valor, readOnly ? "readonly" : string.Empty, readonlyConcepto ? "display:none" : string.Empty);
+
+
+                //determina si aplica comentario o no
+                if (tieneComentarios)
+                {
+                    if (concepto.aplica_comentario)
+                    {
+                        if (cuenta_sap == "610091") // Si es festejos
+                        {
+                            //determina la letra del evento
+                            string eventoClave = string.Empty;
+                            switch (concepto.clave)
+                            {
+                                case "a":
+                                case "b":
+                                    eventoClave = "A";
+                                    break;
+                                case "c":
+                                case "d":
+                                    eventoClave = "B";
+                                    break;
+                                case "e":
+                                case "f":
+                                    eventoClave = "C";
+                                    break;
+                                case "g":
+                                case "h":
+                                    eventoClave = "Otro";
+                                    break;
+                            }
+
+                            //determina si mostra un select o campo abierto
+                            string select = string.Empty;
+                            if (concepto.clave != "g") // g = clave para otro
+                            {
+                                select = string.Format(@" <select class=""form-control select2bs4"" name=""comentario_{0}"" id=""comentario_{0}"" style =""width:100%"" {1}>
+                                                           <option value="""">-- Seleccione --</option>
+                                                           <option value=""Rosca de reyes"" " + (comentario == "Rosca de reyes" ? "selected" : string.Empty) + @">Rosca de reyes</option>
+                                                           <option value=""Día del amor y la amistad"" " + (comentario == "Día del amor y la amistad" ? "selected" : string.Empty) + @">Día del amor y la amistad</option>
+                                                           <option value=""Día de la mujer"" " + (comentario == "Día de la mujer" ? "selected" : string.Empty) + @">Día de la mujer</option>
+                                                           <option value=""Día de la familia""  " + (comentario == "Día de la familia" ? "selected" : string.Empty) + @">Día de la familia</option>
+                                                           <option value=""Día de las madres""  " + (comentario == "Día de las madres" ? "selected" : string.Empty) + @">Día de las madres</option>
+                                                           <option value=""Día del padre"" " + (comentario == "Día del padre" ? "selected" : string.Empty) + @">Día del padre</option>
+                                                           <option value=""Semana de la salud""  " + (comentario == "Semana de la salud" ? "selected" : string.Empty) + @">Semana de la salud</option>
+                                                           <option value=""Torneo de fútbol"" " + (comentario == "Torneo de fútbol" ? "selected" : string.Empty) + @">Torneo de fútbol</option>
+                                                           <option value=""Kermés (día de la independencia)""  " + (comentario == "Kermés (día de la independencia)" ? "selected" : string.Empty) + @">Kermés (día de la independencia)</option>
+                                                           <option value=""Día de muertos"" " + (comentario == "Día de muertos" ? "selected" : string.Empty) + @">Día de muertos</option>
+                                                           <option value=""Fiesta fin de año"" " + (comentario == "Fiesta fin de año" ? "selected" : string.Empty) + @">Fiesta fin de año</option>
+                                                         </select>", concepto.clave, readOnly ? "disabled" : string.Empty, comentario);
+                            }
+                            else
+                            {//es otro 
+                                select = string.Format(@"<input type=""text"" class=""form-control"" name=""comentario_{0}"" id=""comentario_{0}""  value=""{2}"" maxlength=""80"" {1}/>"
+                                                        , concepto.clave, readOnly ? "disabled" : string.Empty, comentario);
+                            }
+
+                            //agrega los input correspondientes
+                            html += String.Format(@"
+                                                <input type=""hidden"" name=""id_rel_concepto_{0}"" id=""id_rel_concepto_{0}"" value=""" + concepto.id + @""">
+                                                <input type=""hidden"" name=""concepto_clave_{0}"" id=""concepto_clave_{0}"" value=""" + concepto.clave + @""">
+                                                <div class=""form-group row"" style=""{5}"">
+                                                    <label class=""control-label col-md-4 col-sm-4"" for=""val_{0}"" style=""text-align:right"">{1}:</label>
+                                                    <div class=""col-md-2"">
+                                                        <input type=""text"" class=""form-control concepto-formula"" name=""val_{0}"" id=""val_{0}"" {2} value=""{3}"" {4}/>
+                                                        <span class=""field-validation-valid text-danger"" data-valmsg-for=""val_{0}"" data-valmsg-replace=""true""></span>
+                                                    </div>
+                                                    <label class=""control-label col-md-2 col-sm-2"" for=""comentario_{0}"" style=""text-align:right"">Evento {6}:</label>
+                                                    <div class=""col-md-4"">
+                                                         {7}             
+                                                        <span class=""field-validation-valid text-danger"" data-valmsg-for=""comentario_{0}"" data-valmsg-replace=""true""></span>
+                                                    </div>
+                                                </div>                                                
+                                            ", concepto.clave, concepto.descripcion, concepto.valor_fijo.HasValue && concepto.valor_fijo.Value ? "readonly" : string.Empty
+                                                            , valor, readOnly ? "readonly" : string.Empty, readonlyConcepto ? "display:none" : string.Empty,
+                                                            eventoClave, select
+                                                            );
+                        }
+                        else  //si aplica comentario, pero no es festojos
+                        {
+                            html += String.Format(@"
+                        <input type=""hidden"" name=""id_rel_concepto_{0}"" id=""id_rel_concepto_{0}"" value=""" + concepto.id + @""">
+                        <input type=""hidden"" name=""concepto_clave_{0}"" id=""concepto_clave_{0}"" value=""" + concepto.clave + @""">
+                        <div class=""form-group row"" style=""{5}"">
+                            <label class=""control-label col-md-4 col-sm-4"" for=""val_{0}"" style=""text-align:right"">{1}:</label>
+                            <div class=""col-md-2"">
+                                <input type=""text"" class=""form-control concepto-formula"" name=""val_{0}"" id=""val_{0}"" {2} value=""{3}"" {4}/>
+                                <span class=""field-validation-valid text-danger"" data-valmsg-for=""val_{0}"" data-valmsg-replace=""true""></span>
+                            </div>
+                            <label class=""control-label col-md-1 col-sm-1"" for=""comentario_{0}"" style=""text-align:right"">Descrip.:</label>
+                            <div class=""col-md-5"">
+                                <input type=""text"" class=""form-control"" name=""comentario_{0}"" id=""comentario_{0}"" {2} value=""{6}"" maxlength=""80"" {4}/>
+                                <span class=""field-validation-valid text-danger"" data-valmsg-for=""comentario_{0}"" data-valmsg-replace=""true""></span>
+                            </div>
+                        </div>
+                        ", concepto.clave, concepto.descripcion, concepto.valor_fijo.HasValue && concepto.valor_fijo.Value ? "readonly" : string.Empty
+                                    , valor, readOnly ? "readonly" : string.Empty, readonlyConcepto ? "display:none" : string.Empty, comentario);
+                        }
+                    }
+                    else  //este campo no tiene comentarios, pero si hay comentarios en otros campos
+                    {
+                        html += String.Format(@"
+                        <input type=""hidden"" name=""id_rel_concepto_{0}"" id=""id_rel_concepto_{0}"" value=""" + concepto.id + @""">
+                        <input type=""hidden"" name=""concepto_clave_{0}"" id=""concepto_clave_{0}"" value=""" + concepto.clave + @""">
+                        <div class=""form-group row"" style=""{5}"">
+                            <label class=""control-label col-md-4 col-sm-4"" for=""val_{0}"" style=""text-align:right"">{1}:</label>
+                            <div class=""col-md-2"">
+                                <input type=""text"" class=""form-control concepto-formula"" name=""val_{0}"" id=""val_{0}"" {2} value=""{3}"" {4}/>
+                                <span class=""field-validation-valid text-danger"" data-valmsg-for=""val_{0}"" data-valmsg-replace=""true""></span>
+                            </div>                            
+                        </div>
+                         {6}"
+                        , concepto.clave, concepto.descripcion, concepto.valor_fijo.HasValue && concepto.valor_fijo.Value ? "readonly" : string.Empty
+                                   , valor, readOnly ? "readonly" : string.Empty, readonlyConcepto ? "display:none" : string.Empty
+                                   , cuenta_sap == "610091" ? "<hr />" : string.Empty //si es el último campo de cada evento de festejos agrega una division
+                                   );
+                    }
+                }
+                else //no hay comentarios en todo el form
+                {
+                    html += String.Format(@"
+                        <input type=""hidden"" name=""id_rel_concepto_{0}"" id=""id_rel_concepto_{0}"" value=""" + concepto.id + @""">
+                        <input type=""hidden"" name=""concepto_clave_{0}"" id=""concepto_clave_{0}"" value=""" + concepto.clave + @""">
+                        <div class=""form-group row"" style=""{5}"">
+                            <label class=""control-label col-md-6 col-sm-6"" for=""val_{0}"" style=""text-align:right"">{1}:</label>
+                            <div class=""col-md-6"">
+                                <input type=""text"" class=""form-control concepto-formula"" name=""val_{0}"" id=""val_{0}"" {2} value=""{3}"" {4}/>
+                                <span class=""field-validation-valid text-danger"" data-valmsg-for=""val_{0}"" data-valmsg-replace=""true""></span>
+                            </div>
+                        </div>
+                       ", concepto.clave, concepto.descripcion, concepto.valor_fijo.HasValue && concepto.valor_fijo.Value ? "readonly" : string.Empty
+                            , valor, readOnly ? "readonly" : string.Empty, readonlyConcepto ? "display:none" : string.Empty
+                            );
+                }
             }
 
             html += String.Format(@" <div class=""form-group row"">
-                    <label class=""control-label col-md-6 col-sm-6"" for=""val_{0}"" style=""text-align:right"">{1}:</label>
-                    <div class=""col-md-6"">
+                    <label class=""control-label col-md-{2} col-sm-{2}"" for=""val_{0}"" style=""text-align:right"">{1}:</label>
+                    <div class=""col-md-{3}"">
                         <input type=""text"" class=""form-control concepto-formula"" name=""val_{0}"" id=""val_{0}"" readonly />
                         <span class=""field-validation-valid text-danger"" data-valmsg-for=""val_{0}"" data-valmsg-replace=""true""></span>
                     </div>
-                </div>", "result", "Total");
+                </div>", "result", "Total", tieneComentarios ? 4 : 6, tieneComentarios ? 2 : 6);
 
+            #endregion
             formulario[0] = new
             {
                 estatus = "OK",
-                html = html
+                html = html,
+                tieneComentarios = tieneComentarios ? "true" : "false"
             };
 
             return Json(formulario, JsonRequestBehavior.AllowGet);
@@ -1394,6 +1598,187 @@ namespace Portal_2_0.Controllers
             }
 
             return null;
+        }
+
+        public ActionResult ActualizaGastosManto()
+        {
+
+            //mensaje en caso de crear, editar, etc
+            if (TempData["Mensaje"] != null)
+            {
+                ViewBag.MensajeAlert = TempData["Mensaje"];
+            }
+
+            //crea el select list para plantas
+            List<SelectListItem> newList = new List<SelectListItem>();
+
+            DateTime fecha = new DateTime(2000, 1, 1);
+            for (int i = 1; i <= 12; i++)
+            {
+                newList.Add(new SelectListItem()
+                {
+                    Text = i.ToString() + " - " + fecha.ToString("MMMM"),
+                    Value = i.ToString(),
+                });
+
+                fecha = fecha.AddMonths(1);
+            }
+
+            //envia el select list por viewbag
+            ViewBag.mes = AddFirstItem(new SelectList(newList, "Value", "Text"), textoPorDefecto: "-- Todos --");
+            ViewBag.id_centro_costo = AddFirstItem(new SelectList(db.budget_centro_costo, "id", "ConcatCentro"), textoPorDefecto: "-- Todos --");
+            ViewBag.sap_account = AddFirstItem(new SelectList(db.budget_cuenta_sap.Where(x => x.aplica_gastos_mantenimiento), nameof(budget_cuenta_sap.id), nameof(budget_cuenta_sap.sap_account)), textoPorDefecto: "-- Todos --");
+            ViewBag.id_fiscal_year = AddFirstItem(new SelectList(db.budget_anio_fiscal.Where(x => x.id != 1), "id", "ConcatAnio"), textoPorDefecto: "-- Todos --");
+
+            return View();
+        }
+
+
+        // POST: IT_site/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
+        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ActualizaGastosManto(int? mes, int? id_centro_costo, int? id_fiscal_year, int? sap_account)
+        {
+
+            List<string> monedas = new List<string> { "MXN", "USD", "EUR" };
+            List<int> meses = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+
+            //obtiene el año fiscal
+            var fiscal_year = db.budget_anio_fiscal.Find(id_fiscal_year);
+
+            //obtiene las cuentas sap donde aplica mantenimiento
+            var satAccountList = db.budget_cuenta_sap.Where(x => (sap_account == null || sap_account == x.id) && x.aplica_gastos_mantenimiento);
+            //rel fy centro costo,
+            var ccList = db.budget_centro_costo.Where(x => (id_centro_costo == null || id_centro_costo == x.id));
+            //listas de cantidades sap
+            var cantidadList = db.budget_cantidad.Where(x => satAccountList.Any(y => y.id == x.id_cuenta_sap) && meses.Any(y => y == x.mes)
+            && x.budget_rel_fy_centro.budget_anio_fiscal.id == id_fiscal_year
+            );
+
+            //obtiene los ultimos tres gastos
+            var listGastosTotal = db.budget_conceptos_mantenimiento.Where(x => satAccountList.Any(y => y.id == x.id_cuenta_sap) && meses.Any(y => y == x.mes)
+            && x.budget_rel_fy_centro.budget_anio_fiscal.anio_inicio < fiscal_year.anio_inicio);
+
+            //var listGastos = sapAccount.budget_conceptos_mantenimiento.Where(x => x.budget_rel_fy_centro.id_centro_costo == rel_fy_cc.id_centro_costo && x.mes == mes
+            //&& x.budget_rel_fy_centro.budget_anio_fiscal.anio_inicio < rel_fy_cc.budget_anio_fiscal.anio_inicio && x.gasto != 0
+            //&& x.moneda == currency
+            //).OrderByDescending(x => x.budget_rel_fy_centro.budget_anio_fiscal.anio_inicio).Take(3).ToList();
+            DateTime fecha_actual = new DateTime(DateTime.Now.Year, DateTime.Now.Month,1);
+
+            //recorre cada cc
+            foreach (var cc in ccList/*.Where(x => listGastosTotal.Any(y => y.budget_rel_fy_centro.budget_centro_costo.id == x.id))*/)
+            {
+                var rel_fy_cc = cc.budget_rel_fy_centro.Where(x => x.id_anio_fiscal == id_fiscal_year).FirstOrDefault();
+
+                //recorre cada cuenta sap
+                foreach (var sapAccount in satAccountList/*.Where(x => listGastosTotal.Any(y => y.budget_cuenta_sap.id == x.id))*/)
+                {
+
+                    //recorre cada mes
+                    foreach (var mesItem in meses.Where(x => (mes == null || mes == x) /*&& listGastosTotal.Any(y => y.mes == x)*/))
+                    {
+                        DateTime fechaComparacion = DateTime.Now;
+
+                        if (mesItem >= 10)
+                            fechaComparacion = new DateTime(rel_fy_cc.budget_anio_fiscal.anio_inicio, mesItem, 1);
+                        else
+                            fechaComparacion = new DateTime(rel_fy_cc.budget_anio_fiscal.anio_fin, mesItem, 1);
+
+                        if (fechaComparacion < fecha_actual) //si es actual se salta la iteracion
+                           continue; 
+
+                        //recorre cada moneda
+                        foreach (var moneda in monedas/*.Where(x => listGastosTotal.Any(y => y.moneda == x))*/)
+                        {
+                            List<budget_conceptos_mantenimiento> listGastos = sapAccount.budget_conceptos_mantenimiento.Where(x =>
+                                x.budget_rel_fy_centro.id_centro_costo == rel_fy_cc.id_centro_costo && x.mes == mesItem
+                               && x.budget_rel_fy_centro.budget_anio_fiscal.anio_inicio < rel_fy_cc.budget_anio_fiscal.anio_inicio && x.gasto != 0
+                                && x.moneda == moneda
+                            ).OrderByDescending(x => x.budget_rel_fy_centro.budget_anio_fiscal.anio_inicio).Take(3).ToList();
+
+                            var sugerido = listGastos.Count == 0 ? 0 : listGastos.Sum(x => x.gasto - (x.one_time.HasValue ? x.one_time.Value : 0)) / listGastos.Count;
+
+                            //actualiza/crea budget cantidad con el valor sugerido
+                            var cantidad = sapAccount.budget_cantidad.Where(x => x.mes == mesItem && x.currency_iso == moneda && x.moneda_local_usd != true && x.id_budget_rel_fy_centro == rel_fy_cc.id).FirstOrDefault();
+
+                            if (cantidad != null) //existe, entonces lo modifica
+                            {
+                                cantidad.cantidad = (decimal)sugerido;
+                            }
+                            else if (sugerido > 0)
+                            { //lo crea solo si es mayor a 0
+                                budget_cantidad nueva_cantidad = new budget_cantidad
+                                {
+                                    id_budget_rel_fy_centro = rel_fy_cc.id,
+                                    id_cuenta_sap = sapAccount.id,
+                                    mes = mesItem,
+                                    currency_iso = moneda,
+                                    cantidad = (decimal)sugerido,
+                                    moneda_local_usd = false
+                                };
+                                db.budget_cantidad.Add(nueva_cantidad);
+                            }
+
+                            //una vez modificada la cantidad tambien el valor de local usd
+                            //actualiza/crea budget cantidad con el valor sugerido
+                            var cantidad_local = sapAccount.budget_cantidad.Where(x => x.mes == mesItem && x.currency_iso == "USD" && x.moneda_local_usd == true && x.id_budget_rel_fy_centro == rel_fy_cc.id).FirstOrDefault();
+
+                            //calcula moneda local 
+                            decimal local = 0;
+
+                            var mxn_usd = (decimal)rel_fy_cc.budget_anio_fiscal.budget_rel_tipo_cambio_fy.Where(x => x.id_tipo_cambio == 1).FirstOrDefault().cantidad;
+                            var eur_usd = (decimal)rel_fy_cc.budget_anio_fiscal.budget_rel_tipo_cambio_fy.Where(x => x.id_tipo_cambio == 2).FirstOrDefault().cantidad;
+
+                            //suma USD
+                            decimal d_usd = sapAccount.budget_cantidad.Where(x => x.mes == mesItem && x.currency_iso == "USD" && x.moneda_local_usd == false && x.id_budget_rel_fy_centro == rel_fy_cc.id).Sum(x => x.cantidad);
+                            //MXN
+                            decimal d_mxn_usd = sapAccount.budget_cantidad.Where(x => x.mes == mesItem && x.currency_iso == "MXN" && x.moneda_local_usd == false && x.id_budget_rel_fy_centro == rel_fy_cc.id).Sum(x => x.cantidad)
+                                / mxn_usd;
+                            //EUR
+                            decimal d_eur_usd = sapAccount.budget_cantidad.Where(x => x.mes == mesItem && x.currency_iso == "EUR" && x.moneda_local_usd == false && x.id_budget_rel_fy_centro == rel_fy_cc.id).Sum(x => x.cantidad)
+                                * eur_usd;
+
+                            local = (moneda == "USD" ? (decimal)sugerido : d_usd) + (moneda == "MXN" ? (decimal)sugerido / mxn_usd : d_mxn_usd) + (moneda == "EUR" ? (decimal)sugerido * eur_usd : d_eur_usd);
+
+                            if (cantidad_local != null) //existe, entonces lo modifica
+                            {
+                                cantidad_local.cantidad = local;
+                            }
+                            else if (local > 0) //solo lo agrega si el numero es mayor a cero
+                            {
+                                budget_cantidad nueva_cantidad = new budget_cantidad
+                                {
+                                    id_budget_rel_fy_centro = rel_fy_cc.id,
+                                    id_cuenta_sap = sapAccount.id,
+                                    mes = mesItem,
+                                    currency_iso = "USD",
+                                    cantidad = local,
+                                    moneda_local_usd = true
+                                };
+
+                                db.budget_cantidad.Add(nueva_cantidad);
+                            }
+                        }
+                    }
+
+
+                }
+            }
+
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                TempData["Mensaje"] = new MensajesSweetAlert(e.Message, TipoMensajesSweetAlerts.ERROR);
+            }
+
+
+            TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
+            return RedirectToAction("ActualizaGastosManto");
         }
 
         public ActionResult EditarSoporte(int? id_rel_fy_cc, int? id_cuenta_sap)
@@ -1535,6 +1920,9 @@ namespace Portal_2_0.Controllers
                 //TempData["Mensaje"] = new MensajesSweetAlert(TextoMensajesSweetAlerts.UPDATE, TipoMensajesSweetAlerts.SUCCESS);
                 return View("../RU_registros/Message");
             }
+
+            if (relDocumento.id_documento.HasValue && relDocumento.id_documento.Value > 0)
+                relDocumento.biblioteca_digital = db.biblioteca_digital.Find(relDocumento.id_documento);
 
             relDocumento.budget_rel_fy_centro = db.budget_rel_fy_centro.Find(relDocumento.id_budget_rel_fy_centro);
             relDocumento.budget_cuenta_sap = db.budget_cuenta_sap.Find(relDocumento.id_cuenta_sap);

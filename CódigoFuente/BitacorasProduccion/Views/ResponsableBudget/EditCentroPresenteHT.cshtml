@@ -73,6 +73,7 @@
             padding: 0px;
             text-align: center;
         }
+
         .btn-documento-agregado {
             display: inline-block;
             color: #edecec;
@@ -87,6 +88,7 @@
             padding: 0px;
             text-align: center;
         }
+
         dl {
             border: 3px double #ccc;
             padding: 0.5em;
@@ -272,8 +274,12 @@
                         <div class="col-sm-12" id="ht-tipo-cambio">
 
                         </div>
-                        <div class="col-sm-12">
-                            <div class="ln_solid"></div>
+
+                        <div class="form-group row">
+                            <label class="control-label col-md-9" for="search_field" style="text-align: right; vertical-align: middle; padding-top: 10px !important; ">Cuenta SAP:</label>
+                            <div class="col-sm-3" style="text-align:right">
+                                <input id="search_field" class="form-control" type="text" placeholder="Búsqueda" />
+                            </div>
                         </div>
                         <div class="col-sm-12">
 
@@ -295,6 +301,7 @@
                                     </div>
                                 </div>
                                 <div class="tab-pane fade show active" id="ht-forecast" role="tabpanel" aria-labelledby="ht-forecast-tab">
+
                                     <div class="form-group row">
 
                                     </div>
@@ -326,7 +333,7 @@
 
 <!-- Modal DEMO Modelo -->
 <div class="modal fade" id="modalCalculo" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered" role="document">
+    <div id="modal-class" class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h6 class="modal-title" id="exampleModalLongTitle">Calcular cantidad</h6>
@@ -358,8 +365,9 @@
     <script src="https://handsontable.com/docs/8.3.1/components/numbro/dist/languages.min.js"></script>
     <!-- input mask -->
     @Scripts.Render(Url.Content("~/Content/vendors/jquery.inputmask/dist/jquery.inputmask.bundle.js"))
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
 
-<script>
+    <script>
 
            //define variables globales
    var container = document.getElementById('ht-actual'),
@@ -460,6 +468,8 @@
    const hyperformulaInstance = HyperFormula.buildEmpty({
        licenseKey: 'internal-use-in-handsontable',
    });
+
+   searchResultCount = 0;
 
    //define el contenido de los hansontable
    hotTC = new Handsontable(container4, {
@@ -1788,8 +1798,10 @@
            ],
            //indicators: true,
        },
-       filters: true,
-       dropdownMenu: ['filter_by_condition', 'filter_action_bar'],
+       filters: false,
+       search: {
+           callback: searchResultCounter
+       },
        fixedColumnsStart: 3,
        fixedRowsBottom: 1,
        manualColumnResize: false,
@@ -2451,18 +2463,55 @@
            hot.getPlugin('Filters').clearConditions();
            hot.getPlugin('Filters').filter();
            hot.render();
-           hot2.getPlugin('Filters').clearConditions();
-           hot2.getPlugin('Filters').filter();
-           hot2.render();
+           //hot2.getPlugin('Filters').clearConditions();
+           //hot2.getPlugin('Filters').filter();
+           //hot2.render();
            hot3.getPlugin('Filters').clearConditions();
            hot3.getPlugin('Filters').filter();
            hot3.render();
+           //para busqueda
+           $('#search_field').val('');
+           hot2.scrollViewportTo(0)
+           hot2.render();
+
        });
 
        setTimeout(Recordatorio, 600000); //diez minutos
 
+       //para busqueda
+       const searchField = document.querySelector('#search_field');
+
+       searchField.addEventListener('keyup', function (event) {
+           // get the `Search` plugin's instance
+           const search = hot2.getPlugin('search');
+           // use the `Search` plugin's `query()` method
+           const queryResult = search.query(event.target.value);
+
+           if (queryResult.length > 0) {
+               hot2.scrollViewportTo(queryResult[0].row)
+           }
+
+           hot2.render();
+       });
+
        $.unblockUI();
+
+
    });
+
+        function searchResultCounter(instance, row, col, value, result) {
+            const DEFAULT_CALLBACK = function (instance, row, col, data, testResult) {
+                if (col === 0 || col === 1 || col === 2) {
+                    instance.getCellMeta(row, col).isSearchResult = testResult;
+                }
+            };
+
+            DEFAULT_CALLBACK.apply(this, arguments);
+
+            if (result) {
+                searchResultCount++;
+            }
+        }
 
     //Actualiza el calculo de conceptos por formula
    function ActualizaCalculo() {
@@ -2476,61 +2525,109 @@
        let _id_bd_fy_centro = $('#_id_bd_fy_centro').val();
        let _mes = $('#_mes').val();
        let _currency = $('#_currency').val();
+       let comentarioErrores = 0;
 
        //si es readonly guarda el valor en la tabla
        if (_readOnly == '@(false)') {
 
-           hot2.setDataAtCell(Number(rowFormula), Number(columnFormula), $('#val_result').val());
+           //Debe validar que el formulario es valido (comentario valor)
 
-           conceptos_calculados = conceptos_calculados.filter((element) => element[4] !== _cuenta_sap.toString() || element[1] !== columnFormula.toString());
+           let claves = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm'];
 
-           if (document.getElementById("val_a")) {
-               conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_a').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_a').val(), $('#val_a').val()])
-           }
-           if (document.getElementById("val_b")) {
-               conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_b').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_b').val(), $('#val_b').val()])
-           }
-           if (document.getElementById("val_c")) {
-               conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_c').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_c').val(), $('#val_c').val()])
-           }
-           if (document.getElementById("val_d")) {
-               conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_d').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_d').val(), $('#val_d').val()])
-           }
-           if (document.getElementById("val_e")) {
-               conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_e').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_e').val(), $('#val_e').val()])
-           }
-           if (document.getElementById("val_f")) {
-               conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_f').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_f').val(), $('#val_f').val()])
-           }
-           if (document.getElementById("val_g")) {
-               conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_g').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_g').val(), $('#val_g').val()])
-           }
-           if (document.getElementById("val_h")) {
-               conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_h').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_h').val(), $('#val_h').val()])
-           }
-           if (document.getElementById("val_i")) {
-               conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_i').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_i').val(), $('#val_i').val()])
-           }
-           if (document.getElementById("val_j")) {
-               conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_j').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_j').val(), $('#val_j').val()])
-           }
-           if (document.getElementById("val_k")) {
-               conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_k').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_k').val(), $('#val_k').val()])
-           }
-           if (document.getElementById("val_l")) {
-               conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_l').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_l').val(), $('#val_l').val()])
-           }
-           if (document.getElementById("val_m")) {
-               conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_m').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_m').val(), $('#val_m').val()])
+           claves.forEach(function (elemento, indice, array) {
+
+               if (document.getElementById("val_" + elemento) && document.getElementById("comentario_" + elemento)) {
+                   let val = $('#val_' + elemento).val();
+                   let coment = $('#comentario_' + elemento).val();
+
+
+                   if ((val != "" && coment == "") || (val == "" && coment != "")) {
+                       comentarioErrores++;
+                   }
+               }
+           });
+
+
+           if (comentarioErrores != 0) {
+               toastMixin.fire({
+                   icon: "error",
+                   title: "Verifique que cada cantidad tenga una descripción y viceversa."
+               });
+           } else { //no hay errores, guarda de forma temporal los datos
+               console.log($('#val_result').val())
+               hot2.setDataAtCell(Number(rowFormula), Number(columnFormula), $('#val_result').val());
+
+               conceptos_calculados = conceptos_calculados.filter((element) => element[4] !== _cuenta_sap.toString() || element[1] !== columnFormula.toString());
+
+               if (document.getElementById("val_a")) {
+                   conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_a').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_a').val(), $('#val_a').val(), document.getElementById("comentario_a") ? $('#comentario_a').val() : ""])
+               }
+               if (document.getElementById("val_b")) {
+                   conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_b').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_b').val(), $('#val_b').val(), document.getElementById("comentario_b") ? $('#comentario_b').val() : ""])
+               }
+               if (document.getElementById("val_c")) {
+                   conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_c').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_c').val(), $('#val_c').val(), document.getElementById("comentario_c") ? $('#comentario_c').val() : ""])
+               }
+               if (document.getElementById("val_d")) {
+                   conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_d').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_d').val(), $('#val_d').val(), document.getElementById("comentario_d") ? $('#comentario_d').val() : ""])
+               }
+               if (document.getElementById("val_e")) {
+                   conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_e').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_e').val(), $('#val_e').val(), document.getElementById("comentario_e") ? $('#comentario_e').val() : ""])
+               }
+               if (document.getElementById("val_f")) {
+                   conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_f').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_f').val(), $('#val_f').val(), document.getElementById("comentario_f") ? $('#comentario_f').val() : ""])
+               }
+               if (document.getElementById("val_g")) {
+                   conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_g').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_g').val(), $('#val_g').val(), document.getElementById("comentario_g") ? $('#comentario_g').val() : ""])
+               }
+               if (document.getElementById("val_h")) {
+                   conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_h').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_h').val(), $('#val_h').val(), document.getElementById("comentario_h") ? $('#comentario_h').val() : ""])
+               }
+               if (document.getElementById("val_i")) {
+                   conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_i').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_i').val(), $('#val_i').val(), document.getElementById("comentario_i") ? $('#comentario_i').val() : ""])
+               }
+               if (document.getElementById("val_j")) {
+                   conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_j').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_j').val(), $('#val_j').val(), document.getElementById("comentario_j") ? $('#comentario_j').val() : ""])
+               }
+               if (document.getElementById("val_k")) {
+                   conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_k').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_k').val(), $('#val_k').val(), document.getElementById("comentario_k") ? $('#comentario_k').val() : ""])
+               }
+               if (document.getElementById("val_l")) {
+                   conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_l').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_l').val(), $('#val_l').val(), document.getElementById("comentario_l") ? $('#comentario_l').val() : ""])
+               }
+               if (document.getElementById("val_m")) {
+                   conceptos_calculados.push([rowFormula, columnFormula, id_budget_cantidad, $('#concepto_clave_m').val(), _cuenta_sap, _id_bd_fy_centro, _mes, _currency, $('#id_rel_concepto_m').val(), $('#val_m').val(), document.getElementById("comentario_m") ? $('#comentario_m').val() : ""])
+               }
            }
        }
 
-       $('#modalCalculo').modal('hide')
+       console.log('errores: ' + comentarioErrores)
 
+       if (comentarioErrores == 0) {
+           $('#modalCalculo').modal('hide')
+       }
    }
+    //obtiene una copia del ht activo
+        function ObtieneHotActivo() {
+
+            let ht_copia;
+            if (hot.getSelected() !== undefined) {
+                  ht_copia = hot;
+              }
+              if (hot2.getSelected() !== undefined) {
+                  ht_copia = hot2;
+              }
+              if (hot3.getSelected() !== undefined) {
+                  ht_copia = hot3;
+               }
+
+            return ht_copia;
+        }
 
    //realiza llamada ajax para cargar el formulario
    function ObtieneForm(row, column, cuenta_sap, id_bd_fy_centro, mes, currency, isReadonly) {
+
+       let copia_ht = ObtieneHotActivo();
 
        //ver si es posible obtener los valores del array conceptos_calculados
        var datosPrevios = conceptos_calculados.filter((element) => element[4] === cuenta_sap && element[1] === column.toString());
@@ -2546,47 +2643,74 @@
            _j = "",
            _k = "";
            _l = "";
-           _m = "";
+            _m = "";
+           //para comentarios
+       let c_a = "",
+           c_b = "",
+           c_c = "",
+           c_d = "",
+           c_e = "",
+           c_f = "",
+           c_g = "",
+           c_h = "",
+           c_i = "",
+           c_j = "",
+           c_k = "";
+           c_l = "";
+           c_m = "";
 
        //asigna los valores
        try {
            _a = datosPrevios.filter((element) => element[3] === 'a')[0][9];
+           c_a = datosPrevios.filter((element) => element[3] === 'a')[0][10];
        } catch {}
        try {
            _b = datosPrevios.filter((element) => element[3] === 'b')[0][9];
+           c_b = datosPrevios.filter((element) => element[3] === 'b')[0][10];
        } catch {}
        try {
            _c = datosPrevios.filter((element) => element[3] === 'c')[0][9];
+           c_c = datosPrevios.filter((element) => element[3] === 'c')[0][10];
        } catch {}
        try {
            _d = datosPrevios.filter((element) => element[3] === 'd')[0][9];
+           c_d = datosPrevios.filter((element) => element[3] === 'd')[0][10];
        } catch {}
        try {
            _e = datosPrevios.filter((element) => element[3] === 'e')[0][9];
+           c_e = datosPrevios.filter((element) => element[3] === 'e')[0][10];
        } catch {}
        try {
            _f = datosPrevios.filter((element) => element[3] === 'f')[0][9];
+           c_f = datosPrevios.filter((element) => element[3] === 'f')[0][10];
        } catch {}
        try {
            _g = datosPrevios.filter((element) => element[3] === 'g')[0][9];
+           c_g = datosPrevios.filter((element) => element[3] === 'g')[0][10];
        } catch {}
        try {
            _h = datosPrevios.filter((element) => element[3] === 'h')[0][9];
+           c_h = datosPrevios.filter((element) => element[3] === 'h')[0][10];
        } catch {}
        try {
            _i = datosPrevios.filter((element) => element[3] === 'i')[0][9];
+           c_i = datosPrevios.filter((element) => element[3] === 'i')[0][10];
        } catch {}
        try {
            _j = datosPrevios.filter((element) => element[3] === 'j')[0][9];
+           c_j = datosPrevios.filter((element) => element[3] === 'j')[0][10];
        } catch {}
        try {
            _k = datosPrevios.filter((element) => element[3] === 'k')[0][9];
+           c_k = datosPrevios.filter((element) => element[3] === 'k')[0][10];
        } catch {}
        try {
            _l = datosPrevios.filter((element) => element[3] === 'l')[0][9];
+           c_l = datosPrevios.filter((element) => element[3] === 'l')[0][10];
        } catch {}
        try {
            _m = datosPrevios.filter((element) => element[3] === 'm')[0][9];
+           c_m = datosPrevios.filter((element) => element[3] === 'm')[0][10];
        } catch {}
 
        //llamada ajax para obtener el detalle del item  seleccionado
@@ -2602,6 +2726,7 @@
                currency: currency,
                datosPrevios: datosPrevios.length > 0,
                readOnly: isReadonly,
+               valor_actual: copia_ht.getDataAtCell(row, column),
                a: _a,
                b: _b,
                c: _c,
@@ -2614,7 +2739,21 @@
                j: _j,
                k: _k,
                l: _l,
-               m: _m
+               m: _m,
+               c_a: c_a,
+               c_b: c_b,
+               c_c: c_c,
+               c_d: c_d,
+               c_e: c_e,
+               c_f: c_f,
+               c_g: c_g,
+               c_h: c_h,
+               c_i: c_i,
+               c_j: c_j,
+               c_k: c_k,
+               c_l: c_l,
+               c_m: c_m,
+
            },
            success: function(data) {
                try {
@@ -2622,7 +2761,19 @@
                    if (data[0].estatus == "OK") {
                        $('#id_modal_body').html(data[0].html);
                        //cambia el titulo del modal
-                       $('#exampleModalLongTitle').html(hot2.getDataAtCell(row, 1));
+                       $('#exampleModalLongTitle').html(copia_ht.getDataAtCell(row, 1));
+                       //agrega la clase que determina el tamaño
+                       if (data[0].tieneComentarios == "true") {
+                           $('#modal-class').addClass('modal-lg')
+                       } else {
+                           $('#modal-class').removeClass('modal-lg')
+                       }
+
+                       //LLama a select2
+                       $('.select2bs4').select2({
+                           theme: 'bootstrap4'
+                       })
+
                        $('#modalCalculo').modal('show')
                        AsignaEventos();
                        ActualizaCantidadInput();
@@ -2663,7 +2814,7 @@
            'groupSeparator': ',',
            'autoGroup': true,
            'digits': 2,
-           'digitsOptional': true,
+           'digitsOptional': false,
            'allowMinus': false,
            'placeholder': '0',
            'autoUnmask': true,
@@ -2745,7 +2896,9 @@
 
 
        try {
-           $('#val_result').val(eval(formulatxt));
+           if (formulatxt != null && formulatxt != "") {
+               $('#val_result').val(eval(formulatxt));
+           }
        } catch {
            $('#val_result').val(eval(''));
        }
@@ -2761,8 +2914,8 @@
    function EnviaFormulario(salir) {
 
        //borra los filtros
-       hot2.getPlugin('Filters').clearConditions();
-       hot2.getPlugin('Filters').filter();
+       //hot2.getPlugin('Filters').clearConditions();
+       //hot2.getPlugin('Filters').filter();
        hot2.render();
 
        //convierte los elementos del array en string
@@ -2862,7 +3015,7 @@
 
            //conviete los concepto en formato para json
            const options = conceptos_calculados.map(function (row) {
-               return { id_budget_cantidad: row[2], clave: row[3], cuenta_sap: row[4], id_rel_fy_centro: row[5], mes: row[6], currency: row[7], id_rel_conceptos: row[8], cantidad: row[9] }
+               return { id_budget_cantidad: row[2], clave: row[3], cuenta_sap: row[4], id_rel_fy_centro: row[5], mes: row[6], currency: row[7], id_rel_conceptos: row[8], cantidad: row[9], comentario: row[10] }
            })
            //actualiza los conceptos
            if (exito) {
@@ -3023,6 +3176,7 @@
                id_centro_costo: @Model.id,
                id_fy: id_fy,
                id_fy_cc: id_fy_cc,
+               controlling: "@(controlling)",
            },
            success: function(data) {
                try {
@@ -3220,86 +3374,89 @@
                                       let rowSelected = this.getSelectedLast()[0];
                                        let columnSelected = this.getSelectedLast()[1];
 
+                                       console.log("row: " + rowSelected + "col: " + columnSelected)
+
                                        //habilita la celda
                                        hot2.updateSettings({
                                            cells: function(row, col) {
                                            var cellProperties = {};
 
                                            //habilita la celda
-                                           if (row == rowSelected && col == columnSelected) {
-                                               cellProperties.readOnly = false;
-                                               return cellProperties;
-                                           }
+                                               if (row == rowSelected && col == columnSelected) {
+                                                   cellProperties.readOnly = false;
+                                                   return cellProperties;
+                                               } else {
 
-                                            //obtiene el sufijo para saber si es editable
-                                            let suffix = '';
-                                            switch (col) {
-                                                case 3:
-                                                case 7:
-                                                case 11:
-                                                case 15:
-                                                case 19:
-                                                case 23:
-                                                case 27:
-                                                case 31:
-                                                case 35:
-                                                case 39:
-                                                case 43:
-                                                case 47:
-                                                    suffix = 'MXN';
-                                                    break;
-                                                case 4:
-                                                case 8:
-                                                case 12:
-                                                case 16:
-                                                case 20:
-                                                case 24:
-                                                case 28:
-                                                case 32:
-                                                case 36:
-                                                case 40:
-                                                case 44:
-                                                case 48:
-                                                    suffix = 'USD';
-                                                    break;
-                                                case 5:
-                                                case 9:
-                                                case 13:
-                                                case 17:
-                                                case 21:
-                                                case 25:
-                                                case 29:
-                                                case 33:
-                                                case 37:
-                                                case 41:
-                                                case 45:
-                                                case 49:
-                                                    suffix = 'EUR';
-                                                    break;
-                                            }
+                                                   //obtiene el sufijo para saber si es editable
+                                                   let suffix = '';
+                                                   switch (col) {
+                                                       case 3:
+                                                       case 7:
+                                                       case 11:
+                                                       case 15:
+                                                       case 19:
+                                                       case 23:
+                                                       case 27:
+                                                       case 31:
+                                                       case 35:
+                                                       case 39:
+                                                       case 43:
+                                                       case 47:
+                                                           suffix = 'MXN';
+                                                           break;
+                                                       case 4:
+                                                       case 8:
+                                                       case 12:
+                                                       case 16:
+                                                       case 20:
+                                                       case 24:
+                                                       case 28:
+                                                       case 32:
+                                                       case 36:
+                                                       case 40:
+                                                       case 44:
+                                                       case 48:
+                                                           suffix = 'USD';
+                                                           break;
+                                                       case 5:
+                                                       case 9:
+                                                       case 13:
+                                                       case 17:
+                                                       case 21:
+                                                       case 25:
+                                                       case 29:
+                                                       case 33:
+                                                       case 37:
+                                                       case 41:
+                                                       case 45:
+                                                       case 49:
+                                                           suffix = 'EUR';
+                                                           break;
+                                                   }
 
-                                             //determina si el campo es readonly, segun el tipo de moneda
-                                            if (columnasEditables.includes(col)) {
+                                                   //determina si el campo es readonly, segun el tipo de moneda
+                                                   if (columnasEditables.includes(col)) {
 
 
-                                                if (hot2.getDataAtCell(row, GetColFromName(headers2, "Aplica" + suffix)) == '@(false)') {
-                                                    cellProperties.readOnly = true;
-                                                    cellProperties.className = 'no-comments';
-                                                } else if (hot2.getDataAtCell(row, GetColFromName(headers2, "AplicaFormula")) === '@(true)') {
-                                                    cellProperties.readOnly = true;
-                                                    cellProperties.className = 'aplica-formula';
-                                                }
-                                            }
-                                            //aplica formato para formula readonly
-                                            if (columnasNoEditables.includes(col) && hot2.getDataAtCell(row, GetColFromName(headers2, "AplicaFormula")) === '@(true)' && hot2.getDataAtCell(row, GetColFromName(headers2, "Aplica" + suffix)) == '@(true)') {
-                                                cellProperties.className = 'aplica-form-readonly';
-                                            }
+                                                       if (hot2.getDataAtCell(row, GetColFromName(headers2, "Aplica" + suffix)) == '@(false)') {
+                                                           cellProperties.readOnly = true;
+                                                           cellProperties.className = 'no-comments';
+                                                       } else if (hot2.getDataAtCell(row, GetColFromName(headers2, "AplicaFormula")) === '@(true)') {
+                                                           cellProperties.readOnly = true;
+                                                           cellProperties.className = 'aplica-formula';
+                                                       }
+                                                   }
+                                                   //aplica formato para formula readonly
+                                                   if (columnasNoEditables.includes(col) && hot2.getDataAtCell(row, GetColFromName(headers2, "AplicaFormula")) === '@(true)' && hot2.getDataAtCell(row, GetColFromName(headers2, "Aplica" + suffix)) == '@(true)') {
+                                                       cellProperties.className = 'aplica-form-readonly';
+                                                   }
 
-                                            //vuelve readonly la última fila (totales)
-                                            if (row == hot2.countRows() - 1) {
-                                                cellProperties.readOnly = true;
-                                            }
-                                            return cellProperties;
+                                                   //vuelve readonly la última fila (totales)
+                                                   if (row == hot2.countRows() - 1) {
+                                                       cellProperties.readOnly = true;
+                                                   }
+                                                   return cellProperties;
+                                               }
                                         },
                                        });
 
@@ -3612,7 +3769,7 @@
     })
 
         //muestra formulario de documento soporte
-        function muestraSoporte(id_rel_fy_cc, id_cuenta_sap) {  
+        function muestraSoporte(id_rel_fy_cc, id_cuenta_sap) {
             //obtiene fila y columna
             let rowSelected = hot2.getSelectedLast()[0];
             let columnSelected = hot2.getSelectedLast()[1];
@@ -3795,14 +3952,16 @@
                 async: false
             });
 
-        
+
     }
+
+
 
    function Recordatorio() {
        Swal.fire('Recordatorio', 'Recuerde guardar sus cambios constantemente, para evitar la pérdida de información.', 'info')
        setTimeout(Recordatorio, 600000); //diez minutos
    }
 
-</script>
+    </script>
 
 }

@@ -21,7 +21,7 @@ namespace Portal_2_0.Models
         public string comentario { get; set; }
     
         public virtual biblioteca_digital biblioteca_digital { get; set; }
-        public virtual budget_cuenta_sap budget_cuenta_sap { get; set; }
         public virtual budget_rel_fy_centro budget_rel_fy_centro { get; set; }
+        public virtual budget_cuenta_sap budget_cuenta_sap { get; set; }
     }
 }

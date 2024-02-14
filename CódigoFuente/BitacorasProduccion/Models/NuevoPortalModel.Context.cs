@@ -160,11 +160,12 @@ namespace Portal_2_0.Models
         public virtual DbSet<budget_rel_tipo_cambio_fy> budget_rel_tipo_cambio_fy { get; set; }
         public virtual DbSet<budget_tipo_cambio> budget_tipo_cambio { get; set; }
         public virtual DbSet<budget_rel_comentarios> budget_rel_comentarios { get; set; }
-        public virtual DbSet<budget_rel_conceptos_formulas> budget_rel_conceptos_formulas { get; set; }
-        public virtual DbSet<budget_rel_conceptos_cantidades> budget_rel_conceptos_cantidades { get; set; }
-        public virtual DbSet<budget_cuenta_sap> budget_cuenta_sap { get; set; }
         public virtual DbSet<budget_cantidad_budget_historico> budget_cantidad_budget_historico { get; set; }
         public virtual DbSet<view_valores_fiscal_year_budget_historico> view_valores_fiscal_year_budget_historico { get; set; }
         public virtual DbSet<budget_rel_documento> budget_rel_documento { get; set; }
+        public virtual DbSet<budget_rel_conceptos_cantidades> budget_rel_conceptos_cantidades { get; set; }
+        public virtual DbSet<budget_rel_conceptos_formulas> budget_rel_conceptos_formulas { get; set; }
+        public virtual DbSet<budget_conceptos_mantenimiento> budget_conceptos_mantenimiento { get; set; }
+        public virtual DbSet<budget_cuenta_sap> budget_cuenta_sap { get; set; }
     }
 }

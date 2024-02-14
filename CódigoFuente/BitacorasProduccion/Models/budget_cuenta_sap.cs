@@ -18,6 +18,7 @@ namespace Portal_2_0.Models
         public budget_cuenta_sap()
         {
             this.budget_cantidad = new HashSet<budget_cantidad>();
+            this.budget_conceptos_mantenimiento = new HashSet<budget_conceptos_mantenimiento>();
             this.budget_rel_comentarios = new HashSet<budget_rel_comentarios>();
             this.budget_rel_conceptos_formulas = new HashSet<budget_rel_conceptos_formulas>();
             this.budget_rel_documento = new HashSet<budget_rel_documento>();
@@ -33,9 +34,12 @@ namespace Portal_2_0.Models
         public bool aplica_mxn { get; set; }
         public bool aplica_usd { get; set; }
         public bool aplica_eur { get; set; }
+        public bool aplica_gastos_mantenimiento { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_cantidad> budget_cantidad { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<budget_conceptos_mantenimiento> budget_conceptos_mantenimiento { get; set; }
         public virtual budget_mapping budget_mapping { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_rel_comentarios> budget_rel_comentarios { get; set; }

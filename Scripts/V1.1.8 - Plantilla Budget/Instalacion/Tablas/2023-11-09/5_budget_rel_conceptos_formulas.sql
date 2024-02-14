@@ -35,6 +35,10 @@ CREATE TABLE [budget_rel_conceptos_formulas](
 ) ON [PRIMARY]
 GO
 
+--agrega la columna para comentarios
+ALTER TABLE [budget_rel_conceptos_formulas] 
+ADD aplica_comentario bit NOT NULL DEFAULT 0;
+
 
 -- restriccion de clave foranea
   alter table [budget_rel_conceptos_formulas]

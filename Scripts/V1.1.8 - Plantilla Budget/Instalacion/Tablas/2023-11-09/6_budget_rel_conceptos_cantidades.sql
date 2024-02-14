@@ -46,6 +46,10 @@ GO
   references budget_rel_conceptos_formulas(id);
 
 
+  --agrega la columna para comentarios
+ALTER TABLE [budget_rel_conceptos_cantidades] 
+ADD comentario VARCHAR(80) NULL;
+
 
 SET IDENTITY_INSERT [budget_rel_conceptos_cantidades] ON 
 

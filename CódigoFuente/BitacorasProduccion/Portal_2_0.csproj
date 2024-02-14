@@ -420,6 +420,9 @@
     <Compile Include="Models\budget_centro_costo.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\budget_conceptos_mantenimiento.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\budget_cuenta_sap.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -5303,6 +5306,7 @@
     <Content Include="Views\BudgetControlling\CargaConcentrado.cshtml" />
     <Content Include="Views\ResponsableBudget\EditCentroProximoHT.cshtml" />
     <Content Include="Views\ResponsableBudget\EditarSoporte.cshtml" />
+    <Content Include="Views\ResponsableBudget\ActualizaGastosManto.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

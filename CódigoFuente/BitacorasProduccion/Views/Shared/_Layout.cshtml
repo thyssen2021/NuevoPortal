@@ -764,6 +764,10 @@
                                                             <li class="@(ViewBag.TercelNivel == "BG_MappingBridge" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_MappingBridge")">Mapping Bridge</a></li>
                                                             <li class="@(ViewBag.TercelNivel == "BG_Mapping" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_Mapping")">Mapping</a></li>
                                                             <li class="@(ViewBag.TercelNivel == "BG_CuentasSAP" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_CuentasSAP")">Cuentas SAP</a></li>
+                                                            @if (User.IsInRole(TipoRoles.ADMIN))
+                                                            {
+                                                                <li class="@(ViewBag.TercelNivel == "BG_Gastos_Mantenimiento" ? "current-page" : null )"><a href="@Url.Action( "ActualizaGastosManto", "ResponsableBudget")">Actualiza Gastos de Manto</a></li>
+                                                            }
 
                                                         </ul>
                                                     </li>

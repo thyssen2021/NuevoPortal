@@ -34,6 +34,10 @@ GO
 			ALTER TABLE budget_cuenta_sap ADD aplica_eur bit NOT NULL default 0
 			PRINT 'Se ha creado la columna aplica_mxn en la tabla budget_cuenta_sap'
 
+			ALTER TABLE budget_cuenta_sap ADD aplica_gastos_mantenimiento bit NOT NULL default 0
+			PRINT 'Se ha creado la columna aplica_mxn en la tabla budget_cuenta_sap'
+
+
 		END
 		ELSE
 		BEGIN
