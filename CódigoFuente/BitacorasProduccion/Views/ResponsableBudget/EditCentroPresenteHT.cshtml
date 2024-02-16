@@ -19,6 +19,9 @@
 
     //lee los valores necesarios para los headers
     string[] headersForecast = (string[])ViewBag.HeadersForecast2;
+    string[][] arraySugeridos = (string[][])ViewBag.GastosSugeridos;
+
+
 
 
     String responsables = (string.Join(" / ", Model.budget_responsables.Select(x => x.empleados.ConcatNombre).ToArray()));
@@ -197,6 +200,12 @@
 
         .handsontable .aplica-formula {
             background: repeating-linear-gradient( -50deg, #fff 10px, #fff 20px, #edecec 20px, #edecec 30px );
+        }
+
+        .handsontable .diferencia-sugerido {
+            border: solid 1px !important;
+            border-color: #d05e0e !important;
+            font-weight: 400;
         }
 
         .handsontable .aplica-form-readonly {
@@ -380,6 +389,9 @@
    var headers1_actual = JSON.parse('@Html.Raw(ViewBag.HeadersForecast1_actual)');
    var headers1_budget = JSON.parse('@Html.Raw(ViewBag.HeadersForecast1_budget)');
    var headers2 = @Html.Raw(Json.Encode(headersForecast));
+   var arraySugeridos = @Html.Raw(Json.Encode(arraySugeridos));
+
+   console.log(arraySugeridos)
 
    var columnasNoEditables = []
    var columnasEditables = [];
@@ -1758,7 +1770,10 @@
            {
                type: 'text'
            },
-           { readOnly: true, className: 'htMiddle', renderer: "html" }
+           { readOnly: true, className: 'htMiddle', renderer: "html" },
+           {
+               type: 'text'
+           }
 
        ],
        cells: function(row, col) {
@@ -1794,7 +1809,9 @@
            columns: [GetColFromName(headers2, "AplicaFormula"),
                GetColFromName(headers2, "AplicaMXN"),
                GetColFromName(headers2, "AplicaUSD"),
-               GetColFromName(headers2, "AplicaEUR")
+               GetColFromName(headers2, "AplicaEUR"),
+               GetColFromName(headers2, "AplicaGastos"),
+
            ],
            //indicators: true,
        },
@@ -3225,8 +3242,6 @@
 
    function cargaDatosIniciales() {
 
-
-
        $.ajax({
            type: 'POST',
            url: '/ResponsableBudget/CargaFY',
@@ -3294,16 +3309,42 @@
                            }
 
                             //determina si el campo es readonly, segun el tipo de moneda
-                           if (columnasEditables.includes(col)) {
+                           if (columnasEditables.includes(col) ) {
 
+                               let clase = '';
+
+                               if (hot2.getDataAtCell(row, GetColFromName(headers2, "AplicaGastos")) == '@(true)') {
+                                   let valor = hot2.getDataAtCell(row, col);
+
+                                   if (valor == "")
+                                       valor = 0;
+
+                                   let mes = getMonthByColumn(col);
+                                   let cuentaSAP = hot2.getDataAtCell(row, 0)
+                                   let currency = headers2[col];
+                                   //busca el valor qie coincida
+                                   console.log(cuentaSAP + " | " + currency + " | " + mes)
+
+                                   let resultadoBusqueda = arraySugeridos.filter((element) => element[0] === cuentaSAP.toString() && element[1] === currency && element[2] === mes.toString())
+                                   let sugerido = 0;
+                                   if (resultadoBusqueda[0] !== undefined)
+                                       sugerido = Number(resultadoBusqueda[0][3])
+
+                                   console.log("actual: " + valor + " - sugerido: " + sugerido)
+
+                                   if (Number(valor) != sugerido)
+                                        clase = 'diferencia-sugerido ';
+                               }
 
                                if (hot2.getDataAtCell(row, GetColFromName(headers2, "Aplica" + suffix)) == '@(false)') {
                                    cellProperties.readOnly = true;
-                                   cellProperties.className = 'no-comments';
+                                   cellProperties.className = clase+'no-comments';
                                } else if (hot2.getDataAtCell(row, GetColFromName(headers2, "AplicaFormula")) === '@(true)') {
                                    cellProperties.readOnly = true;
-                                   cellProperties.className = 'aplica-formula';
+                                   cellProperties.className =clase +'aplica-formula';
                                }
+
+
                            }
                            //aplica formato para formula readonly
                            if (columnasNoEditables.includes(col) && hot2.getDataAtCell(row, GetColFromName(headers2, "AplicaFormula")) === '@(true)' && hot2.getDataAtCell(row, GetColFromName(headers2, "Aplica" + suffix)) == '@(true)') {

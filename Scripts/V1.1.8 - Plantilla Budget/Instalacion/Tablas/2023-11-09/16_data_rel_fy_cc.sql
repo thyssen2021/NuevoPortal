@@ -1,5 +1,14 @@
+/*********************************
+* Inserta el año fiscal 2018/2019 y agrega un 
+* budget_rel_fy_centro, para cada CeCo 
+* Tambián agrega un tipo de cambio para el FY
+*********************************/
+
 Insert into budget_anio_fiscal (descripcion, anio_inicio, mes_inicio, anio_fin, mes_fin)
 VALUES ('2018/19', 2018,10,2019,9)
+
+INSERT [budget_rel_tipo_cambio_fy] ([id_budget_anio_fiscal], [id_tipo_cambio], [cantidad]) VALUES (51,1, 17.07)
+INSERT [budget_rel_tipo_cambio_fy] ([id_budget_anio_fiscal], [id_tipo_cambio], [cantidad]) VALUES (51,2, 1.15)
 
 insert into budget_rel_fy_centro (id_anio_fiscal, id_centro_costo, estatus) VALUES (51,1,1)
 insert into budget_rel_fy_centro (id_anio_fiscal, id_centro_costo, estatus) VALUES (51,2,1)

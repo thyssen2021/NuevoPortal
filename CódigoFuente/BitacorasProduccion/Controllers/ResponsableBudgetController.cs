@@ -226,11 +226,39 @@ namespace Portal_2_0.Controllers
                 headersForecast.Add("AplicaUSD");
                 headersForecast.Add("AplicaEUR");
                 headersForecast.Add("Soporte");
+                headersForecast.Add("AplicaGastos");
 
                 ViewBag.HeadersForecast1_actual = JsonConvert.SerializeObject(cabeceraObjectActual);
                 ViewBag.HeadersForecast1_budget = JsonConvert.SerializeObject(cabeceraObjectBudget);
                 ViewBag.HeadersForecast1 = JsonConvert.SerializeObject(cabeceraObject);
                 ViewBag.HeadersForecast2 = headersForecast.ToArray();
+
+                //obtiene todos lo valores sugeridos
+                List<string[]> listaSugeridos = new List<string[]>();
+                List<int> listMeses = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+                List<string> listMoneda = new List<string> { "MXN", "USD", "EUR" };
+
+                foreach (var sapAccount in rel_fy_centro_presente.budget_cantidad.Where(x=>x.budget_cuenta_sap.aplica_gastos_mantenimiento).Select(x=>x.budget_cuenta_sap).Distinct())
+                {
+                    foreach (var mes in listMeses)
+                    {
+                        foreach (var moneda in listMoneda)
+                        {
+                            double sugerido = 0;
+
+                            //obtiene los ultimos tres gastos
+                            var listGastos = sapAccount.budget_conceptos_mantenimiento.Where(x => x.budget_rel_fy_centro.id_centro_costo == rel_fy_centro_presente.id_centro_costo && x.mes == mes
+                            && x.budget_rel_fy_centro.budget_anio_fiscal.anio_inicio < rel_fy_centro_presente.budget_anio_fiscal.anio_inicio && x.gasto != 0
+                            && x.moneda == moneda
+                            ).OrderByDescending(x => x.budget_rel_fy_centro.budget_anio_fiscal.anio_inicio).Take(3).ToList();
+
+                            sugerido = listGastos.Count == 0 ? 0 : listGastos.Sum(x => x.gasto - (x.one_time.HasValue ? x.one_time.Value : 0)) / listGastos.Count;
+
+                            listaSugeridos.Add(new string[4] { sapAccount.sap_account, moneda, mes.ToString(), Math.Round(sugerido, 2).ToString() });
+                        }
+                    }                 
+                }
+                ViewBag.GastosSugeridos = listaSugeridos.ToArray();
 
                 #endregion
 
@@ -1129,7 +1157,8 @@ namespace Portal_2_0.Controllers
                     sapAccountsList.Any(x=> x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_mxn == true).ToString(),
                     sapAccountsList.Any(x=> x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_usd == true).ToString(),
                     sapAccountsList.Any(x=> x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_eur == true).ToString(),
-                    btnDoc
+                    btnDoc,
+                     sapAccountsList.Any(x=> x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_gastos_mantenimiento == true).ToString(),
                     });
 
 
@@ -1197,6 +1226,41 @@ namespace Portal_2_0.Controllers
             });
 
             return Json(jsonData.ToArray(), JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Obtiene el monto sugerido
+        /// </summary>
+        /// <param name="id_fy"></param>
+        /// <returns></returns>
+        public JsonResult ObtieneMontoSugerido(int? id_fy_cc, int? mes, string moneda, string sap_account)
+        {
+
+            budget_cuenta_sap sapAccount = db.budget_cuenta_sap.FirstOrDefault(x=>x.sap_account == sap_account);
+
+            //obtiene todos los posibles valores
+            budget_rel_fy_centro rel_fy_cc = db.budget_rel_fy_centro.Find(id_fy_cc);
+
+            //inicializa la lista de objetos
+            var objeto = new object[1];
+
+            double sugerido = 0;
+
+            //obtiene el valor sugerido
+            //obtiene los ultimos tres gastos
+            var listGastos = sapAccount.budget_conceptos_mantenimiento.Where(x => x.budget_rel_fy_centro.id_centro_costo == rel_fy_cc.id_centro_costo && x.mes == mes
+            && x.budget_rel_fy_centro.budget_anio_fiscal.anio_inicio < rel_fy_cc.budget_anio_fiscal.anio_inicio && x.gasto != 0
+            && x.moneda == moneda
+            ).OrderByDescending(x => x.budget_rel_fy_centro.budget_anio_fiscal.anio_inicio).Take(3).ToList();
+
+            sugerido = listGastos.Count == 0 ? 0 : listGastos.Sum(x => x.gasto - (x.one_time.HasValue ? x.one_time.Value : 0)) / listGastos.Count;
+
+            objeto[0] = new
+            {
+                sugerido = sugerido,           
+            };
+
+            return Json(objeto, JsonRequestBehavior.AllowGet);
         }
 
 
@@ -1273,7 +1337,7 @@ namespace Portal_2_0.Controllers
                         <input type=""text"" class=""form-control concepto-formula"" name=""val_{0}"" id=""val_{0}"" value=""{2}""  {3}/>
                         <span class=""field-validation-valid text-danger"" data-valmsg-for=""val_{0}"" data-valmsg-replace=""true""></span>
                     </div>
-                </div>", "result", String.Format("{0:0.##}", sugerido), String.Format("{0:0.##}", real), readOnly ? "readonly" : string.Empty);
+                </div>", "result", String.Format("{0:0.##}", Math.Round (sugerido,2)), String.Format("{0:0.##}", real), readOnly ? "readonly" : string.Empty);
 
                 //envia form de gastos
                 formulario[0] = new
@@ -1665,7 +1729,7 @@ namespace Portal_2_0.Controllers
             //&& x.budget_rel_fy_centro.budget_anio_fiscal.anio_inicio < rel_fy_cc.budget_anio_fiscal.anio_inicio && x.gasto != 0
             //&& x.moneda == currency
             //).OrderByDescending(x => x.budget_rel_fy_centro.budget_anio_fiscal.anio_inicio).Take(3).ToList();
-            DateTime fecha_actual = new DateTime(DateTime.Now.Year, DateTime.Now.Month,1);
+            DateTime fecha_actual = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
 
             //recorre cada cc
             foreach (var cc in ccList/*.Where(x => listGastosTotal.Any(y => y.budget_rel_fy_centro.budget_centro_costo.id == x.id))*/)
@@ -1687,7 +1751,7 @@ namespace Portal_2_0.Controllers
                             fechaComparacion = new DateTime(rel_fy_cc.budget_anio_fiscal.anio_fin, mesItem, 1);
 
                         if (fechaComparacion < fecha_actual) //si es actual se salta la iteracion
-                           continue; 
+                            continue;
 
                         //recorre cada moneda
                         foreach (var moneda in monedas/*.Where(x => listGastosTotal.Any(y => y.moneda == x))*/)
@@ -1699,6 +1763,7 @@ namespace Portal_2_0.Controllers
                             ).OrderByDescending(x => x.budget_rel_fy_centro.budget_anio_fiscal.anio_inicio).Take(3).ToList();
 
                             var sugerido = listGastos.Count == 0 ? 0 : listGastos.Sum(x => x.gasto - (x.one_time.HasValue ? x.one_time.Value : 0)) / listGastos.Count;
+                            sugerido = Math.Round(sugerido, 2);
 
                             //actualiza/crea budget cantidad con el valor sugerido
                             var cantidad = sapAccount.budget_cantidad.Where(x => x.mes == mesItem && x.currency_iso == moneda && x.moneda_local_usd != true && x.id_budget_rel_fy_centro == rel_fy_cc.id).FirstOrDefault();

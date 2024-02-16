@@ -24,6 +24,7 @@ CREATE TABLE [budget_rel_conceptos_cantidades](
 	[id_budget_cantidad][int] NOT NULL, --fk
 	[id_rel_conceptos][int] NOT NULL, --fk
 	[cantidad][float] NULL,
+	[comentario][varchar](80) NULL
 	
  CONSTRAINT [PK_budget_rel_conceptos_cantidades] PRIMARY KEY CLUSTERED 
 (
@@ -45,12 +46,7 @@ GO
   foreign key (id_rel_conceptos)
   references budget_rel_conceptos_formulas(id);
 
-
-  --agrega la columna para comentarios
-ALTER TABLE [budget_rel_conceptos_cantidades] 
-ADD comentario VARCHAR(80) NULL;
-
-
+  
 SET IDENTITY_INSERT [budget_rel_conceptos_cantidades] ON 
 
 

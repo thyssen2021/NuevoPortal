@@ -27,7 +27,8 @@ CREATE TABLE [budget_rel_conceptos_formulas](
 	[valor_defecto_mxn][float]NULL,
 	[valor_defecto_usd][float]NULL,
 	[valor_defecto_eur][float]NULL,	
-	[valor_fijo][bit]NULL
+	[valor_fijo][bit] NULL,
+	[aplica_comentario] [bit] NOT NULL DEFAULT 0
  CONSTRAINT [PK_budget_rel_conceptos_formulas] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
@@ -35,186 +36,197 @@ CREATE TABLE [budget_rel_conceptos_formulas](
 ) ON [PRIMARY]
 GO
 
---agrega la columna para comentarios
-ALTER TABLE [budget_rel_conceptos_formulas] 
-ADD aplica_comentario bit NOT NULL DEFAULT 0;
-
-
 -- restriccion de clave foranea
   alter table [budget_rel_conceptos_formulas]
  add constraint FK_budget_rel_conceptos_formulas_id_budget_cuenta_sap
   foreign key (id_budget_cuenta_sap)
   references budget_cuenta_sap(id);
 
-
-SET IDENTITY_INSERT [budget_rel_conceptos_formulas] ON 
-
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (1,2,'a','No. Días',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (2,2,'b','No. Personas',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (3,2,'c','Tarifa Nacional',123, null,null,1)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (4,2,'d','No. Días',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (5,2,'e','No. Personas',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (6,2,'f','Tarifa Extranjero',123, null,null,1)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (7,3,'a','No. Días',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (8,3,'b','No. Personas',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (9,3,'c','Tarifa Nacional por día',123, null,null,1)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (10,3,'d','No. Días',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (11,3,'e','No. Personas',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (12,3,'f','Tarifa Extranjero por día',123, null,null,1)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (13,4,'a','No. Personas',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (14,4,'b','Vuelo redondo nacional',123, null,null,1)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (15,4,'c','No. Personas',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (16,4,'d','Vuelo redondo extranjero',123, null,null,1)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (17,10,'a','Litigation',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (18,10,'b','Business related legal services',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (19,10,'c','Debt Collection',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (20,10,'d','Labor and Employment Law',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (21,10,'e','Corporate Governance',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (22,10,'f','Regulatory Matters',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (23,11,'a','Auditoria A',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (24,11,'b','Auditoria B',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (25,11,'c','Auditoria C',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (26,11,'d','Otra',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (27,12,'a','Consultoria A',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (28,12,'b','Consultoria B',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (29,12,'c','Consultoria C',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (30,12,'d','Otra',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (31,15,'a','No teléfonos',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (32,15,'b','Tarifa por teléfono',123, null,null,1)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (33,15,'c','Servicio de internet/soporte de red',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (34,16,'a','No radios',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (35,16,'b','Precio por radio',123, null,null,1)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (36,16,'c','Accesorios comunicaciones',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (37,19,'a','Gensuite',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (38,19,'b','Plataforma de gestión mantto.',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (39,19,'c','Otros',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (40,20,'a','P60 Environment (DXC)',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (41,20,'b','Software One – Think Cell 5 licenses',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (42,20,'c','IM Projects- OpEX',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (43,20,'d','Office 365',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (44,20,'e','Email tkMM',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (45,20,'f','Azure',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (46,20,'g','Otros',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (47,23,'a','No equipos de cómputo',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (48,23,'b','Precio por equipo',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (49,23,'c','No impresoras',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (50,23,'d','Precio por impresora',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (51,23,'f','Otros equipos',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (52,26,'a','Transportes',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (53,26,'b','Multiple Empresarial',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (54,26,'c','Responsabilidad Civil General',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (55,26,'d','Responsabilidad Civil Directores y Funcionarios',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (56,26,'e','Autos en exceso',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (57,38,'a','Audiometrías',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (58,38,'b','Espirometrías',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (59,38,'c','Radiografías',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (60,38,'d','Check-ups',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (61,38,'e','Antidoping',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (62,38,'f','Microbiolóbicos',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (63,38,'g','Equipo médico',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (64,38,'h','Equipo de protección personal',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (65,38,'i','Medicamentos y material de curación',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (66,38,'j','Atención de ancidentes de trabajo',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (67,38,'k','Ambulancias',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (68,38,'l','Servicio de paramédicos',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (69,62,'a','Precio KW por hora',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (70,62,'b','Kilowatts',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (71,63,'a','No pipas',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (72,63,'b','Precio por pipa',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (73,63,'c','No garrafones de agua',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (74,63,'d','Precio por garrafón',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (75,64,'a','Gas montacargas',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (76,64,'b','Gas servicio de comedor',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (77,93,'a','Botas',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (78,93,'b','Cascos',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (79,93,'c','Equipo contra incendios',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (80,96,'a','No. De guardias',null, null,null,0)
-INSERT [budget_rel_conceptos_formulas] ([id],[id_budget_cuenta_sap], clave, descripcion, [valor_defecto_mxn], valor_defecto_usd, valor_defecto_eur, valor_fijo) 
-		VALUES (81,96,'b','Costo por día por guardia',null, null,null,0)
-
-
-SET IDENTITY_INSERT [budget_rel_conceptos_formulas] OFF
+  SET IDENTITY_INSERT [dbo].[budget_rel_conceptos_formulas] ON 
 GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (1, 2, N'a', N'No. Días', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (2, 2, N'b', N'No. Personas', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (3, 2, N'c', N'Tarifa Nacional', 123, NULL, NULL, 1, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (4, 2, N'd', N'No. Días', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (5, 2, N'e', N'No. Personas', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (6, 2, N'f', N'Tarifa Extranjero', NULL, 12.3, NULL, 1, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (7, 3, N'a', N'No. Días', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (8, 3, N'b', N'No. Personas', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (9, 3, N'c', N'Tarifa Nacional por día', 123, NULL, NULL, 1, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (10, 3, N'd', N'No. Días', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (11, 3, N'e', N'No. Personas', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (12, 3, N'f', N'Tarifa Extranjero por día', NULL, 12.3, NULL, 1, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (13, 4, N'a', N'No. Personas', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (14, 4, N'b', N'Vuelo redondo nacional', 123, NULL, NULL, 1, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (15, 4, N'c', N'No. Personas', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (16, 4, N'd', N'Vuelo redondo extranjero', 123, NULL, NULL, 1, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (17, 10, N'a', N'Litigation', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (18, 10, N'b', N'Business related legal services', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (19, 10, N'c', N'Debt Collection', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (20, 10, N'd', N'Labor and Employment Law', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (21, 10, N'e', N'Corporate Governance', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (22, 10, N'f', N'Regulatory Matters', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (23, 11, N'a', N'Auditoria A', NULL, NULL, NULL, 0, 1)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (24, 11, N'b', N'Auditoria B', NULL, NULL, NULL, 0, 1)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (25, 11, N'c', N'Auditoria C', NULL, NULL, NULL, 0, 1)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (26, 11, N'd', N'Otra', NULL, NULL, NULL, 0, 1)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (27, 12, N'a', N'Consultoria A', NULL, NULL, NULL, 0, 1)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (28, 12, N'b', N'Consultoria B', NULL, NULL, NULL, 0, 1)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (29, 12, N'c', N'Consultoria C', NULL, NULL, NULL, 0, 1)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (30, 12, N'd', N'Otra', NULL, NULL, NULL, 0, 1)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (31, 15, N'a', N'No teléfonos', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (32, 15, N'b', N'Tarifa por teléfono', 123, NULL, NULL, 1, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (33, 15, N'c', N'Servicio de internet/soporte de red', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (34, 16, N'a', N'No radios', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (35, 16, N'b', N'Precio por radio', 123, NULL, NULL, 1, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (36, 16, N'c', N'Accesorios comunicaciones', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (37, 19, N'a', N'Gensuite', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (38, 19, N'b', N'Plataforma de gestión mantto.', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (39, 19, N'c', N'Otros', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (40, 20, N'a', N'P60 Environment (DXC)', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (41, 20, N'b', N'Software One – Think Cell 5 licenses', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (42, 20, N'c', N'IM Projects- OpEX', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (43, 20, N'd', N'Office 365', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (44, 20, N'e', N'Email tkMM', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (45, 20, N'f', N'Azure', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (46, 20, N'g', N'Otros', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (47, 23, N'a', N'No equipos de cómputo', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (48, 23, N'b', N'Precio por equipo', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (49, 23, N'c', N'No impresoras', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (50, 23, N'd', N'Precio por impresora', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (51, 23, N'e', N'Otros equipos', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (52, 26, N'a', N'Transportes', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (53, 26, N'b', N'Multiple Empresarial', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (54, 26, N'c', N'Responsabilidad Civil General', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (55, 26, N'd', N'Responsabilidad Civil Directores y Funcionarios', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (56, 26, N'e', N'Autos en exceso', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (57, 38, N'a', N'Audiometrías', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (58, 38, N'b', N'Espirometrías', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (59, 38, N'c', N'Radiografías', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (60, 38, N'd', N'Check-ups', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (61, 38, N'e', N'Antidoping', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (62, 38, N'f', N'Microbiolóbicos', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (63, 38, N'g', N'Equipo médico', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (64, 38, N'h', N'Equipo de protección personal', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (65, 38, N'i', N'Medicamentos y material de curación', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (66, 38, N'j', N'Atención de ancidentes de trabajo', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (67, 38, N'k', N'Ambulancias', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (68, 38, N'l', N'Servicio de paramédicos', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (69, 62, N'a', N'Precio KW por hora', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (70, 62, N'b', N'Kilowatts', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (71, 63, N'a', N'No pipas', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (72, 63, N'b', N'Precio por pipa', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (73, 63, N'c', N'No garrafones de agua', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (74, 63, N'd', N'Precio por garrafón', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (75, 64, N'a', N'Gas montacargas', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (76, 64, N'b', N'Gas servicio de comedor', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (77, 93, N'a', N'Botas', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (78, 93, N'b', N'Cascos', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (79, 93, N'c', N'Equipo contra incendios', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (80, 96, N'a', N'No. De guardias', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (81, 96, N'b', N'Costo por día por guardia', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (82, 38, N'm', N'Otros', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (83, 14, N'a', N'Evento A (Núm Personas)', NULL, NULL, NULL, 0, 1)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (84, 14, N'b', N'Tarifa por Persona', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (85, 14, N'c', N'Evento B (Núm Personas)', NULL, NULL, NULL, 0, 1)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (86, 14, N'd', N'Tarifa por Persona', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (87, 14, N'e', N'Evento C (Núm Personas)', NULL, NULL, NULL, 0, 1)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (88, 14, N'f', N'Tarifa por Persona', NULL, NULL, NULL, 0, 0)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (89, 14, N'g', N'Otro (Núm Personas)', NULL, NULL, NULL, 0, 1)
+GO
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (90, 14, N'h', N'Tarifa por Persona', NULL, NULL, NULL, 0, 0)
+GO
+SET IDENTITY_INSERT [dbo].[budget_rel_conceptos_formulas] OFF
+GO
+
  	  
 IF object_id(N'budget_rel_conceptos_formulas',N'U') IS NOT NULL
 	BEGIN

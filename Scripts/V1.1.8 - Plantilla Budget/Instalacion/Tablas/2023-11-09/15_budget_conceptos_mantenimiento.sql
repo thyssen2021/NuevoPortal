@@ -47,19 +47,6 @@ GO
  add constraint FK_budget_conceptos_mantenimiento_id_cuenta_sap
   foreign key (id_cuenta_sap)
   references budget_cuenta_sap(id);
-
---SET IDENTITY_INSERT [budget_conceptos_mantenimiento] ON 
-
-INSERT INTO [dbo].[budget_conceptos_mantenimiento]([id_rel_fy_cc],[id_cuenta_sap],[mes],[moneda],[gasto],[one_time])
-     VALUES (4589, 68, 10, 'MXN', 25168.23, 0 )
-INSERT INTO [dbo].[budget_conceptos_mantenimiento]([id_rel_fy_cc],[id_cuenta_sap],[mes],[moneda],[gasto],[one_time])
-     VALUES (1702, 68, 10, 'MXN', 306449.01, 100000 )
-INSERT INTO [dbo].[budget_conceptos_mantenimiento]([id_rel_fy_cc],[id_cuenta_sap],[mes],[moneda],[gasto],[one_time])
-     VALUES (1703, 68, 10, 'MXN', 2302149.77, 0 )
-
-
---SET IDENTITY_INSERT [budget_conceptos_mantenimiento] OFF
-GO
  	  
 IF object_id(N'budget_conceptos_mantenimiento',N'U') IS NOT NULL
 	BEGIN
