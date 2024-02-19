@@ -1323,16 +1323,32 @@ namespace Portal_2_0.Controllers
                 //realiaza la suma o toma el valor de 0
                 sugerido = listGastos.Count == 0 ? 0 : listGastos.Sum(x => x.gasto - (x.one_time.HasValue ? x.one_time.Value : 0)) / listGastos.Count;
 
-                //*** agregar readonly ****
+                foreach (var item in listGastos.OrderBy(x=>x.budget_rel_fy_centro.budget_anio_fiscal.anio_inicio)) {
+                    html += @"
+                        <div class=""form-group row"">
+                            <label class=""control-label col-md-2 col-sm-2"" for=""anio_1"" style=""text-align:right"">FY "+(item.budget_rel_fy_centro.budget_anio_fiscal.anio_inicio-2000)+"/"+ (item.budget_rel_fy_centro.budget_anio_fiscal.anio_fin - 2000) + @":</label>
+                            <div class=""col-md-4"">
+                                <input type=""text"" class=""form-control concepto-formula"" name=""anio_1"" id=""val_sugerido_{0}"" value="""+(item.gasto)+ @"""  readonly />
+                            </div>
+                            <label class=""control-label col-md-2 col-sm-2"" for=""anio_1"" style=""text-align:right"">One Time:</label>
+                            <div class=""col-md-4"">
+                                <input type=""text"" class=""form-control concepto-formula"" name=""anio_1"" id=""val_sugerido_{0}"" value="""+(item.one_time)+@"""  readonly />
+                            </div>
+                        </div>";
+                }
+
+
+
                 html += String.Format(@" 
+                <hr/>
                 <div class=""form-group row"">
-                    <label class=""control-label col-md-6 col-sm-6"" for=""val_sugerido_{0}"" style=""text-align:right"">Promedio normalizado sugerido:</label>
+                    <label class=""control-label col-md-8 col-sm-8"" for=""val_sugerido_{0}"" style=""text-align:right"">Promedio normalizado sugerido:</label>
                     <div class=""col-md-4"">
                         <input type=""text"" class=""form-control concepto-formula"" name=""val_sugerido_{0}"" id=""val_sugerido_{0}"" value=""{1}""  readonly />
                     </div>
                 </div>
                 <div class=""form-group row"">
-                    <label class=""control-label col-md-6 col-sm-6"" for=""val_{0}"" style=""text-align:right"">Mantto. mayor:</label>
+                    <label class=""control-label col-md-8 col-sm-8"" for=""val_{0}"" style=""text-align:right"">Mantto. mayor:</label>
                     <div class=""col-md-4"">
                         <input type=""text"" class=""form-control concepto-formula"" name=""val_{0}"" id=""val_{0}"" value=""{2}""  {3}/>
                         <span class=""field-validation-valid text-danger"" data-valmsg-for=""val_{0}"" data-valmsg-replace=""true""></span>

@@ -764,10 +764,8 @@
                                                             <li class="@(ViewBag.TercelNivel == "BG_MappingBridge" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_MappingBridge")">Mapping Bridge</a></li>
                                                             <li class="@(ViewBag.TercelNivel == "BG_Mapping" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_Mapping")">Mapping</a></li>
                                                             <li class="@(ViewBag.TercelNivel == "BG_CuentasSAP" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_CuentasSAP")">Cuentas SAP</a></li>
-                                                            @if (User.IsInRole(TipoRoles.ADMIN))
-                                                            {
-                                                                <li class="@(ViewBag.TercelNivel == "BG_Gastos_Mantenimiento" ? "current-page" : null )"><a href="@Url.Action( "ActualizaGastosManto", "ResponsableBudget")">Actualiza Gastos de Manto</a></li>
-                                                            }
+
+                                                            <li class="@(ViewBag.TercelNivel == "BG_Gastos_Mantenimiento" ? "current-page" : null )"><a href="@Url.Action( "ActualizaGastosManto", "ResponsableBudget")">Actualiza Gastos de Manto</a></li>
 
                                                         </ul>
                                                     </li>
@@ -925,32 +923,32 @@
     @if (@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains("desarrollo-portaltkmm")
     || @HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains("calidad-portaltkmm"))
     {
-    <!-- toastr -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+        <!-- toastr -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 
-    <script>
-        $(document).ready(function () {
+        <script>
+            $(document).ready(function () {
 
-            toastr.options = {
-                "closeButton": true,
-                "debug": false,
-                "positionClass": "toast-bottom-right",
-                "onclick": null,
-                "fadeIn": 300,
-                "fadeOut": 1000,
-                "timeOut": 1200000,
-                "extendedTimeOut": 1200000
-            }
-            toastr.options.tapToDismiss = false
+                toastr.options = {
+                    "closeButton": true,
+                    "debug": false,
+                    "positionClass": "toast-bottom-right",
+                    "onclick": null,
+                    "fadeIn": 300,
+                    "fadeOut": 1000,
+                    "timeOut": 1200000,
+                    "extendedTimeOut": 1200000
+                }
+                toastr.options.tapToDismiss = false
 
-            toastr.info("Este Portal es de Calidad y su único fin es probar la funcionalidad del mismo. Una vez aprobado se liberará en Productivo.", "¡Aviso!").css(({
-                width: "500px",
-                "max-width": "500px"
-            }))
+                toastr.info("Este Portal es de Calidad y su único fin es probar la funcionalidad del mismo. Una vez aprobado se liberará en Productivo.", "¡Aviso!").css(({
+                    width: "500px",
+                    "max-width": "500px"
+                }))
 
-        });
+            });
 
-    </script>
+        </script>
     }
 
 

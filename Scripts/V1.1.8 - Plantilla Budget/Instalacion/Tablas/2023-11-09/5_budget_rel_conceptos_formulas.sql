@@ -236,16 +236,10 @@ INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [cla
 INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (98, 114, N'b', N'Rollo', NULL, NULL, NULL, 0, 0)
 INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (99, 114, N'c', N'Fleje', NULL, NULL, NULL, 0, 0)
 INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (100, 114, N'd', N'Cartón', NULL, NULL, NULL, 0, 0)
-INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (101, 114, N'e', N'Pelifoam', NULL, NULL, NULL, 0, 0)
+INSERT [dbo].[budget_rel_conceptos_formulas] ([id], [id_budget_cuenta_sap], [clave], [descripcion], [valor_defecto_mxn], [valor_defecto_usd], [valor_defecto_eur], [valor_fijo], [aplica_comentario]) VALUES (101, 114, N'e', N'Polifoam', NULL, NULL, NULL, 0, 0)
 
 SET IDENTITY_INSERT [dbo].[budget_rel_conceptos_formulas] OFF
 GO
-
-
-UPDATE budget_cuenta_sap set id_mapping =14, sap_account= '708170', name = 'Compra de Polines y Racks de Madrera', activo=1, aplica_formula=1, formula = 'a+b', aplica_mxn = 1, aplica_usd= 0, aplica_eur=0, aplica_gastos_mantenimiento=0 where id=112
-UPDATE budget_cuenta_sap set id_mapping =14, sap_account= '708180', name = 'Gastos del almacen - fleje', activo=1, aplica_formula=1, formula = 'a+b+c+d', aplica_mxn = 1, aplica_usd= 0, aplica_eur=0, aplica_gastos_mantenimiento=0 where id=113
-UPDATE budget_cuenta_sap set id_mapping =14, sap_account= '708190', name = 'Materiales Para Embalaje', activo=1, aplica_formula=1, formula = 'a+b+c+d+e', aplica_mxn = 1, aplica_usd= 1, aplica_eur=0, aplica_gastos_mantenimiento=0 where id=114
-
  	  
 IF object_id(N'budget_rel_conceptos_formulas',N'U') IS NOT NULL
 	BEGIN
