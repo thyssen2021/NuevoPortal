@@ -961,12 +961,12 @@ namespace Portal_2_0.Models
         /// <summary>
         /// Lee un archivo y obtiene un List de budget_cantidad con los valores leidos
         /// </summary>
-        /// <param name="centro"></param>
+        /// <param name="stream"></param>
         /// <param name="valido"></param>
         /// <param name="msjError"></param>
         /// <param name="noEncontrados"></param>
         /// <returns></returns>
-        public static List<budget_cantidad> LeeActual(budget_centro_costo centro, ref bool valido, ref string msjError, ref int noEncontrados, ref List<budget_rel_comentarios> listComentarios)
+        public static List<budget_cantidad> LeeActual(HttpPostedFileBase stream, int filaInicio, ref bool valido, ref string msjError, ref int noEncontrados, ref List<budget_rel_comentarios> listComentarios, ref List<int> idRels)
         {
 
             //obtiene todas las cuentas
@@ -975,7 +975,7 @@ namespace Portal_2_0.Models
             List<budget_cantidad> lista = new List<budget_cantidad>();
 
             //crea el reader del archivo
-            using (var reader = ExcelReaderFactory.CreateReader(centro.PostedFile.InputStream))
+            using (var reader = ExcelReaderFactory.CreateReader(stream.InputStream))
             {
                 //obtiene el dataset del archivo de excel
                 var result = reader.AsDataSet();
@@ -983,198 +983,174 @@ namespace Portal_2_0.Models
                 //estable la variable a false por defecto
                 valido = false;
 
-                //recorre todas las hojas del archivo
-                bool existeHoja = false;
 
-                String costCenter = string.Empty;
+                valido = true;
 
-                foreach (DataTable table in result.Tables)
+                ////verifica si tiene centro de costo
+                //costCenter = table.Rows[4][2].ToString();
+                //if (String.IsNullOrEmpty(costCenter))
+                //{
+                //    msjError = "No ingresó centro de costo en la celda 'C5'.";
+                //    valido = false;
+                //    return lista;
+                //}
+
+                ////verifica si el centro de costo es el mismo que el archivo excel
+                //if (costCenter != excelViewModel.num_centro_costo)
+                //{
+                //    msjError = "El centro de costo del archivo no coincide.";
+                //    valido = false;
+                //    return lista;
+                //}
+
+
+                //se obtienen las cabeceras
+                List<string> encabezados = new List<string>();
+
+                for (int i = 0; i < result.Tables[0].Columns.Count; i++)
                 {
-                    if (table.TableName.ToUpper() == "TEMPLATE")
-                        existeHoja = true;
+                    string title = result.Tables[0].Rows[filaInicio-1][i].ToString();
+
+                    if (!string.IsNullOrEmpty(title))
+                        encabezados.Add(title.ToUpper());
                 }
 
-                if (!existeHoja)
+                //verifica que la estrura del archivo sea válida
+                if (!encabezados.Contains("SAP ACCOUNT") || !encabezados.Contains("NAME") || !encabezados.Contains("COST CENTER")
+                    || !encabezados.Contains("DEPARTMENT")
+                    )
                 {
-                    msjError = "En el archivo seleccionado no existe una la hoja llamada 'Template'.";
+                    msjError = "No cuenta con los encabezados correctos.";
+                    valido = false;
                     return lista;
                 }
 
-                foreach (DataTable table in result.Tables)
+                //completa la información para los encabezados
+                List<EncabezadoExcelBudget> ListObjectEncabezados = new List<EncabezadoExcelBudget>();
+                //recorre todas los encabezados
+                for (int j = 0; j < encabezados.Count; j++)
                 {
-                    //busca si existe una hoja llamada "Template"
-                    if (table.TableName.ToUpper() == "TEMPLATE")
+                    //Si puede converir un encabezado en fecha
+                    DateTime fecha = DateTime.Now;
+
+                    if (DateTime.TryParse(encabezados[j], out fecha))
                     {
-                        valido = true;
+                        //obtiene id rel fy
+                        budget_anio_fiscal fy = budget_anio_fiscal.Get_Anio_Fiscal(fecha);
+                        //obtiene el rel fy_centro
+                        //budget_rel_fy_centro rel_Fy_Centro = db.budget_rel_fy_centro.Where(x => x.id_anio_fiscal == fy.id && x.id_centro_costo == stream.id).FirstOrDefault();
 
-                        //verifica si tiene centro de costo
-                        costCenter = table.Rows[4][2].ToString();
-                        if (String.IsNullOrEmpty(costCenter))
+                        ListObjectEncabezados.Add(new EncabezadoExcelBudget
                         {
-                            msjError = "No ingresó centro de costo en la celda 'C5'.";
-                            valido = false;
-                            return lista;
-                        }
+                            texto = encabezados[j],
+                            fecha = fecha,
+                            anio_Fiscal = fy,
+                            //  rel_fy = rel_Fy_Centro
 
-                        //verifica si el centro de costo es el mismo que el archivo excel
-                        if (costCenter != centro.num_centro_costo)
-                        {
-                            msjError = "El centro de costo del archivo no coincide.";
-                            valido = false;
-                            return lista;
-                        }
+                        });
+                    }
 
 
-                        //se obtienen las cabeceras
-                        List<string> encabezados = new List<string>();
+                }
 
-                        for (int i = 0; i < table.Columns.Count; i++)
-                        {
-                            string title = table.Rows[9][i].ToString();
+                //verifica que la estrura del archivo sea válida
+                if (ListObjectEncabezados.Count != 36)
+                {
+                    msjError = "La plantilla no cuenta con todos los meses.";
+                    valido = false;
+                    return lista;
+                }
 
-                            if (!string.IsNullOrEmpty(title))
-                                encabezados.Add(title.ToUpper());
-                        }
+                //obtiene los ids de rel_fy_centro
+                //idRels = ListObjectEncabezados.Select(x => x.rel_fy.id).Distinct().ToList();
 
-                        //verifica que la estrura del archivo sea válida
-                        if (!encabezados.Contains("SAP ACCOUNT") || !encabezados.Contains("NAME") || !encabezados.Contains("COST CENTER")
-                            || !encabezados.Contains("DEPARTMENT")
-                            )
-                        {
-                            msjError = "No cuenta con los encabezados correctos.";
-                            valido = false;
-                            return lista;
-                        }
+                //Se consultan las cuentas sap
+                List<budget_cuenta_sap> listCuentas = db.budget_cuenta_sap.ToList();
+                List<budget_rel_fy_centro> listFYsCCs = db.budget_rel_fy_centro.ToList();
 
-                        //completa la información para los encabezados
-                        List<EncabezadoExcelBudget> ListObjectEncabezados = new List<EncabezadoExcelBudget>();
+
+                //la fila cero se omite (encabezado)
+
+
+                for (int i = filaInicio; i < result.Tables[0].Rows.Count; i++)
+                {
+                    try
+                    {
+                        //variables
+                        string sap_account = result.Tables[0].Rows[i][1].ToString();
+                        string cc_ = result.Tables[0].Rows[i][3].ToString();
+
+                        //obtiene la cuenta
+                        budget_cuenta_sap cuenta = listCuentas.Where(x => x.sap_account == sap_account).FirstOrDefault();
+
                         //recorre todas los encabezados
                         for (int j = 0; j < encabezados.Count; j++)
                         {
-                            //Si puede converir un encabezado en fecha
-                            DateTime fecha = DateTime.Now;
 
-                            if (DateTime.TryParse(encabezados[j], out fecha))
+                            if (ListObjectEncabezados.Any(x => x.texto == encabezados[j]))
                             {
-                                //obtiene id rel fy
-                                budget_anio_fiscal fy = budget_anio_fiscal.Get_Anio_Fiscal(fecha);
-                                //obtiene el rel fy_centro
-                                budget_rel_fy_centro rel_Fy_Centro = db.budget_rel_fy_centro.Where(x => x.id_anio_fiscal == fy.id && x.id_centro_costo == centro.id).FirstOrDefault();
+                                decimal cantidad = 0;
+                                Decimal.TryParse(result.Tables[0].Rows[i][j].ToString(), out cantidad);
+                                cantidad = Decimal.Round(cantidad, 2);
 
-                                ListObjectEncabezados.Add(new EncabezadoExcelBudget
+
+                                //obtiene los datos del encabezado
+                                EncabezadoExcelBudget encabezado = ListObjectEncabezados.Where(x => x.texto == encabezados[j]).FirstOrDefault();
+
+                                //obteine el fy cc
+                                budget_rel_fy_centro fy_cc = listFYsCCs.FirstOrDefault(x => x.id_anio_fiscal == encabezado.anio_Fiscal.id && x.budget_centro_costo.num_centro_costo == cc_);
+
+                                if (fy_cc != null && !idRels.Contains(fy_cc.id))
+                                    idRels.Add(fy_cc.id);
+
+                                if (cuenta != null && fy_cc != null && cantidad != 0)
                                 {
-                                    texto = encabezados[j],
-                                    fecha = fecha,
-                                    anio_Fiscal = fy,
-                                    rel_fy = rel_Fy_Centro
-
-                                });
-                            }
-
-
-                        }
-
-                        //verifica que la estrura del archivo sea válida
-                        if (ListObjectEncabezados.Count != 36)
-                        {
-                            msjError = "La plantilla no cuenta con todos los meses.";
-                            valido = false;
-                            return lista;
-                        }
-
-
-                        //Se consultan las cuentas sap
-                        List<budget_cuenta_sap> listCuentas = db.budget_cuenta_sap.ToList();
-
-
-                        //la fila cero se omite (encabezado)
-                        for (int i = 10; i < table.Rows.Count; i++)
-                        {
-                            try
-                            {
-                                //variables
-                                string sap_account = table.Rows[i][1].ToString();
-
-                                //obtiene la cuenta
-                                budget_cuenta_sap cuenta = listCuentas.Where(x => x.sap_account == sap_account).FirstOrDefault();
-
-                                //recorre todas los encabezados
-                                for (int j = 0; j < encabezados.Count; j++)
+                                    lista.Add(new budget_cantidad()
+                                    {
+                                        id_budget_rel_fy_centro = fy_cc.id,
+                                        id_cuenta_sap = cuenta.id,
+                                        mes = encabezado.fecha.Month,
+                                        currency_iso = "USD",
+                                        cantidad = cantidad
+                                    });
+                                }
+                                else if (cuenta == null)
                                 {
-
-                                    if (ListObjectEncabezados.Any(x => x.texto == encabezados[j]))
-                                    {
-                                        decimal cantidad = 0;
-                                        Decimal.TryParse(table.Rows[i][j].ToString(), out cantidad);
-                                        cantidad = Decimal.Round(cantidad, 2);
-
-                                        //obtiene los datos del encabezado
-                                        EncabezadoExcelBudget encabezado = ListObjectEncabezados.Where(x => x.texto == encabezados[j]).FirstOrDefault();
-
-                                        if (cuenta != null && encabezado.rel_fy != null)
-                                        {
-                                            lista.Add(new budget_cantidad()
-                                            {
-                                                id_budget_rel_fy_centro = encabezado.rel_fy.id,
-                                                id_cuenta_sap = cuenta.id,
-                                                mes = encabezado.fecha.Month,
-                                                currency_iso = "USD",
-                                                cantidad = cantidad
-                                            });
-                                        }
-                                        else if (!string.IsNullOrEmpty(sap_account))
-                                        {
-                                            noEncontrados++;
-                                        }
-
-                                    }
-                                    //busca por un comentario
-                                    else if (encabezados[j].ToUpper().Contains("COMENTARIO") && cuenta != null)
-                                    {
-                                        string comentarios = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 100);
-
-                                        if (!String.IsNullOrEmpty(comentarios))
-                                            switch (j)
-                                            {
-                                                case int k when k > 22 && k <= 27:
-                                                    listComentarios.Add(new budget_rel_comentarios
-                                                    {
-                                                        id_budget_rel_fy_centro = ListObjectEncabezados[0].rel_fy.id, //id correspondiente al primer año de la plantilla
-                                                        id_cuenta_sap = cuenta.id,
-                                                        comentarios = comentarios
-                                                    });
-                                                    break;
-                                                case int k when k > 35 && k <= 40:
-                                                    listComentarios.Add(new budget_rel_comentarios
-                                                    {
-                                                        id_budget_rel_fy_centro = ListObjectEncabezados[12].rel_fy.id, //id correspondiente al segundo año de la plantilla
-                                                        id_cuenta_sap = cuenta.id,
-                                                        comentarios = comentarios
-                                                    });
-                                                    break;
-                                                case int k when k > 50 && k <= 55:
-                                                    listComentarios.Add(new budget_rel_comentarios
-                                                    {
-                                                        id_budget_rel_fy_centro = ListObjectEncabezados[24].rel_fy.id, //id correspondiente al terver año de la plantilla
-                                                        id_cuenta_sap = cuenta.id,
-                                                        comentarios = comentarios
-                                                    });
-                                                    break;
-                                            }
-
-                                    }
-
+                                    noEncontrados++;
                                 }
 
                             }
-                            catch (Exception e)
+                            //busca por un comentario
+                            else if (encabezados[j].ToUpper().Contains("COMENTARIO") && cuenta != null)
                             {
-                                System.Diagnostics.Debug.Print("Error: " + e.Message);
+                                string comentarios = UsoStrings.RecortaString(result.Tables[0].Rows[i][j].ToString(), 200);
+                                //obtiene los datos del encabezado
+                                EncabezadoExcelBudget encabezado = ListObjectEncabezados.Where(x => x.texto == encabezados[j - 3]).FirstOrDefault();
+                                //obteine el fy cc
+                                budget_rel_fy_centro fy_cc = listFYsCCs.FirstOrDefault(x => x.id_anio_fiscal == encabezado.anio_Fiscal.id && x.budget_centro_costo.num_centro_costo == cc_);
+
+                                if (!String.IsNullOrEmpty(comentarios))
+
+                                    listComentarios.Add(new budget_rel_comentarios
+                                    {
+                                        id_budget_rel_fy_centro = fy_cc.id, //id correspondiente al primer año de la plantilla
+                                        id_cuenta_sap = cuenta.id,
+                                        comentarios = comentarios
+                                    });
+
                             }
+
                         }
 
                     }
+                    catch (Exception e)
+                    {
+                        System.Diagnostics.Debug.Print("Error: " + e.Message);
+                    }
                 }
+
+
+
 
             }
 

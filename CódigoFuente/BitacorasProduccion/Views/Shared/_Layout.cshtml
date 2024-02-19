@@ -26,8 +26,8 @@
     <!-- Custom Theme Style -->
     <link href="@Url.Content("~/Content/build/css/custom.css")" rel="stylesheet">
 
-    @if (@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":9030")
-      || @HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":9040")
+    @if (@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains("desarrollo-portaltkmm")
+      || @HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains("calidad-portaltkmm")
       )
     {
         <!-- Toastr -->
@@ -110,8 +110,8 @@
         }
     </style>
 
-    @if (@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":9030")
-     || @HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":9040")
+    @if (@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains("desarrollo-portaltkmm")
+     || @HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains("calidad-portaltkmm")
      )
     {
         <style>
@@ -738,7 +738,7 @@
                                     @if (User.IsInRole(TipoRoles.BG_RESPONSABLE) || User.IsInRole(TipoRoles.BG_CONTROLLING) || User.IsInRole(TipoRoles.BG_REPORTES))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "plantilla_budget" ? "active" : null )">
-                                            <a><i class="fa fa-calculator"></i>Budget<span class="fa fa-chevron-down"></span></a>
+                                            <a><i class="fa fa-hand-holding-dollar"></i>Budget<span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu">
                                                 @{ DateTime fechaActual = DateTime.Now;}
 
@@ -748,7 +748,7 @@
                                                     @*<li class="@(ViewBag.SegundoNivel == "actual" ? "current-page" : null )"><a href="@Url.Action("Actual", "ResponsableBudget")">ACT FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(-1)))</a></li>
                                                         <li class="@(ViewBag.SegundoNivel == "forecast" ? "current-page" : null )"><a href="@Url.Action("Forecast", "ResponsableBudget")">FC FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual))</a></li>
                                                         <li class="@(ViewBag.SegundoNivel == "budget" ? "current-page" : null )"><a href="@Url.Action("Budget", "ResponsableBudget")">BG FY @(Bitacoras.Util.BgPlantillaUtil.DescripcionAnio(fechaActual.AddYears(1)))</a></li>*@
-                                                    <li class="@(ViewBag.SegundoNivel == "centros" ? "current-page" : null )"><a href="@Url.Action("Centros", "ResponsableBudget")">Mis Centros</a></li>
+                                                    <li class="@(ViewBag.SegundoNivel == "centros" ? "current-page" : null )"><a href="@Url.Action("Centros", "ResponsableBudget")">Mis Centros de Costo</a></li>
                                                 }
 
                                                 @if (User.IsInRole(TipoRoles.BG_CONTROLLING))
@@ -764,6 +764,8 @@
                                                             <li class="@(ViewBag.TercelNivel == "BG_MappingBridge" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_MappingBridge")">Mapping Bridge</a></li>
                                                             <li class="@(ViewBag.TercelNivel == "BG_Mapping" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_Mapping")">Mapping</a></li>
                                                             <li class="@(ViewBag.TercelNivel == "BG_CuentasSAP" ? "current-page" : null )"><a href="@Url.Action( "Index", "BG_CuentasSAP")">Cuentas SAP</a></li>
+
+                                                            <li class="@(ViewBag.TercelNivel == "BG_Gastos_Mantenimiento" ? "current-page" : null )"><a href="@Url.Action( "ActualizaGastosManto", "ResponsableBudget")">Actualiza Gastos de Manto</a></li>
 
                                                         </ul>
                                                     </li>
@@ -936,7 +938,8 @@
     @Scripts.Render(Url.Content("~/Scripts/site.js"))
 
 
-    @if (@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains(":9040"))
+    @if (@HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains("desarrollo-portaltkmm")
+    || @HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority).Contains("calidad-portaltkmm"))
     {
         <!-- toastr -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>

@@ -25,8 +25,8 @@ namespace Portal_2_0.Models
         public string descripcion { get; set; }
         public bool activo { get; set; }
     
+        public virtual budget_mapping_bridge budget_mapping_bridge { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_cuenta_sap> budget_cuenta_sap { get; set; }
-        public virtual budget_mapping_bridge budget_mapping_bridge { get; set; }
     }
 }

@@ -18,6 +18,7 @@ namespace Portal_2_0.Models
         public budget_anio_fiscal()
         {
             this.budget_rel_fy_centro = new HashSet<budget_rel_fy_centro>();
+            this.budget_rel_tipo_cambio_fy = new HashSet<budget_rel_tipo_cambio_fy>();
         }
     
         public int id { get; set; }
@@ -29,5 +30,7 @@ namespace Portal_2_0.Models
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_rel_fy_centro> budget_rel_fy_centro { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<budget_rel_tipo_cambio_fy> budget_rel_tipo_cambio_fy { get; set; }
     }
 }

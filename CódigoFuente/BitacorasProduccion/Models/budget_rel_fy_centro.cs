@@ -17,8 +17,10 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public budget_rel_fy_centro()
         {
-            this.budget_rel_comentarios = new HashSet<budget_rel_comentarios>();
             this.budget_cantidad = new HashSet<budget_cantidad>();
+            this.budget_rel_comentarios = new HashSet<budget_rel_comentarios>();
+            this.budget_rel_documento = new HashSet<budget_rel_documento>();
+            this.budget_conceptos_mantenimiento = new HashSet<budget_conceptos_mantenimiento>();
         }
     
         public int id { get; set; }
@@ -29,8 +31,12 @@ namespace Portal_2_0.Models
         public virtual budget_anio_fiscal budget_anio_fiscal { get; set; }
         public virtual budget_centro_costo budget_centro_costo { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<budget_cantidad> budget_cantidad { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<budget_rel_comentarios> budget_rel_comentarios { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<budget_cantidad> budget_cantidad { get; set; }
+        public virtual ICollection<budget_rel_documento> budget_rel_documento { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<budget_conceptos_mantenimiento> budget_conceptos_mantenimiento { get; set; }
     }
 }

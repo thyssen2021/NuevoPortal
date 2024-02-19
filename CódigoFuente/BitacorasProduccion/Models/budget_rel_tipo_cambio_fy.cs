@@ -12,15 +12,14 @@ namespace Portal_2_0.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class budget_cantidad_budget_historico
+    public partial class budget_rel_tipo_cambio_fy
     {
         public int id { get; set; }
-        public int id_budget_rel_fy_centro { get; set; }
-        public int id_cuenta_sap { get; set; }
-        public int mes { get; set; }
-        public string currency_iso { get; set; }
-        public decimal cantidad { get; set; }
-        public string comentario { get; set; }
-        public bool moneda_local_usd { get; set; }
+        public int id_budget_anio_fiscal { get; set; }
+        public int id_tipo_cambio { get; set; }
+        public double cantidad { get; set; }
+    
+        public virtual budget_anio_fiscal budget_anio_fiscal { get; set; }
+        public virtual budget_tipo_cambio budget_tipo_cambio { get; set; }
     }
 }

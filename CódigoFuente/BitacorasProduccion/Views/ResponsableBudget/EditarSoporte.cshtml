@@ -1,0 +1,309 @@
+﻿@model Portal_2_0.Models.budget_rel_documento
+
+@{
+
+    ViewBag.Title = "Documento Soporte";
+    ViewBag.PrimerNivel = "registro_unidades";
+    ViewBag.SegundoNivel = "registros";
+    ViewBag.ControllerName = ViewContext.RouteData.Values["controller"];
+
+    bool _estatus = Model.budget_rel_fy_centro.estatus;
+
+}
+
+@section estilos
+{
+    <!-- Select2 -->
+    <link href="@Url.Content("~/Content/vendors/select2/css/select2.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/vendors/select2-bootstrap4-theme/select2-bootstrap4.min.css")" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="@Url.Content("~/Content/vendors/iCheck/skins/square/blue.css")" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link href="@Url.Content("~/Content/vendors/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css")" rel="stylesheet">
+    <style>
+        /* Oculta el menu del sistema */
+        footer {
+            display: none !important;
+        }
+
+        .nav_menu {
+            display: none !important;
+        }
+
+        .left_col {
+            display: none !important;
+        }
+
+        .nav-md .container.body .right_col {
+            margin-left: 0px !important;
+        }
+        /*Lista*/
+        dl {
+            border: 3px double #ccc;
+            padding: 0.5em;
+            background-color: #fffdf0
+        }
+
+        dt {
+            font-weight: bold;
+            color: green;
+        }
+
+        dd {
+            font-weight: bold;
+            color: #454545;
+        }
+
+        dt::after {
+            content: ":";
+        }
+    </style>
+
+}
+
+<div class="right_col" role="main">
+    <div class="">
+
+        <div class="clearfix"></div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2><i class="fa-solid fa-door-open"></i> @ViewBag.Title</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="form-group row">
+                            <div class="col-md-12 col-sm-12">
+                                <dl class="row">
+                                    <dt class="col-sm-2">Plant</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.budget_rel_fy_centro.budget_centro_costo.budget_departamentos.budget_plantas.descripcion)</dd>
+                                    <dt class="col-sm-2">Department</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.budget_rel_fy_centro.budget_centro_costo.budget_departamentos.descripcion)</dd>
+                                    <dt class="col-sm-2">Cost Center</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.budget_rel_fy_centro.budget_centro_costo.num_centro_costo)</dd>
+                                    <dt class="col-sm-2">Name</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.budget_rel_fy_centro.budget_centro_costo.descripcion)</dd>
+                                    <dt class="col-sm-2">FY</dt>
+                                    <dd class="col-sm-2">@Html.DisplayFor(model => model.budget_rel_fy_centro.budget_anio_fiscal.ConcatAnio)</dd>
+
+                                </dl>
+                            </div>
+                        </div>
+
+
+                        @using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal form-label-left" }))
+                        {
+
+                            @Html.AntiForgeryToken()
+
+                            if (!Html.ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @Html.ValidationSummary("", new { @class = "text-white" })
+                                </div>
+                            }
+                            @Html.HiddenFor(model => model.id)
+                            @Html.HiddenFor(model => model.id_cuenta_sap)
+                            @Html.HiddenFor(model => model.id_budget_rel_fy_centro)
+                            @Html.HiddenFor(model => model.id_documento)
+                            <input type="hidden" name="borrar" id="borrar" value="false" />
+
+
+                            <div class="form-group row">
+                                <span style="color:black"><b> Documento de soporte</b></span>
+                            </div>
+                            <div class="ln_solid"></div>
+                            <br />
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.id_cuenta_sap, new { @class = "col-form-label col-md-2 col-sm-2 " })
+                                <div class="col-md-4 col-sm-4">
+                                    <input type="text" class="form-control" value="@Html.DisplayFor(model => model.budget_cuenta_sap.sap_account)" readonly />
+                                </div>
+                                @Html.LabelFor(model => model.budget_cuenta_sap.name, new { @class = "col-form-label col-md-1 col-sm-1 " })
+                                <div class="col-md-5 col-sm-5">
+                                    <input type="text" class="form-control" value="@Html.DisplayFor(model => model.budget_cuenta_sap.name)" readonly />
+                                </div>
+                            </div>
+
+
+                            @* input para saber si está o no activo el campo de soporte *@
+                            <input type="hidden" name="cambio_documento_soporte" id="cambio_documento_soporte" value="0" />
+
+                            if (Model != null && Model.id_documento > 0)
+                            {
+                                <div class="form-group row" id="div_document_support_info">
+                                    @Html.LabelFor(model => model.id_documento, new { @class = "control-label col-md-2" })
+                                    <div class="col-md-6">
+                                        <input type="text" class="form-control col-md-12" style="text-align: right;" value="@Model.biblioteca_digital.Nombre" readonly>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = Model.id_documento})" class="btn btn-success btm-sm" title="Download">
+                                            <i class="fa fa-download"></i>
+                                        </a>
+                                        <a href="@Url.Action("DownloadFile","Combos", new { idDocumento = Model.id_documento, inline=true})" class="btn btn-info btm-sm" target="_blank" title="Inline">
+                                            <i class="fa-regular fa-eye"></i>
+                                        </a>
+                                        <a onclick="muestraFileInput()" class="btn btn-danger btm-sm" title="Delete" style="color:white; @(!_estatus?"display:none":string.Empty)">
+                                            <i class="fa fa-close"></i>
+                                        </a>
+                                    </div>
+
+                                </div>
+                            }
+
+                            <div class="form-group row" id="div_document_support_input" style="@(Model.id_documento.HasValue ? "display:none" : "" )">
+                                @Html.LabelFor(model => model.id_documento, new { @class = "control-label col-md-2" })
+                                <div class="col-md-6">
+
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            @if (!_estatus)
+                                            {
+                                                @Html.TextBoxFor(m => m.ArchivoSoporte, new { @class = "custom-file-input", type = "file", @accept = ".xls,.xlsx,.png, .jpeg, .jpg, .pdf, .doc, .docx, .rar, .zip, .eml", @required = "required", @disabled = "disabled" })
+                                            }
+                                            else
+                                            {
+                                                @Html.TextBoxFor(m => m.ArchivoSoporte, new { @class = "custom-file-input", type = "file", @accept = ".xls,.xlsx,.png, .jpeg, .jpg, .pdf, .doc, .docx, .rar, .zip, .eml", @required = "required" })
+                                            }
+                                            <label class="custom-file-label" for="ArchivoSoporte" style="text-align:left">Seleccione un archivo...</label>
+                                        </div>
+                                    </div>
+                                    @Html.ValidationMessageFor(m => m.ArchivoSoporte, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="col-md-1">
+                                    <div class="input-group">
+                                        @if (Model.id_documento.HasValue)
+                                        {
+                                            <a onclick="ocultaFileInput()" class="btn btn-warning btm-sm" title="Deshacer" style="color:white">
+                                                <i class="fa fa-refresh"></i>
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.comentario, new { @class = "control-label col-md-2 col-sm-2", @style = "text-align:left" })
+
+                                <div class="col-md-8">
+                                    @if (!_estatus)
+                                    {
+                                        @Html.TextAreaFor(model => model.comentario, new { @class = "form-control", @rows = "4", @autocomplete = "off", @readonly = "readonly" })
+                                    }
+                                    else
+                                    {
+                                        @Html.TextAreaFor(model => model.comentario, new { @class = "form-control", @rows = "4", @autocomplete = "off" })
+                                        @Html.ValidationMessageFor(model => model.comentario, "", new { @class = "text-danger" })
+                                    }
+                                </div>
+                            </div><div class="ln_solid"></div><div class="item form-group">
+                                <div class="col-md-12 col-sm-12" style="@(!_estatus?"display:none":string.Empty)">
+                                    @if (Model.id_documento.HasValue)
+                                    {
+                                        <button type="button" id="btn-borrar" class="btn btn-danger btn-lg float-left"><i class="fa-regular fa-trash-can"></i> Borrar Archivo Soporte</button>
+                                    }
+                                    <button type="button" id="btn-ok" class="btn btn-success btn-lg float-right"><i class="fa-regular fa-floppy-disk"></i> Guardar</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render(Url.Content("~/Content/vendors/select2/js/select2.full.min.js"))
+    @Scripts.Render("~/bundles/jqueryval")
+    <!-- iCheck -->
+    @Scripts.Render(Url.Content("~/Content/vendors/iCheck/icheck.min.js"))
+    <!-- SweetAlert2 -->
+    @Scripts.Render(Url.Content("~/Content/vendors/sweetalert2/sweetalert2.min.js"))
+    <script src="~/Scripts/Forms/ModalConfirm.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+
+    <script>
+        //variable para saber si ha cambiado el formulario y asi no se detenga por doble submit
+        var documento_soporte_cambios = 1;
+
+        $(document).ready(function () {
+            // Initialize Select2 Elements (debe ir después de asignar el valor)
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            })
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_square-blue',
+                radioClass: 'iradio_square-blue',
+                increaseArea: '20%' // optional
+            });
+            //inicializa en input file
+            bsCustomFileInput.init()
+
+
+            //aumenta en uso cada vez que se hace un cambio en el archivo de soporte
+            $("#ArchivoSoporte").on("change", function () {
+                document.getElementById('cambio_documento_soporte').value = ++documento_soporte_cambios;
+            });
+
+            //encaso de presionar el boton borrar
+            $('form #btn-borrar').click(function (e) {
+                let $form = $(this).closest('form');
+
+                const swalWithBootstrapButtons = Swal.mixin({
+                    customClass: {
+                        confirmButton: 'btn btn-success',
+                        cancelButton: 'btn btn-danger'
+                    },
+                    buttonsStyling: false,
+                })
+
+                swalWithBootstrapButtons.fire({
+                    title: '¿Desea borrar este archivo?',
+                    html: "Se eliminará el archivo de soporte.",
+                    showCancelButton: true,
+                    confirmButtonText: 'Aceptar',
+                    cancelButtonText: 'Cerrar'
+                }).then((result) => {
+                    if (result.value) {
+                        //espera a que se cierre el modal para enviar el formulario
+                        setTimeout(function () {
+                            //modifica el input bandera
+                            $('#borrar').val('true');
+                            //remove required from ArchivoSoporte
+                            $('#ArchivoSoporte').prop('required', false);
+
+                            $form.submit();
+                        }, 900);
+                    }
+                });
+
+            });
+
+        });
+        //muestra el formulario de carga de archivo
+        function muestraFileInput() {
+            $("#div_document_support_info").fadeOut(700, function () {
+                $("#ArchivoSoporte").val('');
+            });
+            $("#div_document_support_input").fadeIn(700);
+
+            document.getElementById('cambio_documento_soporte').value = ++documento_soporte_cambios;
+        }
+
+        //oculta el formulario de carga de archivo
+        function ocultaFileInput() {
+            $("#div_document_support_info").fadeIn(700, function () {
+                $("#ArchivoSoporte").val('');
+            });
+            $("#div_document_support_input").fadeOut(700);
+
+            document.getElementById('cambio_documento_soporte').value = ++documento_soporte_cambios;
+        }
+
+    </script>
+}

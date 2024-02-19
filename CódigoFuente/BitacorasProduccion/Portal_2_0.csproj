@@ -421,6 +421,9 @@
     <Compile Include="Models\budget_centro_costo.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\budget_conceptos_mantenimiento.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\budget_cuenta_sap.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -439,13 +442,28 @@
     <Compile Include="Models\budget_rel_comentarios.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\budget_rel_conceptos_cantidades.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\budget_rel_conceptos_formulas.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\budget_rel_documento.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\budget_rel_fy_centro.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\budget_rel_tipo_cambio_fy.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\budget_responsables.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\CI_conteo_inventario.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\budget_tipo_cambio.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\class_v3.cs">
@@ -628,6 +646,7 @@
     <Compile Include="Models\menu_link.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\MetadataModels\budget_cantidadMetadata.cs" />
     <Compile Include="Models\MetadataModels\budget_departamentosMetadata.cs" />
     <Compile Include="Models\ComboSelect.cs" />
     <Compile Include="Models\EncabezadoExcelBudget.cs" />
@@ -644,6 +663,8 @@
     <Compile Include="Models\MetadataModels\budget_mapping_bridge_Metadata.cs" />
     <Compile Include="Models\MetadataModels\budget_plantasMetadata.cs" />
     <Compile Include="Models\MetadataModels\CI_conteo_inventarioMetadata.cs" />
+    <Compile Include="Models\MetadataModels\budget_rel_conceptos_cantidadesMetada.cs" />
+    <Compile Include="Models\MetadataModels\budget_rel_documentoMetadata.cs" />
     <Compile Include="Models\MetadataModels\clientesMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_medios_transporteMetadata.cs" />
     <Compile Include="Models\MetadataModels\GV_rel_gastos_solicitudMetadata.cs" />
@@ -5029,9 +5050,6 @@
     <Content Include="Views\BG_CuentasSAP\Enable.cshtml" />
     <Content Include="Views\BG_CuentasSAP\Index.cshtml" />
     <Content Include="Views\ResponsableBudget\Centros.cshtml" />
-    <Content Include="Views\ResponsableBudget\DetailsCentro.cshtml" />
-    <Content Include="Views\ResponsableBudget\EditCentroPresente.cshtml" />
-    <Content Include="Views\ResponsableBudget\EditCentroProximo.cshtml" />
     <Content Include="Views\BudgetControlling\Reportes.cshtml" />
     <Content Include="Views\BG_Plants\Create.cshtml" />
     <Content Include="Views\BG_Plants\Details.cshtml" />
@@ -5295,6 +5313,12 @@
     <Content Include="Views\CI_conteo_inventario\carga_tolerancias.cshtml" />
     <Content Include="Views\CI_conteo_inventario\Multiple.cshtml" />
     <Content Include="Views\CI_conteo_inventario\restablecer.cshtml" />
+    <Content Include="Views\ResponsableBudget\EditCentroPresenteHT.cshtml" />
+    <Content Include="Views\ResponsableBudget\DetailsCentroHT.cshtml" />
+    <Content Include="Views\BudgetControlling\CargaConcentrado.cshtml" />
+    <Content Include="Views\ResponsableBudget\EditCentroProximoHT.cshtml" />
+    <Content Include="Views\ResponsableBudget\EditarSoporte.cshtml" />
+    <Content Include="Views\ResponsableBudget\ActualizaGastosManto.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
