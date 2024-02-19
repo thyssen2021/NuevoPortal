@@ -19,7 +19,7 @@ namespace Portal_2_0.Models
         public Nullable<int> id_empleado { get; set; }
         public string correo { get; set; }
     
-        public virtual IT_notificaciones_actividad IT_notificaciones_actividad { get; set; }
         public virtual empleados empleados { get; set; }
+        public virtual IT_notificaciones_actividad IT_notificaciones_actividad { get; set; }
     }
 }

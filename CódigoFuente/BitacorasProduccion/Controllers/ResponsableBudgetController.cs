@@ -1075,6 +1075,10 @@ namespace Portal_2_0.Controllers
             //obtiene los documento
             var doctosList = fy_cc.budget_rel_documento;
 
+            //obtiene el listado de los CeCo en los que aplica gastos de manto
+            List<int> ccListManto = db.budget_conceptos_mantenimiento.Select(x => x.budget_rel_fy_centro.id_centro_costo).Distinct().ToList();
+            List<string> cuentasListManto = db.budget_conceptos_mantenimiento.Select(x => x.budget_cuenta_sap.sap_account).Distinct().ToList();
+
             for (int i = 0; i < valoresListAnioActual.Count(); i++)
             {
 
@@ -1095,68 +1099,71 @@ namespace Portal_2_0.Controllers
                         + ")\">" + (fy_cc.estatus ? "Modificar" : "Ver") + "</button>";
                 }
 
+                //determina si las cuentas de manto son editables o no
+                bool editableCtaManto = cuentasListManto.Any(x => x == valoresListAnioActual[i].sap_account) && !ccListManto.Any(x => x == id_centro_costo) ? false: true;
 
-                jsonData.Add(new[] {
+                    jsonData.Add(new[] {
                     valoresListAnioActual[i].sap_account,
                     valoresListAnioActual[i].name,
                     valoresListAnioActual[i].mapping_bridge,
                     valoresListAnioActual[i].Octubre_MXN.ToString(),
                     valoresListAnioActual[i].Octubre.ToString(),
                     valoresListAnioActual[i].Octubre_EUR.ToString(),
-                    string.Format("=(D{0}/{1}) + E{0} + (F{0}*{2})", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
+                    string.Format("=ROUND((D{0}/{1}) + E{0} + (F{0}*{2}),2)", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
                     valoresListAnioActual[i].Noviembre_MXN.ToString(),
                     valoresListAnioActual[i].Noviembre.ToString(),
                     valoresListAnioActual[i].Noviembre_EUR.ToString(),
-                    string.Format("=(H{0}/{1}) + I{0} + (J{0}*{2})", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
+                    string.Format("=ROUND((H{0}/{1}) + I{0} + (J{0}*{2}),2)", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
                     valoresListAnioActual[i].Diciembre_MXN.ToString(),
                     valoresListAnioActual[i].Diciembre.ToString(),
                     valoresListAnioActual[i].Diciembre_EUR.ToString(),
-                    string.Format("=(L{0}/{1}) + M{0} + (N{0}*{2})", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
+                    string.Format("=ROUND((L{0}/{1}) + M{0} + (N{0}*{2}),2)", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
                     valoresListAnioActual[i].Enero_MXN.ToString(),
                     valoresListAnioActual[i].Enero.ToString(),
                     valoresListAnioActual[i].Enero_EUR.ToString(),
-                    string.Format("=(P{0}/{1}) + Q{0} + (R{0}*{2})", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
+                    string.Format("=ROUND((P{0}/{1}) + Q{0} + (R{0}*{2}),2)", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
                     valoresListAnioActual[i].Febrero_MXN.ToString(),
                     valoresListAnioActual[i].Febrero.ToString(),
                     valoresListAnioActual[i].Febrero_EUR.ToString(),
-                    string.Format("=(T{0}/{1}) + U{0} + (V{0}*{2})", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
+                    string.Format("=ROUND((T{0}/{1}) + U{0} + (V{0}*{2}),2)", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
                     valoresListAnioActual[i].Marzo_MXN.ToString(),
                     valoresListAnioActual[i].Marzo.ToString(),
                     valoresListAnioActual[i].Marzo_EUR.ToString(),
-                    string.Format("=(X{0}/{1}) + Y{0} + (Z{0}*{2})", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
+                    string.Format("=ROUND((X{0}/{1}) + Y{0} + (Z{0}*{2}),2)", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
                     valoresListAnioActual[i].Abril_MXN.ToString(),
                     valoresListAnioActual[i].Abril.ToString(),
                     valoresListAnioActual[i].Abril_EUR.ToString(),
-                    string.Format("=(AB{0}/{1}) + AC{0} + (AD{0}*{2})", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
+                    string.Format("=ROUND((AB{0}/{1}) + AC{0} + (AD{0}*{2}),2)", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
                     valoresListAnioActual[i].Mayo_MXN.ToString(),
                     valoresListAnioActual[i].Mayo.ToString(),
                     valoresListAnioActual[i].Mayo_EUR.ToString(),
-                    string.Format("=(AF{0}/{1}) + AG{0} + (AH{0}*{2})", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
+                    string.Format("=ROUND((AF{0}/{1}) + AG{0} + (AH{0}*{2}),2)", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
                     valoresListAnioActual[i].Junio_MXN.ToString(),
                     valoresListAnioActual[i].Junio.ToString(),
                     valoresListAnioActual[i].Junio_EUR.ToString(),
-                    string.Format("=(AJ{0}/{1}) + AK{0} + (AL{0}*{2})", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
+                    string.Format("=ROUND((AJ{0}/{1}) + AK{0} + (AL{0}*{2}),2)", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
                     valoresListAnioActual[i].Julio_MXN.ToString(),
                     valoresListAnioActual[i].Julio.ToString(),
                     valoresListAnioActual[i].Julio_EUR.ToString(),
-                    string.Format("=(AN{0}/{1}) + AO{0} + (AP{0}*{2})", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
+                    string.Format("=ROUND((AN{0}/{1}) + AO{0} + (AP{0}*{2}),2)", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
                     valoresListAnioActual[i].Agosto_MXN.ToString(),
                     valoresListAnioActual[i].Agosto.ToString(),
                     valoresListAnioActual[i].Agosto_EUR.ToString(),
-                    string.Format("=(AR{0}/{1}) + AS{0} + (AT{0}*{2})", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
+                    string.Format("=ROUND((AR{0}/{1}) + AS{0} + (AT{0}*{2}),2)", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
                     valoresListAnioActual[i].Septiembre_MXN.ToString(),
                     valoresListAnioActual[i].Septiembre.ToString(),
                     valoresListAnioActual[i].Septiembre_EUR.ToString(),
-                    string.Format("=(AV{0}/{1}) + AW{0} + (AX{0}*{2})", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
+                    string.Format("=ROUND((AV{0}/{1}) + AW{0} + (AX{0}*{2}),2)", i+1,tipo_cambio_usd_mxn, tipo_cambio_eur_usd),
                     string.Format("= D{0} + H{0} + L{0} + P{0} + T{0} + X{0} + AB{0} + AF{0} + AJ{0} + AN{0} + AR{0} + AV{0}", i+1),
                     string.Format("= E{0} + I{0} + M{0} + Q{0} + U{0} + Y{0} + AC{0} + AG{0} + AK{0} + AO{0} + AS{0} + AW{0}", i+1),
                     string.Format("= F{0} + J{0} + N{0} + R{0} + V{0} + Z{0} + AD{0} + AH{0} + AL{0} + AP{0} + AT{0} + AX{0}", i+1),
                     string.Format("= G{0} + K{0} + O{0} + S{0} + W{0} + AA{0} + AE{0} + AI{0} + AM{0} + AQ{0} + AU{0} + AY{0}", i+1),
                     valoresListAnioActual[i].Comentario,
                     sapAccountsList.Any(x=> x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_formula == true).ToString(),
-                    sapAccountsList.Any(x=> x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_mxn == true).ToString(),
-                    sapAccountsList.Any(x=> x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_usd == true).ToString(),
-                    sapAccountsList.Any(x=> x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_eur == true).ToString(),
+                    //si se trata de una cuenta de mantenimiento valida si el centro de costo es valido
+                    !editableCtaManto ? editableCtaManto.ToString(): sapAccountsList.Any(x=> x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_mxn == true).ToString(),
+                    !editableCtaManto ? editableCtaManto.ToString(): sapAccountsList.Any(x=> x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_usd == true).ToString(),
+                    !editableCtaManto ? editableCtaManto.ToString(): sapAccountsList.Any(x=> x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_eur == true).ToString(),
                     btnDoc,
                      sapAccountsList.Any(x=> x.sap_account == valoresListAnioActual[i].sap_account && x.aplica_gastos_mantenimiento == true).ToString(),
                     });
@@ -1821,7 +1828,8 @@ namespace Portal_2_0.Controllers
                             decimal d_eur_usd = sapAccount.budget_cantidad.Where(x => x.mes == mesItem && x.currency_iso == "EUR" && x.moneda_local_usd == false && x.id_budget_rel_fy_centro == rel_fy_cc.id).Sum(x => x.cantidad)
                                 * eur_usd;
 
-                            local = (moneda == "USD" ? (decimal)sugerido : d_usd) + (moneda == "MXN" ? (decimal)sugerido / mxn_usd : d_mxn_usd) + (moneda == "EUR" ? (decimal)sugerido * eur_usd : d_eur_usd);
+                            local = (moneda == "USD" ? (decimal)sugerido : d_usd) + (moneda == "MXN" ? Math.Round((decimal)sugerido / mxn_usd,2) : d_mxn_usd) + (moneda == "EUR" ? Math.Round( (decimal)sugerido * eur_usd,2) : d_eur_usd);
+                            local = Math.Round(local, 2);
 
                             if (cantidad_local != null) //existe, entonces lo modifica
                             {

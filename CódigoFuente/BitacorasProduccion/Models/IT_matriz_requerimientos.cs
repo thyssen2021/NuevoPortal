@@ -17,10 +17,10 @@ namespace Portal_2_0.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public IT_matriz_requerimientos()
         {
+            this.IT_matriz_asignaciones = new HashSet<IT_matriz_asignaciones>();
             this.IT_matriz_carpetas = new HashSet<IT_matriz_carpetas>();
             this.IT_matriz_comunicaciones = new HashSet<IT_matriz_comunicaciones>();
             this.IT_matriz_hardware = new HashSet<IT_matriz_hardware>();
-            this.IT_matriz_asignaciones = new HashSet<IT_matriz_asignaciones>();
             this.IT_matriz_software = new HashSet<IT_matriz_software>();
         }
     
@@ -39,19 +39,19 @@ namespace Portal_2_0.Models
         public string comentario_cierre { get; set; }
         public string tipo { get; set; }
     
+        public virtual empleados empleados { get; set; }
+        public virtual empleados empleados1 { get; set; }
+        public virtual empleados empleados2 { get; set; }
+        public virtual empleados empleados3 { get; set; }
         public virtual IT_internet_tipo IT_internet_tipo { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IT_matriz_asignaciones> IT_matriz_asignaciones { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_matriz_carpetas> IT_matriz_carpetas { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_matriz_comunicaciones> IT_matriz_comunicaciones { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_matriz_hardware> IT_matriz_hardware { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<IT_matriz_asignaciones> IT_matriz_asignaciones { get; set; }
-        public virtual empleados empleados { get; set; }
-        public virtual empleados empleados1 { get; set; }
-        public virtual empleados empleados2 { get; set; }
-        public virtual empleados empleados3 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_matriz_software> IT_matriz_software { get; set; }
     }

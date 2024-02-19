@@ -22,7 +22,7 @@ namespace Portal_2_0.Models
         public double gasto { get; set; }
         public Nullable<double> one_time { get; set; }
     
-        public virtual budget_rel_fy_centro budget_rel_fy_centro { get; set; }
         public virtual budget_cuenta_sap budget_cuenta_sap { get; set; }
+        public virtual budget_rel_fy_centro budget_rel_fy_centro { get; set; }
     }
 }

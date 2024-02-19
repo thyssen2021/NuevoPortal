@@ -25,8 +25,8 @@ namespace Portal_2_0.Models
         public string key_user { get; set; }
         public bool activo { get; set; }
     
+        public virtual empleados empleados { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<upgrade_revision> upgrade_revision { get; set; }
-        public virtual empleados empleados { get; set; }
     }
 }

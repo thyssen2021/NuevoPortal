@@ -20,8 +20,8 @@ namespace Portal_2_0.Models
         public Nullable<int> id_it_inventory_generico { get; set; }
         public string comments { get; set; }
     
+        public virtual IT_asignacion_hardware IT_asignacion_hardware { get; set; }
         public virtual IT_inventory_items_genericos IT_inventory_items_genericos { get; set; }
         public virtual IT_inventory_items IT_inventory_items { get; set; }
-        public virtual IT_asignacion_hardware IT_asignacion_hardware { get; set; }
     }
 }

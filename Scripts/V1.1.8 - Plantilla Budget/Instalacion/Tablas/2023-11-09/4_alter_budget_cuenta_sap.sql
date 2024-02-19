@@ -16,8 +16,8 @@ GO
 ******************************************************************************/
 
 --BEGIN TRANSACTION
-		IF object_id(N'budget_cuenta_sap','U') IS NOT NULL
-		BEGIN			
+		--IF object_id(N'budget_cuenta_sap','U') IS NOT NULL
+		--BEGIN			
 			
 			ALTER TABLE budget_cuenta_sap ADD aplica_formula bit NULL
 			PRINT 'Se ha creado la columna aplica_formula en la tabla budget_cuenta_sap'		
@@ -38,11 +38,11 @@ GO
 			PRINT 'Se ha creado la columna aplica_mxn en la tabla budget_cuenta_sap'
 
 
-		END
-		ELSE
-		BEGIN
-			PRINT 'La tabla budget_cuenta_sap NO EXISTE, no se puede crear las columnas'
-		END
+		--END
+		--ELSE
+		--BEGIN
+		--	PRINT 'La tabla budget_cuenta_sap NO EXISTE, no se puede crear las columnas'
+		--END
 
 --COMMIT TRANSACTION
 

@@ -42,10 +42,10 @@ namespace Portal_2_0.Models
         public string placa_plataforma_uno { get; set; }
         public string placa_plataforma_dos { get; set; }
     
+        public virtual empleados empleados { get; set; }
+        public virtual empleados empleados1 { get; set; }
         public virtual RU_usuarios_vigilancia RU_usuarios_vigilancia { get; set; }
         public virtual RU_usuarios_vigilancia RU_usuarios_vigilancia1 { get; set; }
         public virtual RU_usuarios_vigilancia RU_usuarios_vigilancia2 { get; set; }
-        public virtual empleados empleados { get; set; }
-        public virtual empleados empleados1 { get; set; }
     }
 }

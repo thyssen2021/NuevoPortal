@@ -16,8 +16,8 @@ GO
 ******************************************************************************/
 --
 --BEGIN TRANSACTION
-		IF object_id(N'budget_cantidad_budget_historico','U') IS NOT NULL
-		BEGIN
+		--IF object_id(N'budget_cantidad_budget_historico','U') IS NOT NULL
+		--BEGIN
 			
 			ALTER TABLE budget_cantidad_budget_historico ADD moneda_local_usd bit NOT NULL DEFAULT 1
 			PRINT 'Se ha creado la moneda_local_usd class_1 en la tabla budget_cantidad_budget_historico'			
@@ -30,11 +30,11 @@ GO
 			add constraint UQ_budget_cantidad_budget_historico_anio_sap_mes
 			 unique (id_budget_rel_fy_centro,id_cuenta_sap,mes, currency_iso, moneda_local_usd);
 			 
-		END
-		ELSE
-		BEGIN
-			PRINT 'La tabla budget_cantidad_budget_historico NO EXISTE, no se puede crear las columnas'
-		END
+		--END
+		--ELSE
+		--BEGIN
+		--	PRINT 'La tabla budget_cantidad_budget_historico NO EXISTE, no se puede crear las columnas'
+		--END
 
 --COMMIT TRANSACTION
 

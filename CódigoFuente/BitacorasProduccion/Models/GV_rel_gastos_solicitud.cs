@@ -23,7 +23,7 @@ namespace Portal_2_0.Models
         public string comentarios { get; set; }
     
         public virtual currency currency { get; set; }
-        public virtual GV_tipo_gastos_viaje GV_tipo_gastos_viaje { get; set; }
         public virtual GV_solicitud GV_solicitud { get; set; }
+        public virtual GV_tipo_gastos_viaje GV_tipo_gastos_viaje { get; set; }
     }
 }

@@ -21,7 +21,7 @@ namespace Portal_2_0.Models
         public string correo { get; set; }
         public Nullable<int> clave_planta { get; set; }
     
-        public virtual plantas plantas { get; set; }
         public virtual empleados empleados { get; set; }
+        public virtual plantas plantas { get; set; }
     }
 }

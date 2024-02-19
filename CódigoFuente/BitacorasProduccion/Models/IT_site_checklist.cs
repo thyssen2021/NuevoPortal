@@ -27,9 +27,9 @@ namespace Portal_2_0.Models
         public Nullable<System.DateTime> fecha { get; set; }
         public string estatus { get; set; }
     
+        public virtual empleados empleados { get; set; }
         public virtual IT_site IT_site { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_site_checklist_rel_actividades> IT_site_checklist_rel_actividades { get; set; }
-        public virtual empleados empleados { get; set; }
     }
 }

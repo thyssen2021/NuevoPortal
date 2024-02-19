@@ -31,11 +31,11 @@ namespace Portal_2_0.Models
         public string comentario_cierre { get; set; }
         public string estatus { get; set; }
     
+        public virtual empleados empleados { get; set; }
+        public virtual IT_notificaciones_actividad IT_notificaciones_actividad { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<IT_notificaciones_checklist> IT_notificaciones_checklist { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<log_envio_correo> log_envio_correo { get; set; }
-        public virtual IT_notificaciones_actividad IT_notificaciones_actividad { get; set; }
-        public virtual empleados empleados { get; set; }
     }
 }

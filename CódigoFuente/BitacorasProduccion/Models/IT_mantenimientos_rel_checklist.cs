@@ -20,7 +20,7 @@ namespace Portal_2_0.Models
         public Nullable<bool> terminado { get; set; }
         public string comentarios { get; set; }
     
-        public virtual IT_mantenimientos_checklist_item IT_mantenimientos_checklist_item { get; set; }
         public virtual IT_mantenimientos IT_mantenimientos { get; set; }
+        public virtual IT_mantenimientos_checklist_item IT_mantenimientos_checklist_item { get; set; }
     }
 }
