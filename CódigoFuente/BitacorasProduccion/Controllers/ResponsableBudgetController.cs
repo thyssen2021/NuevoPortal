@@ -268,27 +268,9 @@ namespace Portal_2_0.Controllers
                 ViewBag.rel_proximo = rel_fy_centro_proximo;
                 ViewBag.numCuentasSAP = db.budget_cuenta_sap.Where(x => x.activo).Count();
 
-                //en caso de que sea próximo cambia la vista
-                if (proximo && rel_fy_centro_proximo.estatus) //proximo editable
-                    return View("EditCentroProximoHT", centroCosto);
-                else if (proximo && !rel_fy_centro_proximo.estatus) //proximo no editable
-                {
-                    ViewBag.proximo = proximo;
-                    return View("DetailsCentroHT", centroCosto);
-                }
-                else if (info || import) //muestra la vista de Info //info
-                {
-                    ViewBag.proximo = proximo;
-                    ViewBag.import = import;
-                    return View("DetailsCentroHT", centroCosto);
-                }
-                else if (!proximo && !rel_fy_centro_presente.estatus)
-                {   //presente no editable
-                    ViewBag.proximo = proximo;
-                    return View("DetailsCentroHT", centroCosto);
-                }
-
+              
                 ViewBag.controlling = controlling;
+                ViewBag.info = info;
                 return View(centroCosto); //presente  editable
 
             }

@@ -48,4 +48,4 @@ END
 
 DROP TABLE #stats_ddl;
 
---select * from budget_cantidad
+--select count(*) from budget_cantidad

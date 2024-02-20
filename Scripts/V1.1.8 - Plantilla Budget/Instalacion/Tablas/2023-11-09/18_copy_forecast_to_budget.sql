@@ -14,4 +14,5 @@ GO
 SELECT * INTO [budget_cantidad_budget_historico] FROM [budget_cantidad]
 
 -- verifica si se copiaron los datos
-select * from budget_cantidad_budget_historico
+select count(*) from budget_cantidad
+select count(*) from budget_cantidad_budget_historico
