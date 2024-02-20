@@ -1261,3 +1261,17 @@ INSERT INTO [dbo].[budget_conceptos_mantenimiento]([id_rel_fy_cc],[id_cuenta_sap
      VALUES (2952, 73, 9, 'MXN', 0, 0 )
 INSERT INTO [dbo].[budget_conceptos_mantenimiento]([id_rel_fy_cc],[id_cuenta_sap],[mes],[moneda],[gasto],[one_time])
      VALUES (2953, 73, 9, 'MXN', 0, 0 )
+INSERT INTO [dbo].[budget_conceptos_mantenimiento]([id_rel_fy_cc],[id_cuenta_sap],[mes],[moneda],[gasto],[one_time])
+     VALUES (1402, 72, 11, 'EUR', 7917, 0 )
+-------- UPDATE CUENTAS SAP----
+update budget_cuenta_sap set aplica_mxn=1, aplica_formula=1, aplica_gastos_mantenimiento=1  where id = 68
+update budget_cuenta_sap set aplica_usd=1, aplica_formula=1, aplica_gastos_mantenimiento=1  where id = 68
+update budget_cuenta_sap set aplica_mxn=1, aplica_formula=1, aplica_gastos_mantenimiento=1  where id = 69
+update budget_cuenta_sap set aplica_usd=1, aplica_formula=1, aplica_gastos_mantenimiento=1  where id = 69
+update budget_cuenta_sap set aplica_mxn=1, aplica_formula=1, aplica_gastos_mantenimiento=1  where id = 70
+update budget_cuenta_sap set aplica_usd=1, aplica_formula=1, aplica_gastos_mantenimiento=1  where id = 70
+update budget_cuenta_sap set aplica_mxn=1, aplica_formula=1, aplica_gastos_mantenimiento=1  where id = 72
+update budget_cuenta_sap set aplica_usd=1, aplica_formula=1, aplica_gastos_mantenimiento=1  where id = 72
+update budget_cuenta_sap set aplica_eur=1, aplica_formula=1, aplica_gastos_mantenimiento=1  where id = 72
+update budget_cuenta_sap set aplica_mxn=1, aplica_formula=1, aplica_gastos_mantenimiento=1  where id = 73
+update budget_cuenta_sap set aplica_usd=1, aplica_formula=1, aplica_gastos_mantenimiento=1  where id = 73
