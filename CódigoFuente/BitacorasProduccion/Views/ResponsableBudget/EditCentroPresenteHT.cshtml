@@ -442,7 +442,7 @@
    var headers2 = @Html.Raw(Json.Encode(headersForecast));
    var arraySugeridos = @Html.Raw(Json.Encode(arraySugeridos));
 
-   console.log(arraySugeridos)
+   //console.log(arraySugeridos)
 
    var columnasNoEditables = []
    var columnasEditables = [];
@@ -565,7 +565,7 @@
                readOnly: true,
                type: 'numeric',
                numericFormat: {
-                   pattern: '$ 0,0.00',
+                   pattern: '0,0.00000',
                    culture: 'en-US' // this is the default culture, set up for USD
                },
            },
@@ -573,7 +573,7 @@
                readOnly: true,
                type: 'numeric',
                numericFormat: {
-                   pattern: '$ 0,0.00',
+                   pattern: '0,0.00',
                    culture: 'en-US' // this is the default culture, set up for USD
                },
            }
@@ -2623,7 +2623,7 @@
                    title: "Verifique que cada cantidad tenga una descripción y viceversa."
                });
            } else { //no hay errores, guarda de forma temporal los datos
-               console.log($('#val_result').val())
+               //console.log($('#val_result').val())
                hot2.setDataAtCell(Number(rowFormula), Number(columnFormula), $('#val_result').val());
 
                conceptos_calculados = conceptos_calculados.filter((element) => element[4] !== _cuenta_sap.toString() || element[1] !== columnFormula.toString());
@@ -3375,14 +3375,14 @@
                                    let cuentaSAP = hot2.getDataAtCell(row, 0)
                                    let currency = headers2[col];
                                    //busca el valor qie coincida
-                                   console.log(cuentaSAP + " | " + currency + " | " + mes)
+                                   //console.log(cuentaSAP + " | " + currency + " | " + mes)
 
                                    let resultadoBusqueda = arraySugeridos.filter((element) => element[0] === cuentaSAP.toString() && element[1] === currency && element[2] === mes.toString())
                                    let sugerido = 0;
                                    if (resultadoBusqueda[0] !== undefined)
                                        sugerido = Number(resultadoBusqueda[0][3])
 
-                                   console.log("actual: " + valor + " - sugerido: " + sugerido)
+                                   //console.log("actual: " + valor + " - sugerido: " + sugerido)
 
                                    if (Number(valor) != sugerido)
                                         clase = 'diferencia-sugerido ';
@@ -3459,7 +3459,7 @@
                                        return '<i>Habilitar Celda</i>'; // Name can contain HTML
                                    },
                                    hidden() {
-                                       console.log(columnasEditables)
+                                       //console.log(columnasEditables)
                                        let columnSelected = this.getSelectedLast()[1];
                                        return "@controlling" === "@(false)" || !columnasEditables.includes(columnSelected)
                                    },
@@ -3467,7 +3467,7 @@
                                       let rowSelected = this.getSelectedLast()[0];
                                        let columnSelected = this.getSelectedLast()[1];
 
-                                       console.log("row: " + rowSelected + "col: " + columnSelected)
+                                       //console.log("row: " + rowSelected + "col: " + columnSelected)
 
                                        //habilita la celda
                                        hot2.updateSettings({
@@ -4135,7 +4135,7 @@
                         data: { idRelFYCentro: idRelFYCentro, activo: true },
                         success: function (data) {
                             try {
-                                console.log(data);
+                                //console.log(data);
                                 if (data[0].Status == "OK") {
                                     //en caso de exito
                                     Swal.fire({

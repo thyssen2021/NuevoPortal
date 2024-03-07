@@ -1453,6 +1453,12 @@ namespace Portal_2_0.Controllers
                     readonlyConcepto = true;
                 if ((cuenta_sap == "610030" || cuenta_sap == "610040") && (concepto.clave == "a" || concepto.clave == "b" || concepto.clave == "c") && currency == "USD")
                     readonlyConcepto = true;
+                if ((cuenta_sap == "652100") && (concepto.clave == "a" || concepto.clave == "b" || concepto.clave == "c" || concepto.clave == "d" || concepto.clave == "e" || concepto.clave == "f"
+                    || concepto.clave == "g"|| concepto.clave == "h"|| concepto.clave == "k"|| concepto.clave == "l"
+                    ) && currency == "MXN")
+                    readonlyConcepto = true;
+                if ((cuenta_sap == "652100") && (concepto.clave == "i" || concepto.clave == "j"  ) && currency == "USD")
+                    readonlyConcepto = true;
 
 
 
