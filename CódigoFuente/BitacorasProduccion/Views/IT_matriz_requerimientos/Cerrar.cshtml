@@ -174,6 +174,7 @@
                         @using (Html.BeginForm("Cerrar", null, FormMethod.Post, new { }))
                         {
                             @Html.AntiForgeryToken()
+
                             @Html.HiddenFor(model => model.id)
                             @Html.HiddenFor(model => model.matriz.tipo)
                             <input type="hidden" id="id_matriz" name="id_matriz" value="@Model.id" />
@@ -251,10 +252,13 @@
                                                     <td nowrap>
                                                         <select name="hardware_@(item.id)_responsable" id="hardware_@(item.id)_responsable" class="form-control select2bs4" style="width:100%">
                                                             <option value=''>-- Seleccione un valor --</option>
-                                                            @foreach (Portal_2_0.Models.empleados empleado in listEmpleados)
+                                                            @if (listEmpleados != null)
                                                             {
-                                                                <option value="@empleado.id" @(item.asignado_a == empleado.id ? "selected" : null )>@empleado.ConcatNombre</option>
+                                                                foreach (Portal_2_0.Models.empleados empleado in listEmpleados)
+                                                                {
+                                                                    <option value="@empleado.id" @(item.asignado_a == empleado.id ? "selected" : null )>@empleado.ConcatNombre</option>
 
+                                                                }
                                                             }
                                                         </select>
                                                     </td>
@@ -350,10 +354,13 @@
                                                     <td nowrap>
                                                         <select name="software_@(item.id)_responsable" id="software_@(item.id)_responsable" class="form-control select2bs4" style="width:100%">
                                                             <option value=''>-- Seleccione un valor --</option>
-                                                            @foreach (Portal_2_0.Models.empleados empleado in listEmpleados)
+                                                            @if (listEmpleados != null)
                                                             {
-                                                                <option value="@empleado.id" @(item.asignado_a == empleado.id ? "selected" : null )>@empleado.ConcatNombre</option>
+                                                                foreach (Portal_2_0.Models.empleados empleado in listEmpleados)
+                                                                {
+                                                                    <option value="@empleado.id" @(item.asignado_a == empleado.id ? "selected" : null )>@empleado.ConcatNombre</option>
 
+                                                                }
                                                             }
                                                         </select>
                                                     </td>
@@ -1281,7 +1288,7 @@
                 $('#notificar_id_software_type_id').val(valSoftwareTypeId);
             }
 
-            
+
             //cambia el nombre del modal
             $('#notificar_nombre_modal').html(textEmpleado);
             $('#notificar_id_empleado_modal').val(valEmpleado);

@@ -1857,6 +1857,18 @@ namespace Portal_2_0.Controllers
 
             }
 
+            //recorre los usuarios con el permiso de IT_notificaciones
+            AspNetRoles rol = db.AspNetRoles.Where(x => x.Name == TipoRoles.IT_MATRIZ_REQUERIMIENTOS_CERRAR).FirstOrDefault();
+            List<AspNetUsers> usuariosInRole = new List<AspNetUsers>();
+            if (rol != null)
+                usuariosInRole = rol.AspNetUsers.ToList();
+
+            List<int> idsRol = usuariosInRole.Select(x => x.IdEmpleado).Distinct().ToList();
+            List<empleados> listEmpleados = db.empleados.Where(x => x.activo == true && idsRol.Contains(x.id) == true).ToList();
+
+            //envia el select list por viewbag
+            ViewBag.ListEmpleado = listEmpleados;
+
             matrizModel.matriz = matriz;
             return View(matrizModel);
 
