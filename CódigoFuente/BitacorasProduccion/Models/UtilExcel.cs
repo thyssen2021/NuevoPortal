@@ -1009,7 +1009,7 @@ namespace Portal_2_0.Models
 
                 for (int i = 0; i < result.Tables[0].Columns.Count; i++)
                 {
-                    string title = result.Tables[0].Rows[filaInicio-1][i].ToString();
+                    string title = result.Tables[0].Rows[filaInicio - 1][i].ToString();
 
                     if (!string.IsNullOrEmpty(title))
                         encabezados.Add(title.ToUpper());
@@ -1582,6 +1582,533 @@ namespace Portal_2_0.Models
             return lista;
         }
 
+
+
+        ///<summary>
+        ///Lee un archivo de excel y carga el listado de epo
+        ///</summary>
+        ///<return>
+        ///Devuelve un List<IT_epo> con los datos leidos
+        ///</return>
+        ///<param name="streamPostedFile">
+        ///Stream del archivo recibido en el formulario
+        ///</param>
+        public static List<IT_Export4Import> LeeExport4Import(HttpPostedFileBase streamPostedFile, ref string msj)
+        {
+            List<IT_Export4Import> lista = new List<IT_Export4Import>();
+            DateTime fecha = DateTime.Now;
+
+            //crea el reader del archivo
+            using (var reader = ExcelReaderFactory.CreateReader(streamPostedFile.InputStream))
+            {
+                //obtiene el dataset del archivo de excel
+                var result = reader.AsDataSet();
+
+                //recorre todas las hojas del archivo
+                foreach (DataTable table in result.Tables)
+                {
+                    lista = new List<IT_Export4Import>();
+
+                    //se obtienen las cabeceras
+                    List<string> encabezados = new List<string>();
+                    List<string> encabezadosTest = new List<string>() { "USERNAME", "LASTNAME", "FIRSTNAME", "TKBIRTH", "TKSEX", "TKEMPNO" };
+
+                    for (int i = 0; i < table.Columns.Count; i++)
+                    {
+                        string title = table.Rows[0][i].ToString();
+
+                        if (!string.IsNullOrEmpty(title))
+                            encabezados.Add(title.ToUpper());
+                    }
+
+                    //verifica los encabezados principales del archivo enviado
+                    foreach (var s in encabezadosTest)
+                    {
+                        if (!encabezados.Contains(s))
+                        {
+                            msj = "No se encontró la columna: " + s;
+                            return lista;
+                        }
+                    }
+
+                    //la fila cero se omite (encabezado)
+                    for (int i = 1; i < table.Rows.Count; i++)
+                    {
+                        try
+                        {
+                            IT_Export4Import item = new IT_Export4Import();
+
+                            //recorre todas los encabezados
+                            for (int j = 0; j < encabezados.Count; j++)
+                            {
+                                //obtiene la cabezara de i
+                                switch (encabezados[j])
+                                {
+                                    //obligatorios
+                                    case "USERNAME":
+                                        item.C8ID = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 10);
+                                        break;
+                                    case "TKSIR":
+                                        item.tksir = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 5);
+                                        break;
+                                    case "TKTITLE":
+                                        item.tktitle = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 5);
+                                        break;
+                                    case "TKNAMEPREFIX":
+                                        item.tknameprefix = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 10);
+                                        break;
+                                    case "LASTNAME":
+                                        item.lastName = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 100);
+                                        break;
+                                    case "FIRSTNAME":
+                                        item.firstName = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 100);
+                                        break;
+                                    case "TKBIRTH":
+                                        item.tkbirth = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 15);
+                                        break;
+                                    case "TKSEX":
+                                        item.tksex = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 1);
+                                        break;
+                                    case "TKSTREET":
+                                        item.tkstreet = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 100);
+                                        break;
+                                    case "TKPOSTALCODE":
+                                        item.tkpostalcode = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 100);
+                                        break;
+                                    case "TKPOSTALADDRESS":
+                                        item.tkpostaladdress = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 100);
+                                        break;
+                                    case "TKADDADDON":
+                                        item.tkaddaddon = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 100);
+                                        break;
+                                    case "TKFEDST":
+                                        item.tkfedst = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 100);
+                                        break;
+                                    case "TKCOUNTRY":
+                                        item.tkcountry = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 100);
+                                        break;
+                                    case "TKCOUNTRYKEY":
+                                        item.tkcountrykey = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 5);
+                                        break;
+                                    case "TKNATIONALITY":
+                                        item.tknationality = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 3);
+                                        break;
+                                    case "TKPREFLANG":
+                                        item.tkpreflang = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 5);
+                                        break;
+                                    case "TKEMPNO":
+                                        item.tkempno = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 10);
+                                        break;
+                                    case "TKFKZ6":
+                                        item.tkfkz6 = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 6);
+                                        break;
+                                    case "TKFKZEXT":
+                                        item.tkfkzext = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 6);
+                                        break;
+                                    case "TKUNIQUEID":
+                                        item.tkuniqueid = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 10);
+                                        break;
+                                    case "TKPSTATUS":
+                                        item.tkpstatus = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 5);
+                                        break;
+                                    case "TKCOSTCENTER":
+                                        item.tkcostcenter = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 4);
+                                        break;
+                                    case "TKDEPARTMENT":
+                                        item.tkdepartment = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 50);
+                                        break;
+                                    case "TKFUNCTION":
+                                        item.tkfunction = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 60);
+                                        break;
+                                    case "TKORGSTREET":
+                                        item.tkorgstreet = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 50);
+                                        break;
+                                    case "TKORGPOSTALCODE":
+                                        item.tkorgpostalcode = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 5);
+                                        break;
+                                    case "TKORGPOSTALADDRESS":
+                                        item.tkorgpostaladdress = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 50);
+                                        break;
+                                    case "TKORGADDONADDR":
+                                        item.tkorgaddonaddr = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 50);
+                                        break;
+                                    case "TKORGFEDST":
+                                        item.tkorgfedst = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 20);
+                                        break;
+                                    case "TKORGCOUNTRY":
+                                        item.tkorgcountry = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 40);
+                                        break;
+                                    case "TKORGCOUNTRYKEY":
+                                        item.tkorgcountrykey = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 5);
+                                        break;
+                                    case "TKAPSITE":
+                                        item.tkapsite = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 20);
+                                        break;
+                                    case "TKORGKEY":
+                                        item.tkorgkey = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 10);
+                                        break;
+                                    case "TKBUILDING":
+                                        item.tkbuilding = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 10);
+                                        break;
+                                    case "EMAIL":
+                                        item.email = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 120);
+                                        break;
+                                    case "TKAREACODE":
+                                        item.tkareacode = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 20);
+                                        break;
+                                    case "TKPHONEEXT":
+                                        item.tkphoneext = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 20);
+                                        break;
+                                    case "TKORGFAX":
+                                        item.tkorgfax = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 20);
+                                        break;
+                                    case "TKMOBILE":
+                                        item.tkmobile = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 20);
+                                        break;
+                                    case "TKGODFATHER":
+                                        item.tkgodfather = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 8);
+                                        break;
+                                    case "TKPREFDELMETHOD":
+                                        item.tkprefdelmethod = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 1);
+                                        break;
+                                    case "TKEDATEORG":
+                                        item.tkedateorg = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 15);
+                                        break;
+                                    case "TKEDATETRUST":
+                                        item.tkedatetrust = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 15);
+                                        break;
+                                    case "TKLDATEORG":
+                                        item.tkldateorg = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 15);
+                                        break;
+                                    case "TKLREASON":
+                                        item.tklreason = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 10);
+                                        break;
+                                    case "SHARES":
+                                        item.shares = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 1);
+                                        break;
+                                    case "SUPERVISORYBOARDELECTION":
+                                        item.supervisoryboardelection = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 1);
+                                        break;
+                                    case "TKBKZ":
+                                        item.tkbkz = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 5);
+                                        break;
+                                    case "TKINSIDE":
+                                        item.tkinside = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 1);
+                                        break;
+
+                                }
+                            }
+                            //agrega a la lista con los datos leidos
+                            item.updateTime = fecha;
+                            lista.Add(item);
+                        }
+                        catch (Exception e)
+                        {
+                            System.Diagnostics.Debug.Print("Error: " + e.Message);
+                        }
+                    }
+
+                    //envia la lista tras la primera iteracion
+                    return lista;
+                }
+            }
+
+            return lista;
+        }
+        ///<summary>
+        ///Lee un archivo de excel y carga el listado de epo
+        ///</summary>
+        ///<return>
+        ///Devuelve un List<IT_epo> con los datos leidos
+        ///</return>
+        ///<param name="streamPostedFile">
+        ///Stream del archivo recibido en el formulario
+        ///</param>
+        public static List<IT_UsuariosActivos> LeeUsuariosActivos(HttpPostedFileBase streamPostedFile, ref string msj)
+        {
+            List<IT_UsuariosActivos> lista = new List<IT_UsuariosActivos>();
+            DateTime fecha = DateTime.Now;
+
+            //crea el reader del archivo
+            using (var reader = ExcelReaderFactory.CreateReader(streamPostedFile.InputStream))
+            {
+                //obtiene el dataset del archivo de excel
+                var result = reader.AsDataSet();
+
+                //recorre todas las hojas del archivo
+                foreach (DataTable table in result.Tables)
+                {
+                    lista = new List<IT_UsuariosActivos>();
+
+                    //se obtienen las cabeceras
+                    List<string> encabezados = new List<string>();
+                    List<string> encabezadosTest = new List<string>() { "APELLIDOPATERNO", "APELLIDOMATERNO", "APELLIDOMATERNO", "DEPARTAMENTO", "8ID" };
+
+                    for (int i = 0; i < table.Columns.Count; i++)
+                    {
+                        string title = table.Rows[0][i].ToString();
+
+                        if (!string.IsNullOrEmpty(title))
+                            encabezados.Add(title.ToUpper().Replace(" ", ""));
+                    }
+
+                    //verifica los encabezados principales del archivo enviado
+                    foreach (var s in encabezadosTest)
+                    {
+                        if (!encabezados.Contains(s))
+                        {
+                            msj = "No se encontró la columna: " + s;
+                            return lista;
+                        }
+                    }
+
+                    //la fila cero se omite (encabezado)
+                    for (int i = 1; i < table.Rows.Count; i++)
+                    {
+                        try
+                        {
+                            IT_UsuariosActivos item = new IT_UsuariosActivos();
+
+                            //recorre todas los encabezados
+                            for (int j = 0; j < encabezados.Count; j++)
+                            {
+                                //obtiene la cabezara de i
+                                switch (encabezados[j])
+                                {
+                                    //obligatorios
+                                    case "NÚMERO":
+                                        item.Numero = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 6);
+                                        break;
+                                    case "APELLIDOPATERNO":
+                                        item.ApellidoPaterno = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 50);
+                                        break;
+                                    case "APELLIDOMATERNO":
+                                        item.ApellidoMaterno = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 50);
+                                        break;
+                                    case "NOMBRE(S)":
+                                        item.Nombre = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 50);
+                                        break;
+                                    case "ANTIGÜEDAD":
+                                        item.Antiguedad = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 15);
+                                        break;
+                                    case "PUESTO":
+                                        item.Puesto = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 50);
+                                        break;
+                                    case "DEPARTAMENTO":
+                                        if (j == 6)
+                                            item.Departamento = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 50);
+                                        else
+                                            item.DepartamentoNum = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 6);
+                                        break;
+                                    case "PLANTA":
+                                        item.Planta = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 5);
+                                        break;
+                                    case "ÁREA":
+                                        item.Area = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 5);
+                                        break;
+                                    case "GÉNERO":
+                                        item.Genero = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 1);
+                                        break;
+                                    case "8ID":
+                                        item.C8ID = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 8);
+                                        break;
+
+
+
+                                }
+                            }
+                            //agrega a la lista con los datos leidos
+                            item.updateTime = fecha;
+                            lista.Add(item);
+                        }
+                        catch (Exception e)
+                        {
+                            System.Diagnostics.Debug.Print("Error: " + e.Message);
+                        }
+                    }
+
+                    //envia la lista tras la primera iteracion
+                    return lista;
+                }
+            }
+
+            return lista;
+        }
+
+        ///<summary>
+        ///Lee un archivo de excel y carga el listado de epo
+        ///</summary>
+        ///<return>
+        ///Devuelve un List<IT_epo> con los datos leidos
+        ///</return>
+        ///<param name="streamPostedFile">
+        ///Stream del archivo recibido en el formulario
+        ///</param>
+        public static List<IT_ExportUsers> LeeExportUsers(HttpPostedFileBase streamPostedFile, ref string msj)
+        {
+            List<IT_ExportUsers> lista = new List<IT_ExportUsers>();
+            DateTime fecha = DateTime.Now;
+
+            //crea el reader del archivo
+            using (var reader = ExcelReaderFactory.CreateReader(streamPostedFile.InputStream))
+            {
+                //obtiene el dataset del archivo de excel
+                var result = reader.AsDataSet();
+
+                //recorre todas las hojas del archivo
+                foreach (DataTable table in result.Tables)
+                {
+                    lista = new List<IT_ExportUsers>();
+
+                    //se obtienen las cabeceras
+                    List<string> encabezados = new List<string>();
+                    List<string> encabezadosTest = new List<string>() { "USERPRINCIPALNAME", "DISPLAYNAME", "SURNAME", "MAIL", "GIVENNAME" };
+
+                    for (int i = 0; i < table.Columns.Count; i++)
+                    {
+                        string title = table.Rows[0][i].ToString();
+
+                        if (!string.IsNullOrEmpty(title))
+                            encabezados.Add(title.ToUpper());
+                    }
+
+                    //verifica los encabezados principales del archivo enviado
+                    foreach (var s in encabezadosTest)
+                    {
+                        if (!encabezados.Contains(s))
+                        {
+                            msj = "No se encontró la columna: " + s;
+                            return lista;
+                        }
+                    }
+
+                    //la fila cero se omite (encabezado)
+                    for (int i = 1; i < table.Rows.Count; i++)
+                    {
+                        try
+                        {
+                            IT_ExportUsers item = new IT_ExportUsers();
+
+                            //recorre todas los encabezados
+                            for (int j = 0; j < encabezados.Count; j++)
+                            {
+                                //obtiene la cabezara de i
+                                switch (encabezados[j])
+                                {
+                                    //obligatorios
+                                    case "USERPRINCIPALNAME":
+                                        string[] separadores = table.Rows[i][j].ToString().Split('@');
+                                        if (separadores.Length > 0)
+                                            item.C8ID = UsoStrings.RecortaString(separadores[0], 14);
+                                        item.userPrincipalName = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 60);
+                                        break;
+                                    case "DISPLAYNAME":
+                                        item.displayName = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 60);
+                                        break;
+                                    case "SURNAME":
+                                        item.surname = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 60);
+                                        break;
+                                    case "MAIL":
+                                        item.mail = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 100);
+                                        break;
+                                    case "GIVENNAME":
+                                        item.givenName = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 50);
+                                        break;
+                                    case "ID":
+                                        item.C_id = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 50);
+                                        break;
+                                    case "USERTYPE":
+                                        item.userType = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 12);
+                                        break;
+                                    case "JOBTITLE":
+                                        item.jobTitle = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 60);
+                                        break;
+                                    case "DEPARTMENT":
+                                        item.department = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 25);
+                                        break;
+                                    case "ACCOUNTENABLED":
+                                        item.accountEnabled = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 10);
+                                        break;
+                                    case "USAGELOCATION":
+                                        item.usageLocation = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 5);
+                                        break;
+                                    case "STREETADDRESS":
+                                        item.streetAddress = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 60);
+                                        break;
+                                    case "STATE":
+                                        item.state = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 20);
+                                        break;
+                                    case "COUNTRY":
+                                        item.country = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 5);
+                                        break;
+                                    case "OFFICELOCATION":
+                                        item.officeLocation = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 20);
+                                        break;
+                                    case "CITY":
+                                        item.city = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 30);
+                                        break;
+                                    case "POSTALCODE":
+                                        item.postalCode = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 5);
+                                        break;
+                                    case "TELEPHONENUMBER":
+                                        item.telephoneNumber = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 25);
+                                        break;
+                                    case "MOBILEPHONE":
+                                        item.mobilePhone = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 25);
+                                        break;
+                                    case "ALTERNATEEMAILADDRESS":
+                                        item.alternateEmailAddress = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 120);
+                                        break;
+                                    case "AGEGROUP":
+                                        item.ageGroup = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 10);
+                                        break;
+                                    case "CONSENTPROVIDEDFORMINOR":
+                                        item.consentProvidedForMinor = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 10);
+                                        break;
+                                    case "LEGALAGEGROUPCLASSIFICATION":
+                                        item.legalAgeGroupClassification = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 10);
+                                        break;
+                                    case "COMPANYNAME":
+                                        item.companyName = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 60);
+                                        break;
+                                    case "CREATIONTYPE":
+                                        item.creationType = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 5);
+                                        break;
+                                    case "DIRECTORYSYNCED":
+                                        item.directorySynced = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 5);
+                                        break;
+                                    case "INVITATIONSTATE":
+                                        item.invitationState = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 5);
+                                        break;
+                                    case "IDENTITYISSUER":
+                                        item.identityIssuer = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 60);
+                                        break;
+                                    case "CREATEDDATETIME":
+                                        item.createdDateTime = UsoStrings.RecortaString(table.Rows[i][j].ToString(), 30);
+                                        break;                                 
+
+
+                                }
+                            }
+                            //agrega a la lista con los datos leidos
+                            item.updateTime = fecha;
+                            lista.Add(item);
+                        }
+                        catch (Exception e)
+                        {
+                            System.Diagnostics.Debug.Print("Error: " + e.Message);
+                        }
+                    }
+
+                    //envia la lista tras la primera iteracion
+                    return lista;
+                }
+            }
+
+            return lista;
+        }
+
+
         ///<summary>
         ///Lee un archivo de excel y carga formato de remisiones provisionales
         ///</summary>
@@ -1931,20 +2458,20 @@ namespace Portal_2_0.Models
                                         //obligatorios
                                         case "MATL.":
                                             material = table.Rows[i][j].ToString();
-                                            break;                                     
+                                            break;
                                         case "GAUGE":
                                             if (Double.TryParse(table.Rows[i][j].ToString(), out double gauge_result))
                                                 gauge = gauge_result;
                                             break;
-                                         case "GAUGE MIN":
+                                        case "GAUGE MIN":
                                             if (Double.TryParse(table.Rows[i][j].ToString(), out double gauge_min_result))
                                                 gauge_min = gauge_min_result;
                                             break;
-                                         case "GAUGE MAX":
+                                        case "GAUGE MAX":
                                             if (Double.TryParse(table.Rows[i][j].ToString(), out double gauge_max_result))
                                                 gauge_max = gauge_max_result;
                                             break;
-                                      
+
                                     }
                                 }
 

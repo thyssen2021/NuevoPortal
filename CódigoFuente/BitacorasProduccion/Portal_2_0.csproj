@@ -327,6 +327,7 @@
     <Compile Include="Controllers\IT_mantenimientos_checklist_itemController.cs" />
     <Compile Include="Controllers\IT_matriz_requerimientosController.cs" />
     <Compile Include="Controllers\IT_notificaciones_actividadController.cs" />
+    <Compile Include="Controllers\IT_reporte_usuariosController.cs" />
     <Compile Include="Controllers\IT_siteController.cs" />
     <Compile Include="Controllers\IT_site_actividadesController.cs" />
     <Compile Include="Controllers\IT_site_checklistController.cs" />
@@ -541,6 +542,12 @@
     <Compile Include="Models\IT_equipos_rel_checklist_actividades.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\IT_Export4Import.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_ExportUsers.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\IT_internet_tipo.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
@@ -626,6 +633,9 @@
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IT_solicitud_usuarios.cs">
+      <DependentUpon>NuevoPortalModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IT_UsuariosActivos.cs">
       <DependentUpon>NuevoPortalModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\IT_wsus.cs">
@@ -5319,6 +5329,10 @@
     <Content Include="Views\ResponsableBudget\EditCentroProximoHT.cshtml" />
     <Content Include="Views\ResponsableBudget\EditarSoporte.cshtml" />
     <Content Include="Views\ResponsableBudget\ActualizaGastosManto.cshtml" />
+    <Content Include="Views\IT_reporte_usuarios\Index.cshtml" />
+    <Content Include="Views\IT_reporte_usuarios\Export4Import.cshtml" />
+    <Content Include="Views\IT_reporte_usuarios\UsuariosActivos.cshtml" />
+    <Content Include="Views\IT_reporte_usuarios\ExportUsers.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

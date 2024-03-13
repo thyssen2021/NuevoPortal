@@ -312,10 +312,11 @@
                                     @if (User.IsInRole(TipoRoles.IT_INVENTORY))
                                     {
                                         <li class="@(ViewBag.PrimerNivel == "IT_epo_wsus" ? "active" : null )">
-                                            <a><i class="fa fa-network-wired"></i>IT - EPO/WSUS <span class="fa fa-chevron-down"></span></a>
+                                            <a><i class="fa fa-users-between-lines"></i>IT - Reportes Usuarios <span class="fa fa-chevron-down"></span></a>
                                             <ul class="nav child_menu" style="@(ViewBag.PrimerNivel == "IT_epo_wsus" ? "display:block" : null )">
 
-                                                <li class="@(ViewBag.SegundoNivel == "IT_epo" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_epo")">Carga EPO</a></li>
+                                                <li class="@(ViewBag.SegundoNivel == "IT_reporte_usuarios" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_reporte_usuarios")">Reportes Usuarios</a></li>
+                                                @*<li class="@(ViewBag.SegundoNivel == "IT_epo" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_epo")">Carga EPO</a></li>
                                                 <li class="@(ViewBag.SegundoNivel == "IT_wsus" ? "current-page" : null )"><a href="@Url.Action("Index", "IT_wsus")">Carga WSUS</a></li>
                                                 <li class="link @(ViewBag.SegundoNivel == "IT_Checklist_catalogos" ? "active" : null )">
                                                     <a>Repotes<span class="fa fa-chevron-down"></span></a>
@@ -325,7 +326,7 @@
                                                         <li class="@(ViewBag.TercelNivel == "IT_epo_wsus_reporte_wsus_no_inventario" ? "current-page" : null )"><a href="@Url.Action("WsusNoInventario", "IT_epo_wsus_reporte")">En Wsus NO Inventario</a></li>
                                                         <li class="@(ViewBag.TercelNivel == "IT_epo_wsus_reporte_inventario_no_wsus" ? "current-page" : null )"><a href="@Url.Action("InventarioNoWsus", "IT_epo_wsus_reporte")">En Inventario NO wsus</a></li>
                                                     </ul>
-                                                </li>
+                                                </li>*@
                                             </ul>
 
                                         </li>

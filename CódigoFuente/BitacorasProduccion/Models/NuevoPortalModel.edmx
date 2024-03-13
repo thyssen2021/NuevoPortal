@@ -107,7 +107,7 @@
           <Property Name="moneda_local_usd" Type="bit" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.budget_cantidad_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.budget_cantidad_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="budget_cantidad_budget_historico">
           <Key>
             <PropertyRef Name="id" />
@@ -629,6 +629,100 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.budget_cantidad_budget_hi
           <Property Name="observacion" Type="varchar" MaxLength="150" />
           <Property Name="estatus" Type="varchar" MaxLength="10" Nullable="false" />
         </EntityType>
+        <EntityType Name="IT_Export4Import">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="C8ID" Type="varchar" MaxLength="10" />
+          <Property Name="tksir" Type="varchar" MaxLength="5" />
+          <Property Name="tktitle" Type="varchar" MaxLength="5" />
+          <Property Name="tknameprefix" Type="varchar" MaxLength="10" />
+          <Property Name="lastName" Type="varchar" MaxLength="100" />
+          <Property Name="firstName" Type="varchar" MaxLength="100" />
+          <Property Name="tkbirth" Type="varchar" MaxLength="15" />
+          <Property Name="tksex" Type="varchar" MaxLength="1" />
+          <Property Name="tkstreet" Type="varchar" MaxLength="100" />
+          <Property Name="tkpostalcode" Type="varchar" MaxLength="100" />
+          <Property Name="tkpostaladdress" Type="varchar" MaxLength="100" />
+          <Property Name="tkaddaddon" Type="varchar" MaxLength="100" />
+          <Property Name="tkfedst" Type="varchar" MaxLength="100" />
+          <Property Name="tkcountry" Type="varchar" MaxLength="100" />
+          <Property Name="tkcountrykey" Type="varchar" MaxLength="5" />
+          <Property Name="tknationality" Type="varchar" MaxLength="3" />
+          <Property Name="tkpreflang" Type="varchar" MaxLength="5" />
+          <Property Name="tkempno" Type="varchar" MaxLength="10" />
+          <Property Name="tkfkz6" Type="varchar" MaxLength="6" />
+          <Property Name="tkfkzext" Type="varchar" MaxLength="6" />
+          <Property Name="tkuniqueid" Type="varchar" MaxLength="10" />
+          <Property Name="tkpstatus" Type="varchar" MaxLength="5" />
+          <Property Name="tkcostcenter" Type="varchar" MaxLength="4" />
+          <Property Name="tkdepartment" Type="varchar" MaxLength="50" />
+          <Property Name="tkfunction" Type="varchar" MaxLength="60" />
+          <Property Name="tkorgstreet" Type="varchar" MaxLength="50" />
+          <Property Name="tkorgpostalcode" Type="varchar" MaxLength="5" />
+          <Property Name="tkorgpostaladdress" Type="varchar" MaxLength="50" />
+          <Property Name="tkorgaddonaddr" Type="varchar" MaxLength="50" />
+          <Property Name="tkorgfedst" Type="varchar" MaxLength="20" />
+          <Property Name="tkorgcountry" Type="varchar" MaxLength="40" />
+          <Property Name="tkorgcountrykey" Type="varchar" MaxLength="5" />
+          <Property Name="tkapsite" Type="varchar" MaxLength="20" />
+          <Property Name="tkorgkey" Type="varchar" MaxLength="10" />
+          <Property Name="tkbuilding" Type="varchar" MaxLength="10" />
+          <Property Name="email" Type="varchar" MaxLength="120" />
+          <Property Name="tkareacode" Type="varchar" MaxLength="20" />
+          <Property Name="tkphoneext" Type="varchar" MaxLength="20" />
+          <Property Name="tkorgfax" Type="varchar" MaxLength="20" />
+          <Property Name="tkmobile" Type="varchar" MaxLength="20" />
+          <Property Name="tkgodfather" Type="varchar" MaxLength="8" />
+          <Property Name="tkprefdelmethod" Type="varchar" MaxLength="1" />
+          <Property Name="tkedateorg" Type="varchar" MaxLength="15" />
+          <Property Name="tkedatetrust" Type="varchar" MaxLength="15" />
+          <Property Name="tkldateorg" Type="varchar" MaxLength="15" />
+          <Property Name="tklreason" Type="varchar" MaxLength="10" />
+          <Property Name="shares" Type="varchar" MaxLength="1" />
+          <Property Name="supervisoryboardelection" Type="varchar" MaxLength="1" />
+          <Property Name="tkbkz" Type="varchar" MaxLength="5" />
+          <Property Name="tkinside" Type="varchar" MaxLength="1" />
+          <Property Name="updateTime" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="IT_ExportUsers">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="C8ID" Type="varchar" MaxLength="14" />
+          <Property Name="userPrincipalName" Type="varchar" MaxLength="60" />
+          <Property Name="displayName" Type="varchar" MaxLength="60" />
+          <Property Name="surname" Type="varchar" MaxLength="60" />
+          <Property Name="mail" Type="varchar" MaxLength="100" />
+          <Property Name="givenName" Type="varchar" MaxLength="50" />
+          <Property Name="C_id" Type="varchar" MaxLength="50" />
+          <Property Name="userType" Type="varchar" MaxLength="12" />
+          <Property Name="jobTitle" Type="varchar" MaxLength="60" />
+          <Property Name="department" Type="varchar" MaxLength="25" />
+          <Property Name="accountEnabled" Type="varchar" MaxLength="10" />
+          <Property Name="usageLocation" Type="varchar" MaxLength="5" />
+          <Property Name="streetAddress" Type="varchar" MaxLength="60" />
+          <Property Name="state" Type="varchar" MaxLength="20" />
+          <Property Name="country" Type="varchar" MaxLength="5" />
+          <Property Name="officeLocation" Type="varchar" MaxLength="20" />
+          <Property Name="city" Type="varchar" MaxLength="30" />
+          <Property Name="postalCode" Type="varchar" MaxLength="5" />
+          <Property Name="telephoneNumber" Type="varchar" MaxLength="25" />
+          <Property Name="mobilePhone" Type="varchar" MaxLength="25" />
+          <Property Name="alternateEmailAddress" Type="varchar" MaxLength="120" />
+          <Property Name="ageGroup" Type="varchar" MaxLength="10" />
+          <Property Name="consentProvidedForMinor" Type="varchar" MaxLength="10" />
+          <Property Name="legalAgeGroupClassification" Type="varchar" MaxLength="10" />
+          <Property Name="companyName" Type="varchar" MaxLength="60" />
+          <Property Name="creationType" Type="varchar" MaxLength="5" />
+          <Property Name="directorySynced" Type="varchar" MaxLength="5" />
+          <Property Name="invitationState" Type="varchar" MaxLength="5" />
+          <Property Name="identityIssuer" Type="varchar" MaxLength="60" />
+          <Property Name="createdDateTime" Type="varchar" MaxLength="30" />
+          <Property Name="updateTime" Type="datetime" Nullable="false" />
+        </EntityType>
         <EntityType Name="IT_internet_tipo">
           <Key>
             <PropertyRef Name="id" />
@@ -993,6 +1087,25 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.budget_cantidad_budget_hi
           <Property Name="correo" Type="varchar" MaxLength="100" />
           <Property Name="comentario" Type="varchar" MaxLength="250" />
           <Property Name="estatus" Type="varchar" MaxLength="25" />
+        </EntityType>
+        <EntityType Name="IT_UsuariosActivos">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Numero" Type="varchar" MaxLength="6" />
+          <Property Name="ApellidoPaterno" Type="varchar" MaxLength="50" />
+          <Property Name="ApellidoMaterno" Type="varchar" MaxLength="50" />
+          <Property Name="Nombre" Type="varchar" MaxLength="50" />
+          <Property Name="Antiguedad" Type="varchar" MaxLength="15" />
+          <Property Name="Puesto" Type="varchar" MaxLength="50" />
+          <Property Name="Departamento" Type="varchar" MaxLength="50" />
+          <Property Name="Planta" Type="varchar" MaxLength="5" />
+          <Property Name="Area" Type="varchar" MaxLength="5" />
+          <Property Name="DepartamentoNum" Type="varchar" MaxLength="6" />
+          <Property Name="Genero" Type="varchar" MaxLength="1" />
+          <Property Name="C8ID" Type="varchar" MaxLength="8" />
+          <Property Name="updateTime" Type="datetime" Nullable="false" />
         </EntityType>
         <EntityType Name="IT_wsus">
           <Key>
@@ -1788,7 +1901,7 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.budget_cantidad_budget_hi
           <Property Name="activo" Type="bit" Nullable="false" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_historico_resultado' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_historico_resultado">
           <Key>
             <PropertyRef Name="id" />
@@ -1882,7 +1995,7 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_historico_resultado'
           <Property Name="comentario" Type="varchar" MaxLength="600" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_fiscal_year">
           <Key>
             <PropertyRef Name="id" />
@@ -1966,7 +2079,7 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year'
           <Property Name="Comentario" Type="varchar" MaxLength="100" />
         </EntityType>
         <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+advertencia 6002: La tabla o vista 'Portal_2_0.dbo.view_valores_fiscal_year_budget_historico' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
         <EntityType Name="view_valores_fiscal_year_budget_historico">
           <Key>
             <PropertyRef Name="id" />
@@ -4575,6 +4688,8 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year_
           <EntitySet Name="IT_equipos_checklist_actividades" EntityType="Self.IT_equipos_checklist_actividades" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_equipos_checklist_categorias" EntityType="Self.IT_equipos_checklist_categorias" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_equipos_rel_checklist_actividades" EntityType="Self.IT_equipos_rel_checklist_actividades" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IT_Export4Import" EntityType="Self.IT_Export4Import" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IT_ExportUsers" EntityType="Self.IT_ExportUsers" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_internet_tipo" EntityType="Self.IT_internet_tipo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_inventory_cellular_line" EntityType="Self.IT_inventory_cellular_line" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_inventory_cellular_plans" EntityType="Self.IT_inventory_cellular_plans" Schema="dbo" store:Type="Tables" />
@@ -4604,6 +4719,7 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year_
           <EntitySet Name="IT_site_checklist" EntityType="Self.IT_site_checklist" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_site_checklist_rel_actividades" EntityType="Self.IT_site_checklist_rel_actividades" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_solicitud_usuarios" EntityType="Self.IT_solicitud_usuarios" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="IT_UsuariosActivos" EntityType="Self.IT_UsuariosActivos" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="IT_wsus" EntityType="Self.IT_wsus" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="log_acceso_email" EntityType="Self.log_acceso_email" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="log_envio_correo" EntityType="Self.log_envio_correo" Schema="dbo" store:Type="Tables" />
@@ -6702,6 +6818,9 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year_
             <End Role="AspNetRoles" EntitySet="AspNetRoles" />
             <End Role="AspNetUsers" EntitySet="AspNetUsers" />
           </AssociationSet>
+          <EntitySet Name="IT_Export4Import" EntityType="Portal_2_0Model.IT_Export4Import" />
+          <EntitySet Name="IT_UsuariosActivos" EntityType="Portal_2_0Model.IT_UsuariosActivos" />
+          <EntitySet Name="IT_ExportUsers" EntityType="Portal_2_0Model.IT_ExportUsers" />
         </EntityContainer>
         <EntityType Name="Area">
           <Key>
@@ -11593,6 +11712,119 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year_
           <End Type="Portal_2_0Model.AspNetRoles" Role="AspNetRoles" Multiplicity="*" />
           <End Type="Portal_2_0Model.AspNetUsers" Role="AspNetUsers" Multiplicity="*" />
         </Association>
+        <EntityType Name="IT_Export4Import">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="C8ID" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="tksir" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="tktitle" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="tknameprefix" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="lastName" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="firstName" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="tkbirth" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="tksex" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="tkstreet" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="tkpostalcode" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="tkpostaladdress" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="tkaddaddon" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="tkfedst" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="tkcountry" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="tkcountrykey" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="tknationality" Type="String" MaxLength="3" FixedLength="false" Unicode="false" />
+          <Property Name="tkpreflang" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="tkempno" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="tkfkz6" Type="String" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="tkfkzext" Type="String" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="tkuniqueid" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="tkpstatus" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="tkcostcenter" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="tkdepartment" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="tkfunction" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="tkorgstreet" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="tkorgpostalcode" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="tkorgpostaladdress" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="tkorgaddonaddr" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="tkorgfedst" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="tkorgcountry" Type="String" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="tkorgcountrykey" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="tkapsite" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="tkorgkey" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="tkbuilding" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="email" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
+          <Property Name="tkareacode" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="tkphoneext" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="tkorgfax" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="tkmobile" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="tkgodfather" Type="String" MaxLength="8" FixedLength="false" Unicode="false" />
+          <Property Name="tkprefdelmethod" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="tkedateorg" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="tkedatetrust" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="tkldateorg" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="tklreason" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="shares" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="supervisoryboardelection" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="tkbkz" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="tkinside" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="updateTime" Type="DateTime" Nullable="false" Precision="3" />
+        </EntityType>
+        <EntityType Name="IT_UsuariosActivos">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Numero" Type="String" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="ApellidoPaterno" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ApellidoMaterno" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Nombre" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Antiguedad" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="Puesto" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Departamento" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Planta" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="Area" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="DepartamentoNum" Type="String" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="Genero" Type="String" MaxLength="1" FixedLength="false" Unicode="false" />
+          <Property Name="C8ID" Type="String" MaxLength="8" FixedLength="false" Unicode="false" />
+          <Property Name="updateTime" Type="DateTime" Nullable="false" Precision="3" />
+        </EntityType>
+        <EntityType Name="IT_ExportUsers">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="C8ID" Type="String" MaxLength="14" FixedLength="false" Unicode="false" />
+          <Property Name="userPrincipalName" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="displayName" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="surname" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="mail" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="givenName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="C_id" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="userType" Type="String" MaxLength="12" FixedLength="false" Unicode="false" />
+          <Property Name="jobTitle" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="department" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="accountEnabled" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="usageLocation" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="streetAddress" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="state" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="country" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="officeLocation" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="city" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="postalCode" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="telephoneNumber" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="mobilePhone" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="alternateEmailAddress" Type="String" MaxLength="120" FixedLength="false" Unicode="false" />
+          <Property Name="ageGroup" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="consentProvidedForMinor" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="legalAgeGroupClassification" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="companyName" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="creationType" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="directorySynced" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="invitationState" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="identityIssuer" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="createdDateTime" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="updateTime" Type="DateTime" Nullable="false" Precision="3" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -13744,6 +13976,122 @@ advertencia 6002: La tabla o vista 'portal_2_0_slp.dbo.view_valores_fiscal_year_
               <ScalarProperty Name="Id" ColumnName="RoleId" />
             </EndProperty>
           </AssociationSetMapping>
+          <EntitySetMapping Name="IT_Export4Import">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_Export4Import">
+              <MappingFragment StoreEntitySet="IT_Export4Import">
+                <ScalarProperty Name="updateTime" ColumnName="updateTime" />
+                <ScalarProperty Name="tkinside" ColumnName="tkinside" />
+                <ScalarProperty Name="tkbkz" ColumnName="tkbkz" />
+                <ScalarProperty Name="supervisoryboardelection" ColumnName="supervisoryboardelection" />
+                <ScalarProperty Name="shares" ColumnName="shares" />
+                <ScalarProperty Name="tklreason" ColumnName="tklreason" />
+                <ScalarProperty Name="tkldateorg" ColumnName="tkldateorg" />
+                <ScalarProperty Name="tkedatetrust" ColumnName="tkedatetrust" />
+                <ScalarProperty Name="tkedateorg" ColumnName="tkedateorg" />
+                <ScalarProperty Name="tkprefdelmethod" ColumnName="tkprefdelmethod" />
+                <ScalarProperty Name="tkgodfather" ColumnName="tkgodfather" />
+                <ScalarProperty Name="tkmobile" ColumnName="tkmobile" />
+                <ScalarProperty Name="tkorgfax" ColumnName="tkorgfax" />
+                <ScalarProperty Name="tkphoneext" ColumnName="tkphoneext" />
+                <ScalarProperty Name="tkareacode" ColumnName="tkareacode" />
+                <ScalarProperty Name="email" ColumnName="email" />
+                <ScalarProperty Name="tkbuilding" ColumnName="tkbuilding" />
+                <ScalarProperty Name="tkorgkey" ColumnName="tkorgkey" />
+                <ScalarProperty Name="tkapsite" ColumnName="tkapsite" />
+                <ScalarProperty Name="tkorgcountrykey" ColumnName="tkorgcountrykey" />
+                <ScalarProperty Name="tkorgcountry" ColumnName="tkorgcountry" />
+                <ScalarProperty Name="tkorgfedst" ColumnName="tkorgfedst" />
+                <ScalarProperty Name="tkorgaddonaddr" ColumnName="tkorgaddonaddr" />
+                <ScalarProperty Name="tkorgpostaladdress" ColumnName="tkorgpostaladdress" />
+                <ScalarProperty Name="tkorgpostalcode" ColumnName="tkorgpostalcode" />
+                <ScalarProperty Name="tkorgstreet" ColumnName="tkorgstreet" />
+                <ScalarProperty Name="tkfunction" ColumnName="tkfunction" />
+                <ScalarProperty Name="tkdepartment" ColumnName="tkdepartment" />
+                <ScalarProperty Name="tkcostcenter" ColumnName="tkcostcenter" />
+                <ScalarProperty Name="tkpstatus" ColumnName="tkpstatus" />
+                <ScalarProperty Name="tkuniqueid" ColumnName="tkuniqueid" />
+                <ScalarProperty Name="tkfkzext" ColumnName="tkfkzext" />
+                <ScalarProperty Name="tkfkz6" ColumnName="tkfkz6" />
+                <ScalarProperty Name="tkempno" ColumnName="tkempno" />
+                <ScalarProperty Name="tkpreflang" ColumnName="tkpreflang" />
+                <ScalarProperty Name="tknationality" ColumnName="tknationality" />
+                <ScalarProperty Name="tkcountrykey" ColumnName="tkcountrykey" />
+                <ScalarProperty Name="tkcountry" ColumnName="tkcountry" />
+                <ScalarProperty Name="tkfedst" ColumnName="tkfedst" />
+                <ScalarProperty Name="tkaddaddon" ColumnName="tkaddaddon" />
+                <ScalarProperty Name="tkpostaladdress" ColumnName="tkpostaladdress" />
+                <ScalarProperty Name="tkpostalcode" ColumnName="tkpostalcode" />
+                <ScalarProperty Name="tkstreet" ColumnName="tkstreet" />
+                <ScalarProperty Name="tksex" ColumnName="tksex" />
+                <ScalarProperty Name="tkbirth" ColumnName="tkbirth" />
+                <ScalarProperty Name="firstName" ColumnName="firstName" />
+                <ScalarProperty Name="lastName" ColumnName="lastName" />
+                <ScalarProperty Name="tknameprefix" ColumnName="tknameprefix" />
+                <ScalarProperty Name="tktitle" ColumnName="tktitle" />
+                <ScalarProperty Name="tksir" ColumnName="tksir" />
+                <ScalarProperty Name="C8ID" ColumnName="C8ID" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IT_UsuariosActivos">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_UsuariosActivos">
+              <MappingFragment StoreEntitySet="IT_UsuariosActivos">
+                <ScalarProperty Name="updateTime" ColumnName="updateTime" />
+                <ScalarProperty Name="C8ID" ColumnName="C8ID" />
+                <ScalarProperty Name="Genero" ColumnName="Genero" />
+                <ScalarProperty Name="DepartamentoNum" ColumnName="DepartamentoNum" />
+                <ScalarProperty Name="Area" ColumnName="Area" />
+                <ScalarProperty Name="Planta" ColumnName="Planta" />
+                <ScalarProperty Name="Departamento" ColumnName="Departamento" />
+                <ScalarProperty Name="Puesto" ColumnName="Puesto" />
+                <ScalarProperty Name="Antiguedad" ColumnName="Antiguedad" />
+                <ScalarProperty Name="Nombre" ColumnName="Nombre" />
+                <ScalarProperty Name="ApellidoMaterno" ColumnName="ApellidoMaterno" />
+                <ScalarProperty Name="ApellidoPaterno" ColumnName="ApellidoPaterno" />
+                <ScalarProperty Name="Numero" ColumnName="Numero" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="IT_ExportUsers">
+            <EntityTypeMapping TypeName="Portal_2_0Model.IT_ExportUsers">
+              <MappingFragment StoreEntitySet="IT_ExportUsers">
+                <ScalarProperty Name="updateTime" ColumnName="updateTime" />
+                <ScalarProperty Name="createdDateTime" ColumnName="createdDateTime" />
+                <ScalarProperty Name="identityIssuer" ColumnName="identityIssuer" />
+                <ScalarProperty Name="invitationState" ColumnName="invitationState" />
+                <ScalarProperty Name="directorySynced" ColumnName="directorySynced" />
+                <ScalarProperty Name="creationType" ColumnName="creationType" />
+                <ScalarProperty Name="companyName" ColumnName="companyName" />
+                <ScalarProperty Name="legalAgeGroupClassification" ColumnName="legalAgeGroupClassification" />
+                <ScalarProperty Name="consentProvidedForMinor" ColumnName="consentProvidedForMinor" />
+                <ScalarProperty Name="ageGroup" ColumnName="ageGroup" />
+                <ScalarProperty Name="alternateEmailAddress" ColumnName="alternateEmailAddress" />
+                <ScalarProperty Name="mobilePhone" ColumnName="mobilePhone" />
+                <ScalarProperty Name="telephoneNumber" ColumnName="telephoneNumber" />
+                <ScalarProperty Name="postalCode" ColumnName="postalCode" />
+                <ScalarProperty Name="city" ColumnName="city" />
+                <ScalarProperty Name="officeLocation" ColumnName="officeLocation" />
+                <ScalarProperty Name="country" ColumnName="country" />
+                <ScalarProperty Name="state" ColumnName="state" />
+                <ScalarProperty Name="streetAddress" ColumnName="streetAddress" />
+                <ScalarProperty Name="usageLocation" ColumnName="usageLocation" />
+                <ScalarProperty Name="accountEnabled" ColumnName="accountEnabled" />
+                <ScalarProperty Name="department" ColumnName="department" />
+                <ScalarProperty Name="jobTitle" ColumnName="jobTitle" />
+                <ScalarProperty Name="userType" ColumnName="userType" />
+                <ScalarProperty Name="C_id" ColumnName="C_id" />
+                <ScalarProperty Name="givenName" ColumnName="givenName" />
+                <ScalarProperty Name="mail" ColumnName="mail" />
+                <ScalarProperty Name="surname" ColumnName="surname" />
+                <ScalarProperty Name="displayName" ColumnName="displayName" />
+                <ScalarProperty Name="userPrincipalName" ColumnName="userPrincipalName" />
+                <ScalarProperty Name="C8ID" ColumnName="C8ID" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

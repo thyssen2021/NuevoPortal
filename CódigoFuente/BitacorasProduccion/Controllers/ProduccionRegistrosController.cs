@@ -536,6 +536,7 @@ namespace Portal_2_0.Controllers
                     db.SaveChanges();
                 }
 
+                /*
                 //actualiza y turno  por la ultima modificacion              
                 produccion_registros pd = db.produccion_registros.Find(produccion_registros.id);
                 //pd.fecha = DateTime.Now;
@@ -548,7 +549,7 @@ namespace Portal_2_0.Controllers
 
                 db.Entry(pd).State = EntityState.Modified;
                 db.SaveChanges();
-
+                */
 
                 TempData["Mensaje"] = new MensajesSweetAlert("Se ha actualizado el registro correctamente", TipoMensajesSweetAlerts.SUCCESS);
 

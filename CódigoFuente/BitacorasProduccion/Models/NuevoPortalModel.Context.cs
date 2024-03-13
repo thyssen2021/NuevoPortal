@@ -168,5 +168,8 @@ namespace Portal_2_0.Models
         public virtual DbSet<view_historico_resultado> view_historico_resultado { get; set; }
         public virtual DbSet<view_valores_fiscal_year> view_valores_fiscal_year { get; set; }
         public virtual DbSet<view_valores_fiscal_year_budget_historico> view_valores_fiscal_year_budget_historico { get; set; }
+        public virtual DbSet<IT_Export4Import> IT_Export4Import { get; set; }
+        public virtual DbSet<IT_UsuariosActivos> IT_UsuariosActivos { get; set; }
+        public virtual DbSet<IT_ExportUsers> IT_ExportUsers { get; set; }
     }
 }
